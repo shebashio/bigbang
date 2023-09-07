@@ -1,0 +1,234 @@
+openshift: true
+
+domain: bigbang.dev
+#domain: ${DOMAIN_CHANGE_ME}
+
+monitoring:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    alertmanager:
+      enabled: true
+
+    prometheusOperator:
+      alertmanagerInstanceNamespaces: ['monitoring']
+      alertmanagerConfigNamespaces: ['monitoring']
+      prometheusInstanceNamespaces: ['monitoring']
+      thanosRulerInstanceNamespaces: ['monitoring']
+      #namespaces:
+        #releaseNamespace: true
+      kubeletService:
+        enabled: false
+
+    kube-state-metrics:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+
+    prometheus:
+
+      thanosService:
+        enabled: true
+      thanosServiceMonitor: 
+        enabled: true
+
+      prometheusSpec:
+        retention: 2d
+
+        thanos:
+          baseImage: registry1.dso.mil/ironbank/opensource/thanos/thanos
+          version: v0.29.0 
+        podMonitorNamespaceSelector:
+          matchExpressions:
+            - key: openshift.io/cluster-monitoring
+              operator: NotIn
+              values:
+                - 'true'
+        probeNamespaceSelector:
+          matchExpressions:
+            - key: openshift.io/cluster-monitoring
+              operator: NotIn
+              values:
+                - 'true'
+        serviceMonitorNamespaceSelector:
+          matchExpressions:
+            - key: openshift.io/cluster-monitoring
+              operator: NotIn
+              values:
+                - 'true'
+
+eckoperator:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+
+fluentbit:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    podSecurityContext: null
+    openShift:
+      securityContextConstraints:
+        create: false
+    securityContext:
+      seLinuxOptions: null
+      privileged: true
+
+elasticsearchKibana:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    kibana:
+      count: 2
+      resources:
+        requests:
+          cpu: 400m
+          memory: 1Gi
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+    elasticsearch:
+      master:
+        count: 3
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 4Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        heap:
+          min: 3g
+          max: 3g
+      data:
+        count: 3
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 8Gi
+          limits:
+            cpu: 2000m
+            memory: 8Gi
+        heap: 
+          min: 7g
+          max: 7g
+
+clusterAuditor:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    resources:
+      requests:
+        cpu: 400m
+        memory: 2Gi
+      limits:
+        cpu: null
+        memory: null
+
+gatekeeper:
+  enabled: true
+  git: 
+    tag: 3.10.0-bb.2
+  values:
+    replicas: 3 
+    controllerManager:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1024Mi
+    audit:
+      resources:
+        requests:
+          cpu: 400m
+          memory: 768Mi
+        limits:
+          cpu: 1000m
+          memory: 1024Mi
+    violations:
+      allowedDockerRegistries:
+        enforcementAction: dryrun
+        parameters:
+          repos: 
+            - registry1.dso.mil
+            - quay.io
+            - registry.redhat.io
+            - image-registry.openshift-image-registry.svc
+      bannedImageTags:
+        enforcementAction: dryrun
+      selinuxPolicy:
+        enabled: false
+      httpsOnly:
+        enforcementAction: dryrun
+        parameters: 
+          excludedResources: 
+            - harbor/cm-acme-http-solver-.*
+            - gitlab/cm-acme-http-solver-.*
+      uniqueIngressHost:
+        enforcementAction: dryrun
+        parameters:
+          excludedResources:
+            - harbor/cm-acme-http-solver-.*
+            - gitlab/cm-acme-http-solver-.*
+      
+istiooperator:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+
+istio:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    profile: "openshift"
+    ingressGateways:
+      public-ingressgateway:
+        k8s: 
+          hpaSpec:
+            minReplicas: 3
+            maxReplicas: 5
+
+jaeger:
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values:
+    jaeger:
+      spec: 
+        ingress:
+          security: none
+
+kiali: 
+  enabled: true
+  git:
+    tag: null
+    branch: "master"
+  values: 
+    cr: 
+      spec: 
+        identity: 
+          cert_file: ""
+          private_key_file: ""
+
+twistlock:
+  enabled: false # twistlock requires a license to work, so we're disabling it
+
