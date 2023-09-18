@@ -3,6 +3,30 @@ openshift: true
 domain: bigbang.dev
 #domain: ${DOMAIN_CHANGE_ME}
 
+neuvector:
+  enabled: true
+
+loki:
+  enabled: true
+
+promtail:
+  enabled: true
+
+tempo:
+  enabled: true
+
+grafana:
+  enabled: false
+
+kyverno:
+  enabled: false
+
+kyvernoPolicies:
+  enabled: false
+
+kyvernoReporter:
+  enabled: false
+
 monitoring:
   enabled: false
   git:
@@ -63,14 +87,14 @@ monitoring:
               values:
                 - 'true'
 
-eckoperator:
-  enabled: true
+eckOperator:
+  enabled: false
   git:
     tag: null
     branch: "master"
 
 fluentbit:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "master"
@@ -84,7 +108,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "master"
@@ -125,7 +149,7 @@ elasticsearchKibana:
           max: 7g
 
 clusterAuditor:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "master"
@@ -139,7 +163,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: true
+  enabled: false
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -186,17 +210,17 @@ gatekeeper:
             - harbor/cm-acme-http-solver-.*
             - gitlab/cm-acme-http-solver-.*
       
-istiooperator:
+istioOperator:
   enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
 
 istio:
   enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values:
     profile: "openshift"
     ingressGateways:
@@ -207,7 +231,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "master"
@@ -221,7 +245,7 @@ kiali:
   enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values: 
     cr: 
       spec: 
