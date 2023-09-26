@@ -21,6 +21,13 @@ tempo:
 
 grafana:
   enabled: true
+  values:
+    downloadDashboards:
+        resources:
+          limits: null
+          requests:
+            cpu: 20m
+            memory: 20M
 
 kyverno:
   enabled: false
@@ -36,14 +43,11 @@ monitoring:
   
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values:
     alertmanager:
       enabled: true
     
-    podSecurityPolicy:
-      enabled: false
-
     prometheusOperator:
       alertmanagerInstanceNamespaces: ['monitoring']
       alertmanagerConfigNamespaces: ['monitoring']
@@ -94,20 +98,19 @@ monitoring:
               operator: NotIn
               values:
                 - 'true'
-
 eckOperator:
-  enabled: false
+  enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
 
 fluentbit:
-  enabled: false
+  enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values:
-    podSecurityContext: null
+    PodSecurityContext: null
     openShift:
       securityContextConstraints:
         create: false
