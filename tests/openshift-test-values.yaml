@@ -119,10 +119,10 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values:
     kibana:
       count: 2
