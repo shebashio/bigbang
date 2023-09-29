@@ -30,7 +30,7 @@ grafana:
             memory: 20M
 
 kyverno:
-  enabled: false
+  enabled: true
 
 kyvernoPolicies:
   enabled: false
@@ -125,7 +125,7 @@ elasticsearchKibana:
     branch: "main"
   values:
     kibana:
-      count: 2
+      count: 1
       resources:
         requests:
           cpu: 400m
@@ -135,7 +135,7 @@ elasticsearchKibana:
           memory: 2Gi
     elasticsearch:
       master:
-        count: 3
+        count: 1
         resources:
           requests:
             cpu: 2000m
@@ -147,17 +147,17 @@ elasticsearchKibana:
           min: 3g
           max: 3g
       data:
-        count: 3
+        count: 1
         resources:
           requests:
             cpu: 2000m
-            memory: 8Gi
+            memory: 4Gi
           limits:
             cpu: 2000m
-            memory: 8Gi
+            memory: 4Gi
         heap: 
-          min: 7g
-          max: 7g
+          min: 3g
+          max: 3g
 
 clusterAuditor:
   enabled: false
