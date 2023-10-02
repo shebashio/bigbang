@@ -160,10 +160,10 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: false
+  enabled: true
   git:
     tag: null
-    branch: "master"
+    branch: "main"
   values:
     resources:
       requests:
@@ -174,7 +174,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: false
+  enabled: true
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -267,3 +267,11 @@ kiali:
 twistlock:
   enabled: false # twistlock requires a license to work, so we're disabling it
 
+addons:
+
+  minioOperator:
+    enabled: true
+
+  minio:
+    enabled: true
+    openshift: true
