@@ -272,6 +272,300 @@ addons:
   minioOperator:
     enabled: true
 
+
+  argocd:
+     enabled: true
+     values:
+       controller:
+         resources:
+           requests:
+             cpu: 500m
+             memory: 2Gi
+           limits: null
+       dex:
+         resources:
+           requests:
+             cpu: 10m
+             memory: 128Mi
+           limits: null
+       redis -bb:
+         mast er:
+           persistence:
+             size: 512Mi
+         replica:
+           persistence:
+             size: 512Mi
+       redis:
+         resources:
+           requests:
+             cpu: 50m
+             memory: 256Mi
+           limits: null
+       server:
+         resources:
+           requests:
+             cpu: 20m
+             memory: 128Mi
+           limits: null
+       repoServer:
+         resources:
+           requests:
+             cpu: 100m
+             memory: 256Mi
+           limits: null
+
+  anchore:
+    enabled: true
+    values:
+      ensureDbJobs:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits: null
+      sso:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits: null
+      postgresql:
+        persistence:
+          size: 256Mi
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits: null
+        metrics:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits: null
+      anchoreAnalyzer:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreApi:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreCatalog:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchorePolicyEngine:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreSimpleQueue:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEngineUpgradeJob:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchore-feeds-db:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits: null
+        metrics:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits: null
+      anchoreEnterpriseFeeds:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEnterpriseFeedsUpgradeJob:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEnterpriseRbac:
+        authResources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+        managerResources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEnterpriseReports:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEnterpriseNotifications:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEntperpiseUi:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+      anchoreEnterpriseEngineUpgradeJob:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits: null
+
+  sonarqube:
+    enabled: true
+    values:
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits: null
+      persistence:
+        size: 5Gi
+      postgresql:
+        persistence:
+          size: 256Mi
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits: null
+ 
   minio:
     enabled: true
-    openshift: true
+    values:
+      tenant:
+        pools:
+        - servers: 3
+          volumesPerServer: 4
+          size: 256Mi
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits: null
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            runAsNonRoot: true
+          containerSecurityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            runAsNonRoot: true
+
+  authservice:
+    enabled: true
+    values:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits: null
+      redis:
+        master:
+          persistence:
+            size: 256Mi
+        replica:
+          persistence:
+            size: 256Mi
+   
+  gitlab:
+    enabled: true
+    flux:
+      timeout: 30m
+    values:
+      gitlab-runner:
+        resources:
+          requests:
+            cpu: 20m
+          limits: null
+      gitlab:
+        gitaly:
+          persistence:
+            size: 256Mi
+          resources:
+            ## values raised to help pass CI after default values for gitaly are fixed then can revert to original request.
+            #requests:
+            #  cpu: 50m
+            #limits: null
+            requests:
+              cpu: 400m
+              memory: 600Mi
+            limits: null
+        shared-secrets:
+          resources:
+            requests:
+              cpu: 30m
+            limits: null
+        migrations:
+          resources:
+            requests:
+              cpu: 30m
+            limits: null
+        toolbox:
+          persistence:
+            size: 256Mi
+          resources:
+            requests:
+              cpu: 20m
+            limits: null
+      postgresql:
+        persistence:
+          size: 256Mi
+        metrics:
+          resources:
+            requests:
+              cpu: 50m
+            limits: null
+      minio:
+        persistence:
+          size: 256Mi
+        resources:
+          requests:
+            cpu: 100m
+          limits: null
+      redis:
+        master:
+          persistence:
+            size: 256Mi
+        slave:
+          persistence:
+            size: 256Mi
+
+  gitlabRunner:
+    enabled: true
+    values:
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits: null
+ 
