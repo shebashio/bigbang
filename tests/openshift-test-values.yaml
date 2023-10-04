@@ -4,7 +4,7 @@ domain: bigbang.dev
 #domain: ${DOMAIN_CHANGE_ME}
 
 neuvector:
-  enabled: true
+  enabled: false
   values:
     crio:
       enabled: true
@@ -12,15 +12,27 @@ neuvector:
      
 loki:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"
 
 promtail:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"  
 
 tempo:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"  
 
 grafana:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"
   values:
     downloadDashboards:
         resources:
@@ -31,6 +43,9 @@ grafana:
 
 kyverno:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"
 
 kyvernoPolicies:
   enabled: false
@@ -43,7 +58,7 @@ monitoring:
   
   git:
     tag: null
-    branch: "main"
+    branch: "openshift-updates"
   values:
     alertmanager:
       enabled: true
@@ -99,13 +114,13 @@ monitoring:
               values:
                 - 'true'
 eckOperator:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
 
 fluentbit:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -119,7 +134,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -160,7 +175,7 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -174,7 +189,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: true
+  enabled: false
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -242,7 +257,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -253,7 +268,7 @@ jaeger:
           security: none
 
 kiali: 
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -270,11 +285,11 @@ twistlock:
 addons:
 
   minioOperator:
-    enabled: true
+    enabled: false
 
 
   argocd:
-     enabled: true
+     enabled: false
      values:
        controller:
          resources:
@@ -315,7 +330,7 @@ addons:
            limits: null
 
   anchore:
-    enabled: true
+    enabled: false
     values:
       ensureDbJobs:
         resources:
@@ -440,7 +455,7 @@ addons:
           limits: null
 
   sonarqube:
-    enabled: true
+    enabled: false
     values:
       resources:
         requests:
@@ -459,7 +474,7 @@ addons:
           limits: null
  
   minio:
-    enabled: true
+    enabled: false
     values:
       tenant:
         pools:
@@ -482,7 +497,7 @@ addons:
             runAsNonRoot: true
 
   authservice:
-    enabled: true
+    enabled: false
     values:
       resources:
         requests:
@@ -498,7 +513,7 @@ addons:
             size: 256Mi
    
   gitlab:
-    enabled: true
+    enabled: false
     flux:
       timeout: 30m
     values:
@@ -561,7 +576,7 @@ addons:
             size: 256Mi
 
   gitlabRunner:
-    enabled: true
+    enabled: false
     values:
       resources:
         requests:
