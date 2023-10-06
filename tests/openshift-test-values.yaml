@@ -114,13 +114,13 @@ monitoring:
               values:
                 - 'true'
 eckOperator:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
 
 fluentbit:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -134,7 +134,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -175,7 +175,7 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -189,7 +189,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: false
+  enabled: true
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -257,7 +257,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -268,7 +268,7 @@ jaeger:
           security: none
 
 kiali: 
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
