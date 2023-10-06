@@ -1796,7 +1796,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.25.0-bb.0"
+      # tag: "0.25.0-bb.0"
+      branch: "openshift-values"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
