@@ -4,7 +4,10 @@ domain: bigbang.dev
 #domain: ${DOMAIN_CHANGE_ME}
 
 neuvector:
-  enabled: true
+  enabled: false
+  git:
+    tag: null
+    branch: "openshift-values"
   values:
     crio:
       enabled: true
@@ -123,18 +126,18 @@ fluentbit:
   enabled: true
   git:
     tag: null
-    branch: "main"
+    branch: "openshift-updates"
   values:
     PodSecurityContext: null
     openShift:
       securityContextConstraints:
-        create: false
+        create: true
     securityContext:
       seLinuxOptions: null
       privileged: true
 
 elasticsearchKibana:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -212,7 +215,7 @@ gatekeeper:
           memory: 1024Mi
     violations:
       allowedDockerRegistries:
-        enforcementAction: dryrun
+        enforceanmentAction: dryrun
         parameters:
           repos: 
             - registry1.dso.mil
@@ -285,7 +288,7 @@ twistlock:
 addons:
 
   vault:
-    enabled: true
+    enabled: false
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -423,7 +426,7 @@ addons:
            limits: null
 
   anchore:
-    enabled: false
+    enabled: true
     values:
       ensureDbJobs:
         resources:
@@ -548,7 +551,10 @@ addons:
           limits: null
 
   sonarqube:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
       resources:
         requests:
