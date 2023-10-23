@@ -4,7 +4,7 @@ domain: bigbang.dev
 #domain: ${DOMAIN_CHANGE_ME}
 
 neuvector:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-values"
@@ -15,9 +15,9 @@ neuvector:
      
 loki:
   enabled: true
-  git:
-    tag: null
-    branch: "openshift-updates"
+    #git:
+    #tag: null
+    #branch: "openshift-updates"
 
 promtail:
   enabled: true
@@ -33,9 +33,9 @@ tempo:
 
 grafana:
   enabled: true
-  git:
-    tag: null
-    branch: "openshift-updates"
+    #git:
+    #tag: null
+    #branch: "openshift-updates"
   values:
     downloadDashboards:
         resources:
@@ -137,10 +137,10 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   git:
     tag: null
-    branch: "main"
+    branch: "openshift-values"
   values:
     kibana:
       count: 1
@@ -580,7 +580,7 @@ addons:
         create: true
  
   minio:
-    enabled: false
+    enabled: true
     values:
       tenant:
         pools:
@@ -603,7 +603,7 @@ addons:
             runAsNonRoot: true
 
   authservice:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"  
@@ -685,7 +685,7 @@ addons:
             size: 256Mi
 
   gitlabRunner:
-    enabled: false
+    enabled: true
     values:
       resources:
         requests:
@@ -738,3 +738,37 @@ addons:
               runAsGroup: 1001
               runAsNonRoot: true
 
+  keycloak:
+    enabled: true
+    values:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits: null
+ 
+  fortify:
+    enabled: true
+
+  twistlock:
+    enabled: true
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-saml
+    values:
+      console:
+       persistence:
+        size: 256Mi
+       localVolumeUpgrade: true
+      bbtests:
+        enabled: false
+        cypress:
+          artifacts: false
+          envs:
+            cypress_baseUrl: "https://twistlock.bigbang.dev"
+        scripts:
+          envs:
+            twistlock_host: "https://twistlock.bigbang.dev"
+
+  harbor:
+    enabled: true
