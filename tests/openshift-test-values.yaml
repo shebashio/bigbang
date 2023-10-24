@@ -14,7 +14,7 @@ twistlock:
         size: 256Mi
       localVolumeUpgrade: true
     bbtests:
-      enabled: false
+      enabled: true
       cypress:
         artifacts: false
         envs:
@@ -302,8 +302,6 @@ kiali:
           cert_file: ""
           private_key_file: ""
 
-twistlock:
-  enabled: false # twistlock requires a license to work, so we're disabling it
 
 addons:
 
@@ -646,6 +644,12 @@ addons:
     flux:
       timeout: 30m
     values:
+      shared-secrets:  ## Increased mem for OpenShift shared secrets pod to succeed
+        resources:
+          requests:
+            cpu: 30m
+            memory: 1024Mi
+          limits: null
       gitlab-runner:
         resources:
           requests:
@@ -664,11 +668,6 @@ addons:
               cpu: 400m
               memory: 600Mi
             limits: null
-        shared-secrets:
-          resources:
-            requests:
-              cpu: 30m
-            limits: null
         migrations:
           resources:
             requests:
@@ -681,6 +680,13 @@ addons:
             requests:
               cpu: 20m
             limits: null
+        sidekiq:
+          enabled: true
+          annotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "5432,6379"
+        webservice:
+          annotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "5432,6379"
       postgresql:
         persistence:
           size: 256Mi
@@ -771,4 +777,43 @@ addons:
     enabled: true
 
   harbor:
+    enabled: true
+
+  velero:
+    enabled: true
+    plugins:
+    - aws
+    values:
+      serviceAccount:
+        server:
+          name: velero
+      configuration:
+        backupStorageLocation:
+        - bucket: velero
+          provider: aws
+          default: true
+          config:
+            region: velero
+            s3ForcePathStyle: "true"
+            s3Url: https://minio-api.bigbang.dev
+        volumeSnapshotLocation:
+        - name: default
+          provider: aws
+          config:
+            region: velero
+      credentials:
+        useSecret: true
+        secretContents:
+          cloud: |
+            [default]
+            aws_access_key_id = minio
+            aws_secret_access_key = minio123
+      cleanUpCRDs: true
+      bbtests:
+        enabled: false
+        scripts:
+          envs:
+            MINIO_HOST: https://minio-api.bigbang.dev
+
+  haproxy:
     enabled: true
