@@ -23,6 +23,35 @@ function getPrivateIP2() {
   echo `aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[] | select(.Primary==false) | .PrivateIpAddress'`
 }
 
+function getDefaultAmi() {
+  local partition
+  local ubuntu_account_id
+  local image_id
+  # extract partition from the ARN
+  partition=$(aws sts get-caller-identity --query 'Arn' --output text | awk -F ":" '{print $2}')
+  # Select the correct AWS Account ID for Ubuntu Server AMI based on the partition
+  if [[ "${partition}" == "aws-us-gov" ]]; then
+      ubuntu_account_id="513442679011"
+  elif [[ "${partition}" == "aws" ]]; then
+      ubuntu_account_id="099720109477"
+  else
+      echo "Unrecognized AWS partition"
+      exit 1
+  fi
+  # Filter on latest 22.04 jammy server
+  image_id=$(aws ec2 describe-images \
+    --owners ${ubuntu_account_id} \
+    --filters 'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*' \
+    --query 'sort_by(Images,&CreationDate)[-1].ImageId' \
+    --output text)
+
+  if [ $? -ne 0 ] || [ "${image_id}" == "None" ]; then
+      echo "Error getting AMI ID"
+      exit 1
+  fi
+  echo "${image_id}"
+}
+
 #### Global variables - These allow the script to be run by non-bigbang devs easily - Update VPC_ID here or export environment variable for it if not default VPC
 if [[ -z "${VPC_ID}" ]]; then
   VPC_ID="$(aws ec2 describe-vpcs --filters Name=is-default,Values=true | jq -j .Vpcs[0].VpcId)"
@@ -51,7 +80,7 @@ if [[ $AMI_ID ]]; then
   APT_UPDATE="false"
 else
   # default
-  AMI_ID=$(aws ec2 describe-images --filters Name=owner-alias,Values=aws-marketplace Name=architecture,Values=x86_64 Name=name,Values="ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*" --query 'max_by(Images, &CreationDate).ImageId' --output text)
+  AMI_ID=$(getDefaultAmi)
 fi
 
 #### Preflight Checks
@@ -106,9 +135,6 @@ SGname="${AWSUSERNAME}-dev"
 VPC="${VPC_ID}"  # default VPC
 RESET_K3D=false
 ATTACH_SECONDARY_IP=${ATTACH_SECONDARY_IP:=false}
-
-#### Querying for first pub subnet to deploy EC2 to ####
-PubSubnet=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId|[0]' --output text)
 
 while [ -n "$1" ]; do # while loop starts
 
@@ -424,24 +450,25 @@ EOF
   # NOTE: t3a.2xlarge spot price is 0.35 m5a.4xlarge is 0.69
   echo "Running spot instance ..."
 
-  # If we are using a Secondary IP, don't use an auto-assigned IP, and also generate a 2nd private address for EIPs allocation.
-  additional_create_instance_options=""
   if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
-    additional_create_instance_options+=" --no-associate-public-ip-address --secondary-private-ip-address-count 1"
+    # If we are using a secondary IP, we don't want to assign public IPs at launch time. Instead, the script will attach both public IPs after the instance is launched.
+    additional_create_instance_options="--no-associate-public-ip-address --secondary-private-ip-address-count 1"
+  else
+    additional_create_instance_options="--associate-public-ip-address"
   fi
 
   InstId=`aws ec2 run-instances \
     --output json --no-paginate \
     --count 1 --image-id "${ImageId}" \
     --instance-type "${InstanceType}" \
-    --subnet-id "${PubSubnet}" \
+    --subnet-id "${SUBNET_ID}" \
     --key-name "${KeyName}" \
     --security-group-ids "${SecurityGroupId}" \
     --instance-initiated-shutdown-behavior "terminate" \
     --user-data file://$HOME/aws/userdata.txt \
     --block-device-mappings file://$HOME/aws/device_mappings.json \
-    --instance-market-options file://$HOME/aws/spot_options.json ${additional_create_instance_options} \
-    --subnet-id "${SUBNET_ID}" \
+    --instance-market-options file://$HOME/aws/spot_options.json \
+    ${additional_create_instance_options} \
     | jq -r '.Instances[0].InstanceId'`
 
   # Check if spot instance request was not created
@@ -650,6 +677,7 @@ run "kubectl config use-context k3d-k3s-default"
 run "kubectl cluster-info && kubectl get nodes"
 
 echo "copying kubeconfig to workstation..."
+mkdir -p ~/.kube
 scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ubuntu@${PublicIP}:/home/ubuntu/.kube/config ~/.kube/${AWSUSERNAME}-dev-config
 if [[ "$PRIVATE_IP" == true ]]; then
   $sed_gsed -i "s/0\.0\.0\.0/${PrivateIP}/g" ~/.kube/${AWSUSERNAME}-dev-config
@@ -660,10 +688,27 @@ fi
 # Handle MetalLB cluster resource creation
 if [[ "${METAL_LB}" == true || "${ATTACH_SECONDARY_IP}" == true ]]; then
   echo "Installing MetalLB..."
-  run "kubectl create -f https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests/metallb-native.yaml"
-	# Wait for controller to be live so that validating webhooks function when we apply the config
-	echo "Waiting for MetalLB controller..."
-	run "kubectl wait --for=condition=available --timeout 120s -n metallb-system deployment controller"
+
+  until [[ ${REGISTRY_USERNAME} ]]; do
+    read -p "Please enter your Registry1 username: " REGISTRY_USERNAME
+  done
+  until [[ ${REGISTRY_PASSWORD} ]]; do
+    read -s -p "Please enter your Registry1 password: " REGISTRY_PASSWORD
+  done
+  run "kubectl create namespace metallb-system"
+  run "kubectl create secret docker-registry registry1 \
+    --docker-server=registry1.dso.mil \
+    --docker-username=${REGISTRY_USERNAME} \
+    --docker-password=${REGISTRY_PASSWORD} \
+    -n metallb-system"
+
+  run "mkdir /tmp/metallb"
+  scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/metallb/* ubuntu@${PublicIP}:/tmp/metallb
+  run "kubectl apply -k /tmp/metallb"
+
+  # Wait for controller to be live so that validating webhooks function when we apply the config
+  echo "Waiting for MetalLB controller..."
+  run "kubectl wait --for=condition=available --timeout 120s -n metallb-system deployment controller"
   echo "MetalLB is installed."
 
   if [[ "$METAL_LB" == true ]]; then

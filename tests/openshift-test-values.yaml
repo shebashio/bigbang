@@ -6,7 +6,7 @@ domain: bigbang.dev
 twistlock:
   enabled: true
   sso:
-    enabled: false
+    enabled: true
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-saml
   values:
     console:
@@ -35,9 +35,9 @@ neuvector:
      
 loki:
   enabled: true
-    #git:
-    #tag: null
-    #branch: "openshift-updates"
+  git:
+    tag: null
+    branch: "openshift-updates"
 
 promtail:
   enabled: true
@@ -615,10 +615,6 @@ addons:
             runAsGroup: 1001
             fsGroup: 1001
             runAsNonRoot: true
-          containerSecurityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            runAsNonRoot: true
 
   authservice:
     enabled: true
@@ -641,6 +637,9 @@ addons:
    
   gitlab:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
     flux:
       timeout: 30m
     values:
@@ -712,13 +711,25 @@ addons:
 
   gitlabRunner:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
       resources:
         requests:
           memory: 128Mi
           cpu: 100m
         limits: null
-        
+      autoRegister:
+        enabled: true
+          #policies:
+          # gitlab-runner:
+          #exclude:
+          # any:
+          #  - resources:
+          #      namespaces:
+          #        - gitlab-runner
+
   nexusRepositoryManager:
     enabled: true
     values:
@@ -777,8 +788,12 @@ addons:
     enabled: true
 
   harbor:
-    enabled: true
-
+    enabled: false
+    istio:
+      enabled: false
+    database:
+     annotations:
+       traffic.sidecar.istio.io/excludeOutboundPorts: "5432,6379" 
   velero:
     enabled: true
     plugins:

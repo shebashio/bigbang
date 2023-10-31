@@ -160,7 +160,7 @@ policies:
 
   # Kyverno Beta feature - https://kyverno.io/docs/writing-policies/verify-images/
   require-image-signature:
-    enabled: false
+    enabled: true
     validationFailureAction: audit
 
   require-istio-on-namespaces:
@@ -184,6 +184,11 @@ policies:
 
   require-non-root-group:
     validationFailureAction: audit
+    {{- if .Values.istio.enabled }}
+    parameters:
+      excludeContainers:
+        - istio-init
+    {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled }}
     exclude:
       any:
@@ -451,6 +456,7 @@ policies:
           - neuvector
           names:
           - neuvector-controller-pod*
+          - neuvector-enforcer-pod*
       {{- end }}
     {{- end }}
     {{- if or .Values.fluentbit.enabled .Values.promtail.enabled }}
@@ -460,7 +466,7 @@ policies:
       # FluentBit - `/var/log/flb-storage`: fluent bit buffering and persistent state
       - /var/log/flb-storage/
       # FluentBit - `/var/log`
-      # NO JUSTIFICATION - Issue opened at https://repo1.dso.mil/platform-one/big-bang/apps/core/fluentbit/-/issues/31
+      # NO JUSTIFICATION - Issue opened at https://repo1.dso.mil/big-bang/product/packages/fluentbit/-/issues/31
       # Temporarily added so policy could be enforced
       - /var/log
       {{- end }}
