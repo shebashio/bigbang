@@ -506,19 +506,15 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-<<<<<<< HEAD
     tag: "1.1.0-bb.10"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "1.1.0-bb.10"
-=======
     tag: "3.0.4-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
     tag: "3.0.4-bb.3"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -539,19 +535,15 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-<<<<<<< HEAD
     tag: "2.16.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "2.16.0-bb.3"
-=======
     tag: "2.16.0-bb.6"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
     tag: "2.16.0-bb.6"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -703,19 +695,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-<<<<<<< HEAD
     tag: "5.21.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "5.21.0-bb.1"
-=======
     tag: "5.31.0-bb.1"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "loki"
-    tag: "5.31.0-bb.1"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -764,19 +748,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-<<<<<<< HEAD
-    tag: "2.4.5-bb.5"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "neuvector"
-    tag: "2.4.5-bb.5"
-=======
     tag: "2.6.3-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
     tag: "2.6.3-bb.1"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -818,19 +794,15 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-<<<<<<< HEAD
     tag: "1.6.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.6.1-bb.0"
-=======
     tag: "1.6.3-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
     tag: "1.6.3-bb.1"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1000,19 +972,15 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-<<<<<<< HEAD
     tag: "0.13.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.13.0-bb.0"
-=======
     tag: "0.13.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
     tag: "0.13.0-bb.5"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1055,19 +1023,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "5.45.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "5.45.2-bb.0"
-=======
       tag: "5.46.7-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
       tag: "5.46.7-bb.3"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1120,19 +1084,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "0.5.3-bb.17"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "0.5.3-bb.17"
-=======
       tag: "0.5.3-bb.18"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
       tag: "0.5.3-bb.18"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1224,19 +1184,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "7.3.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "7.3.1-bb.0"
-=======
       tag: "7.4.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
       tag: "7.4.1-bb.3"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1338,19 +1294,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "0.52.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.52.0-bb.4"
-=======
       tag: "0.52.0-bb.7"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
       tag: "0.52.0-bb.7"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
     flux: {}
@@ -1505,19 +1457,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "0.2.0-bb.14"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify"
-      tag: "0.2.0-bb.14"
-=======
       tag: "1.1.2311007-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify"
       tag: "1.1.2311007-bb.5"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1701,19 +1649,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "8.1.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "8.1.2-bb.0"
-=======
       tag: "9.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
       tag: "9.0.0-bb.0"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1803,19 +1747,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "4.0.3-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "4.0.3-bb.1"
-=======
       tag: "5.1.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
       tag: "5.1.0-bb.0"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -1847,19 +1787,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-<<<<<<< HEAD
       tag: "18.4.3-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "18.4.3-bb.4"
-=======
       tag: "18.4.3-bb.10"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
       tag: "18.4.3-bb.10"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -1912,20 +1848,16 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-<<<<<<< HEAD
       # tag: "0.25.0-bb.0"
       branch: "openshift-values"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.25.0-bb.0"
-=======
       tag: "0.25.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
       tag: "0.25.0-bb.4"
->>>>>>> 925220bcc2fc1fdd28774ee51187f3951b6e6786
       
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
