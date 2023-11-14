@@ -13,6 +13,8 @@ domain: {{ $domainName }}
 OpenShift:
   enabled: {{ .Values.openshift }}
 
+openshift: {{ .Values.openshift }}
+
 istio:
   enabled: {{ .Values.istio.enabled }}
   sonarqube:

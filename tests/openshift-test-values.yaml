@@ -3,18 +3,22 @@ openshift: true
 domain: bigbang.dev
 #domain: ${DOMAIN_CHANGE_ME}
 
+
 twistlock:
   enabled: true
+  git:
+    tag: null
+    branch: "openshift-updates"
   sso:
     enabled: true
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-saml
+    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-false
   values:
     console:
       persistence:
         size: 256Mi
       localVolumeUpgrade: true
     bbtests:
-      enabled: true
+      enabled: false
       cypress:
         artifacts: false
         envs:
@@ -34,13 +38,13 @@ neuvector:
       path: /var/run/crio/crio.sock
      
 loki:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
 
 promtail:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"  
@@ -289,6 +293,8 @@ jaeger:
       spec: 
         ingress:
           security: none
+    sso: 
+      enabled: true
 
 kiali: 
   enabled: true
@@ -400,7 +406,9 @@ addons:
 
   minioOperator:
     enabled: true
-
+    git:
+      tag: null
+      branch: "openshift-updates"
 
   argocd:
      enabled: true
@@ -572,7 +580,7 @@ addons:
           limits: null
 
   sonarqube:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -598,7 +606,7 @@ addons:
         create: true
  
   minio:
-    enabled: true
+    enabled: false
     values:
       tenant:
         pools:
@@ -731,7 +739,10 @@ addons:
           #        - gitlab-runner
 
   nexusRepositoryManager:
-    enabled: true
+    enabled: true 
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
       persistence:
         # Do NOT set this below 5Gi, nexus will fail to boot
@@ -744,7 +755,10 @@ addons:
           limits: null
 
   mattermost:
-    enabled: true
+    enabled: false
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
       postgresql:
         persistence:
@@ -777,6 +791,9 @@ addons:
 
   keycloak:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
       resources:
         requests:
@@ -786,16 +803,28 @@ addons:
  
   fortify:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
+    values:
+      istio:
+        enabled: true
+      openshift: true
 
   harbor:
-    enabled: false
-    istio:
-      enabled: false
-    database:
-     annotations:
-       traffic.sidecar.istio.io/excludeOutboundPorts: "5432,6379" 
-  velero:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-values"
+    redis:
+        external:
+          addr: harbor-redis-bb-master:6379
+
+  velero:
+    enabled: false
+    git:
+      tag: null
+      branch: "openshift-updates"
     plugins:
     - aws
     values:
@@ -832,3 +861,6 @@ addons:
 
   haproxy:
     enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
