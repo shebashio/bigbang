@@ -409,6 +409,10 @@ addons:
     git:
       tag: null
       branch: "openshift-updates"
+    values:
+      istio: 
+        enabled: true
+      openshift: true
 
   argocd:
      enabled: true
@@ -606,8 +610,13 @@ addons:
         create: true
  
   minio:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
     values:
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "443"
       tenant:
         pools:
         - servers: 3
@@ -623,6 +632,9 @@ addons:
             runAsGroup: 1001
             fsGroup: 1001
             runAsNonRoot: true
+      istio: 
+        enabled: true
+      openshift: true
 
   authservice:
     enabled: true
