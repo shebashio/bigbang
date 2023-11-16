@@ -311,6 +311,7 @@ kiali:
 
 addons:
 
+
   vault:
     enabled: false
     ingress:
@@ -637,7 +638,7 @@ addons:
       openshift: true
 
   authservice:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"  
@@ -766,8 +767,15 @@ addons:
             memory: 1500Mi
           limits: null
 
+  mattermostOperator:
+    # -- Toggle deployment of Mattermost Operator.
+    enabled: true
+    git:
+      tag: null
+      branch: "openshift-updates"
+
   mattermost:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -780,7 +788,12 @@ addons:
           cpu: 200m
           memory: 256Mi
         limits: null
+      podAnnotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "443"
+        traffic.sidecar.istio.io/excludeOutboundPorts: "5432"
       minio:
+        annotations:
+          traffic.sidecar.istio.io/excludeOutboundPorts: "443"
         tenants:
           pools:
           - servers: 1
@@ -807,6 +820,8 @@ addons:
       tag: null
       branch: "openshift-updates"
     values:
+      podAnnotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "5432"
       resources:
         requests:
           cpu: 100m
@@ -840,6 +855,8 @@ addons:
     plugins:
     - aws
     values:
+      istio:
+        enabled: true
       serviceAccount:
         server:
           name: velero
