@@ -5,7 +5,7 @@ domain: bigbang.dev
 
 
 twistlock:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -28,7 +28,7 @@ twistlock:
           twistlock_host: "https://twistlock.bigbang.dev"
 
 neuvector:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-values"
@@ -38,25 +38,25 @@ neuvector:
       path: /var/run/crio/crio.sock
      
 loki:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
 
 promtail:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"  
 
 tempo:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"  
 
 grafana:
-  enabled: false
+  enabled: true
     #git:
     #tag: null
     #branch: "openshift-updates"
@@ -69,7 +69,7 @@ grafana:
             memory: 20M
 
 kyverno:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -81,7 +81,7 @@ kyvernoReporter:
   enabled: false
 
 monitoring:
-  enabled: false
+  enabled: true
   
   git:
     tag: null
@@ -118,16 +118,6 @@ monitoring:
 
       prometheusSpec:
         retention: 2d
-        additionalScrapeConfigs: []
-        podMetadata:
-          annotations:
-            vault.hashicorp.com/agent-inject: "false"
-            vault.hashicorp.com/agent-init-first: "true"
-            vault.hashicorp.com/agent-inject-token: "true"
-            vault.hashicorp.com/role: "prometheus"
-            vault.hashicorp.com/agent-pre-populate: "false"
-            proxy.istio.io/config: |
-              holdApplicationUntilProxyStarts: true
 
         thanos:
           baseImage: registry1.dso.mil/ironbank/opensource/thanos/thanos
@@ -151,13 +141,13 @@ monitoring:
               values:
                 - 'true'
 eckOperator:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
 
 fluentbit:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -171,7 +161,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-values"
@@ -212,7 +202,7 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -226,7 +216,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: false
+  enabled: true
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -294,7 +284,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -307,7 +297,7 @@ jaeger:
       enabled: true
 
 kiali: 
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -343,7 +333,6 @@ addons:
         enabled: true
       global:
         tlsDisable: false
-        openshift: true
       injector:
         affinity: |
           podAntiAffinity:
@@ -357,8 +346,6 @@ addons:
                       component: webhook
                   topologyKey: kubernetes.io/hostname
       server:
-        annotations:
-          traffic.sidecar.istio.io/excludeOutboundPorts: "443"
         extraEnvironmentVars:
           VAULT_SKIP_VERIFY: "true"
           VAULT_LOG_FORMAT: "json"
@@ -399,11 +386,9 @@ addons:
               }
 
               seal "awskms" {
-                region = "us-gov-west-1"
-                kms_key_id = "arn:aws-us-gov:kms:us-gov-west-1:141078740716:key/4a90c90f-6199-43e8-aae0-9b2395691abe"
-                endpoint = "https://kms.us-gov-west-1.amazonaws.com"
-                access_key = ""
-                secret_key = ""
+                region     = "us-gov-west-1"
+                kms_key_id = "4a90c90f-6199-43e8-aae0-9b2395691abe"
+                endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
               }
 
               telemetry {
@@ -421,7 +406,7 @@ addons:
             cypress_vault_url: "https://vault.bigbang.dev"
 
   minioOperator:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -431,7 +416,7 @@ addons:
       openshift: true
 
   argocd:
-     enabled: false
+     enabled: true
      values:
        controller:
          resources:
@@ -472,7 +457,7 @@ addons:
            limits: null
 
   anchore:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -626,7 +611,7 @@ addons:
         create: true
  
   minio:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -657,9 +642,6 @@ addons:
     git:
       tag: null
       branch: "openshift-updates"  
-    chains:
-      minimal:
-        callback_uri: "https://minimal.bigbang.dev"
     values:
       resources:
         requests:
@@ -675,7 +657,7 @@ addons:
             size: 256Mi
    
   gitlab:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -749,7 +731,7 @@ addons:
             size: 256Mi
 
   gitlabRunner:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -770,7 +752,7 @@ addons:
           #        - gitlab-runner
 
   nexusRepositoryManager:
-    enabled: false
+    enabled: true 
     git:
       tag: null
       branch: "openshift-updates"
@@ -787,13 +769,13 @@ addons:
 
   mattermostOperator:
     # -- Toggle deployment of Mattermost Operator.
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
 
   mattermost:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -833,128 +815,21 @@ addons:
               runAsNonRoot: true
 
   keycloak:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
-    ingress:
-      gateway: "passthrough"
-      key: "" # Gets added via chart/ingress-certs.yaml
-      cert: "" # Gets added via chart/ingress-certs.yaml
     values:
       podAnnotations:
         traffic.sidecar.istio.io/excludeOutboundPorts: "5432"
-      replicas: 1
       resources:
         requests:
-          cpu: 250m
-          memory: 250Mi
-        limits: {}
-      bbtests:
-        enabled: false
-        cypress:
-          envs:
-            cypress_url: "https://keycloak.bigbang.dev"
-      command:
-        - "/opt/keycloak/bin/kc.sh"
-      args:
-        - "start"
-        - "--import-realm"
-      extraEnv: |-
-        - name: KC_HTTPS_CERTIFICATE_FILE
-          value: /opt/keycloak/conf/tls.crt
-        - name: KC_HTTPS_CERTIFICATE_KEY_FILE
-          value: /opt/keycloak/conf/tls.key
-        - name: KC_HTTP_ENABLED
-          value: "true"
-        - name: KC_HTTP_RELATIVE_PATH
-          value: /auth
-        - name: KC_HTTPS_CLIENT_AUTH
-          value: request
-        - name: KC_PROXY
-          value: passthrough
-        - name: KC_HTTPS_TRUST_STORE_FILE
-          value: /opt/keycloak/conf/truststore.jks
-        - name: KC_HTTPS_TRUST_STORE_PASSWORD
-          value: password
-        - name: KC_HOSTNAME
-          value: keycloak.bigbang.dev
-        - name: KC_HOSTNAME_STRICT
-          value: "true"
-        - name: KC_HOSTNAME_STRICT_HTTPS
-          value: "true"
-        - name: KC_LOG_LEVEL
-          value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
-        - name: KC_CACHE
-          value: ispn
-        - name: KC_CACHE_STACK
-          value: kubernetes
-      secrets:
-        env:
-          stringData:
-            CUSTOM_REGISTRATION_CONFIG: /opt/keycloak/conf/customreg.yaml
-        customreg:
-          stringData:
-            customreg.yaml: '{{ .Files.Get "resources/dev/baby-yoda.yaml" }}'
-        realm:
-          stringData:
-            realm.json: '{{ .Files.Get "resources/dev/baby-yoda-bb-ci.json" }}'
-        truststore:
-          data:
-            truststore.jks: |-
-              {{ .Files.Get "resources/dev/truststore.jks" | b64enc }}
-        quarkusproperties:
-          stringData:
-            quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
-      extraInitContainers: |-
-        - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.2.0
-          imagePullPolicy: Always
-          command:
-          - sh
-          - -c
-          - |
-            cp /app/p1-keycloak-plugin.jar /init
-            ls -l /init
-          volumeMounts:
-          - name: plugin
-            mountPath: "/init"
-      extraVolumes: |-
-        - name: customreg
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-customreg
-        - name: realm
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-realm
-        - name: plugin
-          emptyDir: {}
-        - name: truststore
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-truststore
-        - name: quarkusproperties
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-quarkusproperties
-            defaultMode: 0777
-      extraVolumeMounts: |-
-        - name: customreg
-          mountPath: /opt/keycloak/conf/customreg.yaml
-          subPath: customreg.yaml
-          readOnly: true
-        - name: realm
-          mountPath: /opt/keycloak/data/import/realm.json
-          subPath: realm.json
-        - name: plugin
-          mountPath: /opt/keycloak/providers/p1-keycloak-plugin.jar
-          subPath: p1-keycloak-plugin.jar
-        - name: truststore
-          mountPath: /opt/keycloak/conf/truststore.jks
-          subPath: truststore.jks
-        - name: quarkusproperties
-          mountPath: /opt/keycloak/conf/quarkus.properties
-          subPath: quarkus.properties
+          cpu: 100m
+          memory: 256Mi
+        limits: null
  
   fortify:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -964,7 +839,7 @@ addons:
       openshift: true
 
   harbor:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-values"
@@ -1014,7 +889,7 @@ addons:
             MINIO_HOST: https://minio-api.bigbang.dev
 
   haproxy:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
