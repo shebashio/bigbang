@@ -5,7 +5,7 @@ domain: bigbang.dev
 
 
 twistlock:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -28,7 +28,7 @@ twistlock:
           twistlock_host: "https://twistlock.bigbang.dev"
 
 neuvector:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-values"
@@ -38,25 +38,25 @@ neuvector:
       path: /var/run/crio/crio.sock
      
 loki:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
 
 promtail:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"  
 
 tempo:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"  
 
 grafana:
-  enabled: false
+  enabled: true
     #git:
     #tag: null
     #branch: "openshift-updates"
@@ -69,7 +69,7 @@ grafana:
             memory: 20M
 
 kyverno:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -81,7 +81,7 @@ kyvernoReporter:
   enabled: false
 
 monitoring:
-  enabled: false
+  enabled: true
   
   git:
     tag: null
@@ -151,13 +151,13 @@ monitoring:
               values:
                 - 'true'
 eckOperator:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
 
 fluentbit:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-updates"
@@ -171,7 +171,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "openshift-values"
@@ -212,7 +212,7 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -226,7 +226,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: false
+  enabled: true
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -294,7 +294,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -307,7 +307,7 @@ jaeger:
       enabled: true
 
 kiali: 
-  enabled: false
+  enabled: true
   git:
     tag: null
     branch: "main"
@@ -402,8 +402,8 @@ addons:
                 region = "us-gov-west-1"
                 kms_key_id = "arn:aws-us-gov:kms:us-gov-west-1:141078740716:key/4a90c90f-6199-43e8-aae0-9b2395691abe"
                 endpoint = "https://kms.us-gov-west-1.amazonaws.com"
-                access_key = ""
-                secret_key = ""
+                access_key = "AKIASBWHSX3WMUP5Q67J"
+                secret_key = "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"
               }
 
               telemetry {
@@ -421,7 +421,7 @@ addons:
             cypress_vault_url: "https://vault.bigbang.dev"
 
   minioOperator:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -431,7 +431,7 @@ addons:
       openshift: true
 
   argocd:
-     enabled: false
+     enabled: true
      values:
        controller:
          resources:
@@ -472,7 +472,7 @@ addons:
            limits: null
 
   anchore:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -600,7 +600,7 @@ addons:
           limits: null
 
   sonarqube:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -626,7 +626,7 @@ addons:
         create: true
  
   minio:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -653,7 +653,7 @@ addons:
       openshift: true
 
   authservice:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"  
@@ -675,7 +675,7 @@ addons:
             size: 256Mi
    
   gitlab:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -749,7 +749,7 @@ addons:
             size: 256Mi
 
   gitlabRunner:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -770,7 +770,7 @@ addons:
           #        - gitlab-runner
 
   nexusRepositoryManager:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -787,13 +787,13 @@ addons:
 
   mattermostOperator:
     # -- Toggle deployment of Mattermost Operator.
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
 
   mattermost:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -833,7 +833,7 @@ addons:
               runAsNonRoot: true
 
   keycloak:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -954,7 +954,7 @@ addons:
           subPath: quarkus.properties
  
   fortify:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
@@ -964,7 +964,7 @@ addons:
       openshift: true
 
   harbor:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-values"
@@ -1014,7 +1014,7 @@ addons:
             MINIO_HOST: https://minio-api.bigbang.dev
 
   haproxy:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-updates"
