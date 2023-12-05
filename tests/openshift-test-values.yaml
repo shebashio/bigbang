@@ -323,7 +323,7 @@ addons:
 
 
   vault:
-    enabled: true
+    enabled: false
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -402,8 +402,8 @@ addons:
                 region = "us-gov-west-1"
                 kms_key_id = "arn:aws-us-gov:kms:us-gov-west-1:141078740716:key/4a90c90f-6199-43e8-aae0-9b2395691abe"
                 endpoint = "https://kms.us-gov-west-1.amazonaws.com"
-                access_key = "AKIASBWHSX3WMUP5Q67J"
-                secret_key = "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"
+                access_key = ""
+                secret_key = ""
               }
 
               telemetry {
