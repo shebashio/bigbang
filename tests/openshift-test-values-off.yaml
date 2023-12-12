@@ -5,7 +5,7 @@ domain: bigbang.dev
 
 
 twistlock:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"
@@ -28,7 +28,7 @@ twistlock:
           twistlock_host: "https://twistlock.bigbang.dev"
 
 neuvector:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-values"
@@ -38,25 +38,25 @@ neuvector:
       path: /var/run/crio/crio.sock
      
 loki:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"
 
 promtail:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"  
 
 tempo:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"  
 
 grafana:
-  enabled: true
+  enabled: false
     #git:
     #tag: null
     #branch: "openshift-updates"
@@ -69,7 +69,7 @@ grafana:
             memory: 20M
 
 kyverno:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"
@@ -81,7 +81,7 @@ kyvernoReporter:
   enabled: false
 
 monitoring:
-  enabled: true
+  enabled: false
   
   git:
     tag: null
@@ -151,13 +151,13 @@ monitoring:
               values:
                 - 'true'
 eckOperator:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
 
 fluentbit:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-updates"
@@ -171,7 +171,7 @@ fluentbit:
       privileged: true
 
 elasticsearchKibana:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "openshift-values"
@@ -212,7 +212,7 @@ elasticsearchKibana:
           max: 3g
 
 clusterAuditor:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -226,7 +226,7 @@ clusterAuditor:
         memory: null
 
 gatekeeper:
-  enabled: true
+  enabled: false
   git: 
     tag: 3.10.0-bb.2
   values:
@@ -294,7 +294,7 @@ istio:
             maxReplicas: 5
 
 jaeger:
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -307,7 +307,7 @@ jaeger:
       enabled: true
 
 kiali: 
-  enabled: true
+  enabled: false
   git:
     tag: null
     branch: "main"
@@ -323,7 +323,7 @@ addons:
 
 
   vault:
-    enabled: false
+    enabled: true
     git:
       tag: null
       branch: "openshift-values"
@@ -365,6 +365,13 @@ addons:
         extraEnvironmentVars:
           VAULT_SKIP_VERIFY: "true"
           VAULT_LOG_FORMAT: "json"
+          extraSecretEnvironmentVars:
+            - envName: AWS_ACCESS_KEY_ID
+              secretName: vault-openshift-aws-cred
+              secretKey: aws_access_key_id
+            - envName: AWS_SECRET_ACCESS_KEY
+              secretName: vault-openshift-aws-cred
+              secretKey: aws_secret_access_key 
         dataStorage:
           enabled: true
           size: 256Mi
@@ -405,8 +412,8 @@ addons:
                 region = "us-gov-west-1"
                 kms_key_id = "arn:aws-us-gov:kms:us-gov-west-1:141078740716:key/4a90c90f-6199-43e8-aae0-9b2395691abe"
                 endpoint = "https://kms.us-gov-west-1.amazonaws.com"
-                #access_key = "AKIASBWHSX3WOMPBIRCW"
-                #secret_key = "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"
+                access_key = ${AWS_ACCESS_KEY_ID}
+                secret_key = ${AWS_SECRET_ACCESS_KEY}
               }
 
               telemetry {
@@ -424,7 +431,7 @@ addons:
             cypress_vault_url: "https://vault.bigbang.dev"
 
   minioOperator:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -434,7 +441,7 @@ addons:
       openshift: true
 
   argocd:
-     enabled: true
+     enabled: false
      values:
        controller:
          resources:
@@ -475,7 +482,7 @@ addons:
            limits: null
 
   anchore:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -603,7 +610,7 @@ addons:
           limits: null
 
   sonarqube:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -629,7 +636,7 @@ addons:
         create: true
  
   minio:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -656,7 +663,7 @@ addons:
       openshift: true
 
   authservice:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"  
@@ -678,7 +685,7 @@ addons:
             size: 256Mi
    
   gitlab:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -752,7 +759,7 @@ addons:
             size: 256Mi
 
   gitlabRunner:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -773,7 +780,7 @@ addons:
           #        - gitlab-runner
 
   nexusRepositoryManager:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -790,13 +797,13 @@ addons:
 
   mattermostOperator:
     # -- Toggle deployment of Mattermost Operator.
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
 
   mattermost:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -836,7 +843,7 @@ addons:
               runAsNonRoot: true
 
   keycloak:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -957,7 +964,7 @@ addons:
           subPath: quarkus.properties
  
   fortify:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -967,7 +974,7 @@ addons:
       openshift: true
 
   harbor:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-values"
@@ -976,7 +983,7 @@ addons:
           addr: harbor-redis-bb-master:6379
 
   velero:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
@@ -1020,7 +1027,7 @@ addons:
             MINIO_HOST: https://minio-api.bigbang.dev
 
   haproxy:
-    enabled: true
+    enabled: false
     git:
       tag: null
       branch: "openshift-updates"
