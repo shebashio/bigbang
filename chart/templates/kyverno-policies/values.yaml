@@ -902,8 +902,6 @@ policies:
         pods:
         - elastic-operator-?
       - namespace: nexus-repository-manager
-        serviceAccounts:
-        - nexus-repository-manager
         pods:
         - nexus-repository-manager-* 
       - namespace: thanos
