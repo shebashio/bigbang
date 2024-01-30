@@ -1661,6 +1661,13 @@ addons:
           artifacts: true
           envs:
             cypress_nexus_url: "https://nexus.bigbang.dev"
+          resources:
+            requests:
+              cpu: 3
+              memory: 4Gi
+            limits:
+              cpu: 3
+              memory: 4Gi
         scripts:
           envs:
             docker_host: "containers.bigbang.dev"
