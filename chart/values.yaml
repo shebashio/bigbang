@@ -163,6 +163,10 @@ istio:
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
 
+  meshConfig:
+    registryOnly:
+      enabled: true
+
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
@@ -1254,7 +1258,7 @@ addons:
       # with a random password.
       # -- This needs to be set to a non-empty value in order for the Grafana Redis Datasource and Dashboards to be installed.
       password: ""
-  
+
     # -- Rails plain text secret to define. If empty (""), the gitlab charts will create the gitlab-rails-secret with randomized data.
     # Read the following for more information on setting Gitlab rails secrets: https://docs.gitlab.com/charts/installation/secrets#gitlab-rails-secret
     railsSecret: ""
@@ -1815,7 +1819,7 @@ addons:
       repoName: "registry1"
       chartName: "vault"
       tag: "0.25.0-bb.8"
-      
+
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
 
@@ -1930,9 +1934,9 @@ addons:
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
       gateway: ""
-      
-    # -- Configure the object storage for Thanos.  
-    # The monitoring.prometheus thanos-sidecar and Thanos will use this configuration if defined 
+
+    # -- Configure the object storage for Thanos.
+    # The monitoring.prometheus thanos-sidecar and Thanos will use this configuration if defined
     objstoreConfig: ""
 
     values: {}
