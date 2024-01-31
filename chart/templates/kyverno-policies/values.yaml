@@ -119,18 +119,7 @@ policies:
     enabled: true
     validationFailureAction: Audit
     exclude:
-      any:
-      {{- if .Values.kyvernoReporter.enabled }}
-      - resources:
-          namespaces:
-          - kyverno-reporter 
-          kinds:
-          - Pod
-          - Deployment
-          names:
-          - kyverno-reporter*
-      {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      any:  
       - resources:
           namespaces:
           - flux-system
@@ -142,7 +131,6 @@ policies:
           - helm-controller-*
           - source-controller-*
           - kustomize-controller-*
-      {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
   disallow-tolerations:
@@ -692,6 +680,11 @@ policies:
       - monitoring
       - gitlab
       - gitlab-runner
+      - kyverno-reporter
+      - tempo
+      - sonarqube
+      - metrics-server
+      - cluster-auditor
 
   update-automountserviceaccounttokens:
     enabled: true
@@ -931,6 +924,29 @@ policies:
         pods:
           allow:
           - gitlab-runner-*
+      - namespace: tempo     # no exceptions required
+      - namespace: sonarqube # no exceptions required
+      - namespace: kyverno-reporter
+        pods:
+          allow:
+          # reporter pods require create/delete/get/etc. on leases
+          # More details in kyverno-reporter/chart/templates/role.yaml
+          - kyverno-reporter-*
+          # This wildcard also excepts various pods and jobs that require API access 
+          # i.e., kyverno-plugin, ui, email summary/violations report job
+      - namespace: metrics-server
+        pods:
+          allow:
+          # metrics-server pods require get on nodes/metrics, and get/list/watch on pods, nodes, namespaces, etc.
+          # More details in metrics-server/chart/templates/clusterrole.yaml
+          - metrics-server-*
+      - namespace: cluster-auditor
+        pods:
+          allow:
+          # cluster-auditor pods need to get/list/watch Gatekeeper resources ('*' in API group "constraints.gatekeeper.sh")
+          # Ref (1): clusterRole.yaml and clusterRoleBinding.yaml
+          # Ref (2): https://github.com/runyontr/opa-scorecard/tree/master#design
+          - opa-exporter-*
 
 istio:
   enabled: {{ .Values.istio.enabled }}
