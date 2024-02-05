@@ -724,6 +724,10 @@ loki:
     # Unencoded string data. This should be placed in the secret values and then encrypted
     accessSecret: ""
 
+    # -- Name of AWS IAM profile to use.
+    # -- If using an AWS IAM profile, the accessKey and accessSecret values must be left as empty strings eg: ""
+    iamProfile: ""
+
     # -- Bucket Names for the Loki buckets as YAML
     # chunks: loki-logs
     # ruler: loki-ruler

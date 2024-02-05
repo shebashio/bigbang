@@ -61,10 +61,14 @@ loki:
     bucketNames:
       {{- toYaml .Values.loki.objectStorage.bucketNames | nindent 6 }}
     s3:
+      {{- if (eq .Values.loki.objectStorage.iamProfile "") }}
       endpoint: {{ .Values.loki.objectStorage.endpoint }}
+      {{- end }}
       region: {{ .Values.loki.objectStorage.region }}
+      {{- if and (not (eq .Values.loki.objectStorage.accessKey "")) (not (eq .Values.loki.objectStorage.accessSecret "")) }}
       accessKeyId: {{ .Values.loki.objectStorage.accessKey }}
       secretAccessKey: {{ .Values.loki.objectStorage.accessSecret }}
+      {{- end }}
     {{- end }}
   {{- if (eq .Values.loki.strategy "monolith") }}
   rulerConfig:
@@ -95,6 +99,13 @@ minio:
   enabled: true
 
 {{- end }}
+{{- end }}
+
+{{- if and (eq $.Values.loki.strategy "scalable") (not (eq $.Values.loki.objectStorage.iamProfile "")) }}
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: {{ $.Values.loki.objectStorage.iamProfile }}
 {{- end }}
 
 {{- end -}}
