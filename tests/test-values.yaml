@@ -99,6 +99,21 @@ kiali:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
   values:
+    istio:
+      hardened:
+        enabled: true
+        # customServiceEntries:
+        #   - name: "allow-kiali-dashboard-for-cypress"
+        #     enabled: true
+        #     spec:
+        #       hosts:
+        #         - 'kiali.bigbang.dev'
+        #       location: MESH_EXTERNAL
+        #       ports:
+        #         - number: 443
+        #           protocol: TLS
+        #           name: https
+        #       resolution: DNS
     cr:
       spec:
         auth:
@@ -107,7 +122,7 @@ kiali:
           strategy: "anonymous"
     resources:
       limits:
-        cpu: "1"          
+        cpu: "1"
     bbtests:
       enabled: true
       cypress:
@@ -463,7 +478,7 @@ kyvernoPolicies:
                     ignoreTlog: true
                     url: ""
             mutateDigest: false
-            verifyDigest: false 
+            verifyDigest: false
           - imageReferences:
             - "registry1.dso.mil/ironbank/*"
             attestors:
@@ -659,7 +674,7 @@ kyvernoPolicies:
               namespaces:
               - velero
               names:
-              - velero-backup-restore-test*  
+              - velero-backup-restore-test*
       require-non-root-user:
         exclude:
           any:
@@ -679,12 +694,12 @@ kyvernoPolicies:
               namespaces:
               - argocd
               names:
-              - guestbook*    
+              - guestbook*
           - resources:
               namespaces:
               - velero
               names:
-              - velero-backup-restore-test*  
+              - velero-backup-restore-test*
           - resources:
               namespaces:
               - twistlock
@@ -1077,7 +1092,7 @@ addons:
         replica:
           replicaCount: 0
           autoscaling:
-            enabled: false  
+            enabled: false
           persistence:
             size: 256Mi
 
@@ -1437,7 +1452,7 @@ addons:
         replica:
           replicaCount: 0
           autoscaling:
-            enabled: false 
+            enabled: false
       bbtests:
         enabled: true
         scripts:
@@ -2112,7 +2127,7 @@ addons:
               runAsGroup: 1001
               runAsNonRoot: true
       storegateway:
-        enabled: true            
+        enabled: true
       bbtests:
         enabled: true
         cypress:
