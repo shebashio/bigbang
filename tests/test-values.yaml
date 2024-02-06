@@ -103,17 +103,6 @@ kiali:
       hardened:
         enabled: true
         customServiceEntries:
-          - name: "allow-kiali-dashboard-for-cypress-tests"
-            enabled: true
-            spec:
-              hosts:
-                - 'kiali.bigbang.dev'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
           - name: "allow-npm-for-cypress-tests"
             enabled: true
             spec:
