@@ -74,7 +74,7 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- with .Values.loki.objectStorage }}
-    {{- if and (eq $.Values.loki.strategy "scalable") (not (and .endpoint .bucketNames)) }}
+    {{- if and (eq $.Values.loki.strategy "scalable") (not (and .region .bucketNames)) }}
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
