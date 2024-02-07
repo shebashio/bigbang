@@ -94,7 +94,7 @@ singleBinary:
 {{- end }}
 
 {{- with .Values.loki.objectStorage }}
-{{- if and (eq $.Values.loki.strategy "scalable") (not (and .endpoint .region)) }}
+{{- if and (eq $.Values.loki.strategy "scalable") (not (and .iamProfile .region)) }}
 minio:
   enabled: true
 
