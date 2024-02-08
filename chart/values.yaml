@@ -457,11 +457,11 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.14.0-bb.7"
+    tag: "3.14.0-bb.8"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
-    tag: "3.14.0-bb.7"
+    tag: "3.14.0-bb.8"
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
@@ -504,7 +504,6 @@ kyverno:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
-
 
 kyvernoPolicies:
   # -- Toggle deployment of Kyverno policies
@@ -571,11 +570,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.9.0-bb.1"
+    tag: "1.9.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.9.0-bb.1"
+    tag: "1.9.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -702,7 +701,7 @@ loki:
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "5.42.0-bb.2"
+    tag: "5.42.0-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -742,7 +741,7 @@ loki:
 # ----------------------------------------------------------------------------------------------------------------------
 
 neuvector:
-   # -- Toggle deployment of Neuvector.
+  # -- Toggle deployment of Neuvector.
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
@@ -751,11 +750,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.6.3-bb.8"
+    tag: "2.6.3-bb.9"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.6.3-bb.8"
+    tag: "2.6.3-bb.9"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1141,11 +1140,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "5.0.11-bb.2"
+      tag: "5.0.11-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "5.0.11-bb.2"
+      tag: "5.0.11-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1207,7 +1206,7 @@ addons:
 
       # -- Gitlab SSO Scopes, default is ["Gitlab"]
       scopes:
-      - Gitlab
+        - Gitlab
 
     database:
       # -- Hostname of a pre-existing PostgreSQL database to use for Gitlab.
@@ -1265,11 +1264,10 @@ addons:
       # with a random password.
       # -- This needs to be set to a non-empty value in order for the Grafana Redis Datasource and Dashboards to be installed.
       password: ""
-  
+
     # -- Rails plain text secret to define. If empty (""), the gitlab charts will create the gitlab-rails-secret with randomized data.
     # Read the following for more information on setting Gitlab rails secrets: https://docs.gitlab.com/charts/installation/secrets#gitlab-rails-secret
     railsSecret: ""
-
 
     # -- Values to passthrough to the gitlab chart: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
     values: {}
@@ -1287,11 +1285,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.59.1-bb.2"
+      tag: "0.59.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.59.1-bb.2"
+      tag: "0.59.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
     flux: {}
@@ -1821,11 +1819,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.25.0-bb.10"
+      tag: "0.25.0-bb.14"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.25.0-bb.10"
+      tag: "0.25.0-bb.14"
       
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -1915,6 +1913,82 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+  
+  holocron:
+    # -- Toggle deployment of Holocron.
+    enabled: false
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
+      tag: "1.0.0"
+      path: "./chart"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "holocron"
+      tag: "1.0.0"
+
+    collectorAuth:
+      # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
+      # -- Default keys for secret are:
+      # -- gitlab-scm-0, gitlab-workflow-0, gitlab-build-0, jira-workflow-0, sonarqube-project-analysis-0
+      # -- If not provided, one will be created
+      existingSecret: ""
+      # -- Tokens for the secret to be created
+      gitlabToken: mygitlabtoken
+      jiraToken: myjiratoken
+      sonarToken: mysonartoken
+
+    jira:
+      # -- If there is a Jira deployment, enable a collector for it
+      enabled: false
+      service:
+      # -- The service name to communicate with
+        name: ""
+        # -- If network policies are enabled, a label to match the namespace for egress policy
+        label:
+          key: value
+
+    # -- Flux reconciliation overrides specifically for the Holocron Package
+    flux: {}
+
+    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`). The default is "public".
+    ingress:
+      gateway: ""
+
+    sso:
+      # -- Toggle SSO for Holocron on and off
+      enabled: false
+
+      # -- Holocron SSO group roles: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
+      groups:
+        admin: ""
+        leadership: ""
+
+    database:
+      # -- Hostname of a pre-existing PostgreSQL database to use for Gitlab.
+      # -- Entering connection info will disable the deployment of an internal database and will auto-create any required secrets.
+      host: ""
+
+      # -- Port of a pre-existing PostgreSQL database to use for Gitlab.
+      port: 5432
+
+      # -- Database name to connect to on host.
+      database: "holocron"
+
+      # -- Username to connect as to external database, the user must have all privileges on the database.
+      username: "holocron"
+
+      # -- Database password for the username used to connect to the existing database.
+      password: "holocron"
+
+    # -- Post Renderers.  See docs/postrenders.md
+    postRenderers: []
+
+    # -- Values to passthrough to the Holocron chart: https://repo1.dso.mil/big-bang/product/packages/holocron.git
+    values: {}
 
   # ----------------------------------------------------------------------------------------------------------------------
   # thanos
