@@ -1520,7 +1520,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "1.27.4-bb.7"
+      tag: ""
+      branch: "enterprise-only"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
@@ -1537,7 +1538,7 @@ addons:
     # -- Anchore Enterprise functionality.
     enterprise:
       # -- Toggle the installation of Anchore Enterprise.  This must be accompanied by a valid license.
-      enabled: false
+      enabled: true
 
       # -- License for Anchore Enterprise.
       # For formatting examples see https://repo1.dso.mil/big-bang/product/packages/CHART.md#enabling-enterprise-services
