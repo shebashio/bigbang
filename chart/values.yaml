@@ -209,6 +209,10 @@ istio:
     #   # Node port base should be in the range from 30000 to 32764
     #   nodePortBase: 32000  # Alternatively, the kubernetesResourceSpec can be used to configure all port parameters
 
+  egressGateways:
+    core-egressgateway:
+      type: "ClusterIP"
+
   gateways:
     public:
       ingressGateway: "public-ingressgateway"
