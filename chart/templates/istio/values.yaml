@@ -95,6 +95,20 @@ ingressGateways:
     {{- end}}
 {{- end }}
 
+{{- if .Values.istio.egressGateways }}
+egressGateways:
+  istio-egressgateway:
+    enabled: false
+{{- end }}
+
+{{- range $name, $values := .Values.istio.egressGateways }}
+  {{ $name | nindent 2 }}:
+    {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (fromYaml (include "istio.egressgateway.k8s" $values))) | nindent 4 }}
+    {{- if $values.extraLabels }}
+    {{- toYaml (dict "extraLabels" $values.extraLabels) | nindent 4 }}
+    {{- end}}
+{{- end }}
+
 {{- if .Values.istio.gateways }}
 gateways:
   main: null
