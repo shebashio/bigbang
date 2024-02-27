@@ -954,6 +954,9 @@ grafana:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_grafana
       scopes: "openid Grafana"
   values:
+    istio:
+      hardened:
+        enabled: true  
     dashboards:
       default:
         k8s-deployment:
