@@ -207,3 +207,25 @@ k8s:
       nodePort: {{ add .nodePortBase 3 }}
     {{- end }}
 {{- end }}
+
+{{- define "istio.egressgateway.k8s" -}}
+k8s:
+  service:
+    type: {{ .type }}
+    {{- if .nodePortBase }}
+    ports: # Pulled from Istio gateway defaults (https://github.com/istio/istio/blob/master/manifests/charts/gateways/istio-egress/values.yaml)
+    # Ports default to "protocol: TCP" and "targetPort = port"
+    - port: 80
+      targetPort: 8080
+      name: http2
+      nodePort: {{ add .nodePortBase 1 }}
+    - port: 443
+      targetPort: 8443
+      name: https
+      nodePort: {{ add .nodePortBase 2 }}
+    # SNI Routing port
+    - port: 15443
+      name: tls
+      nodePort: {{ add .nodePortBase 3 }}
+    {{- end }}
+{{- end }}
