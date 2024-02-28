@@ -924,7 +924,8 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "7.3.1-bb.1"
+    tag: null
+    branch: "24-egress-whitelist-grafana-workloadselector"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
