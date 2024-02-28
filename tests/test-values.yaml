@@ -982,11 +982,11 @@ grafana:
                   protocol: TLS
                   name: https
               resolution: DNS
-          - name: "allow-prometheus-for-cypress"
+          - name: "allow-grafana-for-cypress"
             enabled: true
             spec:
               hosts:
-                - 'prometheus.bigbang.dev'
+                - 'grafana.bigbang.dev'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
