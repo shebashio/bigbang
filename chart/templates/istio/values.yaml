@@ -98,7 +98,7 @@ ingressGateways:
 {{- if .Values.istio.egressGateways }}
 egressGateways:
   istio-egressgateway:
-    enabled: false
+    enabled: {{ .Values.istio.egressGateways.istio-egressgateway }}
 {{- end }}
 
 {{- range $name, $values := .Values.istio.egressGateways }}
