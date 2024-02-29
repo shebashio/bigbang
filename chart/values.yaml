@@ -212,7 +212,7 @@ istio:
   egressGateways:
     core-egressgateway:
       type: "ClusterIP"
-    istio-egressgateway:
+    default:
       enabled: false
 
   gateways:
