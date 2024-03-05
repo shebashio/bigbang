@@ -869,12 +869,12 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: ""
+    tag: null
     branch: "163-improve-cypress-tests-to-check-for-unhealthy-targets"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: ""
+    tag: null
     branch: "163-improve-cypress-tests-to-check-for-unhealthy-targets"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
