@@ -993,18 +993,6 @@ grafana:
                   protocol: TLS
                   name: https
               resolution: DNS
-          # https://prometheus.bigbang.dev/targets
-          - name: "allow-prometheus-for-cypress"
-            enabled: true
-            spec:
-              hosts:
-                - 'prometheus.bigbang.dev'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     dashboards:
       default:
         k8s-deployment:
