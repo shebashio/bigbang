@@ -869,7 +869,8 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "56.2.1-bb.6"
+    # tag: "56.2.1-bb.6"
+    branch: "163-improve-cypress-tests-to-check-for-unhealthy-targets"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
