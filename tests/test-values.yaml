@@ -1138,6 +1138,8 @@ neuvector:
                - 'download.cypress.io'
                - 'cdn.cypress.io'
              location: MESH_EXTERNAL
+             exportTo:
+               - "."
              ports:
                - number: 443
                  protocol: TLS
@@ -1149,6 +1151,8 @@ neuvector:
              hosts:
                - 'repo1.dso.mil'
              location: MESH_EXTERNAL
+             exportTo:
+               - "."
              ports:
                - number: 443
                  protocol: TLS
@@ -1160,6 +1164,8 @@ neuvector:
              hosts:
                - 'neuvector.bigbang.dev'
              location: MESH_EXTERNAL
+             exportTo:
+               - "."
              ports:
                - number: 443
                  protocol: TLS
