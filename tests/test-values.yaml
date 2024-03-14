@@ -1158,6 +1158,8 @@ twistlock:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -1169,6 +1171,8 @@ twistlock:
               hosts:
                 - 'repo1.dso.mil'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -1180,6 +1184,8 @@ twistlock:
               hosts:
                 - 'twistlock.bigbang.dev'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
