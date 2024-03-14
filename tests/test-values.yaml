@@ -936,7 +936,7 @@ tempo:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
   git:
     tag: null
-    branch: "registry-only-sidecar-tempo"
+    branch: "registry-only-sidecar-tempo-II"
   values:
     istio:
       tempoQuery:
@@ -954,6 +954,8 @@ tempo:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -965,6 +967,8 @@ tempo:
               hosts:
                 - 'repo1.dso.mil'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -976,6 +980,8 @@ tempo:
               hosts:
                 - 'tempo.bigbang.dev'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -987,6 +993,8 @@ tempo:
               hosts:
                 - 'grafana.bigbang.dev'
               location: MESH_EXTERNAL
+              exportTo:
+                - "."
               ports:
                 - number: 443
                   protocol: TLS
