@@ -981,7 +981,17 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
-
+          - name: "allow-grafana-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'grafana.bigbang.dev'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
     tempo:
       resources:
