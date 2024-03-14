@@ -2302,8 +2302,52 @@ addons:
   #
   thanos:
     # -- Toggle deployment of thanos
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "sg-38-istio-whitelist-thanos" 
     values:
+      istio: 
+        enabled: true
+        hardened:
+         enabled: true
+        customServiceEntries:
+          - name: "allow-npm-for-cypress-tests"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+          - name: "allow-repo1-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'repo1.dso.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+          - name: "allow-thanos-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'thanos.bigbang.dev'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+
       minio:
         enabled: true
         tenant:
