@@ -75,13 +75,13 @@ istio:
           strategy: "anonymous"
 
 jaeger:
-  enabled: false
-  sso:
-    enabled: false
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
+  # enabled: false
+  # sso:
+  #   enabled: false
+  #   client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
   git:
     tag: null
-    branch: 71-egress-whitelist-Jaeger
+    branch: "71-egress-whitelist-Jaeger"
   values:
     istio:
       # jaeger:
@@ -113,12 +113,23 @@ jaeger:
                   protocol: TLS
                   name: https
               resolution: DNS
+          - name: "allow-jaeger-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'jaeger.bigbang.dev'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
 
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
+    # bbtests:
+    #   enabled: true
+    #   cypress:
+    #     envs:
 
     #       cypress_url: "https://tracing.bigbang.dev"
           # uncomment following variables for sso keycloak testing in bb
