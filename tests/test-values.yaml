@@ -978,7 +978,7 @@ tempo:
           memory: 128Mi
 
 promtail:
-  enabled: true
+  # enabled: true
   git:
     tag: null
     branch: "38-egress-whitelist-promtail"
@@ -1022,7 +1022,6 @@ promtail:
                   protocol: TLS
                   name: https
               resolution: DNS
-
 
 monitoring:
   enabled: true
