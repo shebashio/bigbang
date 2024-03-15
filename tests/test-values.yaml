@@ -1184,6 +1184,9 @@ neuvector:
           limits:
             cpu: "2"
             memory: "1500M"
+    istio:
+      hardened:
+        enabled: true
 
 twistlock:
   enabled: false
