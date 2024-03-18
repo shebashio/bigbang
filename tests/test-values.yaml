@@ -954,8 +954,6 @@ tempo:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
               location: MESH_EXTERNAL
-              exportTo:
-                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -967,8 +965,6 @@ tempo:
               hosts:
                 - 'repo1.dso.mil'
               location: MESH_EXTERNAL
-              exportTo:
-                - "."
               ports:
                 - number: 443
                   protocol: TLS
@@ -991,8 +987,6 @@ tempo:
               hosts:
                 - 'grafana.bigbang.dev'
               location: MESH_EXTERNAL
-              exportTo:
-                - "."
               ports:
                 - number: 443
                   protocol: TLS
