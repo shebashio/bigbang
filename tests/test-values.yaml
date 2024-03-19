@@ -1190,6 +1190,9 @@ neuvector:
           limits:
             cpu: "2"
             memory: "1500M"
+    istio:
+      hardened:
+        enabled: true
 
 twistlock:
   enabled: false
@@ -2359,6 +2362,9 @@ addons:
     # -- Toggle deployment of thanos
     enabled: false
     values:
+      istio:
+        hardened:
+          enabled: true
       minio:
         enabled: true
         tenant:
