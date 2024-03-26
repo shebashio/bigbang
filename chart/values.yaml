@@ -449,7 +449,7 @@ clusterAuditor:
 #
 gatekeeper:
   # -- Toggle deployment of OPA Gatekeeper.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -457,8 +457,7 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: null
-    branch: "selinux-fix"
+    tag: "3.15.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
