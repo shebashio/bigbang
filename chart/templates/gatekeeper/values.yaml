@@ -157,7 +157,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
   {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled }}
   selinuxPolicy:
     parameters:
-      exemptImages:
+      excludedResources:
       {{- if .Values.fluentbit.enabled }}
       # FluentBit needs selinux option type spc_t
       - fluentbit/fluent-bit*
