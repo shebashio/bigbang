@@ -154,21 +154,21 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled }}
+  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled}}
   selinuxPolicy:
     parameters:
       exemptImages:
       {{- if .Values.fluentbit.enabled }}
       # FluentBit needs selinux option type spc_t
-      - fluentbit*
+      - fluentbit-fluent-bit*
       {{- end }}
       {{- if .Values.twistlock.enabled }}
       # Twistlock Defenders need selinux option type spc_t
-      - twistlock*
+      - twistlock-twistlock-defender*
       {{- end }}
       {{- if .Values.promtail.enabled }}
       # Promtail needs selinux option type spc_t
-      - promtail*
+      - promtail-promtail*
       {{- end }}
   {{- end }}
 
