@@ -457,8 +457,7 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: null
-    branch: "SelinuxOptions"
+    tag: "3.15.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
