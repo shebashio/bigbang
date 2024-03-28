@@ -347,12 +347,12 @@ gatekeeper:
           - default/disallow-tolerations-.?
       selinuxPolicy:
         parameters:
-          excludedResources:
+          exemptImages:
           # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
-          - default/disallow-selinux-options-.?
-          - default/restrict-selinux-type-.?
+          - default/c.*
+          - default/i.*
+          - default/disallow-selinux-options-.*
+          - default/restrict-selinux-type-.*
           - default/not-me
       volumeTypes:
         parameters:
