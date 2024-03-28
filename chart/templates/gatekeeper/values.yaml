@@ -160,15 +160,15 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       exemptImages:
       {{- if .Values.fluentbit.enabled }}
       # FluentBit needs selinux option type spc_t
-      - fluentbit-fluent-bit*
+      - fluentbit:*
       {{- end }}
       {{- if .Values.twistlock.enabled }}
       # Twistlock Defenders need selinux option type spc_t
-      - twistlock-twistlock-defender*
+      - twistlock:*
       {{- end }}
       {{- if .Values.promtail.enabled }}
       # Promtail needs selinux option type spc_t
-      - promtail-promtail*
+      - promtail:*
       {{- end }}
   {{- end }}
 
