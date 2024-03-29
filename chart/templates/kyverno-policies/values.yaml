@@ -176,7 +176,7 @@ policies:
   {{- end }}
 
   require-drop-all-capabilities:
-    validationFailureAction: enforce
+    validationFailureAction: Enforce
     {{- if .Values.neuvector.enabled }}
     exclude:
       any:
