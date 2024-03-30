@@ -696,7 +696,8 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "5.42.0-bb.10"
+    tag: null
+    branch: "dropFix"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
@@ -1131,7 +1132,7 @@ addons:
 
   minio:
     # -- Toggle deployment of minio.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1139,7 +1140,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "5.0.12-bb.6"
+      tag: null
+      branch: "dropFix"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
