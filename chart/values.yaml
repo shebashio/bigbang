@@ -2010,8 +2010,13 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
+<<<<<<< HEAD
       tag: "13.2.2-bb.3"
+=======
+      tag: null
+>>>>>>> 73deb156 (test thanos branch)
       path: "./chart"
+      branch: "42-confdential-issue"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
