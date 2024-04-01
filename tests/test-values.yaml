@@ -1872,6 +1872,9 @@ addons:
       persistence:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
+      istio:
+        hardened:
+          enabled: true
       nexus:
       # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
         env:
