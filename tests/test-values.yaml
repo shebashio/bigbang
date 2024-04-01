@@ -1043,6 +1043,13 @@ monitoring:
     enabled: false
     prometheus:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_prometheus
+      prometheusSpec:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits: {}
     alertmanager:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_alertmanager
   values:
