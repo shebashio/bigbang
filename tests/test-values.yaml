@@ -1855,10 +1855,58 @@ addons:
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
+    git:
+      tag: null
+      branch: "registry-only-sidecar-minio-operator"
     values:
       istio:
         console:
           enabled: false
+        enabled: true
+        hardened:
+          enabled: true
+          customServiceEntries:
+            - name: "allow-npm-for-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-repo1-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-neuvector-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'minio-operator.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       console:
         enabled: true
       bbtests:
