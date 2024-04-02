@@ -1866,6 +1866,9 @@ addons:
 
   minio:
     enabled: false
+    git:
+      tag: null
+      branch: "registry-only-sidecar-minio"
     values:
       tenant:
         pools:
