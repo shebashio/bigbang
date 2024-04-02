@@ -84,8 +84,6 @@ jaeger:
     branch: 71-egress-whitelist-Jaeger
   values:
     istio:
-      # jaeger:
-        # enabled: true
       hardened:
         enabled: true
         customServiceEntries:
