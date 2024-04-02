@@ -1865,6 +1865,16 @@ addons:
         enabled: true
         hardened:
           enabled: true
+          customAuthorizationPolicies:
+            - name: "test-for-allowing-monitoring"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                  - from:
+                    - source:
+                        namespaces:
+                          - minio-operator
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
               enabled: true
