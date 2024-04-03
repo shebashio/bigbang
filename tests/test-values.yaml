@@ -885,6 +885,9 @@ fluentbit:
 
 
 loki:
+  git:
+    tag: null
+    branch: "add-missing-authpol-for-minio-operator"
   strategy: scalable
   values:
     istio:
