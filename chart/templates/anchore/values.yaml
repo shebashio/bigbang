@@ -140,5 +140,6 @@ ui-redis:
       enabled: true
       namespace: monitoring
   {{- end }}
-
+upgradeJob:
+  force: true
 {{- end }}
