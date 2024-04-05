@@ -1001,14 +1001,6 @@ monitoring:
                   protocol: TLS
                   name: https
               resolution: DNS
-    prometheus:
-      prometheusSpec:
-        replicas: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-          limits: {}
 
     kube-state-metrics:
       resources:
@@ -1904,7 +1896,6 @@ addons:
             docker_host: "containers.dev.bigbang.mil"
 
   velero:
-    values:
     istio:
       hardened:
         enabled: true
