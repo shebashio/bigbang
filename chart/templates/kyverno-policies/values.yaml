@@ -177,7 +177,6 @@ policies:
 
   require-drop-all-capabilities:
     validationFailureAction: Enforce
-    {{- if .Values.neuvector.enabled }}
     exclude:
       any:
       {{- if .Values.neuvector.enabled }}
@@ -188,21 +187,21 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-prometheus-exporter-pod*
-    {{- end }}
-    {{- if .Values.keycloak.enabled }}
+      {{- end }}
+      {{- if .Values.keycloak.enabled }}
       - resources:
           namespaces:
           - keycloak
           names:
           - keycloak-0
-    {{- end }}
-    {{- if .Values.holocron.enabled }}
+      {{- end }}
+      {{- if .Values.holocron.enabled }}
       - resources:
           namespaces:
           - holocron
           names:
           - holocron-postgresql-0
-    {{- end }}
+      {{- end }}
 
   # Kyverno Beta feature - https://kyverno.io/docs/writing-policies/verify-images/
   require-image-signature:
