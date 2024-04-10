@@ -1630,6 +1630,9 @@ addons:
           limits: {}
       feeds:
         enabled: true
+        istio:
+          enabled: true
+          injection: "enabled"
         resources:
           requests:
             cpu: 100m
