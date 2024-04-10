@@ -2303,19 +2303,6 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-            - name: "allow-vault-for-cypress"
-              enabled: true
-              spec:
-                hosts:
-                  - 'vault.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                exportTo:
-                  - "."
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
 
       bbtests:
         enabled: true
