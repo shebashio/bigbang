@@ -2189,6 +2189,11 @@ addons:
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
+
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
+
     values:
       minio:
         enabled: false
@@ -2269,6 +2274,49 @@ addons:
       istio:
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "allow-npm-for-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-repo1-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.d.com'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-vault-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'vault.dev.b.com'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+
       bbtests:
         enabled: true
         cypress:
