@@ -2182,6 +2182,9 @@ addons:
 
   vault:
     enabled: false
+    git:
+      tag: null
+      branch: 75-vault-whitelist
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2190,9 +2193,9 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
 
-    git:
-      tag: null
-      branch: 75-vault-whitelist
+    # git:
+    #   tag: null
+    #   branch: 75-vault-whitelist
 
     values:
       minio:
