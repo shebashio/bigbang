@@ -54,9 +54,9 @@ networkPolicies:
 
 istio:
   enabled: true
-    git:
-      tag: null
-      branch: renovate/ironbank
+  git:
+    tag: null
+    branch: renovate/ironbank
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
