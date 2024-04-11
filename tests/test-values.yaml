@@ -2265,6 +2265,9 @@ addons:
               }
 
               service_registration "kubernetes" {}
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
       istio:
         hardened:
           enabled: true
@@ -2287,6 +2290,17 @@ addons:
               spec:
                 hosts:
                   - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-vault-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'vault.dev.bigbang.mil'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
