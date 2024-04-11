@@ -202,6 +202,13 @@ policies:
           names:
           - holocron-postgresql-0
       {{- end }}
+      {{- if .Values.addons.velero.enabled }}
+      - resources:
+          namespaces:
+          - velero
+          names:
+          - velero-backup-restore-test*
+      {{- end }}
 
   # Kyverno Beta feature - https://kyverno.io/docs/writing-policies/verify-images/
   require-image-signature:
