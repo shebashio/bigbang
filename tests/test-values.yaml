@@ -2182,9 +2182,6 @@ addons:
 
   vault:
     enabled: false
-    git:
-      tag: null
-      branch: 75-vault-whitelist
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2192,11 +2189,6 @@ addons:
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
-
-    # git:
-    #   tag: null
-    #   branch: 75-vault-whitelist
-
     values:
       minio:
         enabled: false
@@ -2273,7 +2265,6 @@ addons:
               }
 
               service_registration "kubernetes" {}
-
       istio:
         hardened:
           enabled: true
@@ -2286,8 +2277,6 @@ addons:
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
                 location: MESH_EXTERNAL
-                exportTo:
-                  - "."
                 ports:
                   - number: 443
                     protocol: TLS
@@ -2299,8 +2288,6 @@ addons:
                 hosts:
                   - 'repo1.dso.mil'
                 location: MESH_EXTERNAL
-                exportTo:
-                  - "."
                 ports:
                   - number: 443
                     protocol: TLS
