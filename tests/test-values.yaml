@@ -54,6 +54,9 @@ networkPolicies:
 
 istio:
   enabled: true
+    git:
+      tag: null
+      branch: renovate/ironbank
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
@@ -73,6 +76,12 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+
+istioOperator:
+  enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"          
 
 jaeger:
   enabled: false
