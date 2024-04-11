@@ -2190,6 +2190,9 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
     values:
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
       minio:
         enabled: false
         disableSSL: true
@@ -2265,9 +2268,7 @@ addons:
               }
 
               service_registration "kubernetes" {}
-    git:
-      tag: null
-      branch: 75-egress-whitelist-vault
+  
       istio:
         hardened:
           enabled: true
