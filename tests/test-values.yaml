@@ -2181,6 +2181,9 @@ addons:
           subPath: quarkus.properties
 
   vault:
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
     enabled: false
     ingress:
       gateway: "passthrough"
@@ -2265,9 +2268,7 @@ addons:
               }
 
               service_registration "kubernetes" {}
-    git:
-      tag: null
-      branch: 75-egress-whitelist-vault
+
       istio:
         hardened:
           enabled: true
