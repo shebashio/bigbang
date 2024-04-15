@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.82.0-bb.2"
+    tag: "1.82.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.82.0-bb.2"
+    tag: "1.82.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -869,11 +869,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "57.2.0-bb.1"
+    tag: "57.2.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "57.2.0-bb.1"
+    tag: "57.2.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1522,11 +1522,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.6"
+      tag: "2.4.2-bb.8"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.6"
+      tag: "2.4.2-bb.8"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1733,11 +1733,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.0.0-bb.2"
+      tag: "6.0.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "6.0.0-bb.2"
+      tag: "6.0.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
