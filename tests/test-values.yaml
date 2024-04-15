@@ -1843,11 +1843,34 @@ addons:
                 resolution: DNS
 
   mattermostOperator:
+    git:
+      branch: registry-only-sidecar-mattermost
+      tag: null
     enabled: false
     values:
       istio:
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-minio"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'minio.dev.bigbang.mil'
+                  - 'minio-api.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+
 
   mattermost:
     git:
