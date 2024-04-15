@@ -2181,9 +2181,9 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    git:
-      tag: null
-      branch: 75-egress-whitelist-vault
+    # git:
+  #     tag: null
+  #     branch: 75-egress-whitelist-vault
     enabled: false
     ingress:
       gateway: "passthrough"
@@ -2269,45 +2269,50 @@ addons:
 
               service_registration "kubernetes" {}
 
-      istio:
-        hardened:
-          enabled: true
-          customServiceEntries:
-            - name: "allow-npm-for-cypress-tests"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
-            - name: "allow-repo1-for-cypress"
-              enabled: true
-              spec:
-                hosts:
-                  - 'repo1.dso.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
-            - name: "allow-vault-for-cypress"
-              enabled: true
-              spec:
-                hosts:
-                  - 'vault.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
+
+      git:
+        tag: null
+        branch: 75-egress-whitelist-vault          
+
+        istio:
+          hardened:
+            enabled: true
+            customServiceEntries:
+              - name: "allow-npm-for-cypress-tests"
+                enabled: true
+                spec:
+                  hosts:
+                    - 'registry.npmjs.org'
+                    - 'download.cypress.io'
+                    - 'cdn.cypress.io'
+                  location: MESH_EXTERNAL
+                  ports:
+                    - number: 443
+                      protocol: TLS
+                      name: https
+                  resolution: DNS
+              - name: "allow-repo1-for-cypress"
+                enabled: true
+                spec:
+                  hosts:
+                    - 'repo1.dso.mil'
+                  location: MESH_EXTERNAL
+                  ports:
+                    - number: 443
+                      protocol: TLS
+                      name: https
+                  resolution: DNS
+              - name: "allow-vault-for-cypress"
+                enabled: true
+                spec:
+                  hosts:
+                    - 'vault.dev.bigbang.mil'
+                  location: MESH_EXTERNAL
+                  ports:
+                    - number: 443
+                      protocol: TLS
+                      name: https
+                  resolution: DNS
       bbtests:
         enabled: true
         cypress:
