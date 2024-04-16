@@ -55,7 +55,7 @@ networkPolicies:
 istio:
   enabled: true
   git:
-    tag: null
+    tag: ""
     branch: "145-Add-custom-network-policies"
   ingressGateways:
     passthrough-ingressgateway:
@@ -76,6 +76,18 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+    networkPolicies:
+      enabled: true
+      additionalPolicies:
+      - name: this-is-an-istio-job-test-test
+        spec:
+          podSelector: {}
+          policyTypes:
+          - Egress
+          egress:
+          - to:
+            - ipBlock:
+                cidr: 172.20.0.0/12
 
 jaeger:
   enabled: false
