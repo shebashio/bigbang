@@ -1022,7 +1022,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "6.7.2-bb.1"
+      tag: null
+      branch: "156-confidential-issue"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
