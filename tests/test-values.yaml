@@ -2200,10 +2200,10 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: false
-      git:
-        tag: null
-        branch: 75-egress-whitelist-vault
+    # enabled: false
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
