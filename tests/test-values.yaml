@@ -2201,17 +2201,17 @@ addons:
 
   vault:
     # enabled: false
-    git:
-      tag: null
-      branch: 75-egress-whitelist-vault
+    # git:
+    #   tag: null
+    #   branch: 75-egress-whitelist-vault
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
 
-        # git:
-        #   tag: null
-        #   branch: 75-egress-whitelist-vault
+    git:
+      tag: null
+      branch: 75-egress-whitelist-vault
       sso:
         enabled: false
         client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
