@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.82.0-bb.2"
+    tag: "1.82.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.82.0-bb.2"
+    tag: "1.82.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -457,11 +457,11 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.15.0-bb.3"
+    tag: "3.15.0-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
-    tag: "3.15.0-bb.3"
+    tag: "3.15.0-bb.4"
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
@@ -869,11 +869,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "57.2.0-bb.1"
+    tag: "58.0.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "57.2.0-bb.1"
+    tag: "58.0.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1179,11 +1179,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "7.10.1-bb.1"
+      tag: "7.10.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "7.10.1-bb.1"
+      tag: "7.10.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1293,12 +1293,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.63.0-bb.1"
+      tag: "0.63.0-bb.2"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.63.0-bb.1"
+      tag: "0.63.0-bb.2"
       
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1320,11 +1320,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "66.0.0-bb.0"
+      tag: "67.1.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "66.0.0-bb.0"
+      tag: "67.1.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1522,11 +1522,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.6"
+      tag: "2.4.2-bb.8"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.6"
+      tag: "2.4.2-bb.8"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1733,11 +1733,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.0.0-bb.2"
+      tag: "6.0.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "6.0.0-bb.2"
+      tag: "6.0.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -1930,12 +1930,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.2"
+      tag: "1.0.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"
-      tag: "1.0.2"
+      tag: "1.0.4"
 
     collectorAuth:
       # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
@@ -2009,12 +2009,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "13.2.2-bb.3"
+      tag: "13.2.2-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "13.2.2-bb.3"
+      tag: "13.2.2-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Jaeger Package
     flux: {}
