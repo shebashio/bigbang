@@ -114,6 +114,7 @@ kiali:
     istio:
       hardened:
         enabled: true
+        outboundTrafficPolicyMode: "REGISTRY_ONLY"
         customServiceEntries:
           - name: "cypress-service-entries-kiali"
             enabled: true
