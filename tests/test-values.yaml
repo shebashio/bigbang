@@ -717,8 +717,12 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - gitlab
+              - holocron
+              - keycloak
               names:
               - gitlab-minio-*
+              - holocron-postgresql-*
+              - keycloak-*
       require-non-root-group:
         exclude:
           any:
