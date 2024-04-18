@@ -597,6 +597,8 @@ kyvernoPolicies:
           - from: replace.image.registry
             to: registry1.dso.mil
       require-drop-all-capabilities:
+        enabled: true
+        validationFailureAction: enforce
         exclude:
           any:
           # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
