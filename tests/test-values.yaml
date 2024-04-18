@@ -710,6 +710,13 @@ kyvernoPolicies:
       restrict-capabilities:
         enabled: true
         validationFailureAction: audit
+        exclude:
+          any:
+          - resources:
+            namespaces:
+            - twistlock
+            names:
+            - twistlock-defender-ds-*
       require-drop-all-capabilities:
         enabled: true
         validationFailureAction: enforce
