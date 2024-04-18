@@ -707,6 +707,9 @@ kyvernoPolicies:
           update:
           - from: replace.image.registry
             to: registry1.dso.mil
+      restrict-capabilities:
+        enabled: true
+        validationFailureAction: audit
       require-drop-all-capabilities:
         enabled: true
         validationFailureAction: enforce
