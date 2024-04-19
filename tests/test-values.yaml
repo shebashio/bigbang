@@ -1014,6 +1014,9 @@ promtail:
         enabled: true
 
 monitoring:
+  git:
+    tag: null
+    branch: 179-default-values-prevents-access-to-prometheus-server
   enabled: true
   flux:
     timeout: 20m
