@@ -717,6 +717,11 @@ kyvernoPolicies:
               - gitlab
               names:
               - gitlab-minio-*
+          - resources:
+              namespaces:
+              - argocd
+              names:
+              - guestbook*
       require-non-root-group:
         exclude:
           any:
