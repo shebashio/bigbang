@@ -707,16 +707,6 @@ kyvernoPolicies:
           update:
           - from: replace.image.registry
             to: registry1.dso.mil
-      restrict-capabilities:
-        enabled: true
-        validationFailureAction: audit
-        exclude:
-          any:
-          - resources:
-            namespaces:
-            - twistlock
-            names:
-            - twistlock-defender-ds-*
       require-drop-all-capabilities:
         enabled: true
         validationFailureAction: enforce
@@ -789,6 +779,16 @@ kyvernoPolicies:
               - twistlock
               names:
               - volume-upgrade-job*
+      restrict-capabilities:
+        enabled: true
+        validationFailureAction: audit
+        exclude:
+          any:
+          - resources:
+              namespaces:
+              - twistlock
+              names:
+              - twistlock-defender-ds-*
       disallow-namespaces:
         parameters:
           disallow:
