@@ -1733,7 +1733,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.0.0-bb.4"
+      #tag: "6.0.0-bb.4"
+      branch: issue-90
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
