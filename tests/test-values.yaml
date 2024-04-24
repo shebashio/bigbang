@@ -1994,6 +1994,7 @@ addons:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
       istio:
+        enabled: true
         hardened:
           enabled: true
       nexus:
