@@ -1320,7 +1320,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "67.1.0-bb.0"
+      tag: null
+      branch: "71-implement-istio-authorization-policies"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
