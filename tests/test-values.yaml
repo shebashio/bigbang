@@ -1985,7 +1985,7 @@ addons:
     #     -----END CERTIFICATE-----
     #   make a valid pem file with proper wrapping at 64 characters per line
     #     fold -w 64 nexus-x509.txt > nexus.pem
-    #   In Keycloak go to the nexus client and on the Keys tab import the nexus.pem file in two places 
+    #   In Keycloak go to the nexus client and on the Keys tab import the nexus.pem file in two places
     values:
       persistence:
         # Do NOT set this below 5Gi, nexus will fail to boot
