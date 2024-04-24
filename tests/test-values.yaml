@@ -1808,6 +1808,25 @@ addons:
                       namespaces:
                       - minio
                       - minio-operator
+          customServiceEntries:
+            - name: "cypress-service-entries-minio"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'minio.dev.bigbang.mil'
+                  - 'minio-api.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       tenant:
         pools:
         - servers: 3
@@ -1845,28 +1864,6 @@ addons:
           envs:
             MINIO_PORT: ''
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
-      istio:
-        hardened:
-          enabled: true
-          customServiceEntries:
-            - name: "cypress-service-entries-minio"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'minio.dev.bigbang.mil'
-                  - 'minio-api.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                exportTo:
-                  - "."
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
 
   mattermostOperator:
     enabled: false
@@ -1994,9 +1991,18 @@ addons:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
       istio:
-        enabled: true
         hardened:
           enabled: true
+          customAuthorizationPolicies:
+            - name: "allow-intranamespace-nexus"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - nexus-repository-manager
       nexus:
       # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
         env:
