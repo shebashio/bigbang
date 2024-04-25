@@ -69,4 +69,6 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

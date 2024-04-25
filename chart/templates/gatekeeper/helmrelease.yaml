@@ -56,4 +56,6 @@ spec:
     - name: {{ .Release.Name }}-gatekeeper-values
       kind: Secret
       valuesKey: "overlays"
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

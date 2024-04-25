@@ -65,4 +65,6 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

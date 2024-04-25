@@ -67,4 +67,6 @@ spec:
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
+  
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

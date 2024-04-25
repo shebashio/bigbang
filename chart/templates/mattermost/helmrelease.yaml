@@ -71,4 +71,6 @@ spec:
     - name: ek
       namespace: {{ $.Release.Namespace }}
     {{- end }}
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

@@ -133,7 +133,9 @@ flux:
     cleanupOnFail: true
   rollback:
     timeout: 10m
-    cleanupOnFail: true
+    cleanupOnFail: 
+  diftDetection:
+    mode: enabled
 
 # -- Global NetworkPolicies settings
 networkPolicies:

@@ -80,4 +80,6 @@ spec:
     {{- end }}
     {{- end }}
   {{- end }}
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}

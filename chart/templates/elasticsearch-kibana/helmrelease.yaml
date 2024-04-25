@@ -71,4 +71,6 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+
+  driftDetection: {{ .Values.flux.diftDetection }}
 {{- end }}
