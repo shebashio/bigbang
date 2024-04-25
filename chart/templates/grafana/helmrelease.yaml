@@ -76,6 +76,7 @@ spec:
   {{- end }}
   {{- end }}
 
-  driftDetection: {{ .Values.flux.diftDetection }}
+  driftDetection: 
+    mode: {{ .Values.flux.diftDetection.mode }}
 {{- end }}
 

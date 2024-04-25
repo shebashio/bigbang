@@ -57,5 +57,6 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  driftDetection: {{ .Values.flux.diftDetection }}
+  driftDetection: 
+    mode: {{ .Values.flux.diftDetection.mode }}
 {{- end }}

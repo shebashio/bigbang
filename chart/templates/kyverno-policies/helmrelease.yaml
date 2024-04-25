@@ -58,5 +58,6 @@ spec:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
 
-  driftDetection: {{ .Values.flux.diftDetection }}
+  driftDetection: 
+    mode: {{ .Values.flux.diftDetection.mode }}
 {{- end }}
