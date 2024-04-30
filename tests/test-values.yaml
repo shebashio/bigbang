@@ -1714,7 +1714,7 @@ addons:
             ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
 
   sonarqube:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
@@ -1735,6 +1735,31 @@ addons:
                   - source:
                       namespaces:
                       - sonarqube
+          customServiceEntries:
+            - name: "allow-npm-for-cypress-tests"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+          - name: "allow-repo1-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'repo1.dso.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
       plugins:
         install: []
       resources:
