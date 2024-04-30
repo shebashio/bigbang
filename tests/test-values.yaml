@@ -49,10 +49,8 @@ packages:
       postgresql:
         install: true
         auth:
-          existingSecret: confluence-postgresql
-          secretKeys:
-            adminPasswordKey: postgres-password
-            userPasswordKey: password
+          username: confuser
+          password: confpass
 
 
 
