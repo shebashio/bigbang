@@ -67,6 +67,6 @@ spec:
     {{- end }}
   {{- end }}
 
-#  driftDetection: 
-#    mode: {{ .Values.flux.driftDetection.mode }}
+  driftDetection: 
+    mode: {{ .Values.flux.driftDetection.mode }}
 {{- end }}
