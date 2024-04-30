@@ -3,6 +3,9 @@
 {{- if (dig "enabled" true $vals) -}}
 {{- $pkg = include "resourceName" $pkg -}}
 {{- $defaults := $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
+{{- $bbvars := pick $.Values "domain" "networkPolicies" -}}
+{{- $merged := mergeOverwrite $vals.values $bbvars -}}
+{{- $_ := set $vals "values" $merged -}}
 {{- if $defaults -}}
 {{- $vals := mergeOverwrite $vals ($defaults | fromYaml).package -}}
 {{- end -}}
