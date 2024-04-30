@@ -719,10 +719,12 @@ kyvernoPolicies:
               - gitlab
               - holocron
               - keycloak
+              - twistlock
               names:
               - gitlab-minio-*
               - holocron-postgresql-*
               - keycloak-*
+              - twistlock-*
       require-non-root-group:
         exclude:
           any:
@@ -781,14 +783,14 @@ kyvernoPolicies:
               - volume-upgrade-job*
       restrict-capabilities:
         enabled: true
-        validationFailureAction: audit
+        validationFailureAction: enforce
         exclude:
           any:
           - resources:
               namespaces:
               - twistlock
               names:
-              - twistlock-defender-ds-*
+              - twistlock-*
       disallow-namespaces:
         parameters:
           disallow:
