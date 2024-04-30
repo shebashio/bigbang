@@ -2391,7 +2391,7 @@ addons:
         hardened:
           enabled: true
           customAuthorizationPolicies:
-            - name: allow-egress-instance-metadata
+            - name: allow-vault-egress-instance-metadata
               enabled: true
               spec:
                 action: ALLOW
@@ -2401,7 +2401,7 @@ addons:
                       ipBlocks:
                         - 169.254.169.254/32
           customServiceEntries:
-            - name: "allow-egress-cypress-tests"
+            - name: "allow-egress-for-vault"
               enabled: true
               spec:
                 hosts:
