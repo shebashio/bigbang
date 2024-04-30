@@ -1,5 +1,62 @@
 domain: dev.bigbang.mil
 
+
+
+packages:
+  # This will be used as the namespace for the install, as well as the name of the helm release. If this is changed, the destination service (below) needs to also be changed.
+  confluence:
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/community/confluence
+      tag: null
+      branch: 87-egress-whitelist-confluence
+      path: chart
+    # This section is ignored if wrapper.enabled, above, is false. In this case, creation of an ingress for web access is left as an exercise for the reader.
+    values:
+      istio:
+        enabled: true
+        hardened:
+          enabled: true
+          outboundTrafficPolicyMode: "REGISTRY_ONLY"
+          # customServiceEntries: []
+          customServiceEntries:
+          - name: "allow-npm-for-cypress-tests"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+          - name: "allow-repo1-for-cypress"
+            enabled: true
+            spec:
+              hosts:
+                - 'repo1.dso.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+
+      # See the database section of this README, below, for more.
+      postgresql:
+        install: true
+        auth:
+          existingSecret: confluence-postgresql
+          secretKeys:
+            adminPasswordKey: postgres-password
+            userPasswordKey: password
+
+
+
+
 sso:
   url: https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda
 
