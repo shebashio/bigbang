@@ -47,6 +47,8 @@ flux:
   rollback:
     timeout: 20m
     cleanupOnFail: false
+  driftDetection:
+    mode: warn
 
 networkPolicies:
   enabled: true
