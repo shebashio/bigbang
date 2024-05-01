@@ -1715,6 +1715,9 @@ addons:
 
   sonarqube:
     enabled: true
+    git:
+      tag: null
+      branch: "103-egress-whitelist-sonarqube"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
