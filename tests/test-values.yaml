@@ -2400,6 +2400,16 @@ addons:
                   - source:
                       ipBlocks:
                         - 169.254.169.254/32
+            - name: allow-vault-seal-comms
+              enabled: true
+              spec:
+                hosts:
+                  - '127.0.0.1'
+                location: MESH_INTERNAL
+                ports:
+                  - number: 8200
+                    protocol: TCP
+                    name: vault
           customServiceEntries:
             - name: "allow-egress-for-vault"
               enabled: true
