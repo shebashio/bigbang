@@ -64,6 +64,7 @@ license_key: "{{ $nexusValues.license_key }}"
 {{- if $nexusValues.sso.enabled }}
 sso:
   enabled: {{ $nexusValues.sso.enabled }}
+  host: {{ include "sso.host" . }}
   idp_data:
     {{- if $nexusValues.sso.idp_data.entityId }}
     entityId: {{ $nexusValues.sso.idp_data.entityId }}

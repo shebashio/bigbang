@@ -2022,6 +2022,27 @@ addons:
     #     fold -w 64 nexus-x509.txt > nexus.pem
     #   In Keycloak go to the nexus client and on the Keys tab import the nexus.pem file in two places
     values:
+      istio:
+        enabled: true
+        hardened:
+          enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-nexus"
+              enabled: true
+              spec:
+                exportTo:
+                  - "."
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       persistence:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
