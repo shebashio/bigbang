@@ -2422,10 +2422,10 @@ addons:
               spec:
                 hosts:
                   - '127.0.0.1'
-                location: MESH_INTERNAL
+                location: MESH_EXTERNAL
                 ports:
                   - number: 8200
-                    protocol: TLS
+                    protocol: TCP
                     name: vault
                 resolution: STATIC
       bbtests:
