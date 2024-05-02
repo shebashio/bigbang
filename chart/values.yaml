@@ -873,11 +873,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "58.2.2-bb.0"
+    tag: "58.3.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "58.2.2-bb.0"
+    tag: "58.3.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1031,7 +1031,7 @@ addons:
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "6.7.15-bb.1"
+      tag: "6.7.15-bb.2"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1184,11 +1184,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "7.10.2-bb.0"
+      tag: "7.11.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "7.10.2-bb.0"
+      tag: "7.11.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1527,11 +1527,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.10"
+      tag: "2.4.2-bb.11"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.10"
+      tag: "2.4.2-bb.11"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1935,12 +1935,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.5"
+      tag: "1.0.6"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"
-      tag: "1.0.5"
+      tag: "1.0.6"
 
     collectorAuth:
       # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
