@@ -56,6 +56,24 @@ query:
     {{- if (dig "values" "storegateway" "enabled" false .Values.addons.thanos) }}
     - dns+thanos-storegateway.thanos.svc.cluster.local:10901
     {{- end }}
+
+
+{{- if or .Values.addons.thanos.sso.enabled .Values.istio.enabled }}
+thanos:
+  queryFrontend:
+     spec:
+      {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
+      {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+      allInOne:
+        {{- if .Values.addons.thanos.sso.enabled }}
+        labels:
+          {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
+        {{- end }}
+        {{- if .Values.istio.enabled }}
+        annotations:
+          {{ include "istioAnnotation" . }}
+        {{- end }}
+    {{- end }}
     
 
 {{- end }}
