@@ -2391,7 +2391,7 @@ addons:
         hardened:
           enabled: true
           customAuthorizationPolicies:
-            - name: allow-vault-egress-metadata
+            - name: allow-vault-metadata
               enabled: true
               spec:
                 action: ALLOW
@@ -2417,43 +2417,43 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-            - name: "allow-vault-seal"
-              enabled: true
-              spec:
-                hosts:
-                  - '127.0.0.1'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 8200
-                    protocol: HTTPS
-                    name: vault
-                resolution: STATIC
-            # egress-kube-api-agent-injector
-            - name: "egress-kube-api-agent-injector-test"
-              enabled: true
-              spec:
-                # podSelector:
-                #   matchLabels:
-                #     app.kubernetes.io/name: {{ include "vault.name" . }}-agent-injector
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      ipBlocks:
-                        - 0.0.0.0/0
-            # egress-kube-api-agent-injector
-            - name: "egress-kube-api-job-init-test"
-              enabled: true
-              spec:
-                # podSelector:
-                #   matchLabels:
-                #     app.kubernetes.io/name: {{ include "vault.name" . }}-job-init
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      ipBlocks:
-                        - 0.0.0.0/0
+            # - name: "allow-vault-seal"
+            #   enabled: true
+            #   spec:
+            #     hosts:
+            #       - '127.0.0.1'
+            #     location: MESH_EXTERNAL
+            #     ports:
+            #       - number: 8200
+            #         protocol: HTTPS
+            #         name: vault
+            #     resolution: STATIC
+            # # egress-kube-api-agent-injector
+            # - name: "egress-kube-api-agent-injector-test"
+            #   enabled: true
+            #   spec:
+            #     # podSelector:
+            #     #   matchLabels:
+            #     #     app.kubernetes.io/name: {{ include "vault.name" . }}-agent-injector
+            #     action: ALLOW
+            #     rules:
+            #     - from:
+            #       - source:
+            #           ipBlocks:
+            #             - 0.0.0.0/0
+            # # egress-kube-api-agent-injector
+            # - name: "egress-kube-api-job-init-test"
+            #   enabled: true
+            #   spec:
+            #     # podSelector:
+            #     #   matchLabels:
+            #     #     app.kubernetes.io/name: {{ include "vault.name" . }}-job-init
+            #     action: ALLOW
+            #     rules:
+            #     - from:
+            #       - source:
+            #           ipBlocks:
+            #             - 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
