@@ -2391,7 +2391,7 @@ addons:
         hardened:
           enabled: true
           customAuthorizationPolicies:
-            - name: allow-vault-egress-instance-metadata
+            - name: allow-vault-egress-metadata
               enabled: true
               spec:
                 action: ALLOW
@@ -2435,6 +2435,19 @@ addons:
                 podSelector:
                   matchLabels:
                     app.kubernetes.io/name: {{ include "vault.name" . }}-agent-injector
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      ipBlocks:
+                        - 0.0.0.0/0
+            # egress-kube-api-agent-injector
+            - name: "egress-kube-api-job-init-test"
+              enabled: true
+              spec:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ include "vault.name" . }}-job-init
                 action: ALLOW
                 rules:
                 - from:
