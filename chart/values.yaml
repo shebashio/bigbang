@@ -135,7 +135,7 @@ flux:
     timeout: 10m
     cleanupOnFail: true
   driftDetection:
-    mode: enabled
+    mode: warn
     ignore:
     - paths: ["/spec/replicas"]
       target:
