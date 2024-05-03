@@ -2432,6 +2432,9 @@ addons:
             - name: "egress-kube-api-agent-injector-test"
               enabled: true
               spec:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ include "vault.name" . }}-agent-injector
                 action: ALLOW
                 rules:
                 - from:
