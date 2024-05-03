@@ -1399,11 +1399,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.4-bb.3"
+      tag: "8.0.4-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.4-bb.3"
+      tag: "8.0.4-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1532,11 +1532,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.11"
+      tag: "2.4.2-bb.12"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.11"
+      tag: "2.4.2-bb.12"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1649,11 +1649,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.7.1-bb.0"
+      tag: "9.7.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "9.7.1-bb.0"
+      tag: "9.7.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
