@@ -2428,6 +2428,16 @@ addons:
                     protocol: HTTPS
                     name: vault
                 resolution: STATIC
+            # egress-kube-api-agent-injector
+            - name: "egress-kube-api-agent-injector-test"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      ipBlocks:
+                        - 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
