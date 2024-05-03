@@ -65,6 +65,6 @@ spec:
     {{- end }}
   {{- end }}
   
-  #driftDetection: 
-  #  mode: {{ .Values.flux.driftDetection.mode }}
+  driftDetection: 
+  {{- toYaml .Values.flux.driftDetection | nindent 4 }}
 {{- end }}
