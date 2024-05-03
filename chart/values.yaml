@@ -135,11 +135,7 @@ flux:
     timeout: 10m
     cleanupOnFail: true
   driftDetection:
-    mode: warn
-    ignore:
-    - paths: ["/spec/replicas"]
-      target:
-        kind: Deployment
+    mode: disabled
 
 # -- Global NetworkPolicies settings
 networkPolicies:
