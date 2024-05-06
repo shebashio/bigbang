@@ -2671,6 +2671,9 @@ addons:
   holocron:
     # -- Toggle deployment of holocron
     enabled: false
+    git:
+      tag: null
+      branch: "13-holocron-sidecar"
     values:
       istio:
         hardened:
