@@ -64,7 +64,7 @@ istio:
     passthrough:
       ingressGateway: "passthrough-ingressgateway"
       hosts:
-        - "*.{{ .Values.domain }}"
+      - "*.{{ .Values.domain }}"
       tls:
         mode: "PASSTHROUGH"
     public:
@@ -725,20 +725,13 @@ kyvernoPolicies:
       require-drop-all-capabilities:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - twistlock-defender-ds*
-
+            # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
+            # is only recommended for Dev/CI environments.
+            - resources:
+                namespaces:
+                  - gitlab
+                names:
+                  - gitlab-minio-*
       require-non-root-group:
         exclude:
           any:
@@ -2399,6 +2392,16 @@ addons:
       istio:
         hardened:
           enabled: true
+          customAuthorizationPolicies:
+            - name: allow-egress-instance-metadata
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      ipBlocks:
+                        - 169.254.169.254/32
       bbtests:
         enabled: true
         cypress:
