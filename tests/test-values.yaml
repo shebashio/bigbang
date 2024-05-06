@@ -2390,16 +2390,6 @@ addons:
       istio:
         hardened:
           enabled: true
-          customAuthorizationPolicies:
-            - name: allow-egress-instance-metadata
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                  - from:
-                      - source:
-                          ipBlocks:
-                            - 169.254.169.254/32
           customServiceEntries:
             - name: "allow-vault-egress"
               enabled: true
