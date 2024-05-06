@@ -64,7 +64,7 @@ istio:
     passthrough:
       ingressGateway: "passthrough-ingressgateway"
       hosts:
-      - "*.{{ .Values.domain }}"
+        - "*.{{ .Values.domain }}"
       tls:
         mode: "PASSTHROUGH"
     public:
@@ -92,20 +92,20 @@ jaeger:
             spec:
               action: ALLOW
               rules:
-              - from:
-                - source:
-                    namespaces:
-                    - jaeger
+                - from:
+                    - source:
+                        namespaces:
+                          - jaeger
         customServiceEntries:
           - name: "cypress-service-entries-jaeger"
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'tracing.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "tracing.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -136,11 +136,11 @@ kiali:
             enabled: true
             spec:
               hosts:
-                - 'kiali.dev.bigbang.mil'
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
+                - "kiali.dev.bigbang.mil"
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -160,8 +160,8 @@ kiali:
       enabled: true
       cypress:
         envs:
-          cypress_url: 'https://kiali.dev.bigbang.mil'
-          cypress_check_data: 'true'
+          cypress_url: "https://kiali.dev.bigbang.mil"
+          cypress_check_data: "true"
           # uncomment these next 3 lines if enabling the keycloak SSO integration test
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
@@ -173,7 +173,6 @@ kiali:
           limits:
             cpu: 3
             memory: 4Gi
-
 
 clusterAuditor:
   enabled: false
@@ -187,9 +186,9 @@ clusterAuditor:
       enabled: true
       cypress:
         envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_url: 'https://grafana.dev.bigbang.mil/d/YBgRZG6Mz/opa-violations?orgId=1'
+          cypress_grafana_url: "https://grafana.dev.bigbang.mil"
+          cypress_prometheus_url: "https://prometheus.dev.bigbang.mil"
+          cypress_url: "https://grafana.dev.bigbang.mil/d/YBgRZG6Mz/opa-violations?orgId=1"
     istio:
       hardened:
         enabled: true
@@ -198,12 +197,12 @@ clusterAuditor:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'prometheus.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "grafana.dev.bigbang.mil"
+                - "prometheus.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -226,196 +225,196 @@ gatekeeper:
       allowedCapabilities:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to not drop capabilities
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to not drop capabilities
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       allowedDockerRegistries:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to pull from public repos
-          - istio-system/lb-port-.*
-          # Allow argocd to deploy a test app in its cypress test
-          - argocd/guestbook-ui
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to pull from public repos
+            - istio-system/lb-port-.*
+            # Allow argocd to deploy a test app in its cypress test
+            - argocd/guestbook-ui
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       allowedHostFilesystem:
         parameters:
           excludedResources:
-          - argocd/argocd-cypress-test
-          - cluster-auditor/cluster-auditor-cypress-test
-          - fortify/fortify-cypress-test
-          - fortify/fortify-ssc-cypress-test
-          - gitlab/gitlab-cypress-test
-          - gitlab/gitlab-runner-cypress-test
-          - gitlab-runner/gitlab-runner-cypress-test
-          - harbor/harbor-cypress-test
-          - holocron/holocron-cypress-test
-          - jaeger/jaeger-cypress-test
-          - keycloak/keycloak-cypress-test
-          - kiali/kiali-cypress-test
-          - kyverno-reporter/kyverno-reporter-cypress-test
-          - logging/elasticsearch-kibana-cypress-test
-          - logging/loki-cypress-test
-          - mattermost/mattermost-cypress-test
-          - minio/minio-instance-cypress-test
-          - minio-operator/minio-operator-cypress-test
-          - monitoring/grafana-cypress-test
-          - monitoring/monitoring-cypress-test
-          - neuvector/neuvector-cypress-test
-          - nexus-repository-manager/nexus-repository-manager-cypress-test
-          - sonarqube/sonarqube-cypress-test
-          - tempo/tempo-cypress-test
-          - thanos/thanos-cypress-test
-          - twistlock/twistlock-cypress-test
-          - vault/vault-cypress-test
-          # Allow kyverno test vectors for Helm test
-          - default/restrict-host-path-mount-.?
-          - default/restrict-host-path-write-.?
-          - default/restrict-volume-types-.?
+            - argocd/argocd-cypress-test
+            - cluster-auditor/cluster-auditor-cypress-test
+            - fortify/fortify-cypress-test
+            - fortify/fortify-ssc-cypress-test
+            - gitlab/gitlab-cypress-test
+            - gitlab/gitlab-runner-cypress-test
+            - gitlab-runner/gitlab-runner-cypress-test
+            - harbor/harbor-cypress-test
+            - holocron/holocron-cypress-test
+            - jaeger/jaeger-cypress-test
+            - keycloak/keycloak-cypress-test
+            - kiali/kiali-cypress-test
+            - kyverno-reporter/kyverno-reporter-cypress-test
+            - logging/elasticsearch-kibana-cypress-test
+            - logging/loki-cypress-test
+            - mattermost/mattermost-cypress-test
+            - minio/minio-instance-cypress-test
+            - minio-operator/minio-operator-cypress-test
+            - monitoring/grafana-cypress-test
+            - monitoring/monitoring-cypress-test
+            - neuvector/neuvector-cypress-test
+            - nexus-repository-manager/nexus-repository-manager-cypress-test
+            - sonarqube/sonarqube-cypress-test
+            - tempo/tempo-cypress-test
+            - thanos/thanos-cypress-test
+            - twistlock/twistlock-cypress-test
+            - vault/vault-cypress-test
+            # Allow kyverno test vectors for Helm test
+            - default/restrict-host-path-mount-.?
+            - default/restrict-host-path-write-.?
+            - default/restrict-volume-types-.?
       allowedIPs:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/restrict-external-ips-.?
+            # Allow kyverno test vectors for Helm test
+            - default/restrict-external-ips-.?
       allowedSecCompProfiles:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to have an undefined defined seccomp
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to have an undefined defined seccomp
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       allowedUsers:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to run as any user/group
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to run as any user/group
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       bannedImageTags:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
-          - default/not-me
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
+            - default/not-me
       containerRatio:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to have undefined limits/requests
-          - istio-system/lb-port-.*
+            # Allows k3d load balancer containers to have undefined limits/requests
+            - istio-system/lb-port-.*
       hostNetworking:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to mount host ports
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/disallow-host-namespaces-.?
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to mount host ports
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/disallow-host-namespaces-.?
+            - default/c.?
+            - default/i.?
       noBigContainers:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to have undefined limits/requests
-          - istio-system/lb-port-.*
+            # Allows k3d load balancer containers to have undefined limits/requests
+            - istio-system/lb-port-.*
       noHostNamespace:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/disallow-host-namespaces-.?
+            # Allow kyverno test vectors for Helm test
+            - default/disallow-host-namespaces-.?
       noPrivilegedContainers:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       noPrivilegedEscalation:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to have undefined security context
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to have undefined security context
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       noSysctls:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/restrict-sysctls-.?
+            # Allow kyverno test vectors for Helm test
+            - default/restrict-sysctls-.?
       readOnlyRoot:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to mount filesystems read/write
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to mount filesystems read/write
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       requiredLabels:
         parameters:
           excludedResources:
-          # Allows k3d load balancer pods to not have required labels
-          - istio-system/svclb-.*
-          # Allow kyverno test vectors for Helm test
-          - default/require-labels-.?
+            # Allows k3d load balancer pods to not have required labels
+            - istio-system/svclb-.*
+            # Allow kyverno test vectors for Helm test
+            - default/require-labels-.?
       requiredProbes:
         parameters:
           excludedResources:
-          # Allows k3d load balancer containers to not have readiness/liveness probes
-          - istio-system/lb-port-.*
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
+            # Allows k3d load balancer containers to not have readiness/liveness probes
+            - istio-system/lb-port-.*
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
       restrictedTaint:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/disallow-tolerations-.?
+            # Allow kyverno test vectors for Helm test
+            - default/disallow-tolerations-.?
       selinuxPolicy:
         parameters:
           excludedResources:
-          # Allow kyverno test vectors for Helm test
-          - default/c.?
-          - default/i.?
-          - default/disallow-selinux-options-.?
-          - default/restrict-selinux-type-.?
-          - default/not-me
+            # Allow kyverno test vectors for Helm test
+            - default/c.?
+            - default/i.?
+            - default/disallow-selinux-options-.?
+            - default/restrict-selinux-type-.?
+            - default/not-me
       volumeTypes:
         parameters:
           excludedResources:
-          - argocd/argocd-cypress-test
-          - cluster-auditor/cluster-auditor-cypress-test
-          - fortify/fortify-ssc-cypress-test
-          - gitlab/gitlab-cypress-test
-          - gitlab/gitlab-runner-cypress-test
-          - gitlab-runner/gitlab-runner-cypress-test
-          - harbor/harbor-cypress-test
-          - holocron/holocron-cypress-test
-          - jaeger/jaeger-cypress-test
-          - keycloak/keycloak-cypress-test
-          - kiali/kiali-cypress-test
-          - kyverno-reporter/kyverno-reporter-cypress-test
-          - logging/elasticsearch-kibana-cypress-test
-          - logging/loki-cypress-test
-          - mattermost/mattermost-cypress-test
-          - minio/minio-instance-cypress-test
-          - minio-operator/minio-operator-cypress-test
-          - monitoring/grafana-cypress-test
-          - monitoring/monitoring-cypress-test
-          - neuvector/neuvector-cypress-test
-          - nexus-repository-manager/nexus-repository-manager-cypress-test
-          - sonarqube/sonarqube-cypress-test
-          - tempo/tempo-cypress-test
-          - thanos/thanos-cypress-test
-          - twistlock/twistlock-cypress-test
-          - vault/vault-cypress-test
-          # Allow kyverno test vectors for Helm test
-          - default/restrict-host-path-mount-.?
-          - default/restrict-host-path-write-.?
-          - default/restrict-volume-types-.?
+            - argocd/argocd-cypress-test
+            - cluster-auditor/cluster-auditor-cypress-test
+            - fortify/fortify-ssc-cypress-test
+            - gitlab/gitlab-cypress-test
+            - gitlab/gitlab-runner-cypress-test
+            - gitlab-runner/gitlab-runner-cypress-test
+            - harbor/harbor-cypress-test
+            - holocron/holocron-cypress-test
+            - jaeger/jaeger-cypress-test
+            - keycloak/keycloak-cypress-test
+            - kiali/kiali-cypress-test
+            - kyverno-reporter/kyverno-reporter-cypress-test
+            - logging/elasticsearch-kibana-cypress-test
+            - logging/loki-cypress-test
+            - mattermost/mattermost-cypress-test
+            - minio/minio-instance-cypress-test
+            - minio-operator/minio-operator-cypress-test
+            - monitoring/grafana-cypress-test
+            - monitoring/monitoring-cypress-test
+            - neuvector/neuvector-cypress-test
+            - nexus-repository-manager/nexus-repository-manager-cypress-test
+            - sonarqube/sonarqube-cypress-test
+            - tempo/tempo-cypress-test
+            - thanos/thanos-cypress-test
+            - twistlock/twistlock-cypress-test
+            - vault/vault-cypress-test
+            # Allow kyverno test vectors for Helm test
+            - default/restrict-host-path-mount-.?
+            - default/restrict-host-path-write-.?
+            - default/restrict-volume-types-.?
     bbtests:
       enabled: true
 
@@ -446,7 +445,7 @@ kyvernoReporter:
         envs:
           cypress_grafana_url: https://grafana.dev.bigbang.mil
           cypress_prometheus_url: https://prometheus.dev.bigbang.mil
-          cypress_check_datasource: 'true'
+          cypress_check_datasource: "true"
         resources:
           requests:
             cpu: 2
@@ -462,11 +461,11 @@ kyvernoReporter:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'prometheus.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "prometheus.dev.bigbang.mil"
               location: MESH_EXTERNAL
               exportTo:
                 - "."
@@ -476,324 +475,323 @@ kyvernoReporter:
                   name: https
               resolution: DNS
 
-
 kyvernoPolicies:
   values:
     bbtests:
       enabled: true
     excludeContainers:
-    - not-me
-    - or-me
+      - not-me
+      - or-me
     exclude:
       any:
-      # Allows k3d load balancer to bypass policies.
-      - resources:
-          namespaces:
-          - istio-system
-          names:
-          - svclb-*
-      # Exclude gatekeeper test resources so Helm tests will work
-      - resources:
-          namespaces:
-          - default
-          names:
-          - bad-test*
-          - good-test*
+        # Allows k3d load balancer to bypass policies.
+        - resources:
+            namespaces:
+              - istio-system
+            names:
+              - svclb-*
+        # Exclude gatekeeper test resources so Helm tests will work
+        - resources:
+            namespaces:
+              - default
+            names:
+              - bad-test*
+              - good-test*
     # Parameters are copied from kyverno policies for test vectors
     # Exclusions are for allowing other helm tests to function
     policies:
       clone-configs:
         parameters:
           clone:
-          - name: clone-configs-1
-            kind: ConfigMap
-            namespace: "{{ .Release.Namespace }}"
-          - name: clone-configs-2
-            kind: Secret
-            namespace: "{{ .Release.Namespace }}"
+            - name: clone-configs-1
+              kind: ConfigMap
+              namespace: "{{ .Release.Namespace }}"
+            - name: clone-configs-2
+              kind: Secret
+              namespace: "{{ .Release.Namespace }}"
       disallow-annotations:
         parameters:
           disallow:
-          - 'kyverno-policies-bbtest/test: disallowed'
-          - kyverno-policies-bbtest/disallowed
+            - "kyverno-policies-bbtest/test: disallowed"
+            - kyverno-policies-bbtest/disallowed
       disallow-labels:
         parameters:
           disallow:
-          - 'kyverno-policies-bbtest/test: disallowed'
-          - kyverno-policies-bbtest/disallowed
+            - "kyverno-policies-bbtest/test: disallowed"
+            - kyverno-policies-bbtest/disallowed
       disallow-tolerations:
         parameters:
           disallow:
-          - effect: NoSchedule
-            key: notallowed
-            value: 'false'
-          - effect: '*NoSchedule'
-            key: disa??owed
-            value: 'true'
+            - effect: NoSchedule
+              key: notallowed
+              value: "false"
+            - effect: "*NoSchedule"
+              key: disa??owed
+              value: "true"
       require-annotations:
         parameters:
           require:
-          - 'kyverno-policies-bbtest/test: required'
-          - kyverno-policies-bbtest/required
+            - "kyverno-policies-bbtest/test: required"
+            - kyverno-policies-bbtest/required
       require-image-signature:
         enabled: false
         # set to Audit for now -- having signature issues with registry1.dso.mil/ironbank/bitnami/redis:7.0.0-debian-10-r3
         validationFailureAction: Audit
         parameters:
           require:
-          - imageReferences:
-            - "ghcr.io/kyverno/test-verify-image:*"
-            attestors:
-            - count: 1
-              entries:
-              - keys:
-                  publicKeys: |-
-                    -----BEGIN PUBLIC KEY-----
-                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM
-                    5/KAQN0/KjHcorm/J5yctVd7iEcnessRQjU917hmKO6JWVGHpDguIyakZA==
-                    -----END PUBLIC KEY-----
-                  # Skip Rekor Transparency log check
-                  rekor:
-                    ignoreTlog: true
-                    url: ""
-            mutateDigest: false
-            verifyDigest: false
-          - imageReferences:
-            - "registry1.dso.mil/ironbank/*"
-            attestors:
-            - count: 1
-              entries:
-              - keys:
-                  publicKeys: |-
-                    -----BEGIN PUBLIC KEY-----
-                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7CjMGH005DFFz6mffqTIGurBt6fL
-                    UfTZxuEDFRBS8mFJx1xw8DEVvjMibLTtqmAoJxUmzmGFgzz+LV875syVEg==
-                    -----END PUBLIC KEY-----
-                  # Skip Rekor Transparency log check
-                  rekor:
-                    ignoreTlog: true
-                    url: ""
-            # Ironbank images are rebuilt nightly and tags are not immutable
-            mutateDigest: false
-            verifyDigest: false
+            - imageReferences:
+                - "ghcr.io/kyverno/test-verify-image:*"
+              attestors:
+                - count: 1
+                  entries:
+                    - keys:
+                        publicKeys: |-
+                          -----BEGIN PUBLIC KEY-----
+                          MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM
+                          5/KAQN0/KjHcorm/J5yctVd7iEcnessRQjU917hmKO6JWVGHpDguIyakZA==
+                          -----END PUBLIC KEY-----
+                        # Skip Rekor Transparency log check
+                        rekor:
+                          ignoreTlog: true
+                          url: ""
+              mutateDigest: false
+              verifyDigest: false
+            - imageReferences:
+                - "registry1.dso.mil/ironbank/*"
+              attestors:
+                - count: 1
+                  entries:
+                    - keys:
+                        publicKeys: |-
+                          -----BEGIN PUBLIC KEY-----
+                          MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7CjMGH005DFFz6mffqTIGurBt6fL
+                          UfTZxuEDFRBS8mFJx1xw8DEVvjMibLTtqmAoJxUmzmGFgzz+LV875syVEg==
+                          -----END PUBLIC KEY-----
+                        # Skip Rekor Transparency log check
+                        rekor:
+                          ignoreTlog: true
+                          url: ""
+              # Ironbank images are rebuilt nightly and tags are not immutable
+              mutateDigest: false
+              verifyDigest: false
       require-labels:
         parameters:
           require:
-          - 'kyverno-policies-bbtest/test: required'
-          - kyverno-policies-bbtest/required
+            - "kyverno-policies-bbtest/test: required"
+            - kyverno-policies-bbtest/required
       restrict-external-ips:
         parameters:
           allow:
-          - 192.168.0.1
+            - 192.168.0.1
       restrict-external-names:
         enabled: true
         parameters:
           allow:
-          - allowed
+            - allowed
       restrict-host-path-mount:
         exclude:
           any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - nexus-repository-manager
-              - keycloak
-              - jaeger
-              - kyverno-reporter
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - holocron
-              names:
-              - "*-cypress-test*"
+            - resources:
+                namespaces:
+                  - gitlab
+                  - gitlab-runner
+                  - kiali
+                  - cluster-auditor
+                  - mattermost
+                  - nexus-repository-manager
+                  - keycloak
+                  - jaeger
+                  - kyverno-reporter
+                  - monitoring
+                  - vault
+                  - logging
+                  - twistlock
+                  - sonarqube
+                  - logging
+                  - tempo
+                  - argocd
+                  - minio
+                  - minio-operator
+                  - neuvector
+                  - harbor
+                  - fortify
+                  - thanos
+                  - holocron
+                names:
+                  - "*-cypress-test*"
         parameters:
           allow:
-          - /tmp/allowed
+            - /tmp/allowed
       restrict-host-path-mount-pv:
         parameters:
           allow:
-          - /tmp/allowed
-          - /var/lib/rancher/k3s/storage/pvc-*
+            - /tmp/allowed
+            - /var/lib/rancher/k3s/storage/pvc-*
       restrict-host-path-write:
         exclude:
           any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - nexus-repository-manager
-              - keycloak
-              - kyverno-reporter
-              - jaeger
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - holocron
-              names:
-              - "*-cypress-test*"
-          - resources:
-              namespaces:
-              - neuvector
-              names:
-              - "neuvector-enforcer-*"
-              - "neuvector-manager-*"
+            - resources:
+                namespaces:
+                  - gitlab
+                  - gitlab-runner
+                  - kiali
+                  - cluster-auditor
+                  - mattermost
+                  - nexus-repository-manager
+                  - keycloak
+                  - kyverno-reporter
+                  - jaeger
+                  - monitoring
+                  - vault
+                  - logging
+                  - twistlock
+                  - sonarqube
+                  - logging
+                  - tempo
+                  - argocd
+                  - minio
+                  - minio-operator
+                  - neuvector
+                  - harbor
+                  - fortify
+                  - thanos
+                  - holocron
+                names:
+                  - "*-cypress-test*"
+            - resources:
+                namespaces:
+                  - neuvector
+                names:
+                  - "neuvector-enforcer-*"
+                  - "neuvector-manager-*"
         parameters:
           allow:
-          - /tmp/allowed
+            - /tmp/allowed
       restrict-host-ports:
         parameters:
           allow:
-          - '63999'
-          - '>= 64000 & < 65000'
-          - '> 65000'
+            - "63999"
+            - ">= 64000 & < 65000"
+            - "> 65000"
       restrict-image-registries:
         exclude:
           any:
-          # ArgoCD deploys a test app as part of its Cypress test
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
+            # ArgoCD deploys a test app as part of its Cypress test
+            - resources:
+                namespaces:
+                  - argocd
+                names:
+                  - guestbook-ui-*
       restrict-volume-types:
         exclude:
           any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - nexus-repository-manager
-              - keycloak
-              - kyverno-reporter
-              - jaeger
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - holocron
-              names:
-              - "*-cypress-test*"
+            - resources:
+                namespaces:
+                  - gitlab
+                  - gitlab-runner
+                  - kiali
+                  - cluster-auditor
+                  - mattermost
+                  - nexus-repository-manager
+                  - keycloak
+                  - kyverno-reporter
+                  - jaeger
+                  - monitoring
+                  - vault
+                  - logging
+                  - twistlock
+                  - sonarqube
+                  - logging
+                  - tempo
+                  - argocd
+                  - minio
+                  - minio-operator
+                  - neuvector
+                  - harbor
+                  - fortify
+                  - thanos
+                  - holocron
+                names:
+                  - "*-cypress-test*"
       update-image-pull-policy:
         parameters:
           update:
-          - to: Always
+            - to: Always
       update-image-registry:
         parameters:
           update:
-          - from: replace.image.registry
-            to: registry1.dso.mil
+            - from: replace.image.registry
+              to: registry1.dso.mil
       require-drop-all-capabilities:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
+            # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
+            # is only recommended for Dev/CI environments.
+            - resources:
+                namespaces:
+                  - gitlab
+                names:
+                  - gitlab-minio-*
       require-non-root-group:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          - resources:
-              namespaces:
-              - fortify
-              names:
-              - fortify-mysql-* # mysql breaks if you give it a different group
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-              - controller-*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
+            # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
+            # is only recommended for Dev/CI environments.
+            - resources:
+                namespaces:
+                  - gitlab
+                names:
+                  - gitlab-minio-*
+            - resources:
+                namespaces:
+                  - fortify
+                names:
+                  - fortify-mysql-* # mysql breaks if you give it a different group
+            - resources:
+                namespaces:
+                  - metallb-system
+                names:
+                  - speaker-*
+                  - controller-*
+            - resources:
+                namespaces:
+                  - velero
+                names:
+                  - velero-backup-restore-test*
       require-non-root-user:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - volume-upgrade-job*
+            # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
+            # is only recommended for Dev/CI environments.
+            - resources:
+                namespaces:
+                  - gitlab
+                names:
+                  - gitlab-minio-*
+            - resources:
+                namespaces:
+                  - metallb-system
+                names:
+                  - speaker-*
+            - resources:
+                namespaces:
+                  - argocd
+                names:
+                  - guestbook*
+            - resources:
+                namespaces:
+                  - velero
+                names:
+                  - velero-backup-restore-test*
+            - resources:
+                namespaces:
+                  - twistlock
+                names:
+                  - volume-upgrade-job*
       disallow-namespaces:
         parameters:
           disallow:
-          - bigbang
+            - bigbang
 
 elasticsearchKibana:
   enabled: false
@@ -811,7 +809,7 @@ elasticsearchKibana:
             enabled: true
             spec:
               hosts:
-                - 'kibana.dev.bigbang.mil'
+                - "kibana.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -875,10 +873,10 @@ fluentbit:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -889,7 +887,6 @@ fluentbit:
       privileged: true
     bbtests:
       enabled: true
-
 
 loki:
   strategy: scalable
@@ -902,11 +899,11 @@ loki:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "grafana.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -955,11 +952,11 @@ loki:
       enabled: true
       cypress:
         envs:
-          cypress_check_datasource: 'true'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_check_datasource: "true"
+          cypress_grafana_url: "https://grafana.dev.bigbang.mil"
       scripts:
         envs:
-          LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
+          LOKI_URL: "http://logging-loki-write.logging.svc:3100"
 
 tempo:
   sso:
@@ -978,13 +975,13 @@ tempo:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'tempo.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'grafana.com'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "tempo.dev.bigbang.mil"
+                - "grafana.dev.bigbang.mil"
+                - "grafana.com"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -1003,10 +1000,10 @@ tempo:
       cypress:
         artifacts: true
         envs:
-          cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
-          cypress_check_datasource: 'true'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_url: "https://tempo.dev.bigbang.mil"
+          cypress_tempo_datasource: "http://tempo-tempo.tempo.svc:3100"
+          cypress_check_datasource: "true"
+          cypress_grafana_url: "https://grafana.dev.bigbang.mil"
           # uncomment following variables for sso keycloak testing in bb
           #cypress_tnr_username: "cypress"
           #cypress_tnr_password: "tnr_w!G33ZyAt@C8"
@@ -1014,7 +1011,7 @@ tempo:
       scripts:
         enabled: false
         envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
+          TEMPO_METRICS_URL: "http://tempo-tempo.tempo.svc:3100"
 
     persistence:
       enabled: true
@@ -1062,13 +1059,13 @@ monitoring:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'prometheus.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'alertmanager.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "prometheus.dev.bigbang.mil"
+                - "grafana.dev.bigbang.mil"
+                - "alertmanager.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -1092,12 +1089,12 @@ monitoring:
       enabled: true
       cypress:
         envs:
-          cypress_bigbang_integration: 'true'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
-          cypress_check_istio_dashboards: 'true'
-          cypress_keycloak_test_enable: 'false'
+          cypress_bigbang_integration: "true"
+          cypress_prometheus_url: "https://prometheus.dev.bigbang.mil"
+          cypress_grafana_url: "https://grafana.dev.bigbang.mil"
+          cypress_alertmanager_url: "https://alertmanager.dev.bigbang.mil"
+          cypress_check_istio_dashboards: "true"
+          cypress_keycloak_test_enable: "false"
           cypress_tnr_username: "cypress"
           cypress_tnr_password: "tnr_w!G33ZyAt@C8"
 
@@ -1117,11 +1114,11 @@ grafana:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "grafana.dev.bigbang.mil"
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -1146,45 +1143,45 @@ grafana:
       dashboardproviders.yaml:
         apiVersion: 1
         providers:
-        - name: 'default'
-          orgId: 1
-          folder: ''
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards
     bbtests:
       enabled: true
       cypress:
         artifacts: true
         envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_grafana_url: "https://grafana.dev.bigbang.mil"
 
 neuvector:
   values:
     k3s:
       enabled: true
     istio:
-     enabled: true
-     hardened:
-       enabled: true
-       customServiceEntries:
-         - name: "cypress-service-entries-neuvector"
-           enabled: true
-           spec:
-             hosts:
-               - 'registry.npmjs.org'
-               - 'download.cypress.io'
-               - 'cdn.cypress.io'
-               - 'repo1.dso.mil'
-               - 'neuvector.dev.bigbang.mil'
-             location: MESH_EXTERNAL
-             ports:
-               - number: 443
-                 protocol: TLS
-                 name: https
-             resolution: DNS
+      enabled: true
+      hardened:
+        enabled: true
+        customServiceEntries:
+          - name: "cypress-service-entries-neuvector"
+            enabled: true
+            spec:
+              hosts:
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "neuvector.dev.bigbang.mil"
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     bbtests:
       enabled: true
       cypress:
@@ -1213,11 +1210,11 @@ twistlock:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'twistlock.dev.bigbang.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
+                - "twistlock.dev.bigbang.mil"
               location: MESH_EXTERNAL
               exportTo:
                 - "."
@@ -1300,7 +1297,7 @@ addons:
           limits: {}
       configs:
         secret:
-          argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
+          argocdServerAdminPassword: "$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm"
       bbtests:
         enabled: true
         cypress:
@@ -1384,18 +1381,18 @@ addons:
             memory: 64Mi
       trust_store_password: dsoppassword
       key_store_password: dsoppassword
-      key_store_cert_password : dsoppassword
+      key_store_cert_password: dsoppassword
       fortify_autoconfig: |
-          appProperties:
-            host.validation: false
-          datasourceProperties:
-            db.username: root
-            db.password: password
-            jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true'
-          dbMigrationProperties:
-            migration.enabled: true
-            migration.username: root
-            migration.password: password
+        appProperties:
+          host.validation: false
+        datasourceProperties:
+          db.username: root
+          db.password: password
+          jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true'
+        dbMigrationProperties:
+          migration.enabled: true
+          migration.username: root
+          migration.password: password
       fortify_license: |
         <License>
       mysql:
@@ -1452,13 +1449,13 @@ addons:
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "gitlab.dev.bigbang.mil"
                   - "registry.dev.bigbang.mil"
-                  - 'keycloak.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
+                  - "keycloak.dev.bigbang.mil"
+                  - "repo1.dso.mil"
                   - "index.docker.io"
                   - "auth.docker.io"
                   - "production.cloudflare.docker.com"
@@ -1570,11 +1567,11 @@ addons:
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "gitlab.dev.bigbang.mil"
+                  - "repo1.dso.mil"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -1590,15 +1587,15 @@ addons:
         protected: false
       networkPolicies:
         additionalPolicies:
-        - name: egress-runner-jobs
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Egress
-            egress:
-            - to:
-              - ipBlock:
-                  cidr: 0.0.0.0/0
+          - name: egress-runner-jobs
+            spec:
+              podSelector: {}
+              policyTypes:
+                - Egress
+              egress:
+                - to:
+                    - ipBlock:
+                        cidr: 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
@@ -1780,20 +1777,20 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - sonarqube
+                  - from:
+                      - source:
+                          namespaces:
+                            - sonarqube
           customServiceEntries:
             - name: "sonarqube-allow-cypress-tests"
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'sonarqube.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                  - "sonarqube.dev.bigbang.mil"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -1849,20 +1846,20 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - minio-operator
+                  - from:
+                      - source:
+                          namespaces:
+                            - minio-operator
           customServiceEntries:
             - name: "cypress-service-entries-minio-operator"
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'minio-operator.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                  - "minio-operator.dev.bigbang.mil"
                 location: MESH_EXTERNAL
                 exportTo:
                   - "."
@@ -1884,22 +1881,22 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - minio
-                      - minio-operator
+                  - from:
+                      - source:
+                          namespaces:
+                            - minio
+                            - minio-operator
           customServiceEntries:
             - name: "cypress-service-entries-minio"
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'minio.dev.bigbang.mil'
-                  - 'minio-api.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                  - "minio.dev.bigbang.mil"
+                  - "minio-api.dev.bigbang.mil"
                 location: MESH_EXTERNAL
                 exportTo:
                   - "."
@@ -1910,28 +1907,28 @@ addons:
                 resolution: DNS
       tenant:
         pools:
-        - servers: 3
-          volumesPerServer: 4
-          size: 256Mi
-          resources:
-            requests:
-              cpu: 250m
-              memory: 2Gi
-            limits:
-              cpu: 250m
-              memory: 2Gi
-          securityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            fsGroup: 1001
-            runAsNonRoot: true
-          containerSecurityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            runAsNonRoot: true
-            capabilities:
-              drop:
-              - ALL
+          - servers: 3
+            volumesPerServer: 4
+            size: 256Mi
+            resources:
+              requests:
+                cpu: 250m
+                memory: 2Gi
+              limits:
+                cpu: 250m
+                memory: 2Gi
+            securityContext:
+              runAsUser: 1001
+              runAsGroup: 1001
+              fsGroup: 1001
+              runAsNonRoot: true
+            containerSecurityContext:
+              runAsUser: 1001
+              runAsGroup: 1001
+              runAsNonRoot: true
+              capabilities:
+                drop:
+                  - ALL
 
       bbtests:
         # There have been intermittent failures of the tests in the past.   The issue is tracked in the below issue.
@@ -1940,11 +1937,11 @@ addons:
         enabled: true
         cypress:
           envs:
-            cypress_url: 'https://minio.dev.bigbang.mil/login'
+            cypress_url: "https://minio.dev.bigbang.mil/login"
         scripts:
           envs:
-            MINIO_PORT: ''
-            MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
+            MINIO_PORT: ""
+            MINIO_HOST: "https://minio-api.dev.bigbang.mil"
 
   mattermostOperator:
     enabled: false
@@ -1976,21 +1973,21 @@ addons:
                 action: ALLOW
                 rules:
                   - from:
-                    - source:
-                        namespaces:
-                          - monitoring
+                      - source:
+                          namespaces:
+                            - monitoring
           customServiceEntries:
             - name: "cypress-service-entries-mattermost"
               enabled: true
               spec:
                 hosts:
-                  - 'kiali.dev.bigbang.mil'
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'grafana.dev.bigbang.mil'
-                  - 'prometheus.dev.bigbang.mil'
+                  - "kiali.dev.bigbang.mil"
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                  - "grafana.dev.bigbang.mil"
+                  - "prometheus.dev.bigbang.mil"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -2010,30 +2007,30 @@ addons:
       minio:
         tenant:
           pools:
-          - servers: 1
-            name: pool-0
-            volumesPerServer: 4
-            size: 256Mi
-            resources:
-              requests:
-                cpu: 250m
-                memory: 2Gi
-              limits:
-                cpu: 250m
-                memory: 2Gi
-            securityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              fsGroup: 1001
-              fsGroupChangePolicy: "OnRootMismatch"
-              runAsNonRoot: true
-            containerSecurityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              runAsNonRoot: true
-              capabilities:
-                drop:
-                  - ALL
+            - servers: 1
+              name: pool-0
+              volumesPerServer: 4
+              size: 256Mi
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 2Gi
+                limits:
+                  cpu: 250m
+                  memory: 2Gi
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                fsGroup: 1001
+                fsGroupChangePolicy: "OnRootMismatch"
+                runAsNonRoot: true
+              containerSecurityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
       bbtests:
         enabled: true
         cypress:
@@ -2091,7 +2088,7 @@ addons:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
       nexus:
-      # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
+        # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
         env:
           - name: INSTALL4J_ADD_VM_PARAMS
             value: "-Dcom.redhat.fips=false -Xms1024M -Xmx1024M -XX:MaxDirectMemorySize=1024M -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.util.prefs.userRoot=/nexus-data/javaprefs"
@@ -2147,32 +2144,32 @@ addons:
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
+                - "registry.npmjs.org"
+                - "download.cypress.io"
+                - "cdn.cypress.io"
+                - "repo1.dso.mil"
 
     enabled: false
     plugins:
-    - aws
+      - aws
     values:
       serviceAccount:
         server:
           name: velero
       configuration:
         backupStorageLocation:
-        - bucket: velero
-          provider: aws
-          default: true
-          config:
-            region: velero
-            s3ForcePathStyle: "true"
-            s3Url: https://minio-api.dev.bigbang.mil
+          - bucket: velero
+            provider: aws
+            default: true
+            config:
+              region: velero
+              s3ForcePathStyle: "true"
+              s3Url: https://minio-api.dev.bigbang.mil
         volumeSnapshotLocation:
-        - name: default
-          provider: aws
-          config:
-            region: velero
+          - name: default
+            provider: aws
+            config:
+              region: velero
       credentials:
         useSecret: true
         secretContents:
@@ -2306,8 +2303,8 @@ addons:
   vault:
     enabled: true
     git:
-      tag: null 
-      branch: "test-without-serviceentry"
+      tag: null
+      branch: "75-egress-whitelist-vault-3"
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2399,26 +2396,50 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                - from:
-                  - source:
-                      ipBlocks:
-                        - 169.254.169.254/32
+                  - from:
+                      - source:
+                          ipBlocks:
+                            - 169.254.169.254/32
           customServiceEntries:
-            - name: "allow-egress-cypress-tests"
+            - name: "allow-vault-egress"
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'vault.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
-                  - 'kms.us-gov-west-1.amazonaws.com'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "vault.dev.bigbang.mil"
+                  - "repo1.dso.mil"
+                  - "kms.us-gov-west-1.amazonaws.com"
+                  - "kms-fips.us-gov-west-1.amazonaws.com"
+                  - "169.254.169.254"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
                     protocol: TLS
                     name: https
+                resolution: DNS
+            - name: allow-egress-instance-metadata
+              enabled: true
+              spec:
+                hosts:
+                  - "169.254.169.254"
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 80
+                    protocol: http
+                    name: metadata
+                resolution: DNS
+            - name: allow-egress-vault-seal
+              enabled: true
+              spec:
+                hosts:
+                  - "kms.us-gov-west-1.amazonaws.com"
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 8200
+                    protocol: https
+                    name: vault
                 resolution: DNS
       bbtests:
         enabled: true
@@ -2608,28 +2629,28 @@ addons:
         enabled: true
         tenant:
           pools:
-          - servers: 1
-            volumesPerServer: 4
-            size: 256Mi
-            resources:
-              requests:
-                cpu: 250m
-                memory: 2Gi
-              limits:
-                cpu: 250m
-                memory: 2Gi
-            securityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              fsGroup: 1001
-              runAsNonRoot: true
-            containerSecurityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              runAsNonRoot: true
-              capabilities:
-                drop:
-                  - ALL
+            - servers: 1
+              volumesPerServer: 4
+              size: 256Mi
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 2Gi
+                limits:
+                  cpu: 250m
+                  memory: 2Gi
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                fsGroup: 1001
+                runAsNonRoot: true
+              containerSecurityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
       storegateway:
         enabled: true
       bbtests:
@@ -2685,18 +2706,17 @@ addons:
         hardened:
           enabled: true
           customServiceEntries:
-          - name: "cypress-service-entries-eckoperator"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
-
+            - name: "cypress-service-entries-eckoperator"
+              enabled: true
+              spec:
+                hosts:
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
