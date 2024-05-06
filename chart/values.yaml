@@ -143,6 +143,9 @@ networkPolicies:
   # Must be an IP CIDR range (x.x.x.x/x - ideally with /32 for the specific IP of a single endpoint, broader range for multiple masters/endpoints)
   # Used by package NetworkPolicies to allow Kube API access
   controlPlaneCidr: 0.0.0.0/0
+  # -- Kube API Port, defaults to 443 but can be set to 6443 or custom port
+  # The port where the Kubernetes API server listens for secure connections. This is used specifically for the Gitlab Runner package.
+  # kubeapiPort: 6443
   # -- Node CIDR, defaults to allowing "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" "100.64.0.0/10" networks.
   # use `kubectl get nodes -owide` and review the `INTERNAL-IP` column to derive CIDR range.
   # Must be an IP CIDR range (x.x.x.x/x - ideally a /16 or /24 to include multiple IPs)
