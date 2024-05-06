@@ -2430,6 +2430,17 @@ addons:
                     protocol: http
                     name: metadata
                 resolution: DNS
+            - name: allow-egress-vault-seal
+              enabled: true
+              spec:
+                hosts:
+                  - "kms.us-gov-west-1.amazonaws.com"
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 8200
+                    protocol: https
+                    name: vault
+                resolution: DNS
       bbtests:
         enabled: true
         cypress:
