@@ -1449,13 +1449,13 @@ addons:
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "gitlab.dev.bigbang.mil"
                   - "registry.dev.bigbang.mil"
-                  - 'keycloak.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
+                  - "keycloak.dev.bigbang.mil"
+                  - "repo1.dso.mil"
                   - "index.docker.io"
                   - "auth.docker.io"
                   - "production.cloudflare.docker.com"
@@ -1567,11 +1567,11 @@ addons:
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "gitlab.dev.bigbang.mil"
+                  - "repo1.dso.mil"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -1777,20 +1777,20 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - sonarqube
+                  - from:
+                      - source:
+                          namespaces:
+                            - sonarqube
           customServiceEntries:
             - name: "sonarqube-allow-cypress-tests"
               enabled: true
               spec:
                 hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'sonarqube.dev.bigbang.mil'
+                  - "registry.npmjs.org"
+                  - "download.cypress.io"
+                  - "cdn.cypress.io"
+                  - "repo1.dso.mil"
+                  - "sonarqube.dev.bigbang.mil"
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
