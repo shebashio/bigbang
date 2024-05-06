@@ -2304,7 +2304,10 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: false
+    enabled: true
+    git:
+      tag: null 
+      branch: "test-without-serviceentry"
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2417,19 +2420,6 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-            # - name: "allow-egress-instance-metadata"
-            #   enabled: true
-            #   spec:
-            #     addresses:
-            #     - 169.254.169.254/32
-            #     ports:
-            #     - number: 80
-            #       name: http
-            #       protocol: HTTP
-            #     location: MESH_EXTERNAL
-            #     resolution: STATIC
-            #     endpoints:
-            #     - address: 169.254.169.254
       bbtests:
         enabled: true
         cypress:
