@@ -2401,7 +2401,7 @@ addons:
                       ipBlocks:
                         - 169.254.169.254/32
           customServiceEntries:
-            - name: "allow-egress-cypress-tests"
+            - name: "allow-egress-ci-tests"
               enabled: true
               spec:
                 hosts:
@@ -2417,19 +2417,21 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-            # - name: "allow-egress-instance-metadata"
-            #   enabled: true
-            #   spec:
-            #     addresses:
-            #     - 169.254.169.254/32
-            #     ports:
-            #     - number: 80
-            #       name: http
-            #       protocol: HTTP
-            #     location: MESH_EXTERNAL
-            #     resolution: STATIC
-            #     endpoints:
-            #     - address: 169.254.169.254
+            - name: "allow-egress-instance-metadata"
+              enabled: true
+              spec:
+                hosts:
+                - kms.us-gov-west-1.amazonaws.com
+                addresses:
+                - 169.254.169.254
+                ports:
+                - number: 80
+                  name: tcp
+                  protocol: tcp
+                location: MESH_EXTERNAL
+                resolution: STATIC
+                endpoints:
+                - address: 169.254.169.254
       bbtests:
         enabled: true
         cypress:
