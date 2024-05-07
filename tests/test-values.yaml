@@ -2401,7 +2401,7 @@ addons:
                       ipBlocks:
                         - 169.254.169.254/32
           customServiceEntries:
-            - name: "allow-vault-egress"
+            - name: "allow-egress-cypress-tests"
               enabled: true
               spec:
                 hosts:
@@ -2422,17 +2422,34 @@ addons:
               enabled: true
               spec:
                 hosts:
-                - "169.254.169.254"
+                - kms.us-gov-west-1.amazonaws.com
                 addresses:
-                - 169.254.169.254/32
+                - 169.254.169.254
                 ports:
                 - number: 80
-                  name: http
-                  protocol: HTTP
+                  name: tcp
+                  protocol: tcp
                 location: MESH_EXTERNAL
                 resolution: STATIC
                 endpoints:
                 - address: 169.254.169.254
+            - name: "allow-vault-ha-comms"
+              enabled: true
+              spec:
+                hosts:
+                  - "vault.dev.bigbang.mil"
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 8200
+                    protocol: TLS
+                    name: vault
+                  - number: 8201
+                    protocol: TLS
+                    name: vault2
+                  - number: 8202
+                    protocol: TLS
+                    name: vault3
+                resolution: DNS
       bbtests:
         enabled: true
         cypress:
