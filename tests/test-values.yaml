@@ -725,13 +725,20 @@ kyvernoPolicies:
       require-drop-all-capabilities:
         exclude:
           any:
-            # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-            # is only recommended for Dev/CI environments.
-            - resources:
-                namespaces:
-                  - gitlab
-                names:
-                  - gitlab-minio-*
+          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
+          # is only recommended for Dev/CI environments.
+          - resources:
+              namespaces:
+              - gitlab
+              names:
+              - gitlab-minio-*
+          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
+          - resources:
+              namespaces:
+              - twistlock
+              names:
+              - twistlock-defender-ds*
+
       require-non-root-group:
         exclude:
           any:
