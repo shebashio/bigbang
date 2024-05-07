@@ -2396,51 +2396,42 @@ addons:
               spec:
                 action: ALLOW
                 rules:
-                  - from:
-                      - source:
-                          ipBlocks:
-                            - 169.254.169.254/32
+                - from:
+                  - source:
+                      ipBlocks:
+                        - 169.254.169.254/32
           customServiceEntries:
-            - name: "allow-vault-egress"
+            - name: "allow-egress-cypress-tests"
               enabled: true
               spec:
                 hosts:
-                  - "registry.npmjs.org"
-                  - "download.cypress.io"
-                  - "cdn.cypress.io"
-                  - "vault.dev.bigbang.mil"
-                  - "repo1.dso.mil"
-                  - "kms.us-gov-west-1.amazonaws.com"
-                  - "kms-fips.us-gov-west-1.amazonaws.com"
-                  - "169.254.169.254"
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'vault.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                  - 'kms.us-gov-west-1.amazonaws.com'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
                     protocol: TLS
                     name: https
                 resolution: DNS
-            - name: allow-egress-instance-metadata
+            - name: "allow-egress-instance-metadata"
               enabled: true
               spec:
                 hosts:
-                  - "169.254.169.254"
-                location: MESH_EXTERNAL
+                - kms.us-gov-west-1.amazonaws.com
+                addresses:
+                - 169.254.169.254
                 ports:
-                  - number: 80
-                    protocol: http
-                    name: metadata
-                resolution: DNS
-            - name: allow-egress-vault-seal
-              enabled: true
-              spec:
-                hosts:
-                  - "kms.us-gov-west-1.amazonaws.com"
+                - number: 80
+                  name: tcp
+                  protocol: tcp
                 location: MESH_EXTERNAL
-                ports:
-                  - number: 8200
-                    protocol: https
-                    name: vault
-                resolution: DNS
+                resolution: STATIC
+                endpoints:
+                - address: 169.254.169.254
       bbtests:
         enabled: true
         cypress:
