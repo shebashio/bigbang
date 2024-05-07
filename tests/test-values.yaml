@@ -2421,7 +2421,7 @@ addons:
               enabled: true
               spec:
                 hosts:
-                - 169.254.169.254
+                - kms.us-gov-west-1.amazonaws.com
                 addresses:
                 - 169.254.169.254
                 ports:
@@ -2429,7 +2429,7 @@ addons:
                   name: tcp
                   protocol: tcp
                 location: MESH_EXTERNAL
-                resolution: STATIC
+                resolution: NONE
                 endpoints:
                 - address: 169.254.169.254
       bbtests:
