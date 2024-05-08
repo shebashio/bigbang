@@ -2753,6 +2753,24 @@ packages:
         enabled: true
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-jira"
+              enabled: true
+              spec:
+                exportTo:
+                  - "."
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'jira.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
 
       jira:
         service:
