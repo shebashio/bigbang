@@ -2405,14 +2405,15 @@ addons:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
                 - 'harbor.dev.bigbang.mil'
-                - '*.docker.io'
-                - '*.cloudflare.docker.com'
+                - 'index.docker.io'
+                - 'auth.docker.io'
+                - 'production.cloudflare.docker.com'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
                   protocol: TLS
                   name: https
-              resolution: NONE
+              resolution: DNS
           - name: "allow-repo1-for-cypress"
             enabled: true
             spec:
