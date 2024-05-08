@@ -2390,6 +2390,7 @@ addons:
       istio:
         hardened:
           enabled: true
+          outboundTrafficPolicyMode: "REGISTRY_ONLY"
           customAuthorizationPolicies:
             - name: allow-egress-instance-metadata
               enabled: true
@@ -2429,7 +2430,7 @@ addons:
                   name: tcp
                   protocol: tcp
                 location: MESH_EXTERNAL
-                resolution: NONE
+                resolution: STATIC
                 endpoints:
                 - address: 169.254.169.254
       bbtests:
