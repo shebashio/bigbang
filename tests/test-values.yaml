@@ -53,7 +53,7 @@ flux:
 
 networkPolicies:
   enabled: true
-  #controlPlaneCidr: 172.16.0.0/12
+  controlPlaneCidr: 172.20.0.2/32
   kubeapiPort: 6443
 
 istio:
@@ -1437,7 +1437,7 @@ addons:
           enabled: true
 
   gitlab:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
@@ -1560,7 +1560,11 @@ addons:
             GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "bb-1931-net-pol-update"
+
     values:
       istio:
         enabled: true
