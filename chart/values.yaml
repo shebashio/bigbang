@@ -428,11 +428,11 @@ clusterAuditor:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
     path: "./chart"
-    tag: "1.5.0-bb.15"
+    tag: "1.5.0-bb.16"
   helmRepo:
     repoName: "registry1"
     chartName: "cluster-auditor"
-    tag: "1.5.0-bb.15"
+    tag: "1.5.0-bb.16"
 
   # -- Flux reconciliation overrides specifically for the Cluster Auditor Package
   flux: {}
@@ -643,11 +643,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.46.2-bb.1"
+    tag: "0.46.2-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.46.2-bb.1"
+    tag: "0.46.2-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1497,11 +1497,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/haproxy.git
       path: "./chart"
-      tag: "1.19.3-bb.4"
+      tag: "1.19.3-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "haproxy"
-      tag: "1.19.3-bb.4"
+      tag: "1.19.3-bb.5"
 
     # -- Flux reconciliation overrides specifically for the HAProxy Package
     flux: {}
@@ -1526,11 +1526,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.13"
+      tag: "2.4.2-bb.14"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.13"
+      tag: "2.4.2-bb.14"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
