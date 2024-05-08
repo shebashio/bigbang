@@ -734,11 +734,18 @@ kyvernoPolicies:
               - gitlab
               names:
               - gitlab-minio-*
+          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
+          - resources:
+              namespaces:
+              - twistlock
+              names:
+              - twistlock-defender-ds*
+
           - resources:
               namespaces:
               - argocd
               names:
-              - guestbook*
+              - guestbook-ui-*
       require-non-root-group:
         exclude:
           any:
@@ -784,7 +791,7 @@ kyvernoPolicies:
               namespaces:
               - argocd
               names:
-              - guestbook*
+              - guestbook-ui-*
           - resources:
               namespaces:
               - velero
