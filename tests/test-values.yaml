@@ -2390,7 +2390,6 @@ addons:
       istio:
         hardened:
           enabled: true
-          outboundTrafficPolicyMode: "REGISTRY_ONLY"
           customAuthorizationPolicies:
             - name: allow-egress-instance-metadata
               enabled: true
