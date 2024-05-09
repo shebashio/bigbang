@@ -2463,6 +2463,14 @@ addons:
 
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
+      core:
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+        limits:
+          cpu: 300m
+          memory: 768Mi
       istio:
         hardened:
           enabled: true
