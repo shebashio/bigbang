@@ -135,11 +135,11 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if and .Values.thanos.enabled .Values.thanos.sso.enabled }}
+  {{- if and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled }}
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.thanos.values) }}
+    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.addons.thanos.values) }}
     {{- if $thanosHosts }}
       prefix: {{ tpl ($thanosHosts | first) $ }}
     callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/graph
@@ -147,8 +147,8 @@ chains:
       prefix: {{ printf "tracing.%s" $domainName }}
     callback_uri: https://tracing.{{ $domainName }}/graph
     {{- end }}
-    client_id: "{{ .Values.thanos.sso.client_id }}"
-    client_secret: "{{ .Values.thanos.sso.client_secret }}"
+    client_id: "{{ .Values.addons.thanos.sso.client_id }}"
+    client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
