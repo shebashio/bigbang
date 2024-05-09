@@ -2463,14 +2463,6 @@ addons:
 
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
-      core:
-        resources:
-          requests:
-            memory: 512Mi
-            cpu: 200m
-        limits:
-          cpu: 300m
-          memory: 768Mi
       istio:
         hardened:
           enabled: true
@@ -2503,130 +2495,130 @@ addons:
       nginx:
         resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       portal:
         resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       core:
         secretName: "ci-only"
         resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       jobservice:
         resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       registry:
         registry:
           resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
         controller:
           resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       chartmuseum:
         resources:
         requests:
-          memory: 200Mi
-          cpu: 80m
+          memory: 400Mi
+          cpu: 160m
         limits:
-          cpu: 80m
-          memory: 200Mi
+          cpu: 160m
+          memory: 400Mi
       trivy:
         resources:
           requests:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       notary:
         server:
           resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
         signer:
           resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
       database:
         type: external
         internal:
           resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            cpu: 80m
-            memory: 200Mi
+            cpu: 160m
+            memory: 400Mi
           initContainer:
             migrator: {}
             permissions: {}
             resources:
               requests:
-                memory: 100Mi
-                cpu: 80m
+                memory: 200Mi
+                cpu: 160m
               limits:
-                cpu: 80m
-                memory: 100Mi
+                cpu: 160m
+                memory: 200Mi
       postgresql:
         resources:
           requests:
-            cpu: "200m"
-            memory: "200Mi"
+            cpu: "400m"
+            memory: "400Mi"
           limits:
-            cpu: "200m"
-            memory: "200Mi"
+            cpu: "400m"
+            memory: "400Mi"
       redis:
         resources:
           requests:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
           limits:
-            memory: 200Mi
-            cpu: 80m
+            memory: 400Mi
+            cpu: 160m
       exporter:
         resources:
         requests:
-          memory: 200Mi
-          cpu: 80m
+          memory: 400Mi
+          cpu: 160m
         limits:
-          cpu: 80m
-          memory: 200Mi
+          cpu: 160m
+          memory: 400Mi
       bbtests:
         enabled: true
         cypress:
