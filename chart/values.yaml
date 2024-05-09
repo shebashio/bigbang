@@ -515,11 +515,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.0.4-bb.29"
+    tag: "3.0.4-bb.30"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.0.4-bb.29"
+    tag: "3.0.4-bb.30"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -696,11 +696,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "5.47.2-bb.3"
+    tag: "5.47.2-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "5.47.2-bb.3"
+    tag: "5.47.2-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1144,11 +1144,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "5.0.12-bb.12"
+      tag: "5.0.12-bb.13"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "5.0.12-bb.12"
+      tag: "5.0.12-bb.13"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1896,12 +1896,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-      tag: "1.14.2-bb.2"
+      tag: "1.14.2-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.14.2-bb.2"
+      tag: "1.14.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Jaeger Package
     flux: {}
