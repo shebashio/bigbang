@@ -144,8 +144,8 @@ chains:
       prefix: {{ tpl ($thanosHosts | first) $ }}
     callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/graph
     {{- else }}
-      prefix: {{ printf "tracing.%s" $domainName }}
-    callback_uri: https://tracing.{{ $domainName }}/graph
+      prefix: {{ printf "thanos.%s" $domainName }}
+    callback_uri: https://thanos.{{ $domainName }}/graph
     {{- end }}
     client_id: "{{ .Values.addons.thanos.sso.client_id }}"
     client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
