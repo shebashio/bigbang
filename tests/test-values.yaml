@@ -2485,6 +2485,17 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+            - name: "cypress-http-harbor-test-port"
+              enabled: true
+              spec:
+                hosts:
+                  - 'harbor.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 80
+                    protocol: HTTP
+                    name: http
+                resolution: DNS
       expose:
         type: clusterIP
         tls:
