@@ -2498,16 +2498,16 @@ addons:
             memory: 400Mi
             cpu: 160m
           limits:
-            cpu: 160m
-            memory: 1
+            cpu: 1
+            memory: 1Gi
       portal:
         resources:
           requests:
             memory: 400Mi
             cpu: 160m
           limits:
-            cpu: 160m
-            memory: 1
+            cpu: 1
+            memory: 1Gi
       core:
         secretName: "ci-only"
         resources:
@@ -2516,7 +2516,7 @@ addons:
             cpu: 160m
           limits:
             cpu: 1
-            memory: 400Mi
+            memory: 1Gi
       jobservice:
         resources:
           requests:
@@ -2533,7 +2533,7 @@ addons:
             cpu: 160m
           limits:
             cpu: 1
-            memory: 400Mi
+            memory: 1Gi
         controller:
           resources:
           requests:
