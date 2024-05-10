@@ -1486,10 +1486,6 @@ addons:
             cpu: 10m
           limits: {}
       gitlab:
-          enabled: true
-          git:
-            tag: null
-            branch: "bb-1931-net-pol-update"
         webservice:
           minReplicas: 1
           maxReplicas: 1
@@ -1571,7 +1567,10 @@ addons:
             GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "bb-1931-net-pol-update"
     values:
       istio:
         enabled: true
