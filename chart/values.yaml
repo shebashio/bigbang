@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.82.0-bb.3"
+    tag: "1.83.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.82.0-bb.3"
+    tag: "1.83.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -643,11 +643,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.46.2-bb.2"
+    tag: "0.46.5-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.46.2-bb.2"
+    tag: "0.46.5-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -928,11 +928,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "7.3.9-bb.0"
+    tag: "7.3.9-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "7.3.9-bb.0"
+    tag: "7.3.9-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1325,11 +1325,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "67.1.0-bb.3"
+      tag: "67.1.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "67.1.0-bb.3"
+      tag: "67.1.0-bb.4"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1831,11 +1831,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.25.0-bb.26"
+      tag: "0.25.0-bb.28"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.25.0-bb.26"
+      tag: "0.25.0-bb.28"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
