@@ -2672,6 +2672,10 @@ addons:
         enabled: true
         cypress:
           artifacts: true
+          resources:
+            limits:
+              cpu: "2"
+              memory: "8G"
           envs:
             cypress_url: "https://thanos.dev.bigbang.mil"
             cypress_prometheus_integration_enabled: "true"
