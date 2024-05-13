@@ -873,11 +873,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "58.3.3-bb.0"
+    tag: "58.4.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "58.3.3-bb.0"
+    tag: "58.4.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -928,11 +928,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "7.3.9-bb.1"
+    tag: "7.3.9-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "7.3.9-bb.1"
+    tag: "7.3.9-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1031,7 +1031,7 @@ addons:
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "6.7.15-bb.2"
+      tag: "6.7.15-bb.3"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
