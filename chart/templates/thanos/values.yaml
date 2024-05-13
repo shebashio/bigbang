@@ -61,6 +61,3 @@ query:
   {{- if .Values.addons.thanos.sso.enabled }}
   podLabels:
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
-    
-
-{{- end }}
