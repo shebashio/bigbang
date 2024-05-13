@@ -2500,6 +2500,17 @@ addons:
                     protocol: TCP
                     name: http
                 resolution: DNS
+            - name: "cypress-https-registry1"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TCP
+                    name: https
+                resolution: DNS
       expose:
         type: clusterIP
         tls:
