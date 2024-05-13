@@ -55,15 +55,8 @@ networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
 
-istioOperator:
-  enabled: true
-  git:
-    tag: "1.21.1-bb.0"
-
 istio:
   enabled: true
-  git:
-    tag: "1.21.1-bb.0"
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
