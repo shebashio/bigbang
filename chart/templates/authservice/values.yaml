@@ -142,10 +142,10 @@ chains:
     {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.addons.thanos.values) }}
     {{- if $thanosHosts }}
       prefix: {{ tpl ($thanosHosts | first) $ }}
-    callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/graph
+    callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
     {{- else }}
       prefix: {{ printf "thanos.%s" $domainName }}
-    callback_uri: https://thanos.{{ $domainName }}/graph
+    callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
     {{- end }}
     client_id: "{{ .Values.addons.thanos.sso.client_id }}"
     client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
