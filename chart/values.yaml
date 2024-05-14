@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.83.0-bb.0"
+    tag: "1.84.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.83.0-bb.0"
+    tag: "1.84.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -873,11 +873,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "58.4.1-bb.0"
+    tag: "58.5.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "58.4.1-bb.0"
+    tag: "58.5.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1298,12 +1298,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.63.0-bb.5"
+      tag: "0.63.0-bb.6"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.63.0-bb.5"
+      tag: "0.63.0-bb.6"
       
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
