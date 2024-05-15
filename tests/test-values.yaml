@@ -56,6 +56,9 @@ networkPolicies:
   #controlPlaneCidr: 172.16.0.0/12
 
 istio:
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   enabled: true
   ingressGateways:
     passthrough-ingressgateway:
@@ -76,6 +79,11 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+
+istioOperator:
+  git:
+    tag: null
+    branch: "renovate/ironbank"
 
 jaeger:
   enabled: false
