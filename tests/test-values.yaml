@@ -1566,6 +1566,9 @@ addons:
             GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
+    git:
+      tag: null
+      branch: "renovate/ironbank"
     enabled: false
     values:
       istio:
