@@ -2490,11 +2490,11 @@ addons:
               spec:
                 hosts:
                   - 'registry.npmjs.org'
+                  - 'registry1.dso.mil'
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
                   - 'harbor.dev.bigbang.mil'
                   - 'repo1.dso.mil'
-                  - 'registry1.dso.mil'
                   - 'index.docker.io'
                   - 'auth.docker.io'
                   - 'production.cloudflare.docker.com'
@@ -2502,28 +2502,6 @@ addons:
                 ports:
                   - number: 443
                     protocol: TLS
-                    name: https
-                resolution: DNS
-            - name: "cypress-http-harbor-test-port"
-              enabled: true
-              spec:
-                hosts:
-                  - 'harbor.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 80
-                    protocol: TCP
-                    name: http
-                resolution: DNS
-            - name: "cypress-https-registry1"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry1.dso.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TCP
                     name: https
                 resolution: DNS
       expose:
@@ -2536,130 +2514,130 @@ addons:
       nginx:
         resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 1
-            memory: 1Gi
+            cpu: 80m
+            memory: 200Mi
       portal:
         resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 1
-            memory: 1Gi
+            cpu: 80m
+            memory: 200Mi
       core:
         secretName: "ci-only"
         resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 1
-            memory: 1Gi
+            cpu: 80m
+            memory: 200Mi
       jobservice:
         resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
       registry:
         registry:
           resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 1
-            memory: 1Gi
+            cpu: 80m
+            memory: 200Mi
         controller:
           resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
       chartmuseum:
         resources:
         requests:
-          memory: 400Mi
-          cpu: 160m
+          memory: 200Mi
+          cpu: 80m
         limits:
-          cpu: 160m
-          memory: 400Mi
+          cpu: 80m
+          memory: 200Mi
       trivy:
         resources:
           requests:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
       notary:
         server:
           resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
         signer:
           resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
       database:
         type: external
         internal:
           resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            cpu: 160m
-            memory: 400Mi
+            cpu: 80m
+            memory: 200Mi
           initContainer:
             migrator: {}
             permissions: {}
             resources:
               requests:
-                memory: 200Mi
-                cpu: 160m
+                memory: 100Mi
+                cpu: 80m
               limits:
-                cpu: 160m
-                memory: 200Mi
+                cpu: 80m
+                memory: 100Mi
       postgresql:
         resources:
           requests:
-            cpu: "400m"
-            memory: "400Mi"
+            cpu: "200m"
+            memory: "200Mi"
           limits:
-            cpu: "400m"
-            memory: "400Mi"
+            cpu: "200m"
+            memory: "200Mi"
       redis:
         resources:
           requests:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
           limits:
-            memory: 400Mi
-            cpu: 160m
+            memory: 200Mi
+            cpu: 80m
       exporter:
         resources:
         requests:
-          memory: 400Mi
-          cpu: 160m
+          memory: 200Mi
+          cpu: 80m
         limits:
-          cpu: 160m
-          memory: 400Mi
+          cpu: 80m
+          memory: 200Mi
       bbtests:
         enabled: true
         cypress:
@@ -2733,10 +2711,6 @@ addons:
         enabled: true
         cypress:
           artifacts: true
-          #resources:
-          #  limits:
-          #    cpu: "2"
-          #    memory: "8G"
           envs:
             cypress_url: "https://thanos.dev.bigbang.mil"
             cypress_prometheus_integration_enabled: "true"
