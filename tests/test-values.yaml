@@ -2485,12 +2485,11 @@ addons:
         hardened:
           enabled: true
           customServiceEntries:
-            - name: "allow-npm-for-cypress-tests"
+            - name: "allow-for-cypress-tests"
               enabled: true
               spec:
                 hosts:
                   - 'registry.npmjs.org'
-                  - 'registry1.dso.mil'
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
                   - 'harbor.dev.bigbang.mil'
