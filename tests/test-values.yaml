@@ -740,7 +740,14 @@ kyvernoPolicies:
               - twistlock
               names:
               - twistlock-defender-ds*
-
+          # Neuvector needs access to host to inspect network traffic
+          - resources:
+              namespaces:
+              - neuvector
+              names:
+              - neuvector-enforcer-pod*
+              - neuvector-controller-pod*
+              - neuvector-prometheus-exporter-pod*
           - resources:
               namespaces:
               - argocd
@@ -1458,7 +1465,7 @@ addons:
       istio:
         enabled: true
         hardened:
-          enabled: true
+          enabled: false
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
               enabled: true
@@ -1576,7 +1583,7 @@ addons:
       istio:
         enabled: true
         hardened:
-          enabled: true
+          enabled: false
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
               enabled: true
@@ -2652,10 +2659,30 @@ addons:
   thanos:
     # -- Toggle deployment of thanos
     enabled: false
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
     values:
       istio:
         hardened:
           enabled: true
+        customServiceEntries:
+          - name: "cypress-service-entries-thanos"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'thanos.dev.bigbang.mil'
+                - 'grafana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
       minio:
         enabled: true
         tenant:
