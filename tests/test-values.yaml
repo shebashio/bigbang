@@ -1451,9 +1451,8 @@ addons:
       timeout: 30m
     values:
       istio:
-        enabled: true
         hardened:
-          enabled: true
+          enabled: false
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
               enabled: true
