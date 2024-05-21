@@ -72,5 +72,5 @@ spec:
   {{- end }}
   {{- end }}
   driftDetection:
-  {{- toYaml  $.Values.flux.driftDetection | nindent 4 }}
+  {{- toYaml  .Values.flux.driftDetection | nindent 4 }}
 {{- end }}
