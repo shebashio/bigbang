@@ -1779,6 +1779,9 @@ addons:
         scripts:
           envs:
             ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
+        cypress:
+          envs:
+            cypress_url: "https://anchore.dev.bigbang.mil"
 
   sonarqube:
     enabled: false
