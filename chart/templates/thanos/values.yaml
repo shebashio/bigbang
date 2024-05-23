@@ -67,10 +67,10 @@ query:
 objstoreConfig: |-
   type: s3
   config:
-    bucket: {{ .Values.tempo.objstoreConfig.bucketNames }}
-    endpoint: {{ .Values.tempo.objstoreConfig.endpoint }}
-    access_key: {{ .Values.tempo.objstoreConfig.accessKey }}
-    secret_key: {{ .Values.tempo.objstoreConfig.accessSecret }}
+    bucket: {{ .Values.thanos.objstoreConfig.bucketNames }}
+    endpoint: {{ .Values.thanos.objstoreConfig.endpoint }}
+    access_key: {{ .Values.thanos.objstoreConfig.accessKey }}
+    secret_key: {{ .Values.thanos.objstoreConfig.accessSecret }}
   {{- end }}
 
 {{- end }}
