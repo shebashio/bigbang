@@ -72,5 +72,5 @@ spec:
   {{- end }}
 
   driftDetection:
-  {{- toYaml  .Values.flux.driftDetection | nindent 4 }}
+    mode: enabled
 {{- end }}
