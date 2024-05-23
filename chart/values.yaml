@@ -643,11 +643,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.46.5-bb.0"
+    tag: "0.46.7-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.46.5-bb.0"
+    tag: "0.46.7-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -873,11 +873,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "58.5.3-bb.1"
+    tag: "58.6.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "58.5.3-bb.1"
+    tag: "58.6.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -979,11 +979,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.15.0-bb.10"
+    tag: "0.15.0-bb.11"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.15.0-bb.10"
+    tag: "0.15.0-bb.11"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
