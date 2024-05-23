@@ -62,7 +62,7 @@ query:
   podLabels:
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
   {{- end }}
-{{- if .Values.objstoreConfig }}
+{{- if .Values.thanos.objstoreConfig }}
 
 objstoreConfig: |-
   type: s3
