@@ -62,6 +62,15 @@ query:
   podLabels:
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
   {{- end }}
-    
+{{- if .Values.objstoreConfig }}
+
+objstoreConfig: |-
+  type: s3
+  config:
+    bucket: {{ .Values.tempo.objstoreConfig.bucketNames }}
+    endpoint: {{ .Values.tempo.objstoreConfig.endpoint }}
+    access_key: {{ .Values.tempo.objstoreConfig.accessKey }}
+    secret_key: {{ .Values.tempo.objstoreConfig.accessSecret }}
+  {{- end }}
 
 {{- end }}
