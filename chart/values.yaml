@@ -1324,11 +1324,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "67.1.0-bb.4"
+      tag: "68.1.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "67.1.0-bb.4"
+      tag: "68.1.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1643,11 +1643,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.7.3-bb.1"
+      tag: "9.7.3-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "9.7.3-bb.1"
+      tag: "9.7.3-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1737,11 +1737,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.1.0-bb.0"
+      tag: "6.4.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "6.1.0-bb.0"
+      tag: "6.4.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
