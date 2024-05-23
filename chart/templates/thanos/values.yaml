@@ -62,15 +62,15 @@ query:
   podLabels:
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
   {{- end }}
-{{- if .Values.thanos.objstoreConfig }}
+{{- if .Valuesaddons.thanos.objstoreConfig }}
 
 objstoreConfig: |-
   type: s3
   config:
-    bucket: {{ .Values.thanos.objstoreConfig.bucketNames }}
-    endpoint: {{ .Values.thanos.objstoreConfig.endpoint }}
-    access_key: {{ .Values.thanos.objstoreConfig.accessKey }}
-    secret_key: {{ .Values.thanos.objstoreConfig.accessSecret }}
+    bucket: {{ .Values.addons.thanos.objstoreConfig.bucketNames }}
+    endpoint: {{ .Values.addons.thanos.objstoreConfig.endpoint }}
+    access_key: {{ .Values.addons.thanos.objstoreConfig.accessKey }}
+    secret_key: {{ .Values.addons.thanos.objstoreConfig.accessSecret }}
   {{- end }}
 
 {{- end }}
