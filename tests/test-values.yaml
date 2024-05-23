@@ -1254,6 +1254,10 @@ twistlock:
       selinux: false
     bbtests:
       enabled: true
+      cypress:
+          artifacts: true
+          envs:
+            cypress_url: "https://twistlock.dev.bigbang.mil"
       scripts:
         envs:
           twistlock_host: "https://twistlock.dev.bigbang.mil"
