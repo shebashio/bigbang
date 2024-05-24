@@ -1388,6 +1388,9 @@ addons:
 
   fortify:
     enabled: false
+    git:
+      tag: null
+      branch: 88-egress-whitelist-fortify
     flux:
       timeout: 15m
     ingress:
@@ -1398,6 +1401,32 @@ addons:
       istio:
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "allow-npm-for-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "allow-repo1-for-cypress"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+          
       storage:
         volume: 5Gi
       jvmMaxRAMPercentage: 85
