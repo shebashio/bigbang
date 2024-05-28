@@ -1339,8 +1339,26 @@ addons:
                 limits: 2048Mi
       istio:
         hardened:
-          enabled: false
-
+          enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-argocd"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'argocd.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: HTTPS
+                    name: https
+                  - number: 80
+                    protocol: HTTP
+                    name: http
+                resolution: DNS
   authservice:
     enabled: false
     chains:
@@ -1461,10 +1479,16 @@ addons:
     flux:
       timeout: 30m
     values:
+      upgradeCheck:
+        annotations:
+          sidecar.istio.io/inject: "true"
+      shared-secrets:
+        annotations:
+          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
-          enabled: false
+          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
               enabled: true
@@ -1527,6 +1551,9 @@ addons:
               cpu: 10m
             limits: {}
         migrations:
+          # required annotation when istio.hardened.enabled = true
+          annotations:
+            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
@@ -1551,6 +1578,9 @@ addons:
               cpu: 10m
             limits: {}
       minio:
+        # required annotation when istio.hardened.enabled = true
+        jobAnnotations:
+          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
@@ -1582,7 +1612,7 @@ addons:
       istio:
         enabled: true
         hardened:
-          enabled: false
+          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
               enabled: true
@@ -2665,23 +2695,34 @@ addons:
       istio:
         hardened:
           enabled: true
-        customServiceEntries:
-          - name: "cypress-service-entries-thanos"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'thanos.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
+          customServiceEntries:
+            - name: "cypress-service-entries-thanos"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'thanos.dev.bigbang.mil'
+                  - 'grafana.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+          customAuthorizationPolicies:
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       minio:
         enabled: true
         tenant:
