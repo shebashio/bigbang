@@ -1,6 +1,6 @@
-{{- $fluxSettingsClusterAuditor := mergeOverwrite .Values.flux .Values.clusterAuditor.flux -}}
+{{- $fluxSettingsClusterAuditor := merge .Values.clusterAuditor.flux .Values.flux -}}
 {{- if .Values.clusterAuditor.enabled }}
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: cluster-auditor

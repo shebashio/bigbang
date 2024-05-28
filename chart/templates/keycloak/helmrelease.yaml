@@ -1,8 +1,8 @@
-{{- $fluxSettingsKeycloak := mergeOverwrite .Values.flux .Values.addons.keycloak.flux -}}
+{{- $fluxSettingsKeycloak := merge .Values.addons.keycloak.flux .Values.flux -}}
 {{- if .Values.addons.keycloak.enabled }}
 {{ $name := "keycloak" }}
 {{ $component := "security-tools" }}
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: {{ $name }}

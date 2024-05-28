@@ -76,6 +76,10 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+    values:
+      pilot:
+        env:
+          "ENABLE_NATIVE_SIDECARS": "true"
 
 jaeger:
   enabled: false
@@ -743,7 +747,14 @@ kyvernoPolicies:
               - twistlock
               names:
               - twistlock-defender-ds*
-
+          # Neuvector needs access to host to inspect network traffic
+          - resources:
+              namespaces:
+              - neuvector
+              names:
+              - neuvector-enforcer-pod*
+              - neuvector-controller-pod*
+              - neuvector-prometheus-exporter-pod*
       require-non-root-group:
         exclude:
           any:
@@ -1317,9 +1328,9 @@ addons:
           envs:
             cypress_url: "https://argocd.dev.bigbang.mil"
           resources:
-            requests:
-              cpu: 2
-              memory: 2Gi
+            limits:
+              cpu: 4
+              memory: 12Gi
         istio:
           sidecar:
             resources:
@@ -1331,8 +1342,26 @@ addons:
                 limits: 2048Mi
       istio:
         hardened:
-          enabled: false
-
+          enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-argocd"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'argocd.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: HTTPS
+                    name: https
+                  - number: 80
+                    protocol: HTTP
+                    name: http
+                resolution: DNS
   authservice:
     enabled: false
     chains:
@@ -1453,6 +1482,12 @@ addons:
     flux:
       timeout: 30m
     values:
+      upgradeCheck:
+        annotations:
+          sidecar.istio.io/inject: "true"
+      shared-secrets:
+        annotations:
+          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
@@ -1519,6 +1554,9 @@ addons:
               cpu: 10m
             limits: {}
         migrations:
+          # required annotation when istio.hardened.enabled = true
+          annotations:
+            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
@@ -1543,6 +1581,9 @@ addons:
               cpu: 10m
             limits: {}
       minio:
+        # required annotation when istio.hardened.enabled = true
+        jobAnnotations:
+          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
@@ -2231,6 +2272,20 @@ addons:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
+      istio:
+        enabled: true
+        hardened:
+          enabled: true
+          customAuthorizationPolicies:
+            - name: "allow-intranamespace-keycloak"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - keycloak
       replicas: 1
       resources:
         requests:
@@ -2636,10 +2691,41 @@ addons:
   thanos:
     # -- Toggle deployment of thanos
     enabled: false
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
     values:
       istio:
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-thanos"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'thanos.dev.bigbang.mil'
+                  - 'grafana.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+          customAuthorizationPolicies:
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       minio:
         enabled: true
         tenant:
