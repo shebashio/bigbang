@@ -95,6 +95,21 @@ ingressGateways:
     {{- end}}
 {{- end }}
 
+
+{{- if .Values.istio.egressGateways }}
+egressGateways:
+  istio-egressgateway:
+    enabled: {{ .Values.istio.egressGateways.default }}
+{{- end }}
+
+{{- range $name, $values := .Values.istio.egressGateways }}
+  {{ $name | nindent 2 }}:
+    {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (fromYaml (include "istio.egressgateway.k8s" $values))) | nindent 4 }}
+    {{- if $values.extraLabels }}
+    {{- toYaml (dict "extraLabels" $values.extraLabels) | nindent 4 }}
+    {{- end}}
+{{- end }}
+
 {{- if .Values.istio.gateways }}
 gateways:
   main: null
@@ -191,5 +206,25 @@ k8s:
     - port: 15443
       name: tls
       nodePort: {{ add .nodePortBase 3 }}
+    {{- end }}
+{{- end }}
+
+{{- define "istio.egressgateway.k8s" -}}
+k8s:
+  service:
+    type: {{ .type }}
+    ports: # Pulled from Istio gateway defaults (https://github.com/istio/istio/blob/master/manifests/charts/gateways/istio-egress/values.yaml)
+    # Ports default to "protocol: TCP" and "targetPort = port"
+    - port: 80
+      name: http
+      protocol: HTTP
+      hosts:
+      - httpbin.org
+    - port: 443
+      name: https
+      protocol: HTTPS
+      hosts:
+      - httpbin.org
+
     {{- end }}
 {{- end }}
