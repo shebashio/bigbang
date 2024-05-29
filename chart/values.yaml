@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.84.0-bb.0"
+    tag: "1.85.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.84.0-bb.0"
+    tag: "1.85.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -753,11 +753,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.7.6-bb.1"
+    tag: "2.7.6-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.7.6-bb.1"
+    tag: "2.7.6-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1083,11 +1083,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.0.0-bb.1"
+      tag: "1.0.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.0.0-bb.1"
+      tag: "1.0.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1526,11 +1526,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.4.2-bb.14"
+      tag: "2.4.2-bb.15"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.4.2-bb.14"
+      tag: "2.4.2-bb.15"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
