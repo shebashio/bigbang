@@ -72,5 +72,5 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
   driftDetection:
-    mode: enabled
+    mode: disabled
 {{- end }}
