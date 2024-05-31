@@ -72,6 +72,7 @@ objstoreConfig: |-
     endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
     access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
     secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
+    signature_version2: false
   {{- end }}
 
 {{- end }}
