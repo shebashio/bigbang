@@ -75,4 +75,11 @@ objstoreConfig: |-
     signature_version2: false
   {{- end }}
 
+receive:
+  enabled: true
+  containerPorts:
+    http: 10902
+    grpc: 10901
+    remote: 19291
+  
 {{- end }}
