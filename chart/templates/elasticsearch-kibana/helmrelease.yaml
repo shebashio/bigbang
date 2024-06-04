@@ -71,7 +71,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.elasticsearchKibana.fluentbit.enabled }}
+    {{- if .Values.elasticsearchKibana.fluentbitHRDependency.enabled }}
     - name: fluentbit
       namespace: {{ .Release.Namespace }}
     {{- end }}
