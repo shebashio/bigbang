@@ -57,16 +57,16 @@ networkPolicies:
 
 istio:
   enabled: true
-  ingressGateways:
-    passthrough-ingressgateway:
-      type: "LoadBalancer"
+  # ingressGateways:
+  #   passthrough-ingressgateway:
+  #     type: "LoadBalancer"
   gateways:
-    passthrough:
-      ingressGateway: "passthrough-ingressgateway"
-      hosts:
-      - "*.{{ .Values.domain }}"
-      tls:
-        mode: "PASSTHROUGH"
+    # passthrough:
+    #   ingressGateway: "passthrough-ingressgateway"
+    #   hosts:
+    #   - "*.{{ .Values.domain }}"
+    #   tls:
+    #     mode: "PASSTHROUGH"
     public:
       tls:
         key: "" # Gets added via chart/ingress-certs.yaml
@@ -76,10 +76,6 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-    values:
-      pilot:
-        env:
-          "ENABLE_NATIVE_SIDECARS": "true"
 
 jaeger:
   enabled: false
@@ -145,6 +141,7 @@ kiali:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
+                - 'api.ipify.org'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -752,11 +749,6 @@ kyvernoPolicies:
               - neuvector-enforcer-pod*
               - neuvector-controller-pod*
               - neuvector-prometheus-exporter-pod*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
       require-non-root-group:
         exclude:
           any:
@@ -1344,26 +1336,8 @@ addons:
                 limits: 2048Mi
       istio:
         hardened:
-          enabled: true
-          customServiceEntries:
-            - name: "cypress-service-entries-argocd"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'argocd.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: HTTPS
-                    name: https
-                  - number: 80
-                    protocol: HTTP
-                    name: http
-                resolution: DNS
+          enabled: false
+
   authservice:
     enabled: false
     chains:
@@ -1484,16 +1458,10 @@ addons:
     flux:
       timeout: 30m
     values:
-      upgradeCheck:
-        annotations:
-          sidecar.istio.io/inject: "true"
-      shared-secrets:
-        annotations:
-          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
-          enabled: true
+          enabled: false
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
               enabled: true
@@ -1556,9 +1524,6 @@ addons:
               cpu: 10m
             limits: {}
         migrations:
-          # required annotation when istio.hardened.enabled = true
-          annotations:
-            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
@@ -1583,9 +1548,6 @@ addons:
               cpu: 10m
             limits: {}
       minio:
-        # required annotation when istio.hardened.enabled = true
-        jobAnnotations:
-          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
@@ -1617,7 +1579,7 @@ addons:
       istio:
         enabled: true
         hardened:
-          enabled: true
+          enabled: false
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
               enabled: true
@@ -2700,34 +2662,23 @@ addons:
       istio:
         hardened:
           enabled: true
-          customServiceEntries:
-            - name: "cypress-service-entries-thanos"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'thanos.dev.bigbang.mil'
-                  - 'grafana.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
-          customAuthorizationPolicies:
-            - name: "allow-intranamespace-thanos"
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - thanos
-                      - monitoring
+        customServiceEntries:
+          - name: "cypress-service-entries-thanos"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'thanos.dev.bigbang.mil'
+                - 'grafana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
       minio:
         enabled: true
         tenant:
