@@ -100,6 +100,9 @@ backend:
   replicas: 3
 gateway:
   enabled: true
+  service:
+    labels:
+      prometheus.io/service-monitor: "false"
 {{- end }}
 
 {{- with .Values.loki.objectStorage }}
