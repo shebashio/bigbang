@@ -111,8 +111,11 @@ prometheus:
   {{- end }}
 
   prometheusSpec:
-
-    {{- if $thanosEnabled }}
+    {{- if .Values.addons.thanos.objectStorage }}
+    remoteWrite:
+    - url: http://thanos-receive.thanos.svc.cluster.local:19291/api/v1/receive
+    {{- end }}
+    {{- if (and (not .Values.addons.thanos.objectStorage ) $thanosEnabled) }}
     thanos:
 
       {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}

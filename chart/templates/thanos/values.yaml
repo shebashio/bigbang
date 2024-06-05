@@ -72,8 +72,6 @@ objstoreConfig: |-
     endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
     access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
     secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
-    signature_version2: false
-  {{- end }}
 
 receive:
   enabled: true
@@ -81,5 +79,22 @@ receive:
     http: 10902
     grpc: 10901
     remote: 19291
-  
+  resources:
+    requests:
+      cpu: 2
+      memory: 512Mi
+    limits:
+      cpu: 3
+      memory: 1024Mi
+
+query:
+  containerPorts:
+    http: 10902
+    grpc: 10901
+
+queryFrontend:
+  containerPorts:
+    http: 9090
+
+{{- end }}
 {{- end }}
