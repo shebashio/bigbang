@@ -81,11 +81,11 @@ receive:
     remote: 19291
   resources:
     requests:
-      cpu: 1
+      cpu: 2
       memory: 512Mi
     limits:
-      cpu: 1
-      memory: 512Mi
+      cpu: 3
+      memory: 1024Mi
 
 query:
   containerPorts:
