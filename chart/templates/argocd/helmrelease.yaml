@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/argocd/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: warn    
   targetNamespace: argocd
   chart:
     spec:
