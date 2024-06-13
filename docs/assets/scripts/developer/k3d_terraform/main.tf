@@ -5,6 +5,7 @@ terraform {
       version = "~> 5.0"
     }
   }
+  required_version = "1.8.5"
 }
 
 provider "aws" {
@@ -95,7 +96,8 @@ data "aws_ami" "this" {
 }
 
 module "ec2_instance" {
-  source = "terraform-aws-modules/ec2-instance/aws"
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "5.6.1"
 
   ami                                  = data.aws_ami.this.image_id
   create_spot_instance                 = true
