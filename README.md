@@ -84,5 +84,3 @@ Several useful starting points in the Big Bang documentation are listed in the f
 - [User Guides for Big Bang](./docs/guides/README.md)
 - [Big Bang Prerequisites](./docs/prerequisites/README.md)
 - [Big Bang Example Configurations](https://repo1.dso.mil/big-bang/bigbang/-/tree/master/docs/assets/configs/example)
-
-## Just making a dummy change here

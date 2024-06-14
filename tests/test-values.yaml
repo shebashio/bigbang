@@ -2728,6 +2728,7 @@ addons:
           artifacts: true
           envs:
             cypress_url: "https://harbor.dev.bigbang.mil"
+            cypress_dummyvar: "blah"
         scripts:
           image: "registry1.dso.mil/bigbang-ci/gitlab-tester:0.0.4"
           envs:
