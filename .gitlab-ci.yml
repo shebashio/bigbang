@@ -1,9 +1,9 @@
 include:
   - project: 'big-bang/pipeline-templates/pipeline-templates'
-    ref: Dedicate-Runner-Test
+    ref: All-Packages-Old-Pipeline-Test
     file: '/pipelines/bigbang.yaml' 
 variables:
-  PIPELINE_REPO_BRANCH: Dedicate-Runner-Test
+  PIPELINE_REPO_BRANCH: Dedicated-Runner-Test
   DEBUG_ENABLED: "false"
   CI_DEBUG_TRACE: "false"
   BB_REPO: repo1.dso.mil/bigbang/bigbang
