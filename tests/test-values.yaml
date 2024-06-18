@@ -42,10 +42,10 @@ sso:
     metadata: <md:EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda"><md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo><ds:KeyName>4CK69bW66HE2wph9VuBs0fTc1MaETSTpU1iflEkBHR4</ds:KeyName><ds:X509Data><ds:X509Certificate>MIICoTCCAYkCBgF/iYn0azANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwHhcNMjIwMzE0MTc0NDUzWhcNMzIwMzE0MTc0NjMzWjAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoCX4G1TCnZlWXvCLH/z6m5y/6NMrUv1AYVVbTaQ9iUWLR+uD44v1exIHUywkgQV+cMhn+my+9ZihmRWfOJuBWV8CM5BfIh685YulKVQrcGlYWcB877SjJBZKxyXITz7GnNOJ8vvlK9tK8OncldUFrhR2BXaqw2zvG733CKlDtyujaWmd7kQge/p4okx4bV4VBLYMmsjrJ004uvMcU4DekCFlGmEh3p3FhZorMf+1xHfi5DaCD4iCYZqRgsWEb8/Zmsx0+qi56P9YWhz1j2GUfHw0At8Dq5h7hoMJtYJMvVXWxkmPNVHtaJMOHt8iiBO7/a6SkI6ddf9Jotp2i6XEvAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAJwSLJ0eybbeBYPvXnawqpy6JSXJ/MnnRvSGN9tXJ2+d/QXMOEPwJaAaOrvFtpUQxyPELJ8nU/Ukf7AL2zWltsCLiwtTrJkC+BpbZYkb1UsByveBS5wTPfiNkFzHeGg+MxBjiju2y04P4kEngXhQh4ZIUdi+WJjew721nJa/tjrMfnuEsMjxY/tWnzkk8xkGgaApZpGyaj1tOmVH4GR6CeBU6459m/GXmGH5TCGwT3EyfpZ189te+xV73WZR/r2nDlGuuy//w/P4JGHh4lcCwLfPcOOH30otcPAgctyX9Takk4MkVjva+b9S88sGaWPg075bxA2sysmkuqEOULjdXjU=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/resolve" index="0"></md:ArtifactResolutionService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService></md:IDPSSODescriptor></md:EntityDescriptor>
 
 flux:
-  timeout: 20m
+  timeout: 60m
   interval: 1m
   rollback:
-    timeout: 20m
+    timeout: 60m
     cleanupOnFail: false
   ## override cleanup on upgrade to allow artifacts to upload
   upgrade:
@@ -76,6 +76,8 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+    hardened:
+      enabled: true
     values:
       pilot:
         env:
@@ -251,6 +253,7 @@ gatekeeper:
       allowedHostFilesystem:
         parameters:
           excludedResources:
+          - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
@@ -393,6 +396,7 @@ gatekeeper:
       volumeTypes:
         parameters:
           excludedResources:
+          - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -602,6 +606,7 @@ kyvernoPolicies:
           any:
           - resources:
               namespaces:
+              - anchore
               - gitlab
               - gitlab-runner
               - kiali
@@ -641,6 +646,7 @@ kyvernoPolicies:
           any:
           - resources:
               namespaces:
+              - anchore
               - gitlab
               - gitlab-runner
               - kiali
@@ -696,6 +702,7 @@ kyvernoPolicies:
           any:
           - resources:
               namespaces:
+              - anchore
               - gitlab
               - gitlab-runner
               - kiali
@@ -755,6 +762,11 @@ kyvernoPolicies:
               - neuvector-enforcer-pod*
               - neuvector-controller-pod*
               - neuvector-prometheus-exporter-pod*
+          - resources:
+              namespaces:
+              - argocd
+              names:
+              - guestbook-ui-*
       require-non-root-group:
         exclude:
           any:
@@ -1184,28 +1196,31 @@ grafana:
 
 neuvector:
   values:
+    enforcer:
+      podAnnotations:
+        sidecar.istio.io/proxyMemoryLimit: "2Gi"
     k3s:
       enabled: true
     istio:
-     enabled: true
-     hardened:
-       enabled: true
-       customServiceEntries:
-         - name: "cypress-service-entries-neuvector"
-           enabled: true
-           spec:
-             hosts:
-               - 'registry.npmjs.org'
-               - 'download.cypress.io'
-               - 'cdn.cypress.io'
-               - 'repo1.dso.mil'
-               - 'neuvector.dev.bigbang.mil'
-             location: MESH_EXTERNAL
-             ports:
-               - number: 443
-                 protocol: TLS
-                 name: https
-             resolution: DNS
+      enabled: true
+      hardened:
+        enabled: true
+        customServiceEntries:
+          - name: "cypress-service-entries-neuvector"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'neuvector.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     bbtests:
       enabled: true
       cypress:
@@ -1362,6 +1377,7 @@ addons:
                     protocol: HTTP
                     name: http
                 resolution: DNS
+
   authservice:
     enabled: false
     chains:
@@ -1401,16 +1417,25 @@ addons:
       istio:
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-fortify"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'fortify.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       storage:
         volume: 5Gi
       jvmMaxRAMPercentage: 85
-      resources:
-        limits:
-          cpu: 2
-          memory: 8Gi
-        requests:
-          cpu: 1
-          memory: 1Gi
       databaseSecret:
         useRoot: true
       initContainer:
@@ -1689,6 +1714,24 @@ addons:
         enabled: true
         hardened:
           enabled: true
+          customServiceEntries:
+            - name: "anchore-allow-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'auth.docker.io'
+                  - 'registry-1.docker.io'
+                  - 'anchore.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       ensureDbJobs:
         resources:
           requests:
@@ -1812,6 +1855,10 @@ addons:
         scripts:
           envs:
             ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
+        cypress:
+          envs: 
+            cypress_url: "https://anchore.dev.bigbang.mil"
+
 
   sonarqube:
     enabled: false
@@ -2350,7 +2397,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.3.0
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.3.3
           imagePullPolicy: Always
           command:
           - sh
@@ -2468,17 +2515,33 @@ addons:
                 }
               }
 
-              seal "awskms" {
-                region     = "us-gov-west-1"
-                kms_key_id = "mrk-ff723da024254ea2b7f490c68fbc9b9b"
-                endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
-              }
-
-              telemetry {
-                prometheus_retention_time = "24h"
-                disable_hostname = true
-              }
               service_registration "kubernetes" {}
+
+          config: |
+            ui = true
+
+            listener "tcp" {
+              tls_disable = false
+              address = "[::]:8200"
+              cluster_address = "[::]:8201"
+              tls_cert_file = "/vault/tls/tls.crt"
+              tls_key_file  = "/vault/tls/tls.key"
+              telemetry {
+                unauthenticated_metrics_access = true
+              }
+            }
+
+            seal "awskms" {
+              region     = "us-gov-west-1"
+              kms_key_id = "mrk-ff723da024254ea2b7f490c68fbc9b9b"
+              endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
+            }
+
+            telemetry {
+              prometheus_retention_time = "24h"
+              disable_hostname = true
+            }
+            service_registration "kubernetes" {}
       istio:
         hardened:
           enabled: true
@@ -2783,6 +2846,9 @@ addons:
   holocron:
     # -- Toggle deployment of holocron
     enabled: false
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_holocron
     values:
       istio:
         hardened:
