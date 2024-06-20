@@ -39,7 +39,7 @@ spec:
       interval: 5m
 
   {{- toYaml $fluxSettingsKiali | nindent 2 }}
-  
+
   {{- if .Values.kiali.postRenderers }}
   postRenderers:
   {{ toYaml .Values.kiali.postRenderers | nindent 4 }}
