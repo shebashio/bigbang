@@ -1643,7 +1643,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.9.0-bb.1"
+      tag: ""
+      branch: "149-fix-bb-ci-tests-to-pass-without-jaeger-label"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
