@@ -1070,6 +1070,11 @@ promtail:
       hardened:
         enabled: true
 
+loki:
+  enabled: true
+  flux:
+    timeout: 20m
+
 monitoring:
   enabled: true
   flux:
