@@ -994,25 +994,6 @@ tempo:
       enabled: true
       hardened:
         enabled: true
-        customServiceEntries:
-          - name: "cypress-service-entries-tempo"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'tempo.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'grafana.com'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
-
     tempo:
       resources:
         limits: null
