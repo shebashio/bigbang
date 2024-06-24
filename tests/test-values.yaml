@@ -926,6 +926,8 @@ fluentbit:
 
 loki:
   strategy: scalable
+  flux:
+    timeout: 20m
   values:
     istio:
       hardened:
@@ -1069,11 +1071,6 @@ promtail:
     istio:
       hardened:
         enabled: true
-
-loki:
-  enabled: true
-  flux:
-    timeout: 20m
 
 monitoring:
   enabled: true
