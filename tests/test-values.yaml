@@ -839,18 +839,6 @@ elasticsearchKibana:
     istio:
       hardened:
         enabled: true
-        customServiceEntries:
-          - name: "cypress-service-entries-elasticsearchkibana"
-            enabled: true
-            spec:
-              hosts:
-                - 'kibana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     elasticsearch:
       master:
         count: 1
