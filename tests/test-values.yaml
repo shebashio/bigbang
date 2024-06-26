@@ -1969,7 +1969,10 @@ addons:
                 resolution: DNS
 
   minio:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     values:
       istio:
         hardened:
@@ -2043,14 +2046,20 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mattermostOperator:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     values:
       istio:
         hardened:
           enabled: true
 
   mattermost:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_mattermost
@@ -2276,6 +2285,9 @@ addons:
                 - 'repo1.dso.mil'
 
     enabled: false
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     plugins:
     - aws
     values:
@@ -2441,7 +2453,10 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2886,3 +2901,19 @@ addons:
                   name: https
               resolution: DNS
 
+packages:
+  confluence:
+    dependsOn:
+      - name: monitoring
+        namespace: bigbang
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/community/confluence
+      tag: ""
+      branch: "remove-shared-auth-policies"
+    values:
+      istio:
+        confluence:
+          gateways:
+            - istio-system/public
+        enabled: true
