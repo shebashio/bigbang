@@ -696,7 +696,8 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.6.2-bb.3"
+    tag: null
+    branch: "loki-logging-cypress"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
