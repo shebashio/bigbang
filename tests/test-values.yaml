@@ -1268,6 +1268,13 @@ twistlock:
       enabled: true
       dockerSocket: "/run/k3s/containerd/containerd.sock"
       selinux: false
+      resources:
+        limits:
+          cpu: 5
+          memory: 5Gi
+        requests:
+          cpu: 5
+          memory: 5Gi
     bbtests:
       enabled: true
       scripts:
