@@ -79,8 +79,6 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-    hardened:
-      enabled: true
     values:
       pilot:
         env:
@@ -940,6 +938,13 @@ loki:
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'grafana.dev.bigbang.mil'
+                - 'r5---sn-nx57ynsk.gvt1.com'
+                - 'optimizationguide-pa.googleapis.com'
+                - 'safebrowsing.googleapis.com'
+                - 'clientservices.googleapis.com'
+                - 'accounts.google.com'
+                - 'redirector.gvt1.com'
+                - 'content-autofill.googleapis.com'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
