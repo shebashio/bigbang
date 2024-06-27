@@ -22,6 +22,12 @@ networkPolicies:
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.addons.minio.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+    enabled: true
+    {{- else}}
+    enabled: false
+    {{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

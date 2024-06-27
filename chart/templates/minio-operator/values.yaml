@@ -48,6 +48,12 @@ istio:
   console:
     gateways:
     - istio-system/{{ default "public" .Values.addons.minio.ingress.gateway }}
+  hardened:
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+    enabled: true
+    {{- else}}
+    enabled: false
+    {{- end }}
 
 {{- if .Values.istio.enabled }}
 annotations:

@@ -6,6 +6,12 @@
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+    enabled: true
+    {{- else}}
+    enabled: false
+    {{- end }}
 
 {{- if .Values.istio.enabled }}
 podAnnotations:

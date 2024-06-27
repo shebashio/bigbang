@@ -1969,7 +1969,7 @@ addons:
                 resolution: DNS
 
   minio:
-    enabled: true
+    enabled: false
     git:
       tag: ""
       branch: "remove-shared-auth-policies"
@@ -2046,7 +2046,7 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mattermostOperator:
-    enabled: true
+    enabled: false
     git:
       tag: ""
       branch: "remove-shared-auth-policies"
@@ -2056,7 +2056,7 @@ addons:
           enabled: true
 
   mattermost:
-    enabled: true
+    enabled: false
     git:
       tag: ""
       branch: "remove-shared-auth-policies"
