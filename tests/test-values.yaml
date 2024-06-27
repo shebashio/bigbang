@@ -2453,10 +2453,7 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: true
-    git:
-      tag: ""
-      branch: "remove-shared-auth-policies"
+    enabled: false
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
