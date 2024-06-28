@@ -90,6 +90,15 @@ postgresql:
     pullSecrets:
       - private-registry
   install: true
+  primary:
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      capabilities:
+        drop:
+          - ALL
   {{- if $istioInjection }}
   primary:
     podAnnotations:
