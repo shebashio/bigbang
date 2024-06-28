@@ -471,7 +471,7 @@ prometheusOperator:
     {{ include "istioAnnotation" . }}
   {{- end }}
 {{- end }}
-
+# Test
 {{- /* This function merges defaults in lists from above into overlays */ -}}
 {{- /* The end user will not have to replicate `prometheus.prometheusSpec.additionalScrapeConfigs` or `grafana.extraSecretMounts` from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to `prometheus.prometheusSpec` or `grafana` overlays to ignore the defaults */ -}}
