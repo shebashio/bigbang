@@ -9,9 +9,15 @@
   {{- if kindIs "map" $bbvals -}}
     {{- if hasKey $bbvals "enabled" }}
 {{ $bbpkg }}:
-      {{- /* For network policies, we need all of its values. */ -}}
+      {{- /* For network policies, we need all of its values. We also need istio hardening instructions */ -}}
       {{- if eq $bbpkg "networkPolicies" -}}
         {{- toYaml $bbvals | nindent 2}}
+      {{- /* For istio with hardening enabled, we need to know that for authpolicy setup */ -}}
+      {{- else if and (eq $bbpkg "istio") (dig "values" "hardened" false $bbvals) }}
+  enabled: {{ $bbvals.enabled }}
+  values:
+    hardened:
+    {{- toYaml $bbvals.values.hardened | nindent 6}}
       {{- else }}
   enabled: {{ $bbvals.enabled }}
       {{- end -}}
