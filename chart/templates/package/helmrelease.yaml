@@ -13,8 +13,8 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: {{ $pkg }}
-  namespace:  {{ if dig "helmReleaseNS" nil (index $.Values.packages $pkg) }}
-                {{ dig "helmReleaseNS" "" (index $.Values.packages $pkg) }}
+  namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkg) }}
+                {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkg) }}
               {{ else }}
                 {{ default (dig "namespace" "name" $pkg $vals) "" }}
               {{ end }}
