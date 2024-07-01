@@ -220,12 +220,16 @@ addons:
       enabled: true
       client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-gitlab
   sonarqube:
+    account:
+      adminPassword: "admin"
+      currentAdminPassword: "admin"
     sso:
       enabled: true
-      client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-saml-sonarqube
-      login: login
-      name: name
-      email: email
+      cname: "P1 SSO"
+      applicationid: "platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-saml-sonarqube"
+      serverBaseURL: "https://sonarqube.dev.bigbang.mil"
+      idpmetadataurl: "https://login.dso.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
+      image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
   anchore:
     adminPassword: admin
     sso:
