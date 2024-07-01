@@ -74,7 +74,7 @@ istio:
         cert: "" # Gets added via chart/ingress-certs.yaml
   values:
     hardened:
-      enabled: false
+      enabled: true
     kiali:
       dashboard:
         auth:
@@ -2273,7 +2273,7 @@ addons:
   velero:
     istio:
       hardened:
-        enabled: false
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-velero"
             enabled: true
