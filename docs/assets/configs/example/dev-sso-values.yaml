@@ -235,22 +235,6 @@ addons:
         providerid: ""
         loginUrl: ""
         secured: ""
-        # SecurityContext is needed if kyverno is enabled
-        containerSecurityContext:
-          enabled: true
-          fsGroup: 26
-          runAsUser: 26
-          runAsGroup: 26
-          capabilities:
-            drop:
-              - ALL
-        resources:
-          limits:
-            cpu: 100m
-            memory: 256Mi
-          requests:
-            cpu: 100m
-            memory: 256Mi
   anchore:
     adminPassword: admin
     sso:
