@@ -220,16 +220,37 @@ addons:
       enabled: true
       client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-gitlab
   sonarqube:
-    account:
-      adminPassword: "admin"
-      currentAdminPassword: "admin"
-    sso:
-      enabled: true
-      name: "P1 SSO"
-      applicationid: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-saml-sonarqube
-      serverBaseURL: "https://sonarqube.dev.bigbang.mil"
-      idpmetadataurl: "https://login.dso.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
-      image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
+    enabled: true
+    values:
+      account:
+        adminPassword: admin
+        currentAdminPassword: admin
+      sso:
+        enabled: true
+        name: "keycloak"
+        applicationid: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
+        serverBaseURL: "https://sonarqube.dev.bigbang.mil"
+        idpmetadataurl: "https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
+        image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
+        providerid: ""
+        loginUrl: ""
+        secured: ""
+        # SecurityContext is needed if kyverno is enabled
+        containerSecurityContext:
+          enabled: true
+          fsGroup: 26
+          runAsUser: 26
+          runAsGroup: 26
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
   anchore:
     adminPassword: admin
     sso:
