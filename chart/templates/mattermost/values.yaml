@@ -88,11 +88,18 @@ enterprise:
 {{- if and .username .password .host .port .database }}
 database:
   secret: "mattermost-database-secret"
+postgresql:
+  secret: "mattermost-database-secret"
 {{- else }}
 postgresql:
   image:
     pullSecrets:
       - private-registry
+  {{- if and .username .password .host .port .database }}
+  secret: "mattermost-database-secret"
+  {{- else }}
+  secret: "mattermost-dbcreds"
+  {{- end }}
   install: true
   {{- if $istioInjection }}
   primary:
