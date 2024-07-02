@@ -33,7 +33,11 @@ spec:
       sourceRef:
         kind: GitRepository
         name: {{ $pkg }}
-        namespace: {{ dig "namespace" "name" $pkg $vals }}
+        namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkg) }}
+                      {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkg) }}
+                    {{ else }}
+                      {{ default (dig "namespace" "name" $pkg $vals) "" }}
+                    {{ end }}
       {{- else if $vals.helmRepo }}
       chart: {{ dig "helmRepo" "chartName" $pkg $vals }}
       version: {{ dig "helmRepo" "tag" nil $vals }}
