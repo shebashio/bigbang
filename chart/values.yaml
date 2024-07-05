@@ -1698,6 +1698,10 @@ addons:
       # Allowable values for this are viewable in the postgres documentation: https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS
       ssl_mode: ""
 
+      # For instances using a postgresql database installed by the subchart, when upgrading versions, you must delete your
+      # pods and persistent volume storage before upgrading. Set this to true to perform this step.
+      delete_before_upgrade: false
+
     objectStorage:
       # -- S3 compatible endpoint to use for connection information.
       # Entering connection info will enable this option and will auto-create any required secrets.

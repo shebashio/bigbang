@@ -1,0 +1,28 @@
+{{- if .Values.addons.mattermost.database.delete_before_upgrade -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mattermost-postgresql-upgrade-prep
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: mattermost-postgresql-upgrade-prep
+      labels:
+        app.kubernetes.io/name: bigbang-mattermost-postgresql-upgrade-prep-job
+    spec:
+      containers:
+      - name: mattermost-postgresql-upgrade-prep
+        image: "bitnami/kubectl:latest"
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            kubectl delete helmrelease -n bigbang mattermost
+            kubectl delete pvc -n mattermost $(kubectl get pvc -n mattermost | grep -i postgresql | cut -d ' ' -f 1)
+{{- end -}}
