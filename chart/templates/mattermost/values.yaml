@@ -93,6 +93,8 @@ postgresql:
       - private-registry
   {{- if and .username .password .host .port .database }}
   secret: "mattermost-database-secret"
+  {{- else }}
+  secret: "mattermost-dbcreds"
   {{- end }}
   install: true
   {{- if $istioInjection }}
