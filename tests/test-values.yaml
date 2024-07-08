@@ -2394,7 +2394,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank-staging/big-bang/p1-keycloak-plugin:3.5.0
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.0
           imagePullPolicy: Always
           command:
           - sh
