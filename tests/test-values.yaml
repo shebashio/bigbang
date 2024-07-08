@@ -2359,8 +2359,8 @@ addons:
           value: /auth
         - name: KC_HTTPS_CLIENT_AUTH
           value: request
-        - name: KC_PROXY
-          value: passthrough
+        - name: KC_PROXY_HEADERS
+          value: forwarded
         - name: KC_HTTPS_TRUST_STORE_FILE
           value: /opt/keycloak/conf/truststore.jks
         - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -2368,8 +2368,6 @@ addons:
         - name: KC_HOSTNAME
           value: keycloak.dev.bigbang.mil
         - name: KC_HOSTNAME_STRICT
-          value: "true"
-        - name: KC_HOSTNAME_STRICT_HTTPS
           value: "true"
         - name: KC_LOG_LEVEL
           value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
