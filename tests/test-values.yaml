@@ -762,6 +762,11 @@ kyvernoPolicies:
               - neuvector-prometheus-exporter-pod*
           - resources:
               namespaces:
+              - keycloak
+              names:
+              - keycloak-0
+          - resources:
+              namespaces:
               - argocd
               names:
               - guestbook-ui-*
@@ -821,10 +826,10 @@ kyvernoPolicies:
               - twistlock
               names:
               - volume-upgrade-job*
-      disallow-namespaces:
-        parameters:
-          disallow:
-          - bigbang
+      # disallow-namespaces:
+      #   parameters:
+      #     disallow:
+      #     - bigbang
 
 elasticsearchKibana:
   enabled: false
@@ -2407,25 +2412,21 @@ addons:
           volumeMounts:
           - name: plugin
             mountPath: "/init"
-          securityContext:
-            capabilities:
-              drop:
-                - ALL
       extraVolumes: |-
         - name: customreg
           secret:
-            secretName: {{ include "keycloak.fullname" . }}-customreg
+            secretName: keycloak-customreg
         - name: realm
           secret:
-            secretName: {{ include "keycloak.fullname" . }}-realm
+            secretName: keycloak-realm
         - name: plugin
           emptyDir: {}
         - name: truststore
           secret:
-            secretName: {{ include "keycloak.fullname" . }}-truststore
+            secretName: keycloak-truststore
         - name: quarkusproperties
           secret:
-            secretName: {{ include "keycloak.fullname" . }}-quarkusproperties
+            secretName: keycloak-quarkusproperties
             defaultMode: 0777
       extraVolumeMounts: |-
         - name: customreg
