@@ -15,8 +15,11 @@ image:
 istio:
   enabled: {{ .Values.istio.enabled }}
   hardened:
-    monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
+    {{- if or (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.kiali.values) }}
+    enabled: true
+    {{- else }}
+    enabled: false
+    {{- end }}
   kiali:
     gateways:
     - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
