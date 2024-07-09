@@ -163,6 +163,10 @@ imagePullPolicy: IfNotPresent
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
+  meshConfig:
+  registryOnly:
+    enabled: true
+
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
     # PERMISSIVE = Allow both plain text and mutual TLS traffic
