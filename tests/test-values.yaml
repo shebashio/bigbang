@@ -1929,6 +1929,9 @@ addons:
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
+        git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     values:
       console:
         enabled: true
