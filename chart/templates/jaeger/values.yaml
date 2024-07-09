@@ -17,7 +17,7 @@ domain: {{ $domainName }}
 istio:
   enabled: {{ .Values.istio.enabled }}
   hardened:
-    {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.jaeger.values) }}
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.jaeger.values) (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "istio" "hardened" "enabled" false .Values.kiali.values) }}
     enabled: true
     {{- else }}
     enabled: false
