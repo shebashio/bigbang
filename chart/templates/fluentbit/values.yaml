@@ -142,6 +142,12 @@ networkPolicies:
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.fluentbit.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) }}
+    enabled: true
+    {{- else }}
+    enabled: false
+    {{- end }}
 
 openShift:
   enabled: {{ .Values.openshift }}
