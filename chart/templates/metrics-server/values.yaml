@@ -13,7 +13,7 @@ domain: {{ $domainName }}
 istio:
   enabled: {{ .Values.istio.enabled }}
   hardened:
-    {{- if or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.metricsServer.values) }}
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istio.values) ( dig "values" "istio" "hardened" "enabled" false .Values.addons.metricsServer) }}
     enabled: true
     {{- else }}
     enabled: false

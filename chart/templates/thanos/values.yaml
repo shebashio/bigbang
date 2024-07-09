@@ -18,8 +18,10 @@ domain: {{ .Values.domain }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
-  {{- if and ( dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
   hardened:
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "hardened" "enabled" false .Values.istio.values) ( dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) ( dig "values" "istio" "hardened" "enabled" false .Values.addons.minioOperator) (dig "istio" "hardened" "enabled" false .Values.tempo.values) }}
+    enabled: true
+    {{- if (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
     customServiceEntries:
       - name: egress-object-store
         enabled: true
@@ -32,7 +34,22 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
-  {{- end }}
+    {{- end }}
+    {{- if (dig "enabled" false .Values.addons.minioOperator) }}
+    minioOperator:
+      enabled: true
+    {{- end }}
+    {{- if (dig "enabled" false .Values.monitoring) }}
+    prometheus:
+      enabled: true
+    {{- end }}
+    {{- if (dig "enabled" false .Values.tempo) }}
+    tempo:
+      enabled: true
+    {{- end }}
+    {{- else }}
+    enabled: false
+    {{- end }}
   thanos:
     gateways:
     - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
