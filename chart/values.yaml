@@ -570,11 +570,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.17.0-bb.1"
+    tag: "1.17.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.17.0-bb.1"
+    tag: "1.17.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -594,6 +594,11 @@ elasticsearchKibana:
 
     # -- Elasticsearch/Kibana OIDC client secret
     client_secret: ""
+  
+  # -- Elasticsearch/Kibana Service Account Annotations
+  serviceAccountAnnotations:
+    elasticsearch: {}
+    kibana: {}
 
   license:
     # -- Toggle trial license installation of elasticsearch.  Note that enterprise (non trial) is required for SSO to work.
@@ -1393,11 +1398,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.5-bb.1"
+      tag: "8.0.6-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.5-bb.1"
+      tag: "8.0.6-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1643,11 +1648,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.9.0-bb.1"
+      tag: "9.9.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "9.9.0-bb.1"
+      tag: "9.9.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1973,6 +1978,12 @@ addons:
     sso:
       # -- Toggle SSO for Holocron on and off
       enabled: false
+
+      # -- OIDC Client ID to use for Holocron
+      client_id: ""
+
+      # -- OIDC Client Secret to use for Holocron
+      client_secret: ""
       
       # -- Holocron SSO group roles: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
       groups:
