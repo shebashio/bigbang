@@ -1813,13 +1813,20 @@ addons:
 
   sonarqube:
     enabled: false
-    sso:
-      enabled: false
-      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
-      login: login
-      name: name
-      email: email
     values:
+      account:
+        adminPassword: admin
+        currentAdminPassword: admin
+      sso:
+        enabled: true
+        name: "keycloak"
+        applicationid: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
+        serverBaseURL: "https://sonarqube.dev.bigbang.mil"
+        idpmetadataurl: "https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
+        image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
+        providerid: ""
+        loginUrl: ""
+        secured: ""
       istio:
         hardened:
           customAuthorizationPolicies:
