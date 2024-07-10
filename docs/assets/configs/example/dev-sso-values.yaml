@@ -227,10 +227,15 @@ addons:
         currentAdminPassword: admin
       sso:
         enabled: true
-        name: "keycloak"
-        applicationid: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
+        # Use this for local keycloak
+        # name: "keycloak"
+        # applicationid: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
+        # serverBaseURL: "https://sonarqube.dev.bigbang.mil"
+        # idpmetadataurl: "https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
+        name: "P1 SSO"
+        applicationid: "platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-saml-sonarqube"
         serverBaseURL: "https://sonarqube.dev.bigbang.mil"
-        idpmetadataurl: "https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
+        idpmetadataurl: "https://login.dso.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
         image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
         providerid: ""
         loginUrl: ""
