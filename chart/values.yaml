@@ -1329,12 +1329,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "69.0.0-bb.1"
+      #tag: "69.0.0-bb.1"
+      tag: null
+      branch: "132-fix-test-script-to-not-pull-from-docker"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "69.0.0-bb.1"
-
+      #tag: "69.0.0-bb.1"
+      tag: null
+      branch: "132-fix-test-script-to-not-pull-from-docker"
     # -- Base64 encoded license file.
     license_key: ""
 
