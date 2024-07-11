@@ -456,6 +456,13 @@ kyverno:
 
 kyvernoReporter:
   values:
+    enabled: true
+    sourceType: "git"
+    git:
+      repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git"
+      branch: "update-kyverno-policy"
+      path: "./chart"
+      tag: null
     bbtests:
       enabled: true
       cypress:
