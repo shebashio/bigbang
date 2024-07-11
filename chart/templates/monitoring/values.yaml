@@ -16,7 +16,6 @@ domain: {{ $domainName }}
 {{- $lokiEnabled := (.Values.loki.enabled) }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 
-
 flux:
   enabled: true
 
@@ -146,8 +145,9 @@ prometheus:
   prometheusSpec:
     {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
-    - name: alertmanager
+    - name: monitoring-monitoring-kube-alertmanager
       namespace: monitoring
+      apiVersion: v2
       port: http-web
       pathPrefix: /
       scheme: https
