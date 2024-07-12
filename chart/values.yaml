@@ -701,11 +701,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.6.4-bb.1"
+    tag: "6.6.4-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.6.4-bb.1"
+    tag: "6.6.4-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1148,11 +1148,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "5.0.15-bb.5"
+      tag: "5.0.15-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "5.0.15-bb.5"
+      tag: "5.0.15-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1626,11 +1626,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.21.0-bb.1"
+      tag: "1.21.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.21.0-bb.1"
+      tag: "1.21.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
