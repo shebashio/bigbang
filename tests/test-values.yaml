@@ -2287,7 +2287,9 @@ addons:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
-
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     enabled: false
     plugins:
     - aws
@@ -2458,7 +2460,10 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "remove-shared-auth-policies"
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
