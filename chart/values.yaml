@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.86.2-bb.0"
+    tag: "1.87.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.86.2-bb.0"
+    tag: "1.87.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -648,11 +648,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.46.10-bb.2"
+    tag: "0.47.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.46.10-bb.2"
+    tag: "0.47.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -878,11 +878,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "60.4.0-bb.4"
+    tag: "60.4.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "60.4.0-bb.4"
+    tag: "60.4.0-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1148,11 +1148,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "5.0.15-bb.6"
+      tag: "5.0.15-bb.7"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "5.0.15-bb.6"
+      tag: "5.0.15-bb.7"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1778,11 +1778,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "24.0.5-bb.1"
+      tag: "2.4.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "24.0.5-bb.1"
+      tag: "2.4.3-bb.0"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -1939,12 +1939,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.10"
+      tag: "1.0.11"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"
-      tag: "1.0.10"
+      tag: "1.0.11"
 
     collectorAuth:
       # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide

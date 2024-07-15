@@ -739,13 +739,6 @@ kyvernoPolicies:
       require-drop-all-capabilities:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
           # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
           - resources:
               namespaces:
@@ -768,13 +761,6 @@ kyvernoPolicies:
       require-non-root-group:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
           - resources:
               namespaces:
               - fortify
@@ -794,13 +780,6 @@ kyvernoPolicies:
       require-non-root-user:
         exclude:
           any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
           - resources:
               namespaces:
               - metallb-system
@@ -2345,14 +2324,8 @@ addons:
           value: /opt/keycloak/conf/tls.crt
         - name: KC_HTTPS_CERTIFICATE_KEY_FILE
           value: /opt/keycloak/conf/tls.key
-        - name: KC_HTTP_ENABLED
-          value: "true"
-        - name: KC_HTTP_RELATIVE_PATH
-          value: /auth
         - name: KC_HTTPS_CLIENT_AUTH
           value: request
-        - name: KC_PROXY
-          value: passthrough
         - name: KC_HTTPS_TRUST_STORE_FILE
           value: /opt/keycloak/conf/truststore.jks
         - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -2361,14 +2334,8 @@ addons:
           value: keycloak.dev.bigbang.mil
         - name: KC_HOSTNAME_STRICT
           value: "true"
-        - name: KC_HOSTNAME_STRICT_HTTPS
-          value: "true"
         - name: KC_LOG_LEVEL
           value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
-        - name: KC_CACHE
-          value: ispn
-        - name: KC_CACHE_STACK
-          value: kubernetes
       secrets:
         env:
           stringData:
@@ -2388,7 +2355,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.4.0
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.0
           imagePullPolicy: Always
           command:
           - sh
