@@ -435,7 +435,7 @@ kyverno:
     tag: null
     repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno.git"
     path: "./chart"
-    branch: kyverno-cleanup-policy-disabled
+    branch: disable-policy-cleanup
   values:
     networkPolicies:
       externalRegistries:
