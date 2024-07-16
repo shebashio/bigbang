@@ -429,6 +429,10 @@ gatekeeper:
       enabled: true
 
 kyverno:
+  git:
+    tag: null
+    branch: "main"
+  enabled: true
   values:
     networkPolicies:
       externalRegistries:
