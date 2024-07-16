@@ -14,7 +14,7 @@ enterprise: {{ .Values.istio.enterprise }}
 
 istiod:
 {{- if not (semverCompare "<1.19" .Capabilities.KubeVersion.GitVersion) }}
-  env: 
+  env:
     - name: ENABLE_LEGACY_FSGROUP_INJECTION
       value: "false"
 {{- end }}
@@ -81,6 +81,13 @@ values:
     jwksResolverExtraRootCA: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
 {{- end }}
 
+hardened:
+  {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.grafana.values) (dig "istio" "hardened" "enabled" false .Values.loki.values) }}
+  enabled: true
+  {{- else}}
+  enabled: false
+  {{- end }}
+
 {{- if .Values.istio.ingressGateways }}
 ingressGateways:
   istio-ingressgateway:
@@ -88,11 +95,13 @@ ingressGateways:
 {{- end }}
 
 {{- range $name, $values := .Values.istio.ingressGateways }}
+  {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
     {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (fromYaml (include "istio.ingressgateway.k8s" $values))) | nindent 4 }}
     {{- if $values.extraLabels }}
     {{- toYaml (dict "extraLabels" $values.extraLabels) | nindent 4 }}
     {{- end}}
+  {{- end }}
 {{- end }}
 
 {{- if .Values.istio.gateways }}
@@ -100,6 +109,7 @@ gateways:
   main: null
 {{- end }}
 {{- range $name, $values := .Values.istio.gateways }}
+  {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
     selector:
       app: {{ $values.ingressGateway }}
@@ -165,7 +175,7 @@ gateways:
         {{- end }}
     {{- end }}
     {{- end }}
-
+  {{- end }}
 {{- end }}
 
 {{- define "istio.ingressgateway.k8s" -}}

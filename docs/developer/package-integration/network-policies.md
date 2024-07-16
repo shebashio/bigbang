@@ -1,6 +1,6 @@
 # Network Policies
 
-To increase the overall security posture of Big Bang, network policies are put in place to only allow ingress and egress from package namespaces to other needed services.  A deny by default policy is put in place to deny all traffic that is not explicitly allowed.  The following is how to implement the network policies per Big Bang standards.
+To increase the overall security posture of Big Bang, network policies are put in place to only allow ingress and egress from package namespaces to other needed services. A deny by default policy is put in place to deny all traffic that is not explicitly allowed. The following is how to implement the network policies per Big Bang standards.
 
 ## Table of Contents
 
@@ -8,8 +8,8 @@ To increase the overall security posture of Big Bang, network policies are put i
 
 ## Prerequisites
 
-- Understanding of ports and communications of applications and other components within BigBang
-- `chart/templates/bigbang` and `chart/templates/bigbang/networkpolicies` folders within package for committing bigbang specific templates
+- Understanding of ports and communications of applications and other components within Big Bang.
+- `chart/templates/bigbang` and `chart/templates/bigbang/networkpolicies` folders within package for committing bigbang specific templates.
 
 ## Integration
 
@@ -65,29 +65,29 @@ spec:
 ### Was Something Important Blocked?
 
 There are a few ways to determine if a network policy is blocking egress or ingress to or from a pod.
-- Test things from the pod's perspective using ssh/exec. See [this portion](../../guides/deployment-scenarios/sso-quickstart.md#step-18-update-inner-cluster-dns-on-the-workload-cluster) of the keycloak quickstart for an example of how do to that.
-- Curl a pod's IP from another pod to see if network polices are blocking that traffic. Use `kubectl pod -o wide -n <podNamespace>` to see pod IP addresses.
-- Check the pod logs (or curl from one container to the service) for a `context deadline exceeded` or `connection refused` message.
+* Test things from the pod's perspective using ssh/exec. See [this portion](../../guides/deployment-scenarios/sso-quickstart.md#step-18-update-inner-cluster-dns-on-the-workload-cluster) of the keycloak quickstart for an example of how do to that.
+* Curl a pod's IP from another pod to see if network polices are blocking that traffic. Use `kubectl pod -o wide -n <podNamespace>` to see pod IP addresses.
+* Check the pod logs (or curl from one container to the service) for a `context deadline exceeded` or `connection refused` message.
 
 ### Allowing Exceptions
 
-- Egress exceptions to consider:
-  - pod to pod
-  - SSO
-    - When available, use a value from the helm values for the port
-    - Otherwise, use the SSO default and allow egress to all IPs, except the cloud metadata IP. The default port should be 443.
-  - storage database
-    - When available, use a value from the helm values for the port
-    - Otherwise, use the database default and allow egress to all IPs, except the cloud metadata IP.
-  - Istiod for istio-proxy sidecars
-- Ingress exceptions to consider:
-  - Kube-api
-  - Prometheus
-  - Istio for virtual service
-  - web endpoints
-- Once you have determined an exception needs to be made, create a template in `chart/templates/bigbang/networkpolicies`.
-- NetworkPolicy templates follow the naming convention of `direction-destination.yaml` (eg: egress-dns.yaml).
-- Each networkPolicy template in the package will have an if statement checking for `networkPolicies.enabled` and will only be present when `enabled: true`
+* Egress exceptions to consider:
+  * Pod to pod
+  * SSO:
+      * When available, use a value from the helm values for the port.
+      * Otherwise, use the SSO default and allow egress to all IPs, except the cloud metadata IP. The default port should be 443.
+  * Storage database:
+      * When available, use a value from the helm values for the port.
+      * Otherwise, use the database default and allow egress to all IPs, except the cloud metadata IP.
+  * Istiod for istio-proxy sidecars
+* Ingress exceptions to consider:
+  * Kube-api
+  * Prometheus
+  * Istio for virtual service
+  * Web endpoints
+* Once you have determined an exception needs to be made, create a template in `chart/templates/bigbang/networkpolicies`.
+* NetworkPolicy templates follow the naming convention of `direction-destination.yaml` (eg: egress-dns.yaml).
+* Each networkPolicy template in the package will have an if statement checking for `networkPolicies.enabled` and will only be present when `enabled: true`
 
 For example, if the podinfo package needs to send information to istiod, add the following content to a file named `egress-istio-d.yaml`:
 
@@ -161,10 +161,10 @@ networkPolicies:
     istio: ingressgateway
 ```
 
-- Use the `enabled: false` code above in order to disable networkPolicy templates for the package. The networkPolicy templates will be enabled by default when deployed from BigBang because it will inherit the `networkPolicies.enabled` [value](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L102).
-- The ingressLabels portion supports packages that have an externally accessible UIs. Values from BigBang will also be inherited in this portion to ensure traffic from the correct istio ingressgateway is whitelisted.
+* Use the `enabled: false` code above in order to disable networkPolicy templates for the package. The networkPolicy templates will be enabled by default when deployed from BigBang because it will inherit the `networkPolicies.enabled` [value](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L102).
+* The ingressLabels portion supports packages that have an externally accessible UIs. Values from Big Bang will also be inherited in this portion to ensure traffic from the correct istio ingressgateway is whitelisted.
 
-Example of a BigBang value configuration, `bigbang/templates/podinfo/values.yaml`, when adding a package into BigBang with networkPolicies:
+Example of a Big Bang value configuration, `bigbang/templates/podinfo/values.yaml`, when adding a package into Big Bang with networkPolicies:
 
 ```yaml
 networkPolicies:
@@ -176,8 +176,8 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 ```
 
-- If the package needs to talk to the kube-api service (eg: operators) then the `controlPlaneCidr` value will be required.
-  - The `controlPlaneCidr` will control egress to the kube-api and be wide open by default, but will inherit the `networkPolicies.controlPlaneCidr` value from BigBang so the range can be locked down.
+* If the package needs to talk to the kube-api service (eg: operators) then the `controlPlaneCidr` value will be required.
+    * The `controlPlaneCidr` will control egress to the kube-api and be wide open by default, but will inherit the `networkPolicies.controlPlaneCidr` value from Big Bang so the range can be locked down.
 
 Sample `chart/templates/bigbang/networkpolicies/egress-kube-api.yaml`:
 
@@ -206,14 +206,14 @@ spec:
 
 - The networkPolicy template for kube-api egress will look like the above, so that communication to the [AWS Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) and [Azure Instance Metadata](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service) can be limited unless required by the package.
 
-### Supporting additional network policies through values.yaml
+### Supporting Additional Network Policies through values.yaml
 
-All bigbang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the user guide](../../guides/using-bigbang/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
+All Big Bang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the user guide](../../guides/using-bigbang/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
 
-- where a package will only be deployed into its own namespace (the majority of bigbang packages)
-- where a package may be used in inside another package's namespace or deployed into its own namespace (such as the gitlab-runner)
+* Where a package will only be deployed into its own namespace (i.e., the majority of bigbang packages).
+* Where a package may be used in inside another package's namespace or deployed into its own namespace (e.g., the gitlab-runner).
 
-#### Single namespace
+#### Single Namespace
 
 For this use case, a simple iteration over the values is sufficient to create the needed functionality. The standard pattern is to place this into `<package>/chart/templates/bigbang/networkpolicies/additional-networkpolicies.yaml`:
 
@@ -231,7 +231,7 @@ spec:
 {{- end }}
 ```
 
-#### Multiple namespaces
+#### Multiple Namespaces
 
 For this use case, refer to [the gitlab runner implementation](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner/-/blob/main/chart/templates/bigbang/networkpolicies/egress-runner-jobs.yaml?ref_type=heads). In this pattern, a given chart may be deployed into one or more namespaces. However, you may only want to enable to control of additional network policies in a certain subset of those namespaces. In these cases, it is sufficient to extend the conditional at the top that checks for the flag in the values:
 
@@ -241,4 +241,4 @@ For this use case, refer to [the gitlab runner implementation](https://repo1.dso
 
 ## Validation
 
-- Package functions as expected and is able to communicate with all BigBang touchpoints.
+* Package functions as expected and is able to communicate with all Big Bang touchpoints.

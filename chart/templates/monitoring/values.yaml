@@ -39,11 +39,25 @@ istio:
   {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
   enabled: {{ .Values.istio.enabled }}
   hardened:
-    {{- if or (dig "values" "istio" "hardened" "enabled" false .Values.monitoring) (dig "values" "istio" "hardened" "enabled" false .Values.grafana) }}
+    {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.grafana.values) }}
     enabled: true
     {{- else }}
     enabled: false
     {{- end }}
+    {{- if and (dig "values" "istio" "hardened" "enabled" false .Values.monitoring) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+    customServiceEntries:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+           - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: 443
+              protocol: TLS
+              name: https
+          resolution: DNS
+     {{- end }}
   prometheus:
     enabled: true
     {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
@@ -86,6 +100,15 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
+  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  serviceMonitor:
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+  {{- end }}
 
 prometheus:
   {{- if $lokiEnabled }}
@@ -108,13 +131,36 @@ prometheus:
 
   thanosServiceMonitor:
     enabled: true
+    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    serviceMonitor:
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
   {{- end }}
 
   prometheusSpec:
+    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    alertingEndpoints:
+    - name: monitoring-monitoring-kube-alertmanager
+      namespace: monitoring
+      apiVersion: v2
+      port: http-web
+      pathPrefix: /
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
 
     {{- if $thanosEnabled }}
     thanos:
-
+    
       {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
       objectStorageConfig:
         secret:
@@ -137,6 +183,13 @@ prometheus:
       # by default, the object stores only sync every 2 hours
       # increase the frequency so the tests will pass 
       blockSize: 1m
+      
+      {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
+      objectStorageConfig:
+        existingSecret:
+          key: objstore.yml
+          name: monitoring-objstore-secret
+
       {{- end }}
 
       {{- if $istioInjection }}    
