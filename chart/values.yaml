@@ -1188,11 +1188,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.1.2-bb.0"
+      #tag: "8.1.2-bb.0"
+      tag: null
+      branch: "266-fix-test-script-to-not-use-docker"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.1.2-bb.0"
+      #tag: "8.1.2-bb.0"
+      tag: null
+      branch: "266-fix-test-script-to-not-use-docker"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
