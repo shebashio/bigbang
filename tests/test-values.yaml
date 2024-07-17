@@ -2856,3 +2856,12 @@ addons:
                   name: https
               resolution: DNS
 
+  externalSecrets:
+    values:
+      istio:
+        hardened:
+          enabled: true
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
