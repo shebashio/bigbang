@@ -1,0 +1,19 @@
+{{- if .Values.istiod.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.istiod "name" "istiod" "defaults" (include "bigbang.defaults.istiod" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istiod" -}}
+createNamespace: false
+
+enterprise: {{ .Values.istio.enterprise }}
+imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+imagePullSecrets:
+  - private-registry
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+{{- end -}}

@@ -1,0 +1,19 @@
+{{- if .Values.istioGateway.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.istioGateway "name" "istio-gateway" "defaults" (include "bigbang.defaults.istioGateway" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istioGateway" -}}
+createNamespace: false
+
+enterprise: {{ .Values.istio.enterprise }}
+imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+imagePullSecrets:
+  - private-registry
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+{{- end -}}
