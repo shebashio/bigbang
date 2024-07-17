@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.istioGateway" -}}
-createNamespace: false
+createNamespace: true
 
 enterprise: {{ .Values.istio.enterprise }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
