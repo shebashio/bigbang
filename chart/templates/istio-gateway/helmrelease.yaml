@@ -12,7 +12,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-gateway/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: istio-gateway
+  targetNamespace: istio-ingress
   chart:
     spec:
       {{- if eq .Values.istioGateway.sourceType "git" }}
