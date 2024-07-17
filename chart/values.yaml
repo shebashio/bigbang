@@ -173,7 +173,7 @@ istioBase:
   helmRepo:
     repoName: "registry1"
     chartName: "istio-base"
-    tag:
+    #tag:
   # -- Flux reconciliation overrides specifically for the Istio Base Package
   flux: {}
   # -- Values to passthrough to the istio-base chart
@@ -194,7 +194,7 @@ istiod:
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag:
+    #tag:
   # -- Flux reconciliation overrides specifically for the Istio Daemon Package
   flux: {}
   # -- Values to passthrough to the istiod chart
@@ -212,12 +212,10 @@ istioGateway:
     path: "./chart"
     branch: "bb-2213-istio-gateway"
     #tag:
-
-  # helmRepo:
-  #   repoName: "registry1"
-  #   chartName: "istio-gateway"
-  #   tag:
-
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Values to passthrough to the istio-base chart
