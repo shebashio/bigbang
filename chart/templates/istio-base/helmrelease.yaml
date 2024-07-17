@@ -42,18 +42,18 @@ spec:
 
   {{- if .Values.istioBase.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.istioBase.postRenderers | nindent 4 }}
-  {{- end }}
-  valuesFrom:
-    - name: {{ .Release.Name }}-istio-base-values
-      kind: Secret
-      valuesKey: "common"
-    - name: {{ .Release.Name }}-istio-base-values
-      kind: Secret
-      valuesKey: "defaults"
-    - name: {{ .Release.Name }}-istio-base-values
-      kind: Secret
-      valuesKey: "overlays"
+  # {{ toYaml .Values.istioBase.postRenderers | nindent 4 }}
+  # {{- end }}
+  # valuesFrom:
+  #   - name: {{ .Release.Name }}-istio-base-values
+  #     kind: Secret
+  #     valuesKey: "common"
+  #   - name: {{ .Release.Name }}-istio-base-values
+  #     kind: Secret
+  #     valuesKey: "defaults"
+  #   - name: {{ .Release.Name }}-istio-base-values
+  #     kind: Secret
+  #     valuesKey: "overlays"
 
   {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
