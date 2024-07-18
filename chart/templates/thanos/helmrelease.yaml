@@ -14,6 +14,9 @@ metadata:
 spec:
   driftDetection:
     mode: warn
+    ignore:
+      - target:
+          kind: Tenant
   releaseName: {{ $pkg }}
   targetNamespace: {{ $pkg }}
   chart:
