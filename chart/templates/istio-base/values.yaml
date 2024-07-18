@@ -5,7 +5,6 @@
 {{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
 {{- end }}
 
-
 {{- define "bigbang.defaults.istio-base" -}}
 createNamespace: true
 
@@ -21,4 +20,3 @@ networkPolicies:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 {{- end }}
-

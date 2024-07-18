@@ -1,11 +1,14 @@
-{{- if .Values.istioGateway.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.istioGateway "name" "istio-gateway" "defaults" (include "bigbang.defaults.istioGateway" .)) }}
+{{- $pkg := "istioGateway" }}
+
+{{- /* Create secret */ -}}
+{{- if (get .Values $pkg).enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
 {{- end }}
 
-{{- define "bigbang.defaults.istioGateway" -}}
+{{- define "bigbang.defaults.istio-gateway" -}}
 createNamespace: true
 
-enterprise: {{ .Values.istio.enterprise }}
+enterprise: {{ .Values.istioBase.enterprise }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 imagePullSecrets:
