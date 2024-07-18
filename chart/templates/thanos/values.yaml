@@ -6,6 +6,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.thanos" -}}
+{{- $thanosS3Endpoint := (printf "%s.s3.dualstack.%s.amazonaws.com" .Values.addons.thanos.objectStorage.bucket .Values.addons.thanos.objectStorage.region) }}
 
 imagePullSecrets:
 - name: private-registry
@@ -17,10 +18,24 @@ domain: {{ .Values.domain }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  {{- if and ( dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+  hardened:
+    customServiceEntries:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - {{ $thanosS3Endpoint }}
+          location: MESH_EXTERNAL
+          ports:
+            - number: 443
+              protocol: TLS
+              name: https
+          resolution: DNS
+  {{- end }}
   thanos:
     gateways:
     - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
-    
 {{- with .Values.addons.thanos.objectStorage }}
 {{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
 minio:
@@ -39,6 +54,15 @@ networkPolicies:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
+storegateway:
+  enabled: true
+
+compactor:
+  enabled: true
+  retentionResolutionRaw: 30d
+  retentionResolution5m: 30d
+  retentionResolution1h: 10y
+
 query:
   dnsDiscovery:
     # to allow lookups to work with and without Istio enabled, we disable k8s dns service
@@ -56,6 +80,38 @@ query:
     {{- if (dig "values" "storegateway" "enabled" false .Values.addons.thanos) }}
     - dns+thanos-storegateway.thanos.svc.cluster.local:10901
     {{- end }}
-    
+  {{- if .Values.addons.thanos.sso.enabled }}
+  {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
+  {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+  podLabels:
+    {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
+  {{- end }}
 
+{{- if not (.Values.addons.thanos.objectStorage.endpoint | empty) }}
+
+objstoreConfig: |-
+  type: s3
+  config:
+    bucket: {{ .Values.addons.thanos.objectStorage.bucket }}
+    endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
+    access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
+    secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
+    insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+
+storegateway:
+  enabled: true
+  useEndpointGroup: true
+  endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
+
+compactor:
+  enabled: true
+  retentionResolutionRaw: 30d
+  retentionResolution5m: 30d
+  retentionResolution1h: 30d
+
+query:
+  extraFlags:
+    - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
+
+{{- end }}
 {{- end }}

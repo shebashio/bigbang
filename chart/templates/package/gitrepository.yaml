@@ -6,7 +6,7 @@
 {{- if $defaults -}}
 {{- $vals := mergeOverwrite $vals ($defaults | fromYaml).package -}}
 {{- end -}}
-{{- $fluxSettings := mergeOverwrite $.Values.flux (dig "flux" dict $vals) -}}
+
 {{- $gitCredsDict := dict
   "name" $pkg
   "packageGitScope" $vals.git
@@ -17,12 +17,16 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
   name: {{ $pkg }}
-  namespace: {{ dig "namespace" "name" $pkg $vals }}
+  namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkg) }}
+                {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkg) }}
+              {{ else }}
+                {{ default (dig "namespace" "name" $pkg $vals) "" }}
+              {{ end }}
   labels:
     app.kubernetes.io/name: {{ $pkg }}
     {{- include "commonLabels" $ | nindent 4 }}
 spec:
-  interval: {{ default "5m" $fluxSettings.interval }}
+  interval: {{ $.Values.flux.interval }}
   url: {{ dig "git" "repo" nil $vals }}
   ref:
     {{- include "validRef" $vals.git | nindent 4 -}}

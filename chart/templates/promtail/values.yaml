@@ -3,6 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.promtail" -}}
+{{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 hostname: {{ .Values.hostname }}
 
 image:
@@ -47,8 +48,12 @@ config:
   clients:
     {{- if eq .Values.loki.strategy "monolith" }}
     - url: http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push
+      external_labels:
+        cluster: {{ $clusterName }}
     {{- else }}
     - url: http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push
+      external_labels:
+        cluster: {{ $clusterName }}
     {{- end }}
 {{- end }}
 # If loki is disabled and promtail is not

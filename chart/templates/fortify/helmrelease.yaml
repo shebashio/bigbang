@@ -1,7 +1,7 @@
 {{- $pkg := "fortify" }}
-{{- $fluxSettingsFortify := mergeOverwrite .Values.flux (get .Values.addons $pkg).flux -}}
+{{- $fluxSettingsFortify := merge .Values.addons.fortify.flux .Values.flux -}}
 {{- if (get .Values.addons $pkg).enabled }}
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: {{ $pkg }}
@@ -56,15 +56,19 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.istio.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if or .Values.istio.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
   dependsOn:
-  {{- if .Values.istio.enabled }}
+    {{- if .Values.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
-  {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+    {{- end }}
+    {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
-  {{- end }}
+    {{- end }}
+    {{- if .Values.monitoring.enabled }}
+    - name: monitoring
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
   {{- end }}
 {{- end }}

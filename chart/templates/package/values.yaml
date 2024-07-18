@@ -10,13 +10,19 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ $pkg }}-values
-  namespace: {{ dig "namespace" "name" $pkg $vals }}
+  namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkg) }}
+                {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkg) }}
+              {{ else }}
+                {{ default (dig "namespace" "name" $pkg $vals) "" }}
+              {{ end }}
   labels:
     {{- include "commonLabels" $ | nindent 4 }}
 type: Opaque
 stringData:
   {{ if and (dig "enabled" true $vals) (not $vals.kustomize) -}}
   values.yaml: |
+    bigbang:
+      {{- include "values-bigbang" $.Values | nindent 6 }}
   {{- tpl (toYaml $vals.values) $ | nindent 4 }}
   {{ else }}
   {{- tpl (toYaml $vals.values) $ | nindent 2 }}

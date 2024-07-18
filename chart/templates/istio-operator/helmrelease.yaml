@@ -1,6 +1,6 @@
-{{- $fluxSettingsIstioOperator := mergeOverwrite .Values.flux .Values.istioOperator.flux -}}
+{{- $fluxSettingsIstioOperator := merge .Values.istioOperator.flux .Values.flux -}}
 {{- if .Values.istioOperator.enabled }}
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: istio-operator
@@ -54,7 +54,7 @@ spec:
     - name: {{ .Release.Name }}-istio-operator-values
       kind: Secret
       valuesKey: "overlays"
-  
+
   {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

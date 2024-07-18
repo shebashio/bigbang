@@ -1,8 +1,8 @@
 # Credentials for Big Bang Packages
 
-This document includes details on credentials to access each package in a default install (without SSO). It is safe to assume that any packages not listed in the two categories below either have no need for authentication or use different methods (ex: Velero require kubectl access).
+This document includes details on credentials to access each package in a default install (i.e., without SSO). It is safe to assume that any packages not listed in the two categories below either have no need for authentication or use different methods (e.g., Velero require kubectl access).
 
-## Packages With No Built in Authentication
+## Packages With No Built-in Authentication
 
 Although the below applications have no built in authentication, Big Bang's helm values can be configured to deploy authservice in front of these endpoints. Authservice is an Authentication Proxy that can integrate with SSO providers like Keycloak.
 
@@ -10,9 +10,9 @@ Although the below applications have no built in authentication, Big Bang's helm
 - Monitoring (Prometheus)
 - Monitoring (Alertmanager)
 
-## Packages With Built in Authentication
+## Packages With Built-in Authentication
 
-The applications in the table below provide both SSO and built in auth. The table gives default credentials and ways to access and/or override those.
+The applications in the table below provide both SSO and built-in authentication. The table gives default credentials and ways to access and/or override those.
 
 | Package (Application) | Default Username | Default Password | Additional Notes |
 | --------------------- | ---------------- | ---------------- | ---------------- |
@@ -27,6 +27,6 @@ The applications in the table below provide both SSO and built in auth. The tabl
 | Sonarqube | `admin` | `admin` | Default password can be overridden with Helm values `addons.sonarqube.values.account.adminPassword` |
 | Anchore | `admin` | (randomly generated) | Use `kubectl get secrets -n anchore anchore-anchore-enterprise -o go-template='{{.data.ANCHORE_ADMIN_PASSWORD \| base64decode}}'` to get the password, or override with Helm values `addons.anchore.values.anchoreGlobal.defaultAdminPassword` |
 | Mattermost | N/A | N/A | Prompted to setup an account when you first hit the virtual service - this user becomes admin, no default user |
-| Keycloak | `admin` | `password` | Default username and password can be overridden with Helm values `addons.keycloak.values.secrets.credentials.stringData.adminuser` and `addons.keycloak.values.secrets.credentials.stringData.password` respectively |
+| Keycloak | `admin` | `password` | Default username and password can be overridden with Helm values `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN` and `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN_PASSWORD` respectively |
 | Neuvector | `admin` | `admin` | You should change the default password when you log into Neuvector. Can also be changed via the chart at the `controller.secret.data.userinitcfg.yaml` key, see the [upstream docs for more details and examples](https://open-docs.neuvector.com/deploying/production/configmap).|
 | Harbor | `admin` | `Harbor12345` | Default password can be overridden with Helm values `addons.harbor.values.harborAdminPassword` |

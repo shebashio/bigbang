@@ -451,6 +451,12 @@
             }
           },
           "additionalProperties": false
+        },
+        "serviceAccountAnnotations": {
+          "properties": {
+            "elasticsearch": true,
+            "kibana": true
+          }
         }
       },
       "allOf": [
@@ -536,7 +542,8 @@
           "type": "string",
           "enum": [
             "monolith",
-            "scalable"
+            "scalable",
+            "distributed"
           ]
         },
         "objectStorage": {
