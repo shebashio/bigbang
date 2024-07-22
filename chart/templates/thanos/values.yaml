@@ -97,6 +97,9 @@ storegateway:
   useEndpointGroup: true
   endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
 
+compactor:
+  enabled: true
+
 query:
   extraFlags:
     - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
