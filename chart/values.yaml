@@ -174,7 +174,8 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.22.3-bb.0"
+    #tag: "1.22.3-bb.0"
+    branch: "226-set-required-labels-for-kiali"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
