@@ -59,6 +59,9 @@ storegateway:
 
 compactor:
   enabled: true
+  retentionResolutionRaw: 0s
+  retentionResolution5m: 0s
+  retentionResolution1h: 0s
 
 query:
   dnsDiscovery:
