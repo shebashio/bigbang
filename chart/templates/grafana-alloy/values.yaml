@@ -12,3 +12,5 @@ imagePullSecrets:
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 domain: {{ .Values.domain }}
+
+{{- end }}
