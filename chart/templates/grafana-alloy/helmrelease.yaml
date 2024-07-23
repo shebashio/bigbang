@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: grafanaAlloy
     {{- include "commonLabels" . | nindent 4}}
   annotations:
-    checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafanaAlloy/values.yaml") . | sha256sum }}
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafana-alloy/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: monitoring
   chart:
