@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: grafana
+  name: grafanaAlloy
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: grafanaAlloy
@@ -11,14 +11,14 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafana-alloy/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: monitoring
+  targetNamespace: grafanaAlloy
   chart:
     spec:
       {{- if eq .Values.addons.grafanaAlloy.sourceType "git" }}
       chart: {{ .Values.addons.grafanaAlloy.git.path }}
       sourceRef:
         kind: GitRepository
-        name: grafana
+        name: grafanaAlloy
         namespace: {{ .Release.Namespace }}
       {{- else }}
       chart: {{ .Values.addons.grafanaAlloy.helmRepo.chartName }}
@@ -44,13 +44,13 @@ spec:
   {{ toYaml .Values.addons.grafanaAlloy.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
-    - name: {{ .Release.Name }}-grafana-values
+    - name: {{ .Release.Name }}-grafana-alloy-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-grafana-values
+    - name: {{ .Release.Name }}-grafana-alloy-values
       kind: Secret
       valuesKey: "defaults"
-    - name: {{ .Release.Name }}-grafana-values
+    - name: {{ .Release.Name }}-grafana-alloy-values
       kind: Secret
       valuesKey: "overlays"
 
