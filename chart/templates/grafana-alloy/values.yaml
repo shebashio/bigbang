@@ -1,0 +1,14 @@
+{{- $pkg := "grafanaAlloy" }}
+
+{{- /* Create secret */ -}}
+{{- if (get .Values.addons $pkg).enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values.addons $pkg) "name" $pkg "defaults" (include (printf "bigbang.defaults.%s" $pkg) .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.grafanaAlloy" -}}
+
+imagePullSecrets:
+- name: private-registry
+imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+domain: {{ .Values.domain }}
