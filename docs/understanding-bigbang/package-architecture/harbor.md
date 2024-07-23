@@ -31,7 +31,7 @@ graph LR
 
   subgraph "Logging"
     harborpods("Harbor Pods") --> fluent(Fluentbit) --> logging-ek-es-http
-    logging-ek-es-http{{Elastic Service<br />logging-ek-es-http}} --> elastic[(Elastic Storage)]
+    logging-ek-es-http{{Elastic Service<br />logging-ek-es-http}} --> plg[(PLG Storage)]
   end
 
   subgraph "Monitoring"
@@ -39,6 +39,8 @@ graph LR
     Prometheus --> svcmonitor("Service Monitor")
   end
 ```
+
+
 
 For more information on the Harbor architecture, see [Harbor Overview and Architecture](https://github.com/goharbor/harbor/wiki/Architecture-Overview-of-Harbor).
 
