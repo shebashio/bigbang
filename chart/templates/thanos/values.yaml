@@ -59,9 +59,9 @@ storegateway:
 
 compactor:
   enabled: true
-  retentionResolutionRaw: 30d
-  retentionResolution5m: 30d
-  retentionResolution1h: 10y
+  retentionResolutionRaw: 0s
+  retentionResolution5m: 0s
+  retentionResolution1h: 0s
 
 query:
   dnsDiscovery:
@@ -105,9 +105,9 @@ storegateway:
 
 compactor:
   enabled: true
-  retentionResolutionRaw: 30d
-  retentionResolution5m: 30d
-  retentionResolution1h: 30d
+  retentionResolutionRaw: 0s
+  retentionResolution5m: 0s
+  retentionResolution1h: 0s
 
 query:
   extraFlags:
