@@ -1190,6 +1190,10 @@ grafana:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
 
 neuvector:
+  git: 
+    tag: null
+    branch: 153-set-required-labels-for-kiali
+  enabled: true
   values:
     enforcer:
       podAnnotations:
