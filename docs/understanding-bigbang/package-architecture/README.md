@@ -179,7 +179,7 @@ Runtime security is the active protection of containers running in the cluster. 
 
 ## Addons
 
-End users can extend Big Bang services beyond the core packages by enabling any of the many team-supported addon packages.  There may be additional community-supported Big Bang packages that are not listed here.
+End users can extend Big Bang services beyond the core packages by enabling any of the many team-supported addon packages. Addons are supported by the Big Bang team and integrated with the core platform (Istio, Kyverno, Prometheus etc..) There are additional community-supported Big Bang packages that are not listed as addons.
 
 ### Storage Utilities
 
