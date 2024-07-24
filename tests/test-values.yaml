@@ -82,11 +82,11 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-    values:
-      global:
-        pilot:
-          env:
-            "ENABLE_NATIVE_SIDECARS": true
+    # values:
+    #   global:
+    #     pilot:
+    #       env:
+    #         "ENABLE_NATIVE_SIDECARS": true
 
 jaeger:
   enabled: false
