@@ -53,6 +53,7 @@ openshift: false
 #   2. http credentials (username/password/caFile)
 #   3. ssh credentials (privateKey/publicKey/knownHosts)
 git:
+  repository: "repo1.dso.mil"
   # -- Existing secret to use for git credentials, must be in the appropriate format: https://toolkit.fluxcd.io/components/source/gitrepositories/#https-authentication
   existingSecret: ""
 
@@ -172,7 +173,7 @@ istio:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
+    repo: https://{{ .Values.git.repository }}/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
     tag: "1.22.3-bb.1"
   helmRepo:
@@ -314,7 +315,7 @@ istioOperator:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
+    repo: https://{{ .Values.git.repository }}/big-bang/product/packages/istio-operator.git
     path: "./chart"
     tag: "1.22.3-bb.0"
   helmRepo:
