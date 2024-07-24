@@ -1484,12 +1484,12 @@ addons:
     flux:
       timeout: 30m
     values:
-      # upgradeCheck:
-      #   annotations:
-      #     sidecar.istio.io/inject: "true"
-      # shared-secrets:
-      #   annotations:
-      #     sidecar.istio.io/inject: "true"
+      upgradeCheck:
+        annotations:
+          sidecar.istio.io/inject: "true"
+      shared-secrets:
+        annotations:
+          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
@@ -1557,8 +1557,8 @@ addons:
             limits: {}
         migrations:
           # required annotation when istio.hardened.enabled = true
-          # annotations:
-          #   sidecar.istio.io/inject: "true"
+          annotations:
+            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
@@ -1584,8 +1584,8 @@ addons:
             limits: {}
       minio:
         # required annotation when istio.hardened.enabled = true
-        # jobAnnotations:
-        #   sidecar.istio.io/inject: "true"
+        jobAnnotations:
+          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
