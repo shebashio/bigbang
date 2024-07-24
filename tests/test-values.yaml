@@ -57,6 +57,9 @@ networkPolicies:
   #controlPlaneCidr: 172.16.0.0/12
 
 istio:
+  git:
+    tag: null
+    branch: bigbang-2250-disabling-sidecars
   enabled: true
   ingressGateways:
     passthrough-ingressgateway:
@@ -79,6 +82,11 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+    values:
+      global:
+        pilot:
+          env:
+            "ENABLE_NATIVE_SIDECARS": true
 
 jaeger:
   enabled: false
@@ -1466,6 +1474,9 @@ addons:
           enabled: true
 
   gitlab:
+    git:
+      tag: null
+      branch: bigbang-2250-disabling-sidecars
     enabled: false
     sso:
       enabled: false
@@ -1473,12 +1484,12 @@ addons:
     flux:
       timeout: 30m
     values:
-      upgradeCheck:
-        annotations:
-          sidecar.istio.io/inject: "true"
-      shared-secrets:
-        annotations:
-          sidecar.istio.io/inject: "true"
+      # upgradeCheck:
+      #   annotations:
+      #     sidecar.istio.io/inject: "true"
+      # shared-secrets:
+      #   annotations:
+      #     sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
@@ -1546,8 +1557,8 @@ addons:
             limits: {}
         migrations:
           # required annotation when istio.hardened.enabled = true
-          annotations:
-            sidecar.istio.io/inject: "true"
+          # annotations:
+          #   sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
@@ -1573,8 +1584,8 @@ addons:
             limits: {}
       minio:
         # required annotation when istio.hardened.enabled = true
-        jobAnnotations:
-          sidecar.istio.io/inject: "true"
+        # jobAnnotations:
+        #   sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
@@ -2019,6 +2030,9 @@ addons:
           enabled: true
 
   mattermost:
+    git:
+      tag: null
+      branch: bigbang-2250-disabling-sidecars
     enabled: false
     sso:
       enabled: false
