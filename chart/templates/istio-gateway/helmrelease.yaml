@@ -1,6 +1,7 @@
 {{- $fluxSettingsIstioGateway := merge .Values.istioGateway.flux .Values.flux -}}
 {{- if and .Values.istioGateway.gateways .Values.istioGateway.enabled }}
 {{ range .Values.istioGateway.gateways }}
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
