@@ -55,8 +55,9 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
+    - name: istio-base
+      namespace: {{ .Release.Namespace }}
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
@@ -65,5 +66,4 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- end }}
 {{- end }}

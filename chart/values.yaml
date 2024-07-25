@@ -216,6 +216,9 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
+  gateways:
+    - name: test-ingress-gateway
+    - name: another-test
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Values to passthrough to the istio-base chart
