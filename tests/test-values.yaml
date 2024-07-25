@@ -79,10 +79,6 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-    values:
-      pilot:
-        env:
-          "ENABLE_NATIVE_SIDECARS": "true"
 
 jaeger:
   enabled: false
@@ -917,6 +913,7 @@ loki:
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'grafana.dev.bigbang.mil'
+                - 'optimizationguide-pa.googleapis.com'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -1201,16 +1198,8 @@ neuvector:
     bbtests:
       enabled: true
       cypress:
-        artifacts: true
         envs:
           cypress_url: https://neuvector.dev.bigbang.mil
-        resources:
-          requests:
-            cpu: "2"
-            memory: "1500M"
-          limits:
-            cpu: "2"
-            memory: "1500M"
 
 twistlock:
   enabled: false
@@ -1506,9 +1495,9 @@ addons:
                   - "registry.dev.bigbang.mil"
                   - 'keycloak.dev.bigbang.mil'
                   - 'repo1.dso.mil'
-                  - "index.docker.io"
-                  - "auth.docker.io"
-                  - "production.cloudflare.docker.com"
+                  - 'registry1.dso.mil'
+                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -2362,7 +2351,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.0
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.1
           imagePullPolicy: Always
           command:
           - sh
@@ -2793,6 +2782,9 @@ addons:
         enabled: true
       compactor:
         enabled: true
+        retentionResolutionRaw: 30d
+        retentionResolution5m: 30d
+        retentionResolution1h: 30d
       bbtests:
         enabled: true
         cypress:
@@ -2864,3 +2856,12 @@ addons:
                   name: https
               resolution: DNS
 
+  externalSecrets:
+    values:
+      istio:
+        hardened:
+          enabled: true
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
