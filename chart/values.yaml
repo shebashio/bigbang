@@ -216,6 +216,22 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
+
+  # ingressGateways:
+  #   public-ingressgateway:
+  #     type: "LoadBalancer" # or "NodePort"
+  # gateways:
+  #   public:
+  #     ingressGateway: "public-ingressgateway"
+  #     hosts:
+  #       - "*.{{ .Values.domain }}"
+  #     autoHttpRedirect:
+  #       enabled: true
+  #     tls:
+  #       key: ""
+  #       cert: ""
+  #       minProtocolVersion: ""
+
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Values to passthrough to the istio-base chart
