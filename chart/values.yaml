@@ -210,7 +210,7 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    branch: "schema-test"
+    branch: "main"
     #tag:
   helmRepo:
     repoName: "registry1"
@@ -218,6 +218,10 @@ istioGateway:
     #tag:
   gateways:
     - name: test-ingress-gateway
+      values:
+        some-gateway-chart-value:
+          - "things-and-stuff"
+          - "other-things"
     - name: another-test
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
