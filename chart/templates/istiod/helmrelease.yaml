@@ -57,6 +57,10 @@ spec:
 
   {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
+    {{- if .Values.istioBase.enabled }}
+    - name: istio-base
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
