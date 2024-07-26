@@ -207,8 +207,11 @@ luaScripts:
         "prometheus",
         "operator.prometheus.io/name",
         "app.kubernetes.io/managed-by",
+        "app.kubernetes.io/part-of",
+        "apps.kuberentes.io/version",
         "heritage",
-        "release"
+        "release",
+        "elasticsearch_k8s_elastic_co_node-"
       }
 
       if record["kubernetes"] ~= nil then
