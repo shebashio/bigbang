@@ -130,7 +130,7 @@ policies:
           names:
           - kyverno-reporter*
       {{- end }}
-      {{- if .Values.kyvernoReporter.enabled }}
+      {{- if .Values.minio.enabled }}
       - resources:
           namespaces:
           - minio 
