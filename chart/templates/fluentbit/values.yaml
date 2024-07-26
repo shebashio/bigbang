@@ -206,9 +206,10 @@ luaScripts:
         "apps.kuberentes.io/pod-index",
         "prometheus",
         "operator.prometheus.io/name",
-        "app.kubernetes.io/managed-by",
-        "app.kubernetes.io/part-of",
+        "app.kubernetes.io/managed%-by",
+        "app.kubernetes.io/part%-of",
         "apps.kuberentes.io/version",
+        "apps.kubernetes.io/pod%-index",
         "heritage",
         "release",
         "elasticsearch.k8s.elastic.co.node.-"
