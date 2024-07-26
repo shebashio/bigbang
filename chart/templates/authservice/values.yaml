@@ -15,11 +15,7 @@ istio:
     {{- else}}
     enabled: false
     {{- end }}
-  {{- if and .Values.istio .Values.istio.values .Values.istio.values.hardened }}
-  clusterWideHardenedEnabled: {{ .Values.istio.values.hardened.enabled }}
-  {{- else }}
-  clusterWideHardenedEnabled: false  # or some default value
-  {{- end }}
+  clusterWideHardenedEnabled: {{ or .Values.istio.values.hardened.enabled false }}
 
 image: 
   pullPolicy: {{ .Values.imagePullPolicy }}
