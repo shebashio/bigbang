@@ -16,6 +16,9 @@ spec:
     mode: warn
     ignore:
       - paths: ["/spec/pools"]
+      - paths: [""]
+        target:
+         kind: Sidecar
   releaseName: {{ default "logging-loki" .Values.loki.releaseName }}
   targetNamespace: logging
   chart:
