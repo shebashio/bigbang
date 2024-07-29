@@ -68,9 +68,9 @@ vault:
   enabled: {{ .Values.addons.vault.enabled }}
   tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
 
-# global:
-#   imagePullSecrets:
-#   - name: private-registry
+global:
+  imagePullSecrets:
+  - name: private-registry
 
 sso:
   enabled: {{ or .Values.grafana.sso.enabled .Values.grafana.sso.enabled }}
@@ -86,8 +86,6 @@ env:
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
-  pullSecrets:
-  - private-registry
 sidecar:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
