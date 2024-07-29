@@ -15,10 +15,9 @@ spec:
   driftDetection:
     mode: warn
     ignore:
-      - paths: ["/spec/pools"]
       - paths: [""]
         target:
-         kind: Sidecar
+          kind: Tenant
   releaseName: {{ $pkg }}
   targetNamespace: {{ $pkg }}
   chart:

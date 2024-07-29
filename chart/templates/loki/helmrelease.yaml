@@ -15,7 +15,9 @@ spec:
   driftDetection:
     mode: warn
     ignore:
-      - paths: ["/spec/pools"]
+      - paths: [""]
+        target:
+          kind: Tenant
       - paths: [""]
         target:
          kind: Sidecar
