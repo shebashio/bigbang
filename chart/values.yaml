@@ -1088,11 +1088,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.0.1-bb.3"
+      tag: "1.0.1-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.0.1-bb.3"
+      tag: "1.0.1-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1329,11 +1329,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "69.0.0-bb.2"
+      tag: "70.1.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "69.0.0-bb.2"
+      tag: "70.1.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1531,11 +1531,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.7.0-bb.4"
+      tag: "2.7.0-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.7.0-bb.4"
+      tag: "2.7.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1623,11 +1623,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.22.0-bb.0"
+      tag: "1.22.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.22.0-bb.0"
+      tag: "1.22.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
