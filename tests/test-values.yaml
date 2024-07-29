@@ -79,10 +79,6 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-    values:
-      pilot:
-        env:
-          "ENABLE_NATIVE_SIDECARS": "true"
 
 jaeger:
   enabled: false
@@ -130,9 +126,7 @@ jaeger:
           # cypress_keycloak_test_enable: "true"
 
 kiali:
-  enabled: true
   sso:
-    enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
   values:
     istio:
@@ -157,8 +151,8 @@ kiali:
     cr:
       spec:
         auth:
-          # if enabling the keycloak SSO integration test, set strategy to "openid"
-          #strategy: "openid"
+          # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
+          # strategy defaults to "openid"
           strategy: "anonymous"
     resources:
       limits:
@@ -1499,9 +1493,9 @@ addons:
                   - "registry.dev.bigbang.mil"
                   - 'keycloak.dev.bigbang.mil'
                   - 'repo1.dso.mil'
-                  - "index.docker.io"
-                  - "auth.docker.io"
-                  - "production.cloudflare.docker.com"
+                  - 'registry1.dso.mil'
+                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -1826,7 +1820,7 @@ addons:
           envs:
             ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
         cypress:
-          envs: 
+          envs:
             cypress_url: "https://anchore.dev.bigbang.mil"
 
 
@@ -2355,7 +2349,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.0
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.1
           imagePullPolicy: Always
           command:
           - sh
@@ -2786,6 +2780,9 @@ addons:
         enabled: true
       compactor:
         enabled: true
+        retentionResolutionRaw: 30d
+        retentionResolution5m: 30d
+        retentionResolution1h: 30d
       bbtests:
         enabled: true
         cypress:
