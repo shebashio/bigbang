@@ -15,9 +15,7 @@ spec:
   driftDetection:
     mode: warn
     ignore:
-     - paths: ["/spec/pools[0]/volumeClaimTemplate/spec/storageClassName"]
-       target:
-         kind: Tenant
+      - paths: ["/spec/pools"]
   releaseName: {{ $pkg }}
   targetNamespace: {{ $pkg }}
   chart:
