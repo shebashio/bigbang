@@ -220,17 +220,17 @@ istioGateway:
     - name: public-ingressgateway
       values:
         type: "LoadBalancer" # or "NodePort"
-        hosts:
-          - "*.{{ .Values.domain }}"
-        autoHttpRedirect:
-          enabled: true
-        tls:
-          key: ""
-          cert: ""
-          minProtocolVersion: ""
-    - name: passthrough-ingressgateway
-      values:
-        some: value
+        # hosts:
+        #   - "*.{{ .Values.domain }}"
+        # autoHttpRedirect:
+        #   enabled: true
+        # tls:
+        #   key: ""
+        #   cert: ""
+        #   minProtocolVersion: ""
+    # - name: passthrough-ingressgateway
+    #   values:
+    #     some: value
 
   # ingressGateways:
   #   public-ingressgateway:
