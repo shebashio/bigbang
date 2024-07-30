@@ -490,7 +490,8 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.2.5-bb.3"
+    tag: null
+    branch: "increase-wait-secret-test"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
