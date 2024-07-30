@@ -216,6 +216,13 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
+  gateways:
+    - name: test-ingress-gateway
+      values:
+        some-gateway-chart-value:
+          - "things-and-stuff"
+          - "other-things"
+    - name: another-test
 
   # ingressGateways:
   #   public-ingressgateway:
