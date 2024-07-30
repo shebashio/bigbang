@@ -759,7 +759,7 @@ spec:
       - istio-ingress
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [istio-ingress-istio-gateway-test-ingress-gateway]}
+          - {key: app, operator: In, values: [istio-ingress-istio-gateway-public-ingressgateway]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -778,7 +778,7 @@ spec:
       - istio-ingress
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [istio-ingress-istio-gateway-another-test]}
+          - {key: app, operator: In, values: [istio-ingress-istio-gateway-passthrough-ingressgateway]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement

@@ -217,12 +217,20 @@ istioGateway:
     chartName: "istio-gateway"
     #tag:
   gateways:
-    - name: test-ingress-gateway
+    - name: public-ingressgateway
       values:
-        some-gateway-chart-value:
-          - "things-and-stuff"
-          - "other-things"
-    - name: another-test
+        type: "LoadBalancer" # or "NodePort"
+        hosts:
+          - "*.{{ .Values.domain }}"
+        autoHttpRedirect:
+          enabled: true
+        tls:
+          key: ""
+          cert: ""
+          minProtocolVersion: ""
+    - name: passthrough-ingressgateway
+      values:
+        some: value
 
   # ingressGateways:
   #   public-ingressgateway:
