@@ -2103,6 +2103,20 @@ addons:
 
     postRenderers: []
 
+  grafanaAlloy:
+    # -- Toggle deployment of grafana alloy
+    enabled: true
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/apps/sandbox/grafana-alloy.git
+      branch: main
+      path: "./chart"
+
+    sourceType: "git"
+
+    # -- Flux reconciliation overrides specifically for the Thanos Package
+    flux: {}
+
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:
   # -- Choose source type of "git" or "helmRepo"
@@ -2215,3 +2229,5 @@ packages:
 
     # -- Values to pass through to package Helm chart
     values: {}
+
+    
