@@ -14,6 +14,8 @@ metadata:
 spec:
   driftDetection:
     mode: warn
+    ignore:
+      - paths: ["spec/template/spec/imagePullSecrets"]
   targetNamespace: monitoring
   chart:
     spec:
