@@ -108,5 +108,53 @@ query:
   extraFlags:
     - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
 
+{{ else }}
+objstoreConfig: |-
+  type: s3
+  config:
+    bucket: "thanos"
+    endpoint: minio.thanos.svc.cluster.local:80
+    access_key: "minio"
+    secret_key: "minio123"
+    insecure: true
+    trace:
+      enable: true
+
+minio:
+  enabled: true
+  secrets:
+    name: "thanos-objstore-creds"
+    accessKey: "minio"
+    secretKey: "minio123" # default key, change this!
+  tenant:
+    # -- Buckets to be provisioned to for tenant
+    buckets:
+      - name: thanos
+    # -- Users to to be provisioned to for tenant
+    users:
+      - name: minio-user
+    # -- User credentials to create for above user. Otherwise password is randomly generated.
+    # This auth is not required to be set or reclaimed for minio use with Loki
+    defaultUserCredentials:
+      username: "minio-user"
+      password: ""
+    ## Specification for MinIO Pool(s) in this Tenant.
+    pools:
+      - servers: 1
+        name: "pool-0"
+        volumesPerServer: 4
+        size: 750Mi
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          fsGroup: 1001
+          runAsNonRoot: true
+        containerSecurityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
 {{- end }}
 {{- end }}
