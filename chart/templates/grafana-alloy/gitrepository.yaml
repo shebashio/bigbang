@@ -1,0 +1,23 @@
+{{- if and (eq .Values.addons.grafanaAlloy.sourceType "git") (not .Values.offline) .Values.addons.grafanaAlloy.enabled }}
+{{- $gitCredsDict := dict
+  "name" "grafanaAlloy"
+  "packageGitScope" .Values.addons.grafanaAlloy.git
+  "rootScope" .
+  "releaseName" .Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: grafana-alloy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: grafanaAlloy
+    {{- include "commonLabels" . | nindent 4}}
+spec:
+  interval: {{ .Values.flux.interval }}
+  url: {{ .Values.addons.grafanaAlloy.git.repo }}
+  ref:
+    {{- include "validRef" .Values.addons.grafanaAlloy.git | nindent 4 }}
+  {{ include "gitIgnore" . }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end }}
