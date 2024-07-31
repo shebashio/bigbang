@@ -15,7 +15,7 @@ spec:
   driftDetection:
     mode: warn
     ignore:
-      - paths: ["/spec/template/spec/imagePullSecrets"]
+      - paths: ["/spec/template/spec/imagePullSecrets/0/name"]
 
   targetNamespace: monitoring
   chart:
