@@ -55,15 +55,27 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{ if or .Values.istioBase.enabled .Values.istiod.enabled .Values.istioGateway.enabled .Values.monitoring.enabled }}
+#   {{ if or .Values.istioBase.enabled .Values.istiod.enabled .Values.istioGateway.enabled .Values.monitoring.enabled }}
+#   dependsOn:
+#   {{- if or .Values.istioBase.enabled .Values.istiod.enabled .Values.istioGateway.enabled }}
+#     - name: istio-gateway-public-ingressgateway
+#       namespace: {{ .Release.Namespace }}
+#   {{- end }}
+#   {{- if .Values.monitoring.enabled }}
+#     - name: monitoring
+#       namespace: {{ .Release.Namespace }}
+#   {{- end }}
+#   {{- end }}
+# {{- end }}
+
+  {{ if or .Values.istio.enabled .Values.monitoring.enabled }}
   dependsOn:
-  {{- if or .Values.istioBase.enabled .Values.istiod.enabled .Values.istioGateway.enabled }}
-    - name: istio-gateway-public-ingressgateway
+  {{- if .Values.istio.enabled }}
+    - name: istio
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
-  {{- end }}
   {{- end }}
 {{- end }}
