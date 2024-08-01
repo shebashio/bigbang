@@ -20,7 +20,7 @@ global:
       type: RuntimeDefault
     capabilities:
       drop:
-        - ALL
+      - ALL
 alloy:
     # -- Security context to apply to the Grafana Alloy container.
   securityContext: 
@@ -29,7 +29,7 @@ alloy:
     runAsNonRoot: true
     capabilities:
       drop:
-        - ALL
+      - ALL
 
 configReleoader:
   securityContext:
@@ -38,7 +38,7 @@ configReleoader:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
-        - ALL
+      - ALL
 
 controller:
   securityContext:
@@ -47,6 +47,6 @@ controller:
     runAsGroup: 1001
     capabilities:
       drop:
-        - ALL
+      - ALL
 
 {{- end }}
