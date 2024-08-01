@@ -18,6 +18,9 @@ global:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
 alloy:
     # -- Security context to apply to the Grafana Alloy container.
   securityContext: 
