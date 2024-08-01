@@ -160,6 +160,101 @@ imagePullPolicy: IfNotPresent
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
+istioBase:
+  # -- Toggle deployment of Istio Base
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-base.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-base"
+    #tag:
+  # -- Flux reconciliation overrides specifically for the Istio Base Package
+  flux: {}
+  # -- Values to passthrough to the istio-base chart
+  values: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istiod:
+  # -- Toggle deployment of Istio Daemon
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istiod"
+    #tag:
+  # -- Flux reconciliation overrides specifically for the Istio Daemon Package
+  flux: {}
+  # -- Values to passthrough to the istiod chart
+  values: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istioGateway:
+  # -- Toggle deployment of Istio Gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+  gateways:
+    - name: public-ingressgateway
+      values:
+        type: "LoadBalancer" # or "NodePort"
+        # hosts:
+        #   - "*.{{ .Values.domain }}"
+        # autoHttpRedirect:
+        #   enabled: true
+        # tls:
+        #   key: ""
+        #   cert: ""
+        #   minProtocolVersion: ""
+    # - name: passthrough-ingressgateway
+    #   values:
+    #     some: value
+
+  # ingressGateways:
+  #   public-ingressgateway:
+  #     type: "LoadBalancer" # or "NodePort"
+  # gateways:
+  #   public:
+  #     ingressGateway: "public-ingressgateway"
+  #     hosts:
+  #       - "*.{{ .Values.domain }}"
+  #     autoHttpRedirect:
+  #       enabled: true
+  #     tls:
+  #       key: ""
+  #       cert: ""
+  #       minProtocolVersion: ""
+
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Values to passthrough to the istio-base chart
+  values: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
