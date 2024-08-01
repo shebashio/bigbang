@@ -165,8 +165,12 @@ prometheus:
 
     {{- if $thanosEnabled }}
     thanos:
-    
-      {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
+      {{- if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
+      objectStorageConfig:
+        existingSecret:
+          key: objstore.yml
+          name: monitoring-objstore-secret
+      {{- else if or (.Values.addons.thanos.values.objstoreConfig | empty) (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
       objectStorageConfig:
         secret:
           type: s3
@@ -188,13 +192,6 @@ prometheus:
       # by default, the object stores only sync every 2 hours
       # increase the frequency so the tests will pass 
       blockSize: 1m
-      
-      {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
-      objectStorageConfig:
-        existingSecret:
-          key: objstore.yml
-          name: monitoring-objstore-secret
-
       {{- end }}
 
       {{- if $istioInjection }}    
