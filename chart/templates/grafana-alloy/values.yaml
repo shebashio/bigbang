@@ -23,29 +23,27 @@ alloy:
   securityContext: 
     runAsUser: 473
     runAsGroup: 473
-
-  #   containerSecurityContext:
-  #     capabilities:
-  #       drop:
-  #         - ALL
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
 
 configReleoader:
   securityContext:
+    runAsNonRoot: true
     readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
       drop:
         - ALL
 
-  # controller:
-  #   securityContext:
-  #     runAsNonRoot: true
-  #     runAsUser: 1001
-  #     runAsGroup: 1001
-
-  #   containerSecurityContext:
-  #     capabilities:
-  #       drop:
-  #         - ALL
+controller:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    capabilities:
+      drop:
+        - ALL
 
 {{- end }}
