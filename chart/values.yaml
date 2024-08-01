@@ -1531,7 +1531,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.7.0-bb.6"
+      tag: null
+      branch: "renovate/anchore"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
