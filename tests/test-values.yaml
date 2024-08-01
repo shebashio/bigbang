@@ -2543,7 +2543,7 @@ addons:
       istio:
         enabled: true
         hardened:
-          enabled: false
+          enabled: true
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
               enabled: true
