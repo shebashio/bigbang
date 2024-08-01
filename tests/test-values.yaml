@@ -2277,7 +2277,10 @@ addons:
             MINIO_HOST: https://minio-api.dev.bigbang.mil
 
   keycloak:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "add-missing-args-to-values"
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
