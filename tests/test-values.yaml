@@ -2705,7 +2705,7 @@ addons:
         cypress:
           artifacts: true
           envs:
-            cypress_url: "https://harbor.dev.bigbang.mil"
+            cypress_url: "http://harbor"
         scripts:
           image: "registry1.dso.mil/bigbang-ci/devops-tester:1.0.0"
           envs:
