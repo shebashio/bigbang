@@ -18,6 +18,7 @@ global:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
+  containerSecurityContext:
     capabilities:
       drop:
       - ALL
