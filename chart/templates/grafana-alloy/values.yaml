@@ -11,38 +11,42 @@ image:
 domain: {{ .Values.domain }}
 
 values:
+  global:
+    podSecurityContext:
+    runAsUser: 473
+    runAsGroup: 473
+    fsGroup: 473
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   alloy:
     # -- Security context to apply to the Grafana Alloy container.
-    securityContext:
-      runAsNonRoot: true
-      runAsUser: 1001
-      runAsGroup: 1001
+    securityContext: 
+      runAsUser: 473
+      runAsGroup: 473
 
-    containerSecurityContext:
-      capabilities:
-        drop:
-          - ALL
+  #   containerSecurityContext:
+  #     capabilities:
+  #       drop:
+  #         - ALL
 
   configReleoader:
     securityContext:
-      runAsNonRoot: true
-      runAsUser: 1001
-      runAsGroup: 1001
-
-    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
       capabilities:
         drop:
           - ALL
 
-  controller:
-    securityContext:
-      runAsNonRoot: true
-      runAsUser: 1001
-      runAsGroup: 1001
+  # controller:
+  #   securityContext:
+  #     runAsNonRoot: true
+  #     runAsUser: 1001
+  #     runAsGroup: 1001
 
-    containerSecurityContext:
-      capabilities:
-        drop:
-          - ALL
+  #   containerSecurityContext:
+  #     capabilities:
+  #       drop:
+  #         - ALL
 
 {{- end }}
