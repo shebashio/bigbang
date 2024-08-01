@@ -2541,7 +2541,7 @@ addons:
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
-        enabled: false
+        enabled: true
         hardened:
           enabled: false
           customServiceEntries:
