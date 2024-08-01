@@ -676,15 +676,15 @@ kyvernoPolicies:
           - '63999'
           - '>= 64000 & < 65000'
           - '> 65000'
-      restrict-image-registries:
-        exclude:
-          any:
-          # ArgoCD deploys a test app as part of its Cypress test
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
+#      restrict-image-registries:
+#        exclude:
+#          any:
+#          # ArgoCD deploys a test app as part of its Cypress test
+#          - resources:
+#              namespaces:
+#              - argocd
+#              names:
+#              - guestbook-ui-*
       restrict-volume-types:
         exclude:
           any:
