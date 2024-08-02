@@ -65,8 +65,6 @@ compactor:
   enabled: true
 
 query:
-  extraFlags:
-      - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
   dnsDiscovery:
     # to allow lookups to work with and without Istio enabled, we disable k8s dns service
     # discovery and manually set stores: below.
