@@ -912,6 +912,11 @@ loki:
                 - 'repo1.dso.mil'
                 - 'grafana.dev.bigbang.mil'
                 - 'optimizationguide-pa.googleapis.com'
+                - 'clientservices.googleapis.com'
+                - 'accounts.google.com'
+                - 'redirector.gvt1.com'
+                - 'content-autofill.googleapis.com'
+                - 'safebrowsing.googleapis.com'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -1107,9 +1112,7 @@ monitoring:
           cypress_tnr_password: "tnr_w!G33ZyAt@C8"
 
 grafana:
-  enabled: true
   sso:
-    enabled: false
     grafana:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_grafana
       scopes: "openid Grafana"
@@ -2064,7 +2067,6 @@ addons:
       postgresql:
         persistence:
           size: 256Mi
-      replicaCount: 1
       resources:
         requests:
           cpu: 100m
