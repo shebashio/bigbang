@@ -2536,6 +2536,8 @@ addons:
   harbor:
     # -- Toggle deployment of harbor
     enabled: true
+    flux:
+      timeout: 15m
     git:
       tag: null
       branch: "108-investigate-harbor-cypress-test-issues"
