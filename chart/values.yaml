@@ -878,7 +878,8 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "61.2.0-bb.3"
+    tag: null
+    branch: "drift-detection-fix"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
