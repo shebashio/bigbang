@@ -111,6 +111,11 @@ objstoreConfig: |-
     trace:
       enable: true
 
+{{- if not .Values.addons.minioOperator.enabled }}
+minioOperator:
+  enabled: true
+{{- end }}
+
 minio:
   enabled: true
   secrets:
