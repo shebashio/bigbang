@@ -2508,13 +2508,19 @@ addons:
                   - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
-                  - 'harbor.dev.bigbang.mil'
                   - 'repo1.dso.mil'
-                  - 'harbor'
-                  - 'index.docker.io'
-                  - 'auth.docker.io'
-                  - 'production.cloudflare.docker.com'
                 location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+            - name: "mesh-internal-harbor"
+              enabled: true
+              spec:
+                hosts:
+                  - 'harbor.dev.bigbang.mil'
+                location: MESH_INTERNAL
                 ports:
                   - number: 443
                     protocol: TLS
