@@ -1778,7 +1778,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "2.4.3-bb.3"
+      #tag: "2.4.3-bb.3"
+      branch: 205_system_truststore
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
