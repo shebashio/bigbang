@@ -1934,6 +1934,22 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+      networkPolicies:
+        additionalPolicies:
+        - name: ingress-velero
+          spec:
+            podSelector: {}
+            policyTypes:
+            - Ingress
+            egress:
+            - from:
+              - namespaceSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: velero
+            - to:
+              - namespaceSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: minio
       tenant:
         pools:
         - name: pool-0
@@ -2185,23 +2201,39 @@ addons:
             docker_host: "containers.dev.bigbang.mil"
 
   velero:
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-velero"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'minio-api.dev.bigbang.mil'
 
     enabled: false
     plugins:
     - aws
     values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-velero"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'minio-api.dev.bigbang.mil'
+      networkPolicies:
+        additionalPolicies:
+        - name: egress-velero
+          spec:
+            podSelector: {}
+            policyTypes:
+            - Egress
+            egress:
+            - from:
+              - namespaceSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: velero
+            - to:
+              - namespaceSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: minio
       serviceAccount:
         server:
           name: velero
