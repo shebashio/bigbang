@@ -2296,8 +2296,7 @@ addons:
             realm.json: '{{ .Files.Get "resources/dev/baby-yoda-bb-ci.json" }}'
         truststore:
           data:
-            truststore.pfx: |-
-              '{{ .Files.Get "resources/dev/truststore.pfx" | b64enc }}'
+            truststore.pfx: '{{ .Files.Get "resources/dev/truststore.pfx" | b64enc }}'
         quarkusproperties:
           stringData:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
