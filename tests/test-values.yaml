@@ -2276,8 +2276,6 @@ addons:
           value: /opt/keycloak/conf/tls.key
         - name: KC_HTTPS_CLIENT_AUTH
           value: request
-        - name: KC_HTTPS_TRUST_STORE_PASSWORD
-          value: password
         - name: KC_TRUSTSTORE_PATHS
           value: /opt/keycloak/conf/truststore.pfx
         - name: KC_HOSTNAME
