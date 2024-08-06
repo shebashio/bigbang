@@ -2521,7 +2521,7 @@ addons:
                     name: https
                 resolution: DNS
       expose:
-        type: clusterIP
+        type: ingress
         tls:
           enabled: false
       internalTLS:
