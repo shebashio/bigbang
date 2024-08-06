@@ -2522,8 +2522,8 @@ addons:
                   - 'harbor.dev.bigbang.mil'
                 location: MESH_INTERNAL
                 ports:
-                  - number: 443
-                    protocol: HTTPS
+                  - number: 80
+                    protocol: HTTP
                     name: https
                 resolution: DNS
       expose:
@@ -2532,7 +2532,7 @@ addons:
           enabled: false
       internalTLS:
         enabled: false
-      externalURL: https://harbor.dev.bigbang.mil
+      externalURL: http://harbor.dev.bigbang.mil
       nginx:
         resources:
           requests:
