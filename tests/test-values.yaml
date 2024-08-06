@@ -1941,7 +1941,7 @@ addons:
             podSelector: {}
             policyTypes:
             - Ingress
-            egress:
+            ingress:
             - from:
               - namespaceSelector:
                   matchLabels:
