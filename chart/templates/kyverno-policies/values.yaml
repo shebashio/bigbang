@@ -250,12 +250,12 @@ policies:
     validationFailureAction: Audit
 
 require-labels:
-    enabled: true
-    validationFailureAction: Audit
-    parameters:
-      require:
-      - app
-      - version
+  enabled: true
+  validationFailureAction: Audit
+  parameters:
+    require:
+    - app
+    - version
       
   require-istio-on-namespaces:
     enabled: {{ .Values.istio.enabled }}
