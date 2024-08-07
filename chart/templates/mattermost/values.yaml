@@ -12,8 +12,25 @@ openshift: {{ .Values.openshift }}
 
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
-  
+
 {{ $istioInjection := (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.mattermost) "enabled")) }}
+
+# {{- $serviceMeshLabelsEnabled := (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
+# {{- $serviceMeshAppLabel := ("{{ .Chart.Name }}") -}}
+# {{- $serviceMeshVersionLabel := ("{{ .Chart.AppVersion }}") -}}
+
+# {{- if $serviceMeshLabelsEnabled }}
+# podLabels:
+#   app: {{$serviceMeshAppLabel | quote}}
+#   version: {{$serviceMeshVersionLabel | quote}}
+# {{- end }}
+
+{{- $serviceMeshLabelsEnabled := (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
+{{- if $serviceMeshLabelsEnabled }}
+podLabels:
+  {{- include "serviceMeshLabels" $ | nindent 2 }}
+{{- end }}
+
 
 istio:
   enabled: {{ .Values.istio.enabled }}
@@ -96,9 +113,15 @@ postgresql:
   install: true
   {{- if $istioInjection }}
   primary:
+    podLabels:
+      app: mattermost-postgresql
+      {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   readReplicas:
+    podLabels:
+      app: mattermost-postgresql
+      {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
