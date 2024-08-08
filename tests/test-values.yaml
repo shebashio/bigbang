@@ -2660,7 +2660,7 @@ addons:
         cypress:
           artifacts: true
           envs:
-            cypress_url: "http://harbor-portal.harbor.svc.cluster.local"
+            cypress_url: "https://harbor.dev.bigbang.mil"
         scripts:
           image: "registry1.dso.mil/bigbang-ci/devops-tester:1.0.0"
           envs:
