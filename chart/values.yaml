@@ -479,32 +479,33 @@ gatekeeper:
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Kyverno
-#
-kyverno:
-  # -- Toggle deployment of Kyverno.
-  enabled: true
 
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
+# #
+# kyverno:
+#   # -- Toggle deployment of Kyverno.
+#   enabled: true
 
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
-    path: "./chart"
-    tag: null
-    branch: merge-kyvernopolicy
-  helmRepo:
-    repoName: "registry1"
-    chartName: "kyverno"
-    tag: "3.2.6-bb.0"
+#   # -- Choose source type of "git" or "helmRepo"
+#   sourceType: "git"
 
-  # -- Flux reconciliation overrides specifically for the Kyverno Package
-  flux: {}
+#   git:
+#     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
+#     path: "./chart"
+#     tag: null
+#     branch: merge-kyvernopolicy
+#   helmRepo:
+#     repoName: "registry1"
+#     chartName: "kyverno"
+#     tag: "3.2.6-bb.0"
 
-  # -- Values to passthrough to the kyverno chart: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
-  values: {}
+#   # -- Flux reconciliation overrides specifically for the Kyverno Package
+#   flux: {}
 
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
+#   # -- Values to passthrough to the kyverno chart: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
+#   values: {}
+
+#   # -- Post Renderers.  See docs/postrenders.md
+#   postRenderers: []
 
 kyvernoPolicies:
   # -- Toggle deployment of Kyverno policies
@@ -514,10 +515,10 @@ kyvernoPolicies:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./kyverno-policies/chart
     tag: null
-    branch: "merge-kyvernopolicy"
+    branch: "130-review-documentation-and-create-migration-path"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
