@@ -199,6 +199,8 @@ istiod:
   flux: {}
   # -- Values to passthrough to the istiod chart
   values: {}
+  #   sidecarInjectorWebhook:
+  #     enableNamespacesByDefault: true
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -217,35 +219,13 @@ istioGateway:
     chartName: "istio-gateway"
     #tag:
   gateways:
-    - name: public-ingressgateway
+    - name: ingress
+      # labels:
+      #   app: "" # Unset default app selector label
+      #   istio: ingressgateway # override default istio selector label
+      #   foo: bar # Add the existing custom selector label
       values:
         type: "LoadBalancer" # or "NodePort"
-        # hosts:
-        #   - "*.{{ .Values.domain }}"
-        # autoHttpRedirect:
-        #   enabled: true
-        # tls:
-        #   key: ""
-        #   cert: ""
-        #   minProtocolVersion: ""
-    # - name: passthrough-ingressgateway
-    #   values:
-    #     some: value
-
-  # ingressGateways:
-  #   public-ingressgateway:
-  #     type: "LoadBalancer" # or "NodePort"
-  # gateways:
-  #   public:
-  #     ingressGateway: "public-ingressgateway"
-  #     hosts:
-  #       - "*.{{ .Values.domain }}"
-  #     autoHttpRedirect:
-  #       enabled: true
-  #     tls:
-  #       key: ""
-  #       cert: ""
-  #       minProtocolVersion: ""
 
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
