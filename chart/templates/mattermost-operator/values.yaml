@@ -11,6 +11,12 @@ imagePullSecrets:
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+{{- $serviceMeshLabelsEnabled := (or .Values.kiali.enabled .Values.jaeger.enabled) -}}
+{{- if $serviceMeshLabelsEnabled }}
+podLabels:
+  {{- include "serviceMeshLabels" $ | nindent 2 }}
+{{- end }}
+
 {{- if .Values.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}

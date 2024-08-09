@@ -15,12 +15,6 @@ image:
 
 {{ $istioInjection := (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.mattermost) "enabled")) }}
 
-{{- $serviceMeshLabelsEnabled := (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
-{{- if $serviceMeshLabelsEnabled }}
-podLabels:
-  {{- include "serviceMeshLabels" $ | nindent 2 }}
-{{- end }}
-
 istio:
   enabled: {{ .Values.istio.enabled }}
   chat:
@@ -36,6 +30,12 @@ istio:
       enabled: {{ .Values.clusterAuditor.enabled }}
     kyvernoReporter:
       enabled: {{ .Values.kyvernoReporter.enabled }}
+
+{{- $serviceMeshLabelsEnabled := (or .Values.kiali.enabled .Values.jaeger.enabled) -}}
+{{- if $serviceMeshLabelsEnabled }}
+podLabels:
+  {{- include "serviceMeshLabels" $ | nindent 2 }}
+{{- end }}
 
 {{- if $istioInjection }}
 podAnnotations:
