@@ -101,16 +101,16 @@ postgresql:
       - private-registry
   install: true
   {{- if $istioInjection }}
-  primary:    podLabels:
+  primary:
+    podLabels:
       app: mattermost-postgresql
       {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
-
     podAnnotations:
       {{ include "istioAnnotation" $ }}
-  readReplicas:    podLabels:
+  readReplicas:
+    podLabels:
       app: mattermost-postgresql
       {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
-
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
