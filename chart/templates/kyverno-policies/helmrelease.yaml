@@ -54,7 +54,4 @@ spec:
     - name: {{ .Release.Name }}-{{ $pkg | kebabcase }}-values
       kind: Secret
       valuesKey: "overlays"
-  dependsOn:
-    - name: kyverno
-      namespace: {{ .Release.Namespace }}
 {{- end }}
