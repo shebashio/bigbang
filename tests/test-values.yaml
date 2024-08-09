@@ -2493,6 +2493,17 @@ addons:
         enabled: true
         hardened:
           customServiceEntries:
+            - name: "harbor-80-test"
+              enabled: true
+              spec:
+                hosts:
+                  - 'harbor.dev.bigbang.mil'
+                location: MESH_INTERNAL
+                ports:
+                  - number: 80
+                    protocol: HTTP
+                    name: http
+                resolution: DNS
             - name: "allow-npm-for-cypress-tests"
               enabled: true
               spec:
