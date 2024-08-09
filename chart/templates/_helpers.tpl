@@ -232,6 +232,10 @@ bigbang.dev/istioVersion: {{ .Values.istio.helmRepo.tag }}{{ if .Values.istio.en
 
 {{/*
 Labels for Jaeger/Kiali trace correlation
+To be used for Kiali/Jaeger labels on pods
+This will:
+  * enable proper linking of Jaeger traces in Kiali
+  * enable full Kiali label tracking of pods
 */}}
 {{- define "serviceMeshLabels" -}}
 {{- if (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
@@ -244,6 +248,10 @@ version: {{"{{ .Chart.AppVersion }}" | quote}}
 
 {{/*
 Version label for Jaeger/Kiali trace correlation
+To be used for Kiali/Jaeger labels on pods when app name exists or is not the chart name
+This will:
+  * enable proper linking of Jaeger traces in Kiali
+  * enable full Kiali label tracking of pods
 */}}
 {{- define "serviceMeshVersionLabel" -}}
 {{- if (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
