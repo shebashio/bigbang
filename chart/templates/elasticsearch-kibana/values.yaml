@@ -107,6 +107,7 @@ metrics:
       insecureSkipVerify: true
   {{- if (or .Values.kiali.enabled .Values.jaeger.enabled) }}
   podLabels:
+    {{/*  TODO: once its merged in, call kiali helper function {{- include "serviceMeshVersionLabel" $ | nindent 6 }}*/}}
     version: {{"{{ .Chart.AppVersion }}" | quote}}
   {{- end }}
   {{- end }}
@@ -264,11 +265,4 @@ elasticsearch:
   {{- else }}
   serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
-{{/*  prometheus-elasticsearch-exporter:*/}}
-{{/*    podAnnotations:*/}}
-{{/*      hello: "world"*/}}
-{{/*    podLabels:*/}}
-{{/*      version: {{"{{ .Chart.AppVersion }}" | quote}}*/}}
-{{/*      foooooo: "lalalalalalalala"*/}}
 {{- end -}}
-
