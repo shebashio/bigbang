@@ -2527,7 +2527,7 @@ addons:
           enabled: false
       internalTLS:
         enabled: false
-      externalURL: https://harbor.dev.bigbang.mil
+      externalURL: http://harbor.dev.bigbang.mil
       nginx:
         resources:
           requests:
@@ -2660,7 +2660,7 @@ addons:
         cypress:
           artifacts: true
           envs:
-            cypress_url: "https://harbor.dev.bigbang.mil"
+            cypress_url: "http://harbor.dev.bigbang.mil"
         scripts:
           image: "registry1.dso.mil/bigbang-ci/devops-tester:1.0.0"
           envs:
