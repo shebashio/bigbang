@@ -83,6 +83,9 @@ kibana:
   podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
+  podLabels:
+    app: {{"{{ .Chart.Name }}" | quote}}
+    version: {{"{{ .Chart.AppVersion }}" | quote}}
 {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.kibana }}
   serviceAccountAnnotations: {}
 {{- else }}
@@ -133,6 +136,9 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    podLabels:
+      app: {{"{{ .Chart.Name }}" | quote}}
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
   data:
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -159,6 +165,9 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    podLabels:
+      app: {{"{{ .Chart.Name }}" | quote}}
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
   ingest:
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -185,6 +194,9 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    podLabels:
+      app: {{"{{ .Chart.Name }}" | quote}}
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
   ml:
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -211,6 +223,9 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    podLabels:
+      app: {{"{{ .Chart.Name }}" | quote}}
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
   coord:
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -237,9 +252,16 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    podLabels:
+      app: {{"{{ .Chart.Name }}" | quote}}
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
   {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
   serviceAccountAnnotations: {}
   {{- else }}
   serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
+  prometheus-elasticsearch-exporter:
+    podLabels:
+      version: {{"{{ .Chart.AppVersion }}" | quote}}
 {{- end -}}
+
