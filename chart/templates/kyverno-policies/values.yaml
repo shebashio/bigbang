@@ -144,6 +144,17 @@ policies:
           - source-controller*
           - kustomize-controller*
       {{- end }}
+      {{- if .Values.addons.thanos.enabled }}
+      - resources:
+          namespaces:
+          - thanos
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          names:
+          - thanos-compactor*
+      {{- end }}
       {{- if .Values.addons.externalSecrets.enabled }}
       - resources:
           namespaces:
@@ -238,6 +249,14 @@ policies:
     enabled: false
     validationFailureAction: Audit
 
+  require-labels:
+    enabled: true
+    validationFailureAction: Audit
+    parameters:
+      require:
+      - app
+      - version
+      
   require-istio-on-namespaces:
     enabled: {{ .Values.istio.enabled }}
     exclude:
