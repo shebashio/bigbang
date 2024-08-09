@@ -15,22 +15,11 @@ image:
 
 {{ $istioInjection := (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.mattermost) "enabled")) }}
 
-# {{- $serviceMeshLabelsEnabled := (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
-# {{- $serviceMeshAppLabel := ("{{ .Chart.Name }}") -}}
-# {{- $serviceMeshVersionLabel := ("{{ .Chart.AppVersion }}") -}}
-
-# {{- if $serviceMeshLabelsEnabled }}
-# podLabels:
-#   app: {{$serviceMeshAppLabel | quote}}
-#   version: {{$serviceMeshVersionLabel | quote}}
-# {{- end }}
-
 {{- $serviceMeshLabelsEnabled := (and .Values.kiali.enabled .Values.jaeger.enabled) -}}
 {{- if $serviceMeshLabelsEnabled }}
 podLabels:
   {{- include "serviceMeshLabels" $ | nindent 2 }}
 {{- end }}
-
 
 istio:
   enabled: {{ .Values.istio.enabled }}
