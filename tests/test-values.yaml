@@ -1899,6 +1899,9 @@ addons:
 
   minio:
     enabled: false
+    git:
+      tag: null
+      branch: bigbang-2035-hardening-velero
     values:
       istio:
         hardened:
