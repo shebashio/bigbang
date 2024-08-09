@@ -18,6 +18,10 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+statefulsetLabels:
+  app: {{"{{ .Chart.Name }}" | quote }}
+  version: {{"{{ .Chart.AppVersion }}" | quote }}
+
 openshift: {{ .Values.openshift }}
 
 istio:
