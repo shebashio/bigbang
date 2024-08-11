@@ -1,0 +1,22 @@
+{{- $pkg := "istioGateway" }}
+
+{{- /* Create secret */ -}}
+{{- if (get .Values $pkg).enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istio-gateway" -}}
+createNamespace: true
+
+imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+imagePullSecrets:
+  - name: private-registry
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+{{- end -}}

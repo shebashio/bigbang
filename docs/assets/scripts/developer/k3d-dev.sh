@@ -756,10 +756,10 @@ spec:
   serviceAllocation:
     priority: 100
     namespaces:
-      - istio-system
+      - istio-ingress
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [public-ingressgateway]}
+          - {key: app, operator: In, values: [ingress]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -775,10 +775,10 @@ spec:
   serviceAllocation:
     priority: 100
     namespaces:
-      - istio-system
+      - istio-ingress
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [passthrough-ingressgateway]}
+          - {key: app, operator: In, values: [passthrough]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
