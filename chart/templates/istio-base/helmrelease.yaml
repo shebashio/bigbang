@@ -1,0 +1,69 @@
+{{- $fluxSettingsIstioBase := merge .Values.istioBase.flux .Values.flux -}}
+{{- if .Values.istioBase.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-base
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: istio-base
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-base/values.yaml") . | sha256sum }}
+spec:
+  targetNamespace: istio-system
+  chart:
+    spec:
+      {{- if eq .Values.istioBase.sourceType "git" }}
+      chart: {{ .Values.istioBase.git.path }}
+      sourceRef:
+        kind: GitRepository
+        name: istio-base
+        namespace: {{ .Release.Namespace }}
+      {{- else }}
+      chart: {{ .Values.istioBase.helmRepo.chartName }}
+      version: {{ .Values.istioBase.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.istioBase.helmRepo.repoName }}
+        namespace: {{ .Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istioBase.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.istioBase.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" .Values.istioBase.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsIstioBase | nindent 2 }}
+
+  {{- if .Values.istioBase.postRenderers }}
+  postRenderers:
+  {{ toYaml .Values.istioBase.postRenderers | nindent 4 }}
+  {{- end }}
+  valuesFrom:
+    - name: {{ .Release.Name }}-istio-base-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-istio-base-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-istio-base-values
+      kind: Secret
+      valuesKey: "overlays"
+
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
+  dependsOn:
+    {{- if .Values.gatekeeper.enabled }}
+    - name: gatekeeper
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+  {{- end }}
+{{- end }}

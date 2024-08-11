@@ -168,6 +168,14 @@ stringData:
   defaults: {{- toYaml .defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
+  {{- if .package.gateways }}
+  {{- range .package.gateways }}
+  {{- if .values }}
+  gateway-overlays-{{ .name }}: |
+    {{- toYaml .values | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
 {{- end -}}
 
 {{/* 

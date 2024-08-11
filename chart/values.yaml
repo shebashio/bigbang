@@ -160,6 +160,81 @@ imagePullPolicy: IfNotPresent
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
+istioBase:
+  # -- Toggle deployment of Istio Base
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-base.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-base"
+    #tag:
+  # -- Flux reconciliation overrides specifically for the Istio Base Package
+  flux: {}
+  # -- Values to passthrough to the istio-base chart
+  values: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istiod:
+  # -- Toggle deployment of Istio Daemon
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istiod"
+    #tag:
+  # -- Flux reconciliation overrides specifically for the Istio Daemon Package
+  flux: {}
+  # -- Values to passthrough to the istiod chart
+  values: {}
+  #   sidecarInjectorWebhook:
+  #     enableNamespacesByDefault: true
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istioGateway:
+  # -- Toggle deployment of Istio Gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+  gateways:
+    - name: ingress
+      # labels:
+      #   app: "" # Unset default app selector label
+      #   istio: ingressgateway # override default istio selector label
+      #   foo: bar # Add the existing custom selector label
+      values:
+        type: "LoadBalancer" # or "NodePort"
+
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Values to passthrough to the istio-base chart
+  values: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
