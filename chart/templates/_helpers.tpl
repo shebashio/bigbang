@@ -232,7 +232,7 @@ bigbang.dev/istioVersion: {{ .Values.istio.helmRepo.tag }}{{ if .Values.istio.en
 
 {{/*
 App Label for Kiali trace correlation
-To be used for Kiali labels on pods
+To be used for Kiali-required labels on pods
 This will:
   * enable proper linking of Jaeger traces in Kiali
   * enable full Kiali label tracking of pods
@@ -247,7 +247,7 @@ app: {{ "{{ .Chart.Name }}" | quote }}
 
 {{/*
 Version label for Kiali trace correlation
-To be used for Kiali labels on pods
+To be used for Kiali-required labels on pods
 This will:
   * enable proper linking of Jaeger traces in Kiali
   * enable full Kiali label tracking of pods
