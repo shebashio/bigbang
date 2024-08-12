@@ -237,7 +237,7 @@ This will:
   * enable proper linking of Jaeger traces in Kiali
   * enable full Kiali label tracking of pods
 */}}
-{{- define "KialiAppLabel" -}}
+{{- define "kialiAppLabel" -}}
 {{- if .Values.kiali.enabled -}}
 app: {{ "{{ .Chart.Name }}" | quote }}
 {{- else -}}
@@ -252,7 +252,7 @@ This will:
   * enable proper linking of Jaeger traces in Kiali
   * enable full Kiali label tracking of pods
 */}}
-{{- define "KialiVersionLabel" -}}
+{{- define "kialiVersionLabel" -}}
 {{- if .Values.kiali.enabled -}}
 version: {{ "{{ .Chart.AppVersion }}" | quote }}
 {{- else -}}

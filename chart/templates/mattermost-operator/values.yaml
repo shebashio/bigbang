@@ -13,7 +13,7 @@ image:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "serviceMeshAppLabel" $ | nindent 2 }}
+  {{- include "kialiAppLabel" $ | nindent 2 }}
   {{- include "serviceMeshVersionLabel" $ | nindent 2 }}
 {{- end }}
 
