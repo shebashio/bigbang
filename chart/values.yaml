@@ -341,7 +341,8 @@ jaeger:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
     path: "./chart"
-    tag: "2.54.0-bb.2"
+    #tag: "2.54.0-bb.2"
+    branch: "133-set-required-labels-for-kiali"
   helmRepo:
     repoName: "registry1"
     chartName: "jaeger"
