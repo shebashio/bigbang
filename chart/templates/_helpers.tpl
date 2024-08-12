@@ -239,7 +239,7 @@ This will:
 */}}
 {{- define "serviceMeshAppLabel" -}}
 {{- if .Values.kiali.enabled -}}
-app: {{"{{ .Chart.Name }}" | quote}}
+app: {{ "{{ .Chart.Name }}" | quote }}
 {{- else -}}
 {}
 {{- end -}}
@@ -254,7 +254,7 @@ This will:
 */}}
 {{- define "serviceMeshVersionLabel" -}}
 {{- if .Values.kiali.enabled -}}
-version: {{"{{ .Chart.AppVersion }}" | quote}}
+version: {{ "{{ .Chart.AppVersion }}" | quote }}
 {{- else -}}
 {}
 {{- end -}}
