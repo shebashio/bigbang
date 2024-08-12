@@ -570,11 +570,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.17.0-bb.5"
+    tag: "1.18.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.17.0-bb.5"
+    tag: "1.18.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -758,11 +758,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.7.7-bb.3"
+    tag: "2.7.8-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.7.7-bb.3"
+    tag: "2.7.8-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1531,11 +1531,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.9.0-bb.1"
+      tag: "2.9.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.9.0-bb.1"
+      tag: "2.9.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1835,11 +1835,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.25.0-bb.38"
+      tag: "0.27.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.25.0-bb.38"
+      tag: "0.27.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
