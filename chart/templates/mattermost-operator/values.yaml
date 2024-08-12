@@ -15,6 +15,9 @@ image:
 podLabels:
   {{- include "kialiAppLabel" $ | nindent 2 }}
   {{- include "kialiVersionLabel" $ | nindent 2 }}
+  {{- if .Values.podLabels }}
+  {{ toYaml .Values.podLabels | default {} | nindent 2 }}
+  {{- end }}
 {{- end }}
 
 {{- if .Values.istio.enabled }}

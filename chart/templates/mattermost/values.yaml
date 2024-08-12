@@ -33,8 +33,11 @@ istio:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "serviceMeshAppLabel" $ | nindent 2 }}
-  {{- include "serviceMeshVersionLabel" $ | nindent 2 }}
+  {{- include "kialiAppLabel" $ | nindent 2 }}
+  {{- include "kialiVersionLabel" $ | nindent 2 }}
+  {{- if .Values.podLabels }}
+  {{ toYaml .Values.podLabels | default {} | nindent 2 }}
+  {{- end }}
 {{- end }}
 
 {{- if $istioInjection }}
@@ -104,13 +107,23 @@ postgresql:
   primary:
     podLabels:
       app: mattermost-postgresql
-      {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
+      {{- if .Values.kiali.enabled }}
+        {{- include "kialiVersionLabel" $ | nindent 6 }}
+        {{- if .Values.postgresql.podLabels }}
+        {{ toYaml .Values.postgresql.podLabels | default {} | nindent 6 }}
+        {{- end }}
+      {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   readReplicas:
     podLabels:
       app: mattermost-postgresql
-      {{- include "serviceMeshVersionLabel" $ | nindent 6 }}
+      {{- if .Values.kiali.enabled }}
+        {{- include "kialiVersionLabel" $ | nindent 6 }}
+        {{- if .Values.postgresql.podLabels }}
+        {{ toYaml .Values.postgresql.podLabels | default {} | nindent 6 }}
+        {{- end }}
+      {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
