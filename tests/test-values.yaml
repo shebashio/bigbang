@@ -1033,7 +1033,6 @@ promtail:
   enabled: true
 
 monitoring:
-  enabled: true
   flux:
     timeout: 20m
     install:
@@ -1043,7 +1042,6 @@ monitoring:
       disableOpenAPIValidation: true
       crds: CreateReplace
   sso:
-    enabled: false
     prometheus:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_prometheus
     alertmanager:
