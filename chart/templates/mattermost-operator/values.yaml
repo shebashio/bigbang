@@ -11,10 +11,10 @@ imagePullSecrets:
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if (and $.Values.kiali $.Values.kiali.enabled) }}
+{{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" $ | nindent 2 }}
-  {{- include "kialiVersionLabel" $ | nindent 2 }}
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
 {{- if .Values.istio.enabled }}

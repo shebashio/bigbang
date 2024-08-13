@@ -31,10 +31,10 @@ istio:
     kyvernoReporter:
       enabled: {{ .Values.kyvernoReporter.enabled }}
 
-{{- if (and $.Values.kiali $.Values.kiali.enabled) }}
+{{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" $ | nindent 2 }}
-  {{- include "kialiVersionLabel" $ | nindent 2 }}
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
 {{- if $istioInjection }}
@@ -104,7 +104,7 @@ postgresql:
   primary:
     podLabels:
       app: mattermost-postgresql
-      {{- if (and $.Values.kiali $.Values.kiali.enabled) }}
+      {{- if $.Values.kiali.enabled }}
         {{- include "kialiVersionLabel" $ | nindent 6 }}
       {{- end }}
     podAnnotations:
@@ -112,7 +112,7 @@ postgresql:
   readReplicas:
     podLabels:
       app: mattermost-postgresql
-      {{- if (and $.Values.kiali $.Values.kiali.enabled) }}
+      {{- if $.Values.kiali.enabled }}
         {{- include "kialiVersionLabel" $ | nindent 6 }}
       {{- end }}
     podAnnotations:
