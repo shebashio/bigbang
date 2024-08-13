@@ -1345,16 +1345,7 @@ addons:
             size: 256Mi
 
   fortify:
-    enabled: true
-    fortify:
-      git:
-        repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
-        tag: null
-        branch: 131-re-evaluate-test-values-yaml
-      values:
-        istio:
-          hardened:
-            enabled: true
+    enabled: false
     flux:
       timeout: 15m
     ingress:
