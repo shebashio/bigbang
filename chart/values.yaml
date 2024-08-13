@@ -1463,13 +1463,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: null
-      branch: "131-re-evaluate-test-values-yaml"
+      tag: "1.1.2320154-bb.15"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: null
-      
+      tag: "1.1.2320154-bb.15"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
