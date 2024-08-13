@@ -19,9 +19,7 @@ podAnnotations:
 {{- end }}
 
 statefulsetLabels:
-  app: {{"{{ .Chart.Name }}" | quote }}
-  version: {{"{{ .Chart.AppVersion }}" | quote }}
-
+  {{- include "kialiAppLabel" . | nindent 2 -}}
 openshift: {{ .Values.openshift }}
 
 istio:
