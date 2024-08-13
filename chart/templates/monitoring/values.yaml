@@ -502,8 +502,8 @@ kube-state-metrics:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   customLabels:
-    {{- include "kialiAppLabel" $ | nindent 4 }}
-    {{- include "kialiVersionLabel" $ | nindent 4 }}
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 prometheusOperator:
