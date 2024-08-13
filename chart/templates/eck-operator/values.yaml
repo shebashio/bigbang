@@ -20,6 +20,7 @@ podAnnotations:
 
 statefulsetLabels:
   {{- include "kialiAppLabel" . | nindent 2 -}}
+  {{- include "kialiVersionLabel" . | nindent 2 -}}
 openshift: {{ .Values.openshift }}
 
 istio:
