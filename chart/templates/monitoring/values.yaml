@@ -103,7 +103,7 @@ alertmanager:
         {{- end }}
         {{- if .Values.kiali.enabled }}
         app: alertmanager
-        {{- include "kialiVersionLabel" $ | nindent 8 }}
+        {{- include "kialiVersionLabel" . | nindent 8 }}
         {{- end }}
       {{- end }}
       {{- if $istioInjection }}
@@ -236,7 +236,7 @@ prometheus:
         {{- end }}
         {{- if .Values.kiali.enabled }}
         app: prometheus
-        {{- include "kialiVersionLabel" $ | nindent 8 }}
+        {{- include "kialiVersionLabel" . | nindent 8 }}
         {{- end }}
         {{- if and .Values.networkPolicies.enabled .Values.addons.vault.enabled }}
         vault-ingress: "true"
@@ -415,7 +415,7 @@ prometheus-node-exporter:
   {{- if .Values.kiali.enabled }}
   podLabels:
     app: prometheus-node-exporter
-    {{- include "kialiVersionLabel" $ | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 
@@ -518,7 +518,7 @@ prometheusOperator:
         pullPolicy: {{ .Values.imagePullPolicy }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" $ | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
   {{- if $istioInjection }}
   podAnnotations:
