@@ -152,7 +152,6 @@ prometheus:
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
   {{- end }}
-
   prometheusSpec:
     {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
@@ -235,11 +234,11 @@ prometheus:
         {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         {{ $prometheusAuthserviceKey }}: {{ $prometheusAuthserviceValue }}
         {{- end }}
-        {{- if and .Values.networkPolicies.enabled .Values.addons.vault.enabled }}
         {{- if .Values.kiali.enabled }}
         app: prometheus
         {{- include "kialiVersionLabel" $ | nindent 8 }}
         {{- end }}
+        {{- if and .Values.networkPolicies.enabled .Values.addons.vault.enabled }}
         vault-ingress: "true"
         {{- end }}
       {{- end }}
@@ -517,6 +516,10 @@ prometheusOperator:
     patch:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiVersionLabel" $ | nindent 4 }}
+  {{- end }}
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
