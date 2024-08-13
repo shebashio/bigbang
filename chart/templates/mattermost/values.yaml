@@ -35,9 +35,6 @@ istio:
 podLabels:
   {{- include "kialiAppLabel" $ | nindent 2 }}
   {{- include "kialiVersionLabel" $ | nindent 2 }}
-  {{- if .Values.podLabels }}
-  {{ toYaml .Values.podLabels | nindent 2 }}
-  {{- end }}
 {{- end }}
 
 {{- if $istioInjection }}
