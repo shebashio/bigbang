@@ -1,0 +1,73 @@
+grafana:
+  enabled: true
+
+kiali:
+  enabled: true
+
+loki:
+  enabled: true
+
+monitoring:
+  enabled: true
+
+neuvector:
+  enabled: true
+
+promtail:
+  enabled: true
+
+tempo:
+  enabled: true
+
+addons:
+  argocd:
+    enabled: false
+
+  authservice:
+    enabled: false
+
+  minioOperator:
+    enabled: false
+
+  minio:
+    enabled: false
+
+  gitlab:
+    enabled: false
+
+  gitlabRunner:
+    enabled: false
+
+  nexusRepositoryManager:
+    enabled: false
+
+  sonarqube:
+    enabled: false
+
+  fortify:
+    enabled: false
+
+  anchore:
+    enabled: false
+
+  mattermostOperator:
+    enabled: false
+
+  mattermost:
+    enabled: false
+
+  velero:
+    enabled: false
+
+  keycloak:
+    enabled: false
+
+  vault:
+    enabled: false
+
+  metricsServer:
+    # enabled: auto
+    enabled: false
+
+  harbor:
+    enabled: false
