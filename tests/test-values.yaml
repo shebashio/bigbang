@@ -1345,7 +1345,12 @@ addons:
             size: 256Mi
 
   fortify:
-    enabled: false
+    enabled: true
+    sourceType: "git"
+    git:
+      tag: null
+      repo: "https://repo1.dso.mil/big-bang/product/packages/fortify.git"
+      branch: "131-re-evaluate-test-values-yaml"
     flux:
       timeout: 15m
     ingress:
@@ -1376,14 +1381,6 @@ addons:
       jvmMaxRAMPercentage: 85
       databaseSecret:
         useRoot: true
-      initContainer:
-        resources:
-          limits:
-            cpu: 1
-            memory: 500Mi
-          requests:
-            cpu: 250m
-            memory: 64Mi
       trust_store_password: dsoppassword
       key_store_password: dsoppassword
       key_store_cert_password : dsoppassword
