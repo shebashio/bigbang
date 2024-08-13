@@ -105,14 +105,26 @@ postgresql:
   primary:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
+    podSecurityContext:
+      enabled: true
+      runAsGroup: 26
+    containerSecurityContext:
+      enabled: true
+      runAsGroup: 26
+      runAsNonRoot: true
+      capabilities:
+        drop:
+          - ALL
+    #permissions for initContainers
+    volumePermissions:
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
   readReplicas:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
-  securityContext:
-    runAsGroup: 26
-  containerSecurityContext:
-    runAsGroup: 26
 {{- end }}
 {{- end }}
 
