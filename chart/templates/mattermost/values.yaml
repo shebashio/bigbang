@@ -102,6 +102,10 @@ postgresql:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
+  securityContext:
+    runAsGroup: 26
+  containerSecurityContext:
+    runAsGroup: 26
 {{- end }}
 {{- end }}
 
