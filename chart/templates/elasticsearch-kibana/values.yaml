@@ -76,6 +76,13 @@ sso:
 {{- end }}
 {{- end }}
 
+
+podLabels:
+  {{- if .Values.kiali.enabled }}
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- end }}
+
 kibana:
   imagePullSecrets:
     - name: private-registry
@@ -93,6 +100,11 @@ monitoring:
 
 metrics:
   enabled: {{ .Values.monitoring.enabled }}
+  podLabels:
+    {{- if .Values.kiali.enabled }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- end }}
+
   {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") .Values.istio.enabled) }}
   {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
   serviceMonitor:
