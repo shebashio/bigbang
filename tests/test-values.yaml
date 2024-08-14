@@ -2224,6 +2224,25 @@ addons:
                   - number: 443
                     protocol: TLS
                     name: https
+                resolution: DNS
+            - name: minio
+              enabled: true
+              spec:
+                hosts:
+                  - 'minio-api.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 9000
+                    protocol: TCP
+                    name: minio
+                resolution: DNS
+            - name: minio-api
+              enabled: true
+              spec:
+                hosts:
+                  - 'minio-api.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
                   - number: 9000
                     protocol: TCP
                     name: minio
