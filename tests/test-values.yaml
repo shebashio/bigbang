@@ -2217,6 +2217,17 @@ addons:
                   - 'repo1.dso.mil'
                   - 'minio-api.dev.bigbang.mil'
                   - 'minio.logging.svc.cluster.local'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                  - number: 9000
+                    protocol: TCP
+                    name: minio
+                resolution: DNS
       networkPolicies:
         additionalPolicies:
         - name: egress-velero
