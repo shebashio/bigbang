@@ -885,6 +885,9 @@ fluentbit:
 
 loki:
   strategy: scalable
+  git:
+    tag: null
+    branch: set-required-labels-for-kiali
   values:
     istio:
       hardened:
