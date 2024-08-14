@@ -226,6 +226,9 @@ istioGateway:
       #   foo: bar # Add the existing custom selector label
       values:
         type: "LoadBalancer" # or "NodePort"
+    # - name: ingress2
+    #   values:
+    #     type: "LoadBalancer"
 
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
