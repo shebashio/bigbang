@@ -77,11 +77,11 @@ sso:
 {{- end }}
 
 
+{{- if .Values.kiali.enabled }}
 podLabels:
-  {{- if .Values.kiali.enabled }}
   {{- include "kialiAppLabel" . | nindent 2 }}
   {{- include "kialiVersionLabel" . | nindent 2 }}
-  {{- end }}
+{{- end }}
 
 kibana:
   imagePullSecrets:
