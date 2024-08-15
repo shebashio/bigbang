@@ -1623,7 +1623,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.22.0-bb.5"
+      # tag: "1.22.0-bb.5"
+      tag: null
+      branch: "kiali-labels"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
@@ -1648,7 +1650,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.10.1-bb.4"
+      # tag: "9.10.1-bb.4"
+      tag: null
+      branch: "kiali-labels"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
