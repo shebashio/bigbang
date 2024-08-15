@@ -102,19 +102,19 @@ postgresql:
   install: true
   {{- if $istioInjection }}
   primary:
+    {{- if $.Values.kiali.enabled }}
     podLabels:
       app: mattermost-postgresql
-      {{- if $.Values.kiali.enabled }}
-        {{- include "kialiVersionLabel" $ | nindent 6 }}
-      {{- end }}
+      {{- include "kialiVersionLabel" $ | nindent 6 }}
+    {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   readReplicas:
+    {{- if $.Values.kiali.enabled }}
     podLabels:
       app: mattermost-postgresql
-      {{- if $.Values.kiali.enabled }}
-        {{- include "kialiVersionLabel" $ | nindent 6 }}
-      {{- end }}
+      {{- include "kialiVersionLabel" $ | nindent 6 }}
+    {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}
