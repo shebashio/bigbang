@@ -884,6 +884,7 @@ fluentbit:
 
 
 loki:
+  enabled: true
   strategy: scalable
   values:
     istio:
@@ -1028,8 +1029,22 @@ tempo:
 
 promtail:
   enabled: true
+  git:
+    tag: null
+    branch: run-pod-labels-through-tpl
+  values:
+    istio:
+      enabled: true
+      hardened:
+        enabled: true
+      prometheus:
+        enabled: true
+    serviceMonitor:
+      enabled: true
+
 
 monitoring:
+  enabled: true
   flux:
     timeout: 20m
     install:
@@ -1091,6 +1106,7 @@ monitoring:
           cypress_tnr_password: "tnr_w!G33ZyAt@C8"
 
 grafana:
+  enabled: true
   sso:
     grafana:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_grafana
