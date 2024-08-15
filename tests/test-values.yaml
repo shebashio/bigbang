@@ -1932,22 +1932,6 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      networkPolicies:
-        additionalPolicies:
-        - name: ingress-velero
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Ingress
-            ingress:
-            - from:
-              - namespaceSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: velero
-            - to:
-              - namespaceSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: minio
       tenant:
         pools:
         - name: pool-0
@@ -2199,7 +2183,9 @@ addons:
             docker_host: "containers.dev.bigbang.mil"
 
   velero:
-
+    git:
+      tag: null
+      branch: bigbang-2035-enable-minio-calls
     enabled: false
     plugins:
     - aws
@@ -2225,44 +2211,6 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-            - name: minio
-              enabled: true
-              spec:
-                hosts:
-                  - 'minio-api.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 9000
-                    protocol: TCP
-                    name: minio
-                resolution: DNS
-            - name: minio-api
-              enabled: true
-              spec:
-                hosts:
-                  - 'minio-api.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 9000
-                    protocol: TCP
-                    name: minio
-                resolution: DNS
-      networkPolicies:
-        additionalPolicies:
-        - name: egress-velero
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Egress
-            egress:
-            - from:
-              - namespaceSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: velero
-            - to:
-              - namespaceSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: minio
       serviceAccount:
         server:
           name: velero

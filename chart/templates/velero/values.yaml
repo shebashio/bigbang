@@ -12,6 +12,8 @@ istio:
       (dig "hardened" "enabled" false .Values.istio.values)
     }}
 
+domain: {{ .Values.domain }}
+
 {{- if .Values.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
