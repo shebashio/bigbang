@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  # annotations:
+  #   meta.helm.sh/release-name: istio-ingress-gateway
+  #   meta.helm.sh/release-namespace: istio-ingress
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    helm.toolkit.fluxcd.io/name: istio
+    helm.toolkit.fluxcd.io/namespace: bigbang
+  name: gateway
+  namespace: istio-ingress
+spec:
+  selector:
+    #app: istio-gateway-ingress
+    app: istio-ingress-istio-gateway-ingress
+    #istio: ingress-istio-gateway-ingress
+  servers:
+    - hosts:
+      - '*.dev.bigbang.mil'
+      port:
+        name: http
+        number: 8080
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+    - hosts:
+      - '*.dev.bigbang.mil'
+      port:
+        name: https
+        number: 8443
+        protocol: HTTPS
+      tls:
+        credentialName: public-cert
+        mode: SIMPLE

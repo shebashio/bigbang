@@ -1,0 +1,54 @@
+domain: dev.bigbang.mil
+
+flux:
+  timeout: 5m
+
+istioBase:
+  enabled: true
+istiod:
+  enabled: true
+istioGateway:
+  enabled: true
+
+kiali:
+  enabled: true
+
+jaeger:
+  enabled: true
+monitoring:
+  enabled: true
+grafana:
+  enabled: true
+
+istio:
+  enabled: false
+istioOperator:
+  enabled: false
+  
+loki:
+  enabled: false
+addons:
+  metricsServer:
+    enabled: false
+
+kyverno:
+  enabled: false
+kyvernoPolicies:
+  enabled: false
+kyvernoReporter:
+  enabled: false
+neuvector:
+  enabled: false
+networkPolicies:
+  enabled: false
+clusterAuditor:
+  enabled: false
+gatekeeper:
+  enabled: false
+fluentbit:
+  enabled: false
+tempo:
+  enabled: false
+promtail:
+  enabled: false
+

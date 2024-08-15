@@ -1,0 +1,60 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kiali-kiali
+    meta.helm.sh/release-namespace: kiali
+  creationTimestamp: '2024-08-07T19:00:24Z'
+  generation: 1
+  labels:
+    app.kubernetes.io/component: kiali
+    app.kubernetes.io/instance: kiali-kiali
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kiali-operator
+    app.kubernetes.io/part-of: kiali
+    helm.sh/chart: kiali-1.87.0-bb.0
+    helm.toolkit.fluxcd.io/name: kiali
+    helm.toolkit.fluxcd.io/namespace: bigbang
+  managedFields:
+    - apiVersion: networking.istio.io/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:meta.helm.sh/release-name: {}
+            f:meta.helm.sh/release-namespace: {}
+          f:labels:
+            .: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/managed-by: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:helm.sh/chart: {}
+            f:helm.toolkit.fluxcd.io/name: {}
+            f:helm.toolkit.fluxcd.io/namespace: {}
+        f:spec:
+          .: {}
+          f:gateways: {}
+          f:hosts: {}
+          f:http: {}
+      manager: helm-controller
+      operation: Update
+      time: '2024-08-07T19:00:24Z'
+  name: kiali
+  namespace: kiali
+  resourceVersion: '2083'
+  uid: f32c2b6d-e035-4513-bb60-99f746e9cf26
+  selfLink: /apis/networking.istio.io/v1beta1/namespaces/kiali/virtualservices/kiali
+spec:
+  gateways:
+    - istio-system/public
+  hosts:
+    - kiali.dev.bigbang.mil
+  http:
+    - route:
+        - destination:
+            host: kiali.kiali.svc.cluster.local
+            port:
+              number: 20001
