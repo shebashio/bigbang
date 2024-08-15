@@ -2473,6 +2473,9 @@ addons:
 
   metricsServer:
     enabled: false
+    git:
+      tag: null
+      branch: run-pod-labels-through-tpl
     values:
       replicas: 1
       bbtests:
