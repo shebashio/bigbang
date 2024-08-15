@@ -100,10 +100,10 @@ monitoring:
 
 metrics:
   enabled: {{ .Values.monitoring.enabled }}
+  {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- if .Values.kiali.enabled }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
-    {{- end }}
+  {{- end }}
 
   {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") .Values.istio.enabled) }}
   {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
