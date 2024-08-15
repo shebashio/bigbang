@@ -1900,6 +1900,23 @@ addons:
   minio:
     enabled: false
     values:
+      networkPolicies:
+        additionalPolicies:
+        - name: cypress-ingress-velero
+          enabled: true
+          spec:
+            podSelector: {}
+            policyTypes:
+            - Ingress
+            ingress:
+            - from:
+              - namespaceSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: velero
+            - to:
+              - podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: minio
       istio:
         hardened:
           customAuthorizationPolicies:
