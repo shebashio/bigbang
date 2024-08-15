@@ -2778,10 +2778,10 @@ addons:
 
   eckOperator:
     # -- Toggle deployment of ECK Operator.
-    enabled: true # TESTING ONLY DON'T MERGE TO MASTER
+    enabled: false # TESTING ONLY DON'T MERGE TO MASTER
     git: # TESTING ONLY DON'T MERGE TO MASTER
       tag: null # TESTING ONLY DON'T MERGE TO MASTER
-      branch: set-required-labels-for-kiali # TESTING ONLY DON'T MERGE TO MASTER
+      branch: "set-required-labels-for-kiali" # TESTING ONLY DON'T MERGE TO MASTER
     values:
       istio:
         hardened:
