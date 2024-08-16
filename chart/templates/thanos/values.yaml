@@ -18,8 +18,12 @@ domain: {{ .Values.domain }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
-  {{- if and ( dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
   hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.addons.thanos.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
+    {{- if and (or (dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) (dig "hardened" "enabled" false .Values.istio.values)) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
     customServiceEntries:
       - name: egress-object-store
         enabled: true
@@ -53,6 +57,9 @@ networkPolicies:
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
+
+storegateway:
+  enabled: false
 
 query:
   dnsDiscovery:
@@ -93,6 +100,9 @@ storegateway:
   enabled: true
   useEndpointGroup: true
   endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
+
+compactor:
+  enabled: true
 
 query:
   extraFlags:

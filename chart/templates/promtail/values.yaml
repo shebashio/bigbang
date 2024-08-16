@@ -13,6 +13,11 @@ openshift: {{ .Values.openshift }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.promtail.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
 
 loki:
   enabled: {{ .Values.loki.enabled }}
@@ -43,18 +48,23 @@ podAnnotations:
 imagePullSecrets:
   - name: private-registry
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
+
 {{- if .Values.loki.enabled }}
 config:
-  snippets:
-    extraRelabelConfigs: 
-      - action: replace
-        replacement: {{ $clusterName }}
-        target_label: cluster
   clients:
     {{- if eq .Values.loki.strategy "monolith" }}
     - url: http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push
+      external_labels:
+        cluster: {{ $clusterName }}
     {{- else }}
     - url: http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push
+      external_labels:
+        cluster: {{ $clusterName }}
     {{- end }}
 {{- end }}
 # If loki is disabled and promtail is not

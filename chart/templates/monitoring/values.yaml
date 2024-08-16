@@ -16,7 +16,6 @@ domain: {{ $domainName }}
 {{- $lokiEnabled := (.Values.loki.enabled) }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 
-
 flux:
   enabled: true
 
@@ -40,11 +39,15 @@ istio:
   {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
   enabled: {{ .Values.istio.enabled }}
   hardened:
-    {{- if or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values) (dig "hardened" "enabled" false .Values.istio.values) (dig "istio" "hardened" "enabled" false .Values.grafana.values) }}
-    enabled: true
-    {{- else }}
-    enabled: false
-    {{- end }}
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+    }}
     {{- if and (dig "values" "istio" "hardened" "enabled" false .Values.monitoring) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
     customServiceEntries:
       - name: egress-object-store
@@ -59,6 +62,7 @@ istio:
               name: https
           resolution: DNS
      {{- end }}
+  clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istio.values }}
   prometheus:
     enabled: true
     {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
@@ -101,6 +105,15 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
+  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  serviceMonitor:
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+  {{- end }}
 
 prometheus:
   {{- if $lokiEnabled }}
@@ -123,9 +136,32 @@ prometheus:
 
   thanosServiceMonitor:
     enabled: true
+    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    serviceMonitor:
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
   {{- end }}
 
   prometheusSpec:
+    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    alertingEndpoints:
+    - name: monitoring-monitoring-kube-alertmanager
+      namespace: monitoring
+      apiVersion: v2
+      port: http-web
+      pathPrefix: /
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
 
     {{- if $thanosEnabled }}
     thanos:
@@ -367,9 +403,6 @@ sso:
 prometheus-node-exporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-  serviceAccount:
-    imagePullSecrets:
-    - name: private-registry
 
 
   {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
@@ -428,8 +461,6 @@ defaultRules:
 kube-state-metrics:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-  imagePullSecrets:
-  - name: private-registry
   {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
   prometheus:
     monitor:

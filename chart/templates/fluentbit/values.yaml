@@ -10,6 +10,12 @@
 loki:
   enabled: {{ .Values.loki.enabled }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
+
 elasticsearchKibana:
   enabled: {{.Values.elasticsearchKibana.enabled }}
 
@@ -142,6 +148,11 @@ networkPolicies:
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.fluentbit.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
 
 openShift:
   enabled: {{ .Values.openshift }}
@@ -202,13 +213,16 @@ luaScripts:
         "security.istio.-",
         "helm.-",
         "istio.-",
-        "statefulset.kubernetes.io/pod-name",
-        "apps.kuberentes.io/pod-index",
+        "statefulset.kubernetes.io/pod%-name",
         "prometheus",
         "operator.prometheus.io/name",
-        "app.kubernetes.io/managed-by",
+        "app.kubernetes.io/managed%-by",
+        "app.kubernetes.io/part%-of",
+        "apps.kuberentes.io/version",
+        "apps.kubernetes.io/pod%-index",
         "heritage",
-        "release"
+        "release",
+        "elasticsearch.k8s.elastic.co.node.-"
       }
 
       if record["kubernetes"] ~= nil then
