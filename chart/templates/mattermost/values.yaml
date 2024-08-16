@@ -94,7 +94,7 @@ postgresql:
     pullSecrets:
       - private-registry
   install: true
-  {{{- if $istioInjection }}
+  {{- if $istioInjection }}
   primary:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
