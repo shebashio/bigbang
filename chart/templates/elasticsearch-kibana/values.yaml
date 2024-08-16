@@ -102,6 +102,7 @@ metrics:
   enabled: {{ .Values.monitoring.enabled }}
   {{- if .Values.kiali.enabled }}
   podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
