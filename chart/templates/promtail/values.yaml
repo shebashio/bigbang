@@ -54,7 +54,6 @@ podLabels:
   {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
-
 {{- if .Values.loki.enabled }}
 config:
   clients:

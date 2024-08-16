@@ -16,7 +16,6 @@ podLabels:
   {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
-
 elasticsearchKibana:
   enabled: {{.Values.elasticsearchKibana.enabled }}
 
