@@ -2011,16 +2011,6 @@ addons:
         enabled: true
       istio:
         hardened:
-          customAuthorizationPolicies:
-            - name: "test-for-allowing-monitoring"
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                  - from:
-                    - source:
-                        namespaces:
-                          - monitoring
           customServiceEntries:
             - name: "cypress-service-entries-mattermost"
               enabled: true
