@@ -1835,7 +1835,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.28.1-bb.0"
+      #tag: "0.28.1-bb.0"
+      branch: "75-egress-whitelist-vault-3"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
