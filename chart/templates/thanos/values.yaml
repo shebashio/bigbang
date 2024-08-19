@@ -60,6 +60,11 @@ monitoring:
 
 storegateway:
   enabled: false
+{{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
 
 query:
   dnsDiscovery:
@@ -83,6 +88,10 @@ query:
   {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
   podLabels:
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
+    {{- if .Values.kiali.enabled }}
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- end }}
   {{- end }}
 
 {{- if not (.Values.addons.thanos.objectStorage.endpoint | empty) }}
@@ -103,10 +112,51 @@ storegateway:
 
 compactor:
   enabled: true
+{{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
+
+
+{{- if .Values.kiali.enabled }}
+ruler:
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
+
+{{- if .Values.kiali.enabled }}
+receive:
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
+
+{{- if .Values.kiali.enabled }}
+receiveDistributor:
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
 
 query:
   extraFlags:
     - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
+
+{{- if .Values.kiali.enabled }}
+queryFrontend:
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
+
+{{- if .Values.kiali.enabled }}
+bucketweb:
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
 
 {{- end }}
 {{- end }}
