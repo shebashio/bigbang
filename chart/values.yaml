@@ -878,11 +878,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "61.2.0-bb.4"
+    tag: "61.2.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "61.2.0-bb.4"
+    tag: "61.2.0-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1329,11 +1329,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "70.1.0-bb.0"
+      tag: "71.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "70.1.0-bb.0"
+      tag: "71.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1398,11 +1398,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.6-bb.2"
+      tag: "8.0.6-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.6-bb.2"
+      tag: "8.0.6-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1742,11 +1742,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.7.0-bb.7"
+      tag: "6.7.0-bb.8"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "6.7.0-bb.7"
+      tag: "6.7.0-bb.8"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
