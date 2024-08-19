@@ -906,6 +906,9 @@ fluentbit:
 
 
 loki:
+  git:
+    tag: null
+    branch: loki-fix-branch
   strategy: scalable
   values:
     istio:
