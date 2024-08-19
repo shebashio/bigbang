@@ -11,7 +11,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafana-alloy/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: grafana-alloy
+  targetNamespace: monitoring
   chart:
     spec:
       {{- if eq .Values.addons.grafanaAlloy.sourceType "git" }}
