@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.87.0-bb.0"
+    tag: "1.88.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.87.0-bb.0"
+    tag: "1.88.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -540,11 +540,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "2.24.0-bb.2"
+    tag: "2.24.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "2.24.0-bb.2"
+    tag: "2.24.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -676,11 +676,11 @@ promtail:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
     path: "./chart"
-    tag: "6.16.2-bb.2"
+    tag: "6.16.2-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
-    tag: "6.16.2-bb.2"
+    tag: "6.16.2-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Promtail Package
   flux: {}
@@ -933,11 +933,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.3.6-bb.1"
+    tag: "8.4.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.3.6-bb.1"
+    tag: "8.4.4-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1329,11 +1329,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "70.1.0-bb.0"
+      tag: "71.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "70.1.0-bb.0"
+      tag: "71.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1398,11 +1398,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.6-bb.2"
+      tag: "8.0.6-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.6-bb.2"
+      tag: "8.0.6-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1531,11 +1531,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.9.0-bb.3"
+      tag: "2.9.0-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.9.0-bb.3"
+      tag: "2.9.0-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1648,11 +1648,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.10.1-bb.1"
+      tag: "9.10.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "9.10.1-bb.1"
+      tag: "9.10.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1742,11 +1742,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "6.7.0-bb.7"
+      tag: "6.7.0-bb.8"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "6.7.0-bb.7"
+      tag: "6.7.0-bb.8"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
