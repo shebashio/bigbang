@@ -351,6 +351,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "sso": {
           "$ref": "#/$defs/sso"
         },
@@ -378,6 +381,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "sso": {
           "$ref": "#/$defs/sso"
         },
@@ -400,7 +406,10 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        }
       },
       "allOf": [
         {
@@ -468,7 +477,10 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        }
       },
       "allOf": [
         {
@@ -490,6 +502,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "sso": {
           "$ref": "#/$defs/sso"
         },
@@ -529,7 +544,10 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        }
       },
       "allOf": [
         {
@@ -546,7 +564,10 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        }
       },
       "allOf": [
         {
@@ -563,7 +584,10 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        }
       },
       "allOf": [
         {
@@ -593,6 +617,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "strategy": {
           "type": "string",
           "enum": [
@@ -711,6 +738,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "sso": {
           "$ref": "#/$defs/sso"
         },
@@ -943,6 +973,9 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "istio": {
+          "$ref": "#/$defs/istio"
+        },
         "sso": {
           "type": "object",
           "required": [
@@ -995,63 +1028,108 @@
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "authservice": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "minioOperator": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "minio": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "gitlab": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "gitlabRunner": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "nexusRepositoryManager": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "sonarqube": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "fortify": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "haproxy": {
           "type": "object",
@@ -1069,6 +1147,9 @@
             },
             "values": {
               "$ref": "#/$defs/values"
+            },
+            "istio": {
+              "$ref": "#/$defs/istio"
             }
           }
         },
@@ -1077,42 +1158,72 @@
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "mattermostOperator": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "mattermost": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "velero": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "keycloak": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "vault": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "metricsServer": {
           "type": "object",
@@ -1142,6 +1253,9 @@
             },
             "values": {
               "$ref": "#/$defs/values"
+            },
+            "istio": {
+              "$ref": "#/$defs/istio"
             }
           }
         },
@@ -1150,21 +1264,36 @@
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "holocron": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         },
         "thanos": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
         }
       }
     },
