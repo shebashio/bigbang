@@ -55,14 +55,10 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.gatekeeper.enabled }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
-      namespace: {{ .Release.Namespace }}
-    {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
-    - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- end }}
