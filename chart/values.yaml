@@ -674,10 +674,10 @@ promtail:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
+    repo: https://repo1.dso.mil/big-bang/pipeline-templates/package-validation.git
     path: "./chart"
-    tag: null
-    branch: "bbdocs"
+    tag: "9.9.9-bb.1"
+    #branch: "bbdocs"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
