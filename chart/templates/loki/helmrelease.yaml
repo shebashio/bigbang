@@ -78,10 +78,6 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
-    - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
-    {{- end }}
     {{- with .Values.loki.objectStorage }}
     {{- if and (eq $.Values.loki.strategy "scalable") (not (and .endpoint .bucketNames)) }}
     - name: minio-operator
