@@ -1329,7 +1329,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "71.0.0-bb.0"
+      #tag: "71.0.0-bb.0"
+      branch: "137-set-required-labels-for-kiali"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"

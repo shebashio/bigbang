@@ -51,6 +51,11 @@ networkPolicies:
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
 
 nexus:
+  {{- if .Values.kiali.enabled }}
+  extraLabels:
+    app: nexus-repository-manager
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- end }}
   imagePullSecrets:
     - name: private-registry
   {{- if .Values.istio.enabled }}
