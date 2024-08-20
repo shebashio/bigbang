@@ -57,9 +57,6 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.kyvernoPolicies.enabled }}
-    - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.monitoring.enabled }}
     - name: monitoring

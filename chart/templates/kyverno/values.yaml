@@ -45,11 +45,6 @@ istio:
   enabled: {{ .Values.istio.enabled }}
 {{- end -}}
 
-# {{- $pkg := "kyvernoPolicies" }}
-
-# {{- if (get .Values $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.kyverno-policies" .))) "name" "kyverno-policies" "defaults" (include "bigbang.defaults.kyverno-policies" .)) }}
-{{- end }}
 
 {{- define "bigbang.defaults.kyverno-policies" -}}
 
