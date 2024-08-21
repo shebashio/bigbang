@@ -40,6 +40,15 @@ istio:
   thanos:
     gateways:
     - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
+
+{{- if .Values.kiali.enabled }}
+minio:
+  tenant:
+    podLabels:
+      {{- include "kialiAppLabel" . | nindent 6 }}
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+{{- end }}
+
 {{- with .Values.addons.thanos.objectStorage }}
 {{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
 minio:
