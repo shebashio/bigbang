@@ -418,14 +418,6 @@ gatekeeper:
           - default/restrict-volume-types-.?
 
 kyverno:
-  enabled: true
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
-    path: "./chart"
-    tag: null
-    branch: merge-kyvernopolicy
   values:
     networkPolicies:
       externalRegistries:
