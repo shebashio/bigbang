@@ -104,13 +104,28 @@ Lula provides the ability to generate component definitions given required conte
 
 Given the following:
 - Source of an OSCAL catalog to pull control information
+  - This must be the raw source url 
+  - IE https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json
 - Controls to include
 - Title of the component
 - Remark target
 
+Lula can generate a component definition with the following command:
+```bash
+lula generate component -c <catalogsource> -r ac-1,ac-2,au-4 --component "Service Mesh" --remarks assessment-objective -o oscal-component.yaml
+```
+
 Lula will generate a component with a control-implementation containing the controls from the catalog translated to implemented-requirements. 
 
 This operation will both produce an annotation for how to imperatively reproduce the artifact generation as well as allows for merging content into existing objects. If a component already exists in a component-definition and the `-o` flag directs the output of the command into this existing file, Lula will perform a merge operation to add or update existing information as required.
+
+Example Annotation for Istio and an Impact-Level 4 framework
+```yaml
+props:
+  - name: generation
+    ns: https://docs.lula.dev/oscal/ns
+    value: lula generate component --catalog-source https://raw.githubusercontent.com/GSA/fedramp-automation/93ca0e20ff5e54fc04140613476fba80f08e3c7d/dist/content/rev5/baselines/json/FedRAMP_rev5_HIGH-baseline-resolved-profile_catalog.json --component 'Istio Controlplane' --requirements ac-14,ac-4,ac-4.21,ac-4.4,ac-6.3,ac-6.9,au-12,au-2,au-3,au-3.1,cm-5,sc-10,sc-13,sc-23,sc-3,sc-39,sc-4,sc-7.20,sc-7.21,sc-7.4,sc-7.8,sc-8,sc-8.1,sc-8.2 --remarks assessment-objective --framework il4
+```
 
 ## Assessment Automation
 
