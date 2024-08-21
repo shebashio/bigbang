@@ -69,11 +69,11 @@ monitoring:
 
 storegateway:
   enabled: false
-{{- if .Values.kiali.enabled }}
+  {{- if .Values.kiali.enabled }}
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- end }}
+  {{- end }}
 
 query:
   dnsDiscovery:
@@ -163,11 +163,11 @@ storegateway:
 
 compactor:
   enabled: true
-{{- if .Values.kiali.enabled }}
+  {{- if .Values.kiali.enabled }}
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- end }}
+  {{- end }}
 
 query:
   extraFlags:
