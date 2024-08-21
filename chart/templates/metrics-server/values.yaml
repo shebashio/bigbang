@@ -12,6 +12,11 @@ domain: {{ $domainName }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.addons.metricsServer.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
   injection: {{ ternary "enabled" "disabled" .Values.istio.enabled }}
 
 
@@ -20,6 +25,11 @@ podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
 
 metrics:
   enabled: {{ .Values.monitoring.enabled }}
