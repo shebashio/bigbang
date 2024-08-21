@@ -480,6 +480,12 @@ kyvernoPolicies:
   values:
     bbtests:
       enabled: true
+      sourceType: "git"
+    git:
+      tag: null
+      repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git"
+      branch: "135-add-generateexisting-option-for-clone-config"
+
     excludeContainers:
     - not-me
     - or-me
