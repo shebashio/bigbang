@@ -120,9 +120,36 @@ Lula does this by insertion of one-to-many `lula` links per `implemented-require
 
 These links can be in the form of an item in the associated `back-matter` of the `component-definition` or a separate local or remote file containing the validations. 
 
-Exmaples:
+Examples:
 ```yaml
-TODO
+links:
+  - href: 'file://./istio/healthcheck/validation.yaml'
+    rel: lula
+    text: Check that Istio is healthy with a local validation file
+  - href: '#7df8abad-d2e3-4944-a500-68bfe4f8c591'
+    rel: lula
+    text: Check that Istio is healthy with a validation in the back matter
+```
+
+Once a link as established as a Lula validation, Lula will collect and perform the execution of a validation and map the result as evidence to support whether the security control (with context of locality) enables a security control to be met in a given environment.
+
+## Compliance Evaluation
+
+Given the process above automating the assessment of packages and OSCAL, we can instrument an Automated Governance workflow that ensures all development of a package ensures equal or greater compliance has been met prior to allowing the merge of proposed changes. 
+
+This is accomplished with in a [pipeline](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/library/package-functions.sh?ref_type=heads#L483) by using a previous assessment (in the form of the assessment-results OSCAL model artifact) and ensuring that the new assessment meets or exceeds the threshold result, otherwise failing. 
+
+The core of this workflow is as follows:
+```bash
+# perform validation and create or merge with the existing oscal-assessment-results.yaml artifact
+lula validate -f oscal-component.yaml -o oscal-assessment-results.yaml
+
+# perform evaluation of compliance adherence
+lula evaluate -f oscal-assessment-results.yaml
+
+# If there was no pre-existing oscal-assessment-results.yaml artifact the command will exit successfully stating there is no previous state to evaluate against.
+
+# If there is a previous threshold result established, it will compare the state of findings, requiring all previously `satisfied` controls to still be `satisfied` otherwise failing.
 ```
 
 **NOTE:** Remember to refer to the OSCAL documentation and guidelines provided by BigBang for specific implementation details and any updates to the contributing process.
