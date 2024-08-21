@@ -117,7 +117,6 @@ bucketweb:
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-
 {{- if .Values.kiali.enabled }}
 ruler:
   podLabels:
