@@ -69,9 +69,5 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
-    - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
-    {{- end }}
   {{- end }}
 {{- end }}
