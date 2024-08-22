@@ -80,8 +80,8 @@ postgresql:
   {{- if .Values.kiali.enabled }}
   primary:
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 2 }}
-      {{- include "kialiVersionLabel" . | nindent 2 }}
+      {{- include "kialiAppLabel" . | nindent 4 }}
+      {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 {{- if .Values.addons.anchore.adminPassword }}
 anchoreConfig:
