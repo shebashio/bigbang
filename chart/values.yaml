@@ -1531,7 +1531,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.9.0-bb.5"
+      #tag: "2.9.0-bb.5"
+      branch: "178-set-required-labels-for-kiali"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
