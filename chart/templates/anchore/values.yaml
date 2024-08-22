@@ -89,11 +89,22 @@ anchoreConfig:
 {{- end }}
 
 feeds:
+  {{- if .Values.kiali.enabled }}
+  labels:
+    app: feeds.anchore
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- end }}
   istio:
     enabled: {{ .Values.istio.enabled }}
     injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
 
   feeds-db:
+    {{- if .Values.kiali.enabled }}
+    primary:
+      podLabels:
+        app: feeds.anchore
+        {{- include "kialiVersionLabel" . | nindent 6 }}
+    {{- end }}
     {{- if .Values.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
