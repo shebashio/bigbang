@@ -2103,12 +2103,12 @@ addons:
 
     postRenderers: []
 
-  grafanaAlloy:
+  alloy:
     # -- Toggle deployment of grafana alloy
     enabled: false
 
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/grafana-alloy.git
+      repo: https://repo1.dso.mil/big-bang/apps/sandbox/alloy.git
       branch: main
       path: "./chart"
 
