@@ -174,11 +174,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.22.3-bb.1"
+    tag: "1.22.4-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.22.3-bb.1"
+    tag: "1.22.4-bb.1"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -316,11 +316,11 @@ istioOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
     path: "./chart"
-    tag: "1.22.3-bb.0"
+    tag: "1.22.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-operator"
-    tag: "1.22.3-bb.0"
+    tag: "1.22.4-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Istio Operator Package
   flux: {}
@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.88.0-bb.0"
+    tag: "1.89.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.88.0-bb.0"
+    tag: "1.89.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -648,11 +648,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.47.6-bb.1"
+    tag: "0.47.7-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.47.6-bb.1"
+    tag: "0.47.7-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -701,11 +701,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.7.1-bb.2"
+    tag: "6.10.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.7.1-bb.2"
+    tag: "6.10.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -758,11 +758,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.7.8-bb.0"
+    tag: "2.7.8-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.7.8-bb.0"
+    tag: "2.7.8-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2058,12 +2058,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "15.7.17-bb.0"
+      tag: "15.7.20-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "15.7.17-bb.0"
+      tag: "15.7.20-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux: {}
