@@ -34,10 +34,6 @@ reports:
   labels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
-ui:
-  labels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
 policyEngine:
   labels:
     app: anchore-anchore-enterprise-policy
@@ -157,6 +153,11 @@ feeds:
 ui:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecretName: private-registry
+  {{- if .Values.kiali.enabled }}
+  labels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- end }}
 
 ui-redis:
   {{- if and .Values.addons.anchore.redis.host .Values.addons.anchore.redis.port .Values.addons.anchore.redis.password }}
