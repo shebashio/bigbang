@@ -93,11 +93,7 @@ serviceMonitor:
 sso:
   enabled: {{ .Values.tempo.sso.enabled }}
 
-<<<<<<< Updated upstream
-{{- if .Values.tempo.sso.enabled }}
-=======
 {{- if or .Values.kiali.enabled .Values.tempo.sso.enabled }}
->>>>>>> Stashed changes
 {{- $tempoAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
 {{- $tempoAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
 podLabels:
