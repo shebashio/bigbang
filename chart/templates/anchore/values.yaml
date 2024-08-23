@@ -121,8 +121,8 @@ feeds:
     {{- if .Values.kiali.enabled }}
     primary:
       podLabels:
-        {{- include "kialiAppLabel" . | nindent 6 }}
-        {{- include "kialiVersionLabel" . | nindent 6 }}
+        {{- include "kialiAppLabel" . | nindent 8 }}
+        {{- include "kialiVersionLabel" . | nindent 8 }}
     {{- end }}
     {{- if .Values.istio.enabled }}
     podAnnotations:
