@@ -10,7 +10,7 @@ domain: {{ $domainName }}
 openshift: {{ .Values.openshift }}
 
 {{- if .Values.kiali.enabled }}
-podLabels:
+labels:
   {{- include "kialiAppLabel" . | nindent 2 }}
   {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
