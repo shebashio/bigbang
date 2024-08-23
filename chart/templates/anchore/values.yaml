@@ -10,9 +10,22 @@ domain: {{ $domainName }}
 openshift: {{ .Values.openshift }}
 
 {{- if .Values.kiali.enabled }}
-labels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+api:
+  labels:
+    app: anchore-anchore-enterprise-api
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+analyzer:
+  labels:
+    app: anchore-anchore-enterprise-analyzer
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+catalog:
+  labels:
+    app: anchore-anchore-enterprise-catalog
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+simpleQueue:
+  labels:
+    app: anchore-anchore-enterprise-simplequeue
+    {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
 istio:
@@ -97,7 +110,7 @@ anchoreConfig:
 feeds:
   {{- if .Values.kiali.enabled }}
   labels:
-    app: feeds.anchore
+    {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
   istio:
@@ -108,7 +121,7 @@ feeds:
     {{- if .Values.kiali.enabled }}
     primary:
       podLabels:
-        app: feeds.anchore
+        {{- include "kialiAppLabel" . | nindent 6 }}
         {{- include "kialiVersionLabel" . | nindent 6 }}
     {{- end }}
     {{- if .Values.istio.enabled }}
