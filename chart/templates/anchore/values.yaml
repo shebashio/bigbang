@@ -26,6 +26,22 @@ simpleQueue:
   labels:
     app: anchore-anchore-enterprise-simplequeue
     {{- include "kialiVersionLabel" . | nindent 4 }}
+notifications:
+  labels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+reports:
+  labels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+ui:
+  labels:
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+policyEngine:
+  labels:
+    app: anchore-anchore-enterprise-policy
+    {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
 istio:
