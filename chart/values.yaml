@@ -1778,7 +1778,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "2.4.3-bb.4"
+      #tag: "2.4.3-bb.4"
+      branch: "218-set-required-labels-for-kiali-update-to-new-umbrella-pattern"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
