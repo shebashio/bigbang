@@ -9,6 +9,12 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
+
 istio:
   enabled: {{ .Values.istio.enabled }}
   hardened:
