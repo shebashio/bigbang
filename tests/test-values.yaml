@@ -212,10 +212,10 @@ clusterAuditor:
 gatekeeper:
   enabled: true
   sourceType: "git"
-    git:
-      tag: null
-      repo: "https://repo1.dso.mil/big-bang/product/packages/policy.git"
-      branch: "265-renovate-upgrade-opa-gatekeeper-package-dependencies"
+  git:
+    tag: null
+    repo: "https://repo1.dso.mil/big-bang/product/packages/policy.git"
+    branch: "265-renovate-upgrade-opa-gatekeeper-package-dependencies"
   values:
     replicas: 1
     controllerManager:
