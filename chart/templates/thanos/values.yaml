@@ -45,12 +45,13 @@ istio:
 {{- if or $.Values.addons.thanos.values.minio.enabled (and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region))) }}
 minio:
   enabled: true
-  {{- if $.Values.kiali.enabled }}
-  tenant:
-    podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{/*  TODO: Update when new version of Minio chart once it has the kiali label changes published */}}
+{{/*  {{- if $.Values.kiali.enabled }}*/}}
+{{/*  tenant:*/}}
+{{/*    podLabels:*/}}
+{{/*      {{- include "kialiAppLabel" . | nindent 6 }}*/}}
+{{/*      {{- include "kialiVersionLabel" . | nindent 6 }}*/}}
+{{/*  {{- end }}*/}}
 {{- end }}
 {{- end }}
 
