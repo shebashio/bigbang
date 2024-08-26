@@ -1813,20 +1813,13 @@ addons:
 
   sonarqube:
     enabled: false
+    sso: 
+      enabled: false
+      client_id: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
     values:
       account:
         adminPassword: new_admin_password
         currentAdminPassword: admin
-      sso:
-        enabled: false
-        name: "keycloak"
-        applicationid: "dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube"
-        serverBaseURL: "https://sonarqube.dev.bigbang.mil"
-        idpmetadataurl: "https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/descriptor"
-        image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
-        providerid: ""
-        loginUrl: ""
-        secured: ""
       istio:
         hardened:
           customAuthorizationPolicies:
@@ -1848,7 +1841,6 @@ addons:
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
                   - 'repo1.dso.mil'
-                  - 'sonarqube.dev.bigbang.mil'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
