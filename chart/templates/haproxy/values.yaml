@@ -116,7 +116,7 @@ istio:
 openshift: {{ .Values.openshift }}  
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
+  app: {{ "{{ template \"haproxy.name\" . }}" | quote }}
   {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 {{- end -}}
