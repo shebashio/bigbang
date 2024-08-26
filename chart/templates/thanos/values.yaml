@@ -42,19 +42,15 @@ istio:
     - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
 
 {{- with .Values.addons.thanos.objectStorage }}
-{{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
+{{- if or $.Values.addons.thanos.values.minio.enabled (and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region))) }}
 minio:
   enabled: true
+  {{- if $.Values.kiali.enabled }}
   tenant:
     podLabels:
       {{- include "kialiAppLabel" . | nindent 6 }}
       {{- include "kialiVersionLabel" . | nindent 6 }}
-{{- else }}
-minio:
-  tenant:
-    podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+  {{- end }}
 {{- end }}
 {{- end }}
 
@@ -128,15 +124,17 @@ receiveDistributor:
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
+{{- if or .Values.addons.thanos.values.compactor.enabled (not (.Values.addons.thanos.objectStorage.endpoint | empty)) }}
 compactor:
-{{- if .Values.kiali.enabled }}
+  enabled: true
+  {{- if .Values.kiali.enabled }}
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- end }}
 {{- end }}
 
 {{- if not (.Values.addons.thanos.objectStorage.endpoint | empty) }}
-
 objstoreConfig: |-
   type: s3
   config:
@@ -151,22 +149,8 @@ storegateway:
   useEndpointGroup: true
   endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
 
-compactor:
-  enabled: true
-  {{- if .Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-  {{- end }}
-
 query:
   extraFlags:
     - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
-
-{{- else }}
-compactor:
-  podLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 {{- end }}
