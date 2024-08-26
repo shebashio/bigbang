@@ -808,9 +808,8 @@ tempo:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
-    path: "./chart"
-    tag: "1.10.1-bb.0"
+    tag: null
+    branch: 78-set-required-labels-for-kiali
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
