@@ -12,19 +12,19 @@ openshift: {{ .Values.openshift }}
 {{- if .Values.kiali.enabled }}
 api:
   labels:
-    app: anchore-anchore-enterprise-api
+    app: {{ "{{ template \"enterprise.api.fullname\" . }}" | quote }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 analyzer:
   labels:
-    app: anchore-anchore-enterprise-analyzer
+    app: {{ "{{ template \"enterprise.analyzer.fullname\" . }}" | quote }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 catalog:
   labels:
-    app: anchore-anchore-enterprise-catalog
+    app: {{ "{{ template \"enterprise.catalog.fullname\" . }}" | quote }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 simpleQueue:
   labels:
-    app: anchore-anchore-enterprise-simplequeue
+    app: {{ "{{ template \"enterprise.simpleQueue.fullname\" . }}" | quote }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 notifications:
   labels:
@@ -36,7 +36,7 @@ reports:
     {{- include "kialiVersionLabel" . | nindent 4 }}
 policyEngine:
   labels:
-    app: anchore-anchore-enterprise-policy
+    app: {{ "{{ template \"enterprise.policyEngine.fullname\" . }}" | quote }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
