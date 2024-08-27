@@ -68,11 +68,3 @@ annotations:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 {{- end -}}
-
-{{/*
-{{- if .Values.kiali.enabled }}
-operator:
-  additionalLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- end -}}
-*/}}
