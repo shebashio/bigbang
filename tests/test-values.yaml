@@ -442,6 +442,11 @@ kyvernoReporter:
   values:
     bbtests:
       enabled: true
+    sourceType: "git"
+    git:
+      tag: null
+      repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git"
+      branch: "set-required-labels-for-kiali-update-to-new-umbrella-pattern"
       cypress:
         envs:
           cypress_grafana_url: https://grafana.dev.bigbang.mil
