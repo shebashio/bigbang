@@ -539,9 +539,8 @@ kyvernoReporter:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
-    path: ./chart
+    path: "./chart"
     tag: "2.24.1-bb.0"
-    branch: set-required-labels-for-kiali-update-to-new-umbrella-pattern
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
