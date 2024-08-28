@@ -21,6 +21,12 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+{{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 2 }}
+    {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
+
 kyvernoPlugin:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -31,6 +37,12 @@ kyvernoPlugin:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 2 }}
+    {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- end }}
+
 ui:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -39,6 +51,12 @@ ui:
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
+
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiAppLabel" . | nindent 2 }}
+    {{- include "kialiVersionLabel" . | nindent 2 }}
   {{- end }}
 
 monitoring:
