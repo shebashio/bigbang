@@ -1,7 +1,7 @@
 {{- $pkg := "kyvernoReporter" }}
 
 {{- if (get .Values $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
+  {{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno-reporter" -}}
@@ -12,51 +12,49 @@ global:
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 imagePullSecrets:
-- name: private-registry
+  - name: private-registry
 
 {{- if .Values.istio.enabled }}
 istio:
   enabled: true
-podAnnotations:
-  {{ include "istioAnnotation" . }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
 {{- end }}
 
 {{- if .Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 4 }}
+  {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
 kyvernoPlugin:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-  - name: private-registry
+    - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 ui:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-  - name: private-registry
+    - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
+    {{- include "kialiAppLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 monitoring:
@@ -70,7 +68,7 @@ monitoring:
       caFile: /etc/prom-certs/root-cert.pem
       certFile: /etc/prom-certs/cert-chain.pem
       keyFile: /etc/prom-certs/key.pem
-      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      insecureSkipVerify: true # Skipping certificate verification due to Istio security constraints
   kyverno:
     serviceMonitor:
       scheme: https
@@ -78,7 +76,7 @@ monitoring:
         caFile: /etc/prom-certs/root-cert.pem
         certFile: /etc/prom-certs/cert-chain.pem
         keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+        insecureSkipVerify: true # Skipping certificate verification due to Istio security constraints
   {{- end }}
 
 openshift: {{ .Values.openshift }}
