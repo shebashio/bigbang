@@ -274,6 +274,11 @@ global:
       - secret: ca-certs-dod-trust-anchors-self-signed
       - secret: ca-certs-eca
   {{end}}
+  {{- if .Values.kiali.enabled }}
+  pod:
+    labels:
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+  {{- end }}
 
   # added to help with Gitlab sub-chart configuration
   image:
