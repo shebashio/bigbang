@@ -73,16 +73,20 @@ jdbcOverwrite:
 postgresql:
   # Use external database
   enabled: false
-  {{- else }}
+  {{- else if or $istioInjection .Values.kiali.enabled}}
 postgresql:
-  {{- if $istioInjection }}
   master:
+    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
+    {{- end }}
+    podLabels:
+      {{- include "kialiVersionLabel" . | nindent 6 }}
   slave:
+    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
-  {{- end }}
+    {{- end }}
   # Use internal database, defaults are fine
   enabled: true
   service:
