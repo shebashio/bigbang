@@ -14,7 +14,7 @@ spec:
   targetNamespace: monitoring
   chart:
     spec:
-      {{- if eq .Values.addons.alloylloy.sourceType "git" }}
+      {{- if eq .Values.addons.alloy.sourceType "git" }}
       chart: {{ .Values.addons.alloy.git.path }}
       sourceRef:
         kind: GitRepository
