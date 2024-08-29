@@ -82,6 +82,7 @@ postgresql:
     {{- end }}
     podLabels:
       {{- include "kialiVersionLabel" . | nindent 2 }}
+      test=label
   slave:
     {{- if $istioInjection }}
     podAnnotations:
