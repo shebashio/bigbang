@@ -79,10 +79,11 @@ postgresql:
     {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
-    {{- end }}
+      test: annotation
     podLabels:
       {{- include "kialiVersionLabel" . | nindent 2 }}
       test=label
+    {{- end }} 
   slave:
     {{- if $istioInjection }}
     podAnnotations:
