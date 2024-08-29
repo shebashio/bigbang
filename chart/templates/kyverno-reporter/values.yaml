@@ -11,8 +11,9 @@ global:
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
+
 imagePullSecrets:
-- name: private-registry
+  - name: private-registry
 
 {{- if .Values.istio.enabled }}
 istio:
@@ -21,25 +22,43 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 6 }}
+  {{- include "kialiVersionLabel" . | nindent 6 }}
+{{- end }}
+
 kyvernoPlugin:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-  - name: private-registry
+    - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
+
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 6 }}
+  {{- include "kialiVersionLabel" . | nindent 6 }}
 {{- end }}
   
 ui:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-  - name: private-registry
+    - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
+
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 4 }}
+  {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }} 
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -69,13 +88,4 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  app: {{ "{{ template \"policyreporter.name\" . }}" | quote }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
-{{- end }}
 {{- end -}}
-
-
-
-
