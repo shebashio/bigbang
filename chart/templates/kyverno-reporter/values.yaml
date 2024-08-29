@@ -71,9 +71,10 @@ networkPolicies:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 4 }}
-  {{- include "kialiVersionLabel" . | nindent 4 }}
+  app: {{ "{{ template \"policyreporter.name\" . }}" | quote }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
+{{- end -}}
 
 
 
