@@ -1,0 +1,9 @@
+include:
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: 'bb-ci-image-update-branch'
+    file: '/pipelines/bigbang.yaml' 
+variables:
+  PIPELINE_REPO_BRANCH: 'bb-ci-image-update-branch'
+  DEBUG_ENABLED: "true"
+  CI_DEFAULT_BRANCH: 'bb-ci-pipeline'
+  CI_MERGE_REQUEST_LABELS: "all-packages"
