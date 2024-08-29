@@ -80,19 +80,15 @@ postgresql:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
     {{- end }}
-    {{- if $istioInjection }}
     podLabels:
       {{- include "kialiVersionLabel" . | nindent 2 }}
-    {{- end }}
   slave:
     {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
     {{- end }}
-    {{- if $istioInjection }}
     podLabels:
       {{- include "kialiVersionLabel" . | nindent 2 }}
-    {{- end }}
   # Use internal database, defaults are fine
   enabled: true
   service:
