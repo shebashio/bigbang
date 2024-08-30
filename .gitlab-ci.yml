@@ -1,8 +1,8 @@
 include:
   - project: 'big-bang/pipeline-templates/pipeline-templates'
-    ref: 'bb-ci-image-update-branch'
+    ref: 'bb-ci-2-20-4-image-update'
     file: '/pipelines/bigbang.yaml' 
 variables:
-  PIPELINE_REPO_BRANCH: 'bb-ci-image-update-branch'
+  PIPELINE_REPO_BRANCH: 'bb-ci-2-20-4-image-update'
   DEBUG_ENABLED: "true"
   CI_DEFAULT_BRANCH: 'bb-ci-pipeline'
