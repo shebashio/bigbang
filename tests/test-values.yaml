@@ -1311,6 +1311,9 @@ addons:
             limits:
               cpu: 4
               memory: 12Gi
+        scripts:
+          envs:
+            ARGOCD_SERVER: "https://argocd.dev.bigbang.mil"
         istio:
           sidecar:
             resources:
