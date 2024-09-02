@@ -1455,7 +1455,7 @@ addons:
 
   fortify:
     # -- Toggle deployment of Fortify.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1463,7 +1463,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.17"
+      branch: "132-update-to-define-extra-volumes-volumemounts-and-initcontainers"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
