@@ -69,10 +69,10 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-  {{- if .Values.kiali.enabled }}
+{{- end -}}
+
+ {{- if .Values.kiali.enabled }}
 podLabels:
   {{- include "kialiAppLabel" . | nindent 2 }}
   {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
-
-{{- end -}}
