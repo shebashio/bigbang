@@ -11,22 +11,21 @@ global:
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
-
 imagePullSecrets:
-  - name: private-registry
+- name: private-registry
 
 {{- if .Values.istio.enabled }}
 istio:
   enabled: true
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
+podAnnotations:
+  {{ include "istioAnnotation" . }}
 {{- end }}
 
 kyvernoPlugin:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-    - name: private-registry
+  - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
@@ -36,7 +35,7 @@ ui:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
-    - name: private-registry
+  - name: private-registry
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
@@ -70,10 +69,10 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-{{- if .Values.kiali.enabled }}
+  {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 4 }}
-  {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
 {{- end -}}
