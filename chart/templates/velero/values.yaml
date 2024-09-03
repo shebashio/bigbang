@@ -6,12 +6,23 @@
 
 istio:
   enabled: {{ .Values.istio.enabled }}
-  # hardened:
-  #   enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.addons.velero.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
+
+domain: {{ .Values.domain }}
 
 {{- if .Values.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
+{{- end }}
+
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
 {{- end }}
 
 monitoring:
