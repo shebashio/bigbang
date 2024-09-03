@@ -16,4 +16,8 @@ image:
 
 domain: {{ .Values.domain }}
 
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
 {{- end }}
