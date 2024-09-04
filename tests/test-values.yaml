@@ -1812,7 +1812,10 @@ addons:
 
 
   sonarqube:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "144-set-required-labels-for-kiali"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
