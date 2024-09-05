@@ -1,0 +1,56 @@
+{{- if .Values.istioGateway.gateways }}
+{{- range $values := .Values.istioGateway.gateways }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ $values.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    {{- $values.selector | default (dict) | toYaml | nindent 4 }}
+  servers:
+{{- if (dig "autoHttpRedirect" "enabled" true $values) }}    
+  - hosts:
+{{- range $servers := $values.servers }}
+{{- range $host := $servers.hosts }}
+{{- if eq $servers.port.protocol "HTTPS" }}
+    - '{{- tpl $host $ }}'
+{{- end }}    
+{{- end }}
+{{- end }}
+    port:
+      name: http
+      number: 8080
+      protocol: HTTP
+    tls:
+      httpsRedirect: true
+{{- end }}
+    {{- tpl (toYaml $values.servers) $ | nindent 2 }}
+{{- end }}
+{{- end }}
+
+# metadata:
+#     name: gateway
+#     namespace: istio-ingress
+# spec:
+#   selector:
+#     app: istio-ingress-istio-gateway-ingress
+#   servers:
+#     - hosts:
+#       - '*.dev.bigbang.mil'
+#       port:
+#         name: http
+#         number: 8080
+#         protocol: HTTP
+#       tls:
+#         httpsRedirect: true
+#     - hosts:
+#       - '*.dev.bigbang.mil'
+#       port:
+#         name: https
+#         number: 8443
+#         protocol: HTTPS
+#       tls:
+#         credentialName: public-cert
+#         mode: SIMPLE
