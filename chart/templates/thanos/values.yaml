@@ -97,7 +97,7 @@ query:
     {{- end }}
   {{- end }}
 
-{{- if and (dig "queryFrontend" "enabled" false .Values.addons.thanos.values) .Values.kiali.enabled }}
+{{- if and (dig "queryFrontend" "enabled" true .Values.addons.thanos.values) $.Values.kiali.enabled }}
 queryFrontend:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
