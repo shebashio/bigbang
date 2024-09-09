@@ -75,6 +75,7 @@ postgresql:
   enabled: false
   {{- else }}
 postgresql:
+  {{- if or $istioInjection $.Values.kiali.enabled}}
   master:
     {{- if $istioInjection }}
     podAnnotations:
@@ -93,6 +94,7 @@ postgresql:
     podLabels:
       {{- include "kialiVersionLabel" $ | nindent 6 }}
     {{- end }}
+  {{- end }}
   # Use internal database, defaults are fine
   enabled: true
   service:
