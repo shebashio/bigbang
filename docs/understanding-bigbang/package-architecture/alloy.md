@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Grafana Aloy](https://grafana.com/docs/alloy/latest/), formerly known as
+[Grafana Alloy](https://grafana.com/docs/alloy/latest/), formerly known as
 Grafana Agent, is Grafana's opinionated spin of the OpenTelemetry collector. It
 combines many open-source projects in the cloud-native observability space with
 the goal of being the only observability component necessary to collect and
