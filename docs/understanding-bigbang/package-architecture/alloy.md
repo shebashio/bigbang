@@ -8,7 +8,42 @@ combines many open-source projects in the cloud-native observability space with
 the goal of being the only observability component necessary to collect and
 distribute telemetry signals within a cluster.
 
-<!-- TODO: add mermaid graph of dependencies -->
+```mermaid
+flowchart TD
+  subgraph Monitoring
+    Prometheus/Thanos
+    Loki
+  end
+
+  subgraph DT[Distributed Tracing]
+    Tempo
+  end
+
+  subgraph A[Alloy]
+    Alloy
+    Alloy ==> |Traces| Tempo
+    Alloy ==> |Metrics| Prometheus/Thanos
+    Alloy ==> |Logs| Loki
+  end
+
+  style EU stroke-dasharray: 10 10
+  subgraph EU[End-User Applications]
+    App-A -->|OpenTelemetry| Alloy
+    App-B -->|OpenTelemetry| Alloy
+    App-C -->|OpenTelemetry| Alloy
+  end
+
+  subgraph N[K8s Node]
+    CL[Container Logs]-->|Logs|Alloy
+    NE[Node Exporter]-->|Metrics|Alloy
+  end
+
+  subgraph ServiceMonitors
+    Service-A<-->|Metrics|Alloy
+    Service-B<-->|Metrics|Alloy
+    Service-C<-->|Metrics|Alloy
+  end
+```
 
 ## Big Bang Touchpoints
 
