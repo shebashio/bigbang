@@ -4,17 +4,8 @@
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
-
-grafana:
-  enabled: {{ .Values.grafana.enabled }}
-
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
-  
-image:
-  imagePullPolicy: {{ .Values.imagePullPolicy }}
-
-domain: {{ .Values.domain }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
