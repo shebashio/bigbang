@@ -69,6 +69,12 @@ storage needs.
 Grafana Alloy writes its logs to stderr. These logs will be picked up by the
 logging collector configured within the cluster.
 
+### High Availability
+
+Grafana Alloy supports multiple deployment modes with built-in clustering.
+Depending on which features are enabled in the `k8s-monitoring` chart, Alloy
+may be deployed as a `StatefulSet`, `DaemonSet`, or `Deployment`.
+
 ### Health Checks
 
 Grafana Alloy is configured with standard liveness and readiness probes. In
