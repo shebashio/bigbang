@@ -1893,14 +1893,14 @@ addons:
   #
   harbor:
     # -- Toggle deployment of harbor
-    enabled: false
+    enabled: enabled
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-      tag: "1.15.0-bb.1"
+      branch: "renovate/ironbank"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
