@@ -736,7 +736,7 @@ spec:
   - default
 EOF
 ENDSSH
-  elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then3100
+  elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
     echo "Building MetalLB configuration for -a mode."
     run <<ENDSSH
 #run this command on remote
