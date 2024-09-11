@@ -795,11 +795,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.10.0-bb.0"
+    tag: "6.12.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.10.0-bb.0"
+    tag: "6.12.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -972,11 +972,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "62.1.0-bb.0"
+    tag: "62.4.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "62.1.0-bb.0"
+    tag: "62.4.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1396,12 +1396,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.66.0-bb.1"
+      tag: "0.67.1-bb.0"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.66.0-bb.1"
+      tag: "0.67.1-bb.0"
 
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1492,11 +1492,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.6-bb.3"
+      tag: "8.0.6-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.6-bb.3"
+      tag: "8.0.6-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1557,11 +1557,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.17"
+      tag: "1.1.2320154-bb.18"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.17"
+      tag: "1.1.2320154-bb.18"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1625,11 +1625,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.9.0-bb.6"
+      tag: "2.10.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.9.0-bb.6"
+      tag: "2.10.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1742,11 +1742,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "9.10.1-bb.4"
+      tag: "9.10.1-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "9.10.1-bb.4"
+      tag: "9.10.1-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
