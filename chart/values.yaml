@@ -221,12 +221,24 @@ istioGateway:
     chartName: "istio-gateway"
     #tag:
 
-  # gateways:
-  #   - name: ingress 
-  #     # labels:
-  #     #   app: "" # Unset default app selector label
-  #     #   istio: ingressgateway # override default istio selector label
-  #     #   foo: bar # Add the existing custom selector label
+  gateways:
+    - name: ingress
+      selector:
+        app: "istio-ingressgateway"
+      servers:
+      - hosts:
+        - "*.{{ .Values.domain }}"
+        port:
+          name: https
+          number: 8443
+          protocol: HTTPS
+        tls:
+          credentialName: "wildcard-cert"
+          mode: "SIMPLE"
+      # labels:
+      #   app: "" # Unset default app selector label
+      #   istio: ingressgateway # override default istio selector label
+      #   foo: bar # Add the existing custom selector label
 
   # ingressGateways:
   #   ingress:
