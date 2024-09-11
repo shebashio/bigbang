@@ -1148,12 +1148,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      branch: "add-wait-job"
-    #   tag: "6.0.2-bb.2"
-    # helmRepo:
-    #   repoName: "registry1"
-    #   chartName: "minio-instance"
-    #   tag: "6.0.2-bb.2"
+      tag: "6.0.2-bb.2"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "minio-instance"
+      tag: "6.0.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
