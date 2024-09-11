@@ -15,8 +15,8 @@ openshift: {{ .Values.openshift}}
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 
-istioGateway:
-  enabled: {{ .Values.istioGateway.enabled }}
+istio:
+  enabled: {{ .Values.istio.enabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.kiali.values)
@@ -26,9 +26,15 @@ istioGateway:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
     gateways:
+    - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
+
+istioGateway:
+  enabled: {{ .Values.istioGateway.enabled }}
+  kiali:
+    gateways:
     - istio-ingress/{{ default "ingress" .Values.kiali.ingress.gateway }}
 
-{{- if .Values.istioGateway.enabled }}
+{{- if or .Values.istio.enabled .Values.istioGateway.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
@@ -45,7 +51,7 @@ cr:
   spec:
     deployment:
       image_pull_policy: {{ .Values.imagePullPolicy }}
-      {{- if .Values.istioGateway.enabled }}
+      {{- if or .Values.istio.enabled .Values.istioGateway.enabled }}
       pod_annotations:
         {{ include "istioAnnotation" . }}
       {{- end }}
@@ -97,6 +103,29 @@ cr:
         {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
         url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
         {{- end }}
+      {{- if .Values.istio.enabled }}
+      istio:
+        component_status:
+          components:
+            - app_label: istiod
+              is_core: true
+              is_proxy: false
+            {{- range $name, $values := .Values.istio.ingressGateways }}
+            {{ if ne $values.enabled false }}
+            - app_label: {{ $name }}
+              is_core: true
+              is_proxy: true
+            {{- end }}
+            {{- end }}
+            {{- range $name, $values := .Values.istio.values.ingressGateways }}
+            {{ if ne $values.enabled false }}
+            - app_label: {{ $name }}
+              is_core: true
+              is_proxy: true
+            {{- end }}
+            {{- end }}
+      {{ end }}
+      {{- if .Values.istioGateway.enabled }}
       istioGateway:
         component_status:
           components:
@@ -117,6 +146,7 @@ cr:
               is_proxy: true
             {{- end }}
             {{- end }}
+      {{ end }}
     api:
       namespaces:
         # bigbang watches all!
