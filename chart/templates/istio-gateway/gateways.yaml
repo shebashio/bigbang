@@ -16,7 +16,7 @@ spec:
 {{- range $host := $servers.hosts }}
 {{- if eq $servers.port.protocol "HTTPS" }}
     - '{{- tpl $host $ }}'
-{{- end }}    
+{{- end }}
 {{- end }}
 {{- end }}
     port:
@@ -29,28 +29,3 @@ spec:
     {{- tpl (toYaml $values.servers) $ | nindent 2 }}
 {{- end }}
 {{- end }}
-
-# metadata:
-#     name: gateway
-#     namespace: istio-ingress
-# spec:
-#   selector:
-#     app: istio-ingress-istio-gateway-ingress
-#   servers:
-#     - hosts:
-#       - '*.dev.bigbang.mil'
-#       port:
-#         name: http
-#         number: 8080
-#         protocol: HTTP
-#       tls:
-#         httpsRedirect: true
-#     - hosts:
-#       - '*.dev.bigbang.mil'
-#       port:
-#         name: https
-#         number: 8443
-#         protocol: HTTPS
-#       tls:
-#         credentialName: public-cert
-#         mode: SIMPLE
