@@ -124,7 +124,7 @@ cr:
               is_proxy: true
             {{- end }}
             {{- end }}
-      {{ end }}
+      {{- end }}
       {{- if .Values.istioGateway.enabled }}
       istioGateway:
         component_status:
@@ -146,7 +146,7 @@ cr:
               is_proxy: true
             {{- end }}
             {{- end }}
-      {{ end }}
+      {{- end }}
     api:
       namespaces:
         # bigbang watches all!
