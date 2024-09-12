@@ -1,0 +1,70 @@
+include:
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: "master"
+    file: '/pipelines/bigbang.yaml'
+variables:
+  PIPELINE_REPO_BRANCH: 'daxmc99-repo-master'
+  CI_DEFAULT_BRANCH: "dax/test-kubescape"
+  DEBUG_ENABLED: "true"
+  CLUSTER_TYPE: "RKE2"
+  JOB_TYPE: "nightly"
+  CI_PIPELINE_SOURCE: "schedule"
+###
+
+
+# echo "
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: permissive-port-8080
+#   namespace: kube-system
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: rke2-coredns
+#   mtls:
+#     mode: PERMISSIVE
+#   portLevelMtls:
+#     8080:
+#       mode: PERMISSIVE
+# " | kubectl apply -f -
+
+# echo "
+# apiVersion: security.istio.io/v1beta1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: allow-get-on-port-8080
+#   namespace: kube-system
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: rke2-coredns # Replace with your app's label
+#   action: ALLOW
+#   rules:
+#   - to:
+#     - operation:
+#         ports: [\"8080\"]
+#         methods: [\"GET\"]
+# " | kubectl apply -f -
+
+
+# echo "
+# apiVersion: security.istio.io/v1beta1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: allow-get-on-port-8080
+#   namespace: kube-system
+# spec:
+#   selector:
+#     matchLabels:
+#       app: <your-app-label>  # Replace with your app's label
+#   action: ALLOW
+#   rules:
+#   - to:
+#     - operation:
+#         ports: [\"8080\"]
+#         methods: [\"GET\"]
+# " | kubectl apply -f -
+
+
+
