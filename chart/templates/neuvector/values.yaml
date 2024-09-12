@@ -24,15 +24,11 @@ istio:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
-{{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled .Values.kiali.enabled }}
+{{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled }}
 controller:
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
-  {{- end }}
-  {{ if $.Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiVersionLabel" $ | nindent 6 }}
   {{- end }}
   {{- if or .Values.monitoring.enabled .Values.neuvector.sso.enabled }}
   secret:
@@ -80,10 +76,6 @@ monitor:
       {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-    {{ if $.Values.kiali.enabled }}
-    podLabels:
-      {{- include "kialiVersionLabel" $ | nindent 6 }}
-    {{- end }}
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
       # conditional passes only for default istio: enabled, mTLS: SCRICT
@@ -102,24 +94,46 @@ monitor:
     CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
 
 
-{{- if $istioInjection }}
+{{- if or $istioInjection $.Values.kiali.enabled }}
 enforcer:
+  {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiVersionLabel" . | nindent 4 }}
+  {{- end }}
 cve:
   updater:
+    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
+    {{- end }}
+    {{- if .Values.kiali.enabled }}
+    podLabels:
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+    {{- end }}
   scanner:
+    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
+    {{- end }}
+    {{- if .Values.kiali.enabled }}
+    podLabels:
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+    {{- end }}
 {{- end }}
 
-{{- if .Values.istio.enabled }}
+{{- if or .Values.istio.enabled $.Values.kiali.enabled }}
 manager:
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 {{- end }}
 
