@@ -10,7 +10,7 @@ FLUX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 FLUX_KUSTOMIZATION="${FLUX_SCRIPT_DIR}/../base/flux"
 REGISTRY_URL=registry1.dso.mil
 FLUX_SECRET=private-registry
-WAIT_TIMEOUT=300
+WAIT_TIMEOUT=600
 
 #
 # helper functions
