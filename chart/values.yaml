@@ -221,10 +221,9 @@ istioGateway:
     chartName: "istio-gateway"
     #tag:
 
-  gateways:
-    - name: ingress
+    gateways:
       selector:
-        app: "istio-ingressgateway"
+        istio: "ingress-istio-gateway-public"
       servers:
       - hosts:
         - "*.{{ .Values.domain }}"
@@ -233,44 +232,26 @@ istioGateway:
           number: 8443
           protocol: HTTPS
         tls:
-          credentialName: "wildcard-cert"
+          credentialName: "public-cert"
           mode: "SIMPLE"
-      # labels:
-      #   app: "" # Unset default app selector label
-      #   istio: ingressgateway # override default istio selector label
-      #   foo: bar # Add the existing custom selector label
-
-  # ingressGateways:
-  #   ingress:
-  #     type: "LoadBalancer" # or "NodePort"
-  #     kubernetesResourceSpec: {} # https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#KubernetesResourcesSpec
-
-  # gateways:
-  #   ingress:
-  #     hosts:
-  #       - "*.{{ .Values.domain }}"
-  #     # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-  #     autoHttpRedirect:
-  #       enabled: true
-  #     selector:
-  #       app: "istio-ingressgateway"
-  #     servers:
-  #     - hosts:
-  #       - "*.{{ .Values.domain }}"
-  #       port:
-  #         name: https
-  #         number: 8443
-  #         protocol: HTTPS
-  #       tls:
-  #         credentialName: "wildcard-cert"
-  #         mode: "SIMPLE"
-  #     # tls:
-  #     #   key: ""
-  #     #   cert: ""
-  #     #   minProtocolVersion: ""
 
   # -- Values to passthrough to the istio-gateway chart
-  values: {}
+  values:
+    gateways:
+    - name: public
+      selector:
+        istio: "ingress-istio-gateway-public"
+      servers:
+      - hosts:
+        - "*.{{ .Values.domain }}"
+        port:
+          name: https
+          number: 8443
+          protocol: HTTPS
+        tls:
+          credentialName: "public-cert"
+          mode: "SIMPLE"
+
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
@@ -502,7 +483,7 @@ kiali:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
     branch: "dev"
-  #   tag: "1.89.0-bb.1"
+  # tag: "1.89.0-bb.1"
   # helmRepo:
   #   repoName: "registry1"
   #   chartName: "kiali"
