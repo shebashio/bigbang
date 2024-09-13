@@ -420,7 +420,7 @@ kiali:
 #
 clusterAuditor:
   # -- Toggle deployment of Cluster Auditor.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -428,7 +428,8 @@ clusterAuditor:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
     path: "./chart"
-    tag: "1.5.0-bb.21"
+    tag: null
+    branch: "set-required-labels-for-kiali-new-umbrella-pattern"
   helmRepo:
     repoName: "registry1"
     chartName: "cluster-auditor"
