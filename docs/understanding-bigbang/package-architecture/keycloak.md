@@ -40,7 +40,6 @@ Big Bang's integration with Keycloak requires special considerations and configu
 
 ### Keycloak with Other Apps
 
-Due to the sensitivity of Keycloak, Big Bang does not support deploying it and any other add-ons.  But, it can be deployed with the core Big Bang applications (e.g. Istio, Monitoring, Logging).  The URL to access these core apps is under the `admin` subdomain to avoid [a problem with overlapping certificates](#certificate-overlap-problem).  For example, in the `bigbang.dev` domain, to access Prometheus, you would go to `https://prometheus.admin.bigbang.dev`.  Keycloak would still be accessed at `https://keycloak.bigbang.dev`.
 
 > The `admin` subdomain is only used when Keycloak is enabled
 
