@@ -39,7 +39,7 @@ networkPolicies:
   enabled: true
 neuvector:
   enabled: false
-kyvernoPolicies:
+kyverno:
   values:
     validationFailureAction: Audit
 addons:
