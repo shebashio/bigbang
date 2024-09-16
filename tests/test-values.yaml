@@ -1337,7 +1337,10 @@ addons:
                 resolution: DNS
 
   authservice:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "renovate/ironbank"
     chains:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
