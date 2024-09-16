@@ -397,23 +397,6 @@
       ],
       "additionalProperties": false
     },
-    "kyvernoPolicies": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
     "kyvernoReporter": {
       "properties": {
         "enabled": true,
