@@ -51,6 +51,11 @@ annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+podLabels:
+    {{- include "kialiAppLabel" . | nindent 2 }}
+    {{- include "kialiVersionLabel" . | nindent 2 }}
+
+
 console:
   image:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
