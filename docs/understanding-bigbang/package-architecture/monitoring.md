@@ -259,7 +259,7 @@ monitoring:
 When deploying BigBang, monitoring depends on gatekeeper/kyverno and istio being installed prior.
 
 ```yaml
-  {{- if or .Values.gatekeeper.enabled .Values.istio.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if or .Values.gatekeeper.enabled .Values.istio.enabled .Values.kyverno.enabled }}
   dependsOn:
   {{- if .Values.istio.enabled }}
     - name: istio
@@ -269,7 +269,7 @@ When deploying BigBang, monitoring depends on gatekeeper/kyverno and istio being
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.kyverno.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}

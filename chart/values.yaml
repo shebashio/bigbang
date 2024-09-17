@@ -483,10 +483,7 @@ gatekeeper:
 kyverno:
   # -- Toggle deployment of Kyverno.
   enabled: true
-
-  KyvernoPolicies:
-    enabled: true
-
+  
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
 

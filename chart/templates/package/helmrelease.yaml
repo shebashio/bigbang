@@ -68,7 +68,7 @@ spec:
 
   {{- /* Always wait on policy enforcement */ -}}
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
-  {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
+  {{- $kyvernoDep := $.Values.kyverno.enabled -}}
   {{- /* Wait on istio if sidecar is enabled */ -}}
   {{- $istioDep := (and $.Values.istio.enabled (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
   {{- if or $gatekeeperDep $kyvernoDep $istioDep $vals.dependsOn }}
