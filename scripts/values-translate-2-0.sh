@@ -28,7 +28,7 @@ fi
 
 # Update core packages
 $sed_gsed -i 's/^istiooperator:$/istioOperator:/' $values_file
-$sed_gsed -i 's/^kyvernopolicies:$/kyvernoPolicies:/' $values_file
+# $sed_gsed -i 's/^kyvernopolicies:$/kyvernoPolicies:/' $values_file
 $sed_gsed -i 's/^kyvernoreporter:$/kyvernoReporter:/' $values_file
 $sed_gsed -i 's/^logging:$/elasticsearchKibana:/' $values_file
 $sed_gsed -i 's/^eckoperator:$/eckOperator:/' $values_file
@@ -40,7 +40,6 @@ echo "Values translation completed successfully - validate that the below transl
 cat << EOF
   Core Packages:
     istiooperator -> istioOperator
-    kyvernopolicies -> kyvernoPolicies
     kyvernoreporter -> kyvernoReporter
     logging -> elasticsearchKibana
     eckoperator -> eckOperator
@@ -48,4 +47,5 @@ cat << EOF
     mattermostoperator -> mattermostOperator
     nexus -> nexusRepositoryManager
 EOF
+#     kyvernopolicies -> kyvernoPolicies
 echo "It is important to validate these and confirm that no other keys were affected."

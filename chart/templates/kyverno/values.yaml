@@ -54,6 +54,9 @@ waitforready:
   imagePullSecrets:
   - name: private-registry
 
+kyvernoPolicies:
+  enabled: true
+
 policies:
 
   {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}

@@ -34,7 +34,7 @@
     "twistlock",
     "addons"
   ],
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "comments": {
       "type": "string"
@@ -382,7 +382,6 @@
     "kyverno": {
       "properties": {
         "enabled": true,
-        "kyvernoPolicies": {"enabled": true},
         "sourceType": true,
         "git": true,
         "helmRepo": true,
