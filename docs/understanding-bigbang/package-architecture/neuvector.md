@@ -28,7 +28,7 @@ When deploying BigBang, neuvector depends on monitoring, gatekeeper/kyverno, and
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.kyverno.enabled }}
-    - name: kyverno-policies
+    - name: kyverno
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.monitoring.enabled }}

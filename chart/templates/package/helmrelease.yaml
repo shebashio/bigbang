@@ -78,8 +78,8 @@ spec:
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}
     {{- if $kyvernoDep }}
-    - name: kyverno-policies
-      namespace: {{ default "bigbang" $.Release.namespace }}
+    - name: kyverno
+      namespace: {{ default "bigbang" $.Values.namespace }}
     {{- end }}
     {{- if $istioDep }}
     - name: istio

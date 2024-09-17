@@ -72,7 +72,7 @@ spec:
       namespace: {{ $.Release.Namespace }}
     {{- end }}
     {{- if $kyvernoDep }}
-    - name: kyverno-policies
+    - name: kyverno
       namespace: {{ $.Release.Namespace }}
     {{- end }}
     {{- if $istioOpDep }}
