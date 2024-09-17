@@ -36,16 +36,16 @@ ui:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
   - name: private-registry
-  {{- if .Values.istio.enabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end }}
+{{- if .Values.istio.enabled }}
+podAnnotations:
+  {{ include "istioAnnotation" . }}
+{{- end }}
 
-  {{- if .Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
-  {{- end }}
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
