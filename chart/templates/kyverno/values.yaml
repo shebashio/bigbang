@@ -1052,7 +1052,7 @@ policies:
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
   {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
-  {{- $overlays := dig "values" dict .Values.kyvernoPolicies -}}
+  {{- $overlays := dig "values" dict .Values.kyverno -}}
 
   {{- /* Global merge for exclude fields */ -}}
   {{- if and (dig "exclude" "any" list $defaults) (dig "exclude" "any" list $overlays) -}}
