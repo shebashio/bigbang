@@ -97,42 +97,41 @@ query:
     {{- end }}
   {{- end }}
 
-{{- if and (dig "queryFrontend" "enabled" true .Values.addons.thanos.values) $.Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
 queryFrontend:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-{{- if and (dig "bucketweb" "enabled" false .Values.addons.thanos.values) .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
 bucketweb:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-{{- if and (dig "ruler" "enabled" false .Values.addons.thanos.values) .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
 ruler:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-{{- if and (dig "receive" "enabled" false .Values.addons.thanos.values) .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
 receive:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-{{- if and (dig "bucketweb" "enabled" false .Values.addons.thanos.values) .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
 receiveDistributor:
   podLabels:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
 
-{{- if or .Values.addons.thanos.values.compactor.enabled (not (.Values.addons.thanos.objectStorage.endpoint | empty)) }}
 compactor:
   enabled: true
   {{- if .Values.kiali.enabled }}
@@ -140,7 +139,6 @@ compactor:
     {{- include "kialiAppLabel" . | nindent 4 }}
     {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
-{{- end }}
 
 {{- if not (.Values.addons.thanos.objectStorage.endpoint | empty) }}
 objstoreConfig: |-
