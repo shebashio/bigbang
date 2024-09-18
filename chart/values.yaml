@@ -1023,7 +1023,7 @@ twistlock:
 addons:
   argocd:
     # -- Toggle deployment of ArgoCD.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1031,7 +1031,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.4.0-bb.1"
+      branch: "renovate/ironbank"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
