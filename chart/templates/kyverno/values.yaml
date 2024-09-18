@@ -3,7 +3,10 @@
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno" -}}
+
 replicaCount: 3
+
+{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
 
 image:
   pullSecrets:
@@ -43,12 +46,6 @@ grafana:
 
 istio:
   enabled: {{ .Values.istio.enabled }}
-{{- end -}}
-
-
-{{- define "bigbang.defaults.kyverno-policies" -}}
-
-{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
 
 waitforready:
   imagePullSecrets:
@@ -1051,7 +1048,7 @@ policies:
 {{- /* The end user will not have to replicate exclusions/repos from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
-  {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
+  {{- $defaults := fromYaml (include "bigbang.defaults.kyverno" .) -}}
   {{- $overlays := dig "values" dict .Values.kyverno -}}
 
   {{- /* Global merge for exclude fields */ -}}
