@@ -36,10 +36,10 @@ ui:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
   - name: private-registry
-{{- if .Values.istio.enabled }}
-podAnnotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
+  {{- if .Values.istio.enabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
 
 {{- if .Values.kiali.enabled }}
 podLabels:
