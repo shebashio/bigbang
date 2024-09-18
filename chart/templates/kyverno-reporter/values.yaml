@@ -41,12 +41,6 @@ ui:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- if .Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
-  {{- end }}
-
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   grafana:
@@ -70,6 +64,12 @@ monitoring:
   {{- end }}
 
 openshift: {{ .Values.openshift }}
+
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
