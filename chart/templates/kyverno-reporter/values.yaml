@@ -62,14 +62,14 @@ monitoring:
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
   {{- end }}
-
-openshift: {{ .Values.openshift }}
-
+  
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- include "kialiAppLabel" . | nindent 4 }}
+  {{- include "kialiVersionLabel" . | nindent 4 }}
 {{- end }}
+
+openshift: {{ .Values.openshift }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
