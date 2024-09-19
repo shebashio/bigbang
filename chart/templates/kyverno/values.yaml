@@ -54,6 +54,14 @@ waitforready:
 kyvernoPolicies:
   enabled: true
 
+kyvernoPoliciesENABLED: "kyvernoPolicies-enabled"
+
+{{- end -}}
+
+{{- define "bigbang.defaults.kyverno-policies" -}}
+
+{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
+
 policies:
 
   {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}
