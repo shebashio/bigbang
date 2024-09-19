@@ -56,6 +56,8 @@ kyvernoPolicies:
 
 kyvernoPoliciesENABLED: "kyvernoPolicies-enabled"
 
+{{- template "bigbang.defaults.kyverno-policies" -}}
+
 {{- end -}}
 
 {{- define "bigbang.defaults.kyverno-policies" -}}
