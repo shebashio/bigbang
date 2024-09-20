@@ -2501,6 +2501,9 @@ addons:
     values:
       istio:
         enabled: true
+        harbor:
+          hosts:
+          - "harbor.dev.bigbang.mil"
         hardened:
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
@@ -2525,10 +2528,9 @@ addons:
                     name: https
                 resolution: DNS
       expose:
-        type: clusterIP
+        type: ingress
         tls:
-          enabled: true
-          certSource: none
+          enabled: false
       internalTLS:
         enabled: false
       externalURL: https://harbor.dev.bigbang.mil
