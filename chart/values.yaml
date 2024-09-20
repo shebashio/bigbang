@@ -532,7 +532,7 @@ kyvernoPolicies:
 
 kyvernoReporter:
   # -- Toggle deployment of Kyverno Reporter
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -750,7 +750,7 @@ loki:
 
 neuvector:
   # -- Toggle deployment of Neuvector.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -802,7 +802,7 @@ neuvector:
 
 tempo:
   # -- Toggle deployment of Tempo.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -976,7 +976,7 @@ grafana:
 #
 twistlock:
   # -- Toggle deployment of Twistlock.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1111,7 +1111,7 @@ addons:
   #
   minioOperator:
     # -- Toggle deployment of minio operator and instance.
-    enabled: true
+    enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1140,7 +1140,7 @@ addons:
 
   minio:
     # -- Toggle deployment of minio.
-    enabled: true
+    enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1148,11 +1148,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.2-bb.2"
+      tag: "6.0.2-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.2-bb.2"
+      tag: "6.0.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1615,7 +1615,7 @@ addons:
   #
   mattermostOperator:
     # -- Toggle deployment of Mattermost Operator.
-    enabled: true
+    enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1640,7 +1640,7 @@ addons:
 
   mattermost:
     # -- Toggle deployment of Mattermost.
-    enabled: true
+    enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
