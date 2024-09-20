@@ -420,6 +420,13 @@ gatekeeper:
       enabled: true
 
 kyverno:
+  enabled: true
+  sourceType: "git"
+  git:
+    tag: null
+    repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno.git"
+    path: "./chart"
+    branch: 124-test-for-kyverno-has-an-error-causing-it-to-skip-the-last-step
   values:
     networkPolicies:
       externalRegistries:
