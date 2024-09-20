@@ -2528,6 +2528,7 @@ addons:
         type: clusterIP
         tls:
           enabled: true
+          certSource: none
       internalTLS:
         enabled: false
       externalURL: https://harbor.dev.bigbang.mil
