@@ -41,6 +41,13 @@ ui:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 4 }}
+  {{- include "kialiVersionLabel" . | nindent 4 }}
+{{- end }}
+
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   grafana:
@@ -62,12 +69,6 @@ monitoring:
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
   {{- end }}
-  
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- include "kialiAppLabel" . | nindent 4 }}
-  {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- end }}
 
 openshift: {{ .Values.openshift }}
 
