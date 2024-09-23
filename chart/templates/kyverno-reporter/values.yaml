@@ -40,10 +40,11 @@ ui:
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-
+  
+ {{- if .Values.kiali.enabled }}
 podLabels:
-  {{ include "kialiVersionLabel" . | indent 2 }}
-  {{ include "kialiVersionLabel" . | indent 2 }}
+    {{ include "kialiVersionLabel" . | indent 2 }}
+    {{ include "kialiVersionLabel" . | indent 2 }}
 {{- end }}
 
 monitoring:
