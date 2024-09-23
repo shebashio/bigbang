@@ -40,7 +40,12 @@ ui:
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-  
+
+podLabels:
+  {{ include "kialiVersionLabel" . | indent 2 }}
+  {{ include "kialiVersionLabel" . | indent 2 }}
+{{- end }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   grafana:
@@ -68,11 +73,5 @@ openshift: {{ .Values.openshift }}
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{ include "kialiVersionLabel" . | indent 2 }}
-  {{ include "kialiVersionLabel" . | indent 2 }}
-{{- end }}
 
 {{- end -}}
