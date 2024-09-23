@@ -70,9 +70,13 @@ podLabels:
   {{ include "kialiVersionLabel" . | indent 2 }}
 {{- end }}
 
-
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{ include "kialiVersionLabel" . | indent 2 }}
+{{- end }}
 
 {{- end -}}
