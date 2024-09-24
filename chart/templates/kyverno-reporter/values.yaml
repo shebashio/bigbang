@@ -21,9 +21,10 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+{{- if .Values.kiali.enabled }}
 podLabels:
-  {{ include "kialiVersionLabel" . | indent 2 }}
-  {{ include "kialiVersionLabel" . | indent 2 }}
+  {{ include "kialiVersionLabel" . | indent 4 }}
+  {{ include "kialiVersionLabel" . | indent 4 }}
 {{- end }}
 
 kyvernoPlugin:
@@ -69,7 +70,7 @@ monitoring:
   {{- end }}
 
 openshift: {{ .Values.openshift }}
-
+ 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
