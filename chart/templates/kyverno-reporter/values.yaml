@@ -21,12 +21,6 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{ include "kialiVersionLabel" . | indent 4 }}
-  {{ include "kialiVersionLabel" . | indent 4 }}
-{{- end }}
-
 kyvernoPlugin:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -45,6 +39,11 @@ ui:
   {{- if .Values.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
+
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 monitoring:
