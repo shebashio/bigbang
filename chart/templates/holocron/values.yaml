@@ -15,6 +15,12 @@ externalURL: https://holocron.{{ .Values.domain }}
 
 domain: {{ .Values.domain }}
 
+{{- if .Values.kiali.enabled }}
+podLabels:
+  {{- include "kialiAppLabel" . | nindent 2 }}
+  {{- include "kialiVersionLabel" . | nindent 2 }}
+{{- end }}
+
 {{- $holocronAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
 {{- $holocronAuthServiceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
 
