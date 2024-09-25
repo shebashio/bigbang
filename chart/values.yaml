@@ -2107,12 +2107,13 @@ addons:
     # -- Toggle deployment of grafana alloy
     enabled: false
 
-    git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/alloy.git
-      branch: main
-      path: "./chart"
-
+    # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
+      tag: "1.5.0-bb.5"
+      path: "./chart"
 
     values: {}
 
