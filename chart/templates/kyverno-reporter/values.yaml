@@ -44,6 +44,7 @@ ui:
   {{- if .Values.kiali.enabled }}
   podLabels:
     {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- include "kialiVersionLabel" . | nindent 4 }}
   {{- end }}
 
 monitoring:
