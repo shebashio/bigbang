@@ -34,32 +34,18 @@ graph LR
   end
 ```
 
-## Integration w/ Big Bang
+## Integration with Big Bang
 
 Big Bang's integration with Keycloak requires special considerations and configuration compared to other applications. This document will help you set it up.
 
-### Keycloak's Custom Image
+## Configuration
 
-The Big Bang [Keycloak Helm chart](https://repo1.dso.mil/big-bang/product/packages/keycloak) has customizations for use in Platform One, such as its [registration plugin](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin). 
+See [Keycloak Configuration](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/b16ef3a142d31a9339811022f5d2bd1664b92f0b/docs/configuration.md) in the Big Bang Keycloak Helm chart repo for help configuring the following:
 
-### Keycloak Admin password
-
-Big Bang creates a default admin user for logging into the admin console.  To override the default admin credentials in Keycloak, set the following in Big Bang's `values.yaml`:
-
-```yaml
-addons:
-  keycloak:
-    values:
-      secrets:
-        env:
-          stringData:
-            KEYCLOAK_ADMIN: "your_admin_username"
-            KEYCLOAK_ADMIN_PASSWORD: "your_admin_password"
-```
-
-### Keycloak TLS
-
-See [Keycloak Configuration](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/b16ef3a142d31a9339811022f5d2bd1664b92f0b/docs/configuration.md) in the Big Bang Keycloak Helm chart repo.
+* TLS Certificates
+* Custom Admin Password
+* Registration Plugin
+* Keycloak Helm values
 
 ## Big Bang Touch-points
 
@@ -75,20 +61,21 @@ The `bigbang.dev` domain name can be customized by setting the value `domain` in
 
 An external shared database is required for Keycloak operation in production.  It should be setup according to [the Keycloak database configuration documentation](https://www.keycloak.org/server/db).
 
-> For development and test, a Postgres database is provided inside the cluster.  This should **NOT** be used in production.
+> For development and testing, a Postgres database is provided inside the cluster.  This should **NOT** be used in production.
 
 The following values can be customized in Big Bang's `values.yaml` to connect to your external database:
 
 ```yaml
 addons:
   keycloak:
-    database:
-      host: mydb.mydomain.com
-      type: postgres
-      port: 5432
-      database: keycloak
-      username: kcuser
-      password: p@ssw0rd
+    values:
+      database:
+        hostname: mydb.mydomain.com
+        vendor: postgres
+        port: 5432
+        database: keycloak
+        username: kcuser
+        password: p@ssw0rd
 ```
 
 ### Logging
