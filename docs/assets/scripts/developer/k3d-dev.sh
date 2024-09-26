@@ -759,7 +759,7 @@ spec:
       - istio-ingress
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [public]}
+          - {key: app, operator: In, values: [istio-ingress-istio-gateway-public]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
