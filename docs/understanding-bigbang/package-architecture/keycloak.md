@@ -39,72 +39,8 @@ graph LR
 Big Bang's integration with Keycloak requires special considerations and configuration compared to other applications. This document will help you set it up.
 
 ### Keycloak's Custom Image
-The upstream [Keycloak Helm chart](https://repo1.dso.mil/big-bang/product/packages/keycloak) has customizations for use in Platform One, such as its [registration plugin](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin). Additional customization can be added through Helm input values.  For example:
-```yaml
-addons:
-  keycloak:
-    # Setup TLS key pair
-    # An alternative to this is to create a secret namged `tlskey` and `tlscert` using Kustomize in the customer template.  Then use the volume and volumemount configuration below to mount the files.  In this case, the `ingress.key` and `ingress.cert` would be left blank.
-    ingress:
-      key: |-
-        {insert keycloak TLS key}
-      cert: |-
-        {insert keycloak TLS cert}
-    values:
-      secrets:
-        # The `env` secret is used to add environmental variables to the keycloak pod
-        env:
-          stringData:
-            # Keycloak will use the `customreg.yaml` for configuring the custom registration process.
-            CUSTOM_REGISTRATION_CONFIG: /opt/jboss/keycloak/customreg.yaml
-            # Keycloak will load a custom realm defined in `realm.json`
-            KEYCLOAK_IMPORT: /opt/jboss/keycloak/realm.json
-            # Keycloak will load a custom set of certificate authorities
-            X509_CA_BUNDLE: /etc/x509/https/cas.pem
-        # The `certauthority` secret holds the certificate authority keys.
-        # Using the customer template, kustomize could be used to create the secret instead of using the keycloak chart via values
-        certauthority:
-          stringData:
-            cas.pem: |-
-              {insert CAS.PEM content}
-        # The `customreg` secret holds the configuration for customer registration.
-        # Using the customer template, kustomize could be used to create the secret instead of using the keycloak chart via values
-        customreg:
-          stringData:
-            customreg.yaml: |-
-              {insert customreg.yaml content}
-        # The `realm` secret holds the custom realm configuration.
-        # Using the customer template, kustomize could be used to create the secret instead of using the keycloak chart via values
-        realm:
-          stringData:
-            realm.json: |-
-              {insert realm.json content}
-      # Create volumes for each secret above
-      extraVolumes: |-
-        - name: certauthority
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-certauthority
-        - name: customreg
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-customreg
-        - name: realm
-          secret:
-            secretName: {{ include "keycloak.fullname" . }}-realm
-      # Volume mount each volume in the appropriate location
-      extraVolumeMounts: |-
-        - name: certauthority
-          mountPath: /etc/x509/https/cas.pem
-          subPath: cas.pem
-          readOnly: true
-        - name: customreg
-          mountPath: /opt/jboss/keycloak/customreg.yaml
-          subPath: customreg.yaml
-          readOnly: true
-        - name: realm
-          mountPath: /opt/jboss/keycloak/realm.json
-          subPath: realm.json
-          readOnly: true
-```
+
+The Big Bang [Keycloak Helm chart](https://repo1.dso.mil/big-bang/product/packages/keycloak) has customizations for use in Platform One, such as its [registration plugin](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin). 
 
 ### Keycloak Admin password
 
@@ -123,59 +59,25 @@ addons:
 
 ### Keycloak TLS
 
-To properly configure Keycloak TLS, you must provide Keycloak a certificate in `addons.keycloak.ingress` that does not overlap with any TLS terminated app certificate.  See [the details](#certificate-overlap-problem) for further information on why this is a problem.
-
-In the Big Bang implementation, [core apps use the `admin` subdomain](#keycloak-with-other-apps).  You need two wildcard SAN certificates, one for `*.admin.yourdomain` and one for `*.yourdomain` for this implementation.  The `*.admin.yourdomain` cert goes into `istio.ingress` and the `*.yourdomain` cert goes into `addons.keycloak.ingress`.
-
-In the following example for Big Bang, we provide a certificate for `*.admin.bigbang.dev` to TLS terminated apps and a `*.bigbang.dev` certificate to Keycloak.
-
-```yaml
-hostname: bigbang.dev
-istio:
-  ingress:
-    key: |-
-      <Private Key for *.admin.bigbang.dev>
-    cert: |-
-      <Certificate for *.admin.bigbang.dev>
-addons:
-  keycloak:
-    enabled: true
-    ingress:
-      key: |-
-        <Private key for *.bigbang.dev>
-      cert: |-
-        <Certificate for *.bigbang.dev>
-```
-
-#### Certificate Overlap Problem
-
-> This problem automatically worked around by Big Bang if you have non-overlapping certificates as [recommended above](#keycloak-tls).  You can skip this section unless you want the gritty details.
-
-Modern browsers will reuse established TLS connections when the destination's IP and port are the same and the current certificate is valid.  See the [HTTP/2 spec](https://httpwg.org/specs/rfc7540.html#rfc.section.9.1.1) for details.  If our cluster has a single load balancer and listens on port 443 for multiple apps, then the IP address and port for all apps in the cluster will be the same from the browser's point of view.  Normally, this isn't a problem because Big Bang uses TLS termination for all applications.  The encryption occurs between Istio and the browser no matter which hostname you use, so the connection can be reused without problems.
-
-With Keycloak, we need to passthrough TLS rather than terminate it at Istio.  If we have other apps, like Kiali, that are TLS terminated, Istio needs two server entries in its Gateway to passthrough TLS for hosts matching `keycloak.bigbang.dev` and to terminate TLS for other hosts.  If the certificate used for TLS is valid for both Keycloak and other apps (e.g. the cert includes a SAN of `*.bigbang.dev`), then the browser thinks it can reuse connections between the applications (the IP, port, and cert are the same).  If you access a TLS terminated app first (e.g. `kiali.bigbang.dev`), then try to access `keycloak.bigbang.dev`, the browser tries to reuse the connection to the terminated app, resulting in a [data leak](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11767) to the terminated app and a 404 error in the browser.  Istio is [supposed to handle this](https://github.com/istio/istio/issues/13589) situation, but does not.
-
-To work around this situation, you have to isolate the applications by IP, port, or certificate so the browser will not reuse the connection between them.  You can use external load balancers or different ingress ports to create unique IPs or ports for the applications.  Or you can create non-overlapping certs for the applications.  This does not prevent you from using wildcard certs, since you could have one cert for `*.bigbang.mil` and another for `*.admin.bigbang.mil` that don't overlap.  Alternatively, you can create one cert for `kiali.bigbang.mil` and other TLS terminated apps and another cert for `keycloak.bigbang.mil`.
-
-> All the core and addon apps are TLS terminated except Keycloak.
+See [Keycloak Configuration](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/b16ef3a142d31a9339811022f5d2bd1664b92f0b/docs/configuration.md) in the Big Bang Keycloak Helm chart repo.
 
 ## Big Bang Touch-points
 
 ### GUI
 
 Keycloak has two main end point URLs:
-[https://keycloak.bigbang.dev](https://keycloak.bigbang.dev) for authentication.
-[https://keycloak.bigbang.dev/auth/admin](https://keycloak.bigbang.dev/auth/admin) for administration.
+<https://keycloak.bigbang.dev> for authentication.
+<https://keycloak.bigbang.dev/auth/admin> for administration.
 
-The `bigbang.dev` domain name can be customized by setting the `hostname` in `values.yaml`
+The `bigbang.dev` domain name can be customized by setting the value `domain` in Big Bang's `values.yaml`
 
 ### Database
 
-An external shared database is required for Keycloak operation in production.  It should be setup according to [the Keycloak database configuration documentation](https://www.keycloak.org/docs/latest/server_installation/#_database).
+An external shared database is required for Keycloak operation in production.  It should be setup according to [the Keycloak database configuration documentation](https://www.keycloak.org/server/db).
 
-> For development ad test, a Postgres database is provided inside the cluster.  This should **NOT** be used in production.
+> For development and test, a Postgres database is provided inside the cluster.  This should **NOT** be used in production.
 
-The following values can be customized in `values.yaml` to connect to your external database:
+The following values can be customized in Big Bang's `values.yaml` to connect to your external database:
 
 ```yaml
 addons:
