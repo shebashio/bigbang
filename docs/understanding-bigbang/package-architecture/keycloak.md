@@ -38,11 +38,6 @@ graph LR
 
 Big Bang's integration with Keycloak requires special considerations and configuration compared to other applications. This document will help you set it up.
 
-### Keycloak with Other Apps
-
-
-> The `admin` subdomain is only used when Keycloak is enabled
-
 ### Keycloak's Custom Image
 The upstream [Keycloak Helm chart](https://repo1.dso.mil/big-bang/product/packages/keycloak) has customizations for use in Platform One, such as its [registration plugin](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin). Additional customization can be added through Helm input values.  For example:
 ```yaml
