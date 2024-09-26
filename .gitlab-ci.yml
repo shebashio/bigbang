@@ -3,7 +3,7 @@ include:
     ref: "master"
     file: '/pipelines/bigbang.yaml'
 variables:
-  PIPELINE_REPO_BRANCH: 'add-exceptions-for-C-0015'
+  PIPELINE_REPO_BRANCH: 'dax/fail_on_critical_vulns'
   CI_DEFAULT_BRANCH: "daxmc99-repo-master"
   DEBUG_ENABLED: "true"
   CLUSTER_TYPE: "RKE2"
