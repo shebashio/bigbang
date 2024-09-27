@@ -121,6 +121,7 @@ gateways:
         number: 8443
         protocol: HTTPS
       {{- end }}
+      {{- if eq $servervalues.port.protocol "HTTPS" }}
       tls:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $servervalues) }}
         mode: {{ $tlsMode }}
@@ -132,12 +133,14 @@ gateways:
         minProtocolVersion: {{ $tlsMinVersion }}
         {{- end }}
       {{- end }}
+      {{- end }}
     {{- else if ($values.ports) }}
     {{- range $values.ports }}
     - hosts:
       {{- tpl ($values.hosts | default (list) | toYaml) $ | nindent 8 }}
       port:
       {{- tpl ( . | default (list) | toYaml) $ | nindent 8 }}
+      {{- if eq .protocol "HTTPS" }}
       tls:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $values) }}
         mode: {{ $tlsMode }}
@@ -147,6 +150,7 @@ gateways:
         {{- $tlsMinVersion := (dig "tls" "minProtocolVersion" "" $values) }}
         {{- if $tlsMinVersion }}
         minProtocolVersion: {{ $tlsMinVersion }}
+        {{- end }}
         {{- end }}
     {{- end }}
     {{- else }}
