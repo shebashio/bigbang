@@ -226,7 +226,7 @@ istioGateway:
         istio: "ingress-istio-gateway-public"
       servers:
       - hosts:
-        - "*.{{ .Values.domain }}"
+        - "*.pve.geep-scala.ts.net" #"*.dev.bigbang.mil" #"*.{{ .Values.domain }}"
         port:
           name: https
           number: 8443
@@ -243,7 +243,7 @@ istioGateway:
         istio: "ingress-istio-gateway-public"
       servers:
       - hosts:
-        - "*.{{ .Values.domain }}"
+        - "*.pve.geep-scala.ts.net" #"*.dev.bigbang.mil" #"*.{{ .Values.domain }}"
         port:
           name: https
           number: 8443
