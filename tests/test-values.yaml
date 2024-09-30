@@ -744,8 +744,8 @@ kyvernoPolicies:
               - monitoring
               names:
               - validate-monitoring-alloy-k8s-monitoring*
-              - monitoring-alloy-config-analysis*
-              - monitoring-alloy-test*
+              - analyze-monitoring-alloy-k8s-monitoring*
+              - test-monitoring-alloy*
       require-non-root-group:
         exclude:
           any:
@@ -770,8 +770,8 @@ kyvernoPolicies:
               - monitoring
               names:
               - validate-monitoring-alloy-k8s-monitoring*
-              - monitoring-alloy-config-analysis*
-              - monitoring-alloy-test*
+              - analyze-monitoring-alloy-k8s-monitoring*
+              - test-monitoring-alloy*
       require-non-root-user:
         exclude:
           any:
