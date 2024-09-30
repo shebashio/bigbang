@@ -8,30 +8,24 @@
 
 ```mermaid
 graph LR
+    urlkc(Keycloak URL) -->|HTTPS| pg
+    urlpr(Prometheus URL) -->|HTTPS| ig
 
-  urlkc(Keycloak URL) -->|HTTPS| ig
-  urlpr(Prometheus URL) -->|HTTPS| ig
+    subgraph "Istio System"
+        ig(Public Gateway)
+        pg(Passthrough Gateway)
+    end
 
-  subgraph "Keycloak Ingress"
-    ig(Gateway) -->|TLS Passthrough| servkc{{"Service<BR>Keycloak"}}
-    ig(Gateway) -->|HTTP| servpr{{"Service<BR>Prometheus"}}
-  end
+    subgraph "Monitoring"
+        ig --> servpr("Service<BR>Prometheus") --> prom
+        prom(Prometheus) --> monitor
+        monitor(Service Monitor CRD)
+    end
 
-  subgraph "Monitoring"
-    servpr --> prom(Prometheus)
-    prom(Prometheus) --> monitor
-    monitor(Service Monitor) --> servkc
-  end
-
-  subgraph "Keycloak Cluster"
-    servkc <--> pod0("Keycloak Pod 0")
-    servkc <--> pod1("Keycloak Pod 1")
-  end
-
-  subgraph "Database"
-    pod0 --> db[(Keycloak DB)]
-    pod1 --> db[(Keycloak DB)]
-  end
+    subgraph "Keycloak"
+        pg --> servkc("Service<BR>Keycloak") --> pod0("Keycloak Pod 0") --> db[(Keycloak DB)]
+        monitor --> servkc <--> pod1("Keycloak Pod 1") --> db[(Keycloak DB)]
+    end
 ```
 
 ## Integration with Big Bang
