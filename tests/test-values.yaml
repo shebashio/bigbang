@@ -739,6 +739,13 @@ kyvernoPolicies:
               - argocd
               names:
               - guestbook-ui-*
+          - resources:
+              namespaces:
+              - monitoring
+              names:
+              - validate-monitoring-alloy-k8s-monitoring*
+              - monitoring-alloy-config-analysis*
+              - monitoring-alloy-test*
       require-non-root-group:
         exclude:
           any:
@@ -762,7 +769,7 @@ kyvernoPolicies:
               namespaces:
               - monitoring
               names:
-              - monitoring-alloy-config-validator*
+              - validate-monitoring-alloy-k8s-monitoring*
               - monitoring-alloy-config-analysis*
               - monitoring-alloy-test*
       require-non-root-user:
@@ -792,7 +799,7 @@ kyvernoPolicies:
               namespaces:
               - monitoring
               names:
-              - monitoring-alloy-config-validator*
+              - validate-monitoring-alloy-k8s-monitoring*
               - monitoring-alloy-config-analysis*
               - monitoring-alloy-test*
       require-non-root-user:
