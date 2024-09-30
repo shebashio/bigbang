@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [2.37.0]
+
+- registry1.dso.mil/ironbank/fluxcd/helm-controller v1.0.1 -> v1.1.0
+- registry1.dso.mil/ironbank/fluxcd/source-controller v1.3.0 -> v1.4.1
+
+
 ## [2.36.0]
 
 - [!2.36.0](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&milestone_title=2.36.0); List of merge requests in this release.
