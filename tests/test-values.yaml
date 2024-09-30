@@ -1252,12 +1252,13 @@ addons:
   alloy:
     enabled: true
     values:
-      configValidator:
-        enabled: true
-      configAnalysis:
-        enabled: true
-      test:
-        enabled: true
+      k8s-monitoring:
+        configValidator:
+          enabled: true
+        configAnalysis:
+          enabled: true
+        test:
+          enabled: true
 
   argocd:
     enabled: false
