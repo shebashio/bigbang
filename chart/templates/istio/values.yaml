@@ -90,12 +90,7 @@ ingressGateways:
 {{- range $name, $values := .Values.istio.ingressGateways }}
   {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
-    {{- if or (hasKey $values "k8s") (and (hasKey $values "kubernetesResourceSpec") (not (empty $values.kubernetesResourceSpec))) }}
-      {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (dict "k8s" $values.k8s)) | nindent 4 }}
-    {{- else }}
-      {{- toYaml (fromYaml (include "istio.ingressgateway.k8s" $values)) | nindent 4 }}
-    {{- end }}
-    {{- if $values.extraLabels }}
+    {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (dict "k8s" $values.k8s) (fromYaml (include "istio.ingressgateway.k8s" $values))) | nindent 4 }}
     {{- toYaml (dict "extraLabels" $values.extraLabels) | nindent 4 }}
     {{- end}}
   {{- end }}
