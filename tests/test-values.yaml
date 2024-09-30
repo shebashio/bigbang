@@ -1249,6 +1249,16 @@ twistlock:
 
 # Addons are toggled based on labels in CI
 addons:
+  alloy:
+    enabled: true
+    values:
+      configValidator:
+        enabled: true
+      configAnalysis:
+        enabled: true
+      test:
+        enabled: true
+
   argocd:
     enabled: false
     sso:
