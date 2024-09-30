@@ -46,10 +46,10 @@ See [Keycloak Configuration](https://repo1.dso.mil/big-bang/product/packages/key
 ### GUI
 
 Keycloak has two main end point URLs:
-<https://keycloak.bigbang.dev> for authentication.
-<https://keycloak.bigbang.dev/auth/admin> for administration.
+<https://keycloak.yourdomain.com> for authentication.
+<https://keycloak.yourdomain.com/auth/admin> for administration.
 
-The `bigbang.dev` domain name can be customized by setting the value `domain` in Big Bang's `values.yaml`
+The `yourdomain.com` domain name can be customized by setting the value `domain` in Big Bang's `values.yaml`
 
 ### Database
 
@@ -64,7 +64,7 @@ addons:
   keycloak:
     values:
       database:
-        hostname: mydb.mydomain.com
+        hostname: yourdb.yourdomain.com
         vendor: postgres
         port: 5432
         database: keycloak
