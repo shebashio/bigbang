@@ -91,6 +91,7 @@ ingressGateways:
   {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
     {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (dict "k8s" $values.k8s) (fromYaml (include "istio.ingressgateway.k8s" $values))) | nindent 4 }}
+    {{- if $values.extraLabels }}
     {{- toYaml (dict "extraLabels" $values.extraLabels) | nindent 4 }}
     {{- end}}
   {{- end }}
