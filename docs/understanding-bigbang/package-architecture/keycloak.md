@@ -18,14 +18,15 @@ graph LR
 
     subgraph "Monitoring"
         ig --> servpr("Service<BR>Prometheus") --> prom
-        prom(Prometheus) --> monitor
-        monitor(Service Monitor CRD)
+        prom(Prometheus)
     end
 
     subgraph "Keycloak"
-        pg --> servkc("Service<BR>Keycloak") --> pod0("Keycloak Pod 0") --> db[(Keycloak DB)]
-        monitor --> servkc <--> pod1("Keycloak Pod 1") --> db[(Keycloak DB)]
+        pg --> servkc("Service<BR>Keycloak") --> pod0("Keycloak Pod 0")
+        prom --> monitor(Service Monitor CRD) --> servkc
     end
+
+    pod0("Keycloak Pod 0") --> db[(Keycloak DB)]
 ```
 
 ## Integration with Big Bang
@@ -114,20 +115,20 @@ Keycloak is available under the [Apache License 2.0](https://github.com/keycloak
 
 ## High Availability
 
-By default, Big Bang deploys Keycloak with two replicas in a high availability cluster configuration.  It is already configured to support cache sharing, anti-affinity, fail-overs, and rolling updates. If you wish to increase or decrease the number of replicas you must first make sure you are pointed to an external database, and then the replicas can be increased, all of which can be set in `values.yaml`:
+By default, Big Bang deploys Keycloak via a stateful set with one replica.  It is already configured to support cache sharing, anti-affinity, fail-overs, and rolling updates. If you wish to increase the number of replicas you must first make sure you are pointed to an external database, and then the replicas can be increased, all of which can be set in `values.yaml`:
 
 ```yaml
 addons:
   keycloak:
-    database:
-      host: ""
-      type: ""
-      port: ""
-      database: ""
-      username: ""
-      password: "in-encrypted-values"
     values:
-      replicas: 3
+      replicas: 3 # Override the default
+      database:
+        host: ""
+        type: ""
+        port: ""
+        database: ""
+        username: ""
+        password: "in-encrypted-values"
 ```
 
 The Keycloak package also comes with a HorizontalPodAutoscaler resource which can be enabled. Enabling the HPA will overwrite the `replicas` key shown above:
