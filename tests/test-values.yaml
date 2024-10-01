@@ -80,6 +80,11 @@ istio:
         auth:
           strategy: "anonymous"
 
+istioOperator:
+  git:
+    tag: null
+    branch: "renovate/ironbank"          
+
 jaeger:
   enabled: false
   sso:
