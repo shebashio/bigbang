@@ -57,6 +57,9 @@ networkPolicies:
   #controlPlaneCidr: 172.16.0.0/12
 
 istio:
+  git:
+    tag: null
+    branch: "master"
   enabled: true
   ingressGateways:
     passthrough-ingressgateway:
