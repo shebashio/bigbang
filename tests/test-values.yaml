@@ -433,8 +433,13 @@ kyverno:
           requests:
             cpu: 1
             memory: 768Mi
-      networkPolicy:
-        enabled: true
+      webhooksCleanup:
+        autoDeleteWebhooks:
+          enabled: false
+        enabled: false
+      features:
+        autoUpdateWebhooks:
+          enabled: false
     excludeContainers:
     - not-me
     - or-me
