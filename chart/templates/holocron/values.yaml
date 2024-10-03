@@ -18,27 +18,24 @@ domain: {{ .Values.domain }}
 {{- $holocronAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
 {{- $holocronAuthServiceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
 
-{{- if or .Values.addons.holocron.sso.enabled .Values.kiali.enabled }}
+
+{{- if .Values.addons.holocron.sso.enabled }}
 frontend:
-  {{- if .Values.kiali.enabled }}
   labels:
-    {{- include "kialiAppLabel" . | nindent 6 }}
-    {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
-  {{- if or .Values.addons.holocron.sso.enabled }}
-  {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
-  {{- end }}
+    {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
+    {{- if .Values.kiali.enabled }}
+      {{- include "kialiAppLabel" . | nindent 6 }}
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+    {{- end }}
 {{- end }}
-{{- if or .Values.addons.holocron.sso.enabled .Values.kiali.enabled }}
 api:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.addons.holocron.sso.enabled }}
   labels:
-    {{- include "kialiAppLabel" . | nindent 6 }}
-    {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
-  {{- if or .Values.addons.holocron.sso.enabled }}
-  {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
-  {{- end }}
+    {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
+    {{- if .Values.kiali.enabled }}
+      {{- include "kialiAppLabel" . | nindent 6 }}
+      {{- include "kialiVersionLabel" . | nindent 6 }}
+    {{- end }}
 {{- end }}
   env:
     REQUEST_IP_HEADER: Host
@@ -51,11 +48,11 @@ api:
 {{- if .Values.addons.gitlab.enabled }}
 {{- $gitlabURL := "http://gitlab-webservice-default.gitlab.svc.cluster.local:8080" }}
 collectorGitlabSCM:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
   labels:
     {{- include "kialiAppLabel" . | nindent 6 }}
     {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{- end }}
   replicas: 1
   image:
     repository: registry1.dso.mil/ironbank/holocron/collector-gitlab-scm
@@ -72,11 +69,11 @@ collectorGitlabSCM:
       COLLECTOR_TARGETS_INTRVL_SECS: 86400
       MAX_REQUESTS_PER_MINUTE: 500
 collectorGitlabBuild:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
   labels:
     {{- include "kialiAppLabel" . | nindent 6 }}
     {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{- end }}
   replicas: 1
   image:
     repository: registry1.dso.mil/ironbank/holocron/collector-gitlab-build
@@ -93,11 +90,11 @@ collectorGitlabBuild:
       COLLECTOR_TARGETS_INTRVL_SECS: 86400
       MAX_REQUESTS_PER_MINUTE: 500
 collectorGitlabWorkflow:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
   labels:
     {{- include "kialiAppLabel" . | nindent 6 }}
     {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{- end }}
   replicas: 1
   image:
     repository: registry1.dso.mil/ironbank/holocron/collector-gitlab-workflow
@@ -134,11 +131,11 @@ collectorGitlabWorkflow:
 {{- end }}
 {{- if .Values.addons.holocron.jira.enabled }}
 collectorJiraWorkflow:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
   labels:
     {{- include "kialiAppLabel" . | nindent 6 }}
     {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{- end }}
   replicas: 1
   image:
     repository: registry1.dso.mil/ironbank/holocron/collector-jira-workflow
@@ -160,11 +157,11 @@ collectorJiraWorkflow:
 {{- end }}
 {{- if .Values.addons.sonarqube.enabled }}
 collectorSonarQubeProjectAnalysis:
-  {{- if .Values.kiali.enabled }}
+{{- if .Values.kiali.enabled }}
   labels:
     {{- include "kialiAppLabel" . | nindent 6 }}
     {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
+{{- end }}
   replicas: 1
   image:
     repository: registry1.dso.mil/ironbank/holocron/collector-sonarqube-project-analysis
