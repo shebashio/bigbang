@@ -425,7 +425,7 @@ kyverno:
     admissionController:
       container:
         extraArgs:
-          webhookTimeout: 360
+          webhookTimeout: 30
         resources:
           limits:
             cpu: 1
