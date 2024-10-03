@@ -1846,15 +1846,15 @@ addons:
         install: []
       resources:
         requests:
-          cpu: 100m
-          memory: 200Mi
+          cpu: 500m
+          memory: 2048Mi
         limits: {}
       persistence:
         enabled: false
-        size: 5Gi
+        size: 20Gi
       postgresql:
         persistence:
-          size: 256Mi
+          size: 20Gi
         resources:
           requests:
             cpu: 100m
