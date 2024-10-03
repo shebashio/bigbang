@@ -27,6 +27,7 @@ frontend:
   {{- end }}
   {{- if or .Values.addons.holocron.sso.enabled }}
   {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
+  {{- end }}
 {{- end }}
 {{- if or .Values.addons.holocron.sso.enabled .Values.kiali.enabled }}
 api:
@@ -37,6 +38,7 @@ api:
   {{- end }}
   {{- if or .Values.addons.holocron.sso.enabled }}
   {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
+  {{- end }}
 {{- end }}
   env:
     REQUEST_IP_HEADER: Host
