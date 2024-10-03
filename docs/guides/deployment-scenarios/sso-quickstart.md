@@ -6,7 +6,7 @@
 
 A 54-minute speed run with explanations video walkthrough of this Single Sign-On (SSO) quick-start guide
 
-<video src="https://repo1.dso.mil/platform-one/bullhorn-delivery-static-assets/-/blob/master/big_bang/bigbang_sso_quickstart.mp4" width="320" height="240" controls></video>
+<video src="/platform-one/bullhorn-delivery-static-assets/-/raw/master/big_bang/bigbang_sso_quickstart.mp4" controls="controls" data-testid="video" class="gl-max-w-full"></video>
 
 can be found on the following two mirrored locations:
 * [Google Drive - Video Mirror](https://drive.google.com/file/d/1xzRKhFQy4WXW97YWUFpixclLGAKfgA6Z/preview)
