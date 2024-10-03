@@ -809,10 +809,7 @@ eckOperator:
             resolution: DNS
             
 elasticsearchKibana:
-  enabled: false
-  git:
-    tag: null
-    branch: renovate/ironbank
+  enabled: true
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kibana
@@ -900,6 +897,7 @@ fluentbit:
 
 
 loki:
+  enabled: true
   git:
     tag: null
     branch: kliu-main-patch-05794
