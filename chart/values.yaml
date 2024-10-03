@@ -1939,8 +1939,9 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.11"
+      tag: null
       path: "./chart"
+      branch: "set-required-labels-for-kiali-28"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"

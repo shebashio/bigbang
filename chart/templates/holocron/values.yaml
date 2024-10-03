@@ -18,27 +18,25 @@ domain: {{ .Values.domain }}
 {{- $holocronAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
 {{- $holocronAuthServiceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
 
-{{- if .Values.addons.holocron.sso.enabled }}
+{{- if or .Values.addons.holocron.sso.enabled .Values.kiali.enabled }}
 frontend:
+  {{- if .Values.kiali.enabled }}
   labels:
-    {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- else if .Values.kiali.enabled }}
-  labels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- include "kialiAppLabel" . | nindent 6 }}
+    {{- include "kialiVersionLabel" . | nindent 6 }}
+  {{- end }}
+  {{- if or .Values.addons.holocron.sso.enabled }}
+  {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
 {{- end }}
+{{- if or .Values.addons.holocron.sso.enabled .Values.kiali.enabled }}
 api:
-{{- if .Values.addons.holocron.sso.enabled }}
+  {{- if .Values.kiali.enabled }}
   labels:
-    {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-{{- else if .Values.kiali.enabled }}
-  labels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- include "kialiAppLabel" . | nindent 6 }}
+    {{- include "kialiVersionLabel" . | nindent 6 }}
+  {{- end }}
+  {{- if or .Values.addons.holocron.sso.enabled }}
+  {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
 {{- end }}
   env:
     REQUEST_IP_HEADER: Host
@@ -130,11 +128,6 @@ collectorGitlabSCM:
 collectorGitlabBuild:
   instances: []
 collectorGitlabWorkflow:
-  {{- if .Values.kiali.enabled }}
-  labels:
-    {{- include "kialiAppLabel" . | nindent 6 }}
-    {{- include "kialiVersionLabel" . | nindent 6 }}
-  {{- end }}
   instances: []
 {{- end }}
 {{- if .Values.addons.holocron.jira.enabled }}
