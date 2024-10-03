@@ -427,7 +427,7 @@ kyverno:
     admissionController:
       container:
         extraArgs:
-          webhookTimeout: 30
+          webhookTimeout: 360
         resources:
           limits:
             cpu: 1
@@ -435,13 +435,6 @@ kyverno:
           requests:
             cpu: 1
             memory: 768Mi
-      webhooksCleanup:
-        autoDeleteWebhooks:
-          enabled: false
-        enabled: false
-      features:
-        autoUpdateWebhooks:
-          enabled: false
     excludeContainers:
     - not-me
     - or-me
