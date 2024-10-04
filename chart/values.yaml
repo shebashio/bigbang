@@ -240,8 +240,8 @@ istioGateway:
         mode: "SIMPLE"
       autoHttpRedirect: # controls default HTTP/8080 server entry with HTTP to HTTPS Redirect
         enabled: true
-      # selector:
-      #   app: "public-ingressgateway"
+      selector:
+        app: "public-ingressgateway"
 
   # gateways:
   #   public:
