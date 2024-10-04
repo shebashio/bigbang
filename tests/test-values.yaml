@@ -1824,8 +1824,6 @@ addons:
       name: name
       email: email
     values:
-      podLabels:
-        app.kubernetes.io/version: "10-6-0"
       istio:
         hardened:
           customAuthorizationPolicies:
@@ -2563,8 +2561,8 @@ addons:
             cpu: 300m
             memory: 500Mi
         #notary:
-        #server:
-        #signer:
+      #server:
+      #signer:
       #database:
       #internal:
       #postgresql:
