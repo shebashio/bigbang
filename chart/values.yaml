@@ -2085,7 +2085,8 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.10.2-bb.1"
+      tag: null #"0.10.2-bb.1"
+      branch: "renovate/ironbank"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
