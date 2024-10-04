@@ -6,7 +6,6 @@ metadata:
   name: {{ $values.name }}
   namespace: {{ $.Release.Namespace }}
 spec:
-  {{ /* gatewayClassName: istio */ }}
   selector:
     {{- $values.selector | default (dict) | toYaml | nindent 4 }}
   servers:

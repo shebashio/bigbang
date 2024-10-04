@@ -281,11 +281,15 @@
         "sourceType": true,
         "git": true,
         "helmRepo": true,
-        "ingressGateways": true,
-        "gateways": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "ingressGateways": {
+          "type": "object"
+        },
+        "gateways": {
+          "type": "object"
+        }
       },
       "allOf": [
         {
