@@ -619,6 +619,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
         parameters:
@@ -659,6 +660,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
           - resources:
@@ -706,6 +708,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
       update-image-pull-policy:
@@ -758,6 +761,13 @@ kyvernoPolicies:
               - velero
               names:
               - velero-backup-restore-test*
+          - resources:
+              namespaces:
+              - alloy
+              names:
+              - alloy-config-validator*
+              - alloy-config-analysis*
+              - alloy-test*
       require-non-root-user:
         exclude:
           any:
@@ -781,6 +791,14 @@ kyvernoPolicies:
               - twistlock
               names:
               - volume-upgrade-job*
+          - resources:
+              namespaces:
+              - alloy
+              names:
+              - alloy-config-validator*
+              - alloy-config-analysis*
+              - alloy-test*
+      require-non-root-user:
       disallow-namespaces:
         parameters:
           disallow:
@@ -1631,7 +1649,6 @@ addons:
             limits:
               cpu: 4
               memory: 6Gi
-          artifacts: true
           envs:
             cypress_url: "https://gitlab.dev.bigbang.mil"
             cypress_gitlab_first_name: "testrunner"
@@ -1639,13 +1656,6 @@ addons:
             cypress_gitlab_email: "gitlab@dev.bigbang.mil"
             cypress_gitlab_username: "gitlabrunner_user"
             cypress_gitlab_password: "Runner_PaSsw0rd123"
-            cypress_gitlab_project: "runner-hello-world"
-          secretEnvs:
-            - name: cypress_adminpassword
-              valueFrom:
-                secretKeyRef:
-                  name: gitlab-gitlab-initial-root-password
-                  key: password
 
   anchore:
     enabled: false
