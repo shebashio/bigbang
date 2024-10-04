@@ -89,40 +89,40 @@ jaeger:
     istio:
       hardened:
         customAuthorizationPolicies:
-        - name: "allow-intranamespace-jaeger"
-          enabled: true
-          spec:
-            action: ALLOW
-            rules:
-            - from:
-              - source:
-                  namespaces:
-                  - jaeger
+          - name: "allow-intranamespace-jaeger"
+            enabled: true
+            spec:
+              action: ALLOW
+              rules:
+              - from:
+                - source:
+                    namespaces:
+                    - jaeger
         customServiceEntries:
-        - name: "cypress-service-entries-jaeger"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'tracing.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-jaeger"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'tracing.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     bbtests:
       enabled: true
       cypress:
         envs:
           cypress_url: "https://tracing.dev.bigbang.mil"
           # uncomment following variables for sso keycloak testing in bb
-# cypress_tnr_username: "cypress"
-# cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-# cypress_keycloak_test_enable: "true"
+          # cypress_tnr_username: "cypress"
+          # cypress_tnr_password: "tnr_w!G33ZyAt@C8"
+          # cypress_keycloak_test_enable: "true"
 
 kiali:
   sso:
@@ -131,21 +131,21 @@ kiali:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-kiali"
-          enabled: true
-          spec:
-            hosts:
-            - 'kiali.dev.bigbang.mil'
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-kiali"
+            enabled: true
+            spec:
+              hosts:
+                - 'kiali.dev.bigbang.mil'
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     cr:
       spec:
         auth:
@@ -162,9 +162,9 @@ kiali:
           cypress_url: 'https://kiali.dev.bigbang.mil'
           cypress_check_data: 'true'
           # uncomment these next 3 lines if enabling the keycloak SSO integration test
-        #cypress_keycloak_test_enable: "true"
-        #cypress_keycloak_username: "cypress"
-        #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
+          #cypress_keycloak_test_enable: "true"
+          #cypress_keycloak_username: "cypress"
+          #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
         resources:
           requests:
             cpu: 3
@@ -192,22 +192,22 @@ clusterAuditor:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-cluster-auditor"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'grafana.dev.bigbang.mil'
-            - 'prometheus.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-cluster-auditor"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
+                - 'prometheus.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
 gatekeeper:
   enabled: false
@@ -457,23 +457,23 @@ kyvernoReporter:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-kyvernoreporter"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'prometheus.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            exportTo:
-            - "."
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-kyvernoreporter"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'prometheus.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              exportTo:
+                - "."
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
 
 kyvernoPolicies:
@@ -491,13 +491,13 @@ kyvernoPolicies:
           - istio-system
           names:
           - svclb-*
+      # Exclude gatekeeper test resources so Helm tests will work
       - resources:
           namespaces:
           - default
           names:
           - bad-test*
           - good-test*
-        # Exclude gatekeeper test resources so Helm tests will work
     # Parameters are copied from kyverno policies for test vectors
     # Exclusions are for allowing other helm tests to function
     policies:
@@ -729,6 +729,7 @@ kyvernoPolicies:
               - twistlock
               names:
               - twistlock-defender-ds*
+          # Neuvector needs access to host to inspect network traffic
           - resources:
               namespaces:
               - neuvector
@@ -736,7 +737,6 @@ kyvernoPolicies:
               - neuvector-enforcer-pod*
               - neuvector-controller-pod*
               - neuvector-prometheus-exporter-pod*
-            # Neuvector needs access to host to inspect network traffic
           - resources:
               namespaces:
               - argocd
@@ -815,17 +815,17 @@ eckOperator:
           enabled: true
           spec:
             hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
+              - 'registry.npmjs.org'
+              - 'download.cypress.io'
+              - 'cdn.cypress.io'
+              - 'repo1.dso.mil'
             location: MESH_EXTERNAL
             ports:
-            - number: 443
-              protocol: TLS
-              name: https
+              - number: 443
+                protocol: TLS
+                name: https
             resolution: DNS
-
+            
 elasticsearchKibana:
   enabled: false
   sso:
@@ -837,17 +837,17 @@ elasticsearchKibana:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-elasticsearchkibana"
-          enabled: true
-          spec:
-            hosts:
-            - 'kibana.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-elasticsearchkibana"
+            enabled: true
+            spec:
+              hosts:
+                - 'kibana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     elasticsearch:
       master:
         count: 1
@@ -894,19 +894,19 @@ fluentbit:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-fluentbit"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
+          - name: "cypress-service-entries-fluentbit"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
 
     securityContext:
       privileged: true
@@ -920,27 +920,27 @@ loki:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-loki"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'grafana.dev.bigbang.mil'
-            - 'optimizationguide-pa.googleapis.com'
-            - 'clientservices.googleapis.com'
-            - 'accounts.google.com'
-            - 'redirector.gvt1.com'
-            - 'content-autofill.googleapis.com'
-            - 'safebrowsing.googleapis.com'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-loki"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
+                - 'optimizationguide-pa.googleapis.com'
+                - 'clientservices.googleapis.com'
+                - 'accounts.google.com'
+                - 'redirector.gvt1.com'
+                - 'content-autofill.googleapis.com'
+                - 'safebrowsing.googleapis.com'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
         minioOperator:
           enabled: true
 
@@ -997,27 +997,27 @@ tempo:
     istio:
       tempoQuery:
         hosts:
-        - "tempo.{{ .Values.domain }}"
+          - "tempo.{{ .Values.domain }}"
       enabled: true
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-tempo"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'tempo.dev.bigbang.mil'
-            - 'grafana.dev.bigbang.mil'
-            - 'grafana.com'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-tempo"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'tempo.dev.bigbang.mil'
+                - 'grafana.dev.bigbang.mil'
+                - 'grafana.com'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
     tempo:
       resources:
@@ -1035,9 +1035,9 @@ tempo:
           cypress_check_datasource: 'true'
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           # uncomment following variables for sso keycloak testing in bb
-      #cypress_tnr_username: "cypress"
-      #cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-      #cypress_keycloak_test_enable: "true"
+          #cypress_tnr_username: "cypress"
+          #cypress_tnr_password: "tnr_w!G33ZyAt@C8"
+          #cypress_keycloak_test_enable: "true"
       scripts:
         enabled: false
         envs:
@@ -1047,7 +1047,7 @@ tempo:
       enabled: true
       # storageClassName: local-path
       accessModes:
-      - ReadWriteOnce
+        - ReadWriteOnce
       size: 5Gi
 
     tempoQuery:
@@ -1078,23 +1078,23 @@ monitoring:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-monitoring"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'prometheus.dev.bigbang.mil'
-            - 'grafana.dev.bigbang.mil'
-            - 'alertmanager.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-monitoring"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'prometheus.dev.bigbang.mil'
+                - 'grafana.dev.bigbang.mil'
+                - 'alertmanager.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
     kube-state-metrics:
       resources:
@@ -1130,21 +1130,21 @@ grafana:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-grafana"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'grafana.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-grafana"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     dashboards:
       default:
         k8s-deployment:
@@ -1189,21 +1189,21 @@ neuvector:
       enabled: true
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-neuvector"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'neuvector.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-neuvector"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'neuvector.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     bbtests:
       enabled: true
       cypress:
@@ -1219,23 +1219,23 @@ twistlock:
     istio:
       hardened:
         customServiceEntries:
-        - name: "cypress-service-entries-twistlock"
-          enabled: true
-          spec:
-            hosts:
-            - 'registry.npmjs.org'
-            - 'download.cypress.io'
-            - 'cdn.cypress.io'
-            - 'repo1.dso.mil'
-            - 'twistlock.dev.bigbang.mil'
-            location: MESH_EXTERNAL
-            exportTo:
-            - "."
-            ports:
-            - number: 443
-              protocol: TLS
-              name: https
-            resolution: DNS
+          - name: "cypress-service-entries-twistlock"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'twistlock.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              exportTo:
+                - "."
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
     console:
       persistence:
         size: 5Gi
@@ -1335,24 +1335,24 @@ addons:
       istio:
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-argocd"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'argocd.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: HTTPS
-                name: https
-              - number: 80
-                protocol: HTTP
-                name: http
-              resolution: DNS
+            - name: "cypress-service-entries-argocd"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'argocd.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: HTTPS
+                    name: https
+                  - number: 80
+                    protocol: HTTP
+                    name: http
+                resolution: DNS
 
   authservice:
     enabled: false
@@ -1390,21 +1390,21 @@ addons:
       istio:
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-fortify"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'fortify.dev.bigbang.mil'
-              - 'repo1.dso.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-fortify"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'fortify.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       storage:
         volume: 5Gi
       jvmMaxRAMPercentage: 85
@@ -1420,18 +1420,18 @@ addons:
             memory: 64Mi
       trust_store_password: dsoppassword
       key_store_password: dsoppassword
-      key_store_cert_password: dsoppassword
+      key_store_cert_password : dsoppassword
       fortify_autoconfig: |
-        appProperties:
-          host.validation: false
-        datasourceProperties:
-          db.username: root
-          db.password: password
-          jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true'
-        dbMigrationProperties:
-          migration.enabled: true
-          migration.username: root
-          migration.password: password
+          appProperties:
+            host.validation: false
+          datasourceProperties:
+            db.username: root
+            db.password: password
+            jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true'
+          dbMigrationProperties:
+            migration.enabled: true
+            migration.username: root
+            migration.password: password
       fortify_license: |
         <License>
       mysql:
@@ -1473,36 +1473,30 @@ addons:
     flux:
       timeout: 30m
     values:
-      upgradeCheck:
-        annotations:
-          sidecar.istio.io/inject: "true"
-      shared-secrets:
-        annotations:
-          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-gitlab"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'gitlab.dev.bigbang.mil'
-              - "registry.dev.bigbang.mil"
-              - 'keycloak.dev.bigbang.mil'
-              - 'repo1.dso.mil'
-              - 'registry1.dso.mil'
-              - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-              - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-gitlab"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'gitlab.dev.bigbang.mil'
+                  - "registry.dev.bigbang.mil"
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                  - 'registry1.dso.mil'
+                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       global:
         rails:
           bootstrap:
@@ -1511,13 +1505,10 @@ addons:
         resources:
           requests:
             cpu: 10m
-          limits: {}
       gitlab:
         webservice:
           minReplicas: 1
           maxReplicas: 1
-          helmTests:
-            enabled: false
         sidekiq:
           minReplicas: 1
           maxReplicas: 1
@@ -1527,37 +1518,20 @@ addons:
         gitaly:
           persistence:
             size: 256Mi
-          resources:
-            ## values raised to help pass CI after default values for gitaly are fixed then can revert to original request.
-            #requests:
-            #  cpu: 50m
-            #limits: {}
-            requests:
-              cpu: 400m
-              memory: 600Mi
-            limits:
-              cpu: 400m
-              memory: 600Mi
         shared-secrets:
           resources:
             requests:
               cpu: 10m
-            limits: {}
         migrations:
-          # required annotation when istio.hardened.enabled = true
-          annotations:
-            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
-            limits: {}
         toolbox:
           persistence:
             size: 256Mi
           resources:
             requests:
               cpu: 10m
-            limits: {}
       registry:
         hpa:
           minReplicas: 1
@@ -1569,17 +1543,12 @@ addons:
           resources:
             requests:
               cpu: 10m
-            limits: {}
       minio:
-        # required annotation when istio.hardened.enabled = true
-        jobAnnotations:
-          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
           requests:
             cpu: 50m
-          limits: {}
       redis:
         master:
           persistence:
@@ -1590,7 +1559,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           envs:
             cypress_url: https://gitlab.dev.bigbang.mil
         scripts:
@@ -1606,21 +1574,21 @@ addons:
         enabled: true
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-gitlab-runner"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'gitlab.dev.bigbang.mil'
-              - 'repo1.dso.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-gitlab-runner"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'gitlab.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       resources:
         requests:
           memory: 64Mi
@@ -1670,23 +1638,23 @@ addons:
         enabled: true
         hardened:
           customServiceEntries:
-          - name: "anchore-allow-cypress-tests"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'auth.docker.io'
-              - 'registry-1.docker.io'
-              - 'anchore.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "anchore-allow-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'auth.docker.io'
+                  - 'registry-1.docker.io'
+                  - 'anchore.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       ensureDbJobs:
         resources:
           requests:
@@ -1827,31 +1795,31 @@ addons:
       istio:
         hardened:
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-sonarqube"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - sonarqube
+            - name: "allow-intranamespace-sonarqube"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - sonarqube
           customServiceEntries:
-          - name: "sonarqube-allow-cypress-tests"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'sonarqube.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "sonarqube-allow-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'sonarqube.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       plugins:
         install: []
       resources:
@@ -1895,33 +1863,33 @@ addons:
           enabled: false
         hardened:
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-minio-operator"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - minio-operator
+            - name: "allow-intranamespace-minio-operator"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - minio-operator
           customServiceEntries:
-          - name: "cypress-service-entries-minio-operator"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'minio-operator.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              exportTo:
-              - "."
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-minio-operator"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'minio-operator.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
 
   minio:
     enabled: false
@@ -1929,35 +1897,35 @@ addons:
       istio:
         hardened:
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-minio"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - minio
-                    - minio-operator
+            - name: "allow-intranamespace-minio"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - minio
+                      - minio-operator
           customServiceEntries:
-          - name: "cypress-service-entries-minio"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'minio.dev.bigbang.mil'
-              - 'minio-api.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              exportTo:
-              - "."
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-minio"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'minio.dev.bigbang.mil'
+                  - 'minio-api.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                exportTo:
+                  - "."
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       tenant:
         pools:
         - name: pool-0
@@ -2016,23 +1984,23 @@ addons:
       istio:
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-mattermost"
-            enabled: true
-            spec:
-              hosts:
-              - 'kiali.dev.bigbang.mil'
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'grafana.dev.bigbang.mil'
-              - 'prometheus.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-mattermost"
+              enabled: true
+              spec:
+                hosts:
+                  - 'kiali.dev.bigbang.mil'
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'grafana.dev.bigbang.mil'
+                  - 'prometheus.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
 
       postgresql:
         persistence:
@@ -2068,7 +2036,7 @@ addons:
               runAsNonRoot: true
               capabilities:
                 drop:
-                - ALL
+                  - ALL
       bbtests:
         enabled: true
         cypress:
@@ -2097,19 +2065,19 @@ addons:
         email: "email"
         groups: "groups"
       role:
-      # id is the name of the Keycloak group (case sensitive)
-      - id: "Nexus"
-        name: "Keycloak Nexus Group"
-        description: "unprivilaged users"
-        privileges: []
-        roles: []
-      - id: "Nexus-Admin"
-        name: "Keycloak Nexus Admin Group"
-        description: "keycloak users as admins"
-        privileges:
-        - "nx-all"
-        roles:
-        - "nx-admin"
+        # id is the name of the Keycloak group (case sensitive)
+        - id: "Nexus"
+          name: "Keycloak Nexus Group"
+          description: "unprivilaged users"
+          privileges: []
+          roles: []
+        - id: "Nexus-Admin"
+          name: "Keycloak Nexus Admin Group"
+          description: "keycloak users as admins"
+          privileges:
+            - "nx-all"
+          roles:
+            - "nx-admin"
     # NexusNotes: |
     #   Login to Nexus Admin UI and then get the x509 certificate from this path
     #     https://nexus.dev.bigbang.mil/service/rest/v1/security/saml/metadata
@@ -2126,12 +2094,12 @@ addons:
         # Do NOT set this below 5Gi, nexus will fail to boot
         storageSize: 5Gi
       nexus:
-        # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
+      # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
         env:
-        - name: INSTALL4J_ADD_VM_PARAMS
-          value: "-Dcom.redhat.fips=false -Xms1024M -Xmx1024M -XX:MaxDirectMemorySize=1024M -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.util.prefs.userRoot=/nexus-data/javaprefs"
-        - name: NEXUS_SECURITY_RANDOMPASSWORD
-          value: "true"
+          - name: INSTALL4J_ADD_VM_PARAMS
+            value: "-Dcom.redhat.fips=false -Xms1024M -Xmx1024M -XX:MaxDirectMemorySize=1024M -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.util.prefs.userRoot=/nexus-data/javaprefs"
+          - name: NEXUS_SECURITY_RANDOMPASSWORD
+            value: "true"
         resources:
           requests:
             cpu: 100m
@@ -2139,55 +2107,55 @@ addons:
         docker:
           enabled: true
           registries:
-          - host: containers.dev.bigbang.mil
-            port: 5000
+            - host: containers.dev.bigbang.mil
+              port: 5000
         repository:
           enabled: true
           repo:
-          - name: "containers"
-            format: "docker"
-            type: "hosted"
-            repo_data:
-              name: "containers"
-              online: true
-              storage:
-                blobStoreName: "default"
-                strictContentTypeValidation: true
-                writePolicy: "allow_once"
-              cleanup:
-                policyNames:
-                - "string"
-              component:
-                proprietaryComponents: true
-              docker:
-                v1Enabled: false
-                forceBasicAuth: true
-                httpPort: 5000
+            - name: "containers"
+              format: "docker"
+              type: "hosted"
+              repo_data:
+                name: "containers"
+                online: true
+                storage:
+                  blobStoreName: "default"
+                  strictContentTypeValidation: true
+                  writePolicy: "allow_once"
+                cleanup:
+                  policyNames:
+                    - "string"
+                component:
+                  proprietaryComponents: true
+                docker:
+                  v1Enabled: false
+                  forceBasicAuth: true
+                  httpPort: 5000
       istio:
         enabled: true
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-nexus"
-            enabled: true
-            spec:
-              exportTo:
-              - "."
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'registry1.dso.mil'
-              - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-              - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-              - 'nexus.dev.bigbang.mil'
-              - 'containers.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-nexus"
+              enabled: true
+              spec:
+                exportTo:
+                  - "."
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'registry1.dso.mil'
+                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
+                  - 'nexus.dev.bigbang.mil'
+                  - 'containers.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       bbtests:
         enabled: true
         cypress:
@@ -2206,22 +2174,22 @@ addons:
       istio:
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-velero"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              exportTo:
-              - "."
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-velero"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       serviceAccount:
         server:
           name: velero
@@ -2264,15 +2232,15 @@ addons:
         enabled: true
         hardened:
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-keycloak"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - keycloak
+            - name: "allow-intranamespace-keycloak"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - keycloak
       replicas: 1
       resources:
         requests:
@@ -2285,10 +2253,10 @@ addons:
           envs:
             cypress_url: "https://keycloak.dev.bigbang.mil"
       command:
-      - "/opt/keycloak/bin/kc.sh"
+        - "/opt/keycloak/bin/kc.sh"
       args:
-      - "start"
-      - "--import-realm"
+        - "start"
+        - "--import-realm"
       extraEnv: |-
         - name: KC_HTTPS_CERTIFICATE_FILE
           value: /opt/keycloak/conf/tls.crt
@@ -2477,15 +2445,15 @@ addons:
       istio:
         hardened:
           customAuthorizationPolicies:
-          - name: allow-egress-instance-metadata
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    ipBlocks:
-                    - 169.254.169.254/32
+            - name: allow-egress-instance-metadata
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      ipBlocks:
+                        - 169.254.169.254/32
       bbtests:
         enabled: true
         cypress:
@@ -2513,26 +2481,26 @@ addons:
         enabled: true
         hardened:
           customServiceEntries:
-          - name: "allow-npm-for-cypress-tests"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'registry1.dso.mil'
-              - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-              - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'index.docker.io'
-              - 'auth.docker.io'
-              - 'production.cloudflare.docker.com'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "allow-npm-for-cypress-tests"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'registry1.dso.mil'
+                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'index.docker.io'
+                  - 'auth.docker.io'
+                  - 'production.cloudflare.docker.com'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       expose:
         type: clusterIP
         tls:
@@ -2549,8 +2517,8 @@ addons:
         secretName: "ci-only"
       #jobservice:
       #registry:
-      #registry:
-      #controller:
+        #registry:
+        #controller:
       #chartmuseum:
       trivy:
         resources:
@@ -2560,11 +2528,11 @@ addons:
           limits:
             cpu: 300m
             memory: 500Mi
-        #notary:
-      #server:
-      #signer:
+      #notary:
+        #server:
+        #signer:
       #database:
-      #internal:
+        #internal:
       #postgresql:
       #redis:
       exporter:
@@ -2593,33 +2561,33 @@ addons:
       istio:
         hardened:
           customServiceEntries:
-          - name: "cypress-service-entries-thanos"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'thanos.dev.bigbang.mil'
-              - 'grafana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+            - name: "cypress-service-entries-thanos"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'thanos.dev.bigbang.mil'
+                  - 'grafana.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-thanos"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - thanos
-                    - monitoring
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       minio:
         enabled: true
         tenant:
@@ -2646,7 +2614,7 @@ addons:
               runAsNonRoot: true
               capabilities:
                 drop:
-                - ALL
+                  - ALL
       storegateway:
         enabled: true
       compactor:
