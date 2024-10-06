@@ -490,7 +490,8 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.2.7-bb.0"
+    tag: null
+    branch: merge-kyvernopolicy
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
@@ -513,9 +514,10 @@ kyvernoPolicies:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
-    path: ./chart
-    tag: "3.2.6-bb.0"
+    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
+    path: ./chart/charts/kyverno-policies/
+    tag: null
+    branch: "merge-kyvernopolicy"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
