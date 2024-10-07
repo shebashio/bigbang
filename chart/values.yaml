@@ -161,27 +161,6 @@ imagePullPolicy: IfNotPresent
 # Istio
 #
 
-# istio3:
-#   # -- Toggle deployment of Istio Base
-#   enabled: false
-#   # -- Choose source type of "git" or "helmRepo"
-#   sourceType: "git"
-#   git:
-#     repo: https://repo1.dso.mil/kipten/tmp.git
-#     path: "./chart"
-#     branch: "main"
-#     #tag:
-#   helmRepo:
-#     repoName: "registry1"
-#     chartName: "istio3"
-#     #tag:
-#   # -- Flux reconciliation overrides specifically for the Istio Base Package
-#   flux: {}
-#   # -- Values to passthrough to the istio-base chart
-#   values: {}
-#   # -- Post Renderers.  See docs/postrenders.md
-#   postRenderers: []
-
 istioBase:
   # -- Toggle deployment of Istio Base
   enabled: false
