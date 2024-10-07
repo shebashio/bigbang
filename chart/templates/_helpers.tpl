@@ -169,10 +169,6 @@ stringData:
   defaults: {{- toYaml .defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
-{{- end -}}
-
-{{/*
-  // taken from ^ below `overlays: |`
   {{- if .package.gateways }}
   {{- range .package.gateways }}
   {{- if .values }}
@@ -181,7 +177,7 @@ stringData:
   {{- end }}
   {{- end }}
   {{- end }}
-*/}}
+{{- end -}}
 
 {{/*
 bigbang.addValueIfSet can be used to nil check parameters before adding them to the values.

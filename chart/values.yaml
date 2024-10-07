@@ -221,8 +221,6 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-
-
   gateways:
     main:
       enabled: true
@@ -233,7 +231,7 @@ istioGateway:
           number: 8443
           protocol: HTTPS
         tls:
-          credentialName: "wildcard-cert"
+          credentialName: "public-cert"
           mode: Terminate
     # # Example of adding additional gateways
     # private:
@@ -246,75 +244,8 @@ istioGateway:
     #     tls:
     #       mode: Passthrough
 
-
-
-  # ingressGateways:
-  #   public-ingressgateway:
-  #     type: "LoadBalancer" # or "NodePort"
-  #     kubernetesResourceSpec: {}
-
-  # gateways:
-  #   public:
-  #     ingressGateway: "public-ingressgateway"
-  #     hosts:
-  #       - "*.pve.geep-scala.ts.net" #"*.dev.bigbang.mil" #"*.{{ .Values.domain }}"
-  #     port:
-  #       name: https
-  #       number: 8443
-  #       protocol: HTTPS
-  #     tls:
-  #       credentialName: "public-cert"
-  #       mode: "SIMPLE"
-  #     autoHttpRedirect: # controls default HTTP/8080 server entry with HTTP to HTTPS Redirect
-  #       enabled: true
-  #     selector:
-  #       app: "public-ingressgateway"
-
-
-
-
-  # gateways:
-  #   public:
-  #     ingressGateway: "public-ingressgateway"
-  #     hosts:
-  #       - "*.{{ .Values.domain }}"
-  #     # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-  #     autoHttpRedirect:
-  #       enabled: true
-  #     tls:
-  #       key: ""
-  #       cert: ""
-  #       minProtocolVersion: ""
-
-  # gateways:
-  #   public:
-  #     ingressGateway: "public-ingressgateway"
-  #     hosts:
-  #       - "*.pve.geep-scala.ts.net" #"*.dev.bigbang.mil" #"*.{{ .Values.domain }}"
-  #     autoHttpRedirect:
-  #       enabled: true
-  #     tls:
-  #       key: "123"
-  #       cert: "456"
-  #       minProtocolVersion: ""
-
   # -- Values to passthrough to the istio-gateway chart
   values: {}
-    # gateways:
-    # - name: public
-    #   selector:
-    #     app: "public-ingressgateway"
-    #   servers:
-    #   - hosts:
-    #     - "*.pve.geep-scala.ts.net" #"*.dev.bigbang.mil" #"*.{{ .Values.domain }}"
-    #     port:
-    #       name: https
-    #       number: 8443
-    #       protocol: HTTPS
-    #     tls:
-    #       credentialName: "public-cert"
-    #       mode: "SIMPLE"
-
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
