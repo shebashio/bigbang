@@ -25,12 +25,6 @@ podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.addons.metricsServer.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 metrics:
   enabled: {{ .Values.monitoring.enabled }}
 

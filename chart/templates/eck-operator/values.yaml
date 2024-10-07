@@ -18,12 +18,6 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.eckOperator.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 openshift: {{ .Values.openshift }}
 
 istio:

@@ -30,12 +30,6 @@ imagePullSecrets:
 podAnnotations:
   {{ include "istioAnnotation" . }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.authservice.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 openshift: {{ .Values.openshift | default false }}
 
 monitoring:

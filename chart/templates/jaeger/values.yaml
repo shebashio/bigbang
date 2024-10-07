@@ -50,20 +50,10 @@ elasticsearch:
 sso:
   enabled: {{ .Values.jaeger.sso.enabled }}
 
-{{- if .Values.kiali.enabled }}
-extraLabels:
-  {{- $mergedLabels := merge (default dict .Values.jaeger.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
 
 {{- if or .Values.jaeger.sso.enabled .Values.istio.enabled .Values.kiali.enabled }}
 jaeger:
   spec:
-    {{- if .Values.kiali.enabled }}
-    labels:
-      {{- $mergedLabels := merge (default dict .Values.jaeger.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-      {{- toYaml $mergedLabels | nindent 6 }}
-    {{- end }}
     {{- if or .Values.jaeger.sso.enabled .Values.istio.enabled }}
     {{- $jaegerAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
     {{- $jaegerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}

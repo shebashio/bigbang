@@ -38,12 +38,6 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
@@ -77,20 +71,10 @@ postgresql:
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}
-    {{- if .Values.kiali.enabled }}
-    podLabels:
-      {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-      {{- toYaml $mergedLabels | nindent 6 }}
-    {{- end }}
   readReplicas:
     {{- if $istioInjection }}
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
-    {{- end }}
-    {{- if .Values.kiali.enabled }}
-    podLabels:
-      {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
 {{- end }}
 
