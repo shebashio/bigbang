@@ -32,7 +32,7 @@ istioGateway:
   enabled: {{ .Values.istioGateway.enabled }}
   kiali:
     gateways:
-    - istio-ingress/{{ default "ingress" .Values.kiali.ingress.gateway }}
+    - istio-gateway/{{ default "ingress" .Values.kiali.ingress.gateway }}
 
 {{- if or .Values.istio.enabled .Values.istioGateway.enabled }}
 podAnnotations:
