@@ -1,11 +1,12 @@
-{{- range $values := .Values.istioGateway.gateways }}
+{{- range $values := .Values.gateways }}
 ---
-apiVersion: networking.istio.io/v1
+apiVersion: networking.istio.io/v1beta
 kind: Gateway
 metadata:
-  name: testing
+  name: {{ $values.name }}
   namespace: {{ $.Release.Namespace }}
 spec:
+  gatewayClassName: istio
   selector:
     {{- $values.selector | default (dict) | toYaml | nindent 4 }}
   servers:
