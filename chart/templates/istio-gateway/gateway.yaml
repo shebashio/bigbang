@@ -10,11 +10,11 @@ spec:
   listeners:
   {{- range $listener := $values.listeners }}
     - name: {{ $listener.name }}
-      protocol: {{ $listener.port.protocol | upper }}
-      port: {{ $listener.port.number }}
       {{- if $listener.hostname }}
       hostname: '{{- tpl $listener.hostname $ }}'
       {{- end }}
+      port: {{ $listener.port.number }}
+      protocol: {{ $listener.port.protocol | upper }}
       {{- if $listener.tls }}
       tls:
         mode: Terminate
