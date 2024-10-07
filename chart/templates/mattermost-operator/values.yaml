@@ -11,12 +11,6 @@ imagePullSecrets:
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.addons.mattermostOperator.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 {{- if .Values.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
