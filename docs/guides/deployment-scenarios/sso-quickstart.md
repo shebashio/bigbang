@@ -155,9 +155,9 @@ AWS_PAGER= aws ec2 describe-instances \
 
 1. Set variables and push them to each VM.
    * We'll pass some environment variables into the VMs that will help with automation,
-   * We'll also update the PS1 var so we can tell the two machines apart when ssh'd into.
-   * All of the commands in the following section are run from the Admin Laptop.
-   * **NOTE:** The REGISTRY1_USERNAME and REGISTRY1_PASSWORD in the code block below can't be blindly copy pasted.
+   * We'll also update the shell prompt to make them easier to distinguish.
+   * All the commands in the following section are run from the Admin Laptop.
+   * **NOTE:** The REGISTRY1_USERNAME and REGISTRY1_PASSWORD in the code block must be supplied with valid credentials.
 
     ```shell
     # [admin@Laptop:~]
@@ -173,7 +173,7 @@ AWS_PAGER= aws ec2 describe-instances \
     REGISTRY1_PASSWORD="REPLACE_ME"
     ```
 
-   * **NOTE:** The following code block can be copy pasted into the terminal as-is.
+   * **NOTE:** The following script logs into the Docker registry and prints IP addresses. No changes required.
 
     ```shell
     # [admin@Laptop:~]
@@ -187,8 +187,7 @@ AWS_PAGER= aws ec2 describe-instances \
     echo "Please manually verify that the IPs of your keycloak and workload k3d VMs look correct before moving on."
     ```
 
-   * Copy and paste the following code block into your workstation's unix terminal.
-     (This is using cat command to generate files. Specifically scripts templatized using environment variables.)
+   * The following script creates files with environment variables to be executed on the two virtual machines. No changes required.
 
     ```shell
     # [admin@Laptop:~]
@@ -234,7 +233,7 @@ AWS_PAGER= aws ec2 describe-instances \
     EOFworkload-k3d-prepwork-commandsEOF
     ```
 
-   * Run the following against your Laptop/Workstation's Unix terminal.
+   * This script loads the environment variable files on the virtual machines. No changes required.
 
     ```shell
     # [admin@Laptop:~]
