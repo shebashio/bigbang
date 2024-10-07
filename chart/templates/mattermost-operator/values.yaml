@@ -13,7 +13,7 @@ image:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- $mergedLabels := merge (default dict .Values.addons.mattermostoperator.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+  {{- $mergedLabels := merge (default dict .Values.addons.mattermostOperator.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
   {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
