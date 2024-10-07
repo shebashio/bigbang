@@ -48,12 +48,6 @@ podAnnotations:
 imagePullSecrets:
   - name: private-registry
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- $mergedLabels := merge (default dict .Values.promtail.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
-  {{- toYaml $mergedLabels | nindent 2 }}
-{{- end }}
-
 {{- if .Values.loki.enabled }}
 config:
   clients:
