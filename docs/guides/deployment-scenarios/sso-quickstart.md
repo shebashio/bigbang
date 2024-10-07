@@ -20,7 +20,7 @@ Imagine a scenario where <https://authdemo.bigbang.dev> represents a mock-up of 
 
 ### Enhancing Existing Applications with Authentication Proxies
 
-Auth Service's Authentication Proxy offers significant security enhancements. Even applications like Grafana, Kibana, and ArgoCD, which already support OIDC/SSO, and AuthN/AuthZ functionalities, can benefit from this added layer. At first glance, adding an authentication proxy may seem redundant. However, consider a frontend service that is publicly accessible on the internet and has a zero-day vulnerability allowing authentication bypass or remote code execution through a network-level exploit or a uniquely crafted packet. With an Auth Service Authentication Proxy in place, such vulnerabilities become moot points; unauthorized users cannot even interact with the frontend due to this robust defensive layer.
+Auth Service's Authentication Proxy offers significant security enhancements. Even applications like Grafana, Kibana, and ArgoCD, which already support OIDC/SSO, and AuthN (authentication, confirming authentic identity) and AuthZ (authorization, confirming authority to perform an action) functionalities, can benefit from this added layer. At first glance, adding an authentication proxy may seem redundant. However, consider a frontend service that is publicly accessible on the internet and has a zero-day vulnerability allowing authentication bypass or remote code execution through a network-level exploit or a uniquely crafted packet. With an Auth Service Authentication Proxy in place, such vulnerabilities become moot points; unauthorized users cannot even interact with the frontend due to this robust defensive layer.
 
 ### Advantages of Open Source Solutions
 
@@ -33,24 +33,20 @@ This SSO quick-start guide explains how to set up an SSO demo environment, from 
 # Steps
 
 1. This document assumes you have already gone through and are familiar with the generic quick-start guide.
-1. Given two Virtual Machines (VMs) (i.e, each with 8 CPU cores/32 GB ram) that are each set up for SSH, turn the two VMs into two single node k3d clusters.
+1. Given two Virtual Machines (VMs) (i.e, each with 8 CPU cores/32 GB ram) that are each set up for SSH, turn the two VMs into two single node k3d clusters. Using two k3d clusters reduces the publicly exposed surface area to Keycloak alone, securing all mission applications in their own private network. Due to the security benefits, this is how the Big Bang team recommends Keycloak be deployed in production.
 
-Why two VMs? Two reasons:
-
-1. It works around k3d only supporting 1 LB, but Keycloak needs its LB with TCP_PASSTHROUGH.
-1. This mimics the way the Big Bang team recommends Keycloak be deployed in production, giving it its dedicated cluster (**NOTE:** from a technical standpoint nothing is stopping it from being hosted on the same cluster).
 1. Use Big Bang demo workflow to turn one k3d cluster into a Keycloak Cluster.
 1. Use Big Bang demo workflow to turn one k3d cluster into a Workload Cluster.
 1. In the Keycloak Cluster:
-   * Deploy Keycloak.
-   * Create a Human User and Service Account for the authdemo service.
+   1. Deploy Keycloak.
+   1. Create a Human User and Service Account for the authdemo service.
 1. In the Workload Cluster:
-   * Deploy a mock mission application.
-   * Protect the mock mission application, by deploying and configuring auth service to interface with Keycloak and require users to log in to Keycloak and be in the correct authorization group before being able to access the mock mission application.
+   1. Deploy a mock mission application.
+   1. Protect the mock mission application, by deploying and configuring auth service to interface with Keycloak and require users to log in to Keycloak and be in the correct authorization group before being able to access the mock mission application.
 
 ## Differences between this Guide and the Generic Quick-Start Guide
 
-* Topics explained in previous quick start guides won't have notes or they will be less detailed.
+* Topics explained in previous quick start guides won't have notes, or they will be less detailed.
 * The previous quick start supported deploying k3d to either localhost or remote VM, this quick start only supports deployment to remote VMs.
 * The previous quick start supported multiple Linux distributions, this one requires Ubuntu 20.04, and it must be configured for passwordless sudo (**NOTE:** this guide has more automation of prerequisites, so we needed a standard to automate against).
 * The automation also assumes Admin's Laptop has a Unix Shell (Mac, Linux, or Windows Subsystem for Linux).
@@ -58,16 +54,59 @@ Why two VMs? Two reasons:
 
 ## Additional Auth Service and Keycloak Documentation 
 
-Additional Auth service and Keycloack documentation can be found in the following locations:
+Additional Auth service and Keycloak documentation can be found in the following locations:
 
-* [Authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)
-* [Authservice Architecture](../../understanding-bigbang/package-architecture/authservice.md)
-* [Keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)
-* [Keycloak Architecture](../../understanding-bigbang/package-architecture/keycloak.md)
+* [Authservice Helm Chart Repo](https://repo1.dso.mil/big-bang/product/packages/authservice)
+* [Authservice Architecture Documentation](../../understanding-bigbang/package-architecture/authservice.md)
+* [Keycloak Helm Chart Repo](https://repo1.dso.mil/big-bang/product/packages/keycloak)
+* [Keycloak Architecture Documentation](../../understanding-bigbang/package-architecture/keycloak.md)
 
 ## Step 1: Provision Two Virtual Machines
 
-* Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient.
+* Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient. If you're using AWS, you can use the following commands:
+
+```shell
+YOUR_NAME='[insert your name here]'
+SG_NAME='[insert your security group name here]' # Must open port 22
+AMI_ID='[insert your AMI ID here]'
+
+VPC_ID="$(aws ec2 describe-vpcs --filters Name=is-default,Values=true | jq -j .Vpcs[0].VpcId)"
+SG_ID=$(aws ec2 describe-security-groups --filter Name=vpc-id,Values=$VPC_ID Name=group-name,Values=$SG_NAME --query 'SecurityGroups[*].[GroupId]' --output text)
+SUBNET_ID="$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=${VPC_ID}" "Name=default-for-az,Values=true" | jq -j .Subnets[0].SubnetId)"
+TAG_NAME=KeycloakSSOQuickstart
+
+aws ec2 create-key-pair \
+  --key-name "${YOUR_NAME}${TAG_NAME}" \
+  --query 'KeyMaterial' \
+  --output text | tee ~/.ssh/${TAG_NAME}.pem
+
+chmod 600 ~/.ssh/${TAG_NAME}.pem
+
+aws ec2 run-instances \
+  --image-id "${AMI_ID}" \
+  --count 2 \
+  --instance-type t3a.2xlarge \
+  --key-name "${YOUR_NAME}${TAG_NAME}" \
+  --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":100}}]' \
+  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${TAG_NAME}}]" \
+  --security-group-ids "$SG_ID" \
+  --subnet-id "$SUBNET_ID" > /dev/null
+
+echo Public IP Addresses:
+AWS_PAGER= aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=${TAG_NAME}" \
+  --query "Reservations[*].Instances[*].PublicIpAddress" \
+  --output text
+
+## Delete VMs and Keypair
+# AWS_PAGER= aws ec2 describe-instances \
+#  --filters "Name=tag:Name,Values=${TAG_NAME}" \
+#  --query "Reservations[*].Instances[*].InstanceId" \
+#  --output text | xargs aws ec2 terminate-instances --instance-ids 
+# aws ec2 delete-key-pair --key-name "${YOUR_NAME}${TAG_NAME}"
+
+
+```
 
 ## Step 2: Set up SSH to Both VMs
 
@@ -82,12 +121,12 @@ Additional Auth service and Keycloack documentation can be found in the followin
     temp="""##########################
     Host keycloak-cluster
       Hostname x.x.x.x  #IP Address of VM1 (future k3d cluster)
-      IdentityFile ~/.ssh/bb-onboarding-attendees.ssh.privatekey
+      IdentityFile ~/.ssh/KeycloakSSOQuickstart.pem
       User ubuntu
       StrictHostKeyChecking no
     Host workload-cluster
       Hostname x.x.x.x  #IP Address of VM2 (future k3d cluster)
-      IdentityFile ~/.ssh/bb-onboarding-attendees.ssh.privatekey
+      IdentityFile ~/.ssh/KeycloakSSOQuickstart.pem
       User ubuntu
       StrictHostKeyChecking no
     #########################"""
