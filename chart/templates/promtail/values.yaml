@@ -50,8 +50,8 @@ imagePullSecrets:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- $mergedLabels := merge (default dict .Values.promtail.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+  {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
 {{- if .Values.loki.enabled }}

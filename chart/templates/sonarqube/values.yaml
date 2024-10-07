@@ -81,18 +81,10 @@ postgresql:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
     {{- end }}
-    {{- if $.Values.kiali.enabled }}
-    podLabels:
-      {{- include "kialiVersionLabel" $ | nindent 6 }}
-    {{- end }}
   slave:
     {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
-    {{- end }}
-    {{- if $.Values.kiali.enabled }}
-    podLabels:
-      {{- include "kialiVersionLabel" $ | nindent 6 }}
     {{- end }}
   {{- end }}
   # Use internal database, defaults are fine
@@ -102,10 +94,6 @@ postgresql:
   {{- end }}
 {{- end }}
 
-{{- if .Values.kiali.enabled }}
-podLabels:
-  {{- include "kialiVersionLabel" . | nindent 2 }}
-{{- end }}
 
 {{- end -}}
 

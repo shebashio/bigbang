@@ -21,8 +21,8 @@ podAnnotations:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- $mergedLabels := merge (default dict .Values.addons.velero.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+  {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
 monitoring:

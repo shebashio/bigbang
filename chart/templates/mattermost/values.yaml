@@ -33,8 +33,8 @@ istio:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- $mergedLabels := merge (default dict .Values.addons.mattermost.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+  {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
 {{- if $istioInjection }}
@@ -111,8 +111,8 @@ postgresql:
   primary:
     {{- if $.Values.kiali.enabled }}
     podLabels:
-      app: {{ "{{ template \"postgresql.v1.primary.fullname\" . }}" | quote }}
-      {{- include "kialiVersionLabel" $ | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.addons.mattermost.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
@@ -138,8 +138,8 @@ postgresql:
   readReplicas:
     {{- if $.Values.kiali.enabled }}
     podLabels:
-      app: {{ "{{ template \"postgresql.v1.readReplica.fullname\" . }}" | quote }}
-      {{- include "kialiVersionLabel" $ | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.addons.mattermost.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}

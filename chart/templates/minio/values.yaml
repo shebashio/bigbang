@@ -62,6 +62,7 @@ tenant:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.addons.minio.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
 {{- end -}}

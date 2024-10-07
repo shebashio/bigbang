@@ -85,8 +85,8 @@ kibana:
 {{- end }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
 
 {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.kibana }}
@@ -101,7 +101,8 @@ metrics:
   enabled: {{ .Values.monitoring.enabled }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
   {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") .Values.istio.enabled) }}
   {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
@@ -120,8 +121,8 @@ elasticsearch:
   master:
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -151,8 +152,8 @@ elasticsearch:
   data:
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -182,8 +183,8 @@ elasticsearch:
   ingest:
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -213,8 +214,8 @@ elasticsearch:
   ml:
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -244,8 +245,8 @@ elasticsearch:
   coord:
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.elasticsearchKibana.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
     initContainers:
       - name: elastic-internal-init-filesystem

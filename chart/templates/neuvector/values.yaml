@@ -32,7 +32,8 @@ controller:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.neuvector.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
   {{- if or .Values.monitoring.enabled .Values.neuvector.sso.enabled }}
   secret:
@@ -106,7 +107,8 @@ enforcer:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.neuvector.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
 cve:
   updater:
@@ -116,7 +118,8 @@ cve:
     {{- end }}
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.neuvector.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
   scanner:
     {{- if $istioInjection }}
@@ -125,7 +128,8 @@ cve:
     {{- end }}
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.neuvector.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
 {{- end }}
 
@@ -137,7 +141,8 @@ manager:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.neuvector.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
 {{- end }}
 

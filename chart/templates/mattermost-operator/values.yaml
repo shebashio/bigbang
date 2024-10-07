@@ -13,8 +13,8 @@ image:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- $mergedLabels := merge (default dict .Values.addons.mattermostoperator.podLabels) (fromYaml (include "kialiVersionLabel" .)) (fromYaml (include "kialiAppLabel" .)) }}
+  {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
 {{- if .Values.istio.enabled }}

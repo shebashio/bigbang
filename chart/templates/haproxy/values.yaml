@@ -114,9 +114,10 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
     }}
 openshift: {{ .Values.openshift }}  
-{{- if .Values.kiali.enabled }}
-podLabels:
-  app: {{ "{{ template \"haproxy.name\" . }}" | quote }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
-{{- end }}
+# Not sure if this makes sense as my understanding is that HAProxy is used in cases when Istio is not used
+# {{- if .Values.kiali.enabled }}
+# podLabels:
+#  app: {{ "{{ template \"haproxy.name\" . }}" | quote }}
+#  {{- include "kialiVersionLabel" . | nindent 2 }}
+# {{- end }}
 {{- end -}}

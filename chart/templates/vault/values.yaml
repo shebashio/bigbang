@@ -27,8 +27,8 @@ injector:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   extraLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.addons.vault.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -40,8 +40,8 @@ server:
   {{- end }}
   {{- if .Values.kiali.enabled }}
   extraLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
+    {{- $mergedLabels := merge (default dict .Values.addons.vault.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 4 }}
   {{- end }}
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}

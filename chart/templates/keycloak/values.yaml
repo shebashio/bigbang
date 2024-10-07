@@ -40,8 +40,8 @@ podAnnotations:
 
 {{- if .Values.kiali.enabled }}
 podLabels:
-  {{- include "kialiAppLabel" . | nindent 2 }}
-  {{- include "kialiVersionLabel" . | nindent 2 }}
+  {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+  {{- toYaml $mergedLabels | nindent 2 }}
 {{- end }}
 
 networkPolicies:
@@ -79,8 +79,8 @@ postgresql:
     {{- end }}
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
   readReplicas:
     {{- if $istioInjection }}
@@ -89,8 +89,8 @@ postgresql:
     {{- end }}
     {{- if .Values.kiali.enabled }}
     podLabels:
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- $mergedLabels := merge (default dict .Values.addons.keycloak.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+      {{- toYaml $mergedLabels | nindent 6 }}
     {{- end }}
 {{- end }}
 

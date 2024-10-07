@@ -98,8 +98,8 @@ sso:
 {{- $tempoAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
 podLabels:
   {{- if .Values.kiali.enabled }}
-    {{- include "kialiAppLabel" . | nindent 2 }}
-    {{- include "kialiVersionLabel" . | nindent 2 }}
+    {{- $mergedLabels := merge (default dict .Values.tempo.podLabels) (fromYaml (include "kialiVersionLabel" .)) }}
+    {{- toYaml $mergedLabels | nindent 2 }}
   {{- end }}
   {{- if .Values.tempo.sso.enabled }}
   {{ $tempoAuthserviceKey }}: {{ $tempoAuthserviceValue }}
