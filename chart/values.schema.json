@@ -1300,6 +1300,20 @@
               "$ref": "#/$defs/istio"
             }
           }
+        },
+        "externalSecrets": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ]
+        },
+        "alloy": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ]
         }
       }
     },
