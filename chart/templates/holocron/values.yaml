@@ -23,8 +23,8 @@ frontend:
   labels:
     {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
     {{- if .Values.kiali.enabled }}
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- include "kialiAppLabel" . | nindent 4 }}
+      {{- include "kialiVersionLabel" . | nindent 4 }}
     {{- end }}
 {{- end }}
 api:
@@ -32,8 +32,8 @@ api:
   labels:
     {{ $holocronAuthserviceKey }}: {{ $holocronAuthServiceValue }}
     {{- if .Values.kiali.enabled }}
-      {{- include "kialiAppLabel" . | nindent 6 }}
-      {{- include "kialiVersionLabel" . | nindent 6 }}
+      {{- include "kialiAppLabel" . | nindent 4 }}
+      {{- include "kialiVersionLabel" . | nindent 4 }}
     {{- end }}
 {{- end }}
   env:
