@@ -170,10 +170,10 @@ stringData:
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
   {{- if .package.gateways }}
-  {{- range .package.gateways }}
-  {{- if .values }}
-  gateway-overlays-{{ .name }}: |
-    {{- toYaml .values | nindent 4 }}
+  {{- range $name, $values := .package.gateways }}
+  {{- if $name }}
+  gateway-overlays-{{ $name }}: |
+    {{- toYaml $values | nindent 4 }}
   {{- end }}
   {{- end }}
   {{- end }}
