@@ -47,6 +47,18 @@ grafana:
 istio:
   enabled: {{ .Values.istio.enabled }}
 
+{{- $nodePortIngressGateways := list }}
+{{- range $name, $values := .Values.istio.ingressGateways }}
+{{- if eq $values.type "NodePort" }}
+{{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
+{{- end }}
+{{- end }}
+
+{{- range $name, $values := .Values.istio.values.ingressGateways }}
+{{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
+{{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
+{{- end }}
+{{- end }}
 
 kyvernoPolicies:
   enabled: true
@@ -86,18 +98,6 @@ policies:
       {{- end }}
   {{- end }}
 
-  {{- $nodePortIngressGateways := list }}
-  {{- range $name, $values := .Values.istio.ingressGateways }}
-  {{- if eq $values.type "NodePort" }}
-  {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
-  {{- end }}
-  {{- end }}
-
-  {{- range $name, $values := .Values.istio.values.ingressGateways }}
-  {{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
-  {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
-  {{- end }}
-  {{- end }}
 
   # Istio services (istio ingress) can create type: NodePort services
   disallow-nodeport-services:
