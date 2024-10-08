@@ -619,6 +619,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
         parameters:
@@ -659,6 +660,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
           - resources:
@@ -706,6 +708,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - holocron
+              - alloy
               names:
               - "*-cypress-test*"
       update-image-pull-policy:
@@ -758,6 +761,13 @@ kyvernoPolicies:
               - velero
               names:
               - velero-backup-restore-test*
+          - resources:
+              namespaces:
+              - alloy
+              names:
+              - alloy-config-validator*
+              - alloy-config-analysis*
+              - alloy-test*
       require-non-root-user:
         exclude:
           any:
@@ -781,6 +791,14 @@ kyvernoPolicies:
               - twistlock
               names:
               - volume-upgrade-job*
+          - resources:
+              namespaces:
+              - alloy
+              names:
+              - alloy-config-validator*
+              - alloy-config-analysis*
+              - alloy-test*
+      require-non-root-user:
       disallow-namespaces:
         parameters:
           disallow:
@@ -1455,12 +1473,6 @@ addons:
     flux:
       timeout: 30m
     values:
-      upgradeCheck:
-        annotations:
-          sidecar.istio.io/inject: "true"
-      shared-secrets:
-        annotations:
-          sidecar.istio.io/inject: "true"
       istio:
         enabled: true
         hardened:
@@ -1493,13 +1505,10 @@ addons:
         resources:
           requests:
             cpu: 10m
-          limits: {}
       gitlab:
         webservice:
           minReplicas: 1
           maxReplicas: 1
-          helmTests:
-            enabled: false
         sidekiq:
           minReplicas: 1
           maxReplicas: 1
@@ -1509,37 +1518,20 @@ addons:
         gitaly:
           persistence:
             size: 256Mi
-          resources:
-            ## values raised to help pass CI after default values for gitaly are fixed then can revert to original request.
-            #requests:
-            #  cpu: 50m
-            #limits: {}
-            requests:
-              cpu: 400m
-              memory: 600Mi
-            limits:
-              cpu: 400m
-              memory: 600Mi
         shared-secrets:
           resources:
             requests:
               cpu: 10m
-            limits: {}
         migrations:
-          # required annotation when istio.hardened.enabled = true
-          annotations:
-            sidecar.istio.io/inject: "true"
           resources:
             requests:
               cpu: 10m
-            limits: {}
         toolbox:
           persistence:
             size: 256Mi
           resources:
             requests:
               cpu: 10m
-            limits: {}
       registry:
         hpa:
           minReplicas: 1
@@ -1551,17 +1543,12 @@ addons:
           resources:
             requests:
               cpu: 10m
-            limits: {}
       minio:
-        # required annotation when istio.hardened.enabled = true
-        jobAnnotations:
-          sidecar.istio.io/inject: "true"
         persistence:
           size: 256Mi
         resources:
           requests:
             cpu: 50m
-          limits: {}
       redis:
         master:
           persistence:
@@ -1572,7 +1559,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           envs:
             cypress_url: https://gitlab.dev.bigbang.mil
         scripts:
@@ -1631,7 +1617,6 @@ addons:
             limits:
               cpu: 4
               memory: 6Gi
-          artifacts: true
           envs:
             cypress_url: "https://gitlab.dev.bigbang.mil"
             cypress_gitlab_first_name: "testrunner"
@@ -1639,13 +1624,6 @@ addons:
             cypress_gitlab_email: "gitlab@dev.bigbang.mil"
             cypress_gitlab_username: "gitlabrunner_user"
             cypress_gitlab_password: "Runner_PaSsw0rd123"
-            cypress_gitlab_project: "runner-hello-world"
-          secretEnvs:
-            - name: cypress_adminpassword
-              valueFrom:
-                secretKeyRef:
-                  name: gitlab-gitlab-initial-root-password
-                  key: password
 
   anchore:
     enabled: false
@@ -2315,7 +2293,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.6
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.7
           imagePullPolicy: Always
           command:
           - sh
@@ -2513,7 +2491,6 @@ addons:
                   - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
-                  - 'harbor.dev.bigbang.mil'
                   - 'repo1.dso.mil'
                   - 'index.docker.io'
                   - 'auth.docker.io'
