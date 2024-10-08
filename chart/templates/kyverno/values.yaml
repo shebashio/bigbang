@@ -54,7 +54,7 @@ kyvernoPolicies:
     - name: private-registry
 
 
-{{- include "bigbang.defaults.kyverno-policies" -}}
+{{- template "bigbang.defaults.kyverno-policies" -}}
 
 
 {{- end -}}
