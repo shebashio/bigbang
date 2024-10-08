@@ -419,6 +419,8 @@ gatekeeper:
 
 kyverno:
   values:
+    kyvernoPolicies:
+      enabled: false
     networkPolicies:
       externalRegistries:
         allowEgress: true
