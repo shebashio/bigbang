@@ -344,7 +344,7 @@ AWS_PAGER= aws ec2 describe-instances \
     wait
     ```
 
-   * Copy paste the following to run validation checks against both VMs.
+   * The following script confirms whether docker, k3d, kubectl, kustomize and helm were successfully installed. No changes required.
 
     ```shell
     # [admin@Laptop:~]
