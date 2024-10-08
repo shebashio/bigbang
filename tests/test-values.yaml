@@ -1824,11 +1824,9 @@ addons:
         install: []
       resources:
         requests:
-          cpu: 800m
+          cpu: 100m
           memory: 200Mi
-        limits: 
-          cpu: 2Gi
-          memory: 800Mi
+        limits: {}
       persistence:
         enabled: false
         size: 5Gi
@@ -1839,9 +1837,7 @@ addons:
           requests:
             cpu: 400m
             memory: 400Mi
-          limits: 
-            cpu: 800m
-            memory: 800Mi
+          limits: {}
       tests:
         enabled: false
       bbtests:
