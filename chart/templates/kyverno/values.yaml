@@ -61,7 +61,7 @@ istio:
 {{- end }}
 
 kyvernoPolicies:
-  enabled: true
+  enabled: false
   policyfile: "kyverno-policies-bb"
   image:
     repository: registry1.dso.mil/ironbank/opensource/kubernetes/kubectl
