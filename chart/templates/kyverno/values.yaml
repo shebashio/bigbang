@@ -47,14 +47,15 @@ grafana:
 istio:
   enabled: {{ .Values.istio.enabled }}
 
-waitforready:
-  imagePullSecrets:
-  - name: private-registry
 
 kyvernoPolicies:
   enabled: true
-
-kyvernoPoliciesENABLED: "kyvernoPolicies-enabled"
+  policyfile: "kyverno-policies-bb"
+  image:
+    repository: registry1.dso.mil/ironbank/opensource/kubernetes/kubectl
+    tag: v1.30.5
+  imagePullSecrets:
+    - name: private-registry
 
 #Kyverno Policies:
 
