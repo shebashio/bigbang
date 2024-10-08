@@ -221,18 +221,18 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-  gateways:
-    main:
-      enabled: true
-      listeners:
-      - name: https
-        hostname: "*.{{ .Values.domain }}"
-        port:
-          number: 8443
-          protocol: HTTPS
-        tls:
-          credentialName: "public-cert"
-          mode: Terminate
+    
+  # gateways:
+  #   main:
+  #     listeners:
+  #     - name: https
+  #       hostname: "*.{{ .Values.domain }}"
+  #       port:
+  #         number: 8443
+  #         protocol: HTTPS
+  #       tls:
+  #         credentialName: "public-cert"
+  #         mode: Terminate
     # # Example of adding additional gateways
     # private:
     #   listeners:
