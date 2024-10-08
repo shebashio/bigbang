@@ -221,7 +221,7 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-    
+
   # gateways:
   #   main:
   #     listeners:
@@ -233,16 +233,16 @@ istioGateway:
   #       tls:
   #         credentialName: "public-cert"
   #         mode: Terminate
-    # # Example of adding additional gateways
-    # private:
-    #   listeners:
-    #   - name: https-passthrough
-    #     hostname: "mypackage.{{ .Values.domain }}"
-    #     port:
-    #       number: 8443
-    #       protocol: HTTPS
-    #     tls:
-    #       mode: Passthrough
+  #   # Example of adding additional gateways
+  #   private:
+  #     listeners:
+  #     - name: https-passthrough
+  #       hostname: "mypackage.{{ .Values.domain }}"
+  #       port:
+  #         number: 8443
+  #         protocol: HTTPS
+  #       tls:
+  #         mode: Passthrough
 
   # -- Values to passthrough to the istio-gateway chart
   values: {}

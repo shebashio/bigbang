@@ -6,7 +6,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.istio-gateway" -}}
-createNamespace: true
+createNamespace: false
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 

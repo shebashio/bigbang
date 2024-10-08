@@ -1,14 +1,14 @@
 {{- $fluxSettingsIstioGateway := merge .Values.istioGateway.flux .Values.flux -}}
-{{- if and .Values.istioGateway.values.gateways .Values.istioGateway.enabled }}
-{{ range .Values.istioGateway.values.gateways }}
+{{- if and .Values.istioGateway.enabled .Values.istioGateway.gateways }}
+{{ range $name, $values := .Values.istioGateway.gateways }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: istio-gateway-{{ .name }}
+  name: istio-gateway-{{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app.kubernetes.io/name: istio-gateway-{{ .name }}
+    app.kubernetes.io/name: istio-gateway-{{ $name }}
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" $ | nindent 4}}
   annotations:
@@ -58,7 +58,7 @@ spec:
       valuesKey: "overlays"
     - name: {{ $.Release.Name }}-istio-gateway-values
       kind: Secret
-      valuesKey: {{ (printf "gateway-overlays-%s" .name) | quote }}
+      valuesKey: {{ (printf "gateway-overlays-%s" $name) | quote }}
       optional: true
 
   dependsOn:
