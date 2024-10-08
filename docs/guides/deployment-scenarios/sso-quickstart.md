@@ -99,11 +99,12 @@ AWS_PAGER= aws ec2 describe-instances \
   --output text
 
 ## Delete VMs and Keypair
-# AWS_PAGER= aws ec2 describe-instances \
-#  --filters "Name=tag:Name,Values=${TAG_NAME}" \
-#  --query "Reservations[*].Instances[*].InstanceId" \
-#  --output text | xargs aws ec2 terminate-instances --instance-ids 
-# aws ec2 delete-key-pair --key-name "${YOUR_NAME}${TAG_NAME}"
+ AWS_PAGER= aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=${TAG_NAME}" \
+  --query "Reservations[*].Instances[*].InstanceId" \
+  --output text | xargs aws ec2 terminate-instances --instance-ids 
+  
+ aws ec2 delete-key-pair --key-name "${YOUR_NAME}${TAG_NAME}"
 
 
 ```
