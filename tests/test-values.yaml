@@ -419,6 +419,10 @@ gatekeeper:
 
 kyverno:
   values:
+    policies:
+      sync-secrets:
+        enabled: false
+        secrets: true
     kyvernoPolicies:
       enabled: true
       applyPolicy: false
