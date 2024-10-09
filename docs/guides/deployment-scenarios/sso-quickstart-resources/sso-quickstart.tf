@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "5.70.0"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -45,6 +49,23 @@ data "aws_security_group" "this" {
     values = [var.aws_security_group_name]
   }
 }
+
+data "http" "my_public_ip" {
+  url = "https://api.ipify.org"
+}
+
+
+resource "aws_security_group_rule" "allow_rule" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["${data.http.my_public_ip.response_body}/32"]
+  security_group_id = data.aws_security_group.this.id
+
+  description = "${local.project}: Allow inbound TCP/SSH traffic for ${local.user_name}"
+}
+
 
 data "aws_subnets" "this" {
 

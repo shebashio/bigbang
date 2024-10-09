@@ -66,71 +66,39 @@ Additional Auth service and Keycloak documentation can be found in the following
 * Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient. If you're using AWS, you can use the following commands:
 
 ```shell
+# Clone Big Bang repo
+git clone https://repo1.dso.mil/big-bang/bigbang
 # From sso-quickstart-resources directory
 # Make a copy of the vars file
-$ cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
-# Fill in the variables in the tfvars file
+cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
+##############################
+#  Fill in the variables in  #
+# sso-quickstart.auto.tfvars #
+#     before proceeding      #
+##############################
 $ ./tfdocker.sh init
-$ ./tfdocker.sh plan -out tfplan.zip -var key_output_directory=$PWD
-$ ./tfdocker.sh apply tfplan.zip
-# Add the following line anywhere in your  ~/.ssh/config file (or create it if it doesn't exist):
-
-Include /Users/wyattfry/bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources/Wyatt.FryKeycloakSSOQuickstartconfig
-
-Then you can ssh into the VMs like this:
- ssh keycloak-cluster
- ssh workload-cluster
-
-
+$ ./tfdocker.sh apply -var key_output_directory=$PWD -auto-approve
 ```
 
-The last step will output a line to add to the top of your .ssh config file, e.g.
+The last step will output a line to add to the top of your .ssh config file that will look similar to this:
 
-```shell
+```text
 Include /Users/alice/bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources/Alice.BobKeycloakSSOQuickstartconfig
 ```
 
-## Step 2: Set up SSH to Both VMs
+**Note:** After you complete this guide, you can destroy the resources created above with this command:
 
-1. Set up SSH to both VMs.
-
-    ```shell
-    # [admin@Unix_Laptop:~]
-    mkdir -p ~/.ssh
-    chmod 700 ~/.ssh
-    touch ~/.ssh/config
-    chmod 600 ~/.ssh/config
-    temp="""##########################
-    Host keycloak-cluster
-      Hostname x.x.x.x  #IP Address of VM1 (future k3d cluster)
-      IdentityFile ~/.ssh/KeycloakSSOQuickstart.pem
-      User ubuntu
-      StrictHostKeyChecking no
-    Host workload-cluster
-      Hostname x.x.x.x  #IP Address of VM2 (future k3d cluster)
-      IdentityFile ~/.ssh/KeycloakSSOQuickstart.pem
-      User ubuntu
-      StrictHostKeyChecking no
-    #########################"""
-    echo "$temp" | tee -a ~/.ssh/config  #tee -a, appends to preexisting config file
-    ```
+```shell
+./tfdocker.sh destroy -var key_output_directory=$PWD -auto-approve
+```
 
 1. Verify SSH works for both VMs.
 
     ```shell
-    # [admin@Laptop:~]
-    ssh keycloak-cluster
-
-    # [ubuntu@Ubuntu_VM:~]
-    exit
-
-    # [admin@Laptop:~]
-    ssh workload-cluster
-
-    # [ubuntu@Ubuntu_VM:~]
-    exit
-
-    # [admin@Laptop:~]
+    ssh keycloak-cluster hostname
+    # > ip-1-2-3-4
+    ssh workload-cluster hostname
+    # > ip-5-6-7-8
     ```
 
 ## Step 3: Prep work: Install Dependencies and Configure both VMs
