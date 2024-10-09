@@ -1664,7 +1664,6 @@ addons:
       sso:
         resources:
           requests:
-            cpu: 100m
             memory: 200Mi
           limits: {}
       postgresql:
@@ -1672,13 +1671,11 @@ addons:
           size: 256Mi
         resources:
           requests:
-            cpu: 200m
             memory: 1024Mi
           limits: {}
         metrics:
           resources:
             requests:
-              cpu: 100m
               memory: 200Mi
             limits: {}
       analyzer:
@@ -1719,7 +1716,6 @@ addons:
             memory: 200Mi
           limits: {}
       feeds:
-        enabled: true
         resources:
           requests:
             cpu: 100m
@@ -1728,13 +1724,11 @@ addons:
         feeds-db:
           resources:
             requests:
-              cpu: 100m
               memory: 200Mi
             limits: {}
           metrics:
             resources:
               requests:
-                cpu: 100m
                 memory: 200Mi
               limits: {}
         feedsUpgradeJob:
@@ -1768,7 +1762,6 @@ addons:
             memory: 200Mi
           limits: {}
       ui-redis:
-        enabled: true
         replica:
           replicaCount: 0
           autoscaling:
