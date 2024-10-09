@@ -1267,11 +1267,7 @@ addons:
       controller:
         resources:
           requests:
-            memory: 2Gi
-          limits: {}
-      dex:
-        resources:
-          limits: {}
+            memory: 2Gi      
       redis-bb:
         master:
           persistence:
@@ -1285,17 +1281,12 @@ addons:
       redis:
         resources:
           requests:
-            memory: 256Mi
-          limits: {}
-      server:
-        resources:
-          limits: {}
+            memory: 256Mi 
       repoServer:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi
-          limits: {}
+            memory: 128Mi          
       configs:
         secret:
           argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
