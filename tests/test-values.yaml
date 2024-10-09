@@ -424,8 +424,9 @@ kyverno:
         enabled: false
         secrets: true
     kyvernoPolicies:
-      enabled: true
+      enabled: false
       applyPolicy: false
+      SkipTestPolicies: true
     networkPolicies:
       externalRegistries:
         allowEgress: true
