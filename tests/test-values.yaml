@@ -1267,14 +1267,10 @@ addons:
       controller:
         resources:
           requests:
-            cpu: 500m
             memory: 2Gi
           limits: {}
       dex:
         resources:
-          requests:
-            cpu: 10m
-            memory: 128Mi
           limits: {}
       redis-bb:
         master:
@@ -1289,20 +1285,12 @@ addons:
       redis:
         resources:
           requests:
-            cpu: 50m
             memory: 256Mi
           limits: {}
       server:
-        autoscaling:
-          enabled: false
         resources:
-          requests:
-            cpu: 20m
-            memory: 128Mi
           limits: {}
       repoServer:
-        autoscaling:
-          enabled: false
         resources:
           requests:
             cpu: 50m
@@ -1318,7 +1306,6 @@ addons:
             cypress_url: "https://argocd.dev.bigbang.mil"
           resources:
             limits:
-              cpu: 4
               memory: 12Gi
         scripts:
           envs:
