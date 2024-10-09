@@ -1822,11 +1822,11 @@ addons:
                 resolution: DNS
       plugins:
         install: []
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-        limits: {}
+      #resources:
+      #  requests:
+      #    cpu: 100m
+      #    memory: 200Mi
+      #  limits: {}
       persistence:
         enabled: false
         size: 5Gi
