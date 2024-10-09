@@ -1390,7 +1390,7 @@ addons:
 
   sonarqube:
     # -- Toggle deployment of SonarQube.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1398,7 +1398,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "10.6.1-bb.1"
+      #tag: "10.6.1-bb.1"
+      tag: null
+      branch: "cypress-test-update"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
