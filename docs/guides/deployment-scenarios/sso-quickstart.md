@@ -66,47 +66,28 @@ Additional Auth service and Keycloak documentation can be found in the following
 * Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient. If you're using AWS, you can use the following commands:
 
 ```shell
-YOUR_NAME='[insert your name here]'
-SG_NAME='[insert your security group name here]' # Must open port 22
-AMI_ID='[insert your AMI ID here]'
+# From sso-quickstart-resources directory
+# Make a copy of the vars file
+$ cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
+# Fill in the variables in the tfvars file
+$ ./tfdocker.sh init
+$ ./tfdocker.sh plan -out tfplan.zip -var key_output_directory=$PWD
+$ ./tfdocker.sh apply tfplan.zip
+# Add the following line anywhere in your  ~/.ssh/config file (or create it if it doesn't exist):
 
-VPC_ID="$(aws ec2 describe-vpcs --filters Name=is-default,Values=true | jq -j .Vpcs[0].VpcId)"
-SG_ID=$(aws ec2 describe-security-groups --filter Name=vpc-id,Values=$VPC_ID Name=group-name,Values=$SG_NAME --query 'SecurityGroups[*].[GroupId]' --output text)
-SUBNET_ID="$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=${VPC_ID}" "Name=default-for-az,Values=true" | jq -j .Subnets[0].SubnetId)"
-TAG_NAME=KeycloakSSOQuickstart
+Include /Users/wyattfry/bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources/Wyatt.FryKeycloakSSOQuickstartconfig
 
-aws ec2 create-key-pair \
-  --key-name "${YOUR_NAME}${TAG_NAME}" \
-  --query 'KeyMaterial' \
-  --output text | tee ~/.ssh/${TAG_NAME}.pem
-
-chmod 600 ~/.ssh/${TAG_NAME}.pem
-
-aws ec2 run-instances \
-  --image-id "${AMI_ID}" \
-  --count 2 \
-  --instance-type t3a.2xlarge \
-  --key-name "${YOUR_NAME}${TAG_NAME}" \
-  --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":100}}]' \
-  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${TAG_NAME}}]" \
-  --security-group-ids "$SG_ID" \
-  --subnet-id "$SUBNET_ID" > /dev/null
-
-echo Public IP Addresses:
-AWS_PAGER= aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=${TAG_NAME}" \
-  --query "Reservations[*].Instances[*].PublicIpAddress" \
-  --output text
-
-## Delete VMs and Keypair
- AWS_PAGER= aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=${TAG_NAME}" \
-  --query "Reservations[*].Instances[*].InstanceId" \
-  --output text | xargs aws ec2 terminate-instances --instance-ids 
-  
- aws ec2 delete-key-pair --key-name "${YOUR_NAME}${TAG_NAME}"
+Then you can ssh into the VMs like this:
+ ssh keycloak-cluster
+ ssh workload-cluster
 
 
+```
+
+The last step will output a line to add to the top of your .ssh config file, e.g.
+
+```shell
+Include /Users/alice/bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources/Alice.BobKeycloakSSOQuickstartconfig
 ```
 
 ## Step 2: Set up SSH to Both VMs

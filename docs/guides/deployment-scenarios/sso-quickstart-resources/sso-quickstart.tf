@@ -13,8 +13,8 @@ provider "aws" {
 }
 
 # Input variables
-variable "your_name" {
-  description = "Your name"
+variable "key_output_directory" {
+  description = "The directory in which the private key for accessing the VMs will be saved."
   type        = string
 }
 
@@ -70,18 +70,41 @@ resource "tls_private_key" "this" {
 }
 
 locals {
-  your_name = replace(var.your_name, " ", "")
+  project = "KeycloakSSOQuickstart"
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_key_pair" "this" {
-  key_name   = "${local.your_name}KeycloakSSOQuickstart"
+  key_name   = "${local.user_name}${local.project}"
   public_key = tls_private_key.this.public_key_openssh
 }
 
 resource "local_file" "private_key" {
-  filename        = "${pathexpand("~/.ssh")}/${local.your_name}KeycloakSSOQuickstart.pem"
+  filename        = "${pathexpand(var.key_output_directory)}/${local.user_name}${local.project}.pem"
   content         = tls_private_key.this.private_key_pem
   file_permission = "0600"
+}
+
+locals {
+  user_name = split("/", data.aws_caller_identity.current.arn)[1]
+  ssh_config = join("\n", [
+    for k, v in {
+      keycloak = aws_instance.ec2_instances[0].public_ip
+      workload = aws_instance.ec2_instances[1].public_ip
+    } : <<EOT
+Host ${k}-cluster
+  Hostname ${v}  #IP Address of VM1 (future k3d cluster)
+  IdentityFile ${local_file.private_key.filename}
+  User ubuntu
+  StrictHostKeyChecking no
+EOT
+  ])
+}
+
+resource "local_file" "ssh_config" {
+  filename = "${pathexpand(var.key_output_directory)}/${local.user_name}${local.project}config"
+  content  = local.ssh_config
 }
 
 data "aws_ami" "this" {
@@ -116,7 +139,7 @@ resource "aws_instance" "ec2_instances" {
   }
 
   tags = {
-    Name = "${local.your_name}-KeycloakSSOQuickstart"
+    Name = "${local.user_name}-${local.project}"
   }
 
   lifecycle {
@@ -125,7 +148,17 @@ resource "aws_instance" "ec2_instances" {
 }
 
 # Output public IP addresses
-output "ec2_public_ips" {
-  description = "Public IP addresses of the EC2 instances"
-  value       = aws_instance.ec2_instances[*].public_ip
+output "ssh_config_include" {
+  description = "Add the following line to your ~/.ssh/config file. Then you can ssh into the VMs like this: ssh keycloak-cluster ; ssh workload-cluster"
+  value       = <<EOT
+Add the following line to the **TOP** of your  ~/.ssh/config file (create the dir/file if they don't exist):
+
+###
+Include ${local_file.ssh_config.filename}
+###
+
+Then you can ssh into the VMs like this:
+$ ssh keycloak-cluster
+$ ssh workload-cluster
+EOT
 }
