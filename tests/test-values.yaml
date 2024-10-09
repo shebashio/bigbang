@@ -1825,15 +1825,12 @@ addons:
       resources:
         requests:
           cpu: 100m
-          memory: 200Mi
-        limits: {}
+          memory: 200Mi        
       persistence:
         size: 5Gi
       postgresql:
         persistence:
-          size: 256Mi
-        resources:
-          limits: {}
+          size: 256Mi      
       bbtests:
         enabled: true
         cypress:
