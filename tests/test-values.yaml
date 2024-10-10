@@ -57,6 +57,9 @@ networkPolicies:
   #controlPlaneCidr: 172.16.0.0/12
 
 istio:
+  git:
+    branch: "renovate/ironbank"
+    tag: "null"
   enabled: true
   ingressGateways:
     passthrough-ingressgateway:
@@ -73,12 +76,21 @@ istio:
         key: "" # Gets added via chart/ingress-certs.yaml
         cert: "" # Gets added via chart/ingress-certs.yaml
   values:
+    hub: registry1.dso.mil/ironbank-staging/opensource/istio
     hardened:
       enabled: true
     kiali:
       dashboard:
         auth:
           strategy: "anonymous"
+
+istioOperator:
+  enabled: true
+  # Add git branch or tag information to test against a specific branch or tag instead of using `main`
+  # Must set the unused label to null
+  git:
+    tag: null
+    branch: "renovate/ironbank"          
 
 jaeger:
   enabled: false
