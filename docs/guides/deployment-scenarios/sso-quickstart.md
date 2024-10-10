@@ -136,8 +136,8 @@ ssh workload-cluster hostname
     ```shell
     # [admin@Laptop:~]
     # We will do a sanity check to make sure the above commands correctly generated text files
-    wget https://repo1.dso.mil/big-bang/bigbang/-/raw/afe95f99c60c8a56b5f7298408049ec029752f98/docs/guides/deployment-scenarios/sso-quickstart-resources/keycloak-k3d-prepwork-commands.txt
-   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/afe95f99c60c8a56b5f7298408049ec029752f98/docs/guides/deployment-scenarios/sso-quickstart-resources/workload-k3d-prepwork-commands.txt
+    wget https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/keycloak-k3d-prepwork-commands.txt
+   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/workload-k3d-prepwork-commands.txt
     cat keycloak-k3d-prepwork-commands.txt
     cat workload-k3d-prepwork-commands.txt
     # Notice that the exported REGISTRY1_USERNAME var should have a value substituted in.
