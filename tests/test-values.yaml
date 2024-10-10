@@ -59,7 +59,7 @@ networkPolicies:
 istio:
   git:
     branch: "renovate/ironbank"
-    tag: "null"
+    tag: null
   enabled: true
   ingressGateways:
     passthrough-ingressgateway:
@@ -86,8 +86,6 @@ istio:
 
 istioOperator:
   enabled: true
-  # Add git branch or tag information to test against a specific branch or tag instead of using `main`
-  # Must set the unused label to null
   git:
     tag: null
     branch: "renovate/ironbank"          
