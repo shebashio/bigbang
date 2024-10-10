@@ -11,7 +11,6 @@ lines_in_file+=( 'export K3D_IP="$WORKLOAD_IP"' )
 lines_in_file+=( 'export REGISTRY1_USERNAME="$REGISTRY1_USERNAME"' )
 lines_in_file+=( 'export REGISTRY1_PASSWORD="$REGISTRY1_PASSWORD"' )
 
-for line in "\${lines_in_file[@]}"; do
-  grep -qF "\${line}" ~/.bashrc
-  if [ \$? -ne 0 ]; then echo "\${line}" >> ~/.bashrc ; fi
+for line in "${lines_in_file[@]}"; do
+  grep -qF "${line}" ~/.bashrc || echo "${line}" >> ~/.bashrc
 done

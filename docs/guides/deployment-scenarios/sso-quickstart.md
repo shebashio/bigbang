@@ -131,65 +131,22 @@ ssh workload-cluster hostname
     echo "Please manually verify that the IPs of your keycloak and workload k3d VMs look correct before moving on."
     ```
 
-   * The following script creates files with environment variables to be executed on the two virtual machines. No changes required.
-
-    ```shell
-    # [admin@Laptop:~]
-    mkdir -p ~/qs
-
-    cat << EOFkeycloak-k3d-prepwork-commandsEOF > ~/qs/keycloak-k3d-prepwork-commands.txt
-    # Idempotent logic:
-    sudo sed -i "/.*BIG_BANG_VERSION.*/d"      ~/.bashrc
-    sudo sed -i "/.*REGISTRY1_USERNAME.*/d"    ~/.bashrc
-    sudo sed -i "/.*REGISTRY1_PASSWORD.*/d"    ~/.bashrc
-    lines_in_file=()
-    lines_in_file+=( 'export PS1="\[\033[01;32m\]\u@keycloak-cluster\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' )
-    lines_in_file+=( 'export CLUSTER_NAME="keycloak-cluster"' )
-    lines_in_file+=( 'export BIG_BANG_VERSION="$BIG_BANG_VERSION"' )
-    lines_in_file+=( 'export K3D_IP="$KEYCLOAK_IP"' )
-    lines_in_file+=( 'export REGISTRY1_USERNAME="$REGISTRY1_USERNAME"' )
-    lines_in_file+=( 'export REGISTRY1_PASSWORD="$REGISTRY1_PASSWORD"' )
-
-    for line in "\${lines_in_file[@]}"; do
-      grep -qF "\${line}" ~/.bashrc
-      if [ \$? -ne 0 ]; then echo "\${line}" >> ~/.bashrc ; fi
-    done
-    EOFkeycloak-k3d-prepwork-commandsEOF
-
-
-    cat << EOFworkload-k3d-prepwork-commandsEOF > ~/qs/workload-k3d-prepwork-commands.txt
-    # Idempotent logic:
-    sudo sed -i "/.*BIG_BANG_VERSION.*/d"      ~/.bashrc
-    sudo sed -i "/.*REGISTRY1_USERNAME.*/d"    ~/.bashrc
-    sudo sed -i "/.*REGISTRY1_PASSWORD.*/d"    ~/.bashrc
-    lines_in_file=()
-    lines_in_file+=( 'export PS1="\[\033[01;32m\]\u@workload-cluster\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' )
-    lines_in_file+=( 'export CLUSTER_NAME="workload-cluster"' )
-    lines_in_file+=( 'export BIG_BANG_VERSION="$BIG_BANG_VERSION"' )
-    lines_in_file+=( 'export K3D_IP="$WORKLOAD_IP"' )
-    lines_in_file+=( 'export REGISTRY1_USERNAME="$REGISTRY1_USERNAME"' )
-    lines_in_file+=( 'export REGISTRY1_PASSWORD="$REGISTRY1_PASSWORD"' )
-
-    for line in "\${lines_in_file[@]}"; do
-      grep -qF "\${line}" ~/.bashrc
-      if [ \$? -ne 0 ]; then echo "\${line}" >> ~/.bashrc ; fi
-    done
-    EOFworkload-k3d-prepwork-commandsEOF
-    ```
-
    * This script loads the environment variable files on the virtual machines. No changes required.
 
     ```shell
     # [admin@Laptop:~]
     # We will do a sanity check to make sure the above commands correctly generated text files
-    cat ~/qs/keycloak-k3d-prepwork-commands.txt
-    cat ~/qs/workload-k3d-prepwork-commands.txt
+    wget https://repo1.dso.mil/big-bang/bigbang/-/raw/afe95f99c60c8a56b5f7298408049ec029752f98/docs/guides/deployment-scenarios/sso-quickstart-resources/keycloak-k3d-prepwork-commands.txt
+   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/afe95f99c60c8a56b5f7298408049ec029752f98/docs/guides/deployment-scenarios/sso-quickstart-resources/workload-k3d-prepwork-commands.txt
+    cat keycloak-k3d-prepwork-commands.txt
+    cat workload-k3d-prepwork-commands.txt
     # Notice that the exported REGISTRY1_USERNAME var should have a value substituted in.
 
     # Run the above commands against the remote shell in parallel and wait for finish
     # [admin@Laptop:~]
-    ssh keycloak-cluster < ~/qs/keycloak-k3d-prepwork-commands.txt &
-    ssh workload-cluster < ~/qs/workload-k3d-prepwork-commands.txt &
+    for host in keycloak workload; do
+      ssh $host-cluster < $host-k3d-prepwork-commands.txt &
+    done
     wait
     ```
 
