@@ -63,43 +63,37 @@ Additional Auth service and Keycloak documentation can be found in the following
 
 ## Step 1: Provision Two Virtual Machines
 
-* Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient. If you're using AWS, you can use the following commands:
+* Two Virtual Machines each with 32GB RAM, 8-Core CPU (i.e., t3a.2xlarge for AWS users), and 100GB of disk space should be sufficient. If you're using AWS, the commands below will do the following:
+
+1. Create two VMs
+2. Create a key pair and save it in `$HOME/.ssh`
+3. Create a network rule for the network security group allowing inbound traffic on port 22 
+4. Create an SSH config file, associating the names "keycloak-cluster" and "workload-cluster" with the public IP addresses of the two VMs
+5. Add an `Include` line to the top of `$HOME/.ssh/config` referencing the file from the previous step
 
 ```shell
-# Clone Big Bang repo
 git clone https://repo1.dso.mil/big-bang/bigbang
-# From sso-quickstart-resources directory
-# Make a copy of the vars file
+cd ./bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources
 cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
 ##############################
 #  Fill in the variables in  #
 # sso-quickstart.auto.tfvars #
 #     before proceeding      #
 ##############################
-$ ./tfdocker.sh init
-$ ./tfdocker.sh apply -var key_output_directory=$PWD -auto-approve
+./tfdocker.sh init
+./tfdocker.sh apply -var ssh_directory=$PWD -auto-approve
+# Verify SSH works for both VM
+ssh keycloak-cluster hostname
+# > ip-1-2-3-4
+ssh workload-cluster hostname
+# > ip-5-6-7-8
 ```
 
-The last step will output a line to add to the top of your .ssh config file that will look similar to this:
-
-```text
-Include /Users/alice/bigbang/docs/guides/deployment-scenarios/sso-quickstart-resources/Alice.BobKeycloakSSOQuickstartconfig
-```
-
-**Note:** After you complete this guide, you can destroy the resources created above with this command:
+**Important:** After you complete this guide, be sure to undo all the actions listed above with the following command to avoid being continuously billed by AWS for the VMs:
 
 ```shell
-./tfdocker.sh destroy -var key_output_directory=$PWD -auto-approve
+./tfdocker.sh destroy -var ssh_directory=$PWD -auto-approve
 ```
-
-1. Verify SSH works for both VMs.
-
-    ```shell
-    ssh keycloak-cluster hostname
-    # > ip-1-2-3-4
-    ssh workload-cluster hostname
-    # > ip-5-6-7-8
-    ```
 
 ## Step 3: Prep work: Install Dependencies and Configure both VMs
 

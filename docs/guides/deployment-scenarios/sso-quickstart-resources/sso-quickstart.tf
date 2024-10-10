@@ -17,8 +17,8 @@ provider "aws" {
 }
 
 # Input variables
-variable "key_output_directory" {
-  description = "The directory in which the private key for accessing the VMs will be saved."
+variable "ssh_directory" {
+  description = "The directory in which SSH keys and configs are stored."
   type        = string
 }
 
@@ -102,7 +102,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "local_file" "private_key" {
-  filename        = "${pathexpand(var.key_output_directory)}/${local.user_name}${local.project}.pem"
+  filename        = "${pathexpand(var.ssh_directory)}/${local.user_name}${local.project}.pem"
   content         = tls_private_key.this.private_key_pem
   file_permission = "0600"
 }
@@ -124,9 +124,53 @@ EOT
 }
 
 resource "local_file" "ssh_config" {
-  filename = "${pathexpand(var.key_output_directory)}/${local.user_name}${local.project}config"
+  filename = "${pathexpand(var.ssh_directory)}/${local.user_name}${local.project}config"
   content  = local.ssh_config
 }
+
+resource "null_resource" "ssh_config_include" {
+  triggers = {
+    include_line = "Include ${local_file.ssh_config.filename}  # This line automatically managed by Terraform"
+    ssh_config_path = "${pathexpand(var.ssh_directory)}/config"
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      SSH_CONFIG_PATH="${self.triggers.ssh_config_path}"
+      INCLUDE_LINE="${self.triggers.include_line}"
+
+      if [ -f "$SSH_CONFIG_PATH" ]; then
+        if ! grep -qF "$INCLUDE_LINE" "$SSH_CONFIG_PATH"; then
+          # echo "$INCLUDE_LINE" >> "$SSH_CONFIG_PATH"
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+              # macOS
+              sed -i '' "1i\\
+          $INCLUDE_LINE
+          " "$SSH_CONFIG_PATH"
+          else
+              # Linux and other Unix-like systems
+              sed -i "1i\\$INCLUDE_LINE" "$SSH_CONFIG_PATH"
+          fi
+
+          echo "Added Include line to $SSH_CONFIG_PATH"
+        else
+          echo "Include line already exists in $SSH_CONFIG_PATH"
+        fi
+      else
+        mkdir -p "$HOME/.ssh"
+        echo "$INCLUDE_LINE" > "$SSH_CONFIG_PATH"
+        chmod 600 "$SSH_CONFIG_PATH"
+        echo "Created $SSH_CONFIG_PATH with Include line"
+      fi
+    EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "./remove_ssh_config_line.sh '${self.triggers.ssh_config_path}' '${self.triggers.include_line}'"
+  }
+}
+
 
 data "aws_ami" "this" {
   most_recent = true
@@ -166,20 +210,4 @@ resource "aws_instance" "ec2_instances" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-# Output public IP addresses
-output "ssh_config_include" {
-  description = "Add the following line to your ~/.ssh/config file. Then you can ssh into the VMs like this: ssh keycloak-cluster ; ssh workload-cluster"
-  value       = <<EOT
-Add the following line to the **TOP** of your  ~/.ssh/config file (create the dir/file if they don't exist):
-
-###
-Include ${local_file.ssh_config.filename}
-###
-
-Then you can ssh into the VMs like this:
-$ ssh keycloak-cluster
-$ ssh workload-cluster
-EOT
 }

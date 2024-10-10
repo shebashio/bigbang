@@ -14,6 +14,7 @@ function aws_creds() {
 
 docker run --rm \
   -v "$(pwd):$(pwd)" \
+  -v "$HOME/.ssh:$HOME/.ssh" \
   -w "$(pwd)" \
   -e AWS_ACCESS_KEY_ID="$(aws_creds id)" \
   -e AWS_SECRET_ACCESS_KEY="$(aws_creds secret)" \
