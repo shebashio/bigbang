@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exuo pipefail
+set -euo pipefail
 
 # Remove the following lines if they already exist
 for x in BIG_BANG_VERSION REGISTRY1_USERNAME REGISTRY1_PASSWORD CLUSTER_NAME K3D_IP; do

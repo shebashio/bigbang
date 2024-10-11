@@ -105,7 +105,7 @@ ssh workload-cluster hostname
 
     ```shell
    # [admin@Laptop:~]
-   set -exuo pipefail
+   set -euo pipefail
    
    REGISTRY1_USERNAME="Wyatt_Fry"  ## Your Harbor username
    REGISTRY1_PASSWORD="$HARBOR"    ## Your Harbor "CLI Secret" under "User Profile"
@@ -123,7 +123,7 @@ ssh workload-cluster hostname
       K3D_IP=$(ssh -G ${host}-cluster | awk '/^hostname / { print $2 }')
       command="CLUSTER_NAME=${host}-cluster BIG_BANG_VERSION=$BIG_BANG_VERSION K3D_IP=$K3D_IP REGISTRY1_USERNAME=$REGISTRY1_USERNAME REGISTRY1_PASSWORD=$REGISTRY1_PASSWORD bash /tmp/${filename}"
       ssh ${host}-cluster "$command"
-      ssh ${host}-cluster "grep ${host}-cluster ~/.bashrc &> /dev/null && echo Update Succeeded || Update Failed"
+      ssh ${host}-cluster "grep ${host}-cluster ~/.bashrc &> /dev/null && echo Update Succeeded for ${host}-cluster || Update Failed for ${host}-cluster"
    done
    rm $filename
     ```
