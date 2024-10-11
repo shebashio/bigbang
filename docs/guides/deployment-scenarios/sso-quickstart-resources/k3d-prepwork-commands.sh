@@ -6,8 +6,10 @@ for x in BIG_BANG_VERSION REGISTRY1_USERNAME REGISTRY1_PASSWORD CLUSTER_NAME K3D
   sudo sed -i "/.*${x}.*/d" ~/.bashrc
 done
 
+sudo hostnamectl set-hostname "$CLUSTER_NAME"
+
 lines_in_file=(
-    "export PS1=\"\[\033[01;32m\]\u@${CLUSTER_NAME}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+#    "export PS1=\"\[\033[01;32m\]\u@${CLUSTER_NAME}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
     "export CLUSTER_NAME=\"$CLUSTER_NAME\""
     "export BIG_BANG_VERSION=\"$BIG_BANG_VERSION\""
     "export K3D_IP=\"$K3D_IP\""

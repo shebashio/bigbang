@@ -1,5 +1,5 @@
 /usr/bin/env bash
-set -xeuo pipefail
+set -euo pipefail
 
 # Configure OS
 sudo sysctl -w vm.max_map_count=524288
