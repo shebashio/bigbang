@@ -98,66 +98,34 @@ ssh workload-cluster hostname
 ## Step 3: Prep work: Install Dependencies and Configure both VMs
 
 1. Set variables and push them to each VM.
-   * We'll pass some environment variables into the VMs that will help with automation,
-   * We'll also update the shell prompt to make them easier to distinguish.
+   * Set environment variables
+   * Update the shell prompt to make them easier to distinguish.
    * All the commands in the following section are run from the Admin Laptop.
    * **NOTE:** The REGISTRY1_USERNAME and REGISTRY1_PASSWORD in the code block must be supplied with valid credentials.
 
     ```shell
-    # [admin@Laptop:~]
-
-    # Commented out directly below, is how to use a pinned version of BigBang:
-    # BIG_BANG_VERSION="1.30.1"
-    # (Note: 1.30.1 was the last version this guide was tested against)
-    #
-    # The following will load the latest tagger version of BigBang into an environment variable
-    BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
-    echo "This script will install Big Bang version: $BIG_BANG_VERSION"
-    REGISTRY1_USERNAME="Wyatt.Fry"
-    REGISTRY1_PASSWORD="$HARBOR"
-    ```
-
-   * **NOTE:** The following script logs into the Docker registry and prints IP addresses. No changes required.
-
-    ```shell
-    # [admin@Laptop:~]
-    echo $REGISTRY1_PASSWORD | docker login https://registry1.dso.mil --username=$REGISTRY1_USERNAME --password-stdin | grep "Succeeded" ; echo $? | grep 0 && echo "This validation check shows your registry1 credentials are valid, please continue." || for i in {1..10}; do echo "Validation check shows error, fix your registry1 credentials before moving on."; done
-
-    export KEYCLOAK_IP=$( ssh -G keycloak-cluster | awk '/^hostname / { print $2 }')
-    echo "\n\n\nINFO: '$KEYCLOAK_IP' is the IP of the k3d node that will host Keycloak on Big Bang"
-
-    export WORKLOAD_IP=$(ssh -G workload-cluster | awk '/^hostname / { print $2 }')
-    echo "INFO: '$WORKLOAD_IP' is the IP of the k3d node that will host Workloads on Big Bang"
-    echo "Please manually verify that the IPs of your keycloak and workload k3d VMs look correct before moving on."
-    ```
-
-   * This script loads the environment variable files on the virtual machines. No changes required.
-
-    ```shell
-    # [admin@Laptop:~]
-    # We will do a sanity check to make sure the above commands correctly generated text files
-    wget https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/keycloak-k3d-prepwork-commands.txt
-   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/workload-k3d-prepwork-commands.txt
-    cat keycloak-k3d-prepwork-commands.txt
-    cat workload-k3d-prepwork-commands.txt
-    # Notice that the exported REGISTRY1_USERNAME var should have a value substituted in.
-
-    # Run the above commands against the remote shell in parallel and wait for finish
-    # [admin@Laptop:~]
-    for host in keycloak workload; do
-      ssh $host-cluster < $host-k3d-prepwork-commands.txt &
-    done
-    wait
-    ```
-
-    ```text
-    Explanation: (We are basically doing the equivalent of Ansible, without
-    having to install Ansible and its dependencies.)
-    ssh keycloak-cluster < ~/qs/keycloak-k3d-prepwork-commands.txt
-    ^-- runs script against remote VM
-    & at the end of the command means to let it run in the background
-    using it allows us to run the script against both machines in parallel.
-    wait command waits for background processes to finish
+   # [admin@Laptop:~]
+   set -exuo pipefail
+   
+   REGISTRY1_USERNAME="Wyatt_Fry"  ## Your Harbor username
+   REGISTRY1_PASSWORD="$HARBOR"    ## Your Harbor "CLI Secret" under "User Profile"
+   
+   echo $REGISTRY1_PASSWORD | docker login https://registry1.dso.mil --username=$REGISTRY1_USERNAME --password-stdin | grep "Succeeded" ; echo $? | grep 0 && echo "This validation check shows your registry1 credentials are valid, please continue." || for i in {1..10}; do echo "Validation check shows error, fix your registry1 credentials before moving on."; done
+   BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
+   ########## TODO: Replace Following branch with master before merging ################
+   branch="refresh-keycloak-sso-quickstart-docs"
+   # branch="master"
+   filename=k3d-prepwork-commands.sh
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
+   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+   for host in keycloak workload; do
+      scp ${filename} ${host}-cluster:/tmp/${filename}
+      K3D_IP=$(ssh -G ${host}-cluster | awk '/^hostname / { print $2 }')
+      command="CLUSTER_NAME=${host}-cluster BIG_BANG_VERSION=$BIG_BANG_VERSION K3D_IP=$K3D_IP REGISTRY1_USERNAME=$REGISTRY1_USERNAME REGISTRY1_PASSWORD=$REGISTRY1_PASSWORD bash /tmp/${filename}"
+      ssh ${host}-cluster "$command"
+      ssh ${host}-cluster "grep ${host}-cluster ~/.bashrc &> /dev/null && echo Update Succeeded || Update Failed"
+   done
+   rm $filename
     ```
 
 1. Take a look at one of the VMs to understand what happened.
