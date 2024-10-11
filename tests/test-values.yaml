@@ -75,6 +75,7 @@ istio:
       tls:
         key: "" # Gets added via chart/ingress-certs.yaml
         cert: "" # Gets added via chart/ingress-certs.yaml
+  values:      
     hardened:
       enabled: true
     kiali:
