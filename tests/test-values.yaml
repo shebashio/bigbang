@@ -75,8 +75,6 @@ istio:
       tls:
         key: "" # Gets added via chart/ingress-certs.yaml
         cert: "" # Gets added via chart/ingress-certs.yaml
-  values:
-    hub: registry1.dso.mil/ironbank-staging/opensource/istio
     hardened:
       enabled: true
     kiali:
