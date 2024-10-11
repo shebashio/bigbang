@@ -82,7 +82,6 @@ cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
 ##############################
 ./tfdocker.sh init
 ./tfdocker.sh apply -var ssh_directory=$PWD -auto-approve
-# Verify SSH works for both VM
 ssh keycloak-cluster hostname
 # > ip-1-2-3-4
 ssh workload-cluster hostname
@@ -107,13 +106,12 @@ ssh workload-cluster hostname
    # [admin@Laptop:~]
    set -euo pipefail
    
-   REGISTRY1_USERNAME="Wyatt_Fry"  ## Your Harbor username
-   REGISTRY1_PASSWORD="$HARBOR"    ## Your Harbor "CLI Secret" under "User Profile"
+   REGISTRY1_USERNAME="Your_Name"  ## Your Harbor username
+   REGISTRY1_PASSWORD="Your_Harbor_CLI_Secret"    ## Your Harbor "CLI Secret" under "User Profile"
    
    echo $REGISTRY1_PASSWORD | docker login https://registry1.dso.mil --username=$REGISTRY1_USERNAME --password-stdin | grep "Succeeded" ; echo $? | grep 0 && echo "This validation check shows your registry1 credentials are valid, please continue." || for i in {1..10}; do echo "Validation check shows error, fix your registry1 credentials before moving on."; done
    BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
-   ########## TODO: Replace Following branch with master before merging ################
-   branch="refresh-keycloak-sso-quickstart-docs"
+   branch="refresh-keycloak-sso-quickstart-docs"  ### TODO: Replace Following branch with master before merging 
    # branch="master"
    filename=k3d-prepwork-commands.sh
    filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
@@ -131,12 +129,7 @@ ssh workload-cluster hostname
 1. Configure host OS prerequisites and install prerequisite software on both VMs.
    * Copy and paste the following to generate an automation script.
 
-    ```shell
-    ```
-
-   * Copy paste the following to run the above prerequisite automation script against both VMs.
-
-    ```shell
+   ```shell
    # [admin@Laptop:~]
    branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
    # branch="master"
@@ -144,73 +137,44 @@ ssh workload-cluster hostname
    filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
    wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
    for host in keycloak workload; do
-      ssh ${host}-cluster < ${filename}
+      ssh ${host}-cluster < ${filename} &
    done
+   wait $(jobs -p)
    rm $filename
     ```
 
    * The following script confirms whether docker, k3d, kubectl, kustomize and helm were successfully installed. No changes required.
 
     ```shell
-    # [admin@Laptop:~]
-    # Verify install was successful
-    cat << EOFshared-k3d-prepwork-verification-commandsEOF > ~/qs/shared-k3d-prepwork-verification-commands.txt
-    docker ps >> /dev/null ; echo \$? | grep 0 >> /dev/null && echo "SUCCESS: docker installed" || echo "ERROR: issue with docker install"
-    k3d version >> /dev/null ; echo \$? | grep 0 >> /dev/null && echo "SUCCESS: k3d installed" || echo "ERROR: issue with k3d install"
-    kubectl version --client >> /dev/null ; echo \$? | grep 0 >> /dev/null && echo "SUCCESS: kubectl installed" || echo "ERROR: issue with kubectl install"
-    kustomize version >> /dev/null ; echo \$? | grep 0 >> /dev/null && echo "SUCCESS: kustomize installed" || echo "ERROR: issue with kustomize install"
-    helm version >> /dev/null ; echo \$? | grep 0 >> /dev/null && echo "SUCCESS: helm installed" || echo "ERROR: issue with helm install"
-    EOFshared-k3d-prepwork-verification-commandsEOF
-
-    ssh keycloak-cluster < ~/qs/shared-k3d-prepwork-verification-commands.txt
-    ssh workload-cluster < ~/qs/shared-k3d-prepwork-verification-commands.txt
+   # [admin@Laptop:~]
+   branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+   # branch="master"
+   filename=install_prereqs_checks.sh
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
+   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+   for host in keycloak workload; do
+      ssh ${host}-cluster < ${filename} &
+   done
+   wait $(jobs -p)
+   rm $filename
     ```
 
 ## Step 4: Create k3d Cluster on both VMs (and make sure you have access to both)
-
-```text
-**NOTE:** There's no need to copy paste commands from this text box; it's intended to explain some of the shell below.
-
-If you were to copy paste the following into your laptop/workstation's terminal.
-ssh keycloak-cluster 'env | grep K3D_IP'
-You'd receive blank text, this means that env vars defined in the remote VM's ~/.bashrc
-are not populated when using non interactive shell copy paste automation method.
-
-That's why the script that runs on the remote machine has lines like this one:
-export K3D_IP=\$(cat ~/.bashrc  | grep K3D_IP | cut -d \" -f 2)
-(It's a workaround that allows the env var values to be used in a non interactive shell)
-```
 
 * Create a k3d cluster on both VMs.
 
 ```shell
 # [admin@Laptop:~]
-cat << EOFshared-k3d-install-commandsEOF > ~/qs/shared-k3d-install-commands.txt
-export K3D_IP=\$(cat ~/.bashrc  | grep K3D_IP | cut -d \" -f 2)
-export CLUSTER_NAME=\$(cat ~/.bashrc  | grep CLUSTER_NAME | cut -d \" -f 2)
-
-IMAGE_CACHE=\${HOME}/.k3d-container-image-cache
-mkdir -p \${IMAGE_CACHE}
-k3d cluster create \$CLUSTER_NAME \
-    --k3s-arg "--tls-san=\$K3D_IP@server:0" \
-    --volume /etc/machine-id:/etc/machine-id \
-    --volume \${IMAGE_CACHE}:/var/lib/rancher/k3s/agent/containerd/io.containerd.content.v1.content \
-    --k3s-arg "--disable=traefik@server:0" \
-    --port 80:80@loadbalancer \
-    --port 443:443@loadbalancer \
-    --api-port 6443
-sed -i "s/0.0.0.0/\$K3D_IP/" ~/.kube/config
-# Explanation:
-# sed = stream editor
-# -i s/.../.../   (i = inline), (s = substitution, basically cli find and replace)
-# / / / are delimiters the separate what to find and what to replace.
-# \$K3D_IP, is a variable with $ escaped, so the var will be processed by the remote VM.
-# This was done to allow kubectl access from a remote machine.
-EOFshared-k3d-install-commandsEOF
-
-ssh keycloak-cluster < ~/qs/shared-k3d-install-commands.txt &
-ssh workload-cluster < ~/qs/shared-k3d-install-commands.txt &
-wait
+branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+# branch="master"
+filename=create_k3d_cluster.sh
+filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
+wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+for host in keycloak workload; do
+   ssh ${host}-cluster < ${filename} &
+done
+wait $(jobs -p)
+rm $filename
 ```
 
 * Copying and pasting these verification commands will make sure you have access to both clusters.
