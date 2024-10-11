@@ -161,10 +161,11 @@ ssh workload-cluster hostname
 
 ## Step 4: Create k3d Cluster on both VMs (and make sure you have access to both)
 
-* Create a k3d cluster on both VMs.
+* Create a k3d cluster on both VMs. You must have kubectl installed on your machine for this step. See <https://kubernetes.io/docs/tasks/tools/#kubectl>
 
 ```shell
 # [admin@Laptop:~]
+mkdir ~/.kube
 branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
 # branch="master"
 filename=create_k3d_cluster.sh
@@ -175,20 +176,13 @@ for host in keycloak workload; do
 done
 wait $(jobs -p)
 rm $filename
-```
-
-* Copying and pasting these verification commands will make sure you have access to both clusters.
-
-```shell
-# [admin@Laptop:~]
-mkdir -p ~/.kube
-scp keycloak-cluster:~/.kube/config ~/.kube/keycloak-cluster
-scp workload-cluster:~/.kube/config ~/.kube/workload-cluster
-
-export KUBECONFIG=$HOME/.kube/keycloak-cluster
-kubectl get node
-export KUBECONFIG=$HOME/.kube/workload-cluster
-kubectl get node
+for host in keycloak workload; do
+  scp ${host}-cluster:~/.kube/config ~/.kube/${host}-cluster
+  export KUBECONFIG="$KUBECONFIG:$HOME/.kube/${host}-cluster"
+  kubectl get node --context k3d-${host}-cluster
+done
+echo "Add the following line to your shell's rc file if you'd like these two new Kubernetes contexts persisted for new sessions"
+echo "export KUBECONFIG=\"$KUBECONFIG\""
 ```
 
 ## Step 5: Clone Big Bang and Install Flux on both Clusters
@@ -197,21 +191,15 @@ kubectl get node
 
 ```shell
 # [admin@Laptop:~]
-cat << EOFshared-flux-install-commandsEOF > ~/qs/shared-flux-install-commands.txt
-export REGISTRY1_USERNAME=\$(cat ~/.bashrc  | grep REGISTRY1_USERNAME | cut -d \" -f 2)
-export REGISTRY1_PASSWORD=\$(cat ~/.bashrc  | grep REGISTRY1_PASSWORD | cut -d \" -f 2)
-export BIG_BANG_VERSION=\$(cat ~/.bashrc  | grep BIG_BANG_VERSION | cut -d \" -f 2)
-
-cd ~
-git clone https://repo1.dso.mil/big-bang/bigbang.git
-cd ~/bigbang
-git checkout tags/\$BIG_BANG_VERSION
-\$HOME/bigbang/scripts/install_flux.sh -u \$REGISTRY1_USERNAME -p \$REGISTRY1_PASSWORD
-EOFshared-flux-install-commandsEOF
-
-ssh keycloak-cluster < ~/qs/shared-flux-install-commands.txt &
-ssh workload-cluster < ~/qs/shared-flux-install-commands.txt &
-wait
+branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+# branch="master"
+filename=install_flux.sh
+filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
+wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+for host in keycloak workload; do
+   ssh ${host}-cluster < ${filename} &
+done
+wait $(jobs -p)
 ```
 
 * **NOTE:** It's possible for the above flux install commands to give a false error message, along the lines of "error: timed out waiting for the condition on deployments/helm-controller." If the deployment takes longer than five minutes, the wait for healthy logic will time out. If you follow these steps using cloud service provider infrastructure, you're unlikely to see the error. If you follow these steps on a home network lab with slower download speed you might see the error message, its ignorable, and you can use the following copy pasteable command block to verify health of the flux pods.
