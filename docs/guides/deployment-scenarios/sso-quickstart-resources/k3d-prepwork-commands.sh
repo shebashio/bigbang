@@ -7,7 +7,7 @@ sudo sed -i "/.*REGISTRY1_USERNAME.*/d"    ~/.bashrc
 sudo sed -i "/.*REGISTRY1_PASSWORD.*/d"    ~/.bashrc
 
 lines_in_file=(
-    "export PS1=\"\[\033[01;32m\]\u@${cluster_name}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+    "export PS1=\"\[\033[01;32m\]\u@${CLUSTER_NAME}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
     "export CLUSTER_NAME=\"$CLUSTER_NAME\""
     "export BIG_BANG_VERSION=\"$BIG_BANG_VERSION\""
     "export K3D_IP=\"$K3D_IP\""
