@@ -146,12 +146,6 @@ kiali:
                   protocol: TLS
                   name: https
               resolution: DNS
-    cr:
-      spec:
-        auth:
-          # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
-          # strategy defaults to "openid"
-          strategy: "anonymous"
     resources:
       limits:
         cpu: "1"
