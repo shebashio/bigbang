@@ -177,8 +177,8 @@ done
 wait $(jobs -p)
 rm $filename
 for host in keycloak workload; do
-  scp ${host}-cluster:~/.kube/config ~/.kube/${host}-cluster
-  export KUBECONFIG="$KUBECONFIG:$HOME/.kube/${host}-cluster"
+  scp ${host}-cluster:~/.kube/${host}-cluster-config ~/.kube/${host}-cluster-config
+  export KUBECONFIG="$KUBECONFIG:$HOME/.kube/${host}-cluster-config"
   kubectl get node --context k3d-${host}-cluster
 done
 echo "Add the following line to your shell's rc file if you'd like these two new Kubernetes contexts persisted for new sessions"
@@ -200,6 +200,7 @@ for host in keycloak workload; do
    ssh ${host}-cluster < ${filename} &
 done
 wait $(jobs -p)
+rm ${filename}
 ```
 
 * **NOTE:** It's possible for the above flux install commands to give a false error message, along the lines of "error: timed out waiting for the condition on deployments/helm-controller." If the deployment takes longer than five minutes, the wait for healthy logic will time out. If you follow these steps using cloud service provider infrastructure, you're unlikely to see the error. If you follow these steps on a home network lab with slower download speed you might see the error message, its ignorable, and you can use the following copy pasteable command block to verify health of the flux pods.

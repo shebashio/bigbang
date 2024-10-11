@@ -11,7 +11,7 @@ k3d cluster create "$CLUSTER_NAME" \
   --port 80:80@loadbalancer \
   --port 443:443@loadbalancer \
   --api-port 6443
-sed -i "s/0.0.0.0/$K3D_IP/" ~/.kube/config
+sed "s/0.0.0.0/$K3D_IP/" ~/.kube/config > ~/.kube/${CLUSTER_NAME}-config
 # Explanation:
 # sed = stream editor
 # -i s/.../.../   (i = inline), (s = substitution, basically cli find and replace)
