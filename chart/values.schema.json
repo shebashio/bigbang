@@ -912,7 +912,6 @@
       ],
       "properties": {
         "enabled": true,
-        "forceUpgrade": true,
         "sourceType": true,
         "git": true,
         "helmRepo": true,
@@ -1407,6 +1406,9 @@
         },
         "postRenderers": {
           "$ref": "#/$defs/postRenderers"
+        },
+        "forceUpgrade": {
+          "type": "boolean"
         }
       }
     },
