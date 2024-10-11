@@ -855,6 +855,7 @@ policies:
           # tenant pods require get/list/watch on secrets/tenants (CRD), and create/delete/get on services
           # More details in role named minio-minio-minio-instance-role
           - minio-minio-minio-instance-*
+          - minio-instance-wait-job-*
       - namespace: kyverno
         pods:
           allow:
@@ -936,6 +937,7 @@ policies:
           - monitoring-monitoring-kube-state-metrics*
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
+          - monitoring-alloy-*
       - namespace: anchore
         pods:
           allow:
@@ -983,6 +985,7 @@ policies:
           allow:
           - default-minio-bucket-creation-*
           - mattermost-minio-*
+          - mattermost-wait-job-*
       - namespace: mattermost-operator
         pods:
           allow:
