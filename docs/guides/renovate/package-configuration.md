@@ -91,7 +91,7 @@ Targeting packages requires a more complex regex statement.  In this example, we
 ```
 
 ```yaml
-kyverno:
+kyvernopolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     tag: "2.6.5-bb.2"

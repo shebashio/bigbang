@@ -8,7 +8,48 @@
 
 {{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
 
-waitforready:
+replicaCount: 3
+
+image:
+  pullSecrets:
+  - name: private-registry
+  pullPolicy: {{ .Values.imagePullPolicy }}
+
+openshift: {{ .Values.openshift }}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+serviceMonitor:
+  enabled: {{ .Values.monitoring.enabled }}
+  dashboards:
+    namespace: monitoring
+
+admissionController:
+  serviceMonitor:
+    enabled: {{ .Values.monitoring.enabled }}
+
+backgroundController:
+  serviceMonitor:
+    enabled: {{ .Values.monitoring.enabled }}
+
+cleanupController:
+  serviceMonitor:
+    enabled: {{ .Values.monitoring.enabled }}
+
+reportsController:
+  serviceMonitor:
+    enabled: {{ .Values.monitoring.enabled }}
+
+grafana:
+  enabled: {{ .Values.monitoring.enabled }}
+  namespace: monitoring
+
+istio:
+  enabled: {{ .Values.istio.enabled }}
+
+waitJob:
   imagePullSecrets:
   - name: private-registry
 

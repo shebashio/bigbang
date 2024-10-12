@@ -41,7 +41,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 # autoRegister requires kyverno
-{{- if and .Values.kyverno.enabled .Values.addons.gitlab.enabled }}
+{{- if and .Values.addons.gitlab.enabled }}
 autoRegister:
   enabled: {{ dig  "autoRegister" "enabled" "true" .Values.addons.gitlabRunner }}
 {{- end }}

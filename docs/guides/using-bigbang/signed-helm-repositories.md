@@ -76,7 +76,7 @@ kiali:
     repoName: "registry2" 
     cosignVerify: true
 
-kyverno:
+kyvernopolicies:
   sourceType: "helmRepo"
   helmRepo:
     repoName: "registry3"

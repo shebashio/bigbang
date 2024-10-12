@@ -20,7 +20,6 @@
     "kiali",
     "clusterAuditor",
     "gatekeeper",
-    "kyverno",
     "kyvernoPolicies",
     "kyvernoReporter",
     "elasticsearchKibana",
@@ -364,23 +363,6 @@
       "additionalProperties": false
     },
     "gatekeeper": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "kyverno": {
       "properties": {
         "enabled": true,
         "sourceType": true,

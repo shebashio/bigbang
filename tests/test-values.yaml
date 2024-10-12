@@ -417,25 +417,6 @@ gatekeeper:
           - default/restrict-host-path-write-.?
           - default/restrict-volume-types-.?
 
-kyverno:
-  values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    bbtests:
-      enabled: true
-
 kyvernoReporter:
   values:
     bbtests:
@@ -478,6 +459,20 @@ kyvernoPolicies:
   values:
     bbtests:
       enabled: true
+    networkPolicies:
+      externalRegistries:
+        allowEgress: true
+    admissionController:
+      container:
+        extraArgs:
+          webhookTimeout: 30
+        resources:
+          limits:
+            cpu: 1
+            memory: 768Mi
+          requests:
+            cpu: 1
+            memory: 768Mi
     excludeContainers:
     - not-me
     - or-me

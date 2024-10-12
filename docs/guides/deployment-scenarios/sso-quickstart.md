@@ -470,10 +470,6 @@ clusterAuditor:
         cpu: null
         memory: null
 
-kyverno:
-  enabled: true
-  values: 
-
 kyvernoPolicies:
   enabled: true
   values:
