@@ -55,8 +55,6 @@ spec:
       kind: Secret
       valuesKey: "overlays"
   dependsOn:
-    - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
     {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
