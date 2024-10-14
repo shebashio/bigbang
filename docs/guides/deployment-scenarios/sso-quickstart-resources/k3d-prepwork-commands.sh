@@ -18,5 +18,7 @@ lines_in_file=(
 )
 
 for line in "${lines_in_file[@]}"; do
-  grep -qF "${line}" ~/.bashrc || echo "${line}" >> ~/.bashrc
+  grep -qF "${line}" ~/.bashrc || sed -i "1i\\${line}" "~/.bashrc"
 done
+
+
