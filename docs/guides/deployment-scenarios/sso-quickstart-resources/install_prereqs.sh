@@ -30,13 +30,13 @@ curl https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 # Install kubectl
 sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo chmod +x kubectl
-sudo ln -s /usr/local/bin/kubectl /usr/local/bin/k || echo File exists
+k &>/dev/null || sudo ln -s /usr/local/bin/kubectl /usr/local/bin/k
 
 # Install kustomize
-curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | sudo bash
+kustomize &>/dev/null || curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | sudo bash
 
 # Install helm
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm &>/dev/null || curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 echo "$0" $(hostname) INFO: completed installation, verifying...
 

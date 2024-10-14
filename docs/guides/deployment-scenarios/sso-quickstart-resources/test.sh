@@ -22,21 +22,18 @@ function setup_host() {
         install_flux.sh
     )
     branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+    red=$(tput setaf 1)
+    normal=$(tput sgr0)
     for setup_file in "${setup_files[@]}"; do
         filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${setup_file}"
         url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
         command="env $env_vars /bin/bash -c \"\$(curl -fsSL $url)\""
-        echo $host INFO running $setup_file
-        code=0
-        result="$(
-            ssh "${host}" $command
-            code=$?
-        )"
-        if [[ $code -ne 0 ]]; then
-            echo $host ERROR encountered a problem when running $setup_file
-            echo $result
+        printf "%s\n" "$host INFO running $setup_file... "
+        if ! result="$(ssh "${host}" $command 2>&1)"; then
+            printf "%s\n%s" "${red}$host ERROR encountered a problem when running $setup_file${normal}" "$result"
+            exit 1
         else
-            echo $host INFO completed $setup_file
+            printf "%s\n" "Done ($host:$setup_file)"
         fi
     done
 }
