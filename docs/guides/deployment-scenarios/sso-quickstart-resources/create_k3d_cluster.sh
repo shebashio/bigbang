@@ -14,4 +14,4 @@ k3d cluster create "$(hostname)" \
   --api-port 6443
 
 # Copy the config replacing 0.0.0.0 with the VM's external IP address so you can access the cluster from your machine
-sed "s/0.0.0.0/$K3D_IP/" ~/.kube/config > "~/.kube/$(hostname)-config"
+sed "s/0.0.0.0/$K3D_IP/" ~/.kube/config > "$HOME/.kube/$(hostname)-config"
