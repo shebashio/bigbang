@@ -111,10 +111,9 @@ ssh workload-cluster hostname
    BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
    branch="refresh-keycloak-sso-quickstart-docs"  ### TODO: Replace Following branch with master before merging 
    # branch="master"
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/k3d-prepwork-commands.sh"
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/set_env_vars.sh"
    url="https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}"
    for host in keycloak workload; do
-      scp ${filename} ${host}-cluster:/tmp/${filename}
       K3D_IP=$(ssh -G ${host}-cluster | awk '/^hostname / { print $2 }')
       command="CLUSTER_NAME=${host}-cluster BIG_BANG_VERSION=$BIG_BANG_VERSION K3D_IP=$K3D_IP REGISTRY1_USERNAME=$REGISTRY1_USERNAME REGISTRY1_PASSWORD=$REGISTRY1_PASSWORD /bin/bash -c \"\$(curl -fsSL $url)\""
       ssh ${host}-cluster "$command"
