@@ -14,6 +14,12 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+  default_tags {
+    tags = {
+      ManagedBy = "Terraform"
+      RepoURL   = "https://repo1.dso.mil/big-bang/bigbang/-/tree/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources"
+    }
+  }
 }
 
 # Input variables
@@ -45,7 +51,7 @@ data "aws_vpc" "default" {
 data "aws_security_group" "this" {
   vpc_id = data.aws_vpc.default.id
   filter {
-    name = "group-name"
+    name   = "group-name"
     values = [var.aws_security_group_name]
   }
 }
@@ -54,28 +60,35 @@ data "http" "my_public_ip" {
   url = "https://api.ipify.org"
 }
 
-
-resource "aws_security_group_rule" "allow_rule" {
+resource "aws_security_group_rule" "ssh" {
   type              = "ingress"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
   cidr_blocks       = ["${data.http.my_public_ip.response_body}/32"]
   security_group_id = data.aws_security_group.this.id
-
-  description = "${local.project}: Allow inbound TCP/SSH traffic for ${local.user_name}"
+  description       = "${local.project}: Allow inbound TCP/SSH traffic for ${local.user_name}"
 }
 
+# resource "aws_security_group_rule" "kubectl" {
+#   type              = "ingress"
+#   from_port         = 6443
+#   to_port           = 6443
+#   protocol          = "tcp"
+#   cidr_blocks       = ["${data.http.my_public_ip.response_body}/32"]
+#   security_group_id = data.aws_security_group.this.id
+#   description       = "${local.project}: Allow inbound Kubernetes management traffic for ${local.user_name}"
+# }
 
 data "aws_subnets" "this" {
 
   filter {
-    name = "vpc-id"
+    name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
 
   filter {
-    name = "default-for-az"
+    name   = "default-for-az"
     values = [true]
   }
 }
@@ -130,7 +143,7 @@ resource "local_file" "ssh_config" {
 
 resource "null_resource" "ssh_config_include" {
   triggers = {
-    include_line = "Include ${local_file.ssh_config.filename}  # This line automatically managed by Terraform"
+    include_line    = "Include ${local_file.ssh_config.filename}  # This line automatically managed by Terraform"
     ssh_config_path = "${pathexpand(var.ssh_directory)}/config"
   }
 
@@ -178,12 +191,12 @@ data "aws_ami" "this" {
   owners = [var.aws_account_id]
 
   filter {
-    name = "name"
+    name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 
   filter {
-    name = "virtualization-type"
+    name   = "virtualization-type"
     values = ["hvm"]
   }
 }
@@ -192,10 +205,10 @@ data "aws_ami" "this" {
 resource "aws_instance" "ec2_instances" {
   count = 2
 
-  ami           = data.aws_ami.this.image_id
-  instance_type = "t3a.2xlarge"
-  key_name      = aws_key_pair.this.key_name
-  subnet_id     = data.aws_subnet.this.id
+  ami                    = data.aws_ami.this.image_id
+  instance_type          = "t3a.2xlarge"
+  key_name               = aws_key_pair.this.key_name
+  subnet_id              = data.aws_subnet.this.id
   vpc_security_group_ids = [data.aws_security_group.this.id]
 
   ebs_block_device {
