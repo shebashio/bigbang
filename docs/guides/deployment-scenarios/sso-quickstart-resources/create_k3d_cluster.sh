@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ $(docker ps | grep k3d | wc -l) -gt 0 ]]; then
+  echo A k3d cluster seems to already exist, exiting
+  exit 0
+fi
+
+
 K3D_IP=$(curl icanhazip.com)
 IMAGE_CACHE=${HOME}/.k3d-container-image-cache
 mkdir -p "${IMAGE_CACHE}"

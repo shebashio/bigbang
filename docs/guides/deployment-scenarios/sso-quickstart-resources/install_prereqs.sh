@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xeuo pipefail
+set -euo pipefail
 
 # Configure OS
 sudo sysctl -w vm.max_map_count=524288
@@ -19,7 +19,7 @@ sudo apt install git -y
 # Install docker (note we use escape some vars we want the remote linux to substitute)
 sudo apt update -y && sudo apt install apt-transport-https ca-certificates curl gnupg lsb-release -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 sudo apt update -y && sudo apt install docker-ce docker-ce-cli containerd.io -y && sudo usermod --append --groups docker "$USER"
 
 cd /usr/local/bin
@@ -37,3 +37,25 @@ curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack
 
 # Install helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+echo "$0" $(hostname) INFO: completed installation, verifying...
+
+function check() {
+  ${*} &>/dev/null &&
+    echo "$(hostname) SUCCESS: '${*}' returned non-failure exit code" ||
+    echo -e "\033[31m$(hostname) ERROR:   '${*}' returned failure exit code '$?'. Verify installation or attempt re-install.\033[0m"
+}
+
+check_inputs=(
+  'docker ps'
+  'k3d version'
+  'which kubectl'
+  'kustomize version'
+  'helm version'
+)
+
+for i in "${check_inputs[@]}"; do
+  check "$i"
+done
+
+echo "$0" $(hostname) INFO: checks complete

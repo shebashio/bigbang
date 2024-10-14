@@ -124,31 +124,51 @@ ssh workload-cluster hostname
 1. Configure host OS prerequisites and install prerequisite software on both VMs.
    * Copy and paste the following to generate an automation script.
 
-   ```shell
-   # [admin@Laptop:~]
-   branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
-   # branch="master"
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs.sh"
-   url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
-   for host in keycloak workload; do
-     ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
-   done
-   wait $(jobs -p)
-    ```
+```shell
+ function setup_host() {
+   host="${1}"
+   env_vars=(
+     REGISTRY1_USERNAME="Your_Name"  ## Your Harbor username
+     REGISTRY1_PASSWORD="Your_Harbor_CLI_Secret"    ## Your Harbor "CLI Secret" under "User Profile"
+     BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
+     K3D_IP="$K3D_IP"
+   )
+   K3D_IP="${2}"
+   local setup_files=(
+     set_env_vars.sh
+     install_prereqs.sh
+     create_k3d_cluster.sh
+     install_flux.sh
+   )
+  branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+  filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/"
+  for setup_file in "${setup_files[@]}"; do
+    
+    url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+    command="env $env_vars /bin/bash -c \"\$(curl -fsSL $url)\""
+    echo  
+    ssh "${host}" "/bin/bash -c \"\$(curl -fsSL $url)\""
+  done
+}
+  
+for host in keycloak-cluster workload-cluster; do
+  K3D_IP=$(ssh -G ${host}-cluster | awk '/^hostname / { print $2 }')
+  setup_host "$host" "$K3D_IP" &
+done
+wait (jobs -p)
+```
 
-   * The following script confirms whether docker, k3d, kubectl, kustomize and helm were successfully installed. No changes required.
-
-    ```shell
-   # [admin@Laptop:~]
-   branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
-   # branch="master"
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs_check.sh"
-   url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
-   for host in keycloak workload; do
-     ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
-   done
-   wait $(jobs -p)
-    ```
+  ```shell
+  # [admin@Laptop:~]
+  branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
+  # branch="master"
+  filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs.sh"
+  url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+  for host in keycloak workload; do
+    ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
+  done
+  wait $(jobs -p)
+   ```
 
 ## Step 4: Create k3d Cluster on both VMs (and make sure you have access to both)
 
