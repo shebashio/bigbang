@@ -28,12 +28,12 @@ function setup_host() {
         filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${setup_file}"
         url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
         command="env $env_vars /bin/bash -c \"\$(curl -fsSL $url)\""
-        printf "%s\n" "$host INFO running $setup_file... "
+        printf "%-20s%-8s%-10s%-20s\n" "[$host]" "INFO" executing "$setup_file"
         if ! result="$(ssh "${host}" $command 2>&1)"; then
-            printf "%s\n%s" "${red}$host ERROR encountered a problem when running $setup_file${normal}" "$result"
+            printf "%-20s%-8s%-10s%-20s\n%s\n" "${red}[$host]" ERROR executing "$setup_file${normal}" "$result"
             exit 1
         else
-            printf "%s\n" "Done ($host:$setup_file)"
+            printf "%-20s%-8s%-10s%-20s\n" "[$host]" INFO done "$setup_file"
         fi
     done
 }
