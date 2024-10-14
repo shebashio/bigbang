@@ -157,7 +157,7 @@ ssh workload-cluster hostname
 
 ```shell
 # [admin@Laptop:~]
-mkdir ~/.kube
+mkdir -p ~/.kube
 branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
 # branch="master"
 filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/create_k3d_cluster.sh"
