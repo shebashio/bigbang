@@ -133,14 +133,12 @@ ssh workload-cluster hostname
    # [admin@Laptop:~]
    branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
    # branch="master"
-   filename=install_prereqs.sh
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
-   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs.sh"
+   url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
    for host in keycloak workload; do
-      ssh ${host}-cluster < ${filename} &
+     ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
    done
    wait $(jobs -p)
-   rm $filename
     ```
 
    * The following script confirms whether docker, k3d, kubectl, kustomize and helm were successfully installed. No changes required.
@@ -149,14 +147,12 @@ ssh workload-cluster hostname
    # [admin@Laptop:~]
    branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
    # branch="master"
-   filename=install_prereqs_checks.sh
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
-   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs_checks.sh"
+   url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
    for host in keycloak workload; do
-      ssh ${host}-cluster < ${filename} &
+     ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
    done
    wait $(jobs -p)
-   rm $filename
     ```
 
 ## Step 4: Create k3d Cluster on both VMs (and make sure you have access to both)
@@ -168,14 +164,12 @@ ssh workload-cluster hostname
 mkdir ~/.kube
 branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
 # branch="master"
-filename=create_k3d_cluster.sh
-filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
-wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/create_k3d_cluster.sh"
+url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
 for host in keycloak workload; do
-   ssh ${host}-cluster < ${filename} &
+   ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
 done
 wait $(jobs -p)
-rm $filename
 for host in keycloak workload; do
   scp ${host}-cluster:~/.kube/${host}-cluster-config ~/.kube/${host}-cluster-config
   export KUBECONFIG="$KUBECONFIG:$HOME/.kube/${host}-cluster-config"
@@ -193,24 +187,20 @@ echo "export KUBECONFIG=\"$KUBECONFIG\""
 # [admin@Laptop:~]
 branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
 # branch="master"
-filename=install_flux.sh
-filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
-wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_flux.sh"
+url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
 for host in keycloak workload; do
-   ssh ${host}-cluster < ${filename} &
+   ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &
 done
 wait $(jobs -p)
-rm ${filename}
 ```
 
 * **NOTE:** It's possible for the above flux install commands to give a false error message, along the lines of "error: timed out waiting for the condition on deployments/helm-controller." If the deployment takes longer than five minutes, the wait for healthy logic will time out. If you follow these steps using cloud service provider infrastructure, you're unlikely to see the error. If you follow these steps on a home network lab with slower download speed you might see the error message, its ignorable, and you can use the following copy pasteable command block to verify health of the flux pods.
 
 ```shell
 # [admin@Laptop:~]
-export KUBECONFIG=$HOME/.kube/keycloak-cluster
-kubectl get po -n=flux-system
-export KUBECONFIG=$HOME/.kube/workload-cluster
-kubectl get po -n=flux-system
+ssh keycloak-cluster kubectl get po -n=flux-system
+ssh workload-cluster kubectl get po -n=flux-system
 ```
 
 ## Step 6: Install Big Bang on Workload Cluster

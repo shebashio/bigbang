@@ -11,10 +11,6 @@ k3d cluster create "$CLUSTER_NAME" \
   --port 80:80@loadbalancer \
   --port 443:443@loadbalancer \
   --api-port 6443
-sed "s/0.0.0.0/$K3D_IP/" ~/.kube/config > ~/.kube/${CLUSTER_NAME}-config
-# Explanation:
-# sed = stream editor
-# -i s/.../.../   (i = inline), (s = substitution, basically cli find and replace)
-# / / / are delimiters the separate what to find and what to replace.
-# $K3D_IP, is a variable with $ escaped, so the var will be processed by the remote VM.
-# This was done to allow kubectl access from a remote machine.
+
+# Copy the config replacing 0.0.0.0 with the VM's external IP address so you can access the cluster from your machine
+sed "s/0.0.0.0/$K3D_IP/" ~/.kube/config > "~/.kube/${CLUSTER_NAME}-config"
