@@ -143,7 +143,7 @@ ssh workload-cluster hostname
    # [admin@Laptop:~]
    branch="refresh-keycloak-sso-quickstart-docs" ### TODO: Replace Following branch with master before merging
    # branch="master"
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs_checks.sh"
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/install_prereqs_check.sh"
    url=https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
    for host in keycloak workload; do
      ssh ${host}-cluster "/bin/bash -c \"\$(curl -fsSL $url)\"" &

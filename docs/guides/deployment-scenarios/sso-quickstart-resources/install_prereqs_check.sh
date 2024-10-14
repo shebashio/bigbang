@@ -3,8 +3,8 @@ set -euo pipefail
 
 function check() {
   ${*} &> /dev/null \
-    && echo "SUCCESS: '${*}' returned non-failure exit code" \
-    || echo -e "\033[31mERROR:   '${*}' returned failure exit code '$?'. Verify installation or attempt re-install.\033[0m"
+    && echo "$(hostname) SUCCESS: '${*}' returned non-failure exit code" \
+    || echo -e "\033[31m$(hostname) ERROR:   '${*}' returned failure exit code '$?'. Verify installation or attempt re-install.\033[0m"
 }
 
 check_inputs=(
