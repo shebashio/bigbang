@@ -81,7 +81,7 @@ cp sso-quickstart.auto.tfvars.example sso-quickstart.auto.tfvars
 #     before proceeding      #
 ##############################
 ./tfdocker.sh init
-./tfdocker.sh apply -var ssh_directory=$PWD -auto-approve
+./tfdocker.sh apply -var ssh_directory=$HOME/.ssh -auto-approve
 ssh keycloak-cluster hostname
 # > ip-1-2-3-4
 ssh workload-cluster hostname
@@ -91,7 +91,7 @@ ssh workload-cluster hostname
 **Important:** After you complete this guide, be sure to undo all the actions listed above with the following command to avoid being continuously billed by AWS for the VMs:
 
 ```shell
-./tfdocker.sh destroy -var ssh_directory=$PWD -auto-approve
+./tfdocker.sh destroy -var ssh_directory=$HOME/.ssh -auto-approve
 ```
 
 ## Step 3: Prep work: Install Dependencies and Configure both VMs
@@ -104,8 +104,6 @@ ssh workload-cluster hostname
 
     ```shell
    # [admin@Laptop:~]
-   set -euo pipefail
-   
    REGISTRY1_USERNAME="Your_Name"  ## Your Harbor username
    REGISTRY1_PASSWORD="Your_Harbor_CLI_Secret"    ## Your Harbor "CLI Secret" under "User Profile"
    
@@ -113,17 +111,15 @@ ssh workload-cluster hostname
    BIG_BANG_VERSION=$(curl -s https://repo1.dso.mil/big-bang/bigbang/-/raw/master/base/gitrepository.yaml | grep 'tag:' | awk '{print $2}')
    branch="refresh-keycloak-sso-quickstart-docs"  ### TODO: Replace Following branch with master before merging 
    # branch="master"
-   filename=k3d-prepwork-commands.sh
-   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/${filename}"
-   wget https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}
+   filepath="docs/guides/deployment-scenarios/sso-quickstart-resources/k3d-prepwork-commands.sh"
+   url="https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/${filepath}"
    for host in keycloak workload; do
       scp ${filename} ${host}-cluster:/tmp/${filename}
       K3D_IP=$(ssh -G ${host}-cluster | awk '/^hostname / { print $2 }')
-      command="CLUSTER_NAME=${host}-cluster BIG_BANG_VERSION=$BIG_BANG_VERSION K3D_IP=$K3D_IP REGISTRY1_USERNAME=$REGISTRY1_USERNAME REGISTRY1_PASSWORD=$REGISTRY1_PASSWORD bash /tmp/${filename}"
+      command="CLUSTER_NAME=${host}-cluster BIG_BANG_VERSION=$BIG_BANG_VERSION K3D_IP=$K3D_IP REGISTRY1_USERNAME=$REGISTRY1_USERNAME REGISTRY1_PASSWORD=$REGISTRY1_PASSWORD /bin/bash -c \"\$(curl -fsSL $url)\""
       ssh ${host}-cluster "$command"
       ssh ${host}-cluster "grep ${host}-cluster ~/.bashrc &> /dev/null && echo Update Succeeded for ${host}-cluster || Update Failed for ${host}-cluster"
    done
-   rm $filename
     ```
 
 1. Configure host OS prerequisites and install prerequisite software on both VMs.

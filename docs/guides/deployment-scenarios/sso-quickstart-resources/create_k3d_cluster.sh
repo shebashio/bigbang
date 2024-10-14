@@ -1,4 +1,4 @@
-/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 IMAGE_CACHE=${HOME}/.k3d-container-image-cache
