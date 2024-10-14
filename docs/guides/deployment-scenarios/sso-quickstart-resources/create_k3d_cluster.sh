@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+K3D_IP=$(curl icanhazip.com)
 IMAGE_CACHE=${HOME}/.k3d-container-image-cache
 mkdir -p "${IMAGE_CACHE}"
 k3d cluster create "$(hostname)" \
