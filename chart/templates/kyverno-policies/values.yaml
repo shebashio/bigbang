@@ -8,6 +8,10 @@
 
 {{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
 
+#install kyverno
+kyverno: 
+  install: false
+
 waitforready:
   imagePullSecrets:
   - name: private-registry
