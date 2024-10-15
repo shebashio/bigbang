@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "1.89.3-bb.1"
+    tag: "1.89.7-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "1.89.3-bb.1"
+    tag: "1.89.7-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -515,11 +515,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.2.5-bb.6"
+    tag: "3.2.5-bb.7"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.2.5-bb.6"
+    tag: "3.2.5-bb.7"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -540,11 +540,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "2.24.1-bb.1"
+    tag: "2.24.2-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "2.24.1-bb.1"
+    tag: "2.24.2-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -701,11 +701,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.12.0-bb.5"
+    tag: "6.12.0-bb.6"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.12.0-bb.5"
+    tag: "6.12.0-bb.6"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -933,11 +933,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.5.1-bb.0"
+    tag: "8.5.2-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.5.1-bb.0"
+    tag: "8.5.2-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -986,11 +986,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.16.0-bb.1"
+    tag: "0.16.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.16.0-bb.1"
+    tag: "0.16.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1035,11 +1035,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.5.2-bb.1"
+      tag: "7.6.6-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.5.2-bb.1"
+      tag: "7.6.6-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1123,11 +1123,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "6.0.3-bb.0"
+      tag: "6.0.3-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "6.0.3-bb.0"
+      tag: "6.0.3-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1152,11 +1152,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.3-bb.4"
+      tag: "6.0.3-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.3-bb.4"
+      tag: "6.0.3-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1402,11 +1402,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "8.0.6-bb.4"
+      tag: "10.6.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "8.0.6-bb.4"
+      tag: "10.6.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1535,11 +1535,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "2.10.0-bb.0"
+      tag: "2.10.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "2.10.0-bb.0"
+      tag: "2.10.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1627,11 +1627,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.22.0-bb.5"
+      tag: "1.22.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.22.0-bb.5"
+      tag: "1.22.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -1652,11 +1652,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.0.0-bb.2"
+      tag: "10.0.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.0.0-bb.2"
+      tag: "10.0.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1782,11 +1782,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "2.5.0-bb.0"
+      tag: "2.5.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "2.5.0-bb.0"
+      tag: "2.5.1-bb.0"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2107,6 +2107,25 @@ addons:
 
     postRenderers: []
 
+  alloy:
+    # -- Toggle deployment of grafana alloy
+    enabled: false
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
+      tag: "1.5.4-bb.0"
+      path: "./chart"
+
+    values: {}
+
+    postRenderers: []
+
+    # -- Flux reconciliation overrides specifically for the alloy package
+    flux: {}
+
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:
   # -- Choose source type of "git" or "helmRepo"
@@ -2219,3 +2238,5 @@ packages:
 
     # -- Values to pass through to package Helm chart
     values: {}
+
+    
