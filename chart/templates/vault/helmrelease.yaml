@@ -13,6 +13,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/vault/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ .Values.addons.vault.forceUpgrade | default false }}
   targetNamespace: vault
   chart:
     spec:

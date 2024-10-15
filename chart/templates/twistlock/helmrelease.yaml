@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/twistlock/values.yaml") . | sha256sum }}
 spec:
   upgrade:
-    force: {{ .Values.twistlock.forceUpgrade }}
+    force: {{ .Values.twistlock.forceUpgrade | default false }}
   targetNamespace: twistlock
   chart:
     spec:

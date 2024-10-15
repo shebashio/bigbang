@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/gatekeeper/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ .Values.gatekeeper.forceUpgrade | default false }}
   # Use a non-persistent client to allow for Gatekeeper CRD *magic*
   persistentClient: false
   targetNamespace: gatekeeper-system

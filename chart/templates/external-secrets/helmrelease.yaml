@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/external-secrets/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ .Values.addons.externalSecrets.forceUpgrade | default false }}
   targetNamespace: external-secrets
   chart:
     spec:

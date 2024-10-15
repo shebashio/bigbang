@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/promtail/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ .Values.promtail.forceUpgrade | default false }}
   driftDetection:
     mode: warn
   targetNamespace: promtail
