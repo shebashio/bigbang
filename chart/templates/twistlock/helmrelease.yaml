@@ -1,4 +1,4 @@
-{{- $fluxSettingsTwistlock := merge .Values.flux .Values.twistlock.flux -}}
+{{- $fluxSettingsTwistlock := merge .Values.twistlock.flux .Values.flux -}}
 {{- if .Values.twistlock.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -12,8 +12,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/twistlock/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.twistlock.forceUpgrade }}
   targetNamespace: twistlock
   chart:
     spec:
@@ -77,4 +75,7 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- end }}
+
+  upgrade:
+    force: true
 {{- end }}
