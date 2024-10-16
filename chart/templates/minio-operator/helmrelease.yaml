@@ -8,8 +8,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/minio-operator/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.addons.minioOperator.forceUpgrade | default false }}
   targetNamespace: minio-operator
   chart:
     spec:

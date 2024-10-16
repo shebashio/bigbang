@@ -12,8 +12,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/argocd/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.addons.argocd.forceUpgrade | default false }}
   targetNamespace: argocd
   chart:
     spec:

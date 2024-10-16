@@ -8,8 +8,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/gitlab-runner/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.addons.gitlabRunner.forceUpgrade | default false }}
   targetNamespace: gitlab-runner
   releaseName: gitlab-runner
   chart:

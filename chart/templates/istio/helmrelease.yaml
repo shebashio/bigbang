@@ -12,8 +12,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.istio.forceUpgrade | default false }}
   targetNamespace: istio-system
   chart:
     spec:

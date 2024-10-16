@@ -12,8 +12,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafana/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.grafana.forceUpgrade | default false }}
   driftDetection:
     mode: warn
   targetNamespace: monitoring

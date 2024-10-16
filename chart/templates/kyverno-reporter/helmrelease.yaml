@@ -12,8 +12,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno-reporter/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ (get .Values $pkg).forceUpgrade | default false }}
   targetNamespace: kyverno-reporter
   chart:
     spec:

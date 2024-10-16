@@ -24,8 +24,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ (toJson $vals.values) | sha256sum }}
 spec:
-  upgrade:
-    force: {{ $vals.forceUpgrade | default false }}
   releaseName: {{ $pkg }}
   targetNamespace: {{ dig "namespace" "name" $pkg $vals }}
   chart:

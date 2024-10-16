@@ -13,8 +13,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/haproxy/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ .Values.addons.haproxy.forceUpgrade | default false }}
   targetNamespace: authservice
   chart:
     spec:

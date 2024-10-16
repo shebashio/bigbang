@@ -23,8 +23,6 @@ metadata:
     checksum/bigbang-values: {{ (toJson (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn")) | sha256sum }}
     {{- end }}
 spec:
-  upgrade:
-    force: {{ $.Values.wrapper.forceUpgrade | default false }}
   releaseName: {{ $pkg }}-wrapper
   chart:
     spec:

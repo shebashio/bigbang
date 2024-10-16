@@ -14,8 +14,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/mattermost-operator/values.yaml") . | sha256sum }}
 spec:
-  upgrade:
-    force: {{ $mmOpValues.forceUpgrade | default false }}
   targetNamespace: mattermost-operator
   chart:
     spec:
