@@ -416,8 +416,6 @@ gatekeeper:
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
           - default/restrict-volume-types-.?
-    bbtests:
-      enabled: true
 
 kyverno:
   values:
@@ -585,7 +583,6 @@ kyvernoPolicies:
           allow:
           - 192.168.0.1
       restrict-external-names:
-        enabled: true
         parameters:
           allow:
           - allowed
@@ -711,10 +708,6 @@ kyvernoPolicies:
               - alloy
               names:
               - "*-cypress-test*"
-      update-image-pull-policy:
-        parameters:
-          update:
-          - to: Always
       update-image-registry:
         parameters:
           update:
@@ -876,9 +869,7 @@ elasticsearchKibana:
     bbtests:
       enabled: true
       cypress:
-        artifacts: true
         envs:
-          cypress_expect_logs: "false"
           cypress_kibana_url: "https://kibana.dev.bigbang.mil"
         resources:
           requests:
@@ -941,8 +932,6 @@ loki:
                   protocol: TLS
                   name: https
               resolution: DNS
-        minioOperator:
-          enabled: true
 
     minio:
       enabled: true
@@ -1028,7 +1017,6 @@ tempo:
     bbtests:
       enabled: true
       cypress:
-        artifacts: true
         envs:
           cypress_url: 'https://tempo.dev.bigbang.mil'
           cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
@@ -1044,10 +1032,6 @@ tempo:
           TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
 
     persistence:
-      enabled: true
-      # storageClassName: local-path
-      accessModes:
-        - ReadWriteOnce
       size: 5Gi
 
     tempoQuery:
@@ -1151,14 +1135,6 @@ grafana:
           gnetId: 741
           revision: 1
           datasource: Prometheus
-    downloadDashboards:
-      resources:
-        limits:
-          cpu: 20m
-          memory: 20Mi
-        requests:
-          cpu: 20m
-          memory: 20Mi
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -1174,7 +1150,6 @@ grafana:
     bbtests:
       enabled: true
       cypress:
-        artifacts: true
         envs:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
 
@@ -1241,7 +1216,6 @@ twistlock:
         size: 5Gi
       localVolumeUpgrade: true
     defender:
-      enabled: true
       dockerSocket: "/run/k3s/containerd/containerd.sock"
       selinux: false
     bbtests:
@@ -1267,15 +1241,7 @@ addons:
       controller:
         resources:
           requests:
-            cpu: 500m
-            memory: 2Gi
-          limits: {}
-      dex:
-        resources:
-          requests:
-            cpu: 10m
-            memory: 128Mi
-          limits: {}
+            memory: 2Gi      
       redis-bb:
         master:
           persistence:
@@ -1289,25 +1255,12 @@ addons:
       redis:
         resources:
           requests:
-            cpu: 50m
-            memory: 256Mi
-          limits: {}
-      server:
-        autoscaling:
-          enabled: false
-        resources:
-          requests:
-            cpu: 20m
-            memory: 128Mi
-          limits: {}
+            memory: 256Mi 
       repoServer:
-        autoscaling:
-          enabled: false
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi
-          limits: {}
+            memory: 128Mi          
       configs:
         secret:
           argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
@@ -1318,7 +1271,6 @@ addons:
             cypress_url: "https://argocd.dev.bigbang.mil"
           resources:
             limits:
-              cpu: 4
               memory: 12Gi
         scripts:
           envs:
@@ -1362,9 +1314,7 @@ addons:
     values:
       resources:
         requests:
-          cpu: 100m
           memory: 100Mi
-        limits: {}
       redis:
         enabled: true
       redis-bb:
@@ -1415,12 +1365,6 @@ addons:
           limits:
             cpu: 1
             memory: 500Mi
-          requests:
-            cpu: 250m
-            memory: 64Mi
-      trust_store_password: dsoppassword
-      key_store_password: dsoppassword
-      key_store_cert_password : dsoppassword
       fortify_autoconfig: |
           appProperties:
             host.validation: false
@@ -1432,8 +1376,6 @@ addons:
             migration.enabled: true
             migration.username: root
             migration.password: password
-      fortify_license: |
-        <License>
       mysql:
         primary:
           resources:
@@ -1456,9 +1398,6 @@ addons:
             limits:
               cpu: 100m
               memory: 500Mi
-            requests:
-              cpu: 100m
-              memory: 256Mi
       bbtests:
         enabled: true
         cypress: # note `cypress:*`` is different than in the fortify chart test-values.yaml
@@ -1659,116 +1598,91 @@ addons:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       sso:
         resources:
           requests:
-            cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       postgresql:
         persistence:
           size: 256Mi
         resources:
           requests:
-            cpu: 200m
-            memory: 1024Mi
-          limits: {}
+            memory: 1024Mi          
         metrics:
           resources:
             requests:
-              cpu: 100m
-              memory: 200Mi
-            limits: {}
+              memory: 200Mi            
       analyzer:
         replicaCount: 1
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       api:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       catalog:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       policyEngine:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       simpleQueue:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       upgradeJob:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       feeds:
-        enabled: true
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
         feeds-db:
           resources:
             requests:
-              cpu: 100m
-              memory: 200Mi
-            limits: {}
+              memory: 200Mi            
           metrics:
             resources:
               requests:
-                cpu: 100m
-                memory: 200Mi
-              limits: {}
+                memory: 200Mi              
         feedsUpgradeJob:
           resources:
             requests:
               cpu: 100m
-              memory: 200Mi
-            limits: {}
+              memory: 200Mi            
       rbacManager:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       reports:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       notifications:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       ui:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi
-          limits: {}
+            memory: 200Mi          
       ui-redis:
-        enabled: true
         replica:
           replicaCount: 0
           autoscaling:
@@ -1825,21 +1739,12 @@ addons:
       resources:
         requests:
           cpu: 100m
-          memory: 200Mi
-        limits: {}
+          memory: 200Mi        
       persistence:
-        enabled: false
         size: 5Gi
       postgresql:
         persistence:
-          size: 256Mi
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-          limits: {}
-      tests:
-        enabled: false
+          size: 256Mi      
       bbtests:
         enabled: true
         cypress:
@@ -2159,7 +2064,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           envs:
             cypress_nexus_url: "https://nexus.dev.bigbang.mil"
         scripts:
@@ -2208,7 +2112,6 @@ addons:
           config:
             region: velero
       credentials:
-        useSecret: true
         secretContents:
           cloud: |
             [default]
@@ -2241,7 +2144,6 @@ addons:
                   - source:
                       namespaces:
                       - keycloak
-      replicas: 1
       resources:
         requests:
           cpu: 250m
@@ -2352,15 +2254,6 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
     values:
-      minio:
-        enabled: false
-        disableSSL: true
-        endpoint: minio
-        accessKey: "minio"
-        secretKey: "minio123"
-        bucketName: vault-data
-      autoInit:
-        enabled: true
       global:
         tlsDisable: false
       injector:
@@ -2380,7 +2273,6 @@ addons:
           VAULT_SKIP_VERIFY: "true"
           VAULT_LOG_FORMAT: "json"
         dataStorage:
-          enabled: true
           size: 256Mi
         auditStorage:
           size: 256Mi
@@ -2389,7 +2281,6 @@ addons:
           replicas: 1
           apiAddr: "https://vault.dev.bigbang.mil"
           raft:
-            enabled: true
             config: |
               ui = true
 
@@ -2457,7 +2348,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           envs:
             cypress_vault_url: "https://vault.dev.bigbang.mil"
 
@@ -2625,7 +2515,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           envs:
             cypress_url: "https://thanos.dev.bigbang.mil"
             cypress_prometheus_integration_enabled: "true"
@@ -2658,7 +2547,6 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          artifacts: true
           resources:
             requests:
               cpu: "2"
