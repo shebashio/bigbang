@@ -1,4 +1,4 @@
-{{- $fluxSettingsTwistlock := merge .Values.twistlock.flux .Values.flux -}}
+{{- $fluxSettingsTwistlock := merge .Values.flux .Values.twistlock.flux -}}
 {{- if .Values.twistlock.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
