@@ -14,6 +14,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/keycloak/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ .Values.addons.keycloak.forceUpgrade | default false }}
   releaseName: {{ $name }}
   targetNamespace: {{ $name }}
   chart:

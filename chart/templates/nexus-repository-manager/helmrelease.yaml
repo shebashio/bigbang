@@ -14,6 +14,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/nexus-repository-manager/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: {{ $nexusValues.forceUpgrade | default false }}
   targetNamespace: nexus-repository-manager
   releaseName: nexus-repository-manager
   chart:

@@ -249,6 +249,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "enterprise": {
           "type": "boolean"
         },
@@ -274,7 +275,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "forceUpgrade": true
       },
       "allOf": [
         {
@@ -296,6 +298,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -326,6 +329,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -352,6 +356,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         }
@@ -371,7 +376,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "forceUpgrade": true
       },
       "allOf": [
         {
@@ -388,7 +394,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "forceUpgrade": true
       },
       "allOf": [
         {
@@ -405,7 +412,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "forceUpgrade": true
       },
       "allOf": [
         {
@@ -423,6 +431,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         }
@@ -447,6 +456,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -490,6 +500,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         }
@@ -510,6 +521,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         }
@@ -530,6 +542,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         }
@@ -562,6 +575,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -617,6 +631,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -683,6 +698,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -740,6 +756,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -841,6 +858,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -918,6 +936,7 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "forceUpgrade": true,
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -1420,6 +1439,10 @@
         },
         "postRenderers": {
           "$ref": "#/$defs/postRenderers"
+        },
+        "forceUpgrade": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
