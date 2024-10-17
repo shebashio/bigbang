@@ -28,6 +28,7 @@ istio:
     gateways:
     - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
   elasticsearch:
+    enabled: {{ .Values.istio.enabled }}
     gateways:
     - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
 

@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeTEuZHNvLm1pbCI6eyJ1c2VybmFtZSI6InpjYWxsYWhhbiIsInBhc3N3b3JkIjoiQnVNaXpYaDVCS0txVWhEaDZOdzdKT1ZQMWRRU3hmYUkiLCJhdXRoIjoiZW1OaGJHeGhhR0Z1T2tKMVRXbDZXR2cxUWt0TGNWVm9SR2cyVG5jM1NrOVdVREZrVVZONFptRkoifX19
+kind: Secret
+metadata:
+  name: registry1
+  namespace: metallb-system
+type: kubernetes.io/dockerconfigjson
