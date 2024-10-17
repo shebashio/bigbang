@@ -832,12 +832,12 @@ policies:
         pods:
           allow:
           - logging-loki-minio-*
+          - bb-*-upgrade
           deny:
           - logging-ek-es-data*
           - logging-ek-es-master*
           - logging-ek-kb*
           - logging-ek-metrics*
-          - bb-*-upgrade
       - namespace: minio-operator
         pods:
           allow:
