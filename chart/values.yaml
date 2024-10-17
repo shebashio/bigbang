@@ -570,7 +570,8 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.19.0-bb.3"
+    branch: 206-enable-cypress-test-to-automate-testing-elasticsearch-virtual-service-login
+    tag: null
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
