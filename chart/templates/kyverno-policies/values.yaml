@@ -16,6 +16,8 @@ waitforready:
   imagePullSecrets:
   - name: private-registry
 
+fullnameOverride: kyverno-kyverno
+
 policies:
 
   {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}
