@@ -15,9 +15,9 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
 spec:
   interval: {{ .Values.flux.interval }}
-  url: {{ .Values.addons.alloy.git.repo }}
+  url: {{ .Values.addons.mimir.git.repo }}
   ref:
-    {{- include "validRef" .Values.addons.alloy.git | nindent 4 }}
+    {{- include "validRef" .Values.addons.mimir.git | nindent 4 }}
   {{ include "gitIgnore" . }}
   {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
 {{- end }}
