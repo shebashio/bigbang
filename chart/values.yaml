@@ -2124,7 +2124,7 @@ addons:
 
   mimir:
     # -- Toggle deployment of grafana alloy
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -2132,7 +2132,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/apps/sandbox/mimir.git
       tag: null
-      branch: main
+      branch: mimir-10/wrapper-chart
       path: "./chart"
 
     values: {}
