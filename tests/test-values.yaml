@@ -125,6 +125,7 @@ jaeger:
           # cypress_keycloak_test_enable: "true"
 
 kiali:
+  enabled: true
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
   values:
@@ -418,6 +419,7 @@ gatekeeper:
           - default/restrict-volume-types-.?
 
 kyverno:
+  enabled: true
   values:
     networkPolicies:
       externalRegistries:
@@ -437,6 +439,7 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  enabled: true
   values:
     bbtests:
       enabled: true
@@ -475,6 +478,7 @@ kyvernoReporter:
 
 
 kyvernoPolicies:
+  enabled: true
   values:
     bbtests:
       enabled: true
@@ -1045,6 +1049,10 @@ promtail:
   enabled: true
 
 monitoring:
+  enabled: true
+  git:
+    tag: null
+    branch: "auth-fix"
   flux:
     timeout: 20m
     install:
