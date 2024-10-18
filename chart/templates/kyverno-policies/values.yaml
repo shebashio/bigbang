@@ -976,7 +976,6 @@ policies:
         pods:
           allow:
           - thanos-minio-*
-          - thanos-upgrade-job-*
           deny:
           - thanos-query-frontend-*
           - thanos-storegateway*
