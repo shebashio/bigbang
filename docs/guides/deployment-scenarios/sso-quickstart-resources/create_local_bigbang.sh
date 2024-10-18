@@ -47,7 +47,7 @@ helm upgrade -i bigbang oci://registry1.dso.mil/bigbang/bigbang \
    --set registryCredentials.password=${REGISTRY_PASSWORD} \
    -f https://${bb}/bigbang/-/raw/master/tests/test-values.yaml \
    -f https://${bb}/bigbang/-/raw/master/chart/ingress-certs.yaml \
+   -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
    -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/keycloak-testing.yaml &> /dev/null
-   # -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
 
 echo 'Big Bang installed. Modify your /etc/hosts file then go to https://keycloak.dev.bigbang.mil/auth/admin in your browser'
