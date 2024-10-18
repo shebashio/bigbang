@@ -1321,7 +1321,7 @@ addons:
 
   nexusRepositoryManager:
     # -- Toggle deployment of Nexus Repository Manager.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1329,7 +1329,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "72.0.0-bb.0"
+      branch: "145-unable-to-activate-desired-realms-in-nexus-configuration"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
