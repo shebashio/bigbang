@@ -13,7 +13,7 @@ fi
 
 docker ps &> /dev/null || (echo Docker is not running. Please start Docker and try again && exit 1)
 
-cluster_name=bigbang-sso-quickstart
+cluster_name=bb-sso-quickstart
 
 echo "Creating a k3d Kubernetes cluster called '$cluster_name' if none already exists..."
 
