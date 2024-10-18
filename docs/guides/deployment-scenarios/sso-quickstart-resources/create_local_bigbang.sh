@@ -15,17 +15,21 @@ docker ps &> /dev/null || (echo Docker is not running. Please start Docker and t
 
 echo "Creating a k3d Kubernetes cluster called 'bigbang' if none already exists..."
 
-k3d cluster list | grep bigbang || k3d cluster create bigbang \
+k3d cluster list | grep bigbang &> /dev/null || k3d cluster create bigbang \
   --agents 3 \
   -p80:80@loadbalancer \
   -p443:443@loadbalancer \
   --k3s-arg --disable=traefik@server:0 \
   --api-port 6443 &> /dev/null
 
-echo 'Cluster created. Saving Kubernetes config file to this directory...'
+config_path=$HOME/.kube/bigbang-sso-quickstart-config
+echo "Saving Kubernetes config file ${config_path}..."
 
-k3d kubeconfig get bigbang > ./bigbangconfig
-KUBECONFIG=./bigbangconfig
+k3d kubeconfig get bigbang > "$config_path"
+KUBECONFIG="$config_path"
+
+echo "Prefix your helm and kubectl commands with the following or add to your shell's rc file:"
+echo "export KUBECONFIG=${config_path}"
 
 echo 'Installing Flux...'
 
