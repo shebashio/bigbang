@@ -47,7 +47,7 @@ helm upgrade -i bigbang oci://registry1.dso.mil/bigbang/bigbang \
    -f https://${bb}/bigbang/-/raw/master/tests/test-values.yaml \
    -f https://${bb}/bigbang/-/raw/master/chart/ingress-certs.yaml \
    -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
-   -f https://${bb}/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/understanding-bigbang/package-architecture/keycloak.md &> /dev/null
+   -f https://${bb}/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/understanding-bigbang/package-architecture/sso-quickstart-resources/keycloak.md &> /dev/null
 echo '#### TODO update branch in line above to master before merging!!!!'
 
 echo 'Big Bang installed. Modify your /etc/hosts file then go to https://keycloak.dev.bigbang.mil/auth/admin in your browser'
