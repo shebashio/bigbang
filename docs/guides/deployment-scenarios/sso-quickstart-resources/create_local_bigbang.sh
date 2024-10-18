@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -xeuo pipefail
 
 if [ -z "${REGISTRY_USERNAME}" ]; then
   echo Please set an environment variable REGISTRY_USERNAME with your registry1 / Harbor username
