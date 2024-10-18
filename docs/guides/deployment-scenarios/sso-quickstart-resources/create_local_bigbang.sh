@@ -27,8 +27,8 @@ k3d cluster list | grep $cluster_name &> /dev/null || k3d cluster create $cluste
 
 config_path=$HOME/.kube/${cluster_name}-config
 echo "Saving Kubernetes config file ${config_path}..."
-
 k3d kubeconfig get $cluster_name > "$config_path"
+chmod 600 "$config_path"
 KUBECONFIG="$config_path"
 
 echo "Prefix your helm and kubectl commands with the following or add to your shell's rc file:"
