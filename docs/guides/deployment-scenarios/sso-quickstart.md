@@ -2,40 +2,29 @@
 
 [[_TOC_]]
 
-# This overrides file is for deploying only the packages needed to test keycloak during renovate or other update/change work, and should be used in combination with the testing steps called out in docs/DEVELOPMENT_MAINTENANCE.md
-# This is for deploying/testing with a local keycloak (keycloak.dev.bigbang.mil)
-```shell
-REGISTRY_USERNAME="YOUR HARBOR USERANME HERE"
-REGISTRY_PASSWORD="YOUR HARBOR CLI TOKEN HERE"
+The following shell script will create a local k3d Kubernetes cluster then install Flux and Big Bang with Keycloak enabled.
 
-k3d cluster list | grep bigbang || k3d cluster create bigbang \
-  --agents 12 \
-  -p80:80@loadbalancer \
-  -p443:443@loadbalancer \
-  --k3s-arg --disable=traefik@server:0 \
-  --api-port 6443
+Be sure to set environment variables holding your Harbor / registry1 credentials, `REGISTRY_USERNAME` and `REGISTRY_PASSWORD` (the latter being your CLI Secret, which can be obtained at <https://registry1.dso>, logging in, then "User Profile")
 
-k3d kubeconfig get bigbang > ./bigbangconfig
-KUBECONFIG=./bigbangconfig
+1. Make sure you have a container runtime running (e.g. Docker, Colima)
+1. Ensure `k3d` is [installed](https://k3d.io/v5.7.4/#install-current-latest-release)
+1. Run the following commands to create a local k3d Kubernetes cluster and install Big Bang with Keycloak enabled: 
 
-helm upgrade -i --create-namespace -n flux-system flux oci://ghcr.io/fluxcd-community/charts/flux2
-bb='repo1.dso.mil/big-bang/bigbang/-/raw/master'
-kc='repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/main/docs/dev-overrides'
-helm registry login https://registry1.dso.mil/  # Not sure if this is necessary
-helm upgrade -i bigbang oci://registry1.dso.mil/bigbang/bigbang \
-   -n bigbang \
-   --create-namespace \
-   --set registryCredentials.username=${REGISTRY_USERNAME} \
-   --set registryCredentials.password=${REGISTRY_PASSWORD} \
-   -f https://${bb}/tests/test-values.yaml \
-   -f https://${bb}/chart/ingress-certs.yaml \
-   -f https://${kc}/minimal.yaml \
-   -f https://${kc}/keycloak-testing.yaml
-```
-the customer has access to the granular day-to-day activity, they need a high level overview of your accomplishments
-what does it mean, why is it important
-what OKR(s) does it align with, what core problems does your work address (e.g. kubernetes is difficult)
-written so that a project manager, non-engineer or contract person can understand
-"I did X and the benefit of that is Y"
-what does, e.g. unit tests, mean long-term for the project? stability, reliability, etc
-if you're wondering if a task is really worth doing, ask Chris
+    ```shell
+    export REGISTRY_USERNAME='Your_Name'
+    export REGISTRY_PASSWORD='YourHarborCLISecret'
+    branch='refresh-keycloak-sso-quickstart-docs'
+    url="https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/docs/guides/deployment-scenarios/sso-quickstart-resources/create_local_bigbang.sh"
+    curl -fsSL "$url" | bash
+    ```
+1. Add the following lines to your `/etc/hosts` file:
+
+    ```text
+    127.0.0.1 keycloak.dev.bigbang.mil
+    127.0.0.1 alertmanager.dev.bigbang.mil
+    ```
+1. Navigate to <https://keycloak.dev.bigbang.mil/> and click "Click Here" to register a new user:
+
+    ![img.png](img.png)
+
+If you can't reslve
