@@ -750,7 +750,7 @@ loki:
 
 neuvector:
   # -- Toggle deployment of Neuvector.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -976,7 +976,7 @@ grafana:
 #
 twistlock:
   # -- Toggle deployment of Twistlock.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -984,7 +984,8 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.16.0-bb.4"
+    tag: null
+    branch: "renovate/twistlock"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
