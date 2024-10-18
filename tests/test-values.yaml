@@ -844,6 +844,8 @@ elasticsearchKibana:
                   protocol: TLS
                   name: https
               resolution: DNS
+    autoRollingUpgrade:
+      enabled: true
     elasticsearch:
       master:
         count: 1
