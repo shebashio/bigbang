@@ -30,4 +30,4 @@ The applications in the table below provide both SSO and built-in authentication
 | Keycloak | `admin` | `password` | Default username and password can be overridden with Helm values `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN` and `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN_PASSWORD` respectively |
 | Neuvector | `admin` | `admin` | You should change the default password when you log into Neuvector. Can also be changed via the chart at the `controller.secret.data.userinitcfg.yaml` key, see the [upstream docs for more details and examples](https://open-docs.neuvector.com/deploying/production/configmap).|
 | Harbor | `admin` | `Harbor12345` | Default password can be overridden with Helm values `addons.harbor.values.harborAdminPassword` |
-| Fortify | `admin` | `F0rt1fy@dmiNPa$$w0rd` | Use `sops -d bigbang/prod2/environment-bb-secret.enc.yaml | sed 's/\\n/\'$'\n/g' | grep "Fortify admin"` to get the password |
+| Fortify | `admin` | `F0rt1fy@dmiNPa$$w0rd` | Use `sops -d bigbang/prod2/environment-bb-secret.enc.yaml \| sed 's/\\n/\'$'\n/g' \| grep "Fortify admin"` to get the password |
