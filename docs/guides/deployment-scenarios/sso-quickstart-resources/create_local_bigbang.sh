@@ -35,7 +35,6 @@ echo "Prefix your helm and kubectl commands with the following or add to your sh
 echo "export KUBECONFIG=${config_path}"
 
 echo 'Installing Flux...'
-
 helm upgrade -i --create-namespace -n flux-system flux oci://ghcr.io/fluxcd-community/charts/flux2 &> /dev/null
 
 echo 'Installing Big Bang with Keycloak enabled...'
@@ -48,6 +47,7 @@ helm upgrade -i bigbang oci://registry1.dso.mil/bigbang/bigbang \
    -f https://${bb}/bigbang/-/raw/master/tests/test-values.yaml \
    -f https://${bb}/bigbang/-/raw/master/chart/ingress-certs.yaml \
    -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
-   -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/keycloak-testing.yaml &> /dev/null
+   -f https://${bb}/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/understanding-bigbang/package-architecture/keycloak.md &> /dev/null
+echo '#### TODO update branch in line above to master before merging!!!!'
 
 echo 'Big Bang installed. Modify your /etc/hosts file then go to https://keycloak.dev.bigbang.mil/auth/admin in your browser'
