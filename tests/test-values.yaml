@@ -2443,7 +2443,10 @@ addons:
   #
   thanos:
     # -- Toggle deployment of thanos
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "85-add-pre-upgrade-job-to-automate-package-upgrade-to-15-7-27"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
