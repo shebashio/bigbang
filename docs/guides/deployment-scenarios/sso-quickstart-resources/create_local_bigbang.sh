@@ -13,19 +13,22 @@ fi
 
 docker ps &> /dev/null || (echo Docker is not running. Please start Docker and try again && exit 1)
 
-echo "Creating a k3d Kubernetes cluster called 'bigbang' if none already exists..."
+cluster_name=bigbang-sso-quickstart
 
-k3d cluster list | grep bigbang &> /dev/null || k3d cluster create bigbang \
+echo "Creating a k3d Kubernetes cluster called '$cluster_name' if none already exists..."
+
+k3d cluster list | grep $cluster_name &> /dev/null || k3d cluster create $cluster_name \
   --agents 3 \
   -p80:80@loadbalancer \
   -p443:443@loadbalancer \
-  --k3s-arg --disable=traefik@server:0 \
-  --api-port 6443 &> /dev/null
+  --k3s-arg --disable=traefik@server:0 &> /dev/null
+#  --k3s-arg --disable=traefik@server:0 \
+#  --api-port 6443 &> /dev/null
 
-config_path=$HOME/.kube/bigbang-sso-quickstart-config
+config_path=$HOME/.kube/${cluster_name}-config
 echo "Saving Kubernetes config file ${config_path}..."
 
-k3d kubeconfig get bigbang > "$config_path"
+k3d kubeconfig get $cluster_name > "$config_path"
 KUBECONFIG="$config_path"
 
 echo "Prefix your helm and kubectl commands with the following or add to your shell's rc file:"
