@@ -20,7 +20,7 @@ k3d cluster list | grep bigbang || k3d cluster create bigbang \
   -p80:80@loadbalancer \
   -p443:443@loadbalancer \
   --k3s-arg --disable=traefik@server:0 \
-  --api-port 6443
+  --api-port 6443 &> /dev/null
 
 echo 'Cluster created. Saving Kubernetes config file to this directory...'
 
@@ -29,7 +29,7 @@ KUBECONFIG=./bigbangconfig
 
 echo 'Installing Flux...'
 
-helm upgrade -i --create-namespace -n flux-system flux oci://ghcr.io/fluxcd-community/charts/flux2
+helm upgrade -i --create-namespace -n flux-system flux oci://ghcr.io/fluxcd-community/charts/flux2 &> /dev/null
 
 echo 'Installing Big Bang with Keycloak enabled...'
 bb='repo1.dso.mil/big-bang'
@@ -40,7 +40,7 @@ helm upgrade -i bigbang oci://registry1.dso.mil/bigbang/bigbang \
    --set registryCredentials.password=${REGISTRY_PASSWORD} \
    -f https://${bb}/bigbang/-/raw/master/tests/test-values.yaml \
    -f https://${bb}/bigbang/-/raw/master/chart/ingress-certs.yaml \
-   -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
-   -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/keycloak-testing.yaml
+   -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/keycloak-testing.yaml &> /dev/null
+   # -f https://${bb}/product/packages/keycloak/-/raw/main/docs/dev-overrides/minimal.yaml \
 
 echo 'Big Bang installed. Modify your /etc/hosts file then go to https://keycloak.dev.bigbang.mil/auth/admin in your browser'

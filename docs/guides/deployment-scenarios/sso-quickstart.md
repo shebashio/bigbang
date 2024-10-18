@@ -13,9 +13,8 @@ Be sure to set environment variables holding your Harbor / registry1 credentials
     ```shell
     export REGISTRY_USERNAME='Your_Name'
     export REGISTRY_PASSWORD='YourHarborCLISecret'
-    branch='refresh-keycloak-sso-quickstart-docs'
-    url="https://repo1.dso.mil/big-bang/bigbang/-/raw/${branch}/docs/guides/deployment-scenarios/sso-quickstart-resources/create_local_bigbang.sh"
-    curl -fsSL "$url" | bash
+    # Replace with 'master' before merging
+    curl -fsSL 'https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/create_local_bigbang.sh' | bash
     ```
 1. Add the following lines to your `/etc/hosts` file:
 
