@@ -1,29 +1,3 @@
-# Auth Service and Keycloak SSO Quick Start Demo
+# Enabling SSO for Big Bang with Keycloak and Authservice
 
-[[_TOC_]]
-
-The following shell script will create a local k3d Kubernetes cluster then install Flux and Big Bang with Keycloak enabled.
-
-Be sure to set environment variables holding your Harbor / registry1 credentials, `REGISTRY_USERNAME` and `REGISTRY_PASSWORD` (the latter being your CLI Secret, which can be obtained at <https://registry1.dso>, logging in, then "User Profile")
-
-1. Make sure you have a container runtime running (e.g. Docker, Colima)
-1. Ensure `k3d` is [installed](https://k3d.io/v5.7.4/#install-current-latest-release)
-1. Run the following commands to create a local k3d Kubernetes cluster and install Big Bang with Keycloak enabled: 
-
-    ```shell
-    export REGISTRY_USERNAME='Your_Name'
-    export REGISTRY_PASSWORD='YourHarborCLISecret'
-    # Replace with 'master' before merging
-    curl -fsSL 'https://repo1.dso.mil/big-bang/bigbang/-/raw/refresh-keycloak-sso-quickstart-docs/docs/guides/deployment-scenarios/sso-quickstart-resources/create_local_bigbang.sh' | bash
-    ```
-1. Add the following lines to your `/etc/hosts` file:
-
-    ```text
-    127.0.0.1 keycloak.dev.bigbang.mil
-    127.0.0.1 alertmanager.dev.bigbang.mil
-    ```
-1. Navigate to <https://keycloak.dev.bigbang.mil/> and click "Click Here" to register a new user:
-
-    ![img.png](img.png)
-
-If you can't reslve
+If you would like to protect your applications in Big Bang with Single Sign On (SSO) authentication, this can be accomplished using Keycloak with the Authservice plugin enabled. To learn more about it, see [Big Bang Docs / Developer / Package Integration / SSO](https://docs-bigbang.dso.mil/latest/docs/developer/package-integration/sso/).
