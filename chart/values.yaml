@@ -213,17 +213,16 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    branch: "main"
+    branch: "dev" #"main"
     #tag:
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-
   # gateways:
-  #   main:
+  #   public:
   #     listeners:
-  #     - name: https
+  #     - name: public-ingressgateway
   #       hostname: "*.{{ .Values.domain }}"
   #       port:
   #         number: 8443
@@ -231,17 +230,17 @@ istioGateway:
   #       tls:
   #         credentialName: "public-cert"
   #         mode: Terminate
-  #   # Example of adding additional gateways
+  #         key: |
+  #         cert: |
   #   private:
   #     listeners:
-  #     - name: https-passthrough
-  #       hostname: "mypackage.{{ .Values.domain }}"
+  #     - name: passthrough-ingressgateway
+  #       hostname: "keycloak.{{ .Values.domain }}"
   #       port:
   #         number: 8443
   #         protocol: HTTPS
   #       tls:
   #         mode: Passthrough
-
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
