@@ -174,11 +174,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.22.5-bb.0"
+    tag: "1.23.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.22.5-bb.0"
+    tag: "1.23.2-bb.0"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -316,11 +316,11 @@ istioOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
     path: "./chart"
-    tag: "1.22.5-bb.0"
+    tag: "1.23.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-operator"
-    tag: "1.22.5-bb.0"
+    tag: "1.23.2-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Istio Operator Package
   flux: {}
@@ -1148,11 +1148,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.3-bb.6"
+      tag: "6.0.3-bb.7"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.3-bb.6"
+      tag: "6.0.3-bb.7"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
