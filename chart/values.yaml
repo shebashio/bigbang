@@ -174,11 +174,13 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.2-bb.0"
+    tag: ""
+    branch: "239-implement-envoy-default-security-headers-filter"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.2-bb.0"
+    tag: ""
+    branch: "239-implement-envoy-default-security-headers-filter"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
