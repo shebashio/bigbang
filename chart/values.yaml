@@ -563,6 +563,9 @@ kyvernoReporter:
 elasticsearchKibana:
   # -- Toggle deployment of Logging (EFK).
   enabled: true
+  git:
+    tag: 1.20.0-bb.0
+    branch: null
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
