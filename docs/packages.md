@@ -49,6 +49,7 @@
 | [Anchore Enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |  ![Anchore Build](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/badges/main/pipeline.svg) | Yes | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/505) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1594) |
 | [Authservice](https://repo1.dso.mil/big-bang/product/packages/authservice) |  ![Authservice Build](https://repo1.dso.mil/big-bang/product/packages/authservice/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/511) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1329) |
 | [Vault](https://repo1.dso.mil/big-bang/product/packages/vault) |  ![Vault Build](https://repo1.dso.mil/big-bang/product/packages/vault/badges/main/pipeline.svg) | Yes | Yes | Yes | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1781) |
+| [External Secrets Operator](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |  ![External Secrets Operator Build](https://repo1.dso.mil/big-bang/product/packages/vault/badges/main/pipeline.svg) | Yes | No | Yes | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/external-secrets/-/blob/main/chart/values.yaml?ref_type=heads#L580) |
 
 ## Development Tools
 
