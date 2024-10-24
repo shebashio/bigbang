@@ -81,7 +81,8 @@
 | [MinIO](https://repo1.dso.mil/big-bang/product/packages/minio) |  ![MinIO Build](https://repo1.dso.mil/big-bang/product/packages/minio/badges/main/pipeline.svg) | Yes | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/550) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1566) |
 | [MinIO Operator](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |  ![MinIO Operator Build](https://repo1.dso.mil/big-bang/product/packages/minio-operator/badges/main/pipeline.svg) | [N/A](https://repo1.dso.mil/big-bang/product/packages/minio-operator/-/blob/main/docs/prometheus.md) | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/685) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1554) |
 | [Redis](https://repo1.dso.mil/big-bang/product/packages/redis) |  ![Redis Build](https://repo1.dso.mil/big-bang/product/packages/redis/badges/main/pipeline.svg) | [Yes](https://repo1.dso.mil/big-bang/product/packages/minio-operator/-/blob/main/docs/prometheus.md) | Yes | [Yes](https://repo1.dso.mil/big-bang/product/packages/redis/-/blob/main/chart/values.yaml?ref_type=heads#L57) | Yes |
-
+| [Renovate](https://repo1.dso.mil/big-bang/product/packages/renovate) |  ![Renovate Build](https://repo1.dso.mil/big-bang/product/packages/renovate/badges/main/pipeline.svg) | No | No | [Yes](https://repo1.dso.mil/big-bang/product/packages/renovate/-/blob/main/chart/values.yaml?ref_type=heads#L305) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/renovate/-/blob/main/chart/values.yaml?ref_type=heads#L295) |
+| [wrapper](https://repo1.dso.mil/big-bang/product/packages/wrapper) |  ![Renovate Build](https://repo1.dso.mil/big-bang/product/packages/wrapper/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/product/packages/wrapper/-/blob/main/chart/values.yaml?ref_type=heads#L5) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/wrapper/-/blob/main/chart/values.yaml?ref_type=heads#L52) |
 
 ## Cluster Utilities
 
@@ -93,6 +94,7 @@
 | [Thanos](https://repo1.dso.mil/big-bang/product/packages/thanos) |  ![Thanos Build](https://repo1.dso.mil/big-bang/product/packages/thanos/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3113) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3113) |
 | [Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy) |  ![Alloy Build](https://repo1.dso.mil/big-bang/product/packages/alloy/badges/main/pipeline.svg) | No | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/5031) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/main/chart/values.yaml?ref_type=heads#L202) |
 | [bbctl](https://repo1.dso.mil/big-bang/product/packages/bbctl) |  ![bbctl Build](https://repo1.dso.mil/big-bang/product/packages/bbctl/badges/main/pipeline.svg) | No | No | No | N/A |
+| [haproxy](https://repo1.dso.mil/big-bang/product/packages/haproxy) |  ![haproxy Build](https://repo1.dso.mil/big-bang/product/packages/haproxy/badges/main/pipeline.svg) | No | No | No | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/haproxy/-/blob/main/chart/values.yaml?ref_type=heads#L569) |
 
 ## Community
 
