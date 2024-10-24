@@ -1,5 +1,6 @@
 # Frequently Asked Questions
 
+
 ## Costs and licensing Fees
 
 > Will a user, Government program, or support contract incur any costs, other
