@@ -83,7 +83,6 @@
 | [Redis](https://repo1.dso.mil/big-bang/product/packages/redis) |  ![Redis Build](https://repo1.dso.mil/big-bang/product/packages/redis/badges/main/pipeline.svg) | [Yes](https://repo1.dso.mil/big-bang/product/packages/minio-operator/-/blob/main/docs/prometheus.md) | Yes | [Yes](https://repo1.dso.mil/big-bang/product/packages/redis/-/blob/main/chart/values.yaml?ref_type=heads#L57) | Yes |
 
 
-
 ## Cluster Utilities
 
 | Package | Status | Monitoring | Tracing | Network Policies | mTLS |
@@ -94,3 +93,18 @@
 | [Thanos](https://repo1.dso.mil/big-bang/product/packages/thanos) |  ![Thanos Build](https://repo1.dso.mil/big-bang/product/packages/thanos/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3113) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3113) |
 | [Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy) |  ![Alloy Build](https://repo1.dso.mil/big-bang/product/packages/alloy/badges/main/pipeline.svg) | No | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/5031) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/main/chart/values.yaml?ref_type=heads#L202) |
 | [bbctl](https://repo1.dso.mil/big-bang/product/packages/bbctl) |  ![bbctl Build](https://repo1.dso.mil/big-bang/product/packages/bbctl/badges/main/pipeline.svg) | No | No | No | N/A |
+
+## Community
+
+| Package | Status | Monitoring | Tracing | Network Policies | mTLS |
+|----|----|----|----|----|----|
+| [coder-v2](https://repo1.dso.mil/big-bang/product/community/coder-v2) |  ![Coder Build](https://repo1.dso.mil/big-bang/product/community/coder-v2/badges/main/pipeline.svg) | No | No | No | No |
+| [Confluence](https://repo1.dso.mil/big-bang/product/community/confluence)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community/confluence/badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Crossplane](https://repo1.dso.mil/big-bang/product/community/crossplane)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Jenkins](https://repo1.dso.mil/big-bang/product/community/jenkins)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Jira](https://repo1.dso.mil/big-bang/product/community/jira)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [JupyterHub](https://repo1.dso.mil/big-bang/product/community/jupyterhub)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Kubecost](https://repo1.dso.mil/big-bang/product/community/kubecost)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Parabol](https://repo1.dso.mil/big-bang/product/community/parabol)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [Rapidfort](https://repo1.dso.mil/big-bang/product/community/rapidfort)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
+| [sdelements](https://repo1.dso.mil/big-bang/product/community/sdelements)) |  ![Confluence Build](https://repo1.dso.mil/big-bang/product/community//badges/main/pipeline.svg) | Yes | Yes | [Yes]() | [Yes (STRICT)]() |
