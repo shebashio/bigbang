@@ -2071,7 +2071,10 @@ addons:
             docker_host: "containers.dev.bigbang.mil"
 
   velero:
-    enabled: false
+    enabled: true
+    git:
+      branch: revert-previous-kiali-label-changes
+      tag: null
     plugins:
     - aws
     values:
