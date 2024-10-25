@@ -2245,7 +2245,10 @@ addons:
           subPath: quarkus.properties
 
   vault:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: revert-previous-kiali-label-changes
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
