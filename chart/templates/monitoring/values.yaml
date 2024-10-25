@@ -101,10 +101,6 @@ alertmanager:
         {{- if .Values.monitoring.sso.enabled }}
         {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
         {{- end }}
-        {{- if .Values.kiali.enabled }}
-        app: alertmanager
-        {{- include "kialiVersionLabel" . | nindent 8 }}
-        {{- end }}
       {{- end }}
       {{- if $istioInjection }}
       annotations:
@@ -225,23 +221,17 @@ prometheus:
     enableFeatures:
       - remote-write-receiver
     {{- end }}
-    {{- if or $istioInjection .Values.monitoring.sso.enabled .Values.addons.vault.enabled .Values.kiali.enabled }}
     podMetadata:
-      {{- if or .Values.monitoring.sso.enabled (and .Values.networkPolicies.enabled .Values.addons.vault.enabled) .Values.kiali.enabled }}
       labels:
+        app: prometheus
         {{- if .Values.monitoring.sso.enabled }}
         {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
         {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         {{ $prometheusAuthserviceKey }}: {{ $prometheusAuthserviceValue }}
         {{- end }}
-        {{- if .Values.kiali.enabled }}
-        app: prometheus
-        {{- include "kialiVersionLabel" . | nindent 8 }}
-        {{- end }}
         {{- if and .Values.networkPolicies.enabled .Values.addons.vault.enabled }}
         vault-ingress: "true"
         {{- end }}
-      {{- end }}
       {{- if or $istioInjection .Values.addons.vault.enabled }}
       annotations:
         {{- if $istioInjection }}
@@ -259,7 +249,6 @@ prometheus:
         vault.hashicorp.com/role: "prometheus"
         {{- end }}
       {{- end }}
-    {{- end }}
     {{- if .Values.addons.vault.enabled }}
     additionalScrapeConfigs:
     - job_name: vault
@@ -412,11 +401,6 @@ sso:
 prometheus-node-exporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-  {{- if .Values.kiali.enabled }}
-  podLabels:
-    app: prometheus-node-exporter
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-  {{- end }}
 
 
   {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
@@ -500,11 +484,6 @@ kube-state-metrics:
     {{ include "istioAnnotation" . }}
   {{- end }}
   {{- end }}
-  {{- if .Values.kiali.enabled }}
-  customLabels:
-    {{- include "kialiAppLabel" . | nindent 4 }}
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-  {{- end }}
 
 prometheusOperator:
   image:
@@ -516,10 +495,6 @@ prometheusOperator:
     patch:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
-  {{- if .Values.kiali.enabled }}
-  podLabels:
-    {{- include "kialiVersionLabel" . | nindent 4 }}
-  {{- end }}
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
