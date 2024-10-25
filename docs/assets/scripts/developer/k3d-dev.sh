@@ -943,19 +943,19 @@ while [ -n "$1" ]; do # while loop starts
       action=destroy_instances
   ;;
 
-  -h) echo "Usage:"
-      echo "k3d-dev.sh -b -p -m -a -d -h"
+  -h) echo "Usage: $0 [argument ...]"
       echo ""
-      echo " -b   use BIG M5 instance. Default is m5a.4xlarge"
-      echo " -p   use private IP for security group and k3d cluster"
-      echo " -m   create k3d cluster with metalLB"
+      echo "arguments:"
       echo " -a   attach secondary Public IP (overrides -p and -m flags)"
+      echo " -b   use BIG M5 instance. Default is m5a.4xlarge"
       echo " -d   destroy related AWS resources"
-      echo " -w   install the weave CNI instead of the default flannel CNI"
-      echo " -t   Set the project tag on the instance"
-      echo " -r   Report on all instances owned by your user"
-      echo " -u   Update security group for instances"
       echo " -h   output help"
+      echo " -m   create k3d cluster with metalLB"
+      echo " -p   use private IP for security group and k3d cluster"
+      echo " -r   Report on all instances owned by your user"
+      echo " -t   Set the project tag on the instance"
+      echo " -u   Update security group for instances"
+      echo " -w   install the weave CNI instead of the default flannel CNI"
       exit 0
   ;;
 
