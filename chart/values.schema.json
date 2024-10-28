@@ -240,6 +240,27 @@
         "IfNotPresent"
       ]
     },
+    "istio3": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true,
+        "ingressGateways": {
+          "type": "object"
+        },
+        "gateways": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
     "istioBase": {
       "properties": {
         "enabled": true,
