@@ -161,6 +161,50 @@ imagePullPolicy: IfNotPresent
 # Istio
 #
 
+istio3:
+  # -- Toggle deployment of Istio (operatorless helm deployment)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    #repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio.git
+    repo: https://repo1.dso.mil/kipten/tmp.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio3"
+    #tag:
+  # gateways:
+  #   public:
+  #     listeners:
+  #     - name: public-ingressgateway
+  #       hostname: "*.{{ .Values.domain }}"
+  #       port:
+  #         number: 8443
+  #         protocol: HTTPS
+  #       tls:
+  #         credentialName: "public-cert"
+  #         mode: Terminate
+  #         key: |
+  #         cert: |
+  #   private:
+  #     listeners:
+  #     - name: passthrough-ingressgateway
+  #       hostname: "keycloak.{{ .Values.domain }}"
+  #       port:
+  #         number: 8443
+  #         protocol: HTTPS
+  #       tls:
+  #         mode: Passthrough
+  # -- Values to passthrough to the istio-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istioBase:
   # -- Toggle deployment of Istio Base
   enabled: false
