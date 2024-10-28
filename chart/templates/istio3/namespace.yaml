@@ -1,4 +1,4 @@
-{{- if or .Values.istioBase.enabled .Values.istiod.enabled }}
+{{- if .Values.istio3.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -6,7 +6,18 @@ metadata:
   labels:
     istio-base-managed: Reconcile
     istio-injection: disabled
-    app.kubernetes.io/name: istio-base
+    app.kubernetes.io/name: istio-system
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-gateway
+  labels:
+    istio-gateway-managed: Reconcile
+    istio-injection: enabled
+    app.kubernetes.io/name: istio-gateway
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
 {{- end }}

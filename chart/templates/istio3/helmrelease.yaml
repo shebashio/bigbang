@@ -1,57 +1,57 @@
-{{- $fluxSettingsIstioBase := merge .Values.istioBase.flux .Values.flux -}}
-{{- if .Values.istioBase.enabled }}
+{{- $fluxSettingsIstio3 := merge .Values.istio3.flux .Values.flux -}}
+{{- if .Values.istio3.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: istio-base
+  name: istio3
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: istio-base
+    app.kubernetes.io/name: istio3
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
   annotations:
-    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-base/values.yaml") . | sha256sum }}
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio3/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: istio-system
   chart:
     spec:
-      {{- if eq .Values.istioBase.sourceType "git" }}
-      chart: {{ .Values.istioBase.git.path }}
+      {{- if eq .Values.istio3.sourceType "git" }}
+      chart: {{ .Values.istio3.git.path }}
       sourceRef:
         kind: GitRepository
-        name: istio-base
+        name: istio3
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.istioBase.helmRepo.chartName }}
-      version: {{ .Values.istioBase.helmRepo.tag }}
+      chart: {{ .Values.istio3.helmRepo.chartName }}
+      version: {{ .Values.istio3.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.istioBase.helmRepo.repoName }}
+        name: {{ .Values.istio3.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istioBase.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.istioBase.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istio3.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.istio3.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.istioBase.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.istio3.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
-  {{- toYaml $fluxSettingsIstioBase | nindent 2 }}
+  {{- toYaml $fluxSettingsIstio3 | nindent 2 }}
 
-  {{- if .Values.istioBase.postRenderers }}
+  {{- if .Values.istio3.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.istioBase.postRenderers | nindent 4 }}
+  {{ toYaml .Values.istio3.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
-    - name: {{ .Release.Name }}-istio-base-values
+    - name: {{ .Release.Name }}-istio3-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-istio-base-values
+    - name: {{ .Release.Name }}-istio3-values
       kind: Secret
       valuesKey: "defaults"
-    - name: {{ .Release.Name }}-istio-base-values
+    - name: {{ .Release.Name }}-istio3-values
       kind: Secret
       valuesKey: "overlays"
 

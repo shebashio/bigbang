@@ -1,5 +1,5 @@
-{{- if .Values.istioGateway.enabled }}
-{{- range $name, $values := .Values.istioGateway.gateways }}
+{{- if .Values.istio3.enabled }}
+{{- range $name, $values := .Values.istio3.gateways }}
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
