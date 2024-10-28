@@ -515,7 +515,8 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.2.6-bb.0"
+    tag: null
+    branch: "136-add-ability-to-define-policy-exception-objects"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
