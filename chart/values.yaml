@@ -1175,7 +1175,7 @@ addons:
 
   gitlab:
     # -- Toggle deployment of Gitlab
-    enabled: false
+    enabled: true
 
     hostnames:
       # host name only without the domain
@@ -1188,7 +1188,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.2.9-bb.4"
+      branch: "renovate/ironbank"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
