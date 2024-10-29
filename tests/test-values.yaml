@@ -210,7 +210,12 @@ clusterAuditor:
               resolution: DNS
 
 gatekeeper:
-  enabled: false
+  enabled: true
+  sourceType: "git"
+  git:
+    tag: null
+    repo: "https://repo1.dso.mil/big-bang/product/packages/policy.git"
+    branch: "update-metadata-annotations2"
   values:
     replicas: 1
     controllerManager:
