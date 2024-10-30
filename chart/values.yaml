@@ -562,7 +562,7 @@ kyvernoReporter:
 #
 elasticsearchKibana:
   # -- Toggle deployment of Logging (EFK).
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -570,7 +570,8 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.20.0-bb.0"
+    branch: 206-enable-cypress-test-to-automate-testing-elasticsearch-virtual-service-login
+    tag: null
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
@@ -609,6 +610,7 @@ elasticsearchKibana:
 
   # -- Values to passthrough to the elasticsearch-kibana chart: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
   values: {}
+
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
