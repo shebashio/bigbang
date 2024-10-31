@@ -581,146 +581,149 @@ function create_instances
 
     if [[ "$METAL_LB" == true ]]; then
       echo "Building MetalLB configuration for -m mode."
-      run <<- 'ENDSSH'
-  #run this command on remote
-  cat << EOF > metallb-config.yaml
-  apiVersion: metallb.io/v1beta1
-  kind: IPAddressPool
-  metadata:
-    name: default
-    namespace: metallb-system
-  spec:
-    addresses:
-    - 172.20.1.240-172.20.1.243
-  ---
-  apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    name: l2advertisement1
-    namespace: metallb-system
-  spec:
-    ipAddressPools:
-    - default
-  EOF
-ENDSSH
+      cat << EOF > "$tmpdir/metallb-config.yaml"
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.20.1.240-172.20.1.243
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2advertisement1
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - default
+EOF
+
     elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
       echo "Building MetalLB configuration for -a mode."
-      run <<ENDSSH
-  #run this command on remote
-  cat <<EOF > metallb-config.yaml
-  ---
-  apiVersion: metallb.io/v1beta1
-  kind: IPAddressPool
-  metadata:
-    name: primary
-    namespace: metallb-system
-    labels:
-      privateIp: "$PrivateIP"
-      publicIp: "$PublicIP"
-  spec:
-    addresses:
-    - "172.20.1.241/32"
-    serviceAllocation:
-      priority: 100
-      namespaces:
-        - istio-system
-      serviceSelectors:
-        - matchExpressions:
-            - {key: app, operator: In, values: [public-ingressgateway]}
-  ---
-  apiVersion: metallb.io/v1beta1
-  kind: IPAddressPool
-  metadata:
-    name: secondary
-    namespace: metallb-system
-    labels:
-      privateIp: "$PrivateIP2"
-      publicIp: "$SecondaryIP"
-  spec:
-    addresses:
-    - "172.20.1.240/32"
-    serviceAllocation:
-      priority: 100
-      namespaces:
-        - istio-system
-      serviceSelectors:
-        - matchExpressions:
-            - {key: app, operator: In, values: [passthrough-ingressgateway]}
-  ---
-  apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    name: primary
-    namespace: metallb-system
-  spec:
-    ipAddressPools:
-    - primary
-  ---
-  apiVersion: metallb.io/v1beta1
-  kind: L2Advertisement
-  metadata:
-    name: secondary
-    namespace: metallb-system
-  spec:
-    ipAddressPools:
-    - secondary
-  EOF
-ENDSSH
+      cat << EOF > "$tmpdir/metallb-config.yaml"
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: primary
+  namespace: metallb-system
+  labels:
+    privateIp: "$PrivateIP"
+    publicIp: "$PublicIP"
+spec:
+  addresses:
+  - "172.20.1.241/32"
+  serviceAllocation:
+    priority: 100
+    namespaces:
+      - istio-system
+    serviceSelectors:
+      - matchExpressions:
+          - {key: app, operator: In, values: [public-ingressgateway]}
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: secondary
+  namespace: metallb-system
+  labels:
+    privateIp: "$PrivateIP2"
+    publicIp: "$SecondaryIP"
+spec:
+  addresses:
+  - "172.20.1.240/32"
+  serviceAllocation:
+    priority: 100
+    namespaces:
+      - istio-system
+    serviceSelectors:
+      - matchExpressions:
+          - {key: app, operator: In, values: [passthrough-ingressgateway]}
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: primary
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - primary
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: secondary
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - secondary
+EOF
 
-      run <<ENDSSH
-  cat <<EOF > primaryProxy.yaml
-  ports:
-    443.tcp:
-      - 172.20.1.241
-  settings:
-    workerConnections: 1024
-  EOF
-ENDSSH
+      cat << EOF > "$tmpdir/primary-proxy.yaml"
+ports:
+  443.tcp:
+    - 172.20.1.241
+settings:
+  workerConnections: 1024
+EOF
 
-      run <<ENDSSH
-  cat <<EOF > secondaryProxy.yaml
-  ports:
-    443.tcp:
-      - 172.20.1.240
-  settings:
-    workerConnections: 1024
-  EOF
-ENDSSH
+      cat << EOF > "$tmpdir/secondary-proxy.yaml"
+ports:
+  443.tcp:
+    - 172.20.1.240
+settings:
+  workerConnections: 1024
+EOF
 
-      run "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/ubuntu/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
-      run "docker run -d --name=secondaryProxy --network=k3d-network -p $PrivateIP2:443:443 -v /home/ubuntu//secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "$tmpdir/primary-proxy.yaml" ubuntu@${PublicIP}:/home/ubuntu/primary-proxy.yaml
+      scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "$tmpdir/secondary-proxy.yaml" ubuntu@${PublicIP}:/home/ubuntu/secondary-proxy.yaml
+
+      run "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/ubuntu/primary-proxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      run "docker run -d --name=secondaryProxy --network=k3d-network -p $PrivateIP2:443:443 -v /home/ubuntu/secondary-proxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
     fi
+
+    scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "$tmpdir/metallb-config.yaml" ubuntu@${PublicIP}:/home/ubuntu/metallb-config.yaml
 
     run "kubectl create -f metallb-config.yaml"
   fi
 
+  cat <<- EOF > "$tmpdir/dns-update.sh"
+		#!/usr/bin/env bash
+		mkdir -p /root/.kube
+		cp /home/ubuntu/.kube/config /root/.kube/config
+		sed -i '/dev.bigbang.mil/d' /etc/hosts
+	EOF
+
   if [[ "$METAL_LB" == true ]]; then
-    run <<- 'ENDSSH'
-    # run this command on remote
-    # fix /etc/hosts for new cluster
-    sudo sed -i '/dev.bigbang.mil/d' /etc/hosts
-    sudo bash -c "echo '## begin dev.bigbang.mil section (METAL_LB)' >> /etc/hosts"
-    sudo bash -c "echo 172.20.1.240  keycloak.dev.bigbang.mil vault.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo 172.20.1.241 anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo '## end dev.bigbang.mil section' >> /etc/hosts"
-    # run kubectl to add keycloak and vault's hostname/IP to the configmap for coredns, restart coredns
-    kubectl get configmap -n kube-system coredns -o yaml | sed '/^    172.20.0.1 host.k3d.internal$/a\ \ \ \ 172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-    kubectl delete pod -n kube-system -l k8s-app=kube-dns
-ENDSSH
+  cat <<- EOF >> "$tmpdir/dns-update.sh"
+		echo '## begin dev.bigbang.mil section (METAL_LB)' >> /etc/hosts
+		echo '172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
+		echo '172.20.1.241 anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
+		echo '## end dev.bigbang.mil section' >> /etc/hosts
+
+		kubectl get configmap -n kube-system coredns -o yaml | sed '/^		172.20.0.1 host.k3d.internal$/a\ \ \ \ 172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
+	EOF
   elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
-    run <<ENDSSH
-      # run this command on remote
-      # fix /etc/hosts for new cluster
-      sudo sed -i '/dev.bigbang.mil/d' /etc/hosts
-      sudo bash -c "echo '## begin dev.bigbang.mil section (ATTACH_SECONDARY_IP)' >> /etc/hosts"
-      sudo bash -c "echo $PrivateIP2  keycloak.dev.bigbang.mil vault.dev.bigbang.mil >> /etc/hosts"
-      sudo bash -c "echo $PrivateIP anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil >> /etc/hosts"
-      sudo bash -c "echo '## end dev.bigbang.mil section' >> /etc/hosts"
-      # run kubectl to add keycloak and vault's hostname/IP to the configmap for coredns, restart coredns
-      kubectl get configmap -n kube-system coredns -o yaml | sed '/^    .* host.k3d.internal$/a\ \ \ \ $PrivateIP2 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-      kubectl delete pod -n kube-system -l k8s-app=kube-dns
-ENDSSH
+
+  cat <<- EOF >> "$tmpdir/dns-update.sh"
+		echo '## begin dev.bigbang.mil section (ATTACH_SECONDARY_IP)' >> /etc/hosts
+		echo '$PrivateIP2	keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
+		echo '$PrivateIP anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
+		echo '## end dev.bigbang.mil section' >> /etc/hosts
+
+		kubectl get configmap -n kube-system coredns -o yaml | sed '/^		.* host.k3d.internal$/a\ \ \ \ $PrivateIP2 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
+	EOF
   fi
+
+  cat <<- EOF >> "$tmpdir/dns-update.sh"
+		kubectl delete pod -n kube-system -l k8s-app=kube-dns
+	EOF
+
+  scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "$tmpdir/dns-update.sh" ubuntu@${PublicIP}:/home/ubuntu/dns-update.sh
+  run "sudo bash /home/ubuntu/dns-update.sh"
 
   echo
   echo "================================================================================"
