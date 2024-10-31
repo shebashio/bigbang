@@ -2072,7 +2072,10 @@ addons:
             docker_host: "containers.dev.bigbang.mil"
 
   velero:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: update-chart-to-upstream-7.2.2
     plugins:
     - aws
     values:
