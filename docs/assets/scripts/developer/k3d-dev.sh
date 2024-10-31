@@ -252,60 +252,60 @@ function create_instances
 
     # Create userdata.txt
     tmpdir=$(mktemp -d)
-    cat <<- EOF > "$tmpdir/userdata.txt"
-			#!/usr/bin/env bash
+    cat << EOF > "$tmpdir/userdata.txt"
+#!/usr/bin/env bash
 
-			echo "* soft nofile 13181250" >> /etc/security/limits.d/ulimits.conf
-			echo "* hard nofile 13181250" >> /etc/security/limits.d/ulimits.conf
-			echo "* soft nproc  13181250" >> /etc/security/limits.d/ulimits.conf
-			echo "* hard nproc  13181250" >> /etc/security/limits.d/ulimits.conf
+echo "* soft nofile 13181250" >> /etc/security/limits.d/ulimits.conf
+echo "* hard nofile 13181250" >> /etc/security/limits.d/ulimits.conf
+echo "* soft nproc  13181250" >> /etc/security/limits.d/ulimits.conf
+echo "* hard nproc  13181250" >> /etc/security/limits.d/ulimits.conf
 
-			echo "vm.max_map_count=524288" > /etc/sysctl.d/vm-max_map_count.conf
-			echo "fs.nr_open=13181252" > /etc/sysctl.d/fs-nr_open.conf
-			echo "fs.file-max=13181250" > /etc/sysctl.d/fs-file-max.conf
-			echo "fs.inotify.max_user_instances=1024" > /etc/sysctl.d/fs-inotify-max_user_instances.conf
-			echo "fs.inotify.max_user_watches=1048576" > /etc/sysctl.d/fs-inotify-max_user_watches.conf
-			echo "fs.may_detach_mounts=1" >> /etc/sysctl.d/fs-may_detach_mounts.conf
+echo "vm.max_map_count=524288" > /etc/sysctl.d/vm-max_map_count.conf
+echo "fs.nr_open=13181252" > /etc/sysctl.d/fs-nr_open.conf
+echo "fs.file-max=13181250" > /etc/sysctl.d/fs-file-max.conf
+echo "fs.inotify.max_user_instances=1024" > /etc/sysctl.d/fs-inotify-max_user_instances.conf
+echo "fs.inotify.max_user_watches=1048576" > /etc/sysctl.d/fs-inotify-max_user_watches.conf
+echo "fs.may_detach_mounts=1" >> /etc/sysctl.d/fs-may_detach_mounts.conf
 
-			sysctl --system
+sysctl --system
 
-			echo "br_netfilter" >> /etc/modules-load.d/istio-iptables.conf
-			echo "nf_nat_redirect" >> /etc/modules-load.d/istio-iptables.conf
-			echo "xt_REDIRECT" >> /etc/modules-load.d/istio-iptables.conf
-			echo "xt_owner" >> /etc/modules-load.d/istio-iptables.conf
-			echo "xt_statistic" >> /etc/modules-load.d/istio-iptables.conf
+echo "br_netfilter" >> /etc/modules-load.d/istio-iptables.conf
+echo "nf_nat_redirect" >> /etc/modules-load.d/istio-iptables.conf
+echo "xt_REDIRECT" >> /etc/modules-load.d/istio-iptables.conf
+echo "xt_owner" >> /etc/modules-load.d/istio-iptables.conf
+echo "xt_statistic" >> /etc/modules-load.d/istio-iptables.conf
 
-			systemctl restart systemd-modules-load.service
-		EOF
+systemctl restart systemd-modules-load.service
+EOF
 
     # Create the device mapping and spot options JSON files
     echo "Creating device_mappings.json ..."
 
     # gp3 volumes are 20% cheaper than gp2 and comes with 3000 Iops baseline and 125 MiB/s baseline throughput for free.
-    cat <<- EOF > "$tmpdir/device_mappings.json"
-			[
-				{
-					"DeviceName": "/dev/sda1",
-					"Ebs": {
-						"DeleteOnTermination": true,
-						"VolumeType": "gp3",
-						"VolumeSize": ${VolumeSize},
-						"Encrypted": true
-					}
-				}
-			]
-		EOF
+    cat << EOF > "$tmpdir/device_mappings.json"
+[
+  {
+    "DeviceName": "/dev/sda1",
+    "Ebs": {
+      "DeleteOnTermination": true,
+      "VolumeType": "gp3",
+      "VolumeSize": ${VolumeSize},
+      "Encrypted": true
+    }
+  }
+]
+EOF
 
     echo "Creating spot_options.json ..."
-    cat <<- EOF > "$tmpdir/spot_options.json"
-			{
-				"MarketType": "spot",
-				"SpotOptions": {
-					"MaxPrice": "${SpotPrice}",
-					"SpotInstanceType": "one-time"
-				}
-			}
-		EOF
+    cat << EOF > "$tmpdir/spot_options.json"
+  {
+    "MarketType": "spot",
+    "SpotOptions": {
+      "MaxPrice": "${SpotPrice}",
+      "SpotInstanceType": "one-time"
+    }
+  }
+EOF
 
     #### Request a Spot Instance
     # Location of your private SSH key created during setup
@@ -690,37 +690,37 @@ EOF
     run "kubectl create -f metallb-config.yaml"
   fi
 
-  cat <<- EOF > "$tmpdir/dns-update.sh"
-		#!/usr/bin/env bash
-		mkdir -p /root/.kube
-		cp /home/ubuntu/.kube/config /root/.kube/config
-		sed -i '/dev.bigbang.mil/d' /etc/hosts
-	EOF
+  cat << EOF > "$tmpdir/dns-update.sh"
+#!/usr/bin/env bash
+mkdir -p /root/.kube
+cp /home/ubuntu/.kube/config /root/.kube/config
+sed -i '/dev.bigbang.mil/d' /etc/hosts
+EOF
 
   if [[ "$METAL_LB" == true ]]; then
-  cat <<- EOF >> "$tmpdir/dns-update.sh"
-		echo '## begin dev.bigbang.mil section (METAL_LB)' >> /etc/hosts
-		echo '172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
-		echo '172.20.1.241 anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
-		echo '## end dev.bigbang.mil section' >> /etc/hosts
+  cat << EOF >> "$tmpdir/dns-update.sh"
+echo '## begin dev.bigbang.mil section (METAL_LB)' >> /etc/hosts
+echo '172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
+echo '172.20.1.241 anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
+echo '## end dev.bigbang.mil section' >> /etc/hosts
 
-		kubectl get configmap -n kube-system coredns -o yaml | sed '/^		172.20.0.1 host.k3d.internal$/a\ \ \ \ 172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-	EOF
+kubectl get configmap -n kube-system coredns -o yaml | sed '/^		172.20.0.1 host.k3d.internal$/a\ \ \ \ 172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
+EOF
   elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
 
-  cat <<- EOF >> "$tmpdir/dns-update.sh"
-		echo '## begin dev.bigbang.mil section (ATTACH_SECONDARY_IP)' >> /etc/hosts
-		echo '$PrivateIP2	keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
-		echo '$PrivateIP anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
-		echo '## end dev.bigbang.mil section' >> /etc/hosts
+  cat << EOF >> "$tmpdir/dns-update.sh"
+echo '## begin dev.bigbang.mil section (ATTACH_SECONDARY_IP)' >> /etc/hosts
+echo '$PrivateIP2	keycloak.dev.bigbang.mil vault.dev.bigbang.mil' >> /etc/hosts
+echo '$PrivateIP anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil' >> /etc/hosts
+echo '## end dev.bigbang.mil section' >> /etc/hosts
 
-		kubectl get configmap -n kube-system coredns -o yaml | sed '/^		.* host.k3d.internal$/a\ \ \ \ $PrivateIP2 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-	EOF
+kubectl get configmap -n kube-system coredns -o yaml | sed '/^		.* host.k3d.internal$/a\ \ \ \ $PrivateIP2 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
+EOF
   fi
 
-  cat <<- EOF >> "$tmpdir/dns-update.sh"
-		kubectl delete pod -n kube-system -l k8s-app=kube-dns
-	EOF
+  cat << EOF >> "$tmpdir/dns-update.sh"
+kubectl delete pod -n kube-system -l k8s-app=kube-dns
+EOF
 
   scp -i ~/.ssh/${KeyName}.pem -o StrictHostKeyChecking=no -o IdentitiesOnly=yes "$tmpdir/dns-update.sh" ubuntu@${PublicIP}:/home/ubuntu/dns-update.sh
   run "sudo bash /home/ubuntu/dns-update.sh"
