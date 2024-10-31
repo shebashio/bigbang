@@ -251,73 +251,61 @@ function create_instances
     ImageId="${AMI_ID}"
 
     # Create userdata.txt
-    mkdir -p ~/aws
-    cat << EOF > ~/aws/userdata.txt
-  MIME-Version: 1.0
-  Content-Type: multipart/mixed; boundary="==MYBOUNDARY=="
+    tmpdir=$(mktemp -d)
+    cat <<- EOF > "$tmpdir/userdata.txt"
+			#!/usr/bin/env bash
 
-  --==MYBOUNDARY==
-  Content-Type: text/x-shellscript; charset="us-ascii"
+			echo "* soft nofile 13181250" >> /etc/security/limits.d/ulimits.conf
+			echo "* hard nofile 13181250" >> /etc/security/limits.d/ulimits.conf
+			echo "* soft nproc  13181250" >> /etc/security/limits.d/ulimits.conf
+			echo "* hard nproc  13181250" >> /etc/security/limits.d/ulimits.conf
 
-  #!/bin/bash
-  sudo -- bash -c 'sysctl -w vm.max_map_count=524288; \
-  echo "vm.max_map_count=524288" > /etc/sysctl.d/vm-max_map_count.conf; \
-  sysctl -w fs.nr_open=13181252; \
-  echo "fs.nr_open=13181252" > /etc/sysctl.d/fs-nr_open.conf; \
-  sysctl -w fs.file-max=13181250; \
-  echo "fs.file-max=13181250" > /etc/sysctl.d/fs-file-max.conf; \
-  echo "fs.inotify.max_user_instances=1024" > /etc/sysctl.d/fs-inotify-max_user_instances.conf; \
-  sysctl -w fs.inotify.max_user_instances=1024; \
-  echo "fs.inotify.max_user_watches=1048576" > /etc/sysctl.d/fs-inotify-max_user_watches.conf; \
-  sysctl -w fs.inotify.max_user_watches=1048576; \
-  echo "fs.may_detach_mounts=1" >> /etc/sysctl.d/fs-may_detach_mounts.conf; \
-  sysctl -w fs.may_detach_mounts=1; \
-  sysctl -p; \
-  echo "* soft nofile 13181250" >> /etc/security/limits.d/ulimits.conf; \
-  echo "* hard nofile 13181250" >> /etc/security/limits.d/ulimits.conf; \
-  echo "* soft nproc  13181250" >> /etc/security/limits.d/ulimits.conf; \
-  echo "* hard nproc  13181250" >> /etc/security/limits.d/ulimits.conf; \
-  modprobe br_netfilter; \
-  modprobe nf_nat_redirect; \
-  modprobe xt_REDIRECT; \
-  modprobe xt_owner; \
-  modprobe xt_statistic; \
-  echo "br_netfilter" >> /etc/modules-load.d/istio-iptables.conf; \
-  echo "nf_nat_redirect" >> /etc/modules-load.d/istio-iptables.conf; \
-  echo "xt_REDIRECT" >> /etc/modules-load.d/istio-iptables.conf; \
-  echo "xt_owner" >> /etc/modules-load.d/istio-iptables.conf; \
-  echo "xt_statistic" >> /etc/modules-load.d/istio-iptables.conf'
-EOF
+			echo "vm.max_map_count=524288" > /etc/sysctl.d/vm-max_map_count.conf
+			echo "fs.nr_open=13181252" > /etc/sysctl.d/fs-nr_open.conf
+			echo "fs.file-max=13181250" > /etc/sysctl.d/fs-file-max.conf
+			echo "fs.inotify.max_user_instances=1024" > /etc/sysctl.d/fs-inotify-max_user_instances.conf
+			echo "fs.inotify.max_user_watches=1048576" > /etc/sysctl.d/fs-inotify-max_user_watches.conf
+			echo "fs.may_detach_mounts=1" >> /etc/sysctl.d/fs-may_detach_mounts.conf
+
+			sysctl --system
+
+			echo "br_netfilter" >> /etc/modules-load.d/istio-iptables.conf
+			echo "nf_nat_redirect" >> /etc/modules-load.d/istio-iptables.conf
+			echo "xt_REDIRECT" >> /etc/modules-load.d/istio-iptables.conf
+			echo "xt_owner" >> /etc/modules-load.d/istio-iptables.conf
+			echo "xt_statistic" >> /etc/modules-load.d/istio-iptables.conf
+
+			systemctl restart systemd-modules-load.service
+		EOF
 
     # Create the device mapping and spot options JSON files
     echo "Creating device_mappings.json ..."
-    mkdir -p ~/aws
 
     # gp3 volumes are 20% cheaper than gp2 and comes with 3000 Iops baseline and 125 MiB/s baseline throughput for free.
-    cat << EOF > ~/aws/device_mappings.json
-  [
-    {
-      "DeviceName": "/dev/sda1",
-      "Ebs": {
-        "DeleteOnTermination": true,
-        "VolumeType": "gp3",
-        "VolumeSize": ${VolumeSize},
-        "Encrypted": true
-      }
-    }
-  ]
-EOF
+    cat <<- EOF > "$tmpdir/device_mappings.json"
+			[
+				{
+					"DeviceName": "/dev/sda1",
+					"Ebs": {
+						"DeleteOnTermination": true,
+						"VolumeType": "gp3",
+						"VolumeSize": ${VolumeSize},
+						"Encrypted": true
+					}
+				}
+			]
+		EOF
 
     echo "Creating spot_options.json ..."
-    cat << EOF > ~/aws/spot_options.json
-  {
-    "MarketType": "spot",
-    "SpotOptions": {
-      "MaxPrice": "${SpotPrice}",
-      "SpotInstanceType": "one-time"
-    }
-  }
-EOF
+    cat <<- EOF > "$tmpdir/spot_options.json"
+			{
+				"MarketType": "spot",
+				"SpotOptions": {
+					"MaxPrice": "${SpotPrice}",
+					"SpotInstanceType": "one-time"
+				}
+			}
+		EOF
 
     #### Request a Spot Instance
     # Location of your private SSH key created during setup
@@ -342,9 +330,9 @@ EOF
       --key-name "${KeyName}" \
       --security-group-ids "${SecurityGroupId}" \
       --instance-initiated-shutdown-behavior "terminate" \
-      --user-data file://$HOME/aws/userdata.txt \
-      --block-device-mappings file://$HOME/aws/device_mappings.json \
-      --instance-market-options file://$HOME/aws/spot_options.json \
+      --user-data "file://$tmpdir/userdata.txt" \
+      --block-device-mappings "file://$tmpdir/device_mappings.json" \
+      --instance-market-options "file://$tmpdir/spot_options.json" \
       ${additional_create_instance_options} \
       | jq -r '.Instances[0].InstanceId'`
 
