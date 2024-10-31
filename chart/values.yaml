@@ -162,41 +162,19 @@ imagePullPolicy: IfNotPresent
 #
 
 istio3:
-  # -- Toggle deployment of Istio (operatorless helm deployment)
+  # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio.git
     path: "./chart"
-    branch: "init"
+    branch: "config"
     #tag:
   helmRepo:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  # gateways:
-  #   public:
-  #     listeners:
-  #     - name: public-ingressgateway
-  #       hostname: "*.{{ .Values.domain }}"
-  #       port:
-  #         number: 8443
-  #         protocol: HTTPS
-  #       tls:
-  #         credentialName: "public-cert"
-  #         mode: Terminate
-  #         key: |
-  #         cert: |
-  #   private:
-  #     listeners:
-  #     - name: passthrough-ingressgateway
-  #       hostname: "keycloak.{{ .Values.domain }}"
-  #       port:
-  #         number: 8443
-  #         protocol: HTTPS
-  #       tls:
-  #         mode: Passthrough
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
@@ -204,59 +182,15 @@ istio3:
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
-istioBase:
-  # -- Toggle deployment of Istio Base
-  enabled: false
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-base.git
-    path: "./chart"
-    branch: "main"
-    #tag:
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istio-base"
-    #tag:
-  # -- Flux reconciliation overrides specifically for the Istio Base Package
-  flux: {}
-  # -- Values to passthrough to the istio-base chart
-  values: {}
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-istiod:
-  # -- Toggle deployment of Istio Daemon
-  enabled: false
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
-    path: "./chart"
-    branch: "main"
-    #tag:
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istiod"
-    #tag:
-  # -- Flux reconciliation overrides specifically for the Istio Daemon Package
-  flux: {}
-  # -- Values to passthrough to the istiod chart
-  values: {}
-  #   sidecarInjectorWebhook:
-  #     enableNamespacesByDefault: true
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
 istioGateway:
-  # -- Toggle deployment of Istio Gateway
+  # -- Toggle deployment of one or more Istio Gateway(s)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    branch: "main"
+    branch: "3to2"
     #tag:
   helmRepo:
     repoName: "registry1"
