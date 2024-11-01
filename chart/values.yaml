@@ -175,8 +175,12 @@ istio3:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  # -- Values to passthrough to the istio-gateway chart
+  # -- Values to passthrough to the istiod chart
   values: {}
+    # # enable Tetrate FIPS compliant Istio images
+    # defaults:
+    #   global:
+    #     enterprise: true
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
@@ -196,28 +200,26 @@ istioGateway:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-  # gateways:
-  #   public:
-  #     listeners:
-  #     - name: public-ingressgateway
-  #       hostname: "*.{{ .Values.domain }}"
-  #       port:
-  #         number: 8443
-  #         protocol: HTTPS
-  #       tls:
-  #         credentialName: "public-cert"
-  #         mode: Terminate
-  #         key: |
-  #         cert: |
-  #   private:
-  #     listeners:
-  #     - name: passthrough-ingressgateway
-  #       hostname: "keycloak.{{ .Values.domain }}"
-  #       port:
-  #         number: 8443
-  #         protocol: HTTPS
-  #       tls:
-  #         mode: Passthrough
+  gateways:
+    public-ingressgateway:
+      listeners:
+      - name: public-listener
+        hostname: "*.{{ .Values.domain }}"
+        port:
+          number: 8443
+          protocol: HTTPS
+        tls:
+          credentialName: "public-ingressgateway-cert"
+          mode: Terminate
+    # passthrough-ingressgateway:
+    #   listeners:
+    #   - name: passthrough-listener
+    #     hostname: "keycloak.{{ .Values.domain }}"
+    #     port:
+    #       number: 8443
+    #       protocol: HTTPS
+    #     tls:
+    #       mode: Passthrough
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
