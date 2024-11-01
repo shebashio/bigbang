@@ -55,10 +55,10 @@ spec:
     - name: {{ $.Release.Name }}-istio-gateway-values
       kind: Secret
       valuesKey: "overlays"
-    - name: {{ $.Release.Name }}-istio-gateway-values
-      kind: Secret
-      valuesKey: {{ (printf "gateway-overlays-%s" $name) | quote }}
-      optional: true
+    # - name: {{ $.Release.Name }}-istio-gateway-values
+    #   kind: Secret
+    #   valuesKey: {{ (printf "gateway-overlays-%s" $name) | quote }}
+    #   optional: true
 
   dependsOn:
     - name: istio3
