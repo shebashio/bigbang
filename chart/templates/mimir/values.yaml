@@ -14,9 +14,10 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 mimir-distributed:
-  {{- if not $minioEnabled }}
-  structuredConfig:
-      blocks_storage:
-        backend: filesystem
-  {{- end }}
+  mimir:
+    {{- if not $minioEnabled }}
+    structuredConfig:
+        blocks_storage:
+          backend: filesystem
+    {{- end }}
 {{- end }}
