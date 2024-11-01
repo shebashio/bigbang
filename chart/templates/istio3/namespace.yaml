@@ -9,3 +9,4 @@ metadata:
     app.kubernetes.io/name: istio-system
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
+{{- end }}
