@@ -1,9 +1,11 @@
 {{- /* Create secret */ -}}
+{{- $minioEnabled := (.Values.addons.minio.enabled) }}
 {{- if .Values.addons.mimir.enabled }}
 {{- include "values-secret" (dict "root" $ "package" .Values.addons.mimir "name" "mimir" "defaults" (include "bigbang.defaults.mimir" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -11,4 +13,10 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+mimir-distributed:
+  {{- if not $minioEnabled }}
+  structuredConfig:
+      blocks_storage:
+        backend: filesystem
+  {{- end }}
 {{- end }}
