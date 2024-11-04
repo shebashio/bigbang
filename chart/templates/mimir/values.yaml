@@ -4,6 +4,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
+{{- $minioEnabled := (.Values.addons.minio.enabled) }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -11,4 +12,11 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+mimir-distributed:
+  mimir:
+    {{- if not $minioEnabled }}
+    structuredConfig:
+        blocks_storage:
+          backend: filesystem
+    {{- end }}
 {{- end }}
