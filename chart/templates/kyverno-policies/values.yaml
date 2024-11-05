@@ -36,6 +36,8 @@ policies:
           - neuvector
           names:
           - neuvector-enforcer-pod*
+          - neuvector-cert-upgrader-*
+          - neuvector-controller-pod*
       {{- end }}
   {{- end }}
 
@@ -111,6 +113,7 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+          - neuvector-cert-upgrader-*
       {{- end }}
   {{- end }}
 
@@ -206,6 +209,7 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
           - neuvector-prometheus-exporter-pod*
+          - neuvector-cert-upgrader-*
       {{- end }}
       {{- if .Values.addons.holocron.enabled }}
       - resources:
@@ -578,6 +582,7 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+          - neuvector-cert-upgrader-*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -885,6 +890,7 @@ policies:
           - neuvector-manager-pod-*
           - neuvector-scanner-pod-*
           - neuvector-controller-pod-*
+          - neuvector-cert-upgrader-*
           - neuvector-enforcer-pod-*
           - neuvector-updater-pod-*
           - neuvector-prometheus-exporter-pod-*
