@@ -169,7 +169,7 @@ istio3:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio.git
     path: "./chart"
-    branch: "13-update-to-v1-2-of-gateway-crd-and-change-chart-name"
+    branch: "main"
     #tag:
   helmRepo:
     repoName: "registry1"
@@ -194,7 +194,7 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    branch: "3to2"
+    branch: "main"
     #tag:
   helmRepo:
     repoName: "registry1"
@@ -452,8 +452,7 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    #tag: "1.89.7-bb.1"
-    branch: "dev"
+    tag: "1.89.7-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
