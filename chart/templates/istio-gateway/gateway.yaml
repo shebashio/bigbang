@@ -6,6 +6,8 @@ kind: Gateway
 metadata:
   name: {{ $name }}
   namespace: istio-gateway
+  labels:
+    istio: ingressgateway
 spec:
   gatewayClassName: istio
   listeners:
