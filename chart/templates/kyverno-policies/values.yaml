@@ -15,6 +15,7 @@ kyverno:
 fullnameOverride: kyverno-kyverno
 
 waitforready:
+  enabled: false
   imagePullSecrets:
   - name: private-registry
 
