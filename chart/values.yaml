@@ -2105,14 +2105,19 @@ addons:
 
   alloy:
     # -- Toggle deployment of grafana alloy
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
+<<<<<<< Updated upstream
       tag: "1.6.4-bb.0"
+=======
+      branch: alloy-12/k8s-monitoring-tests
+      tag: null
+>>>>>>> Stashed changes
       path: "./chart"
 
     values: {}
