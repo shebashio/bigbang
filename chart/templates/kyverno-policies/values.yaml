@@ -830,7 +830,7 @@ policies:
           - twistlock-defender-ds-*
           # bb-twistlock-upgrade-job requires patch/get/list/update/etc to deployments daemonsets pv's and pvc
           # More details in twistlock/chart/templates/bigbang/upgrade-job.yaml
-          - bb-twistlock-upgrade-job
+          - bb-twistlock-twistlock-upgrade-job-*
       - namespace: logging
         pods:
           allow:
