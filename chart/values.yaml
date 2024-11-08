@@ -175,31 +175,7 @@ istio3:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  # -- Values to passthrough to the istiod chart
-  values: {}
-    # # enable Tetrate FIPS compliant Istio images
-    # defaults:
-    #   global:
-    #     enterprise: true
-  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
-  flux: {}
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-istioGateway:
-  # -- Toggle deployment of one or more Istio Gateway(s)
-  enabled: false
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
-    path: "./chart"
-    branch: "main"
-    #tag:
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istio-gateway"
-    #tag:
+  # define gateways
   gateways:
     public-ingressgateway:
       listeners:
@@ -220,13 +196,16 @@ istioGateway:
     #       protocol: HTTPS
     #     tls:
     #       mode: Passthrough
-  # -- Values to passthrough to the istio-gateway chart
+  # -- Values to passthrough to the istiod chart
   values: {}
+    # # enable Tetrate FIPS compliant Istio images
+    # defaults:
+    #   global:
+    #     enterprise: true
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
-
 
 istio:
   # -- Toggle deployment of Istio.

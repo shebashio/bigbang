@@ -247,23 +247,6 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "istioGateway": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
         "postRenderers": true,
         "ingressGateways": {
           "type": "object"
