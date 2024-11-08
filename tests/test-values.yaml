@@ -1157,6 +1157,8 @@ grafana:
 
 neuvector:
   values:
+    internal:
+      autoRotateCert: true
     enforcer:
       podAnnotations:
         sidecar.istio.io/proxyMemoryLimit: "2Gi"
