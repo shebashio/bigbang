@@ -735,6 +735,13 @@ kyvernoPolicies:
               - argocd
               names:
               - guestbook-ui-*
+          - resources:
+              namespaces:
+              - monitoring
+              names:
+              - validate-monitoring-alloy-k8s-monitoring*
+              - analyze-monitoring-alloy-k8s-monitoring*
+              - test-monitoring-alloy*
       require-non-root-group:
         exclude:
           any:
@@ -756,11 +763,11 @@ kyvernoPolicies:
               - velero-backup-restore-test*
           - resources:
               namespaces:
-              - alloy
+              - monitoring
               names:
-              - alloy-config-validator*
-              - alloy-config-analysis*
-              - alloy-test*
+              - validate-monitoring-alloy-k8s-monitoring*
+              - analyze-monitoring-alloy-k8s-monitoring*
+              - test-monitoring-alloy*
       require-non-root-user:
         exclude:
           any:
@@ -786,11 +793,11 @@ kyvernoPolicies:
               - volume-upgrade-job*
           - resources:
               namespaces:
-              - alloy
+              - monitoring
               names:
-              - alloy-config-validator*
-              - alloy-config-analysis*
-              - alloy-test*
+              - validate-monitoring-alloy-k8s-monitoring*
+              - analyze-monitoring-alloy-k8s-monitoring*
+              - test-monitoring-alloy*
       require-non-root-user:
       disallow-namespaces:
         parameters:
