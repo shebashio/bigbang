@@ -489,6 +489,8 @@ kyvernoPolicies:
           - istio-system
           names:
           - svclb-*
+          # Until Mimir is good enough to pass Kyverno Policies
+          - monitoring-mimir-*
       # Exclude gatekeeper test resources so Helm tests will work
       - resources:
           namespaces:
