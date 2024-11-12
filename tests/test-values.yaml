@@ -1159,6 +1159,10 @@ neuvector:
   values:
     internal:
       autoRotateCert: true
+    cve:
+      scanner:
+        securityContext:
+          runAsGroup: 0
     enforcer:
       podAnnotations:
         sidecar.istio.io/proxyMemoryLimit: "2Gi"
