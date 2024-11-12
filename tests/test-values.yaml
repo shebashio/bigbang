@@ -1162,6 +1162,8 @@ neuvector:
         sidecar.istio.io/proxyMemoryLimit: "2Gi"
     k3s:
       enabled: true
+    internal:
+      autoRotateCert: true    
     istio:
       enabled: true
       hardened:
