@@ -157,6 +157,14 @@ networkPolicies:
 # Permitted values are: None, Always, IfNotPresent
 imagePullPolicy: IfNotPresent
 
+istioBaseDiscovery:
+  enabled: true
+  sourceType: git
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio
+    path: "./chart"
+    tag: "1.23.2-bb.0"
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
