@@ -1158,8 +1158,6 @@ grafana:
 
 neuvector:
   values:
-    internal:
-      autoRotateCert: true
     enforcer:
       podAnnotations:
         sidecar.istio.io/proxyMemoryLimit: "2Gi"
@@ -1186,8 +1184,6 @@ neuvector:
               resolution: DNS
     bbtests:
       enabled: true
-      cypress:
-        artifacts: true
         envs:
           cypress_url: https://neuvector.dev.bigbang.mil
 
