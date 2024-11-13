@@ -730,6 +730,7 @@ kyvernoPolicies:
               - neuvector-enforcer-pod*
               - neuvector-controller-pod*
               - neuvector-prometheus-exporter-pod*
+              - neuvector-cert-upgrader-job-*
           - resources:
               namespaces:
               - argocd
