@@ -210,7 +210,7 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
           - neuvector-prometheus-exporter-pod*
-          - neuvector-cert-upgrader-job-*
+          - neuvector-cert-upgrader-*
           - neuvector-scanner-pod*
       {{- end }}
       {{- if .Values.addons.holocron.enabled }}
@@ -360,6 +360,7 @@ policies:
           names:
           - neuvector-enforcer-pod-*
           - neuvector-controller-pod-*
+          - neuvector-cert-upgrader-job-*
       {{- end }}
     {{- end }}
 
