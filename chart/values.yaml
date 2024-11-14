@@ -164,6 +164,18 @@ istioBaseDiscovery:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio
     path: "./chart"
     tag: "1.23.2-bb.0"
+  gateways:
+    public:
+      ingressGateway: "public-ingressgateway"
+      hosts:
+        - "*.{{ .Values.domain }}"
+      # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
+      autoHttpRedirect:
+        enabled: true
+      tls:
+        key: ""
+        cert: ""
+        minProtocolVersion: ""
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio

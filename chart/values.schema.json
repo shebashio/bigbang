@@ -16,6 +16,7 @@
     "imagePullPolicy",
     "istio",
     "istioOperator",
+    "istioBaseDiscovery",
     "jaeger",
     "kiali",
     "clusterAuditor",
@@ -265,6 +266,17 @@
         }
       ],
       "additionalProperties": false
+    },
+    "istioBaseDiscovery": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      }
     },
     "istioOperator": {
       "properties": {

@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: istio-system
   labels:
-    app.kubernetes.io/name: istio-controlplane
+    app.kubernetes.io/name: istio-base-discovery
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
     istio-injection: disabled
