@@ -6,6 +6,6 @@ metadata:
     app.kubernetes.io/name: anchore
     app.kubernetes.io/component: "security"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (or .Values.istio.enabled .Values.istioGateway.enabled) (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (or .Values.istio.enabled .Values.istio3.enabled) (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
   name: anchore
 {{- end }}

@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: minio-operator
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" (and (or .Values.istio.enabled .Values.istioGateway.enabled) (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (or .Values.istio.enabled .Values.istio3.enabled) (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
     app.kubernetes.io/name: minioOperator
     app.kubernetes.io/component: "application-utilities"
     {{- include "commonLabels" . | nindent 4}}
