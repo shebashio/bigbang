@@ -247,11 +247,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "ingressGateways": {
-          "type": "object"
-        },
-        "gateways": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -268,7 +264,11 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "ingressGateways": {
+          "type": "object"
+        },
+        "gateways": true
       },
       "allOf": [
         {

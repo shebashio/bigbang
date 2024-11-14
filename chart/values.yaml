@@ -175,7 +175,31 @@ istio3:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  # define gateways
+  # -- Values to passthrough to the istiod chart
+  values: {}
+    # # enable Tetrate FIPS compliant Istio images
+    # defaults:
+    #   global:
+    #     enterprise: true
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istioGateway:
+  # -- Toggle deployment of one or more Istio Gateway(s)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
   # gateways:
   #   public-ingressgateway:
   #     listeners:
@@ -196,38 +220,13 @@ istio3:
     #       protocol: HTTPS
     #     tls:
     #       mode: Passthrough
-  # -- Values to passthrough to the istiod chart
-  values: {}
-    # # enable Tetrate FIPS compliant Istio images
-    # defaults:
-    #   global:
-    #     enterprise: true
-  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
-  flux: {}
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-istioGateway:
-  # -- Toggle deployment of one or more Istio Gateway(s)
-  enabled: true
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
-    path: "./chart"
-    branch: "3to2"
-    #tag:
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istio-gateway"
-    #tag:
-
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+
 
 istio:
   # -- Toggle deployment of Istio.
@@ -947,11 +946,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "62.4.0-bb.1"
+    tag: "62.4.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "62.4.0-bb.1"
+    tag: "62.4.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1053,11 +1052,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.17.0-bb.2"
+    tag: "0.17.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.17.0-bb.2"
+    tag: "0.17.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1217,11 +1216,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.4-bb.2"
+      tag: "6.0.4-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.4-bb.2"
+      tag: "6.0.4-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1257,11 +1256,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.3.6-bb.3"
+      tag: "8.3.6-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.3.6-bb.3"
+      tag: "8.3.6-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2154,12 +2153,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.10.2-bb.5"
+      tag: "0.10.2-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.10.2-bb.5"
+      tag: "0.10.2-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
