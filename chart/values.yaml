@@ -207,6 +207,28 @@ istio3:
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
+istioGateway:
+  # -- Toggle deployment of one or more Istio Gateway(s)
+  enabled: true
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "3to2"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+
+  # -- Values to passthrough to the istio-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
