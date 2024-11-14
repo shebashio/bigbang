@@ -176,17 +176,17 @@ istio3:
     chartName: "istio3"
     #tag:
   # define gateways
-  gateways:
-    public-ingressgateway:
-      listeners:
-      - name: public-listener
-        hostname: "*.{{ .Values.domain }}"
-        port:
-          number: 8443
-          protocol: HTTPS
-        tls:
-          credentialName: "public-ingressgateway-cert"
-          mode: Terminate
+  # gateways:
+  #   public-ingressgateway:
+  #     listeners:
+  #     - name: public-listener
+  #       hostname: "*.{{ .Values.domain }}"
+  #       port:
+  #         number: 8443
+  #         protocol: HTTPS
+  #       tls:
+  #         credentialName: "public-ingressgateway-cert"
+  #         mode: Terminate
     # passthrough-ingressgateway:
     #   listeners:
     #   - name: passthrough-listener
