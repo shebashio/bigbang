@@ -208,6 +208,10 @@ prometheus:
         - mountPath: /etc/prom-certs/
           name: istio-certs
       {{- end }}
+      {{- if Values.addons.mimir.enabled }}
+      remoteWrite:
+        - http://monitoring-mimir-nginx.monitoring.svc/api/v1/push
+      {{- end }}
     {{- end }}
 
     # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
