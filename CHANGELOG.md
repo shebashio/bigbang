@@ -4,9 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [2.39.2]
+## [2.40.1]
 
-- [!2.39.3](https://repo1.dso.mil/big-bang/product/packages/velero/-/blob/7.2.2-bb.1/CHANGELOG.md); Updaded velero tag to 7.2.2-bb.1
+- [!2.40.1](https://repo1.dso.mil/big-bang/product/packages/velero/-/blob/7.2.2-bb.1/CHANGELOG.md); Updaded velero tag to 7.2.2-bb.1
+
+## [2.40.0]
+	
+- [!2.40.0](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&milestone_title=2.40.0); List of merge requests in this release.
 
 ## [2.39.1]
 	

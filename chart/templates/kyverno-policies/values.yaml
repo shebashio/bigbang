@@ -111,6 +111,7 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+          - neuvector-scanner-pod*
       {{- end }}
   {{- end }}
 
@@ -204,7 +205,9 @@ policies:
           - neuvector
           names:
           - neuvector-enforcer-pod*
+          - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
+          - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
       {{- if .Values.addons.holocron.enabled }}
@@ -354,6 +357,7 @@ policies:
           names:
           - neuvector-enforcer-pod-*
           - neuvector-controller-pod-*
+          - neuvector-cert-upgrader-job-*
       {{- end }}
     {{- end }}
 
@@ -577,6 +581,7 @@ policies:
           - neuvector
           names:
           - neuvector-enforcer-pod*
+          - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
       {{- end }}
       {{- if $deployNodeAgent }}
@@ -828,6 +833,9 @@ policies:
           # Twistlock Defender enforces various policies that may involve the K8s cluster itself
           # Enforcing said policies requires access to the API to get/list resources
           - twistlock-defender-ds-*
+          # bb-twistlock-upgrade-job requires patch/get/list/update/etc to deployments daemonsets pv's and pvc
+          # More details in twistlock/chart/templates/bigbang/upgrade-job.yaml
+          - bb-twistlock-twistlock-upgrade-job-*
       - namespace: logging
         pods:
           allow:
@@ -884,6 +892,7 @@ policies:
           allow:
           - neuvector-manager-pod-*
           - neuvector-scanner-pod-*
+          - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod-*
           - neuvector-enforcer-pod-*
           - neuvector-updater-pod-*
