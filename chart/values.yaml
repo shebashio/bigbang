@@ -174,11 +174,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.2-bb.1"
+    tag: "1.23.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.2-bb.1"
+    tag: "1.23.3-bb.0"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -316,11 +316,11 @@ istioOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
     path: "./chart"
-    tag: "1.23.2-bb.0"
+    tag: "1.23.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-operator"
-    tag: "1.23.2-bb.0"
+    tag: "1.23.3-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Istio Operator Package
   flux: {}
@@ -758,11 +758,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.2-bb.1"
+    tag: "2.8.2-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.2-bb.1"
+    tag: "2.8.2-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1648,11 +1648,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.1.2-bb.0"
+      tag: "10.2.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.1.2-bb.0"
+      tag: "10.2.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1742,11 +1742,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
