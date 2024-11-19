@@ -242,11 +242,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.2-bb.1"
+    tag: "1.23.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.2-bb.1"
+    tag: "1.23.3-bb.0"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -384,11 +384,11 @@ istioOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
     path: "./chart"
-    tag: "1.23.2-bb.0"
+    tag: "1.23.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-operator"
-    tag: "1.23.2-bb.0"
+    tag: "1.23.3-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Istio Operator Package
   flux: {}
@@ -826,11 +826,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.2-bb.1"
+    tag: "2.8.2-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.2-bb.1"
+    tag: "2.8.2-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1256,11 +1256,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.3.6-bb.1"
+      tag: "8.5.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.3.6-bb.1"
+      tag: "8.5.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1397,11 +1397,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "73.0.0-bb.1"
+      tag: "74.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "73.0.0-bb.1"
+      tag: "74.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1599,11 +1599,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.0.0-bb.2"
+      tag: "3.1.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "3.0.0-bb.2"
+      tag: "3.1.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1716,11 +1716,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.1.2-bb.0"
+      tag: "10.2.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.1.2-bb.0"
+      tag: "10.2.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1810,11 +1810,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -1903,11 +1903,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.28.1-bb.12"
+      tag: "0.29.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.28.1-bb.12"
+      tag: "0.29.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
