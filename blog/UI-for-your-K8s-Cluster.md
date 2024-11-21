@@ -16,9 +16,15 @@ Designed to be lightweight, Headlamp ensures fast performance and minimal resour
 ### 3. **Real-Time Insights**
 Get live updates on resource statuses, metrics, and logs. This ensures you always have the most accurate information to monitor cluster health and troubleshoot issues effectively.
 
+![Alt text](assets/images/UI-for-your-K8s-Cluster/pods_snapshot.png)
+
 ### 4. **Customizable and Extensible**
-- **Plugin Support:** Add or modify functionality to tailor the UI to your needs.  
+- **Plugin Support:** Add or modify functionality to tailor the UI to your needs such as the easily implemented Flux plugin.
 - **Open Source:** Adapt Headlamp for specific requirements or contribute to its development.  
+
+![Alt text](assets/images/UI-for-your-K8s-Cluster/flux_hr_snapshot.png)
+![Alt text](assets/images/UI-for-your-K8s-Cluster/flux_actions.png)
+
 
 ### 5. **Multi-Cluster Management**
 Easily manage multiple Kubernetes clusters from a single interface, streamlining operations across environments.
@@ -31,4 +37,8 @@ Headlamp connects directly with Kubernetes APIs, ensuring accurate, real-time cl
 
 ---
 
+Currently headlamp can be used in a variety of ways which can benefit anyone managing a kubernetes cluster, 
+
 Start exploring Headlamp today to simplify and enhance your Kubernetes management experience!
+
+Progress of headlamp being implemented into Big Bang as an add-on can be found [here](https://repo1.dso.mil/big-bang/product/bbtoc/-/issues/144)
