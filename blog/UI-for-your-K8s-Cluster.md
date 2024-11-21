@@ -31,9 +31,16 @@ Easily manage multiple Kubernetes clusters from a single interface, streamlining
 
 ### 6. **RBAC Visualization**
 Understand and manage Role-Based Access Control (RBAC) with clear visualizations, simplifying permission management.
+![Alt text](assets/images/UI-for-your-K8s-Cluster/rbac.png)
 
 ### 7. **Native Kubernetes API Integration**
 Headlamp connects directly with Kubernetes APIs, ensuring accurate, real-time cluster management without relying on additional tools or agents.
+
+### 8. **Real-Time Visualization of resources
+Headlamp is capable of mapping out your real-time resources such as Workloads(pods, deployments, etc), Storage(PVCs), Network (Services, Endpoints, Ingress), Security(Service Accounts, Roles, Role Bindings), Configuration(Config Maps, Secrets, etc) and can be grouped by Namespace, Instance, or node. 
+
+![Alt text](assets/images/UI-for-your-K8s-Cluster/visualization.png)
+
 
 ---
 
