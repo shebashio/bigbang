@@ -37,8 +37,6 @@ Headlamp connects directly with Kubernetes APIs, ensuring accurate, real-time cl
 
 ---
 
-Currently headlamp can be used in a variety of ways which can benefit anyone managing a kubernetes cluster, 
-
 Start exploring Headlamp today to simplify and enhance your Kubernetes management experience!
 
 Progress of headlamp being implemented into Big Bang as an add-on can be found [here](https://repo1.dso.mil/big-bang/product/bbtoc/-/issues/144)
