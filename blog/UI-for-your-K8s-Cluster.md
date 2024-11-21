@@ -23,7 +23,7 @@ Get live updates on resource statuses, metrics, and logs. This ensures you alway
 - **Open Source:** Adapt Headlamp for specific requirements or contribute to its development.  
 
 ![Alt text](assets/images/UI-for-your-K8s-Cluster/flux_hr_snapshot.png)
-![Alt text](assets/images/UI-for-your-K8s-Cluster/flux_actions.png)
+![Alt text](assets/images/UI-for-your-K8s-Cluster/Flux_actions.png)
 
 
 ### 5. **Multi-Cluster Management**
