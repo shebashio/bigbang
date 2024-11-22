@@ -419,6 +419,10 @@ gatekeeper:
 
 kyverno:
   values:
+    istio:
+      enabled: true
+    openshift:
+      enabled: true
     networkPolicies:
       externalRegistries:
         allowEgress: true
