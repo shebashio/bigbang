@@ -38,10 +38,14 @@ spec:
       interval: 5m
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
-
-  {{- if .Values.addons.mimir.postRenderers }}
+  {{- if or .Values.addons.mimir.postRenderers .Values.istio.enabled }}
   postRenderers:
-  {{ toYaml .Values.addons.mimir.postRenderers | nindent 4 }}
+  {{- if .Values.istio.enabled }}
+  {{ include "mimir.istioPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.addons.mimir.postRenderers }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-mimir-values
@@ -71,4 +75,4 @@ spec:
   {{- end }}
   {{- end }}
 {{- end }}
-
+status: {}
