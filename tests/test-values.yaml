@@ -800,6 +800,8 @@ kyvernoPolicies:
         parameters:
           disallow:
           - bigbang
+      require-istio-on-namespaces:
+        enabled: true
 
 eckOperator:
   # -- Toggle deployment of ECK Operator.
