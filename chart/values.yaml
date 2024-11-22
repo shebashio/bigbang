@@ -1256,11 +1256,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.5.1-bb.0"
+      tag: "8.5.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.5.1-bb.0"
+      tag: "8.5.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1531,11 +1531,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.19"
+      tag: "1.1.2320154-bb.20"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.19"
+      tag: "1.1.2320154-bb.20"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1599,11 +1599,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.1.1-bb.0"
+      tag: "3.1.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "3.1.1-bb.0"
+      tag: "3.1.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1846,11 +1846,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "2.5.1-bb.0"
+      tag: "2.5.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "2.5.1-bb.0"
+      tag: "2.5.1-bb.1"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
