@@ -27,6 +27,10 @@ istio:
     }}
 
 mimir-distributed:
+  {{- if .Values.istio.enabled }}
+  query_scheduler:
+    enabled: false
+  {{- end }}
   mimir:
     {{- if not $minioEnabled }}
     structuredConfig:
