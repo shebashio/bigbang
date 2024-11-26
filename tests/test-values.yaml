@@ -1798,7 +1798,11 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-
+  mimir:
+    enabled: true
+    git:
+      tag: null
+      branch: test-smoke-podSecurity
   minio:
     enabled: false
     values:
