@@ -1,11 +1,11 @@
 # Testing repo1 CI against a dedicated runner
 
-This page will describe how to deploy bigbang with a gitlabrunner that is connected to repo1. 
+This page will describe how to deploy bigbang with a gitlabrunner that is connected to repo1.
 
 ## Why
 
 * You need to test gitlabrunner configuration against repo1
-* You need to test integrating CI pipelines to infrastructure or other bigbang services. 
+* You need to test integrating CI pipelines to infrastructure or other bigbang services.
 
 ## How
 
