@@ -16,6 +16,8 @@ You will need either of these:
 * Admin access to a repo on repo1
 * Or access to create personal repos under your account on repo1
 
+Contact the Big Bang Government Team Lead to request access.
+
 ### Create gitlab runner and token
 
 1. goto *Settings -> CI/CD* on the repo you want to test against.
@@ -30,7 +32,7 @@ you can follow the directions <https://repo1.dso.mil/big-bang/bigbang/-/blob/mas
 
 ### Deploy Big Bang
 
-1. Create an overrides file withe following contect
+1. Create an overrides file with the following content, along with any additional [configuration settings](https://docs.gitlab.com/runner/executors/kubernetes/#configuration-settings) you need to test
 
 ```yaml
 # enable grafana alloy to push traces to
