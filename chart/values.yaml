@@ -1054,11 +1054,19 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
+<<<<<<< HEAD
     tag: "0.17.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
     tag: "0.17.0-bb.1"
+=======
+    tag: "0.18.0-bb.0"
+  helmRepo:
+    repoName: "registry1"
+    chartName: "twistlock"
+    tag: "0.18.0-bb.0"
+>>>>>>> 302dc6af1a623c682b746cd951cd8aebd4c355ff
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
