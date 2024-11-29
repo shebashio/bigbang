@@ -174,11 +174,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.3-bb.0"
+    tag: "1.23.3-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.3-bb.0"
+    tag: "1.23.3-bb.1"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -570,11 +570,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.21.0-bb.0"
+    tag: "1.22.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.21.0-bb.0"
+    tag: "1.22.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -701,11 +701,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.18.0-bb.1"
+    tag: "6.18.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.18.0-bb.1"
+    tag: "6.18.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -933,11 +933,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.5.5-bb.0"
+    tag: "8.6.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.5.5-bb.0"
+    tag: "8.6.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -984,11 +984,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.17.0-bb.2"
+    tag: "0.18.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.17.0-bb.2"
+    tag: "0.18.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1088,11 +1088,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.0.2-bb.1"
+      tag: "1.0.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.0.2-bb.1"
+      tag: "1.0.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1778,11 +1778,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "2.5.1-bb.1"
+      tag: "2.5.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "2.5.1-bb.1"
+      tag: "2.5.1-bb.2"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
