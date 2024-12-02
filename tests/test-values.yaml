@@ -799,7 +799,10 @@ kyvernoPolicies:
 
 eckOperator:
   # -- Toggle deployment of ECK Operator.
-  enabled: false
+  enabled: true
+  git:
+    tag: null
+    branch: renovate/ironbank
   values:
     istio:
       hardened:
