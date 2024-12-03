@@ -515,11 +515,12 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.2.6-bb.1"
+    #tag: "3.2.6-bb.2"
+    branch: "145-cleanup-require-labels-policy"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.2.6-bb.1"
+    tag: "3.2.6-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
