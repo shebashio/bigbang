@@ -1,10 +1,10 @@
 # Testing repo1 CI against a dedicated runner
 
-This page will describe how to deploy bigbang with a gitlabrunner that is connected to repo1.
+This page will describe how to deploy bigbang with a GitLab Runner that is connected to repo1. Source documentation for GitLab Runner is available at https://docs.gitlab.com/runner/.
 
 ## Why
 
-* You need to test gitlabrunner configuration against repo1
+* You need to test GitLab Runner configuration against repo1
 * You need to test integrating CI pipelines to infrastructure or other bigbang services.
 
 ## How
@@ -20,7 +20,7 @@ Contact the Big Bang Government Team Lead to request access.
 
 ### Create gitlab runner and token
 
-1. goto *Settings -> CI/CD* on the repo you want to test against.
+1. Go to *Settings -> CI/CD* on the repo you want to test against.
 1. Expand the *Runners* section and click *New project runner*
 1. Select *Run untagged jobs* and *Lock to current projects* and click *Create runner*
 1. On the next page Copy the *runner authentication token* for later
