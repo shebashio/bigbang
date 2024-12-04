@@ -301,7 +301,7 @@ policies:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.mimir.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
     exclude:
       any:
       - resources:
@@ -367,14 +367,6 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
-      {{- if .Values.addons.mimir.enabled }}
-      # Mimir smoke test run as root
-      - resources:
-          namespaces:
-          - monitoring
-          names:
-          - monitoring-mimir-smoke-test
-      {{- end }}
     {{- end }}
 
   require-non-root-user:
@@ -396,7 +388,7 @@ policies:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.mimir.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled}}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -469,7 +461,7 @@ policies:
           namespaces:
           - monitoring
           names:
-          - monitoring-mimir-smoke-test
+          - monitoring-mimir-smoke-test-*
       {{- end }}
     {{- end }}
 
