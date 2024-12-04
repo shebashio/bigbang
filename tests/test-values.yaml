@@ -880,7 +880,10 @@ elasticsearchKibana:
             memory: "4Gi"
 
 fluentbit:
-  enabled: false
+  enabled: true
+  git:
+    tag: null
+    branch: renovate/ironbank
   values:
     istio:
       hardened:
