@@ -246,6 +246,14 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
+      {{- if .Values.addons.mimir.enabled }}
+      # Mimir smoke requires capabilities
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-mimir-smoke-test
+      {{- end }}
 
   # Kyverno Beta feature - https://kyverno.io/docs/writing-policies/verify-images/
   require-image-signature:
@@ -293,7 +301,7 @@ policies:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.mimir.enabled }}
     exclude:
       any:
       - resources:
@@ -359,6 +367,14 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
+      {{- if .Values.addons.mimir.enabled }}
+      # Mimir smoke test run as root
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-mimir-smoke-test
+      {{- end }}
     {{- end }}
 
   require-non-root-user:
@@ -380,7 +396,7 @@ policies:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled}}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.mimir.enabled }}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -446,6 +462,14 @@ policies:
           - promtail
           names:
           - promtail-promtail*
+      {{- end }}
+      {{- if .Values.addons.mimir.enabled }}
+      # Mimir smoke test run as root
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-mimir-smoke-test
       {{- end }}
     {{- end }}
 
