@@ -906,12 +906,17 @@ fluentbit:
 
 
 loki:
+  enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   strategy: scalable
   values:
     istio:
       loki:
         enabled: true
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-loki"
             enabled: true
