@@ -1835,7 +1835,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.0-bb.0"
+      tag: null
+      branch: "kiali-label-updates"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
