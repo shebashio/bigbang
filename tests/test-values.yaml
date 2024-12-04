@@ -1228,6 +1228,11 @@ twistlock:
 
 # Addons are toggled based on labels in CI
 addons:
+  mimir:
+    enabled: true
+    git:
+      branch: deny-all-name-unique
+      tag: null
   argocd:
     enabled: false
     sso:
