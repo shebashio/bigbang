@@ -173,6 +173,7 @@ prometheus:
       - url: http://mimir-mimir-nginx.mimir.svc.cluster.local/api/v1/push
       {{- end }}
         {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+        scheme: https
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
           certFile: /etc/prom-certs/cert-chain.pem
