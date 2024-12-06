@@ -1911,6 +1911,8 @@ addons:
                 resolution: DNS
 
       postgresql:
+        install: false
+        ssl_mode: require
         persistence:
           size: 256Mi
       resources:

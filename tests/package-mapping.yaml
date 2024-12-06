@@ -76,6 +76,14 @@ mattermost:
     - "mattermostOperator"
     - "minioOperator"
     - "elasticsearchKibana"
+  bigbang_ci:
+    rds:
+      enabled: true
+      database: ".addons.mattermost.values.database.database"
+      host: ".addons.mattermost.values.database.host"
+      port: ".addons.mattermost.values.database.port"
+      username: ".addons.mattermost.values.database.username"
+      password: ".addons.mattermost.values.database.password"
 velero:
   dependencies:
     - "minio"
