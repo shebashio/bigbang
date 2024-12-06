@@ -1331,7 +1331,10 @@ addons:
             size: 256Mi
 
   fortify:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: renovate/ironbank
     flux:
       timeout: 15m
     ingress:
@@ -1341,6 +1344,7 @@ addons:
     values:
       istio:
         hardened:
+          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-fortify"
               enabled: true
