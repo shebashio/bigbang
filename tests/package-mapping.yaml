@@ -79,11 +79,11 @@ mattermost:
   bigbang_ci:
     rds:
       enabled: true
-      database: ".addons.mattermost.values.database.database"
-      host: ".addons.mattermost.values.database.host"
-      port: ".addons.mattermost.values.database.port"
-      username: ".addons.mattermost.values.database.username"
-      password: ".addons.mattermost.values.database.password"
+      database: ".addons.mattermost.database.database"
+      host: ".addons.mattermost.database.host"
+      port: ".addons.mattermost.database.port"
+      username: ".addons.mattermost.database.username"
+      password: ".addons.mattermost.database.password"
 velero:
   dependencies:
     - "minio"
