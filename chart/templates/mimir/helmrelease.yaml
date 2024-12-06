@@ -11,7 +11,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/mimir/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: monitoring
+  targetNamespace: mimir
   chart:
     spec:
       {{- if eq .Values.addons.mimir.sourceType "git" }}
