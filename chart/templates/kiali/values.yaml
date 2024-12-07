@@ -28,13 +28,13 @@ istio:
     gateways:
     - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
 
-istioGateway:
-  enabled: {{ .Values.istioGateway.enabled }}
+istio3:
+  enabled: {{ .Values.istio3.enabled }}
   kiali:
     gateways:
     - istio-gateway/{{ default "ingress" .Values.kiali.ingress.gateway }}
 
-{{- if or .Values.istio.enabled .Values.istioGateway.enabled }}
+{{- if or .Values.istio.enabled .Values.istio3.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
@@ -51,7 +51,7 @@ cr:
   spec:
     deployment:
       image_pull_policy: {{ .Values.imagePullPolicy }}
-      {{- if or .Values.istio.enabled .Values.istioGateway.enabled }}
+      {{- if or .Values.istio.enabled .Values.istio3.enabled }}
       pod_annotations:
         {{ include "istioAnnotation" . }}
       {{- end }}
@@ -125,21 +125,21 @@ cr:
             {{- end }}
             {{- end }}
       {{- end }}
-      {{- if .Values.istioGateway.enabled }}
-      istioGateway:
+      {{- if .Values.istio3.enabled }}
+      istio3:
         component_status:
           components:
             - app_label: istiod
               is_core: true
               is_proxy: false
-            {{- range $name, $values := .Values.istioGateway.gateways }}
+            {{- range $name, $values := .Values.istio3.gateways }}
             {{ if ne $values.enabled false }}
             - app_label: {{ $name }}
               is_core: true
               is_proxy: true
             {{- end }}
             {{- end }}
-            {{- range $name, $values := .Values.istioGateway.values.gateways }}
+            {{- range $name, $values := .Values.istio3.values.gateways }}
             {{ if ne $values.enabled false }}
             - app_label: {{ $name }}
               is_core: true

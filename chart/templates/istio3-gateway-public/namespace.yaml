@@ -1,4 +1,4 @@
-{{- if .Values.istioGateway.enabled }}
+{{- if and .Values.istio3.enabled .Values.istio3.gateways.public.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:

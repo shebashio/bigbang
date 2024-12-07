@@ -55,13 +55,13 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{ if or .Values.istio.enabled .Values.istioGateway.enabled .Values.monitoring.enabled }}
+  {{ if or .Values.istio.enabled .Values.istio3.enabled .Values.monitoring.enabled }}
   dependsOn:
   {{- if .Values.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
   {{- end }}    
-  # {{- if .Values.istioGateway.enabled }}
+  # {{- if .Values.istio3.enabled }}
   #   - name: istio-gateway-public-ingressgateway
   #     namespace: {{ .Release.Namespace }}
   # {{- end }}

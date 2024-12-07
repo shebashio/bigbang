@@ -15,7 +15,8 @@
     "networkPolicies",
     "imagePullPolicy",
     "istio3",
-    "istioGateway",
+    "istioGatewayPublic",
+    "istioGatewayPassthrough",
     "istio",
     "istioOperator",
     "jaeger",
@@ -247,6 +248,27 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
+        "postRenderers": true,
+        "ingressGateways": {
+          "type": "object"
+        },
+        "gateways": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "istioGatewayPublic": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
         "postRenderers": true
       },
       "allOf": [
@@ -256,7 +278,7 @@
       ],
       "additionalProperties": false
     },
-    "istioGateway": {
+    "istioGatewayPassthrough": {
       "properties": {
         "enabled": true,
         "sourceType": true,
@@ -264,11 +286,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "ingressGateways": {
-          "type": "object"
-        },
-        "gateways": true
+        "postRenderers": true
       },
       "allOf": [
         {
