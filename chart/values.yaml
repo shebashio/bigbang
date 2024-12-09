@@ -660,11 +660,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.22.0-bb.0"
+    tag: "1.23.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.22.0-bb.0"
+    tag: "1.23.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -791,11 +791,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.18.0-bb.3"
+    tag: "6.22.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.18.0-bb.3"
+    tag: "6.22.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1238,11 +1238,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.4-bb.3"
+      tag: "6.0.4-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.4-bb.3"
+      tag: "6.0.4-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1832,11 +1832,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "7.2.2-bb.3"
+      tag: "7.2.2-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "7.2.2-bb.3"
+      tag: "7.2.2-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -1925,11 +1925,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.0-bb.1"
+      tag: "0.29.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.29.0-bb.1"
+      tag: "0.29.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -2175,12 +2175,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.10.4-bb.1"
+      tag: "0.11.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.10.4-bb.1"
+      tag: "0.11.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2202,7 +2202,7 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "1.6.4-bb.0"
+      tag: "1.6.13-bb.0"
       path: "./chart"
 
     values: {}
