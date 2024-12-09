@@ -1,3 +1,9 @@
+---
+revision_date: Last edited December 09, 2024
+tags:
+  - blog
+---
+
 # Big Bang Release 2.41.0: A Milestone in Enterprise Platform Development
 
 We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem.
