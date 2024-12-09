@@ -175,7 +175,6 @@ istio3:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  # -- Values to passthrough to the istiod chart
   gateways:
     public:
       enabled: true
@@ -198,6 +197,7 @@ istio3:
     #     protocol: HTTPS
     #   tls:
     #     mode: Passthrough
+  # -- Values to passthrough to the istiod chart
   values: {}
     # # enable Tetrate FIPS compliant Istio images
     # defaults:
