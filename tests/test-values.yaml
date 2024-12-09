@@ -1047,6 +1047,10 @@ promtail:
   enabled: true
 
 monitoring:
+  enabled:  true
+  git:
+    branch: renovate/ironbank
+    tag: null
   flux:
     timeout: 20m
     install:
