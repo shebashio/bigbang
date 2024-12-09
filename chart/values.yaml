@@ -209,9 +209,7 @@ istio3:
   postRenderers: []
 
 istioGatewayPublic:
-  # -- Toggle deployment of the Istio public ingress gateway
-  enabled: true
-  # -- Choose source type of "git" or "helmRepo"
+  enabled: true # only deployed when istio3.gateways.public is set to true
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
@@ -230,9 +228,7 @@ istioGatewayPublic:
   postRenderers: []
 
 istioGatewayPassthrough:
-  # -- Toggle deployment of the Istio passthrough ingress gateway
-  enabled: true
-  # -- Choose source type of "git" or "helmRepo"
+  enabled: true # only deployed when istio3.gateways.public is set to true
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
