@@ -2128,6 +2128,9 @@ addons:
             MINIO_HOST: https://minio-api.dev.bigbang.mil
 
   keycloak:
+    git:
+      branch: "232-keycloak-include-pfx-truststore"
+      tag: null
     enabled: false
     ingress:
       gateway: "passthrough"
@@ -2169,10 +2172,12 @@ addons:
           value: /opt/keycloak/conf/tls.key
         - name: KC_HTTPS_CLIENT_AUTH
           value: request
-        - name: KC_HTTPS_TRUST_STORE_FILE
-          value: /opt/keycloak/conf/truststore.jks
-        - name: KC_HTTPS_TRUST_STORE_PASSWORD
-          value: password
+        # - name: KC_HTTPS_TRUST_STORE_FILE
+        #   value: /opt/keycloak/conf/truststore.jks
+        # - name: KC_HTTPS_TRUST_STORE_PASSWORD
+        #   value: password
+        - name: KC_TRUSTSTORE_PATHS
+          value: /opt/keycloak/conf/truststore.pfx
         - name: KC_HOSTNAME
           value: keycloak.dev.bigbang.mil
         - name: KC_HOSTNAME_STRICT
@@ -2191,8 +2196,10 @@ addons:
             realm.json: '{{ .Files.Get "resources/dev/baby-yoda-bb-ci.json" }}'
         truststore:
           data:
-            truststore.jks: |-
-              {{ .Files.Get "resources/dev/truststore.jks" | b64enc }}
+            # truststore.jks: |-
+            #   {{ .Files.Get "resources/dev/truststore.jks" | b64enc }}
+            truststore.pfx: |-
+              '{{ .Files.Get "resources/dev/truststore.pfx" | b64enc }}'
         quarkusproperties:
           stringData:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
@@ -2241,8 +2248,10 @@ addons:
           mountPath: /opt/keycloak/providers/p1-keycloak-plugin.jar
           subPath: p1-keycloak-plugin.jar
         - name: truststore
-          mountPath: /opt/keycloak/conf/truststore.jks
-          subPath: truststore.jks
+          # mountPath: /opt/keycloak/conf/truststore.jks
+          # subPath: truststore.jks
+          mountPath: /opt/keycloak/conf/truststore.pfx
+          subPath: truststore.pfx
         - name: quarkusproperties
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
