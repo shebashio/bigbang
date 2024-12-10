@@ -45,7 +45,7 @@ The latest release includes comprehensive updates to critical components includi
 - Advancement of initiatives toward the anticipated 1.0 release
 
 ## Repo Sync Revival
-- Currently advancing the latest iteration of the Repo Sync functionality towards a minimal viable product status 
+- Currently advancing the latest iteration of the Repo Sync functionality towards a minimal viable product status. [Further information on the current status can be found within the epic ](https://repo1.dso.mil/groups/big-bang/-/epics/400)
 
 ## Community Engagement
 
