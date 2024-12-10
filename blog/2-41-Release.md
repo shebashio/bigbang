@@ -28,7 +28,7 @@ The storage team has delivered significant improvements through renovations of k
 ### Security and Compliance Advancement
 
 - Completed renovate updates for Anchore Enterprise and Neuvector
-- Enhanced Kubescape exceptions for nightly pipelines
+- Internal testing of KubeScape project
 - Refined Kyverno policy implementation
 - Progress toward multi-cluster Twistlock deployment support
 
