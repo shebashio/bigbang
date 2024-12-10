@@ -53,7 +53,7 @@ flux:
     cleanupOnFail: false
 
 networkPolicies:
-  enabled: true
+  enabled: false
   #controlPlaneCidr: 172.16.0.0/12
 
 istio:
@@ -1885,6 +1885,19 @@ addons:
     elasticsearch:
       enabled: true
     values:
+      networkPolicies:
+        enabled: false
+        additionalPolicies:
+          - name: mattermost-postgresql-egress-policy-mattermost-pods
+            spec: 
+              policyTypes:
+                - Egress
+              egress:
+                - to: 
+                  ports:
+                    - protocol: TCP 
+                      port: 5432
+                      endPort: 5432 
       enterprise:
         enabled: true
       monitoring:
