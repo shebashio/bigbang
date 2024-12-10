@@ -51,7 +51,7 @@ Significant progress has been made in service mesh functionality:
 
 ## Community Engagement
 
-We extend our gratitude to Daniel Dides and the entire Big Bang team for their outstanding contributions to this release. The success of Big Bang relies heavily on our vibrant community, and we encourage continued engagement through:
+We extend our gratitude to Daniel Dides and the entire Big Bang team for their valued contributions to this release. The success of Big Bang relies heavily on the engagement of our community, and we request feedback through the following methods:
 - [Issue](https://repo1.dso.mil/big-bang/bigbang/-/issues/new) reporting on our platform
 - Consulting our [comprehensive documentation](https://docs-bigbang.dso.mil/latest/) for implementation guidance
 - Providing [feedback](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-2mrtefxg6-5WJr85JD3NPbreMuAcQR0A) on new features and improvements
