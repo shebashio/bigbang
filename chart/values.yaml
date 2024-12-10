@@ -175,28 +175,6 @@ istio3:
     repoName: "registry1"
     chartName: "istio3"
     #tag:
-  gateways:
-    public:
-      enabled: true
-    passthrough:
-      enabled: true
-    # public-ingressgateway:
-    #   name: public-listener
-    #   hostname: "*.{{ .Values.domain }}"
-    #   port:
-    #     number: 8443
-    #     protocol: HTTPS
-    #   tls:
-    #     credentialName: "public-ingressgateway-cert"
-    #     mode: Terminate
-    # passthrough-ingressgateway:
-    #   name: passthrough-listener
-    #   hostname: "keycloak.{{ .Values.domain }}"
-    #   port:
-    #     number: 8443
-    #     protocol: HTTPS
-    #   tls:
-    #     mode: Passthrough
   # -- Values to passthrough to the istiod chart
   values: {}
     # # enable Tetrate FIPS compliant Istio images
@@ -209,7 +187,9 @@ istio3:
   postRenderers: []
 
 istioGatewayPublic:
-  enabled: true # only deployed when istio3.gateways.public is set to true
+  # -- Toggle deployment of the Istio public ingress gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
@@ -220,6 +200,10 @@ istioGatewayPublic:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
+  # -- set the tls key/cert
+  # tls:
+  #   key: ""
+  #   cert: ""
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
@@ -228,7 +212,9 @@ istioGatewayPublic:
   postRenderers: []
 
 istioGatewayPassthrough:
-  enabled: true # only deployed when istio3.gateways.public is set to true
+  # -- Toggle deployment of the Istio passthrough ingress gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
@@ -239,6 +225,10 @@ istioGatewayPassthrough:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
+  # -- set the tls key/cert
+  # tls:
+  #   key: ""
+  #   cert: ""
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
