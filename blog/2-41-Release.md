@@ -34,7 +34,6 @@ The storage team has delivered significant improvements through renovations of k
 
 ### Observability Improvements
 
-The observability team has made substantial strides in enhancing monitoring capabilities:
 - Successfully implemented Prometheus remote-write metrics to Mimir over Istio
 - Completed updates to core monitoring tools including Loki, Grafana, and Fluentbit
 - Advanced CI tracing tools integration with Alloy, Tempo, and Loki
