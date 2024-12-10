@@ -58,7 +58,7 @@ Our Edge team continues to push boundaries with virtual appliance development:
 We extend our gratitude to Daniel Dides and the entire Big Bang team for their outstanding contributions to this release. The success of Big Bang relies heavily on our vibrant community, and we encourage continued engagement through:
 - Issue reporting on our platform
 - Consulting our comprehensive documentation for implementation guidance
-- Providing feedback on new features and improvements
+- Providing [feedback](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-2mrtefxg6-5WJr85JD3NPbreMuAcQR0A) on new features and improvements
 
 ## Looking Forward
 
