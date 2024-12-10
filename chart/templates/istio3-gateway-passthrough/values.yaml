@@ -11,7 +11,7 @@ createNamespace: true
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 imagePullSecrets:
-  - name: private-registry
+  - name: private-registry-passthrough
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
