@@ -8,12 +8,12 @@ tags:
 
 We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem.
 
-## Release Notes
-We always encourage consumers to view the [Release notes](https://repo1.dso.mil/big-bang/bigbang/-/releases/2.41.0) for additional information.
-
 ## Release Highlights
 
 The latest release includes comprehensive updates to critical components including GitLab, Istio, Kiali, and Kyverno. Our development teams have worked diligently to ensure these updates enhance both performance and security while maintaining seamless integration within the Big Bang ecosystem.
+
+## Release Notes
+We always encourage consumers to view the [Release notes](https://repo1.dso.mil/big-bang/bigbang/-/releases/2.41.0) for additional information.
 
 ## Team Achievements and Progress
 
