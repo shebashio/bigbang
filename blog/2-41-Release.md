@@ -20,7 +20,6 @@ Our infrastructure team has made substantial progress in modernizing our platfor
 
 ### Storage and Collaboration Enhancements
 
-The storage team has delivered significant improvements through renovations of key components:
 - Comprehensive updates to Minio, Vault, Confluence, and External Secrets
 - Successfully migrated Mattermost CI pipelines from built-in PostgreSQL to RDS DB
 - Implementation of ESO cluster secret functionality
