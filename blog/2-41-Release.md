@@ -41,11 +41,11 @@ We always encourage consumers to view the [Release notes](https://repo1.dso.mil/
 - Advanced templating for public and passthrough gateway implementation
 - Near completion of the Kiali labeling epic with only 13 remaining issues
 
-## Repo Sync
+### Repo Sync
 
 - Updates and improvements to the Repo Sync utility which enables us to receive and accept community contributions [Further information on the current status can be found within the epic ](https://repo1.dso.mil/groups/big-bang/-/epics/400)
 
-## Edge Computing Innovation
+### Edge Computing Innovation
 
 - Advancement of initiatives toward the anticipated 1.0 release
 
