@@ -6,7 +6,10 @@ tags:
 
 # Big Bang Release 2.41.0: A Milestone in Enterprise Platform Development
 
-We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem. We always encourage consumers to view the [Release notes](https://repo1.dso.mil/big-bang/bigbang/-/releases/2.41.0)
+We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem.
+
+## Release Notes
+We always encourage consumers to view the [Release notes](https://repo1.dso.mil/big-bang/bigbang/-/releases/2.41.0) for additional information.
 
 ## Release Highlights
 
