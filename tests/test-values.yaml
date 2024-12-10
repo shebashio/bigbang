@@ -154,7 +154,7 @@ kiali:
           strategy: "anonymous"
     resources:
       limits:
-        cpu: "1"
+        cpu: null
     bbtests:
       enabled: true
       cypress:
@@ -170,7 +170,7 @@ kiali:
             cpu: 3
             memory: 4Gi
           limits:
-            cpu: 3
+            cpu: null
             memory: 4Gi
 
 
@@ -428,7 +428,7 @@ kyverno:
           webhookTimeout: 30
         resources:
           limits:
-            cpu: 1
+            cpu: null
             memory: 768Mi
           requests:
             cpu: 1
@@ -450,7 +450,7 @@ kyvernoReporter:
             cpu: 2
             memory: 3Gi
           limits:
-            cpu: 2
+            cpu: null
             memory: 3Gi
     istio:
       hardened:
@@ -876,7 +876,7 @@ elasticsearchKibana:
             cpu: "2"
             memory: "4Gi"
           limits:
-            cpu: "2"
+            cpu: null
             memory: "4Gi"
 
 fluentbit:
@@ -943,7 +943,7 @@ loki:
         size: 2Gi
       resources:
         limits:
-          cpu: 1
+          cpu: null
           memory: 1G
         requests:
           cpu: 1
@@ -954,7 +954,7 @@ loki:
         size: 2Gi
       resources:
         limits:
-          cpu: 500m
+          cpu: null
           memory: 1G
         requests:
           cpu: 500m
@@ -965,7 +965,7 @@ loki:
         size: 2Gi
       resources:
         limits:
-          cpu: 400m
+          cpu: null
           memory: 500Mi
         requests:
           cpu: 400m
@@ -1282,7 +1282,7 @@ addons:
             resources:
               cpu:
                 requests: 100m
-                limits: 2000m
+                limits: null
               memory:
                 requests: 512Mi
                 limits: 2048Mi
@@ -1365,7 +1365,7 @@ addons:
       initContainer:
         resources:
           limits:
-            cpu: 1
+            cpu: null
             memory: 500Mi
       fortify_autoconfig: |
           appProperties:
@@ -1382,7 +1382,7 @@ addons:
         primary:
           resources:
             limits:
-              cpu: 2
+              cpu: null
               memory: 2Gi
             requests:
               cpu: 100m
@@ -1390,7 +1390,7 @@ addons:
         secondary:
           resources:
             limits:
-              cpu: 100m
+              cpu: null
               memory: 500Mi
             requests:
               cpu: 100m
@@ -1398,7 +1398,7 @@ addons:
         metrics:
           resources:
             limits:
-              cpu: 100m
+              cpu: null
               memory: 500Mi
       bbtests:
         enabled: true
@@ -1557,7 +1557,7 @@ addons:
               cpu: 2
               memory: 4Gi
             limits:
-              cpu: 4
+              cpu: null
               memory: 6Gi
           envs:
             cypress_url: "https://gitlab.dev.bigbang.mil"
@@ -1845,7 +1845,7 @@ addons:
               cpu: 250m
               memory: 2Gi
             limits:
-              cpu: 250m
+              cpu: null
               memory: 2Gi
           securityContext:
             runAsUser: 1001
@@ -1930,7 +1930,7 @@ addons:
                 cpu: 250m
                 memory: 2Gi
               limits:
-                cpu: 250m
+                cpu: null
                 memory: 2Gi
             securityContext:
               runAsUser: 1001
@@ -2419,7 +2419,7 @@ addons:
             cpu: 160m
             memory: 300Mi
           limits:
-            cpu: 300m
+            cpu: null
             memory: 500Mi
       #notary:
         #server:
@@ -2494,7 +2494,7 @@ addons:
                 cpu: 250m
                 memory: 2Gi
               limits:
-                cpu: 250m
+                cpu: null
                 memory: 2Gi
             securityContext:
               runAsUser: 1001
@@ -2555,7 +2555,7 @@ addons:
               cpu: "2"
               memory: "2G"
             limits:
-              cpu: "2"
+              cpu: null
               memory: "2G"
 
   externalSecrets:

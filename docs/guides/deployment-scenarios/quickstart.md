@@ -577,7 +577,7 @@ istio:
               cpu: 0m # null get ignored if used here
               memory: 0Mi
             limits:
-              cpu: 0m
+              cpu: null
               memory: 0Mi
 
 twistlock:

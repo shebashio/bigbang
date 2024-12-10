@@ -57,7 +57,7 @@ addons:
               cpu: 2
               memory: "4Gi"
             limits:
-              cpu: 4
+              cpu: null
               memory: "8Gi"
           envs:
             cypress_user: "admin"
