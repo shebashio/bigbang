@@ -79,6 +79,12 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+    values:
+      global:
+        proxy:
+          resources:
+            limits:
+              cpu: null
 
 jaeger:
   enabled: false
