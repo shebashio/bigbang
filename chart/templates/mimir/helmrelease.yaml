@@ -1,4 +1,4 @@
-{{- $fluxSettingsMonitoring := merge .Values.addons.mimir.flux .Values.flux -}}
+{{- $fluxSettingsMimir := merge .Values.addons.mimir.flux .Values.flux -}}
 {{- if .Values.addons.mimir.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -11,7 +11,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/mimir/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: monitoring
+  targetNamespace: mimir
   chart:
     spec:
       {{- if eq .Values.addons.mimir.sourceType "git" }}
@@ -37,7 +37,7 @@ spec:
       {{- end }}
       interval: 5m
 
-  {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
+  {{- toYaml $fluxSettingsMimir | nindent 2 }}
   {{- if or .Values.addons.mimir.postRenderers .Values.istio.enabled }}
   postRenderers:
   {{- if .Values.istio.enabled }}
