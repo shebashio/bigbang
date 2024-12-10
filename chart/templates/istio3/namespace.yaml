@@ -9,4 +9,17 @@ metadata:
     app.kubernetes.io/name: istio3
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
+{{- if or .Values.istioGatewayPublic.enabled .Values.istioGatewayPassthrough.enabled }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-gateway
+  labels:
+    istio-gateway-managed: Reconcile
+    istio-injection: enabled
+    app.kubernetes.io/name: istio-gateway
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+{{- end }}
 {{- end }}
