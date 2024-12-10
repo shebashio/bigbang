@@ -28,7 +28,7 @@ The storage team has delivered significant improvements through renovations of k
 ### Security and Compliance Advancement
 
 Security remains a top priority, with several notable achievements:
-- Completed crucial renovates for Anchore Enterprise and Neuvector
+- Completed renovate updates for Anchore Enterprise and Neuvector
 - Enhanced Kubescape exceptions for nightly pipelines
 - Refined Kyverno policy implementation
 - Progress toward multi-cluster Twistlock deployment support
