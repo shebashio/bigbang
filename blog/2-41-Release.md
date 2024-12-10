@@ -39,7 +39,6 @@ Our infrastructure team has made substantial progress in modernizing our platfor
 
 ### Service Mesh Developments
 
-Significant progress has been made in service mesh functionality:
 - Resolution of Tetrate image enabling in Sandbox Istio Gateway
 - Advanced templating for public and passthrough gateway implementation
 - Near completion of the Kiali labeling epic with only 13 remaining issues
