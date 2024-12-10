@@ -47,7 +47,6 @@ Significant progress has been made in service mesh functionality:
 
 ## Edge Computing Innovation
 
-Our Edge team continues to push boundaries with virtual appliance development:
 - Successful demonstration of Peli virtual appliance capabilities to MITRE
 - Progress on Fitlet image development for microlab implementation
 - Advancement of initiatives toward the anticipated 1.0 release
