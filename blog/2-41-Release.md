@@ -6,7 +6,7 @@ tags:
 
 # Big Bang Release 2.41.0: A Milestone in Enterprise Platform Development
 
-We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem.
+We are thrilled to announce the release of Big Bang 2.41.0, marking another significant step forward in our enterprise platform development journey. This incremental release brings substantial improvements to stability, security, and core functionality across our component ecosystem. We always encourage consumers to view the [Release notes](https://repo1.dso.mil/big-bang/bigbang/-/releases/2.41.0)
 
 ## Release Highlights
 
@@ -14,15 +14,12 @@ The latest release includes comprehensive updates to critical components includi
 
 ## Team Achievements and Progress
 
-### Infrastructure Evolution
-
-Our infrastructure team has made substantial progress in modernizing our platform architecture. A major initiative currently underway is the strategic transition from RKE2 to EKS. The team has created a comprehensive migration plan and established an epic to guide this crucial transformation. Additionally, they are advancing the Repo Sync project toward MVP status while conducting thorough EKS cluster deployment testing.
+ they are advancing the Repo Sync project toward MVP status while conducting thorough EKS cluster deployment testing.
 
 ### Storage and Collaboration Enhancements
 
 - Comprehensive updates to Minio, Vault, Confluence, and External Secrets
-- Successfully migrated Mattermost CI pipelines from built-in PostgreSQL to RDS DB
-- Implementation of ESO cluster secret functionality
+- Implementation of ESO cluster secret functionality to allow for centralized secret management, dynamic secret injection, and cloud native integration. 
 
 ### Security and Compliance Advancement
 
@@ -46,6 +43,9 @@ Our infrastructure team has made substantial progress in modernizing our platfor
 ## Edge Computing Innovation
 
 - Advancement of initiatives toward the anticipated 1.0 release
+
+## Repo Sync Revival
+- Currently advancing the latest iteration of the Repo Sync functionality towards a minimal viable product status 
 
 ## Community Engagement
 
