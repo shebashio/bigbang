@@ -26,7 +26,7 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
     }}
 
-mimir-distributed:
+mimir_distributed:
   {{- if .Values.istio.enabled }}
   query_scheduler:
     enabled: false
