@@ -490,8 +490,7 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    #tag: "3.3.4-bb.0"
-    branch: "renovate/ironbank"
+    tag: "3.3.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
@@ -516,8 +515,7 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    #tag: "3.3.4-bb.0"
-    branch: "test-kyverno113"
+    tag: "3.3.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
