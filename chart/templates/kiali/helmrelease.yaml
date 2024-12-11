@@ -61,10 +61,10 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
   {{- end }}    
-  # {{- if .Values.istio3.enabled }}
-  #   - name: istio-gateway-public-ingressgateway
-  #     namespace: {{ .Release.Namespace }}
-  # {{- end }}
+  {{- if .Values.istio3.enabled }}
+    - name: istio3
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
   {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
