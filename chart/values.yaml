@@ -2116,6 +2116,26 @@ addons:
     # -- Flux reconciliation overrides specifically for the alloy package
     flux: {}
 
+  mimir:
+    # -- Toggle deployment of Mimir
+    enabled: true
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/apps/sandbox/mimir.git
+      tag: null
+      branch: main
+      path: "./chart"
+
+    values: {}
+
+    postRenderers: []
+
+    # -- Flux reconciliation overrides specifically for the alloy package
+    flux: {}
+
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:
   # -- Choose source type of "git" or "helmRepo"
