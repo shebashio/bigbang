@@ -162,5 +162,5 @@ networkPolicies:
     {{- if .Values.istio3.enabled }}
     {{- $default := dict "app" "istio-gateway-public-ingressgateway" }}
     {{- end }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    #{{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
 {{- end -}}
