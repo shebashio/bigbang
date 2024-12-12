@@ -954,6 +954,9 @@ policies:
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
           - monitoring-alloy-*
+      - namespace: mimir
+        pods:
+          allow:
           - mimir-mimir-rollout-operator-*
       - namespace: anchore
         pods:
