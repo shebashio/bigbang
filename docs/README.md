@@ -11,7 +11,7 @@
     * [packages.md](./packages.md) lists the packages and organizes them in categories.
     * [Release Notes](https://repo1.dso.mil/big-bang/bigbang/-/releases) lists the packages and their versions.
     * For a code based source of truth, you can check [Big Bang's default values.yaml](../chart/values.yaml), and `[CTRL] + [F]`, `"repo:"`, to quickly iterate through the list of applications supported by the Big Bang team.
-    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../README.md#usage--scope)
+    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../README.md#usage--scope) 
 
 ### What *isn't* Big Bang?
 
