@@ -515,7 +515,8 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.0"
+    tag: null
+    branch: "141-add-a-default-securitycontext-policy"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
