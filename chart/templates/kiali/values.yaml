@@ -134,14 +134,14 @@ cr:
               is_proxy: false
             {{- range $name, $values := .Values.istio3.gateways }}
             {{ if ne $values.enabled false }}
-            - app_label: {{ $name }}
+            - app_label: istio-gateway-public-ingressgateway #{{ $name }}
               is_core: true
               is_proxy: true
             {{- end }}
             {{- end }}
             {{- range $name, $values := .Values.istio3.values.gateways }}
             {{ if ne $values.enabled false }}
-            - app_label: {{ $name }}
+            - app_label: istio-gateway-public-ingressgateway #{{ $name }}
               is_core: true
               is_proxy: true
             {{- end }}
@@ -156,6 +156,11 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
     {{- $gateway := default "public" .Values.kiali.ingress.gateway }}
+    {{- if .Values.istio.enabled }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
+    {{- $default := dict "app" "istio-gateway-public-ingressgateway" }}
+    {{- end }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
 {{- end -}}
