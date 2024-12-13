@@ -25,23 +25,20 @@ We always encourage consumers to view the [Release notes](https://repo1.dso.mil/
 - Upgraded Tetragon chart to version 1.2.1
 - Launched the initial phase of our Compliance Dashboard
 
-
-- Significant advancement in Repo Sync capabilities, particularly in Pull Request synchronization
-
-## Observability Platform Evolution
+### Observability Platform Evolution
 
 - Near completion of Mimir integration with comprehensive network security implementation
 - Successful collaboration with IronBank for enterprise container optimization
 - Implementation of community contributions for elasticsearch-kibana package
 - Completion of Alloy and Loki renovations
 
-## Storage and Collaboration Improvements
+### Storage and Collaboration Improvements
 
 - Successful renovation of Confluence, Vault, and Jira systems
 - Resolution of critical Confluence installation issues
 - Implementation of external secrets key versioning in ESO
 
-## Development and Operations Progress
+### Development and Operations Progress
 
 The Dev and Ops team has completed several major objectives:
 
@@ -50,12 +47,12 @@ The Dev and Ops team has completed several major objectives:
 - Successful implementation of various renovations including Nexus, Fortify, and Gitlab
 - Enhancement of Harbor OIDC SSO configuration
 
-## Edge Computing and Strategic Partnerships
+### Edge Computing and Strategic Partnerships
 
 - Substantial progress on Release 1.0 epics, with particular emphasis on Crossplane integration and comprehensive testing frameworks
 - Strategic decision to maintain STIG compliance efforts for our edge orchestrator device image
 
-## Tooling and Automation Achievements
+### Tooling and Automation Achievements
 
 - Enhancement of bbctl pipeline functionality
 - Improvements to Repo-sync capabilities
