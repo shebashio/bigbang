@@ -170,6 +170,6 @@ existingSecretEnvs:
     valueFrom:
       secretKeyRef:
         key: DB_CONNECTION_STRING  
-        name: '{{ .Values.database.secret | default (printf "%s-dbcreds" (include "mattermost.fullname" .)) }}'
+        name: "mattermost-dbcreds"
 
 {{- end -}}
