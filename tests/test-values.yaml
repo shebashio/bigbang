@@ -1407,7 +1407,7 @@ addons:
             cypress_url: "https://fortify.dev.bigbang.mil"
 
   gitlab:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
@@ -1510,11 +1510,15 @@ addons:
         #     GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
-    enabled: false
+    git:
+      tag: null
+      branch: "renovate/ironbank"
+    enabled: true
     values:
       istio:
         enabled: true
         hardened:
+          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
               enabled: true
