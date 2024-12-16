@@ -320,6 +320,27 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade-job*
       {{- end }}
+      {{- if .Values.addons.holocron.enabled }}
+      - resources:
+          namespaces:
+          - holocron
+          names:
+          - holocron-postgresql-0
+      {{- end }}
+      {{- if .Values.addons.velero.enabled }}
+      - resources:
+          namespaces:
+          - velero
+          names:
+          - velero-backup-restore-test*
+      {{- end }}
+      {{- if .Values.addons.gitlab.enabled }}
+      - resources:
+          namespaces:
+          - gitlab
+          names:
+          - webservice-test-runner-*
+      {{- end }}
       # For GitLab runner CI jobs that require root access
       {{- if .Values.addons.gitlabRunner.enabled }}
       - resources:
@@ -355,9 +376,11 @@ policies:
           namespaces:
           - neuvector
           names:
-          - neuvector-enforcer-pod-*
-          - neuvector-controller-pod-*
+          - neuvector-enforcer-pod*
           - neuvector-cert-upgrader-job-*
+          - neuvector-controller-pod*
+          - neuvector-scanner-pod*
+          - neuvector-prometheus-exporter-pod*
       {{- end }}
     {{- end }}
 
