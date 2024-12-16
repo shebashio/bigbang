@@ -438,4 +438,9 @@ data:
   {{- end -}}
 {{- end -}}
 
-
+{{- /*
+Abstracting service mesh layer to assist with reducing updates as part of Istio migration
+*/ -}}
+{{- define "serviceMeshEnabled" -}}
+  {{- or .Values.istio.enabled .Values.istio3.enabled -}}
+{{- end -}}
