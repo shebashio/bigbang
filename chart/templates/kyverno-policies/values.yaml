@@ -308,6 +308,20 @@ policies:
           names:
           - node-agent*
       {{- end }}
+      {{- if .Values.addons.argocd }}
+      - resources:
+          namespaces:
+          - argocd
+          names:
+          - argocd-*
+      {{- end }}
+      {{- if .Values.addons.anchore }}
+      - resources:
+          namespaces:
+          - anchore
+          names:
+          - anchore-*
+      {{- end }}
       {{- if .Values.twistlock.enabled }}
       # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
       # - read logs from `/var/log` to watch for malicious processes
