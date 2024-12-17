@@ -2129,7 +2129,7 @@ addons:
 
   keycloak:
     enabled: false
-    image: registry1.dso.mil/ironbank-staging/opensource/keycloak/keycloak@sha256:06eb5bb5b6a4afdf68a0b50497b6ac67a6ecb4481b541bfedcad1ff3d2760d1e 
+    image: registry1.dso.mil/ironbank-staging/opensource/keycloak/keycloak:ibci-3808731-amd64
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
