@@ -280,7 +280,7 @@ policies:
           - istio-system
   
   add-default-securitycontext:
-    validationFailureAction: Enforce
+    validationFailureAction: Audit
     {{ if .Values.istio.enabled }}
     parameters:
       excludeContainers:
