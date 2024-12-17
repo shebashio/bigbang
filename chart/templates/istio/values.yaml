@@ -144,7 +144,7 @@ gateways:
       {{- tpl ($values.hosts | default (list) | toYaml) $ | nindent 8 }}
       port:
       {{- tpl ( . | default (list) | toYaml) $ | nindent 8 }}
-      {{- if eq $values.ports.protocol "HTTPS" }}
+      {{- if or (eq $values.ports.protocol "HTTPS") (eq $values.ports.protocol "TLS") }}
       tls:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $values) }}
         mode: {{ $tlsMode }}
