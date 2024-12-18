@@ -457,8 +457,7 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    #tag: "3.18.1-bb.0"
-    branch: "update-kiali-labels"
+    tag: "3.18.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
