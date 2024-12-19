@@ -21,7 +21,7 @@ function download_pipeline_waits
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
     echo > ~/lib/pipelinewaits.sh
-    for method in wait_all_hr wait_sts wait_daemonset wait_crd
+    for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exists
     do
         sed -n "/^function ${method}() {/,/^}/p" >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
@@ -64,6 +64,12 @@ function wait_helmrepositories
 
 function wait_for_bigbang
 {
+    # FIXME : I'm being lazy here, we could probably interrogate the values.yaml built into the bigbang repo to get this list
+    for package in authservice grafana istio istio-operator kiali kyverno kyverno-policies kyverno-reporter loki metrics-server monitoring neuvector promtail tempo;
+    do  
+        check_if_hr_exist "$package"
+    done
+
     wait_helmrepositories
     echo "⏳ Waiting on helm releases..."
     wait_all_hr
@@ -169,6 +175,8 @@ function main
         arg_configfile="-f ${cmdarg_cfg['configfile']}"
     fi
     bb_k3d_deploy ${arg_configfile}
+
+    wait_for_bigbang
     set +e
 }
 
