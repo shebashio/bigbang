@@ -24,8 +24,8 @@ function checkout_bigbang_repo
 
 function checkout_pipeline_templates
 {
-    mkdir -p ~/lib/
-    PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
+    #mkdir -p ~/lib/
+    #PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
     PIPELINE_REPO_LOCATION=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
     if [[ ! -d ${PIPELINE_REPO_LOCATION} ]]; then
         mkdir -p ${PIPELINE_REPO_LOCATION}
@@ -35,15 +35,16 @@ function checkout_pipeline_templates
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
-    srcfile=${PIPELINE_REPO_LOCATION}/scripts/deploy/03_wait_for_helmreleases.sh
-    dstfile=${PIPELINE_REPO_LOCATION}/library/wait_for_helmreleases.sh
-    echo >${dstfile}
-    for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
-    do
-        sed -n "/^function ${method}()/,/^}/p" ${srcfile} >>${dstfile}
-        echo >>${dstfile}
-    done
-    rm -f ${tmpfile}
+    
+    # srcfile=${PIPELINE_REPO_LOCATION}/scripts/deploy/03_wait_for_helmreleases.sh
+    # dstfile=${PIPELINE_REPO_LOCATION}/library/wait_for_helmreleases.sh
+    # echo >${dstfile}
+    # for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
+    # do
+    #     sed -n "/^function ${method}()/,/^}/p" ${srcfile} >>${dstfile}
+    #     echo >>${dstfile}
+    # done
+    # rm -f ${tmpfile}
 }
 
 function download_cmdarg
@@ -77,16 +78,33 @@ function map_values_key_to_hr() {
   if [[ ! (-f "$MAPPING_FILE")]]; then
     MAPPING_FILE=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/package-mapping.yaml
   fi
-  export hrName=$(yq e ".[\"${valuesKey}\"].hrName" ${MAPPING_FILE})
+  hrName=$(yq e ".[\"${valuesKey}\"].hrName" ${MAPPING_FILE})
   if [[ -z "$hrName" || "$hrName" == "null" ]]; then
-    hrName=$valuesKey
+    export hrName=$valuesKey
   fi
 }
 
 function wait_for_bigbang
 {
-    enabled_packages=$(yq e '(.[],.addons.[]) | select(. | (has("git") or has("helmRepo"))) | path | .[-1]' ${BIG_BANG_REPO}/chart/values.yaml)
-    for package in ${enabled_packages}
+    hrName=""
+    packages=$(yq e '(.[],.addons.[]) | select(. | (has("git") or has("helmRepo"))) | path | .[-1]' ${BIG_BANG_REPO}/chart/values.yaml)
+    for package in ${packages}; do
+    # Check if package is enabled via CI values file override
+    if [[ "$(yq e ".${package}.enabled" $CI_VALUES_FILE)" == "true" ]] || [[ "$(yq e ".addons.${package}.enabled" $CI_VALUES_FILE)" == "true" ]]; then
+        ENABLED_LIST+=("$package")
+    # Check if package is disabled via CI values file override
+    elif [[ "$(yq e ".${package}.enabled" $CI_VALUES_FILE)" == "false" ]] || [[ "$(yq e ".addons.${package}.enabled" $CI_VALUES_FILE)" == "false" ]]; then
+        echo "$package is disabled, skipping..."
+    # Check if package will be enabled by default values
+    elif [[ "$(yq e ".${package}.enabled" $VALUES_FILE)" == "true" ]] || [[ "$(yq e ".addons.${package}.enabled" $VALUES_FILE)" == "true" ]]; then
+        ENABLED_LIST+=("$package")
+    # Catchall for packages that no override exists for, which are disabled by default
+    else
+        echo "$package is disabled by default, skipping..."
+    fi
+    done
+
+    for package in 
     do  
         check_if_hr_exist "$package"
     done
@@ -216,7 +234,7 @@ function main
     if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
         export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
     else
-        AWSUSERNAME=$( aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' )# This is PROBABLY right...
+        AWSUSERNAME=$( aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' )
         export KUBECONFIG=~/.kube/${AWSUSERNAME}-dev-quickstart-config
     fi
 
@@ -228,7 +246,11 @@ function main
     fi
     deploy_bigbang ${arg_configfile}
 
-    wait_for_bigbang
+    #wait_for_bigbang
+    export PIPELINE_REPO_DESTINATION=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
+    export CI_VALUES_FILE=${BIG_BANG_REPO}/chart/values.yaml
+    export VALUES_FILE=${BIG_BANG_REPO}/chart/values.yaml
+    ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
     set +e
 }
 
