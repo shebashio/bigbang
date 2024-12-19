@@ -175,7 +175,7 @@ function deploy_bigbang
 function check_for_tools
 {
     missing=0
-    for tool in jq yq kubectl helm
+    for tool in jq yq kubectl helm git sed awk
     do
         if [[ ! -x $(which ${tool} 2>/dev/null) ]]; then
             missing=1
@@ -191,8 +191,6 @@ function main
 {
     set -e
 
-    check_for_tools
-    
     cmdarg_info "header" "PlatformOne Big Bang quickstart : Quickly deploy a development bigbang cluster on a VM"
     cmdarg_info "author" "PlatformOne Big Bang team"
     cmdarg_info "copyright" "(C) 2025"
@@ -248,6 +246,7 @@ function cleanup
 
 trap cleanup EXIT
 
+check_for_tools
 download_pipeline_waits
 download_cmdarg
 source ~/lib/cmdarg.sh
