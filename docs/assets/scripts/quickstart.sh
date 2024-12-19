@@ -110,7 +110,7 @@ function build_k3d_cluster
         arg_metallb="-m"
     fi
 
-    ${BIG_BANG_REPO}/dosc/assets/scripts/developer/k3d-dev.sh \
+    ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
         -t quickstart \
         ${arg_hostname} \
         ${arg_privateip} \
