@@ -239,7 +239,7 @@ function main
 
 function cleanup
 {
-    rm -f ${cmdarglib} ${helpers} ${k3d_dev_script}
+    rm -f ${cmdarglib}
 }
 
 trap cleanup EXIT
