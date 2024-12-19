@@ -14,16 +14,16 @@ function checkout_pipeline_templates
 {
     mkdir -p ~/lib/
     PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
-    if [[ ! -d ${REPO1_LOCATION}/pipeline-templates/pipeline-templates ]]; then
-        mkdir -p ${REPO1_LOCATION}/pipeline-templates
-        git clone https://repo1.dso.mil/big-bang/bigbang.git ${REPO1_LOCATION}/pipeline-templates/pipeline-templates
+    if [[ ! -d ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates ]]; then
+        mkdir -p ${REPO1_LOCATION}/big-bang/pipeline-templates
+        git clone https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates.git ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
     fi
 
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
-    srcfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
-    dstfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
+    srcfile=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
+    dstfile=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
     echo >${dstfile}
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
