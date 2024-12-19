@@ -71,6 +71,10 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.istio3.enabled }}
+    - name: istio
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
     - name: istio3
       namespace: {{ .Release.Namespace }}
     {{- end }}
