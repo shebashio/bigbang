@@ -10,12 +10,14 @@ KUBECONFIG="${KUBECONFIG:-}"
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
-function download_pipeline_waits
+function download_pipeline_templates
 {
     mkdir -p ~/lib/
-    tmpfile=$(mktemp -p /tmp pipelinewaitsXXX)
     PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
-    curl --silent --output ${tmpfile} ${PIPELINE_WAITS_URI}
+    if [[ ! -d ${REPO1_LOCATION}/pipeline-templates/pipeline-templates ]]; then
+        mkdir -p ${REPO1_LOCATION}/pipeline-templates
+        git clone https://repo1.dso.mil/big-bang/bigbang.git ${REPO1_LOCATION}/pipeline-templates/pipeline-templates
+    fi
 
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
@@ -23,7 +25,7 @@ function download_pipeline_waits
     echo > ~/lib/pipelinewaits.sh
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
-        sed -n "/^function ${method}()/,/^}/p" ${tmpfile} >> ~/lib/pipelinewaits.sh
+        sed -n "/^function ${method}()/,/^}/p" ${REPO1_LOCATION}/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
     done
     rm -f ${tmpfile}
@@ -46,7 +48,6 @@ function download_cmdarg
 function wait_helmrepositories
 {
     # Lifted from 03_wait_for_helmreleases.sh since it can't be sourced or extracted as a method
-    # only difference is that we wait forever, we don't exit
     
     echo -n "Checking for helm repos to wait on..."
     if [[ -n $(flux get sources helm -A) ]]; then
@@ -61,6 +62,17 @@ function wait_helmrepositories
         done
         flux get sources helm -A
     fi
+}
+
+function map_values_key_to_hr() {
+  valuesKey="$1"
+  if [[ ! (-f "$MAPPING_FILE")]]; then
+    MAPPING_FILE=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/package-mapping.yaml
+  fi
+  export hrName=$(yq e ".[\"${valuesKey}\"].hrName" ${MAPPING_FILE})
+  if [[ -z "$hrName" || "$hrName" == "null" ]]; then
+    hrName=$valuesKey
+  fi
 }
 
 function wait_for_bigbang
