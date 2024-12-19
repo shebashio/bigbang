@@ -23,7 +23,7 @@ function download_pipeline_waits
     echo > ~/lib/pipelinewaits.sh
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exists
     do
-        sed -n "/^function ${method}() {/,/^}/p" >> ~/lib/pipelinewaits.sh
+        sed -n "/^function ${method}() {/,/^}/p" ${tmpfile} >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
     done
     rm -f ${tmpfile}
