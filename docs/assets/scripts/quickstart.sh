@@ -81,7 +81,7 @@ function wait_helmrepositories
 function map_values_key_to_hr() {
   valuesKey="$1"
   if [[ ! (-f "$MAPPING_FILE")]]; then
-    MAPPING_FILE=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/package-mapping.yaml
+    MAPPING_FILE=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/package-mapping.yaml
   fi
   export hrName=$(yq e ".[\"${valuesKey}\"].hrName" ${MAPPING_FILE})
   if [[ -z "$hrName" || "$hrName" == "null" ]]; then
@@ -138,6 +138,7 @@ function build_k3d_cluster
 
     ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
         -t quickstart \
+        -T \
         ${arg_hostname} \
         ${arg_privateip} \
         ${arg_username} \

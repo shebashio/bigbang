@@ -16,6 +16,7 @@ PRIVATE_IP=false
 PROJECTTAG=default
 RESET_K3D=false
 USE_WEAVE=false
+TERMINATE_INSTANCE=true
 
 ### Uninitialized globals
 
@@ -114,6 +115,10 @@ function process_arguments
         CLOUDPROVIDER=$1
     ;;
 
+    -T) echo "-T option passed to prevent instance termination"
+        TERMINATE_INSTANCE=false
+    ;;
+
     -h) echo "Usage:"
         echo "k3d-dev.sh [options]"
         echo ""
@@ -135,6 +140,7 @@ function process_arguments
         echo " -w   install the weave CNI instead of the default flannel CNI"
         echo " -i /path/to/script   initialization script to pass to instance before configuring it"
         echo " -U username          username to use when connecting to existing system in -P"
+        echo " -T   Don't terminate the instance after 8 hours"
         echo
         echo "========= These options override -c and use your own infrastructure ======="
         echo
@@ -716,7 +722,9 @@ function print_instructions
   # ending instructions
   echo
   echo "SAVE THE FOLLOWING INSTRUCTIONS INTO A TEMPORARY TEXT DOCUMENT SO THAT YOU DON'T LOSE THEM"
-  echo "NOTE: The EC2 instance will automatically terminate 8 hours from the time of creation unless you delete the root cron job"
+  if [[ "$TERMINATE_INSTANCE" != "false" ]]; then
+    echo "NOTE: The EC2 instance will automatically terminate 8 hours from the time of creation unless you delete the root cron job"
+  fi
   echo
   echo "ssh to instance:"
   echo "  ssh -i ${SSHKEY} -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}"
@@ -835,9 +843,11 @@ function initialize_instance
     run "sudo bash /tmp/k3d-dev-initscript"
   fi
 
-  echo "Instance will automatically terminate 8 hours from now unless you alter the root crontab"
-  run "sudo bash -c 'echo \"\$(date -u -d \"+8 hours\" +\"%M %H\") * * * /usr/sbin/shutdown -h now\" | crontab -'"
-  echo
+  if [[ "$TERMINATE_INSTANCE" != "false" ]]; then
+    echo "Instance will automatically terminate 8 hours from now unless you alter the root crontab"
+    run "sudo bash -c 'echo \"\$(date -u -d \"+8 hours\" +\"%M %H\") * * * /usr/sbin/shutdown -h now\" | crontab -'"
+    echo
+  fi
 
   if [[ $APT_UPDATE = "true" ]]; then
     echo
