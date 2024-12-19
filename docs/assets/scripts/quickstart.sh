@@ -172,6 +172,21 @@ function deploy_bigbang
         -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml
 }
 
+function check_for_tools
+{
+    missing=0
+    for tool in jq yq kubectl helm
+    do
+        if [[ ! -x $(which ${tool} 2>/dev/null) ]]; then
+            missing=1
+            echo "Required tool ${tool} missing, please fix and run again" >&2
+        fi
+    done
+    if [[ $missing -gt 0 ]]; then
+        exit 1
+    fi
+}
+
 function main
 {
     set -e
