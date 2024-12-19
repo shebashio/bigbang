@@ -27,8 +27,8 @@ function checkout_pipeline_templates
     dstfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
-        sed -n "/^function ${method}()/,/^}/p" ${srcfile} >> ${dstfile}
-        echo >> ${dstfile}
+        sed -n "/^function ${method}()/,/^}/p" ${srcfile} >>${dstfile}
+        echo >>${dstfile}
     done
     rm -f ${tmpfile}
 }
