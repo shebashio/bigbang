@@ -212,7 +212,7 @@ function main
 
     checkout_bigbang_repo
     checkout_pipeline_templates
-    source ${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
+    source ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
 
     if [[ "${cmdarg_cfg['deploy-only']}" == "false" ]]; then
         build_k3d_cluster
