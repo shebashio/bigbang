@@ -6,7 +6,7 @@ REGISTRY1_USERNAME="${REGISTRY1_USERNAME:-}"
 REGISTRY1_TOKEN="${REGISTRY1_TOKEN:-}"
 GITLAB_USERNAME=""
 REPO1_LOCATION="${REPO1_LOCATION:-}"
-KUBECONFIG=""
+KUBECONFIG="${KUBECONFIG:-}"
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
@@ -146,6 +146,7 @@ function deploy_flux
 
 function deploy_bigbang
 {
+    cd ${BIG_BANG_REPO} && \
     helm upgrade -i bigbang \
         ${BIG_BANG_REPO}/chart \
         -n bigbang \
@@ -177,7 +178,7 @@ function main
     cmdarg 'u?' 'registry1-username' "Username for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_USERNAME}"
     cmdarg 't?' 'registry1-token' "Access token for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_TOKEN}"
     cmdarg 'm' 'metallb' "Deploy a MetalLB on k3d"
-    cmdarg 'b' 'bigbang-only' "Don't attempt to provision the k3d cluster, just deploy bigbang"
+    cmdarg 'd' 'deploy-only' "Don't attempt to provision the k3d cluster, just deploy bigbang"
     cmdarg_parse "$@"
 
     export REPO1_LOCATION=${cmdarg_cfg['repolocation']}
@@ -187,10 +188,10 @@ function main
 
     checkout_bigbang_repo
 
-    if [[ "${cmdarg_cfg['bigbang-only']}" == "false" ]]; then
+    if [[ "${cmdarg_cfg['deploy-only']}" == "false" ]]; then
         build_k3d_cluster
     fi
-    
+
     if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
         export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
     else
