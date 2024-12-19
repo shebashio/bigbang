@@ -134,6 +134,7 @@ function checkout_bigbang_repo
     git reset --hard
     git clean -df
     git checkout ${version}
+    git pull --update
 }
 
 function deploy_flux
