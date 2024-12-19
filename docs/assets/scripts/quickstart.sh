@@ -190,6 +190,8 @@ function check_for_tools
 function main
 {
     set -e
+
+    check_for_tools
     
     cmdarg_info "header" "PlatformOne Big Bang quickstart : Quickly deploy a development bigbang cluster on a VM"
     cmdarg_info "author" "PlatformOne Big Bang team"
@@ -208,8 +210,6 @@ function main
     cmdarg 'm' 'metallb' "Deploy a MetalLB on k3d"
     cmdarg 'd' 'deploy-only' "Don't attempt to provision the k3d cluster, just deploy bigbang"
     cmdarg_parse "$@"
-
-    check_for_tools
 
     export REPO1_LOCATION=${cmdarg_cfg['repolocation']}
     export BIG_BANG_REPO=${REPO1_LOCATION}/big-bang/bigbang
