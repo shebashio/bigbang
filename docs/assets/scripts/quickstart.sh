@@ -22,13 +22,13 @@ function checkout_pipeline_templates
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
-    echo > ~/lib/pipelinewaits.sh
+    echo > ${dstfile}
     srcfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
     dstfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
-        sed -n "/^function ${method}()/,/^}/p"  >> ~/lib/pipelinewaits.sh
-        echo >> ~/lib/pipelinewaits.sh
+        sed -n "/^function ${method}()/,/^}/p" ${srcfile} >> ${dstfile}
+        echo >> ${dstfile}
     done
     rm -f ${tmpfile}
 }
