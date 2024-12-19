@@ -176,7 +176,13 @@ istio3:
     chartName: "istio3"
     #tag:
   # -- Values to passthrough to the istiod chart
-  values: {}
+  values:
+    # k8s 1.29+ native sidecars ~ https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/#:~:text=1.28-,SidecarContainers,%E2%80%93,-StorageVersionAPI
+    # prevent jobs from hanging ~ https://istio.io/latest/blog/2023/native-sidecars/#sidecar-woes
+    istiod:
+      pilot:
+        env:
+          ENABLE_NATIVE_SIDECARS: 'true'
     # # enable Tetrate FIPS compliant Istio images
     # defaults:
     #   global:
