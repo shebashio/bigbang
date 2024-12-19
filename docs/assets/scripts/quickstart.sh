@@ -157,7 +157,7 @@ function deploy_bigbang
         $@ \
         -f ${BIG_BANG_REPO}/chart/ingress-certs.yaml \
         -f ${BIG_BANG_REPO}/docs/assets/configs/example/dev-sso-values.yaml \
-        -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml \        
+        -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml
 }
 
 function main
