@@ -299,6 +299,11 @@ policies:
       - resources:
           namespaces:
           - kube-system
+      - resources:
+          namespaces:
+          - logging
+          names:
+          - logging-*
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods.
@@ -321,6 +326,27 @@ policies:
           - anchore
           names:
           - anchore-*
+      {{- end }}
+      {{- if .Values.addons.holocron.enabled }}
+      - resources:
+          namespaces:
+          - holocron
+          names:
+          - holocron-*
+      {{- end }}
+      {{- if .Values.addons.thanos.enabled }}
+      - resources:
+          namespaces:
+          - thanos
+          names:
+          - thanos-*
+      {{- end }}
+      {{- if .Values.addons.fortify.enabled }}
+      - resources:
+          namespaces:
+          - fortify
+          names:
+          - fortify-*
       {{- end }}
       {{- if .Values.twistlock.enabled }}
       # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
