@@ -10,7 +10,7 @@ KUBECONFIG="${KUBECONFIG:-}"
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
-function download_pipeline_templates
+function checkout_pipeline_templates
 {
     mkdir -p ~/lib/
     PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
@@ -23,9 +23,11 @@ function download_pipeline_templates
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
     echo > ~/lib/pipelinewaits.sh
+    srcfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
+    dstfile=${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
-        sed -n "/^function ${method}()/,/^}/p" ${REPO1_LOCATION}/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh >> ~/lib/pipelinewaits.sh
+        sed -n "/^function ${method}()/,/^}/p"  >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
     done
     rm -f ${tmpfile}
@@ -215,6 +217,8 @@ function main
     export REGISTRY1_USERNAME=${cmdarg_cfg['registry1-username']}
 
     checkout_bigbang_repo
+    checkout_pipeline_templates
+    source ${REPO1_LOCATION}/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
 
     if [[ "${cmdarg_cfg['deploy-only']}" == "false" ]]; then
         build_k3d_cluster
@@ -247,9 +251,7 @@ function cleanup
 trap cleanup EXIT
 
 check_for_tools
-download_pipeline_waits
 download_cmdarg
 source ~/lib/cmdarg.sh
-source ~/lib/pipelinewaits.sh
 
 main $@
