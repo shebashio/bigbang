@@ -6,7 +6,7 @@
 
 K3D_VERSION="5.7.3"
 DEFAULT_K3S_TAG="v1.30.3-k3s1"
-CLOUDPROVIDER=""
+CLOUDPROVIDER="aws"
 SSHUSER=ubuntu
 action=create_instances
 ATTACH_SECONDARY_IP=${ATTACH_SECONDARY_IP:=false}
@@ -1172,6 +1172,8 @@ function main
   # for provisioning the cloud infra.
   if [[ "$PublicIP" == "" ]]; then 
     cloud_${CLOUDPROVIDER}_configure
+  else
+    CLOUDPROVIDER=""
   fi
 
   set_kubeconfig

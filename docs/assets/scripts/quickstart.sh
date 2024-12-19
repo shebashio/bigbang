@@ -13,19 +13,13 @@ BB_K3D_PRIVATEIP=""
 function checkout_bigbang_repo
 {
     version=${cmdarg_cfg['version']}
-    if [[ ! -d ${BIG_BANG_REPO} ]]; then
-        mkdir -p ${BIG_BANG_REPO}
-        git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
-    fi
+    mkdir -p ${BIG_BANG_REPO}
+    git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
     cd ${BIG_BANG_REPO}
     git fetch -a
     if [[ "${version}" == "latest" ]]; then
         version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
     fi
-    git reset --hard
-    git clean -df
-    git checkout ${version}
-    git pull --update
 }
 
 function checkout_pipeline_templates
@@ -222,8 +216,8 @@ function main
     if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
         export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
     else
-        # This is PROBABLY right...
-        export KUBECONFIG=~/.kube/*-dev-quickstart-config
+        AWSUSERNAME=$( aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' )# This is PROBABLY right...
+        export KUBECONFIG=~/.kube/${AWSUSERNAME}-dev-quickstart-config
     fi
 
     deploy_flux
