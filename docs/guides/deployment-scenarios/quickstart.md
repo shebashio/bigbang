@@ -9,10 +9,12 @@ An SRE with a reasonable amount of experience operating in a command line enviro
 ### Satisfy the Prerequisites
 
 1. Ensure your workstation has a functional GNU environment with `git`. Mac OS and Linux should be good to go out of the box. For Windows, install WSL and run a WSL bash terminal. On Windows, a minimal `git bash` install may be sufficient, but has not been tested.
+    1. Windows users should beware: everything here CAN be done on Windows. Windows users are STRONGLY advised to do **everything** inside of WSL (Windows Subsystem for Linux) if possible. If not, you may struggle to complete some of the tasks or install some of the prerequisites.
 1. Install [jq](https://jqlang.github.io/jq/download/).
 1. Install [yq](https://github.com/mikefarah/yq/#install). yq needs to be available in your system path PATH as `yq`, so we recommend not using a dockerized installation.
 1. Install kubectl. Follow the instructions for [windows](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/), [macos](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) or [linux](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). (If you are running on WSL in Windows, you should install kubectl using the package manager inside of WSL to install kubectl.)
 1. [Install helm](https://helm.sh/docs/intro/install/). Again, if you are running on WSL in Windows, you should install kubectl using the package manager inside of WSL to install helm.
+1. [Install the Flux CLI](https://fluxcd.io/flux/installation/). On Windows, the **only** installation options are to use Chocolatey or to build it yourself from source.
 1. Ensure you have bash version 4 installed. Linux and Windows with WSL users probably don't need to worry about this. For Mac OS users, install bash4 with homebrew or a similar package manager, the bash that ships with Mac OS is too old. Mac OS users will use `/opt/homebrew/bin/bash` whenever `bash` is mentioned in this guide.
 1. Ensure you have an account on [PlatformOne RegistryOne](https://registry1.dso.mil). You will need your username and access token ("CLI Secret") for this process.
 
