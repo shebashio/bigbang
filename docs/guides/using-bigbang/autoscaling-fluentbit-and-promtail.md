@@ -39,7 +39,7 @@ autoscaling:
     controlledResources: []
     # Define the max allowed resources for the pod
     maxAllowed:
-      cpu: 200m
+      cpu: null
       memory: 100Mi
     # Define the min allowed resources for the pod
     minAllowed:
@@ -62,7 +62,7 @@ vpa:
   controlledResources: []
   # Define the max allowed resources for the pod
   maxAllowed:
-    cpu: 200m
+    cpu: null
     memory: 100Mi
   # Define the min allowed resources for the pod
   minAllowed:

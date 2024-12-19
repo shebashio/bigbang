@@ -58,11 +58,15 @@ monitoring:
           requests:
             cpu: 300m
             memory: 5Gi
-          limits: null
+          limits:
+            cpu: null
+            memory: 5Gi
     grafana:
       downloadDashboards:
         resources:
-          limits: null
+          limits:
+            cpu: null
+            memory: 20Mi
           requests:
             cpu: 20m
             memory: 20Mi

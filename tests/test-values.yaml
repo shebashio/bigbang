@@ -181,7 +181,9 @@ clusterAuditor:
       requests:
         cpu: 100m
         memory: 256Mi
-      limits: {}
+      limits:
+        cpu: null
+        memory: 256Mi
     bbtests:
       enabled: true
       cypress:
@@ -215,7 +217,9 @@ gatekeeper:
     replicas: 1
     controllerManager:
       resources:
-        limits: {}
+        limits:
+          cpu: null
+          memory: 256Mi
         requests:
           cpu: 100m
           memory: 256Mi
@@ -791,7 +795,6 @@ kyvernoPolicies:
               - alloy-config-validator*
               - alloy-config-analysis*
               - alloy-test*
-      require-non-root-user:
       disallow-namespaces:
         parameters:
           disallow:
@@ -849,7 +852,10 @@ elasticsearchKibana:
         resources:
           requests:
             cpu: .5
-          limits: {}
+            memory: 1Gi
+          limits:
+            cpu: null
+            memory: 1Gi
         heap:
           min: 1g
           max: 1g
@@ -860,7 +866,10 @@ elasticsearchKibana:
         resources:
           requests:
             cpu: .5
-          limits: {}
+            memory: 1Gi
+          limits:
+            cpu: null
+            memory: 1Gi
         heap:
           min: 1g
           max: 1g
@@ -1012,7 +1021,9 @@ tempo:
 
     tempo:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 128Mi
         requests:
           cpu: 200m
           memory: 128Mi
@@ -1038,7 +1049,9 @@ tempo:
 
     tempoQuery:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 128Mi
         requests:
           cpu: 200m
           memory: 128Mi
@@ -1087,13 +1100,17 @@ monitoring:
         requests:
           cpu: 10m
           memory: 32Mi
-        limits: {}
+        limits:
+          cpu: null
+          memory: 32Mi
     prometheus-node-exporter:
       resources:
         requests:
           cpu: 100m
           memory: 30Mi
-        limits: {}
+        limits:
+          cpu: null
+          memory: 30Mi
     bbtests:
       enabled: true
       cypress:
@@ -1243,7 +1260,11 @@ addons:
       controller:
         resources:
           requests:
-            memory: 2Gi      
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: null
+            memory: 2Gi
       redis-bb:
         master:
           persistence:
@@ -1257,12 +1278,19 @@ addons:
       redis:
         resources:
           requests:
-            memory: 256Mi 
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: null
+            memory: 256Mi
       repoServer:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi          
+            memory: 128Mi
+          limits:
+            cpu: null
+            memory: 128Mi
       configs:
         secret:
           argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
@@ -1272,7 +1300,11 @@ addons:
           envs:
             cypress_url: "https://argocd.dev.bigbang.mil"
           resources:
+            requests:
+              cpu: 1
+              memory: 12Gi
             limits:
+              cpu: null
               memory: 12Gi
         scripts:
           envs:
@@ -1285,7 +1317,7 @@ addons:
                 limits: null
               memory:
                 requests: 512Mi
-                limits: 2048Mi
+                limits: 512Mi
       istio:
         hardened:
           customServiceEntries:
@@ -1316,6 +1348,10 @@ addons:
     values:
       resources:
         requests:
+          cpu: 100m
+          memory: 100Mi
+        limits:
+          cpu: null
           memory: 100Mi
       redis:
         enabled: true
@@ -1367,6 +1403,9 @@ addons:
           limits:
             cpu: null
             memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
       fortify_autoconfig: |
           appProperties:
             host.validation: false
@@ -1386,7 +1425,7 @@ addons:
               memory: 2Gi
             requests:
               cpu: 100m
-              memory: 500Mi
+              memory: 2Gi
         secondary:
           resources:
             limits:
@@ -1399,6 +1438,9 @@ addons:
           resources:
             limits:
               cpu: null
+              memory: 500Mi
+            requests:
+              cpu: 100m
               memory: 500Mi
       bbtests:
         enabled: true
@@ -1446,6 +1488,10 @@ addons:
         resources:
           requests:
             cpu: 10m
+            memory: 500Mi
+          limits:
+            cpu: null
+            memory: 500Mi
       gitlab:
         webservice:
           minReplicas: 1
@@ -1463,16 +1509,28 @@ addons:
           resources:
             requests:
               cpu: 10m
+              memory: 256Mi
+          limits:
+            cpu: null
+            memory: 256Mi
         migrations:
           resources:
             requests:
               cpu: 10m
+              memory: 256Mi
+            limits:
+              cpu: null
+              memory: 256Mi
         toolbox:
           persistence:
             size: 256Mi
           resources:
             requests:
               cpu: 10m
+              memory: 256Mi
+            limits:
+              cpu: null
+              memory: 256Mi
       registry:
         hpa:
           minReplicas: 1
@@ -1484,12 +1542,20 @@ addons:
           resources:
             requests:
               cpu: 10m
+              memory: 256Mi
+            limits:
+              cpu: null
+              memory: 256Mi
       minio:
         persistence:
           size: 256Mi
         resources:
           requests:
             cpu: 50m
+            memory: 256Mi
+          limits:
+            cpu: null
+            memory: 256Mi
       redis:
         master:
           persistence:
@@ -1535,7 +1601,9 @@ addons:
         requests:
           memory: 64Mi
           cpu: 50m
-        limits: {}
+        limits:
+          memory: 64Mi
+          cpu: null
       runners:
         protected: false
       networkPolicies:
@@ -1555,7 +1623,7 @@ addons:
           resources:
             requests:
               cpu: 2
-              memory: 4Gi
+              memory: 6Gi
             limits:
               cpu: null
               memory: 6Gi
@@ -1601,90 +1669,149 @@ addons:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       sso:
         resources:
           requests:
-            memory: 200Mi          
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       postgresql:
         persistence:
           size: 256Mi
         resources:
           requests:
-            memory: 1024Mi          
+            cpu: 100m
+            memory: 1024Mi
+          limits:
+            cpu: null
+            memory: 1024Mi
         metrics:
           resources:
             requests:
-              memory: 200Mi            
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: null
+              memory: 200Mi
       analyzer:
         replicaCount: 1
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       api:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       catalog:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       policyEngine:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       simpleQueue:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       upgradeJob:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       feeds:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
         feeds-db:
           resources:
             requests:
-              memory: 200Mi            
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: null
+              memory: 200Mi
           metrics:
             resources:
               requests:
-                memory: 200Mi              
+                cpu: 100m
+                memory: 200Mi
+              limits:
+                cpu: null
+                memory: 200Mi
         feedsUpgradeJob:
           resources:
             requests:
               cpu: 100m
-              memory: 200Mi            
+              memory: 200Mi
+            limits:
+              cpu: null
+              memory: 200Mi
       rbacManager:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       reports:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       notifications:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       ui:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
+          limits:
+            cpu: null
+            memory: 200Mi
       ui-redis:
         replica:
           replicaCount: 0
@@ -1742,12 +1869,15 @@ addons:
       resources:
         requests:
           cpu: 100m
-          memory: 200Mi        
+          memory: 200Mi
+        limits:
+          cpu: null
+          memory: 200Mi
       persistence:
         size: 5Gi
       postgresql:
         persistence:
-          size: 256Mi      
+          size: 256Mi
       bbtests:
         enabled: true
         cypress:
@@ -1946,7 +2076,9 @@ addons:
         requests:
           cpu: 100m
           memory: 128Mi
-        limits: {}
+        limits:
+          cpu: null
+          memory: 128Mi
       minio:
         tenant:
           pools:
@@ -2040,6 +2172,9 @@ addons:
         resources:
           requests:
             cpu: 100m
+            memory: 1500Mi
+          limits:
+            cpu: null
             memory: 1500Mi
         docker:
           enabled: true
@@ -2180,7 +2315,9 @@ addons:
         requests:
           cpu: 250m
           memory: 250Mi
-        limits: {}
+        limits:
+          cpu: null
+          memory: 250Mi
       bbtests:
         enabled: true
         cypress:
@@ -2446,7 +2583,7 @@ addons:
         resources:
           requests:
             cpu: 160m
-            memory: 300Mi
+            memory: 500Mi
           limits:
             cpu: null
             memory: 500Mi

@@ -512,7 +512,7 @@ elasticsearchKibana:
           memory: 1Gi
         limits:
           cpu: null  # nonexistent cpu limit results in faster spin up
-          memory: null
+          memory: 1Gi
     elasticsearch:
       master:
         count: 1
@@ -522,7 +522,7 @@ elasticsearchKibana:
             memory: 2Gi
           limits:
             cpu: null
-            memory: null
+            memory: 2Gi
       data:
         count: 1
         resources:
@@ -531,7 +531,7 @@ elasticsearchKibana:
             memory: 2Gi
           limits:
             cpu: null
-            memory: null
+            memory: 2Gi
 
 clusterAuditor:
   values:
@@ -541,7 +541,7 @@ clusterAuditor:
         memory: 2Gi
       limits:
         cpu: null
-        memory: null
+        memory: 2Gi
 
 gatekeeper:
   enabled: false
@@ -554,7 +554,7 @@ gatekeeper:
           memory: 512Mi
         limits:
           cpu: null
-          memory: null
+          memory: 512Mi
     audit:
       resources:
         requests:
@@ -562,7 +562,7 @@ gatekeeper:
           memory: 768Mi
         limits:
           cpu: null
-          memory: null
+          memory: 768Mi
     violations:
       allowedDockerRegistries:
         enforcementAction: dryrun

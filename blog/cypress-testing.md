@@ -55,7 +55,7 @@ addons:
           resources:
             requests:
               cpu: 2
-              memory: "4Gi"
+              memory: "8Gi"
             limits:
               cpu: null
               memory: "8Gi"

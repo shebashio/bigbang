@@ -7,6 +7,9 @@ istio:
         requests:
           cpu: 100m
           memory: 256Mi
+        limits:
+          cpu: null
+          memory: 256Mi
     values:
       global:
         proxy:
@@ -14,10 +17,16 @@ istio:
             requests:
               cpu: 50m
               memory: 128Mi
+            limits:
+              cpu: null
+              memory: 128Mi
         proxy_init:
           resources:
             requests:
               cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: null
               memory: 128Mi
 
 istioOperator:
@@ -26,6 +35,9 @@ istioOperator:
       resources:
         requests:
           cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: null
           memory: 128Mi
 
 jaeger:
@@ -41,6 +53,9 @@ clusterAuditor:
       requests:
         cpu: 100m
         memory: 256Mi
+      limits:
+        cpu: null
+        memory: 256Mi
 
 gatekeeper:
   enabled: false
@@ -51,11 +66,14 @@ gatekeeper:
         requests:
           cpu: 100m
           memory: 256Mi
+        limits:
+          cpu: null
+          memory: 256Mi
     audit:
       resources:
         requests:
           cpu: 100m
-          memory: 256Mi
+          memory: 512Mi
         limits:
           cpu: null
           memory: 512Mi
@@ -102,6 +120,9 @@ promtail:
       requests:
         cpu: 50m
         memory: 32Mi
+      limits:
+        cpu: null
+        memory: 32Mi
 
 loki:
   enabled: true
@@ -111,6 +132,9 @@ loki:
       resources:
         requests:
           cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: null
           memory: 256Mi
 
 neuvector:
@@ -124,7 +148,7 @@ neuvector:
         memory: 768Mi
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 768Mi
     cve:
       scanner:
         replicas: 1
@@ -159,7 +183,7 @@ monitoring:
         resources:
           requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 2Gi
           limits:
             cpu: null
             memory: 2Gi
@@ -168,12 +192,18 @@ monitoring:
         requests:
           cpu: 10m
           memory: 128Mi
+        limits:
+          cpu: null
+          memory: 128Mi
     prometheus-node-exporter:
       hostRootFsMount:
         enabled: false
       resources:
         requests:
           cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: null
           memory: 128Mi
     grafana:
       testFramework:
@@ -182,6 +212,9 @@ monitoring:
       resources:
         requests:
           cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: null
           memory: 128Mi
       prometheusConfigReloader:
         resources:
@@ -199,6 +232,9 @@ twistlock:
       requests:
         memory: 512Mi
         cpu: 50m
+      limits:
+        memory: 512Mi
+        cpu: null
     init:
       resources:
         requests:

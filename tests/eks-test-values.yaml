@@ -11,7 +11,9 @@ istio:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
     defaultConfig:
       proxyMetadata:
         ISTIO_META_DNS_CAPTURE: "true"
@@ -36,7 +38,9 @@ clusterAuditor:
       requests:
         cpu: 300m
         memory: 300Mi
-      limits: null
+      limits:
+        cpu: null
+        memory: 300Mi
     bbtests:
       cypress:
         artifacts: false
@@ -46,7 +50,9 @@ gatekeeper:
     replicas: 1
     controllerManager:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 512Mi
         requests:
           cpu: 175m
           memory: 512Mi
@@ -58,7 +64,9 @@ kyverno:
   values:
     replicaCount: 3
     resources:
-      limits: null
+      limits:
+        cpu: null
+        memory: 384Mi
       requests:
         cpu: 500m
         memory: 384Mi
@@ -109,7 +117,9 @@ tempo:
         artifacts: false
     tempo:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 1024Mi
         requests:
           cpu: 500m
           memory: 1024Mi
@@ -117,13 +127,17 @@ tempo:
       size: 5Gi
     tempoQuery:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 256Mi
         requests:
           cpu: 300m
           memory: 256Mi
     opentelemetryCollector:
       resources:
-        limits: null
+        limits:
+          cpu: null
+          memory: 256Mi
         requests:
           cpu: 300m
           memory: 256Mi
@@ -150,23 +164,31 @@ monitoring:
           requests:
             cpu: 300m
             memory: 5Gi
-          limits: null
+          limits:
+            cpu: null
+            memory: 5Gi
     kube-state-metrics:
       resources:
         requests:
           cpu: 100m
           memory: 128Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 128Mi
     prometheus-node-exporter:
       resources:
         requests:
           cpu: 200m
           memory: 50Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 50Mi
     grafana:
       downloadDashboards:
         resources:
-          limits: null
+          limits:
+            cpu: null
+            memory: 20Mi
           requests:
             cpu: 20m
             memory: 20Mi
@@ -210,13 +232,17 @@ addons:
           requests:
             cpu: 500m
             memory: 2Gi
-          limits: null
+          limits:
+            cpu: null
+            memory: 2Gi
       dex:
         resources:
           requests:
             cpu: 10m
             memory: 128Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 128Mi
       redis-bb:
         master:
           persistence:
@@ -229,19 +255,25 @@ addons:
           requests:
             cpu: 50m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
       server:
         resources:
           requests:
             cpu: 20m
             memory: 128Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 128Mi
       repoServer:
         resources:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
 
   authservice:
     values:
@@ -252,7 +284,9 @@ addons:
         requests:
           cpu: 100m
           memory: 256Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 256Mi
       redis:
         master:
           persistence:
@@ -272,7 +306,10 @@ addons:
         resources:
           requests:
             cpu: 20m
-          limits: null
+            memory: 128Mi
+          limits:
+            cpu: null
+            memory: 128Mi
       gitlab:
         gitaly:
           persistence:
@@ -285,24 +322,35 @@ addons:
             requests:
               cpu: 400m
               memory: 600Mi
-            limits: null
+            limits:
+              cpu: null
+              memory: 600Mi
         shared-secrets:
           resources:
             requests:
               cpu: 30m
-            limits: null
+              memory: 128Mi
+            limits:
+              cpu: null
+              memory: 128Mi
         migrations:
           resources:
             requests:
               cpu: 30m
-            limits: null
+              memory: 128Mi
+            limits:
+              cpu: null
+              memory: 128Mi
         toolbox:
           persistence:
             size: 256Mi
           resources:
             requests:
               cpu: 20m
-            limits: null
+              memory: 128Mi
+            limits:
+              cpu: null
+              memory: 128Mi
       postgresql:
         persistence:
           size: 256Mi
@@ -310,14 +358,20 @@ addons:
           resources:
             requests:
               cpu: 50m
-            limits: null
+              memory: 128Mi
+            limits:
+              cpu: null
+              memory: 128Mi
       minio:
         persistence:
           size: 256Mi
         resources:
           requests:
             cpu: 100m
-          limits: null
+            memory: 256Mi
+          limits:
+            cpu: null
+            memory: 256Mi
       redis:
         master:
           persistence:
@@ -335,7 +389,9 @@ addons:
         requests:
           memory: 128Mi
           cpu: 100m
-        limits: null
+        limits:
+          memory: 128Mi
+          cpu: null
 
   anchore:
     values:
@@ -347,13 +403,17 @@ addons:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
       sso:
         resources:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
       postgresql:
         persistence:
           size: 256Mi
@@ -361,108 +421,144 @@ addons:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
         metrics:
           resources:
             requests:
               cpu: 100m
               memory: 256Mi
-            limits: null
+            limits:
+              cpu: null
+              memory: 256Mi
       anchoreAnalyzer:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreApi:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreCatalog:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchorePolicyEngine:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreSimpleQueue:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEngineUpgradeJob:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchore-feeds-db:
         resources:
           requests:
             cpu: 100m
             memory: 256Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 256Mi
         metrics:
           resources:
             requests:
               cpu: 100m
               memory: 256Mi
-            limits: null
+            limits:
+              cpu: null
+              memory: 256Mi
       anchoreEnterpriseFeeds:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEnterpriseFeedsUpgradeJob:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEnterpriseRbac:
         authResources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
         managerResources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEnterpriseReports:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEnterpriseNotifications:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEntperpiseUi:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
       anchoreEnterpriseEngineUpgradeJob:
         resources:
           requests:
             cpu: 200m
             memory: 512Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 512Mi
     
   sonarqube:
     values:
@@ -473,7 +569,9 @@ addons:
         requests:
           cpu: 200m
           memory: 512Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 512Mi
       persistence:
         size: 5Gi
       postgresql:
@@ -483,7 +581,9 @@ addons:
           requests:
             cpu: 100m
             memory: 200Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 200Mi
 
   minio:
     values:
@@ -500,7 +600,9 @@ addons:
             requests:
               cpu: 250m
               memory: 512Mi
-            limits: null
+            limits:
+              cpu: null
+              memory: 512Mi
           securityContext:
             runAsUser: 1001
             runAsGroup: 1001
@@ -526,7 +628,9 @@ addons:
         requests:
           cpu: 200m
           memory: 256Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 256Mi
       minio:
         tenants:
           pools:
@@ -538,7 +642,9 @@ addons:
               requests:
                 cpu: 250m
                 memory: 512Mi
-              limits: null
+              limits:
+                cpu: null
+                memory: 512Mi
             securityContext:
               runAsUser: 1001
               runAsGroup: 1001
@@ -562,7 +668,9 @@ addons:
           requests:
             cpu: 100m
             memory: 1500Mi
-          limits: null
+          limits:
+            cpu: null
+            memory: 1500Mi
   
   keycloak:
     values:
@@ -573,7 +681,9 @@ addons:
         requests:
           cpu: 100m
           memory: 256Mi
-        limits: null
+        limits:
+          cpu: null
+          memory: 256Mi
 
   harbor:
     values:
