@@ -26,6 +26,7 @@ function download_pipeline_waits
         sed -n "/^function ${method}() {/,/^}/p" >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
     done
+    rm -f ${tmpfile}
 }
 
 function download_bigbang_helpers
