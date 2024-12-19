@@ -14,7 +14,7 @@ function download_pipeline_waits
 {
     mkdir -p ~/lib/
     tmpfile=$(mktemp -p /tmp pipelinewaitsXXX)
-    PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipelines/pipeline-templates/-/raw/main/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
+    PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
     curl --silent --output ${tmpfile} ${PIPELINE_WAITS_URI}
 
     # Here we're extracting some methods that are part of our big bang continuous integration and
