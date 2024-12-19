@@ -209,6 +209,8 @@ function main
     cmdarg 'd' 'deploy-only' "Don't attempt to provision the k3d cluster, just deploy bigbang"
     cmdarg_parse "$@"
 
+    check_for_tools
+
     export REPO1_LOCATION=${cmdarg_cfg['repolocation']}
     export BIG_BANG_REPO=${REPO1_LOCATION}/big-bang/bigbang
     export REGISTRY1_TOKEN=${cmdarg_cfg['registry1-token']}
