@@ -13,9 +13,9 @@ BB_K3D_PRIVATEIP=""
 function download_pipeline_waits
 {
     mkdir -p ~/lib/
-    tmpfile=$(mktemp -d /tmp pipelinewaitsXXX)
+    tmpfile=$(mktemp -p /tmp pipelinewaitsXXX)
     PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipelines/pipeline-templates/-/raw/main/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
-    curl --silent --output ${tmpfile}
+    curl --silent --output ${tmpfile} ${PIPELINE_WAITS_URI}
 
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
