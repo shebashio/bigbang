@@ -10,12 +10,22 @@ KUBECONFIG=""
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
-function download_k3d_dev_sh
+function download_pipeline_waits
 {
-    mkdir -p ~/bin/
-    K3D_SCRIPT_URI="https://repo1.dso.mil/big-bang/bigbang/-/raw/2291_quickstart/docs/assets/scripts/developer/k3d-dev.sh?ref_type="
-    curl --silent --output ~/bin/k3d-dev.sh ${K3D_SCRIPT_URI}
-    chmod +x ~/bin/k3d-dev.sh
+    mkdir -p ~/lib/
+    tmpfile=$(mktemp -d /tmp pipelinewaitsXXX)
+    PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipelines/pipeline-templates/-/raw/main/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
+    curl --silent --output ${tmpfile}
+
+    # Here we're extracting some methods that are part of our big bang continuous integration and
+    # delivery suite, and placing them into a library for us to use. We can't just source the file
+    # because the file has toplevel code that would be executed, and we don't want that.
+    echo > ~/lib/pipelinewaits.sh
+    for method in wait_all_hr wait_sts wait_daemonset wait_crd
+    do
+        sed -n "/^function ${method}() {/,/^}/p" >> ~/lib/pipelinewaits.sh
+        echo >> ~/lib/pipelinewaits.sh
+    done
 }
 
 function download_bigbang_helpers
@@ -30,6 +40,44 @@ function download_cmdarg
     mkdir -p ~/lib/
     CMDARG_URI=https://raw.githubusercontent.com/akesterson/cmdarg/refs/heads/master/cmdarg.sh
     curl --silent --output ~/lib/cmdarg.sh ${CMDARG_URI}
+}
+
+function wait_helmrepositories
+{
+    # Lifted from 03_wait_for_helmreleases.sh since it can't be sourced or extracted as a method
+    # only difference is that we wait forever, we don't exit
+    
+    echo -n "Checking for helm repos to wait on..."
+    if [[ -n $(flux get sources helm -A) ]]; then
+        echo "found, ⏳ Waiting on HelmRepositories"
+        until [[ $(flux get sources helm registry1 -n bigbang | sed -n 2p | awk '{print $3}') == "True" ]]; do
+            sleep 10;
+            timeElapsed=$(($timeElapsed+10))
+            if [[ $timeElapsed -ge 180 ]]; then
+                echo "❌ Timed out while waiting for HelmRepository to exist"
+                exit 1
+            fi
+        done
+        flux get sources helm -A
+    fi
+}
+
+function wait_for_bigbang
+{
+    wait_helmrepositories
+    echo "⏳ Waiting on helm releases..."
+    wait_all_hr
+    echo "⏳ Waiting for custom resources..."
+    wait_crd
+
+    # In case some helm releases are marked as ready before all objects are live...
+    echo "⏳ Waiting on all jobs, deployments, statefulsets, and daemonsets"
+    kubectl wait --for=condition=available --timeout 600s -A deployment --all > /dev/null
+    wait_sts
+    wait_daemonset
+    if kubectl get job -A -o jsonpath='{.items[].metadata.name}' &> /dev/null; then
+        kubectl wait --for=condition=complete --timeout 300s -A job --all > /dev/null
+    fi    
 }
 
 function build_k3d_cluster
@@ -55,7 +103,7 @@ function build_k3d_cluster
         arg_metallb="-m"
     fi
 
-    ~/bin/k3d-dev.sh \
+    ${BIG_BANG_REPO}/dosc/assets/scripts/developer/k3d-dev.sh \
         -t quickstart \
         ${arg_hostname} \
         ${arg_privateip} \
@@ -67,9 +115,9 @@ function build_k3d_cluster
 function checkout_bigbang_repo
 {
     version=${cmdarg_cfg['version']}
-    mkdir -p ${cmdarg_cfg['repolocation']}/big-bang/bigbang
-    git clone https://repo1.dso.mil/big-bang/bigbang.git ${cmdarg_cfg['repolocation']}/big-bang/bigbang
-    cd ${cmdarg_cfg['repolocation']}/big-bang/bigbang
+    mkdir -p ${BIG_BANG_REPO}
+    git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
+    cd ${BIG_BANG_REPO}
     git fetch -a
     if [[ "${version}" == "latest" ]]; then
         version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
@@ -103,6 +151,8 @@ function main
     export REGISTRY1_TOKEN=${cmdarg_cfg['registry1-token']}
     export REGISTRY1_USERNAME=${cmdarg_cfg['registry1-username']}
 
+    checkout_bigbang_repo
+
     build_k3d_cluster
     if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
         export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
@@ -111,9 +161,7 @@ function main
     else
         eval "$(bb_k3d_shellprofile quickstart)"
     fi
-
-    checkout_bigbang_repo
-
+     
     bb_deploy_flux
 
     arg_configfile=""
@@ -131,10 +179,11 @@ function cleanup
 
 trap cleanup EXIT
 
-download_k3d_dev_sh
+download_pipeline_waits
 download_cmdarg
 download_bigbang_helpers
 source ~/lib/cmdarg.sh
+source ~/lib/pipelinewaits.sh
 source ~/lib/bigbang.sh >/dev/null 2>&1
 
 main $@

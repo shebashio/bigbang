@@ -2,7 +2,9 @@
 
 [[_TOC_]]
 
-## Big Bang in 30 minutes
+## Big Bang in 1 hour
+
+An SRE with a reasonable amount of experience operating in a command line environment, equipped with a decent internet connection and a workstation they can install software on, should be able to complete this process and have an operational Big Bang dev environment in 1 hour or less.
 
 ### Satisfy the Prerequisites
 
@@ -12,6 +14,7 @@
 1. [Install helm](https://helm.sh/docs/intro/install/). Again, if you are running on WSL in Windows, you should install kubectl using the package manager inside of WSL to install helm.
 1. Ensure you have bash version 4 installed. Linux and Windows with WSL users probably don't need to worry about this. For Mac OS users, install bash4 with homebrew or a similar package manager, the bash that ships with Mac OS is too old. Mac OS users will use `/opt/homebrew/bin/bash` whenever `bash` is mentioned in this guide.
 1. Ensure you have an account on [PlatformOne RegistryOne](https://registry1.dso.mil). You will need your username and access token ("CLI Secret") for this process.
+1. Install [the bigbang command line control tool, "bbctl"](https://repo1.dso.mil/big-bang/product/packages/bbctl/-/blob/main/docs/user-guide.md?ref_type=heads). This tool is used to deploy, check and modify your cluster. Follow the install guide to set up the tool.
 
 ### Build the Cluster
 
