@@ -44,6 +44,7 @@ bash quickstart.sh
 #### Using Amazon Web Services
 
 1. If your system is already configured to use AWS via the `aws-cli` and you don't want to go to the trouble of building your own VM, the quickstart can attempt to do it for you; simply run the quickstart with no arguments. Pay attention to the script output; the IP addresses of the created AWS EC2 instance will be printed after the cluster is built and before big bang is deployed. You may need these later.
+    1. The quickstart is only so smart, and AWS environments can vary greatly. If the quickstart is not able to build an EC2 instance in AWS for you, please go build an EC2 instance suitable for your use case, then come back and follow the instructions for "Using a VM or other hardware you built yourself".
 1. Run the following commands in your command terminal:
 
 ```
@@ -52,9 +53,9 @@ bash quickstart.sh
 
 ### It's thinking
 
-Go make a sandwich, the process takes about 10 minutes. Once the command finishes, you will still need to wait a while longer before the cluster is actually ready to use.
+The process takes about 45 minutes. Make a sandwich, go for a walk, play with the dog. Check on it every 10 minutes or so. Once the command finishes, your cluster should be ready to use. Proceed to fix your DNS and access your big bang installation.
 
-### What Just Happened? In Detail
+#### What Just Happened? In Detail
 
 The quickstart.sh script performs several actions:
 
@@ -69,54 +70,6 @@ The quickstart.sh script performs several actions:
 1. Checks out the PlatformOne Big Bang repository to the location specified when you ran the command
 1. Installs the Big Bang umbrella chart into your k3d cluster
 1. Waits for Big Bang to completely deploy, which may take a significant amount of time
-
-### Hurry Up And Wait
-
-The final step of the process, waiting for big bang to fully deploy, can take a significant amount of time. You can inspect the state of the system in another terminal while this is occurring if you desire.
-
-Run `kubectl get po -A` in your terminal (which is the shorthand of `kubectl get pods --all-namespaces`). If you see something like the following, stating that some pods are not ready, then you will need to wait longer.
-
-  ```console
-  NAMESPACE           NAME                                                READY   STATUS          RESTARTS   AGE
-  kube-system         metrics-server-86cbb8457f-dqsl5                     1/1     Running             0      39m
-  kube-system         coredns-7448499f4d-ct895                            1/1     Running             0      39m
-  flux-system         notification-controller-65dffcb7-qpgj5              1/1     Running             0      32m
-  flux-system         kustomize-controller-d689c6688-6dd5n                1/1     Running             0      32m
-  flux-system         source-controller-5fdb69cc66-s9pvw                  1/1     Running             0      32m
-  kube-system         local-path-provisioner-5ff76fc89d-gnvp4             1/1     Running             1      39m
-  flux-system         helm-controller-6c67b58f78-6dzqw                    1/1     Running             0      32m
-  gatekeeper-system   gatekeeper-controller-manager-5cf7696bcf-xclc4      0/1     Running             0      4m6s
-  gatekeeper-system   gatekeeper-audit-79695c56b8-qgfbl                   0/1     Running             0      4m6s
-  istio-operator      istio-operator-5f6cfb6d5b-hx7bs                     1/1     Running             0      4m8s
-  eck-operator        elastic-operator-0                                  1/1     Running             1      4m10s
-  istio-system        istiod-65798dff85-9rx4z                             1/1     Running             0      87s
-  istio-system        public-ingressgateway-6cc4dbcd65-fp9hv              0/1     ContainerCreating   0      46s
-  logging             logging-fluent-bit-dbkxx                            0/2     Init:0/1            0      44s
-  monitoring          monitoring-monitoring-kube-admission-create-q5j2x   0/1     ContainerCreating   0      42s
-  logging             logging-ek-kb-564d7779d5-qjdxp                      0/2     Init:0/2            0      41s
-  logging             logging-ek-es-data-0                                0/2     Init:0/2            0      44s
-  istio-system        svclb-public-ingressgateway-ggkvx                   5/5     Running             0      39s
-  logging             logging-ek-es-master-0                              0/2     Init:0/2            0      37s
-  ```
-
-Wait up to 10 minutes then re-run `kubectl get po -A`, until all pods show STATUS Running. Once all the pods show running, run `helm list -n=bigbang` in your terminal. All helm releases should show STATUS deployed
-
-  ```console
-  NAME                           	NAMESPACE        	REVISION	UPDATED                                	STATUS  	CHART                            	APP VERSION
-  bigbang                        	bigbang          	1       	2022-03-31 12:07:49.239343968 +0000 UTC	deployed	bigbang-1.30.1
-  cluster-auditor-cluster-auditor	cluster-auditor  	1       	2022-03-31 12:14:23.004377605 +0000 UTC	deployed	cluster-auditor-1.4.0-bb.0       	0.0.4
-  eck-operator-eck-operator      	eck-operator     	1       	2022-03-31 12:09:52.921098159 +0000 UTC	deployed	eck-operator-2.0.0-bb.0          	2.0.0
-  gatekeeper-system-gatekeeper   	gatekeeper-system	1       	2022-03-31 12:07:53.52890717 +0000 UTC 	deployed	gatekeeper-3.7.1-bb.0            	v3.7.1
-  istio-operator-istio-operator  	istio-operator   	1       	2022-03-31 12:07:55.111321595 +0000 UTC	deployed	istio-operator-1.13.2-bb.1       	1.13.2
-  istio-system-istio             	istio-system     	1       	2022-03-31 12:08:23.439981427 +0000 UTC	deployed	istio-1.13.2-bb.0                	1.13.2
-  jaeger-jaeger                  	jaeger           	1       	2022-03-31 12:12:58.068313509 +0000 UTC	deployed	jaeger-operator-2.29.0-bb.0      	1.32.0
-  kiali-kiali                    	kiali            	1       	2022-03-31 12:12:57.011215896 +0000 UTC	deployed	kiali-operator-1.47.0-bb.1       	1.47.0
-  logging-ek                     	logging          	1       	2022-03-31 12:10:52.785810021 +0000 UTC	deployed	logging-0.7.0-bb.0               	7.17.1
-  logging-fluent-bit             	logging          	1       	2022-03-31 12:12:53.27612266 +0000 UTC 	deployed	fluent-bit-0.19.20-bb.1          	1.8.13
-  monitoring-monitoring          	monitoring       	1       	2022-03-31 12:10:02.31254196 +0000 UTC 	deployed	kube-prometheus-stack-33.2.0-bb.0	0.54.1
-  ```
-
-If any helm releases show STATUS other than `deployed` you will need to wait longer.
 
 ### Fix DNS to access the services in your browser
 

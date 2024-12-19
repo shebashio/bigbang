@@ -214,7 +214,7 @@ function main
     checkout_pipeline_templates
     source ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
 
-    if [[ "${cmdarg_cfg['deploy-only']}" == "false" ]]; then
+    if [[ "${cmdarg_cfg['deploy-only']}" != "true" ]]; then
         build_k3d_cluster
     fi
 
