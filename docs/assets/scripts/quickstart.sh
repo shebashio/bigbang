@@ -122,14 +122,40 @@ function build_k3d_cluster
 function checkout_bigbang_repo
 {
     version=${cmdarg_cfg['version']}
-    mkdir -p ${BIG_BANG_REPO}
-    git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
+    if [[ ! -d ${BIG_BANG_REPO} ]]; then
+        mkdir -p ${BIG_BANG_REPO}
+        git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
+    fi
     cd ${BIG_BANG_REPO}
     git fetch -a
     if [[ "${version}" == "latest" ]]; then
         version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
     fi
+    git reset --hard
+    git clean -df
     git checkout ${version}
+}
+
+function deploy_flux
+{
+    ${REPO1_LOCATION}/big-bang/bigbang/scripts/install_flux.sh \
+        -u ${REGISTRY1_USERNAME} \
+        -p ${REGISTRY1_TOKEN} \
+        -w 900
+}
+
+function deploy_bigbang
+{
+    helm upgrade -i bigbang \
+        ${BIG_BANG_REPO}/chart \
+        -n bigbang \
+        --create-namespace \
+        --set registryCredentials.username=${REGISTRY1_USERNAME} \
+        --set registryCredentials.password=${REGISTRY1_TOKEN} \
+        $@ \
+        -f ${BIG_BANG_REPO}/chart/ingress-certs.yaml \
+        -f ${BIG_BANG_REPO}/docs/assets/configs/example/dev-sso-values.yaml \
+        -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml \        
 }
 
 function main
@@ -151,6 +177,7 @@ function main
     cmdarg 'u?' 'registry1-username' "Username for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_USERNAME}"
     cmdarg 't?' 'registry1-token' "Access token for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_TOKEN}"
     cmdarg 'm' 'metallb' "Deploy a MetalLB on k3d"
+    cmdarg 'b' 'bigbang-only' "Don't attempt to provision the k3d cluster, just deploy bigbang"
     cmdarg_parse "$@"
 
     export REPO1_LOCATION=${cmdarg_cfg['repolocation']}
@@ -160,22 +187,24 @@ function main
 
     checkout_bigbang_repo
 
-    build_k3d_cluster
+    if [[ "${cmdarg_cfg['bigbang-only']}" == "false" ]]; then
+        build_k3d_cluster
+    fi
+    
     if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
         export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
-        export BB_K3D_PUBLICIP=${cmdarg_cfg['host']}
-        export BB_K3D_PRIVATEIP=${cmdarg_cfg['privateip']}
     else
-        eval "$(bb_k3d_shellprofile quickstart)"
+        # This is PROBABLY right...
+        export KUBECONFIG=~/.kube/*-dev-quickstart-config
     fi
 
-    bb_deploy_flux
+    deploy_flux
 
     arg_configfile=""
     if [[ "${cmdarg_cfg['configfile']}" != "" ]]; then
         arg_configfile="-f ${cmdarg_cfg['configfile']}"
     fi
-    bb_k3d_deploy ${arg_configfile}
+    deploy_bigbang ${arg_configfile}
 
     wait_for_bigbang
     set +e
@@ -190,9 +219,7 @@ trap cleanup EXIT
 
 download_pipeline_waits
 download_cmdarg
-download_bigbang_helpers
 source ~/lib/cmdarg.sh
 source ~/lib/pipelinewaits.sh
-source ~/lib/bigbang.sh >/dev/null 2>&1
 
 main $@
