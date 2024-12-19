@@ -10,20 +10,39 @@ KUBECONFIG="${KUBECONFIG:-}"
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
+function checkout_bigbang_repo
+{
+    version=${cmdarg_cfg['version']}
+    if [[ ! -d ${BIG_BANG_REPO} ]]; then
+        mkdir -p ${BIG_BANG_REPO}
+        git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
+    fi
+    cd ${BIG_BANG_REPO}
+    git fetch -a
+    if [[ "${version}" == "latest" ]]; then
+        version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
+    fi
+    git reset --hard
+    git clean -df
+    git checkout ${version}
+    git pull --update
+}
+
 function checkout_pipeline_templates
 {
     mkdir -p ~/lib/
     PIPELINE_WAITS_URI="https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/raw/master/scripts/deploy/03_wait_for_helmreleases.sh?ref_type=heads"
-    if [[ ! -d ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates ]]; then
-        mkdir -p ${REPO1_LOCATION}/big-bang/pipeline-templates
-        git clone https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates.git ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
+    PIPELINE_REPO_LOCATION=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
+    if [[ ! -d ${PIPELINE_REPO_LOCATION} ]]; then
+        mkdir -p ${PIPELINE_REPO_LOCATION}
+        git clone https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates.git ${PIPELINE_REPO_LOCATION}
     fi
 
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
-    srcfile=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
-    dstfile=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
+    srcfile=${PIPELINE_REPO_LOCATION}/scripts/deploy/03_wait_for_helmreleases.sh
+    dstfile=${PIPELINE_REPO_LOCATION}/library/wait_for_helmreleases.sh
     echo >${dstfile}
     for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
@@ -31,13 +50,6 @@ function checkout_pipeline_templates
         echo >>${dstfile}
     done
     rm -f ${tmpfile}
-}
-
-function download_bigbang_helpers
-{
-    mkdir -p ~/lib/
-    DOTFILES_URI="https://repo1.dso.mil/akesterson/dotfiles/-/raw/main/lib/bigbang.sh?ref_type=heads"
-    curl --silent --output ~/lib/bigbang.sh ${DOTFILES_URI}
 }
 
 function download_cmdarg
@@ -131,24 +143,6 @@ function build_k3d_cluster
         ${arg_username} \
         ${arg_keyfile} \
         ${arg_metallb}
-}
-
-function checkout_bigbang_repo
-{
-    version=${cmdarg_cfg['version']}
-    if [[ ! -d ${BIG_BANG_REPO} ]]; then
-        mkdir -p ${BIG_BANG_REPO}
-        git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
-    fi
-    cd ${BIG_BANG_REPO}
-    git fetch -a
-    if [[ "${version}" == "latest" ]]; then
-        version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
-    fi
-    git reset --hard
-    git clean -df
-    git checkout ${version}
-    git pull --update
 }
 
 function deploy_flux
