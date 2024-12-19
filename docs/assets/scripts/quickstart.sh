@@ -91,8 +91,8 @@ function map_values_key_to_hr() {
 
 function wait_for_bigbang
 {
-    # FIXME : I'm being lazy here, we could probably interrogate the values.yaml built into the bigbang repo to get this list
-    for package in authservice grafana istio istio-operator kiali kyverno kyverno-policies kyverno-reporter loki metrics-server monitoring neuvector promtail tempo;
+    enabled_packages=$(yq e '(.[],.addons.[]) | select(. | (has("git") or has("helmRepo"))) | path | .[-1]' ${BIG_BANG_REPO}/chart/values.yaml)
+    for package in ${enabled_packages}
     do  
         check_if_hr_exist "$package"
     done
