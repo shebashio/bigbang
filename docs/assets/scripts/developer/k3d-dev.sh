@@ -122,22 +122,24 @@ function process_arguments
         echo "========= The following options ONLY APPLY with [-c aws] =================="
         echo
         echo " -b   use BIG M5 instance. Default is m5a.4xlarge"
-        echo " -m   create k3d cluster in AWS with metalLB"
         echo " -a   attach secondary Public IP (overrides -p and -m flags)"
         echo " -d   destroy related AWS resources"
         echo " -r   Report on all instances owned by your user"
         echo " -u   Update security group for instances"
         echo
-        echo "=========================================================================="
+        echo "========= These options apply regardless of cloud provider ================"
         echo
+        echo " -m   create k3d cluster with metalLB load balancer"
         echo " -p   use private IP for security group and k3d cluster"
         echo " -t   Set the project tag on the instance (for managing multiple instances)"
         echo " -w   install the weave CNI instead of the default flannel CNI"
-        echo " -i /path/to/script   initialization script to pass to instance before configuring"
+        echo " -i /path/to/script   initialization script to pass to instance before configuring it"
+        echo " -U username          username to use when connecting to existing system in -P"
+        echo
+        echo "========= These options override -c and use your own infrastructure ======="
         echo
         echo " -H xxx.xxx.xxx.xxx   Public IP address of existing system to configure"
         echo " -P xxx.xxx.xxx.xxx   private IP address of existing system to configure (if not provided and -H is set, the value of -H is assumed)"
-        echo " -U username          username to use when connecting to existing system in -P"
         echo " -k /path/to/key/file SSH key to use when connecting to cluster instance"
         echo
         echo " -h   output help"
@@ -846,62 +848,62 @@ function initialize_instance
 
 function cloud_aws_create_instances
 {
-    echo "Checking for existing cluster for ${AWSUSERNAME}."
+  echo "Checking for existing cluster for ${AWSUSERNAME}."
   InstId=`aws ec2 describe-instances \
           --output text \
           --query "Reservations[].Instances[].InstanceId" \
           --filters "Name=tag:Name,Values=${AWSUSERNAME}-dev" "Name=tag:Project,Values=${PROJECTTAG}" "Name=instance-state-name,Values=running"`
-    if [[ $InstId ]]; then
-      PublicIP=`aws ec2 describe-instances --output text --no-cli-pager --instance-id ${InstId} --query "Reservations[].Instances[].PublicIpAddress"`
-      PrivateIP=`aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress'`
-      echo "Existing cluster found running on instance ${InstId} on ${PublicIP} / ${PrivateIP}"
-      echo "💣 Big Bang Cluster Management 💣"
-      PS3="Please select an option: "
-      options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Quit")
+  if [[ $InstId ]]; then
+    PublicIP=`aws ec2 describe-instances --output text --no-cli-pager --instance-id ${InstId} --query "Reservations[].Instances[].PublicIpAddress"`
+    PrivateIP=`aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress'`
+    echo "Existing cluster found running on instance ${InstId} on ${PublicIP} / ${PrivateIP}"
+    echo "💣 Big Bang Cluster Management 💣"
+    PS3="Please select an option: "
+    options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Quit")
 
-      select opt in "${options[@]}"
-      do
-        case $REPLY in
-          1)
-            read -p "Are you sure you want to re-create a K3D cluster on this instance (y/n)? " -r
-            if [[ ! $REPLY =~ ^[Yy]$ ]]
-            then
-              echo
-              exit 1
-            fi
-            RESET_K3D=true
-            SecondaryIP=`aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[] | select(.Primary==false) | .Association.PublicIp'`
-            PrivateIP2=$(getPrivateIP2)
-            if [[ "${ATTACH_SECONDARY_IP}" == true && -z "${SecondaryIP}" ]]; then
-              echo "Secondary IP didn't exist at the time of creation of the instance, so cannot attach one without re-creating it with the -a flag selected."
-              exit 1
-            fi
-            run "k3d cluster delete"
-            run "docker ps -aq | xargs docker stop | xargs docker rm"
-            break;;
-          2)
-            read -p "Are you sure you want to destroy this instance ${InstId}, and create a new one in its place (y/n)? " -r
-            if [[ ! $REPLY =~ ^[Yy]$ ]]
-            then
-              echo
-              exit 1
-            fi
+    select opt in "${options[@]}"
+    do
+      case $REPLY in
+        1)
+          read -p "Are you sure you want to re-create a K3D cluster on this instance (y/n)? " -r
+          if [[ ! $REPLY =~ ^[Yy]$ ]]
+          then
+            echo
+            exit 1
+          fi
+          RESET_K3D=true
+          SecondaryIP=`aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[] | select(.Primary==false) | .Association.PublicIp'`
+          PrivateIP2=$(getPrivateIP2)
+          if [[ "${ATTACH_SECONDARY_IP}" == true && -z "${SecondaryIP}" ]]; then
+            echo "Secondary IP didn't exist at the time of creation of the instance, so cannot attach one without re-creating it with the -a flag selected."
+            exit 1
+          fi
+          run "k3d cluster delete"
+          run "docker ps -aq | xargs docker stop | xargs docker rm"
+          break;;
+        2)
+          read -p "Are you sure you want to destroy this instance ${InstId}, and create a new one in its place (y/n)? " -r
+          if [[ ! $REPLY =~ ^[Yy]$ ]]
+          then
+            echo
+            exit 1
+          fi
 
-            aws ec2 terminate-instances --instance-ids ${InstId} &>/dev/null
-            echo -n "Instance is being terminated..."
-            if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
-              echo -n "Waiting for instance termination..."
-              aws ec2 wait instance-terminated --instance-ids ${InstId} &> /dev/null
-              echo "done"
-            fi
-            break;;
-          3)
-            echo "Bye."
-            exit 0;;
-          *)
-            echo "Option $1 not recognized";;
-        esac
-      done
+          aws ec2 terminate-instances --instance-ids ${InstId} &>/dev/null
+          echo -n "Instance is being terminated..."
+          if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
+            echo -n "Waiting for instance termination..."
+            aws ec2 wait instance-terminated --instance-ids ${InstId} &> /dev/null
+            echo "done"
+          fi
+          break;;
+        3)
+          echo "Bye."
+          exit 0;;
+        *)
+          echo "Option $1 not recognized";;
+      esac
+    done
   fi
 
   if [[ "${RESET_K3D}" == false ]]; then

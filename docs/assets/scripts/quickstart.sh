@@ -21,7 +21,7 @@ function download_pipeline_waits
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
     echo > ~/lib/pipelinewaits.sh
-    for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exists
+    for method in wait_all_hr wait_sts wait_daemonset wait_crd check_if_hr_exist
     do
         sed -n "/^function ${method}()/,/^}/p" ${tmpfile} >> ~/lib/pipelinewaits.sh
         echo >> ~/lib/pipelinewaits.sh
@@ -168,7 +168,7 @@ function main
     else
         eval "$(bb_k3d_shellprofile quickstart)"
     fi
-    
+
     bb_deploy_flux
 
     arg_configfile=""
