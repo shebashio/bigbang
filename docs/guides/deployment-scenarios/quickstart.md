@@ -4,7 +4,7 @@
 
 ## Big Bang in 1 hour
 
-An SRE with a reasonable amount of experience operating in a command line environment, equipped with a decent internet connection and a workstation they can install software on, should be able to complete this process and have an operational Big Bang dev environment in 1 hour or less.
+An SRE with a reasonable amount of experience operating in a command line environment, equipped with a fast internet connection and a workstation they can install software on, should be able to complete this process and have an operational Big Bang dev environment in 1 hour or less.
 
 ### Satisfy the Prerequisites
 
@@ -54,6 +54,8 @@ bash quickstart.sh
 ### It's thinking
 
 The process takes about 45 minutes. Make a sandwich, go for a walk, play with the dog. Check on it every 10 minutes or so. Once the command finishes, your cluster should be ready to use. Proceed to fix your DNS and access your big bang installation.
+
+If it seems like it's taking too long, the script will tell you what it's currently waiting on. The most frequent cause of long delays is slow connection between your cluster and registry1. All container images are fetched from registry1, so if your cluster is running on a slow internet uplink, this process can take a long time the first time bigbang is deployed. If your helmreleases say `PodInitializing` or `ContainerInitializing` or `Init:2/3` for a long time, this is usually the cause. There's not much cure for this but patience. Try contemplating the nature of the universe, marvel at the fact that object oriented COBOL exists in `current year`, or peruse the Commander's reading list.
 
 #### What Just Happened? In Detail
 
