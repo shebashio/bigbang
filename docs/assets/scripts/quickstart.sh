@@ -35,7 +35,7 @@ function checkout_pipeline_templates
     # Here we're extracting some methods that are part of our big bang continuous integration and
     # delivery suite, and placing them into a library for us to use. We can't just source the file
     # because the file has toplevel code that would be executed, and we don't want that.
-    
+
     # srcfile=${PIPELINE_REPO_LOCATION}/scripts/deploy/03_wait_for_helmreleases.sh
     # dstfile=${PIPELINE_REPO_LOCATION}/library/wait_for_helmreleases.sh
     # echo >${dstfile}
@@ -225,7 +225,7 @@ function main
 
     checkout_bigbang_repo
     checkout_pipeline_templates
-    source ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
+    #source ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/library/wait_for_helmreleases.sh
 
     if [[ "${cmdarg_cfg['deploy-only']}" != "true" ]]; then
         build_k3d_cluster
