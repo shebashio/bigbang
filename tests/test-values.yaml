@@ -821,7 +821,7 @@ eckOperator:
                 protocol: TLS
                 name: https
             resolution: DNS
-            
+
 elasticsearchKibana:
   enabled: false
   sso:
@@ -2021,14 +2021,14 @@ addons:
         enabled: true
         additionalPolicies:
           - name: postgresql-egress
-            spec: 
+            spec:
               podSelector: {}
               policyTypes:
                 - Egress
               egress:
-                - to: 
+                - to:
                   ports:
-                    - protocol: TCP 
+                    - protocol: TCP
                       port: 5432
                       endPort: 5432
       enterprise:
@@ -2039,7 +2039,7 @@ addons:
         hardened:
           customServiceEntries:
             - name: "postgresql-service-entries"
-              enabled: true 
+              enabled: true
               spec:
                 hosts:
                   - "cirds.cqkqilzbp4x2.us-gov-west-1.rds.amazonaws.com"
