@@ -1,0 +1,14 @@
+{{- if .Values.addons.istioOscalController.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.addons.istioOscalController "name" "istio-oscal-controller" "defaults" (include "bigbang.defaults.istioOscalController" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istioOscalController" -}}
+domain: {{ .Values.domain }}
+
+image:
+  pullPolicy: {{ .Values.imagePullPolicy }}
+
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+
+{{- end -}}
