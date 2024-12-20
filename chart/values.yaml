@@ -2115,6 +2115,10 @@ addons:
   mimir:
     # -- Toggle deployment of Mimir
     enabled: true
+    
+    # -- Enable Big Bang MinIO for Mimir
+    minio:
+      enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"

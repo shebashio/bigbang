@@ -4,7 +4,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
-{{- $minioEnabled := (.Values.addons.minio.enabled) }}
+{{- $minioEnabled := (.Values.addons.mimir.minio.enabled) }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -27,14 +27,39 @@ istio:
     }}
 
 mimir-distributed:
-  {{- if .Values.istio.enabled }}
   query_scheduler:
-    enabled: false
-  {{- end }}
+    enabled: {{ not .Values.istio.enabled }}
+  {{- if $minioEnabled }}
   mimir:
-    {{- if not $minioEnabled }}
     structuredConfig:
-        blocks_storage:
-          backend: filesystem
+    {{- if index .Values.addons.mimir.values "mimir-distributed" "enterprise" "enabled" }}
+      admin_client:
+      backend: s3
+      s3:
+        bucket_name: enterprise-metrics-admin
+    {{- end }}
+      alertmanager_storage:
+        backend: s3
+        s3:
+          bucket_name: mimir-ruler
+      blocks_storage:
+        backend: s3
+        s3:
+          bucket_name: mimir-tsdb
+      ruler_storage:
+        backend: s3
+        s3:
+          bucket_name: mimir-ruler
+      common:
+        storage:
+          backend: s3
+          s3:
+            bucket_name: mimir
+            # This should be the same as the generated credentials for miniobb.defaultUserCredentials.username below
+            access_key_id: mimir-user
+            endpoint: minio.mimir.svc.cluster.local
+            insecure: true
+            # This should be the same as the generated credentials for miniobb.defaultUserCredentials.password below
+            secret_access_key: supersecret
     {{- end }}
 {{- end }}
