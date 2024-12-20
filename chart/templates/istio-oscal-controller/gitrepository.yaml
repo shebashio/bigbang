@@ -1,0 +1,16 @@
+{{- if .Values.addons.istioOscalController.enabled }}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: istio-oscal-controller
+  namespace: bigbang
+  labels:
+    {{- include "commonLabels" . | nindent 4}}
+spec:
+  interval: {{ .Values.flux.interval }}
+  url: https://repo1.dso.mil/big-bang/apps/sandbox/istio-oscal-controller.git
+  ref:
+    {{- include "validRef" .Values.addons.istioOscalController.git | nindent 4}}
+  {{- include "gitIgnore" . | nindent 2}}
+  {{- include "gitCreds" . | nindent 2}}
+{{- end }}

@@ -1,0 +1,11 @@
+{{- if .Values.addons.istioOscalController.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "istio-oscal-controller"
+  labels:
+    istio-injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.istioOscalController) "enabled")) }}
+    app.kubernetes.io/name: istio-oscal-controller
+    app.kubernetes.io/component: controller
+    {{- include "commonLabels" . | nindent 4}}
+{{- end }}

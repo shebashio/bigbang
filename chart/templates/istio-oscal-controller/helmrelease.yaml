@@ -1,0 +1,30 @@
+{{- if .Values.addons.istioOscalController.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-oscal-controller
+  namespace: bigbang
+  labels:
+    {{- include "commonLabels" . | nindent 4}}
+spec:
+  interval: {{ .Values.flux.interval }}
+  releaseName: istio-oscal-controller
+  targetNamespace: {{ .Values.addons.istioOscalController.namespace | default "istio-oscal-controller" }}
+  timeout: {{ .Values.addons.istioOscalController.timeout | default "15m" }}
+  chart:
+    spec:
+      chart: ./chart
+      sourceRef:
+        kind: GitRepository
+        name: istio-oscal-controller
+        namespace: bigbang
+      interval: {{ .Values.flux.interval }}
+  {{- with .Values.addons.istioOscalController.values }}
+  values:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.addons.istioOscalController.valuesFrom }}
+  valuesFrom:
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}
