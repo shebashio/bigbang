@@ -17,6 +17,10 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+gateway:
+  domain: {{ .Values.domain }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 {{- end -}}
+
