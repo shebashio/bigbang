@@ -21,45 +21,46 @@ An SRE with a reasonable amount of experience operating in a command line enviro
 
 Run the following commands in your terminal to download the quickstart script, which you will use in the next step:
 
-```
-export REGISTRY1_USERNAME=YOUR_REGISTRY1_USERNAME
-export REGISTRY1_TOKEN=YOUR_REGISTRY1_TOKEN
-export REPO1_LOCATION=LOCATION_ON_FILESYSTEM_TO_CHECK_OUT_BIGBANG_CODE
+```shell
+export REGISTRY1_USERNAME=[YOUR_REGISTRY1_USERNAME]
+export REGISTRY1_TOKEN=[YOUR_REGISTRY1_TOKEN]
+export REPO1_LOCATION=[LOCAL_FILE_PATH_TO_USE_FOR_BIGBANG_REPOS]
 
 curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/docs/assets/scripts/quickstart.sh?ref_type=heads
 ```
 
 #### Using a VM or other hardware you built yourself
 
-1. Spin up an Ubuntu VM somewhere with 8 CPUs and 32gB of RAM. Make sure you can SSH to it. It doesn't matter what cloud provider you're using, it can even be on your local system if you have enough horsepower for it. 
+1. Spin up an Ubuntu VM somewhere with at least 8 CPUs and 32gB of RAM. Make sure you can SSH to it. It doesn't matter what cloud provider you're using, it can even be on your local system if you have enough horsepower for it. 
 1. Run the following command in your command terminal:
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH]
 ```
 
 #### Using Amazon Web Services
 
 1. If your system is already configured to use AWS via the `aws-cli` and you don't want to go to the trouble of building your own VM, the quickstart can attempt to do it for you; simply run the quickstart with no arguments. Pay attention to the script output; the IP addresses of the created AWS EC2 instance will be printed after the cluster is built and before big bang is deployed. You may need these later.
-    1. The quickstart is only so smart, and AWS environments can vary greatly. If the quickstart is not able to build an EC2 instance in AWS for you, please go build an EC2 instance suitable for your use case, then come back and follow the instructions for "Using a VM or other hardware you built yourself".
 1. Run the following commands in your command terminal:
 
-```
+```shell
 bash quickstart.sh
 ```
 
-### It's thinking
+Note, the quickstart is only so smart, and AWS environments can vary greatly. If the quickstart is not able to build an EC2 instance in AWS for you, please go build an EC2 instance suitable for your use case, then come back and follow the instructions for "Using a VM or other hardware you built yourself".
 
-The process takes about 45 minutes. Make a sandwich, go for a walk, play with the dog. Check on it every 10 minutes or so. Once the command finishes, your cluster should be ready to use. Proceed to fix your DNS and access your big bang installation.
+### It's Thinking
 
-If it seems like it's taking too long, the script will tell you what it's currently waiting on. The most frequent cause of long delays is slow connection between your cluster and registry1. All container images are fetched from registry1, so if your cluster is running on a slow internet uplink, this process can take a long time the first time bigbang is deployed. If your helmreleases say `PodInitializing` or `ContainerInitializing` or `Init:2/3` for a long time, this is usually the cause. There's not much cure for this but patience. Try contemplating the nature of the universe, marvel at the fact that object oriented COBOL exists in `current year`, or peruse the Commander's reading list.
+The process takes about 45 minutes. Make a sandwich, go for a walk, play with the dog. Check on it every 10 minutes or so. Once the command finishes, your cluster should be ready to use. Proceed to update your DNS and access your Big Bang installation.
 
-Eventually the bigbang release process will finish, and you'll see output like this:
+If it seems like it's taking too long, the script will tell you what it's currently waiting on. The most frequent cause of long delays is slow connection between your cluster and RegistryOne. All container images are fetched from RegistryOne, so if your cluster is running on a slow internet uplink, this process can take a long time the first time Big Bang is deployed. If your helmreleases say `PodInitializing` or `ContainerInitializing` or `Init:2/3` for a long time, this is usually the cause. There's not much cure for this but patience. Try contemplating the nature of the universe, marvel at the fact that object oriented COBOL exists in `current year`, or peruse the Commander's reading list.
 
-```
+Eventually the Big Bang release process will finish, and you'll see output like this:
+
+```shell
 ==================================================================================
                           INSTALLATION   COMPLETE
 
@@ -81,7 +82,7 @@ Congratulations, it's ready!
 
 ### What Just Happened? In Detail
 
-The quickstart.sh script performs several actions:
+The `quickstart.sh` script performs several actions:
 
 1. Checks your system to make sure the prerequisites we talked about are present
 1. If you're an AWS Cloud user who didn't provide `-H`, `-K`, and `-U` settings, attempts to build an EC2 instance suitable for use as a Big Bang cluster inside the default VPC in your configured AWS account and region
@@ -95,9 +96,9 @@ The quickstart.sh script performs several actions:
 1. Installs the Big Bang umbrella chart into your k3d cluster
 1. Waits for Big Bang to completely deploy, which may take a significant amount of time
 
-### Fix DNS to access the services in your browser
+### Update DNS to Access the Services in Your Browser
 
-You can now access your bigbang kubernetes cluster from the command line using `kubectl`, but you will need to perform one extra step to easily access bigbang services in your web browser. You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was included in the final message of the quickstart, but here are the instructions again.
+You can now access your bigbang kubernetes cluster from the command line using `kubectl`, but you will need to perform one extra step to easily access bigbang services in your web browser. You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was referenced in the final message of the quickstart, but here are the full instructions.
 
 **Remember to un-do this step when you are done experimenting with the bigbang quickstart.**
 
@@ -106,7 +107,7 @@ You can now access your bigbang kubernetes cluster from the command line using `
 Run this command in your terminal:
 
 ```shell
-echo YOUR_VM_IP       $(kubectl get virtualservices -A -o json | jq -r .items[].spec.hosts[0] | tr "\n" "\t") | sudo tee -a /etc/hosts
+echo [YOUR_VM_IP]       $(kubectl get virtualservices -A -o json | jq -r .items[].spec.hosts[0] | tr "\n" "\t") | sudo tee -a /etc/hosts
 ```
 
 #### Windows Users
@@ -114,7 +115,7 @@ echo YOUR_VM_IP       $(kubectl get virtualservices -A -o json | jq -r .items[].
 Run this command in your bash terminal, and copy the output to your clipboard.
 
 ```shell
-echo YOUR_VM_IP       $(kubectl get virtualservices -A -o json | jq -r .items[].spec.hosts[0] | tr "\n" "\t")
+echo [YOUR_VM_IP]       $(kubectl get virtualservices -A -o json | jq -r .items[].spec.hosts[0] | tr "\n" "\t")
 ```
 
 1. Right click Notepad -> Run as Administrator
@@ -130,7 +131,7 @@ Note, default credentials for Big Bang packages can be found [here](../using-big
 
 ### Tinker With It
 
-You can use the quickstart script to update your bigbang quickstart deployment with your own modifications. Here's an example of post deployment customization of Big Bang.  After looking at <https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml>, you can see that this will enable the ArgoCD addon, which is not enabled by default.
+You can use the `quickstart.sh` script to update your Big Bang quickstart deployment with your own modifications. Here's an example of post deployment customization of Big Bang. After looking at <https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml>, you can see that this will enable the ArgoCD addon, which is not enabled by default.
 
 ```shell
 # [ubuntu@Ubuntu_VM:~]
@@ -142,37 +143,37 @@ addons:
 EOF
 ```
 
-Now we redeploy using the same command as before, but adding some additional options to point to the tinkering.yaml file we just created.
+Now we redeploy using the same command as before, but adding some additional options to point to the `tinkering.yaml` file we just created.
 
 If you're deploying your own infrastructure:
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH \
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH] \
   --deploy \
   -- -f ${HOME}/tinkering.yaml
 ```
 
 If you're using the script to provision your own infrastructure on AWS:
 
-```
+```shell
 bash quickstart.sh --deploy -- -f ${HOME}/tinkering.yaml
 ```
 
-You will see the same kind of output as before, with the big bang release being updated, and the script waiting for all releases to be present.
+You will see the same kind of output as before, with the Big Bang release being updated, and the script waiting for all releases to be present.
 
 Now you should be able to see the ArgoCD virtual service:
 
-```
+```shell
 kubectl get vs -A
 kubectl get po -n=argocd
 ```
 
 ... And you can update your hosts file from the previous step to include the ArgoCD address from the virtualservice, and view it in your browser.
 
-### Implementing Mission Applications within your bigbang environment
+### Implementing Mission Applications within Your Big Bang Environment
 
 Big Bang by itself serves as a jumping off point, but many users will want to implement their own mission specific applications in to the cluster. BigBang has implemented a `packages:` and `wrapper:`  section to enable and support this in a way that ensures connectivity between your mission specific requirements and existing BigBang utilities, such as istio, the monitoring stack, and network policy management. [Here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/guides/deployment-scenarios/extra-package-deployment.md) is the documentation for the `packages` utility.
 
@@ -269,24 +270,24 @@ EOF
 
 If you're deploying on your own infrastructure:
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH \
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH] \
   --deploy \
   -- -f $HOME/podinfo_wrapper.yaml
 ```
 
 If you're using the script to provision your own infrastructure on AWS:
 
-```
+```shell
 bash quickstart.sh --deploy -- -f $HOME/podinfo_wrapper.yaml
 ```
 
 Now missionapp should show up, if it doesn't wait a minute and rerun the command
 
-```
+```shell
 kubectl get vs -A
 
 kubectl get po -n=missionapp
@@ -323,9 +324,9 @@ Additionally, if your network has a proxy that has custom/internal SSL certifica
 
 ## Important Background Contextual Information
 
-`BLUF:` This quick start guide optimizes the speed at which a demonstrable and tinker-able deployment of Big Bang can be achieved by minimizing prerequisite dependencies and substituting them with quickly implementable alternatives. Refer to the [Customer Template Repo](https://repo1.dso.mil/big-bang/customers/template) for guidance on production deployments.
+**BLUF:** This quick start guide optimizes the speed at which a demonstrable and tinker-able deployment of Big Bang can be achieved by minimizing prerequisite dependencies and substituting them with quickly implementable alternatives. Refer to the [Customer Template Repo](https://repo1.dso.mil/big-bang/customers/template) for guidance on production deployments.
 
-`Details of how each prerequisite/dependency is quickly satisfied:`  
+Here's how each prerequisite/dependency is quickly satisfied:
 
 * **Operating System Prerequisite:** Ubuntu is presumed by the guide and all supporting scripts. Any linux distribution that supports Docker can be made to run k3d or kubernetes, but this guide presumes Ubuntu for the sake of efficiency.
 * **Operating System Pre-configuration:** This quick start includes easy paste-able commands to quickly satisfy this prerequisite.
@@ -336,13 +337,12 @@ Additionally, if your network has a proxy that has custom/internal SSL certifica
   * Multiple Ingress Gateways makes a demoable/tinkerable KeyCloak and locally hosted SSO deployment much easier.
   * Multiple Ingress Gateways can be demoed on k3d if configuration tweaks are made, MetalLB is used, and you are developing using a local Linux Desktop. (network connectivity limitations of the implementation would only allow a the web browser on the k3d host server to see the webpages.)
   * If you want to easily demo and tinker with Multiple Ingress Gateways and Keycloak, then MetalLB + k3s (or another non-Dockerized Kubernetes distribution) would be a happy path to look into. (or alternatively create an issue ticket requesting prioritization of a keycloak quick start or better yet a Merge Request.)
-* Access to Container Images Prerequisite is satisfied by using personal image pull credentials and internet connectivity to <https://registry1.dso.mil>
-* Customer Controlled Private Git Repo Prerequisite isn't required due to substituting declarative git ops installation of the Big Bang Helm chart with an imperative helm cli based installation.
-* Encrypting Secrets as code Prerequisite is substituted with clear text secrets on your local machine.
-* Installing and Configuring Flux Prerequisite: Not using GitOps for the quick start eliminates the need to configure flux, and installation is covered within this guide.
-* HTTPS Certificate and hostname configuration Prerequisites: Are satisfied by leveraging default hostname values and the demo HTTPS wildcard certificate that's uploaded to the Big Bang repo, which is valid for *.bigbang.dev, *.admin.bigbang.dev, and a few others. The demo HTTPS wildcard certificate is signed by the Lets Encrypt Free, a Certificate Authority trusted on the public internet, so demo sites like grafana.bigbang.dev will show a trusted HTTPS certificate.
-* DNS Prerequisite: is substituted by making use of your workstation's Hosts file.
-
+* **Access to Container Images Prerequisite** is satisfied by using personal image pull credentials and internet connectivity to <https://registry1.dso.mil>
+* **Customer Controlled Private Git Repo Prerequisite** isn't required due to substituting declarative git ops installation of the Big Bang Helm chart with an imperative helm cli based installation.
+* **Encrypting Secrets as Code Prerequisite** is substituted with clear text secrets on your local machine.
+* **Installing and Configuring Flux Prerequisite:** Not using GitOps for the quick start eliminates the need to configure flux, and installation is covered within this guide.
+* **HTTPS Certificate and Hostname Configuration Prerequisites:** Are satisfied by leveraging default hostname values and the demo HTTPS wildcard certificate that's uploaded to the Big Bang repo, which is valid for *.bigbang.dev, *.admin.bigbang.dev, and a few others. The demo HTTPS wildcard certificate is signed by the Lets Encrypt Free, a Certificate Authority trusted on the public internet, so demo sites like grafana.bigbang.dev will show a trusted HTTPS certificate.
+* **DNS Prerequisite:** is substituted by making use of your workstation's Hosts file.
 ## Troubleshooting
 This section will provide guidance for troubleshooting problems that may occur during your Big Bang installation and instructions for additional configuration changes that may be required in restricted networks. 
 
@@ -352,17 +352,17 @@ Sometimes you will see Read API failures and connection failures immediately aft
 
 If you're deploying your own infrastructure:
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH \
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH] \
   --deploy
 ```
 
 If you're using the script to provision your own infrastructure on AWS:
 
-```
+```shell
 bash quickstart.sh --deploy
 ```
 
@@ -372,17 +372,17 @@ If you see errors that talk about something timing out while waiting for conditi
 
 If you're deploying your own infrastructure:
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH \
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH] \
   --wait
 ```
 
 If you're using the script to provision your own infrastructure on AWS:
 
-```
+```shell
 bash quickstart.sh --wait
 ```
 
@@ -463,12 +463,12 @@ sudo sysctl fs.inotify.max_user_watches=501208
 
 As one option to provide IP to the istio-system/public-ingressgateway, metallb can be run. The following steps will demonstrate a standard configuration.
 
-```
-bash quickstart.sh
-  -H YOUR_VM_IP \
-  -U YOUR_VM_SSH_USERNAME \
-  -K YOUR_VM_SSH_KEY_FILE_PATH \
-  -R LOCATION_ON_FILESYSTEM_TO_CHECK_OUT_BIGBANG_CODE \
+```shell
+bash quickstart.sh \
+  -H [YOUR_VM_IP] \
+  -U [YOUR_VM_SSH_USERNAME] \
+  -K [YOUR_VM_SSH_KEY_FILE_PATH] \
+  -R [LOCATION_ON_FILESYSTEM_TO_CHECK_OUT_BIGBANG_CODE] \
   -m
 ```
 
