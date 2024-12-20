@@ -5,6 +5,7 @@
 
 {{- define "bigbang.defaults.mimir" -}}
 {{- $minioEnabled := (.Values.addons.mimir.minio.enabled) }}
+{{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -32,7 +33,7 @@ mimir-distributed:
   {{- if $minioEnabled }}
   mimir:
     structuredConfig:
-    {{- if index .Values.addons.mimir.values "mimir-distributed" "enterprise" "enabled" }}
+    {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
       s3:
@@ -42,16 +43,20 @@ mimir-distributed:
         backend: s3
         s3:
           bucket_name: mimir-ruler
+        filesystem: null
       blocks_storage:
         backend: s3
         s3:
           bucket_name: mimir-tsdb
+        filesystem: null
       ruler_storage:
         backend: s3
         s3:
           bucket_name: mimir-ruler
+        filesystem: null
       common:
         storage:
+          filesystem: null
           backend: s3
           s3:
             bucket_name: mimir

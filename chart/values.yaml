@@ -2115,8 +2115,12 @@ addons:
   mimir:
     # -- Toggle deployment of Mimir
     enabled: true
-    
-    # -- Enable Big Bang MinIO for Mimir
+ 
+    # -- Enable Mimir Enterprise
+    enterprise:
+      enabled: false
+
+    # -- Enable Big Bang MinIO dependency chart for Mimir
     minio:
       enabled: false
 
