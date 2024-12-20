@@ -299,6 +299,13 @@ policies:
       - resources:
           namespaces:
           - kube-system
+      {{ if .Values.istio3.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - istiod*
+      {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods.
