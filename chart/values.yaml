@@ -878,7 +878,8 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "62.4.0-bb.1"
+    # tag: "62.4.0-bb.1"
+    branch: renovate/ironbank
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
