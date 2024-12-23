@@ -16,7 +16,7 @@ image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.kiali.values)
@@ -26,14 +26,12 @@ istio:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
     gateways:
+    {{- if .Values.istio3.enabled }}
     - istio-gateway/{{ default "istio-gateway-public-ingressgateway" .Values.kiali.ingress.gateway }}
-    #- istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
-
-istio3:
-  enabled: {{ .Values.istio3.enabled }}
-  kiali:
-    gateways:
-    - istio-gateway/istio-gateway-public-ingressgateway #{{ default "ingress" .Values.kiali.ingress.gateway }}
+    {{- end }}
+    {{- if .Values.istio.enabled }}
+    - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
+    {{- end }}
 
 {{- if or .Values.istio.enabled .Values.istio3.enabled }}
 podAnnotations:
