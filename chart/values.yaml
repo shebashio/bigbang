@@ -183,6 +183,7 @@ istio3:
       pilot:
         env:
           ENABLE_NATIVE_SIDECARS: 'true'
+          K8S_INGRESS_NS: 'istio-gateway'
     # # enable Tetrate FIPS compliant Istio images
     # defaults:
     #   global:
