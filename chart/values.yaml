@@ -2115,14 +2115,6 @@ addons:
   mimir:
     # -- Toggle deployment of Mimir
     enabled: true
- 
-    # -- Enable Mimir Enterprise
-    enterprise:
-      enabled: false
-
-    # -- Enable Big Bang MinIO dependency chart for Mimir
-    minio:
-      enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -2132,6 +2124,22 @@ addons:
       tag: null
       branch: main
       path: "./chart"
+
+    # -- Enable Mimir Enterprise
+    enterprise:
+      enabled: false
+
+    # -- Enable Big Bang MinIO dependency chart for Mimir
+    minioObjectStorage:
+      enabled: false
+      # -- MinIO root credentials
+      configSecret:
+        accessKey: "minio"
+        secretKey: "minio123" # default key, change this!
+      # Configures the Big Bang MinIO Tenant User Credentials
+      defaultUserCredentials:
+        username: "mimir-user"
+        password: "supersecret"
 
     values: {}
 

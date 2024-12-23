@@ -4,7 +4,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
-{{- $minioEnabled := (.Values.addons.mimir.minio.enabled) }}
+{{- $minioEnabled := (.Values.addons.mimir.minioObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -26,6 +26,18 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
       (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
     }}
+
+{{- if $minioEnabled }}
+minio-tenant: 
+  enabled: true
+  tenant:
+    configSecret:
+      accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
+      secretKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
+    defaultUserCredentials:
+        username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
+        password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
+{{- end }}
 
 mimir-distributed:
   query_scheduler:
@@ -59,12 +71,9 @@ mimir-distributed:
           filesystem: null
           backend: s3
           s3:
-            bucket_name: mimir
-            # This should be the same as the generated credentials for miniobb.defaultUserCredentials.username below
-            access_key_id: mimir-user
+            access_key_id: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
             endpoint: minio.mimir.svc.cluster.local
             insecure: true
-            # This should be the same as the generated credentials for miniobb.defaultUserCredentials.password below
-            secret_access_key: supersecret
+            secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
     {{- end }}
 {{- end }}
