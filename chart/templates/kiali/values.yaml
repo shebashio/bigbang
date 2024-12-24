@@ -154,7 +154,13 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
+    {{- if .Values.istio.enabled }}
     {{- $gateway := default "public" .Values.kiali.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
+    app: istio-gateway-public-ingressgateway
+    istio: gateway-public-ingressgateway
+    {{- end }}
 {{- end -}}
