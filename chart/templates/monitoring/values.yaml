@@ -23,9 +23,15 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
+    {{- if .Values.istio.enabled }}
     {{- $gateway := default "public" .Values.monitoring.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
+    app: istio-gateway-public-ingressgateway
+    istio: gateway-public-ingressgateway
+    {{- end }}
 
 openshift: {{ .Values.openshift }}
 
@@ -107,7 +113,7 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  {{- if and (or .Values.istio.enabled .Values.istio3.enabled) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
@@ -138,7 +144,7 @@ prometheus:
 
   thanosServiceMonitor:
     enabled: true
-    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and (or .Values.istio.enabled .Values.istio3.enabled) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     serviceMonitor:
       scheme: https
       tlsConfig:
@@ -149,7 +155,7 @@ prometheus:
     {{- end }}
   {{- end }}
   prometheusSpec:
-    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and (or .Values.istio.enabled .Values.istio3.enabled) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
     - name: monitoring-monitoring-kube-alertmanager
       namespace: monitoring
