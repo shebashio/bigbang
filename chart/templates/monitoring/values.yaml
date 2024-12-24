@@ -37,7 +37,7 @@ gitlabRunner:
 
 istio:
   {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
