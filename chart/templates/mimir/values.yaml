@@ -62,7 +62,7 @@ mimir-distributed:
   {{- if or $minioEnabled $s3Enabled }}
   mimir:
     structuredConfig:
-    {{- if or $mimirEnterpriseEnabled }}
+    {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
       s3:
@@ -115,6 +115,7 @@ mimir-distributed:
             endpoint: {{ .Values.addons.mimir.s3ObjectStorage.endpoint }}
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.inseucre }}
             secret_access_key: {{ .Values.addons.mimir.s3ObjectStorage.accessSecret }}
+            region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
           {{- end }}
   {{- end }}
 {{- end }}
