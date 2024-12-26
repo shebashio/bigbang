@@ -55,20 +55,16 @@ mimir-distributed:
         backend: s3
         s3:
           bucket_name: mimir-ruler
-        filesystem: null
       blocks_storage:
         backend: s3
         s3:
           bucket_name: mimir-tsdb
-        filesystem: null
       ruler_storage:
         backend: s3
         s3:
           bucket_name: mimir-ruler
-        filesystem: null
       common:
         storage:
-          filesystem: null
           backend: s3
           s3:
             access_key_id: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
