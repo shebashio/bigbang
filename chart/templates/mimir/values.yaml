@@ -80,7 +80,6 @@ mimir-distributed:
           {{- else }}
           bucket_name: mimir-ruler
           {{- end }}
-        filesystem: null
       blocks_storage:
         backend: s3
         s3:
@@ -89,7 +88,6 @@ mimir-distributed:
           {{- else }}
           bucket_name: mimir-tsdb
           {{- end }}
-        filesystem: null
       ruler_storage:
         backend: s3
         s3:
@@ -98,10 +96,8 @@ mimir-distributed:
           {{- else }}
           bucket_name: mimir-ruler
           {{- end }}
-        filesystem: null
       common:
         storage:
-          filesystem: null
           backend: s3
           s3:
           {{- if $minioEnabled }}
