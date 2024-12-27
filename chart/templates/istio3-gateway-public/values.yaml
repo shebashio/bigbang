@@ -20,6 +20,9 @@ networkPolicies:
 gateway:
   domain: {{ .Values.domain }}
 
+labels:
+  istio: ingressgateway
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 {{- end -}}

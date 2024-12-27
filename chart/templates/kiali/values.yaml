@@ -48,6 +48,9 @@ elasticsearch:
   enabled: {{ .Values.elasticsearchKibana.enabled }}
 cr:
   spec:
+    {{- if .Values.istio3.enabled }}
+    istio_namespace: istio-system,istio-gateway
+    {{- end}}
     deployment:
       image_pull_policy: {{ .Values.imagePullPolicy }}
       {{- if or .Values.istio.enabled .Values.istio3.enabled }}
