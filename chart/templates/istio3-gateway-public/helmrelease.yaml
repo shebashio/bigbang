@@ -67,4 +67,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ $.Release.Namespace }}
     {{- end }}
+    {{- if $.Values.istioGatewayPassthrough.enabled }}
+    - name: passthrough-ingressgateway
+      namespace: {{ $.Release.Namespace }}
+    {{- end }}
 {{- end }}
