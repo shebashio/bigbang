@@ -17,7 +17,7 @@ metadata:
   name: istio-gateway
   labels:
     istio-gateway-managed: Reconcile
-    istio-injection: disabled
+    istio-injection: enabled
     app.kubernetes.io/name: istio-gateway
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}

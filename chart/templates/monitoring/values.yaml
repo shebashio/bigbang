@@ -29,8 +29,8 @@ networkPolicies:
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
     {{- end }}
     {{- if .Values.istio3.enabled }}
-    app: istio-gateway-public-ingressgateway
-    istio: gateway-public-ingressgateway
+    app: public-ingressgateway
+    istio: ingressgateway
     {{- end }}
 
 openshift: {{ .Values.openshift }}

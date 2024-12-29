@@ -27,7 +27,7 @@ istio:
   kiali:
     gateways:
     {{- if .Values.istio3.enabled }}
-    - istio-gateway/{{ default "istio-gateway-public-ingressgateway" .Values.kiali.ingress.gateway }}
+    - istio-gateway/{{ default "public-ingressgateway" .Values.kiali.ingress.gateway }}
     {{- end }}
     {{- if .Values.istio.enabled }}
     - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}

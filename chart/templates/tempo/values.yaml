@@ -53,9 +53,15 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
+    {{- if .Values.istio.enabled }}
     {{- $gateway := default "public" .Values.tempo.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
+    app: public-ingressgateway
+    istio: ingressgateway
+    {{- end }}
 
 istio:
   enabled: {{ .Values.istio.enabled }}
@@ -71,7 +77,12 @@ istio:
       - "tempo.{{ .Values.domain }}"
     {{- end }}
     gateways:
+    {{- if .Values.istio3.enabled }}
+    - istio-gateway/{{ default "public-ingressgateway" .Values.tempo.ingress.gateway }}
+    {{- end }}
+    {{- if .Values.istio.enabled }}
     - istio-system/{{ default "public" .Values.tempo.ingress.gateway }}
+    {{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
