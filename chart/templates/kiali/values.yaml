@@ -26,7 +26,7 @@ istio:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default {{ include "istioGatewayName" . }} .Values.kiali.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.kiali.ingress.gateway }}
 
 {{- if or .Values.istio.enabled .Values.istio3.enabled }}
 podAnnotations:

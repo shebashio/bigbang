@@ -53,7 +53,7 @@ istio:
     }}
   console:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.minio.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.addons.minio.ingress.gateway }}
 
 {{- if .Values.istio.enabled }}
 annotations:

@@ -8,7 +8,7 @@
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") .Values.istio.enabled) }}
+{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") ( or .Values.istio.enabled .Values.istio3.enabled )) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
@@ -77,7 +77,7 @@ istio:
     namespace: authservice
     {{- end }}
     gateways:
-    - istio-system/{{ default "public" .Values.monitoring.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.monitoring.ingress.gateway }}
   alertmanager:
     enabled: true
     {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
@@ -86,7 +86,7 @@ istio:
     namespace: authservice
     {{- end }}
     gateways:
-    - istio-system/{{ default "public" .Values.monitoring.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.monitoring.ingress.gateway }}
   injection: {{ dig "istio" "injection" "enabled" .Values.monitoring }}
 
 alertmanager:
