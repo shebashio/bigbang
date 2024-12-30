@@ -134,6 +134,10 @@ cr:
               is_proxy: true
               namespace: istio-gateway
             {{- end }}
+        {{- if .Values.istio3.enabled }}
+        ingress_gateway_namespace: istio-gateway
+        egress_gateway_namespace: istio-gateway
+        {{- end }}
     api:
       namespaces:
         # bigbang watches all!
