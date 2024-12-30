@@ -49,7 +49,7 @@ mimir-distributed:
       admin_client:
       backend: s3
       s3:
-        bucket_name: enterprise-metrics-admin
+        bucket_name: mimir
     {{- end }}
       alertmanager_storage:
         backend: s3
