@@ -26,12 +26,7 @@ istio:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
     gateways:
-    {{- if .Values.istio3.enabled }}
-    - istio-gateway/{{ default "public-ingressgateway" .Values.kiali.ingress.gateway }}
-    {{- end }}
-    {{- if .Values.istio.enabled }}
-    - istio-system/{{ default "public" .Values.kiali.ingress.gateway }}
-    {{- end }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default {{ include "istioGatewayName" . }} .Values.kiali.ingress.gateway }}
 
 {{- if or .Values.istio.enabled .Values.istio3.enabled }}
 podAnnotations:

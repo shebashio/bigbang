@@ -437,3 +437,21 @@ data:
     {{- end -}}
   {{- end -}}
 {{- end -}}
+
+{{- /* Returns namespace of istio gateways */ -}}
+{{- define "istioGatewayNamespace" -}}
+{{- if .Values.istio.enabled }}
+  {{ print "istio-system" }}
+{{- else }}
+  {{ print "istio-gateway" }}
+{{- end }}
+{{- end -}}
+
+{{- /* Returns name of istio public gateway */ -}}
+{{- define "istioGatewayName" -}}
+{{- if .Values.istio.enabled }}
+  {{ print "public" }}
+{{- else }}
+  {{ print "public-ingress" }}
+{{- end }}
+{{- end -}}
