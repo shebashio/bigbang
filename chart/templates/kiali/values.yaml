@@ -49,7 +49,7 @@ elasticsearch:
 cr:
   spec:
     {{- if .Values.istio3.enabled }}
-    istio_namespace: istio-system,istio-gateway
+    istio_namespace: istio-system
     {{- end}}
     deployment:
       image_pull_policy: {{ .Values.imagePullPolicy }}
@@ -105,7 +105,6 @@ cr:
         {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
         url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
         {{- end }}
-      {{- if or .Values.istio.enabled .Values.istio3.enabled}}
       istio:
         component_status:
           components:
@@ -128,17 +127,20 @@ cr:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if .Values.istioGatewayPassthrough.enabled }}
-            - app_label: istio-gateway-passthrough-ingressgateway
-              is_core: true
-              is_proxy: true
-            {{- end }}
             {{- if .Values.istioGatewayPublic.enabled }}
             - app_label: public-ingressgateway
               is_core: true
               is_proxy: true
             {{- end }}
-      {{- end }}
+            {{- if .Values.istioGatewayPassthrough.enabled }}
+            - app_label: istio-gateway-passthrough-ingressgateway
+              is_core: true
+              is_proxy: true
+            {{- end }}
+        {{- if .Values.istio3.enabled }}
+        ingress_gateway_namespace: istio-gateway
+        egress_gateway_namespace: istio-gateway
+        {{- end }}
     api:
       namespaces:
         # bigbang watches all!
@@ -153,7 +155,7 @@ networkPolicies:
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
     {{- end }}
     {{- if .Values.istio3.enabled }}
-    app: istio-gateway-public-ingressgateway
-    istio: gateway-public-ingressgateway
+    app: public-ingressgateway
+    istio: ingressgateway
     {{- end }}
 {{- end -}}

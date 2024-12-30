@@ -48,7 +48,12 @@ istio:
   grafana:
     enabled: true
     gateways:
+    {{- if .Values.istio.enabled }}
     - istio-system/{{ default "public" .Values.grafana.ingress.gateway }}
+    {{- end }}
+    {{- if .Values.istio3.enabled }}
+    - istio-gateway/{{ default "public-ingressgateway" .Values.grafana.ingress.gateway }}
+    {{- end }}
   injection: {{ dig "istio" "injection" "enabled" .Values.grafana }}
 
 anchore:
