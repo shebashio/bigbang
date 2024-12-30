@@ -71,9 +71,10 @@ Storage[("Object Storage (S3)")]
 
 ### Multitenancy
 
-While multitenancy is one of Mimir's standout features compared to other long-term
-prometheus storage options, no tenancy decisions are made by Big Bang. All metrics
-consumed by Mimir by default in Big Bang belong to the "anonymous" tenant.
+While multitenancy is one of Mimir's standout features compared to other
+long-term prometheus storage options, no tenancy decisions are made by Big Bang.
+All metrics consumed by Mimir by default in Big Bang belong to the "anonymous"
+tenant.
 
 ## Big Bang Touchpoints
 
@@ -84,16 +85,17 @@ Grafana Mimir is open-source,
 
 ### UI
 
-While Mimir is a promtheus-compatible storage backend, it does not expose the prometheus
-UI. It is expected that Mimir will be consumed entirely via its API. Prometheus does
-have an administrative interface that is useful for debugging and diagnostics, but
-the Big Bang team does not expose this by default.
+While Mimir is a promtheus-compatible storage backend, it does not expose the
+prometheus UI. It is expected that Mimir will be consumed entirely via its API.
+Prometheus does have an administrative interface that is useful for debugging
+and diagnostics, but the Big Bang team does not expose this by default.
 
 ### Storage
 
-Mimir is designed to work with an external S3-compatible object storage service. It
-can function by writing metrics to disk directly and is configured to do so in Big
-Bang when Minio is not enabled and no other object storage configuration is provided.
+Mimir is designed to work with an external S3-compatible object storage service.
+It can function by writing metrics to disk directly and is configured to do so
+in Big Bang when Minio is not enabled and no other object storage configuration
+is provided.
 
 ### Logging
 
@@ -102,17 +104,19 @@ logging collector configured within the cluster.
 
 ### High Availability
 
-Grafana Mimir is only community supported in a highly-scalable microservice-based
-deployment mode. The Big Bang team makes no assumptions about the consumer's scaling
-needs and leave the exact scaling configuration necessary for a performant deployment
-up to the Big Bang consumer. By default, the components are deployed with at least n+1
-availability.
+Grafana Mimir is only community supported in a highly-scalable
+microservice-based deployment mode. The Big Bang team makes no assumptions about
+the consumer's scaling needs and leave the exact scaling configuration necessary
+for a performant deployment up to the Big Bang consumer. By default, the
+components are deployed with at least n+1 availability.
 
-Grafana publishes [a guide](https://grafana.com/docs/mimir/latest/manage/run-production-environment/planning-capacity/)
-for Mimir capacity planning that can be helpful when performing scaling configuration.
+Grafana publishes
+[a guide](https://grafana.com/docs/mimir/latest/manage/run-production-environment/planning-capacity/)
+for Mimir capacity planning that can be helpful when performing scaling
+configuration.
 
 ### Health Checks
 
 Grafana Mimir is configured with standard liveness and readiness probes. In
-addition to the health of Mimir itself, cluster administrators can port-forward the
-admin UI to get an overall view of cluster and gossip ring health.
+addition to the health of Mimir itself, cluster administrators can port-forward
+the admin UI to get an overall view of cluster and gossip ring health.
