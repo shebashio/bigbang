@@ -105,13 +105,14 @@ cr:
         {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
         url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
         {{- end }}
-      {{- if .Values.istio.enabled }}
+      {{- if or .Values.istio.enabled .Values.istio3.enabled}}
       istio:
         component_status:
           components:
             - app_label: istiod
               is_core: true
               is_proxy: false
+            {{- if .Values.istio.enabled }}
             {{- range $name, $values := .Values.istio.ingressGateways }}
             {{ if ne $values.enabled false }}
             - app_label: {{ $name }}
@@ -126,27 +127,16 @@ cr:
               is_proxy: true
             {{- end }}
             {{- end }}
-      {{- end }}
-      {{- if .Values.istio3.enabled }}
-      istio3:
-        component_status:
-          components:
-            - app_label: istiod
-              is_core: true
-              is_proxy: false
-            {{- range $name, $values := .Values.istio3.gateways }}
-            {{ if ne $values.enabled false }}
-            - app_label: istio-gateway-public-ingressgateway #{{ $name }}
+            {{- end }}
+            {{- if .Values.istioGatewayPassthrough.enabled }}
+            - app_label: istio-gateway-passthrough-ingressgateway
               is_core: true
               is_proxy: true
             {{- end }}
-            {{- end }}
-            {{- range $name, $values := .Values.istio3.values.gateways }}
-            {{ if ne $values.enabled false }}
-            - app_label: istio-gateway-public-ingressgateway #{{ $name }}
+            {{- if .Values.istioGatewayPublic.enabled }}
+            - app_label: public-ingressgateway
               is_core: true
               is_proxy: true
-            {{- end }}
             {{- end }}
       {{- end }}
     api:
