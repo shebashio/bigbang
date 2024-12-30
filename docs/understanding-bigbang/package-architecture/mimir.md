@@ -87,7 +87,7 @@ Grafana Mimir is open-source,
 
 While Mimir is a promtheus-compatible storage backend, it does not expose the
 prometheus UI. It is expected that Mimir will be consumed entirely via its API.
-Prometheus does have an administrative interface that is useful for debugging
+Mimir does have an administrative interface that is useful for debugging
 and diagnostics, but the Big Bang team does not expose this by default.
 
 ### Storage
