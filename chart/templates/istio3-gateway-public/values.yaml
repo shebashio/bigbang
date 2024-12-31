@@ -17,13 +17,29 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-gateway:
-  domain: {{ .Values.domain }}
-
 labels:
   istio: ingressgateway
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
-{{- end -}}
 
+gateway:
+  servers:
+  - hosts:
+    - '*.{{ .Values.domain }}'
+    port:
+      name: http
+      number: 8080
+      protocol: HTTP
+    tls:
+      httpsRedirect: true
+  - hosts:
+    - '*.{{ .Values.domain }}'
+    port:
+      name: https
+      number: 8443
+      protocol: HTTPS
+    tls:
+      credentialName: public-cert
+      mode: SIMPLE
+{{- end -}}

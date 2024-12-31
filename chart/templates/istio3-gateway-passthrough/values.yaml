@@ -17,9 +17,25 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-gateway:
-  domain: {{ .Values.domain }}
-
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
+
+gateway:
+  servers:
+  - hosts:
+    - '*.{{ .Values.domain }}'
+    port:
+      name: http
+      number: 8080
+      protocol: HTTP
+    tls:
+      httpsRedirect: true
+  - hosts:
+    - '*.{{ .Values.domain }}'
+    port:
+      name: https
+      number: 8443
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH
 {{- end -}}
