@@ -1885,7 +1885,6 @@ addons:
             capabilities:
               drop:
               - ALL
-
       bbtests:
         # There have been intermittent failures of the tests in the past.   The issue is tracked in the below issue.
         # https://repo1.dso.mil/big-bang/product/packages/minio/-/issues/7
@@ -1898,6 +1897,11 @@ addons:
           envs:
             MINIO_PORT: ''
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
+
+  mimir:
+    enabled: false
+    minioObjectStorage:
+      enabled: true
 
   mattermostOperator:
     enabled: false
