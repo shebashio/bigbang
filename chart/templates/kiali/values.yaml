@@ -93,10 +93,11 @@ cr:
         {{- if and $tempoQueryEnabled (not .Values.jaeger.enabled) }}
         in_cluster_url: "http://tempo-tempo.tempo.svc.cluster.local:16686"
         {{- $tracingUrl := first (dig "istio" "tempoQuery" "hosts" list .Values.tempo.values) }}
+        url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
         {{- else}}
         {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
-        {{- end }}
         url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
+        {{- end }}
       istio:
         component_status:
           components:
