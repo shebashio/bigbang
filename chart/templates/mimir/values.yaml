@@ -84,7 +84,7 @@ mimir-distributed:
             {{- if $s3Enabled }}
             access_key_id: {{ .Values.addons.mimir.s3ObjectStorage.accessKey }}
             endpoint: {{ .Values.addons.mimir.s3ObjectStorage.endpoint }}
-            insecure: {{ .Values.addons.mimir.s3ObjectStorage.inseucre }}
+            insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
             secret_access_key: {{ .Values.addons.mimir.s3ObjectStorage.accessSecret }}
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
