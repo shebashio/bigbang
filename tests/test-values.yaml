@@ -984,6 +984,9 @@ tempo:
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   values:
     istio:
       tempoQuery:
@@ -991,6 +994,7 @@ tempo:
           - "tempo.{{ .Values.domain }}"
       enabled: true
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
             enabled: true
