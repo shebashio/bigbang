@@ -2129,7 +2129,7 @@ addons:
     enterprise:
       enabled: false
 
-    # -- Enable Big Bang MinIO dependency chart for Mimir
+   # -- Enable Big Bang MinIO dependency chart for Mimir
     minioObjectStorage:
       enabled: false
       # -- MinIO root credentials
@@ -2140,7 +2140,7 @@ addons:
       defaultUserCredentials:
         username: "mimir-user"
         password: "supersecret"
-
+    
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
       enabled: false
