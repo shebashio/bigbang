@@ -38,12 +38,11 @@ spec:
       interval: 5m
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
-
-  {{- if .Values.addons.alloy.postRenderers }}
   postRenderers:
+  {{- if .Values.addons.alloy.postRenderers }}
   {{ toYaml .Values.addons.alloy.postRenderers | nindent 4 }}
   {{- end }}
-  {{ include "alloy.bigBangPostRenderers" . | nindent 2 }}
+  {{ include "alloy.bigBangPostRenderers" . | nindent 4 }}
   valuesFrom:
     - name: {{ .Release.Name }}-alloy-values
       kind: Secret
