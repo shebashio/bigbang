@@ -1873,9 +1873,12 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: enabled
     minioObjectStorage:
       enabled: true
+    git:
+      tag: null
+      branch: minio-mimir
 
   mattermostOperator:
     enabled: false
