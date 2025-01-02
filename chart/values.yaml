@@ -2158,12 +2158,8 @@ addons:
       # Unencoded string data. This should be placed in the secret values and then encrypted
       accessSecret: ""
 
-      # -- Bucket Names for the Mimir buckets as YAML
-      bucketNames:
-        alertmanager_storage: mimir-ruler
-        blocks_storage: mimir-tsdb
-        ruler_storage: mimir-ruler
-        admin_client: enterprise-metrics-admin
+      # -- Bucket name for the Mimir bucket as YAML
+      bucketName: mimir
       
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false

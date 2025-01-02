@@ -33,9 +33,7 @@ istio:
         enabled: true
         spec:
           hosts:
-          {{- range $key, $value := .Values.addons.mimir.s3ObjectStorage.bucketNames }}
-          - {{(printf "%s.s3.dualstack.%s.amazonaws.com" $value $.Values.addons.mimir.s3ObjectStorage.region) }}
-          {{- end }}
+          - {{(printf "%s.s3.dualstack.%s.amazonaws.com" .Values.addons.mimir.s3ObjectStorage.bucketName .Values.addons.mimir.s3ObjectStorage.region) }}
           location: MESH_EXTERNAL
           ports:
             - number: 443
@@ -67,7 +65,7 @@ mimir-distributed:
       backend: s3
       s3:
         {{- if $s3Enabled }}
-        bucket_name: {{ dig "admin_client" "enterprise-metrics-admin" .Values.addons.mimir.s3ObjectStorage.bucketNames }}
+        bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
         {{- else }}
         bucket_name: enterprise-metrics-admin
         {{- end }}
@@ -76,25 +74,25 @@ mimir-distributed:
         backend: s3
         s3:
           {{- if $s3Enabled }}
-          bucket_name: {{ dig "alertmanager_storage" "mimir-ruler" .Values.addons.mimir.s3ObjectStorage.bucketNames }}
+          bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
           {{- else }}
-          bucket_name: mimir-ruler
+          bucket_name: mimir
           {{- end }}
       blocks_storage:
         backend: s3
         s3:
           {{- if $s3Enabled }}
-          bucket_name: {{ dig "blocks_storage" "mimir-tsdb" .Values.addons.mimir.s3ObjectStorage.bucketNames }}
+          bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
           {{- else }}
-          bucket_name: mimir-tsdb
+          bucket_name: mimir
           {{- end }}
       ruler_storage:
         backend: s3
         s3:
           {{- if $s3Enabled }}
-          bucket_name: {{ dig "ruler_storage" "mimir-ruler" .Values.addons.mimir.s3ObjectStorage.bucketNames }}
+          bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
           {{- else }}
-          bucket_name: mimir-ruler
+          bucket_name: mimir
           {{- end }}
       common:
         storage:
