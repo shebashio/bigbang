@@ -43,6 +43,7 @@ spec:
   postRenderers:
   {{ toYaml .Values.addons.alloy.postRenderers | nindent 4 }}
   {{- end }}
+  {{ include "alloy.bigBangPostRenderers" . | nindent 2 }}
   valuesFrom:
     - name: {{ .Release.Name }}-alloy-values
       kind: Secret
