@@ -791,7 +791,6 @@ kyvernoPolicies:
               - alloy-config-validator*
               - alloy-config-analysis*
               - alloy-test*
-      require-non-root-user:
       disallow-namespaces:
         parameters:
           disallow:
@@ -1873,9 +1872,20 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: true
     minioObjectStorage:
       enabled: true
+    networkPolicies:
+      enabled: true
+    imagePullSecrets:
+      - name: private-registry
+    console:
+      persistence:
+        size: 5Gi
+      localVolumeUpgrade: true
+    bbtests:
+      enabled: true
+
 
   mattermostOperator:
     enabled: false
