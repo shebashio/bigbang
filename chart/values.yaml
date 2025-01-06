@@ -623,11 +623,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "2.15.0-bb.0"
+    tag: "2.16.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "2.15.0-bb.0"
+    tag: "2.16.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -878,11 +878,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "62.4.0-bb.1"
+    tag: "66.3.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "62.4.0-bb.1"
+    tag: "66.3.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1302,12 +1302,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.70.4-bb.0"
+      tag: "0.70.4-bb.1"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.70.4-bb.0"
+      tag: "0.70.4-bb.1"
 
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1398,11 +1398,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "10.6.1-bb.3"
+      tag: "10.6.1-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "10.6.1-bb.3"
+      tag: "10.6.1-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -2102,8 +2102,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "1.6.13-bb.0"
+      tag: "1.6.16-bb.0"
       path: "./chart"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "k8s-monitoring"
+      tag: "1.6.16-bb.0"
 
     values: {}
 
@@ -2123,14 +2127,14 @@ wrapper:
     # -- Name of the OCI chart in `repo`
     chartName: wrapper
     # -- Tag of the OCI chart in `repo`
-    tag: "0.4.10"
+    tag: "0.4.11"
   git:
     # -- Git repo holding the wrapper helm chart, example: https://repo1.dso.mil/big-bang/product/packages/wrapper
     repo: "https://repo1.dso.mil/big-bang/product/packages/wrapper.git"
     # -- Path inside of the git repo to find the helm chart, example: chart
     path: "chart"
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
-    tag: "0.4.10"
+    tag: "0.4.11"
 
 # -- Packages to deploy with Big Bang
 # @default - '{}'
