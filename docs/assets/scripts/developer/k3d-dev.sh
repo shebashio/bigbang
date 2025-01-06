@@ -1082,8 +1082,7 @@ EOF
       fi
 
       echo -n "Associating IP ${PublicIP} address to instance ${InstId} ..."
-      EIP1_ASSOCIATION_ID=`aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP} --public-ip 
-      ublicIP | jq -r '.AssociationId'`
+      EIP1_ASSOCIATION_ID=`aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP} --public-ip $PublicIP | jq -r '.AssociationId'`
       echo "${EIP1_ASSOCIATION_ID}"
       EIP1_ID=`aws ec2 describe-addresses --public-ips ${PublicIP} | jq -r '.Addresses[].AllocationId'`
       aws ec2 create-tags --resources ${EIP1_ID} --tags Key="lastused",Value="${CURRENT_EPOCH}"
