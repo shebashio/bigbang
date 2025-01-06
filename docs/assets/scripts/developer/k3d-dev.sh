@@ -606,7 +606,7 @@ function install_metallb
   spec:
     ipAddressPools:
     - default
-  EOF
+EOF
 ENDSSH
     elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
       echo "Building MetalLB configuration for -a mode."
@@ -669,7 +669,7 @@ ENDSSH
   spec:
     ipAddressPools:
     - secondary
-  EOF
+EOF
 ENDSSH
 
       run <<ENDSSH
@@ -679,7 +679,7 @@ ENDSSH
       - 172.20.1.241
   settings:
     workerConnections: 1024
-  EOF
+EOF
 ENDSSH
 
       run <<ENDSSH
@@ -689,7 +689,7 @@ ENDSSH
       - 172.20.1.240
   settings:
     workerConnections: 1024
-  EOF
+EOF
 ENDSSH
 
       run "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/${SSHUSER}/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
