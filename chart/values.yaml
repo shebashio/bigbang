@@ -1726,6 +1726,10 @@ addons:
       # -- Toggle interaction with Elastic for optimized search indexing
       enabled: false
 
+    minioOperator:
+      # -- Toggle dependency for minio-operator
+      enabled: true
+
     # -- Values to passthrough to the Mattermost chart: https://repo1.dso.mil/big-bang/product/packages/values.yaml
     values: {}
 
