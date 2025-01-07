@@ -58,6 +58,12 @@ mimir-distributed:
   query_scheduler:
     enabled: {{ not .Values.istio.enabled }}
   {{- if or $minioEnabled $s3Enabled }}
+  {{- if $s3Enabled }}
+  global:
+    extraEnvFrom:
+    - secretRef:
+        name: mimir-objstore-secret
+  {{- end }}
   mimir:
     structuredConfig:
     {{- if $mimirEnterpriseEnabled }}
@@ -80,14 +86,15 @@ mimir-distributed:
             insecure: true
             secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
             bucket_name: mimir
-            {{- end }}
+            {{- else }}
             {{- if $s3Enabled }}
-            access_key_id: {{ .Values.addons.mimir.s3ObjectStorage.accessKey }}
+            access_key_id: "${AWS_ACCESS_KEY_ID}" # This is a secret injected via an environment variable
             endpoint: {{ .Values.addons.mimir.s3ObjectStorage.endpoint }}
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
-            secret_access_key: {{ .Values.addons.mimir.s3ObjectStorage.accessSecret }}
+            secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
+          {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
