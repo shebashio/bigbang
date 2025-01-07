@@ -361,11 +361,12 @@ policies:
       {{- end }}
       {{- if .Values.addons.mattermost.enabled }}
         # Mattermost fails when policy was implemented
-        - resources:
-            namespaces:
-            - mattermost
-            names:
-            - mattermost-*
+      - resources:
+          namespaces:
+          - mattermost
+          - mattermost-operator
+          names:
+          - mattermost-*
       {{- end }}
     {{- end }}
 
