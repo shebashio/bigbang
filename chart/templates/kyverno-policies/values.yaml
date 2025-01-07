@@ -359,15 +359,16 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
-      {{- if .Values.mattermost.enabled }}
-      # Mattermost fails when policy was implemented
-      - resources:
-          namespaces:
-          - mattermost
-          names:
-          - mattermost-*
+      {{- if .Values.addons.mattermost.enabled }}
+        # Mattermost fails when policy was implemented
+        - resources:
+            namespaces:
+            - mattermost
+            names:
+            - mattermost-*
       {{- end }}
     {{- end }}
+
 
   require-non-root-group:
     validationFailureAction: Enforce
