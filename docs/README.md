@@ -4,6 +4,9 @@
 
 * Big Bang is a Helm Chart that is used to deploy a DevSecOps Platform on a Kubernetes Cluster. The DevSecOps Platform is composed of application packages which are bundled as helm charts that leverage Iron Bank hardened container images.
 * The Big Bang Helm Chart deploys gitrepository and helmrelease Custom Resources to a Kubernetes Cluster running the Flux GitOps Operator, these can be seen using `kubectl get gitrepository,helmrelease -n=bigbang.` Flux then installs the helm charts defined by the Custom Resources into the cluster.
+
+* Big Bang introduces deployment Flavors – pre-configured sets of packages tailored to specific use cases. Flavors simplify deployment by allowing users to install curated combinations of packages with a single command or YAML definition. This reduces the complexity of configuring individual packages and ensures a repeatable, standardized deployment process.
+
 * The Big Bang Helm Chart has a values.yaml file that does two main things:
     * Defines which DevSecOps Platform packages/helm charts will be deployed.
     * Defines what input parameters will be passed through to the chosen helm charts.
@@ -15,7 +18,7 @@
 
 ### What *isn't* Big Bang?
 
-* Big Bang by itself is not intended to be an End-to-End Secure Kubernetes Cluster Solution, but rather a reusable secure component/piece of a full solution.
+* Big Bang by itself is not intended to be an End-to-End Secure Kubernetes Cluster Solution, but rather a reusable secure component/piece of a full solution. While Big Bang is not a complete End-to-End Secure Kubernetes Cluster Solution by itself, the addition of bbctl-driven deployment profiles and YAML manifests enables significant automation and can simplify the deployment of full solutions with minimal user interaction.
 * A Secure Kubernetes Cluster Solution will have multiple components that can each be swappable and in some cases considered optional depending on use case and risk tolerance:
   Example of some potential components in a full End-to-End Solution:
     * Ingress traffic protection
@@ -23,7 +26,7 @@
         * CNAP can be swapped with an equivalent, or considered optional in an internet disconnected setup.
     * Hardened Host OS
     * Hardened Kubernetes Cluster
-        * Big Bang assumes Bring your own Cluster (BYOC)
+        * Big Bang primarily assumes Bring your own Cluster(BYOC)) but offers deployment profiles and YAML-driven automation that can provision clusters as part of the deployment process, simplifying the end-to-end setup.
         * The Big Bang team recommends consumers who are interested in a full solution, partner with Vendors of Kubernetes Distributions to satisfy the prerequisite of a Hardened Kubernetes Cluster.
     * Hardened Applications running on the Cluster
         * Iron Bank provides hardened containers that helps solve this component.
