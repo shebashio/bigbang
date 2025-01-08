@@ -45,6 +45,18 @@ function checkout_pipeline_templates
     git checkout ${cmdarg_cfg['pipeline-templates-version']}
 }
 
+function destroy_k3d_cluster
+{
+    if [[ "${cmdarg_cfg['cloud-provider']}" != "" ]]; then
+        arg_cloud="-c ${cmdarg_cfg['cloud-provider']}"
+    fi
+
+    ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
+        -t quickstart \
+        ${arg_cloud} \
+        -d
+}
+
 function build_k3d_cluster
 {
     arg_privateip=""
@@ -80,7 +92,8 @@ function build_k3d_cluster
         ${arg_username} \
         ${arg_keyfile} \
         ${arg_metallb} \
-        ${arg_cloud}
+        ${arg_cloud} \
+        $@
 }
 
 function deploy_flux
@@ -143,6 +156,7 @@ function main
     cmdarg 'p' 'provision' "Provision the k3d cluster (implied)"
     cmdarg 'd' 'deploy' "Deploy bigbang (implied)"
     cmdarg 'w' 'wait' "Wait for bigbang (implied by --deploy)"
+    cmdarg 'D' 'destroy' "Destroy any previously created quickstart instance(s) created by this tool. (Disables -p, -d, -w)"
     cmdarg_parse "$@" || exit 1
 
     actions="provision deploy wait"
@@ -161,6 +175,10 @@ function main
         user_actions="${user_actions} wait"
     fi
 
+    if [[ "${cmdarg_cfg['destroy']}" == "true" ]]; then
+        user_actions="destroy"
+    fi
+
     if [[ "$user_actions" != "" ]]; then
         actions="$user_actions"
     fi
@@ -173,7 +191,10 @@ function main
     checkout_bigbang_repo
     checkout_pipeline_templates
 
-    if [[ "${actions}" =~ "provision" ]]; then
+    if [[ "${actions}" =~ "destroy" ]]; then
+        destroy_k3d_cluster
+        return
+    elif [[ "${actions}" =~ "provision" ]]; then
         build_k3d_cluster
     fi
 
