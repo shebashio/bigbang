@@ -1228,6 +1228,11 @@ twistlock:
 
 # Addons are toggled based on labels in CI
 addons:
+  alloy:
+    enabled: true
+    git:
+      branch: renovate/ironbank
+      tag: null
   argocd:
     enabled: false
     sso:
