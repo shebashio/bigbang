@@ -1912,6 +1912,9 @@ addons:
       localVolumeUpgrade: true
     bbtests:
       enabled: true
+      cypress:
+        envs:
+          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
 
 
   mattermostOperator:
