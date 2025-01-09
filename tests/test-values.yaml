@@ -1939,7 +1939,8 @@ addons:
 
       postgresql:
         install: false
-        ssl_mode: require
+        auth:
+          sslmode: require
         persistence:
           size: 256Mi
       resources:
