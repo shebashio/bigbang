@@ -109,6 +109,7 @@ alertmanager:
     {{- end }}
   {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
   serviceMonitor:
+    fallbackScrapeProtocol: "PrometheusText1.0.0"
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -126,8 +127,6 @@ prometheus:
         targetLabel: cluster
   {{- end }}
 
-  fallbackScrapeProtocol: "PrometheusText1.0.0"
-
   {{- if $thanosEnabled }}
   thanosService:
     enabled: true
@@ -142,6 +141,7 @@ prometheus:
     enabled: true
     {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     serviceMonitor:
+    fallbackScrapeProtocol: "PrometheusText1.0.0"
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
