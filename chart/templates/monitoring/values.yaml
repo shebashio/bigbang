@@ -149,6 +149,8 @@ prometheus:
     {{- end }}
   {{- end }}
   prometheusSpec:
+    additionalConfig:
+      fallback_scrape_protocol: PrometheusText1.0.0
     {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
     - name: monitoring-monitoring-kube-alertmanager
