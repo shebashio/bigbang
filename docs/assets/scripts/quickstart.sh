@@ -10,45 +10,59 @@ KUBECONFIG="${KUBECONFIG:-}"
 BB_K3D_PUBLICIP=""
 BB_K3D_PRIVATEIP=""
 
-function checkout_bigbang_repo
-{
-    version=${cmdarg_cfg['version']}
+# Configuration variables sourced from the command line
+declare -g arg_host
+declare -g arg_privateip
+declare -g arg_username
+declare -g arg_keyfile
+declare -g arg_version
+declare -g arg_pipeline_templates_version=master
+declare -g arg_repolocation="${REPO1_LOCATION:-}"
+declare -g arg_registry1_username="${REGISTRY1_USERNAME:-}"
+declare -g arg_registry1_token="${REGISTRY1_TOKEN:-}"
+declare -g arg_cloud_provider=aws
+declare -g arg_metallb=false
+declare -g arg_provision=false
+declare -g arg_deploy=false
+declare -g arg_wait=false
+declare -g arg_destroy=false
+declare -a arg_argv
+
+function checkout_bigbang_repo {
     if [[ ! -f ${BIG_BANG_REPO} ]]; then
         mkdir -p ${BIG_BANG_REPO}
         git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
         cd ${BIG_BANG_REPO}
-    else 
+    else
         cd ${BIG_BANG_REPO}
         git reset --hard
         git clean -df
     fi
     git fetch -a
-    if [[ "${version}" == "latest" ]]; then
-        version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
+    if [[ "${arg_version}" == "latest" ]]; then
+        arg_version=$(git tag | sort -V | grep -v -- '-rc.' | tail -n 1)
     fi
-    git checkout ${version}
+    git checkout ${arg_version}
 }
 
-function checkout_pipeline_templates
-{
+function checkout_pipeline_templates {
     PIPELINE_REPO_LOCATION=${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates
     if [[ ! -d ${PIPELINE_REPO_LOCATION} ]]; then
         mkdir -p ${PIPELINE_REPO_LOCATION}
         git clone https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates.git ${PIPELINE_REPO_LOCATION}
         cd ${PIPELINE_REPO_LOCATION}
-    else 
+    else
         cd ${PIPELINE_REPO_LOCATION}
         git reset --hard
         git clean -df
     fi
     git fetch -a
-    git checkout ${cmdarg_cfg['pipeline-templates-version']}
+    git checkout ${arg_pipeline_templates_version}
 }
 
-function destroy_k3d_cluster
-{
-    if [[ "${cmdarg_cfg['cloud-provider']}" != "" ]]; then
-        arg_cloud="-c ${cmdarg_cfg['cloud-provider']}"
+function destroy_k3d_cluster {
+    if [[ "${arg_cloud_provider}" != "" ]]; then
+        arg_cloud="-c ${arg_cloud_provider}"
     fi
 
     ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
@@ -57,31 +71,30 @@ function destroy_k3d_cluster
         -d
 }
 
-function build_k3d_cluster
-{
+function build_k3d_cluster {
     arg_privateip=""
     arg_hostname=""
     arg_username=""
     arg_keyfile=""
     arg_metallb=""
     arg_cloud=""
-    if [[ "${cmdarg_cfg['privateip']}" != "" ]]; then
-        arg_privateip="-P ${cmdarg_cfg['privateip']}"
+    if [[ "${arg_privateip}" != "" ]]; then
+        arg_privateip="-P ${arg_privateip}"
     fi
-    if [[ "${cmdarg_cfg['host']}" != "" ]]; then
-        arg_hostname="-H ${cmdarg_cfg['host']}"
+    if [[ "${arg_host}" != "" ]]; then
+        arg_hostname="-H ${arg_host}"
     fi
-    if [[ "${cmdarg_cfg['username']}" != "" ]]; then
-        arg_username="-U ${cmdarg_cfg['username']}"
+    if [[ "${arg_username}" != "" ]]; then
+        arg_username="-U ${arg_username}"
     fi
-    if [[ "${cmdarg_cfg['keyfile']}" != "" ]]; then
-        arg_keyfile="-k ${cmdarg_cfg['keyfile']}"
+    if [[ "${arg_keyfile}" != "" ]]; then
+        arg_keyfile="-k ${arg_keyfile}"
     fi
-    if [[ "${cmdarg_cfg['metallb']}" == "true" ]]; then
+    if [[ "${arg_metallb}" == "true" ]]; then
         arg_metallb="-m"
     fi
-    if [[ "${cmdarg_cfg['cloud-provider']}" != "" ]]; then
-        arg_cloud="-c ${cmdarg_cfg['cloud-provider']}"
+    if [[ "${arg_cloud_provider}" != "" ]]; then
+        arg_cloud="-c ${arg_cloud_provider}"
     fi
 
     ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
@@ -96,34 +109,30 @@ function build_k3d_cluster
         $@
 }
 
-function deploy_flux
-{
+function deploy_flux {
     KUBECONFIG=${KUBECONFIG} ${REPO1_LOCATION}/big-bang/bigbang/scripts/install_flux.sh \
         -u ${REGISTRY1_USERNAME} \
         -p ${REGISTRY1_TOKEN} \
         -w 900
 }
 
-function deploy_bigbang
-{
-    cd ${BIG_BANG_REPO} && \
-    helm upgrade -i bigbang \
-        ${BIG_BANG_REPO}/chart \
-        -n bigbang \
-        --create-namespace \
-        --set registryCredentials.username=${REGISTRY1_USERNAME} \
-        --set registryCredentials.password=${REGISTRY1_TOKEN} \
-        $@ \
-        -f ${BIG_BANG_REPO}/chart/ingress-certs.yaml \
-        -f ${BIG_BANG_REPO}/docs/assets/configs/example/dev-sso-values.yaml \
-        -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml
+function deploy_bigbang {
+    cd ${BIG_BANG_REPO} &&
+        helm upgrade -i bigbang \
+            ${BIG_BANG_REPO}/chart \
+            -n bigbang \
+            --create-namespace \
+            --set registryCredentials.username=${REGISTRY1_USERNAME} \
+            --set registryCredentials.password=${REGISTRY1_TOKEN} \
+            $@ \
+            -f ${BIG_BANG_REPO}/chart/ingress-certs.yaml \
+            -f ${BIG_BANG_REPO}/docs/assets/configs/example/dev-sso-values.yaml \
+            -f ${BIG_BANG_REPO}/docs/assets/configs/example/policy-overrides-k3d.yaml
 }
 
-function check_for_tools
-{
+function check_for_tools {
     missing=0
-    for tool in jq yq kubectl helm git sed awk
-    do
+    for tool in jq yq kubectl helm git sed awk; do
         if [[ ! -x $(which ${tool} 2>/dev/null) ]]; then
             missing=1
             echo "Required tool ${tool} missing, please fix and run again" >&2
@@ -134,48 +143,127 @@ function check_for_tools
     fi
 }
 
-function main
-{
+function usage {
+    cat <<EOF
+quickstart.sh (C) 2025 : PlatformOne Big Bang team
+
+PlatformOne Big Bang quickstart : Quickly deploy a development bigbang cluster on a VM
+
+Optional Arguments:
+    -H,--host v : String. IP or Hostname of the VM to operate on 
+    -P,--privateip v : String. If your VM has a separate private IP in addition to the public host, provide it here 
+    -U,--username v : String. Username to use when SSHing into the target VM 
+    -K,--keyfile v : String. SSH Key file to use when SSHing into the target VM 
+    -V,--version v : String. Big Bang version to deploy (Default "latest")
+    -v,--pipeline-templates-version v : String. Version of the bigbang pipeline-templates to use (Default "master")
+    -R,--repolocation v : String. Location on your host filesystem where bigbang should be checked out (Default "/Users/andrewkesterson/tmp/repo1.dso.mil")
+    -u,--registry1-username v : String. Username for your account on registry1.dso.mil (Default "AndrewKesterson")
+    -t,--registry1-token v : String. Access token for your account on registry1.dso.mil (Default "LLz4FHQAL8jFLAR5e5rCSa26UOgujnvE")
+    -c,--cloud-provider v : String. If using cloud provisioning, which cloud provider should be used (Default "aws")
+    -m,--metallb : Boolean. Deploy a MetalLB on k3d 
+    -p,--provision : Boolean. Provision the k3d cluster (implied) 
+    -d,--deploy : Boolean. Deploy bigbang (implied) 
+    -w,--wait : Boolean. Wait for bigbang (implied by --deploy) 
+    -D,--destroy : Boolean. Destroy any previously created quickstart instance(s) created by this tool. (Disables -p, -d, -w)
+EOF
+}
+
+function parse_arguments {
+    while [ -n "$1" ]; do # while loop starts
+
+        case "$1" in
+        "-h") ;&
+        "--help")
+            usage
+            exit 1
+            ;;
+        "-H") ;&
+        "--host")
+            shift
+            arg_host=$1
+            ;;
+        "-V") ;&
+        "--version")
+            shift
+            arg_version=$1
+            ;;
+        "-v") ;&
+        "--pipeline-templates-version")
+            shift
+            arg_pipeline_templates_version=$1
+            ;;
+        "-R") ;&
+        "--repolocation")
+            shift
+            arg_repolocation=$1
+            ;;
+        "-u") ;&
+        "--registry1-username")
+            shift
+            arg_registry1_username=$1
+            ;;
+        "-t") ;&
+        "--registry1-token")
+            shift
+            arg_registry1_token=$1
+            ;;
+        "-c") ;&
+        "--cloud-provider")
+            shift
+            arg_cloud_provider=$1
+            ;;
+        "-m") ;&
+        "--metallb")
+            arg_metallb=true
+            ;;
+        "-p") ;&
+        "--provision")
+            arg_provision=true
+            ;;
+        "-d") ;&
+        "--deploy")
+            arg_deploy=true
+            ;;
+        "-w") ;&
+        "--wait")
+            arg_wait=true
+            ;;
+        "-D") ;&
+        "--destroy")
+            arg_destroy=true
+            ;;
+        "--")
+            shift
+            arg_argv=("$@")
+            ;;
+        *) echo "Option $1 not recognized" ;;
+
+        esac
+        shift
+    done
+}
+
+function main {
     set -e
-
-    cmdarg_info "header" "PlatformOne Big Bang quickstart : Quickly deploy a development bigbang cluster on a VM"
-    cmdarg_info "author" "PlatformOne Big Bang team"
-    cmdarg_info "copyright" "(C) 2025"
-
-    cmdarg 'H?' 'host' 'IP or Hostname of the VM to operate on'
-    cmdarg 'P?' 'privateip' 'If your VM has a separate private IP in addition to the public host, provide it here'
-    cmdarg 'U?' 'username' 'Username to use when SSHing into the target VM'
-    cmdarg 'K?' 'keyfile' 'SSH Key file to use when SSHing into the target VM'
-    cmdarg 'V?' 'version' 'Big Bang version to deploy' 'latest'
-    cmdarg 'v?' 'pipeline-templates-version' 'Version of the bigbang pipeline-templates to use' 'master'
-    cmdarg 'R?' 'repolocation' 'Location on your host filesystem where bigbang should be checked out' "${REPO1_LOCATION}"
-    cmdarg 'u?' 'registry1-username' "Username for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_USERNAME}"
-    cmdarg 't?' 'registry1-token' "Access token for your account on ${REGISTRY1_ENDPOINT}" "${REGISTRY1_TOKEN}"
-    cmdarg 'c?' 'cloud-provider' "If using cloud provisioning, which cloud provider should be used" "aws"
-    cmdarg 'm' 'metallb' "Deploy a MetalLB on k3d"
-    cmdarg 'p' 'provision' "Provision the k3d cluster (implied)"
-    cmdarg 'd' 'deploy' "Deploy bigbang (implied)"
-    cmdarg 'w' 'wait' "Wait for bigbang (implied by --deploy)"
-    cmdarg 'D' 'destroy' "Destroy any previously created quickstart instance(s) created by this tool. (Disables -p, -d, -w)"
-    cmdarg_parse "$@" || exit 1
+    parse_arguments $@
 
     actions="provision deploy wait"
     user_actions=""
-    if [[ "${cmdarg_cfg['provision']}" == "true" ]]; then
+    if [[ "${arg_provision}" == "true" ]]; then
         user_actions="provision"
     fi
 
-    if [[ "${cmdarg_cfg['deploy']}" == "true" ]]; then
+    if [[ "${arg_deploy}" == "true" ]]; then
         user_actions="${user_actions} deploy"
         # --deploy implies --wait
-        cmdarg_cfg['wait']="true"
+        arg_wait="true"
     fi
 
-    if [[ "${cmdarg_cfg['wait']}" == "true" ]]; then
+    if [[ "${arg_wait}" == "true" ]]; then
         user_actions="${user_actions} wait"
     fi
 
-    if [[ "${cmdarg_cfg['destroy']}" == "true" ]]; then
+    if [[ "${arg_destroy}" == "true" ]]; then
         user_actions="destroy"
     fi
 
@@ -183,10 +271,10 @@ function main
         actions="$user_actions"
     fi
 
-    export REPO1_LOCATION=${cmdarg_cfg['repolocation']}
+    export REPO1_LOCATION=${arg_repolocation}
     export BIG_BANG_REPO=${REPO1_LOCATION}/big-bang/bigbang
-    export REGISTRY1_TOKEN=${cmdarg_cfg['registry1-token']}
-    export REGISTRY1_USERNAME=${cmdarg_cfg['registry1-username']}
+    export REGISTRY1_TOKEN=${arg_registry1_token}
+    export REGISTRY1_USERNAME=${arg_registry1_username}
 
     checkout_bigbang_repo
     checkout_pipeline_templates
@@ -198,25 +286,25 @@ function main
         build_k3d_cluster
     fi
 
-    if [[ "${cmdarg_cfg['host']}" != "" ]]; then  
-        export KUBECONFIG=~/.kube/${cmdarg_cfg['host']}-dev-quickstart-config
+    if [[ "${arg_host}" != "" ]]; then
+        export KUBECONFIG=~/.kube/${arg_host}-dev-quickstart-config
     else
-        AWSUSERNAME=$( aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' )
+        AWSUSERNAME=$(aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/')
         export KUBECONFIG=~/.kube/${AWSUSERNAME}-dev-quickstart-config
         instanceid=$(aws ec2 describe-instances \
             --output text \
             --query "Reservations[].Instances[].InstanceId" \
             --filters "Name=tag:Name,Values=${AWSUSERNAME}-dev" "Name=tag:Project,Values=quickstart" "Name=instance-state-name,Values=running")
-        cmdarg_cfg['host']=$(aws ec2 describe-instances --output text --no-cli-pager --instance-id ${instanceid} --query "Reservations[].Instances[].PublicIpAddress")
-        cmdarg_cfg['privateip']=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${instanceid} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')
-        cmdarg_cfg['keyfile']="~/.ssh/${AWSUSERNAME}-dev-quickstart.pem"
-        cmdarg_cfg['username']="ubuntu"
+        arg_host=$(aws ec2 describe-instances --output text --no-cli-pager --instance-id ${instanceid} --query "Reservations[].Instances[].PublicIpAddress")
+        arg_privateip=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${instanceid} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')
+        arg_keyfile="~/.ssh/${AWSUSERNAME}-dev-quickstart.pem"
+        arg_username="ubuntu"
     fi
 
     if [[ "${actions}" =~ "deploy" ]]; then
         deploy_flux
 
-        deploy_bigbang ${cmdarg_argv[@]}
+        deploy_bigbang ${arg_argv}
     fi
 
     if [[ "${actions}" =~ "wait" ]]; then
@@ -236,29 +324,15 @@ function main
     echo
     echo "To access your kubernetes cluster in your browser, add this line to your hosts file:"
     echo
-    echo "    ${cmdarg_cfg['host']}        ${services}"
+    echo "    ${arg_host}        ${services}"
     echo
     echo "To SSH to the instance running your cluster, use this command:"
     echo
-    echo "    ssh -i ${cmdarg_cfg['keyfile']} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${cmdarg_cfg['username']}@${cmdarg_cfg['host']}"
-    echo "=================================================================================="    
+    echo "    ssh -i ${arg_keyfile} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${arg_username}@${arg_host}"
+    echo "=================================================================================="
     set +e
 }
 
-function cleanup
-{
-    rm -f ${cmdarglib}
-}
-
-trap cleanup EXIT
-
 check_for_tools
-
-# This is the instantiation of a dependency library 'cmdarg' that does our argument parsing.
-# This is a F/OSS project that lives on a public github.
-# P1 was not comfortable sourcing the library from an uncontrolled public github.
-# So the library was pulled, gzipped, base64d, and placed here.
-# This is https://github.com/akesterson/cmdarg/commit/cdc010720fb12618e50bdbb8dc066436bbb96023
-eval "$(echo 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 | base64 -d | gunzip)"
 
 main $@
