@@ -1656,7 +1656,8 @@ addons:
       tag: "10.2.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
-    flux: {}
+    flux:
+      timeout: 20m
 
     # -- Mattermost Enterprise functionality.
     enterprise:
