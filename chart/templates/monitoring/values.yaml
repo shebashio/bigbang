@@ -126,6 +126,8 @@ prometheus:
         targetLabel: cluster
   {{- end }}
 
+  fallbackScrapeProtocol: "PrometheusText1.0.0"
+
   {{- if $thanosEnabled }}
   thanosService:
     enabled: true
