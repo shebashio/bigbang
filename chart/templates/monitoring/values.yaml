@@ -151,6 +151,9 @@ prometheus:
     {{- end }}
   {{- end }}
   prometheusSpec:
+    {{- if .Values.addons.alloy.enabled }}
+    enableRemoteWriteReceiver: true
+    {{- end }}
     {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
     - name: monitoring-monitoring-kube-alertmanager
