@@ -21,6 +21,7 @@ TERMINATE_INSTANCE=true
 ### Uninitialized globals
 
 INIT_SCRIPT=""
+RUN_BATCH_FILE=""
 CURRENT_EPOCH=0
 KUBECONFIG=""
 KUBECTL_CHECKSUM=""
@@ -142,11 +143,13 @@ function process_arguments {
       echo " -b   use BIG M5 instance. Default is m5a.4xlarge"
       echo " -a   attach secondary Public IP (overrides -p and -m flags)"
       echo " -d   destroy related AWS resources"
+      echo " -R   recreate the EC2 instance (shortcut for -d and running again with same flags)"
       echo " -r   Report on all instances owned by your user"
       echo " -u   Update security group for instances"
       echo
       echo "========= These options apply regardless of cloud provider ================"
       echo
+      echo " -K   recreate the k3d cluster on the host"
       echo " -m   create k3d cluster with metalLB load balancer"
       echo " -p   use private IP for security group and k3d cluster"
       echo " -t   Set the project tag on the instance (for managing multiple instances)"
@@ -307,18 +310,56 @@ function set_kubeconfig {
   fi
 }
 
+function run_batch_new() {
+  if [[ "$RUN_BATCH_FILE" != "" ]]; then
+    echo "Can't manage more than one run batch at once" >&2
+    exit 1
+  fi
+  RUN_BATCH_FILE=$(mktemp k3d_dev_run_batchXXX)
+  printf "#!/bin/bash\nset -xue\n" >> ${RUN_BATCH_FILE}
+}
+
+function run_batch_add() {
+  if [[ "$RUN_BATCH_FILE" == "" ]]; then
+    echo "No run batch configured" >&2
+    exit 1
+  fi
+  echo "$@" >> ${RUN_BATCH_FILE}
+}
+
+function run_batch_execute() {
+  if [[ "$RUN_BATCH_FILE" == "" ]]; then
+    echo "No run batch configured" >&2
+    exit 1
+  fi
+  batch_basename=$(basename ${RUN_BATCH_FILE})
+  cat ${RUN_BATCH_FILE} | run "sudo cat > /tmp/${batch_basename}"
+  $(k3dsshcmd) -t "bash /tmp/${batch_basename}"
+  if [[ $? -ne 0 ]]; then
+    echo "Batch file /tmp/${batch_basename} failed on target system." >&2
+    echo "You can debug it by logging into the system:" >&2
+    echo
+    k3dsshcmd >&2
+    exit 1
+  fi
+  RUN_BATCH_FILE=""
+}
+
+function k3dsshcmd() {
+  echo "ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}"
+}
+
 function run() {
-  ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP} "$@"
+  $(k3dsshcmd) "$@"
 }
 
 function runwithexitcode() {
-  ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP} "$@"
-  exitcode=$?
-  [ $exitcode -eq 0 ]
+  $(k3dsshcmd) "$@"
+  return $?
 }
 
 function runwithreturn() {
-  "$(ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP} "$@")"
+  "$($(sshcmd) "$@")"
 }
 
 function getPrivateIP2() {
@@ -435,31 +476,21 @@ function update_instances {
 function install_docker {
   echo "installing docker"
   # install dependencies
-  run "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release gnupg-agent software-properties-common"
+  run_batch_new
+  run_batch_add "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release gnupg-agent software-properties-common"
   # Add the Docker repository, we are installing from Docker and not the Ubuntu APT repo.
-  run 'sudo mkdir -m 0755 -p /etc/apt/keyrings'
-  run 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
-  run 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
-  run "sudo apt-get update && sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-
-  echo
-  echo
+  run_batch_add 'sudo mkdir -m 0755 -p /etc/apt/keyrings'
+  run_batch_add 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
+  run_batch_add 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+  run_batch_add "sudo apt-get update && sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
   # Add your base user to the Docker group so that you do not need sudo to run docker commands
-  run "sudo usermod -aG docker ubuntu"
-  echo
+  run_batch_add "sudo usermod -aG docker ubuntu"
+  run_batch_execute
 }
 
 function install_k3d {
   # install k3d on instance
   echo "Installing k3d on instance"
-  run "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
-  echo
-  echo "k3d version"
-  run "k3d version"
-  echo
-
-  echo "creating k3d cluster"
-
   # Shared k3d settings across all options
   # 1 server, 3 agents
   k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --servers 1 --agents 3 --verbose"
@@ -479,13 +510,7 @@ function install_k3d {
     echo "Using custom K3S image tag $K3S_IMAGE_TAG..."
     k3d_command+=" --image docker.io/rancher/k3s:$K3S_IMAGE_TAG"
   fi
-
-  # create docker network for k3d cluster
-  echo "creating docker network for k3d cluster"
-  run "docker network remove k3d-network"
-  run "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
   k3d_command+=" --network k3d-network"
-
   # Add MetalLB specific k3d config
   if [[ "$METAL_LB" == true || "$ATTACH_SECONDARY_IP" == true ]]; then
     k3d_command+=" --k3s-arg \"--disable=servicelb@server:0\""
@@ -499,13 +524,10 @@ function install_k3d {
     echo "using public ip for k3d"
     k3d_command+=" --k3s-arg \"--tls-san=${PublicIP}@server:0\""
   fi
-
   # use weave instead of flannel -- helps with large installs
   # we match the 172.x subnets used by CI for consistency
   if [[ "$USE_WEAVE" == true ]]; then
-
     run "if [[ ! -f /opt/cni/bin/loopback ]]; then sudo mkdir -p /opt/cni/bin && sudo curl -s -L https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz  | sudo tar xvz -C /opt/cni/bin; fi"
-
     scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/weave/* ${SSHUSER}@${PublicIP}:/tmp/
 
     # network settings
@@ -524,9 +546,13 @@ function install_k3d {
     k3d_command+=" --volume /opt/cni/bin:/opt/cni/bin@all:*"
   fi
 
-  # Create k3d cluster
-  echo "Creating k3d cluster with command: ${k3d_command}"
-  run "${k3d_command}"
+  run_batch_new
+  run_batch_add "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
+  run_batch_add "k3d version"
+  run_batch_add "(docker network list --filter name=k3d-network --quiet | grep -E '[A-Za-z0-9]+') && docker network remove k3d-network"
+  run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
+  run_batch_add "${k3d_command}"
+  run_batch_execute
 }
 
 function install_kubectl {
@@ -541,16 +567,14 @@ function install_kubectl {
     echo "Using k3d default k8s version $KUBECTL_VERSION."
   fi
   KUBECTL_CHECKSUM=$(curl -sL https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256)
-  run "curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-  runwithexitcode "echo ${KUBECTL_CHECKSUM}  kubectl | sha256sum --check" && echo "Good checksum" || {
-    echo "Bad checksum"
-    exit 1
-  }
-  run "sudo mv /home/${SSHUSER}/kubectl /usr/local/bin/"
-  run 'sudo chmod +x /usr/local/bin/kubectl'
-
-  run "kubectl config use-context k3d-k3s-default"
-  run "kubectl cluster-info && kubectl get nodes"
+  run_batch_new
+  run_batch_add "curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+  run_batch_add "echo ${KUBECTL_CHECKSUM}  kubectl | sha256sum --check"
+  run_batch_add "sudo mv /home/${SSHUSER}/kubectl /usr/local/bin/"
+  run_batch_add 'sudo chmod +x /usr/local/bin/kubectl'
+  run_batch_add "kubectl config use-context k3d-k3s-default"
+  run_batch_add "kubectl cluster-info && kubectl get nodes"
+  run_batch_execute
 
   echo "copying kubeconfig to workstation..."
   mkdir -p ~/.kube
@@ -566,32 +590,34 @@ function install_metallb {
   # Handle MetalLB cluster resource creation
   if [[ "${METAL_LB}" == true || "${ATTACH_SECONDARY_IP}" == true ]]; then
     echo "Installing MetalLB..."
-
+    run_batch_new
+  
     until [[ ${REGISTRY_USERNAME} ]]; do
       read -p "Please enter your Registry1 username: " REGISTRY_USERNAME
     done
     until [[ ${REGISTRY_PASSWORD} ]]; do
       read -s -p "Please enter your Registry1 password: " REGISTRY_PASSWORD
     done
-    run "kubectl create namespace metallb-system"
-    run "kubectl create secret docker-registry registry1 \
+    scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/metallb/* ${SSHUSER}@${PublicIP}:/tmp/metallb
+
+    run_batch_add "kubectl create namespace metallb-system"
+    run_batch_add "kubectl create secret docker-registry registry1 \
       --docker-server=registry1.dso.mil \
       --docker-username=${REGISTRY_USERNAME} \
       --docker-password=${REGISTRY_PASSWORD} \
       -n metallb-system"
 
-    run "mkdir /tmp/metallb"
-    scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/metallb/* ${SSHUSER}@${PublicIP}:/tmp/metallb
-    run "kubectl apply -k /tmp/metallb"
-
+    run_batch_add "mkdir /tmp/metallb"
+    run_batch_add "kubectl apply -k /tmp/metallb"
     # Wait for controller to be live so that validating webhooks function when we apply the config
-    echo "Waiting for MetalLB controller..."
-    run "kubectl wait --for=condition=available --timeout 120s -n metallb-system deployment controller"
-    echo "MetalLB is installed."
+    run_batch_add 'echo "Waiting for MetalLB controller..."'
+    run_batch_add "kubectl wait --for=condition=available --timeout 120s -n metallb-system deployment controller"
+    run_batch_add 'echo "MetalLB is installed"'
+
 
     if [[ "$METAL_LB" == true ]]; then
       echo "Building MetalLB configuration for -m mode."
-      run <<-'ENDSSH'
+      run_batch_add <<-'ENDSSH'
   #run this command on remote
   cat << EOF > metallb-config.yaml
   apiVersion: metallb.io/v1beta1
@@ -615,7 +641,7 @@ EOF
 ENDSSH
     elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
       echo "Building MetalLB configuration for -a mode."
-      run <<ENDSSH
+      run_batch_add <<ENDSSH
   #run this command on remote
   cat <<EOF > metallb-config.yaml
   ---
@@ -677,7 +703,7 @@ ENDSSH
 EOF
 ENDSSH
 
-      run <<ENDSSH
+      run_batch_add <<ENDSSH
   cat <<EOF > primaryProxy.yaml
   ports:
     443.tcp:
@@ -687,7 +713,7 @@ ENDSSH
 EOF
 ENDSSH
 
-      run <<ENDSSH
+      run_batch_add <<ENDSSH
   cat <<EOF > secondaryProxy.yaml
   ports:
     443.tcp:
@@ -697,13 +723,13 @@ ENDSSH
 EOF
 ENDSSH
 
-      run "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/${SSHUSER}/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
-      run "docker run -d --name=secondaryProxy --network=k3d-network -p $PrivateIP2:443:443 -v /home/${SSHUSER}//secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      run_batch_add "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/${SSHUSER}/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      run_batch_add "docker run -d --name=secondaryProxy --network=k3d-network -p $PrivateIP2:443:443 -v /home/${SSHUSER}//secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
     fi
 
-    run "kubectl create -f metallb-config.yaml"
+    run_batch_add "kubectl create -f metallb-config.yaml"
     if [[ "$METAL_LB" == "true" ]]; then
-      run <<-'ENDSSH'
+      run_batch_add <<-'ENDSSH'
     # run this command on remote
     # fix /etc/hosts for new cluster
     sudo sed -i '/dev.bigbang.mil/d' /etc/hosts
@@ -716,6 +742,7 @@ ENDSSH
     kubectl delete pod -n kube-system -l k8s-app=kube-dns
 ENDSSH
     fi
+    run_batch_execute
   fi
 }
 
@@ -735,7 +762,7 @@ function print_instructions {
   echo "  ssh -i ${SSHKEY} -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}"
   echo
   echo "To use kubectl from your local workstation you must set the KUBECONFIG environment variable:"
-  echo "  export KUBECONFIG=${KUBECONFIG}"
+  echo "  export KUBECONFIG=~/.kube/${KUBECONFIG}"
   if [[ "$PRIVATE_IP" == true ]]; then
     echo "The cluster connection will not work until you start sshuttle as described below."
   fi
@@ -807,8 +834,9 @@ function initialize_instance {
     exit 1
   fi
 
-  run "sudo -S -- bash -c 'echo \"$SSHUSER ALL=(ALL:ALL) NOPASSWD: ALL\" | sudo tee /etc/sudoers.d/dont-prompt-$SSHUSER-for-sudo-password;'"
-  run "sudo -- bash -c \"sysctl -w vm.max_map_count=524288; \
+  run_batch_new
+  run_batch_add "sudo -S -- bash -c 'echo \"$SSHUSER ALL=(ALL:ALL) NOPASSWD: ALL\" | sudo tee /etc/sudoers.d/dont-prompt-$SSHUSER-for-sudo-password;'"
+  run_batch_add "sudo -- bash -c \"sysctl -w vm.max_map_count=524288; \
     echo vm.max_map_count=524288 > /etc/sysctl.d/vm-max_map_count.conf; \
     sysctl -w fs.nr_open=13181252; \
     echo fs.nr_open=13181252 > /etc/sysctl.d/fs-nr_open.conf; \
@@ -843,20 +871,22 @@ function initialize_instance {
       exit 1
     fi
     cat ${INIT_SCRIPT} | run "sudo cat > /tmp/k3d-dev-initscript"
-    run "sudo bash /tmp/k3d-dev-initscript"
+    run_batch_add "sudo bash /tmp/k3d-dev-initscript"
   fi
 
   if [[ "$TERMINATE_INSTANCE" != "false" ]]; then
     echo "Instance will automatically terminate 8 hours from now unless you alter the root crontab"
-    run "sudo bash -c 'echo \"\$(date -u -d \"+8 hours\" +\"%M %H\") * * * /usr/sbin/shutdown -h now\" | crontab -'"
+    run_batch_add "sudo bash -c 'echo \"\$(date -u -d \"+8 hours\" +\"%M %H\") * * * /usr/sbin/shutdown -h now\" | crontab -'"
     echo
   fi
 
   if [[ $APT_UPDATE = "true" ]]; then
     echo
-    echo "updating packages"
-    run "sudo apt-get update && sudo apt-get upgrade -y"
+    run_batch_add 'echo "updating packages"'
+    run_batch_add "sudo apt-get update && sudo apt-get upgrade -y"
   fi
+
+  run_batch_execute
 }
 
 function cloud_aws_prep_objects {
@@ -1073,6 +1103,44 @@ function cloud_aws_destructive_create {
   echo
 }
 
+function cluster_mgmt_select_action_for_existing {
+  echo "💣 Big Bang Cluster Management 💣"
+  PS3="Please select an option: "
+  options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Quit")
+
+  select opt in "${options[@]}"; do
+    case $opt in
+    "Re-create K3D cluster")
+      read -p "Are you sure you want to re-create a K3D cluster on this instance (y/n)? " -r
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo
+        exit 1
+      fi
+      RESET_K3D=true
+      SecondaryIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[] | select(.Primary==false) | .Association.PublicIp')
+      PrivateIP2=$(getPrivateIP2)
+      if [[ "${ATTACH_SECONDARY_IP}" == true && -z "${SecondaryIP}" ]]; then
+        echo "Secondary IP didn't exist at the time of creation of the instance, so cannot attach one without re-creating it with the -a flag selected."
+        exit 1
+      fi
+      break
+      ;;
+    "Recreate the instance from scratch")
+      # Code for recreating the EC2 instance from scratch
+      CLOUD_RECREATE_INSTANCE=true
+      break
+      ;;
+    "Do nothing")
+      echo "Doing nothing..."
+      exit 0
+      ;;
+    *)
+      echo "Invalid option. Please try again."
+      ;;
+    esac
+  done
+}
+
 function cloud_aws_create_instances {
   echo "Checking for existing cluster for ${AWSUSERNAME}."
   InstId=$(aws ec2 describe-instances \
@@ -1081,42 +1149,9 @@ function cloud_aws_create_instances {
     --filters "Name=tag:Name,Values=${AWSUSERNAME}-dev" "Name=tag:Project,Values=${PROJECTTAG}" "Name=instance-state-name,Values=running")
   if [[ $InstId ]]; then
     PublicIP=$(aws ec2 describe-instances --output text --no-cli-pager --instance-id ${InstId} --query "Reservations[].Instances[].PublicIpAddress")
-    PrivateIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')
+    PrivateIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')    
     echo "Existing cluster found running on instance ${InstId} on ${PublicIP} / ${PrivateIP}"
-    echo "💣 Big Bang Cluster Management 💣"
-    PS3="Please select an option: "
-    options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Quit")
-
-    select opt in "${options[@]}"; do
-      case $opt in
-      "Re-create K3D cluster")
-        read -p "Are you sure you want to re-create a K3D cluster on this instance (y/n)? " -r
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-          echo
-          exit 1
-        fi
-        RESET_K3D=true
-        SecondaryIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[] | select(.Primary==false) | .Association.PublicIp')
-        PrivateIP2=$(getPrivateIP2)
-        if [[ "${ATTACH_SECONDARY_IP}" == true && -z "${SecondaryIP}" ]]; then
-          echo "Secondary IP didn't exist at the time of creation of the instance, so cannot attach one without re-creating it with the -a flag selected."
-          exit 1
-        fi
-        break
-        ;;
-      "Recreate the EC2 instance from scratch")
-        # Code for recreating the EC2 instance from scratch
-        break
-        ;;
-      "Do nothing")
-        echo "Doing nothing..."
-        exit 0
-        ;;
-      *)
-        echo "Invalid option. Please try again."
-        ;;
-      esac
-    done
+    cluster_mgmt_select_action_for_existing
   fi
 
   if [[ "${RESET_K3D}" == false ]]; then
