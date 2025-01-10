@@ -26,6 +26,8 @@ declare -g arg_provision=false
 declare -g arg_deploy=false
 declare -g arg_wait=false
 declare -g arg_destroy=false
+declare -g arg_recreate_k3d=false
+declare -g arg_recreate_cloud=false
 declare -a arg_argv
 
 function checkout_bigbang_repo {
@@ -35,8 +37,6 @@ function checkout_bigbang_repo {
         cd ${BIG_BANG_REPO}
     else
         cd ${BIG_BANG_REPO}
-        #git reset --hard
-        #git clean -df
     fi
     git fetch -a
     if [[ "${arg_version}" == "latest" ]]; then
@@ -72,40 +72,37 @@ function destroy_k3d_cluster {
 }
 
 function build_k3d_cluster {
-    arg_privateip=""
-    arg_hostname=""
-    arg_username=""
-    arg_keyfile=""
-    arg_metallb=""
-    arg_cloud=""
+    args=""
     if [[ "${arg_privateip}" != "" ]]; then
-        arg_privateip="-P ${arg_privateip}"
+        args="${args} -P ${arg_privateip}"
     fi
     if [[ "${arg_host}" != "" ]]; then
-        arg_hostname="-H ${arg_host}"
+        args="${args} -H ${arg_host}"
     fi
     if [[ "${arg_username}" != "" ]]; then
-        arg_username="-U ${arg_username}"
+        args="${args} -U ${arg_username}"
     fi
     if [[ "${arg_keyfile}" != "" ]]; then
-        arg_keyfile="-k ${arg_keyfile}"
+        args="${args} -k ${arg_keyfile}"
     fi
     if [[ "${arg_metallb}" == "true" ]]; then
-        arg_metallb="-m"
+        args="${args} -m"
     fi
     if [[ "${arg_cloud_provider}" != "" ]]; then
-        arg_cloud="-c ${arg_cloud_provider}"
+        args="${args} -c ${arg_cloud_provider}"
+    fi
+    if [[ "${arg_recreate_k3d}" == "true" ]]; then
+        args="${args} -K"
+    fi
+    if [[ "${arg_recreate_cloud}" == "true" ]]; then
+        args="${args} -R"
     fi
 
     ${BIG_BANG_REPO}/docs/assets/scripts/developer/k3d-dev.sh \
         -t quickstart \
         -T \
-        ${arg_hostname} \
-        ${arg_privateip} \
-        ${arg_username} \
-        ${arg_keyfile} \
-        ${arg_metallb} \
-        ${arg_cloud} \
+        -q \
+        ${args} \
         $@
 }
 
@@ -165,6 +162,9 @@ Optional Arguments:
     -d,--deploy : Boolean. Deploy bigbang (implied) 
     -w,--wait : Boolean. Wait for bigbang (implied by --deploy) 
     -D,--destroy : Boolean. Destroy any previously created quickstart instance(s) created by this tool. (Disables -p, -d, -w)
+    -k,--recreate-k3d : Boolean. Recreate the K3D cluster on the instance from scratch. (implies -p)
+    -C,--recreate-cloud : Boolean. When provisioning with a cloud provider, destroy and rebuild the instance. (implies -p)
+
 EOF
 }
 
@@ -176,6 +176,16 @@ function parse_arguments {
         "--help")
             usage
             exit 1
+            ;;
+        "-k") ;&
+        "--recreate-k3d")
+            arg_recreate_k3d=true
+            arg_provision=true
+            ;;
+        "-C") ;&
+        "--recreate-cloud")
+            arg_recreate_cloud=true
+            arg_provision=true
             ;;
         "-H") ;&
         "--host")
@@ -318,7 +328,7 @@ function main {
         ${REPO1_LOCATION}/big-bang/pipeline-templates/pipeline-templates/scripts/deploy/03_wait_for_helmreleases.sh
     fi
 
-    services=$(kubectl get virtualservices -A -o json | jq -r .items[].spec.hosts[0] | tr "\n" "\t")
+    services=$(kubectl get virtualservices -A -o json 2>/dev/null | jq -r .items[].spec.hosts[0] | tr "\n" "\t")
     echo "=================================================================================="
     echo "                          INSTALLATION   COMPLETE"
     echo ""

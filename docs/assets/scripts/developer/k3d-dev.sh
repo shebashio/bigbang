@@ -17,9 +17,11 @@ PROJECTTAG=default
 RESET_K3D=false
 USE_WEAVE=false
 TERMINATE_INSTANCE=true
+QUIET=false
 
 ### Uninitialized globals
 
+CLOUD_RECREATE_INSTANCE=false
 INIT_SCRIPT=""
 RUN_BATCH_FILE=""
 CURRENT_EPOCH=0
@@ -131,6 +133,9 @@ function process_arguments {
       echo "-T option passed to prevent instance termination"
       TERMINATE_INSTANCE=false
       ;;
+    -q)
+      QUIET=true
+      ;;
 
     -h)
       echo "Usage:"
@@ -157,6 +162,7 @@ function process_arguments {
       echo " -i /path/to/script   initialization script to pass to instance before configuring it"
       echo " -U username          username to use when connecting to existing system in -P"
       echo " -T   Don't terminate the instance after 8 hours"
+      echo " -q   suppress the final completion message"
       echo
       echo "========= These options override -c and use your own infrastructure ======="
       echo
@@ -167,7 +173,12 @@ function process_arguments {
       echo " -h   output help"
       exit 0
       ;;
-
+    -K)
+      RESET_K3D=true
+      ;;
+    -R)
+      CLOUD_RECREATE_INSTANCE=true
+      ;;
     -u)
       action=update_instances
       ;;
@@ -342,6 +353,7 @@ function run_batch_execute() {
     k3dsshcmd >&2
     exit 1
   fi
+  rm -f ${RUN_BATCH_FILE}
   RUN_BATCH_FILE=""
 }
 
@@ -429,7 +441,7 @@ function update_ec2_security_group {
 }
 
 function destroy_instances {
-  if [[ "$PublicIP" != "" ]]; then
+  if [[ "$PublicIP" != "" ]] && [[ "${CLOUD_RECREATE_INSTANCE}" != "true" ]]; then
     echo "Public IP of instance has been provided; assuming instance was not provisioned by me."
     echo "Nothing to do."
     exit 1
@@ -443,10 +455,13 @@ function destroy_instances {
   if [[ $AWSINSTANCEIDs ]]; then
     echo "aws instances being terminated: ${AWSINSTANCEIDs}"
 
-    read -p "Are you sure you want to delete these instances (y/n)? " -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      echo
-      exit 1
+    # Don't prompt the user if they already told us to do it
+    if [[ "${CLOUD_RECREATE_INSTANCE}" != "true" ]]; then
+      read -p "Are you sure you want to delete these instances (y/n)? " -r
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo
+        exit 1
+      fi 
     fi
 
     aws ec2 terminate-instances --instance-ids ${AWSINSTANCEIDs} &>/dev/null
@@ -466,7 +481,6 @@ function destroy_instances {
     aws ec2 release-address --allocation-id $i
     echo "done"
   done
-  exit 0
 }
 
 function update_instances {
@@ -480,7 +494,9 @@ function install_docker {
   run_batch_add "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release gnupg-agent software-properties-common"
   # Add the Docker repository, we are installing from Docker and not the Ubuntu APT repo.
   run_batch_add 'sudo mkdir -m 0755 -p /etc/apt/keyrings'
-  run_batch_add 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
+  # gpg won't overwrite the file if we're rebuilding the cluster, we have to clear it
+  run_batch_add 'sudo rm -f /etc/apt/keyrings/docker.gpg'
+  run_batch_add 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --dearmor -o /etc/apt/keyrings/docker.gpg'
   run_batch_add 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
   run_batch_add "sudo apt-get update && sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
   # Add your base user to the Docker group so that you do not need sudo to run docker commands
@@ -529,14 +545,12 @@ function install_k3d {
   if [[ "$USE_WEAVE" == true ]]; then
     run "if [[ ! -f /opt/cni/bin/loopback ]]; then sudo mkdir -p /opt/cni/bin && sudo curl -s -L https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz  | sudo tar xvz -C /opt/cni/bin; fi"
     scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/weave/* ${SSHUSER}@${PublicIP}:/tmp/
-
     # network settings
     k3d_command+=" --k3s-arg \"--flannel-backend=none@server:*\""
     k3d_command+=" --k3s-arg \"--disable-network-policy@server:*\""
     k3d_command+=" --k3s-arg \"--cluster-cidr=172.21.0.0/16@server:*\""
     k3d_command+=" --k3s-arg \"--service-cidr=172.20.0.0/16@server:*\""
     k3d_command+=" --k3s-arg \"--cluster-dns=172.20.0.10@server:*\""
-
     # volume mounts
     k3d_command+=" --volume \"/tmp/weave.yaml:/var/lib/rancher/k3s/server/manifests/weave.yaml@server:*\""
     k3d_command+=" --volume /tmp/machine-id-server-0:/etc/machine-id@server:0"
@@ -549,6 +563,8 @@ function install_k3d {
   run_batch_new
   run_batch_add "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
   run_batch_add "k3d version"
+  # We may be recreating k3d on an existing cluster, so clean house first
+  run_batch_add "k3d cluster delete --all"
   run_batch_add "(docker network list --filter name=k3d-network --quiet | grep -E '[A-Za-z0-9]+') && docker network remove k3d-network"
   run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
   run_batch_add "${k3d_command}"
@@ -1069,44 +1085,10 @@ function cloud_aws_assign_ip_addresses
   fi  
 }
 
-function cloud_aws_destructive_create {
-  if [[ "$BIG_INSTANCE" == true ]]; then
-    echo "Will use large m5a.4xlarge spot instance"
-    InstSize="m5a.4xlarge"
-    SpotPrice="0.69"
-  else
-    echo "Will use standard t3a.2xlarge spot instance"
-    InstSize="t3a.2xlarge"
-    SpotPrice="0.35"
-  fi
-
-  cloud_aws_prep_objects
-  update_ec2_security_group
-  cloud_aws_request_spot_instance
-  cloud_aws_assign_ip_addresses
-
-  echo
-  echo "Instance ${InstId} is ready!"
-  echo "Instance Public IP is ${PublicIP}"
-  echo "Instance Private IP is ${PrivateIP}"
-  echo
-
-  # Remove previous keys related to this IP from your SSH known hosts so you don't end up with a conflict
-  ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "${PublicIP}"
-
-  echo "ssh init"
-  # this is a do-nothing remote ssh command just to initialize ssh and make sure that the connection is working
-  until run "hostname"; do
-    sleep 5
-    echo "Retry ssh command.."
-  done
-  echo
-}
-
 function cluster_mgmt_select_action_for_existing {
   echo "💣 Big Bang Cluster Management 💣"
   PS3="Please select an option: "
-  options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Quit")
+  options=("Re-create K3D cluster" "Recreate the EC2 instance from scratch" "Do Nothing")
 
   select opt in "${options[@]}"; do
     case $opt in
@@ -1130,7 +1112,7 @@ function cluster_mgmt_select_action_for_existing {
       CLOUD_RECREATE_INSTANCE=true
       break
       ;;
-    "Do nothing")
+    "Do Nothing")
       echo "Doing nothing..."
       exit 0
       ;;
@@ -1151,11 +1133,46 @@ function cloud_aws_create_instances {
     PublicIP=$(aws ec2 describe-instances --output text --no-cli-pager --instance-id ${InstId} --query "Reservations[].Instances[].PublicIpAddress")
     PrivateIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')    
     echo "Existing cluster found running on instance ${InstId} on ${PublicIP} / ${PrivateIP}"
-    cluster_mgmt_select_action_for_existing
+    if [[ "${RESET_K3D}" != "true" ]] && [[ "${CLOUD_RECREATE_INSTANCE}" != "true" ]]; then
+      cluster_mgmt_select_action_for_existing
+    fi
+    if [[ "${CLOUD_RECREATE_INSTANCE}" == "true" ]]; then
+      destroy_instances
+    fi
   fi
 
-  if [[ "${RESET_K3D}" == false ]]; then
-    cloud_aws_destructive_create
+  if [[ "${RESET_K3D}" == false ]] ; then
+    if [[ "$BIG_INSTANCE" == true ]]; then
+      echo "Will use large m5a.4xlarge spot instance"
+      InstSize="m5a.4xlarge"
+      SpotPrice="0.69"
+    else
+      echo "Will use standard t3a.2xlarge spot instance"
+      InstSize="t3a.2xlarge"
+      SpotPrice="0.35"
+    fi
+
+    cloud_aws_prep_objects
+    update_ec2_security_group
+    cloud_aws_request_spot_instance
+    cloud_aws_assign_ip_addresses
+
+    echo
+    echo "Instance ${InstId} is ready!"
+    echo "Instance Public IP is ${PublicIP}"
+    echo "Instance Private IP is ${PrivateIP}"
+    echo
+
+    # Remove previous keys related to this IP from your SSH known hosts so you don't end up with a conflict
+    ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "${PublicIP}"
+
+    echo "ssh init"
+    # this is a do-nothing remote ssh command just to initialize ssh and make sure that the connection is working
+    until run "hostname"; do
+      sleep 5
+      echo "Retry ssh command.."
+    done
+    echo
   fi
 }
 
@@ -1186,7 +1203,9 @@ function create_instances {
   install_kubectl
   install_metallb
   fix_etc_hosts
-  print_instructions
+  if [[ "${QUIET}" == "false" ]]; then
+    print_instructions
+  fi
 }
 
 function main {
