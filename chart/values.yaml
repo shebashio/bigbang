@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.2.0-bb.0"
+    tag: "2.3.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.2.0-bb.0"
+    tag: "2.3.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -1531,11 +1531,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.2.0-bb.1"
+      tag: "3.3.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
-      tag: "3.2.0-bb.1"
+      tag: "3.3.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -1648,11 +1648,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.2.0-bb.1"
+      tag: "10.2.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.2.0-bb.1"
+      tag: "10.2.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -2127,14 +2127,14 @@ wrapper:
     # -- Name of the OCI chart in `repo`
     chartName: wrapper
     # -- Tag of the OCI chart in `repo`
-    tag: "0.4.11"
+    tag: "0.4.12"
   git:
     # -- Git repo holding the wrapper helm chart, example: https://repo1.dso.mil/big-bang/product/packages/wrapper
     repo: "https://repo1.dso.mil/big-bang/product/packages/wrapper.git"
     # -- Path inside of the git repo to find the helm chart, example: chart
     path: "chart"
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
-    tag: "0.4.11"
+    tag: "0.4.12"
 
 # -- Packages to deploy with Big Bang
 # @default - '{}'
