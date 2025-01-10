@@ -39,6 +39,7 @@ spec:
       {{- end }}
       interval: 5m
 
+
   {{- toYaml $fluxSettingsGitlab | nindent 2 }}
   {{- if .Values.addons.gitlab.postRenderers }}
   postRenderers:
