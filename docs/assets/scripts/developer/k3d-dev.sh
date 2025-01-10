@@ -859,6 +859,220 @@ function initialize_instance {
   fi
 }
 
+function cloud_aws_prep_objects {
+  #### Cleaning up unused Elastic IPs
+  ALLOCATIONIDs=($(aws ec2 describe-addresses --filters "Name=tag:Owner,Values=${AWSUSERNAME}" "Name=tag:Project,Values=${PROJECTTAG}" --query "Addresses[?AssociationId==null]" | jq -r '.[].AllocationId'))
+  for i in "${ALLOCATIONIDs[@]}"; do
+    echo -n "Releasing Elastic IP $i ..."
+    aws ec2 release-address --allocation-id $i
+    echo "done"
+  done
+
+  #### SSH Key Pair
+  # Create SSH key if it doesn't exist
+  echo -n Checking if key pair ${KeyName} exists ...
+  aws ec2 describe-key-pairs --output json --no-cli-pager --key-names ${KeyName} >/dev/null 2>&1 || keypair=missing
+  if [ "${keypair}" == "missing" ]; then
+    echo -n -e "missing\nCreating key pair ${KeyName} ... "
+    aws ec2 create-key-pair --output json --no-cli-pager --key-name ${KeyName} | jq -r '.KeyMaterial' >${SSHKEY}
+    chmod 600 ${SSHKEY}
+    echo done
+  else
+    echo found
+  fi
+
+  #### Security Group
+  # Create security group if it doesn't exist
+  echo -n "Checking if security group ${SGname} exists ..."
+  aws ec2 describe-security-groups --output json --no-cli-pager --group-names ${SGname} >/dev/null 2>&1 || secgrp=missing
+  if [ "${secgrp}" == "missing" ]; then
+    echo -e "missing\nCreating security group ${SGname} ... "
+    aws ec2 create-security-group --output json --no-cli-pager --description "IP based filtering for ${SGname}" --group-name ${SGname} --vpc-id ${VPC_ID}
+    echo done
+  else
+    echo found
+  fi
+}
+
+function cloud_aws_request_spot_instance
+{
+  ##### Launch Specification
+  # Typical settings for Big Bang development
+  InstanceType="${InstSize}"
+  VolumeSize=120
+
+  echo "Using AMI image id ${AMI_ID}"
+  ImageId="${AMI_ID}"
+
+  # Create userdata.txt
+  mkdir -p ~/aws
+  cat <<EOF >~/aws/userdata.txt
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==MYBOUNDARY=="
+
+--==MYBOUNDARY==
+Content-Type: text/x-shellscript; charset="us-ascii"
+
+#!/bin/bash
+'
+EOF
+
+  # Create the device mapping and spot options JSON files
+  echo "Creating device_mappings.json ..."
+  mkdir -p ~/aws
+
+  # gp3 volumes are 20% cheaper than gp2 and comes with 3000 Iops baseline and 125 MiB/s baseline throughput for free.
+  cat <<EOF >~/aws/device_mappings.json
+[
+  {
+    "DeviceName": "/dev/sda1",
+    "Ebs": {
+      "DeleteOnTermination": true,
+      "VolumeType": "gp3",
+      "VolumeSize": ${VolumeSize},
+      "Encrypted": true
+    }
+  }
+]
+EOF
+
+  echo "Creating spot_options.json ..."
+  cat <<EOF >~/aws/spot_options.json
+{
+  "MarketType": "spot",
+  "SpotOptions": {
+    "MaxPrice": "${SpotPrice}",
+    "SpotInstanceType": "one-time"
+  }
+}
+EOF
+
+  #### Request a Spot Instance
+
+  # Run a spot instance with our launch spec for the max. of 6 hours
+  # NOTE: t3a.2xlarge spot price is 0.35 m5a.4xlarge is 0.69
+  echo "Running spot instance ..."
+
+  if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
+    # If we are using a secondary IP, we don't want to assign public IPs at launch time. Instead, the script will attach both public IPs after the instance is launched.
+    additional_create_instance_options="--no-associate-public-ip-address --secondary-private-ip-address-count 1"
+  else
+    additional_create_instance_options="--associate-public-ip-address"
+  fi
+
+  InstId=$(aws ec2 run-instances \
+    --output json --no-paginate \
+    --count 1 --image-id "${ImageId}" \
+    --instance-type "${InstanceType}" \
+    --subnet-id "${SUBNET_ID}" \
+    --key-name "${KeyName}" \
+    --security-group-ids "${SecurityGroupId}" \
+    --instance-initiated-shutdown-behavior "terminate" \
+    --user-data file://$HOME/aws/userdata.txt \
+    --block-device-mappings file://$HOME/aws/device_mappings.json \
+    --instance-market-options file://$HOME/aws/spot_options.json \
+    ${additional_create_instance_options} |
+    jq -r '.Instances[0].InstanceId')
+
+  # Check if spot instance request was not created
+  if [ -z ${InstId} ]; then
+    exit 1
+  fi
+
+  # Add name tag to spot instance
+  aws ec2 create-tags --resources ${InstId} --tags Key=Name,Value=${AWSUSERNAME}-dev &>/dev/null
+  aws ec2 create-tags --resources ${InstId} --tags Key=Project,Value=${PROJECTTAG} &>/dev/null
+
+  # Request was created, now you need to wait for it to be filled
+  echo "Waiting for instance ${InstId} to be ready ..."
+  aws ec2 wait instance-running --output json --no-cli-pager --instance-ids ${InstId} &>/dev/null
+
+  # allow some extra seconds for the instance to be fully initialized
+  echo "Almost there, 15 seconds to go..."
+  sleep 15
+}
+
+function cloud_aws_assign_ip_addresses
+{
+  ## IP Address Allocation and Attachment
+  CURRENT_EPOCH=$(date +'%s')
+
+  # Get the private IP address of our instance
+  PrivateIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')
+
+  # Use Elastic IPs if a Secondary IP is required, instead of the auto assigned one.
+  if [[ "${ATTACH_SECONDARY_IP}" == false ]]; then
+    PublicIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PublicIpAddress')
+  else
+    echo "Checking to see if an Elastic IP is already allocated and not attached..."
+    PublicIP=$(aws ec2 describe-addresses --filters "Name=tag:Name,Values=${AWSUSERNAME}-EIP1" "Name=tag:Project,Values=${PROJECTTAG}" --query 'Addresses[?AssociationId==null]' | jq -r '.[0].PublicIp // ""')
+    if [[ -z "${PublicIP}" ]]; then
+      echo "Allocating a new/another primary elastic IP..."
+      PublicIP=$(aws ec2 allocate-address --output json --no-cli-pager --tag-specifications="ResourceType=elastic-ip,Tags=[{Key=Name,Value=${AWSUSERNAME}-EIP1},{Key=Owner,Value=${AWSUSERNAME}}]" | jq -r '.PublicIp')
+    else
+      echo "Previously allocated primary Elastic IP ${PublicIP} found."
+    fi
+
+    echo -n "Associating IP ${PublicIP} address to instance ${InstId} ..."
+    EIP1_ASSOCIATION_ID=$(aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP} --public-ip $PublicIP | jq -r '.AssociationId')
+    echo "${EIP1_ASSOCIATION_ID}"
+    EIP1_ID=$(aws ec2 describe-addresses --public-ips ${PublicIP} | jq -r '.Addresses[].AllocationId')
+    aws ec2 create-tags --resources ${EIP1_ID} --tags Key="lastused",Value="${CURRENT_EPOCH}"
+    aws ec2 create-tags --resources ${EIP1_ID} --tags Key="Project",Value="${PROJECTTAG}"
+
+    PrivateIP2=$(getPrivateIP2)
+    echo "Checking to see if a Secondary Elastic IP is already allocated and not attached..."
+    SecondaryIP=$(aws ec2 describe-addresses --filters "Name=tag:Name,Values=${AWSUSERNAME}-EIP2" "Name=tag:Project,Values=${PROJECTTAG}" --query 'Addresses[?AssociationId==null]' | jq -r '.[0].PublicIp // ""')
+    if [[ -z "${SecondaryIP}" ]]; then
+      echo "Allocating a new/another secondary elastic IP..."
+      SecondaryIP=$(aws ec2 allocate-address --output json --no-cli-pager --tag-specifications="ResourceType=elastic-ip,Tags=[{Key=Name,Value=${AWSUSERNAME}-EIP2},{Key=Owner,Value=${AWSUSERNAME}}]" | jq -r '.PublicIp')
+    else
+      echo "Previously allocated secondary Elastic IP ${SecondaryIP} found."
+    fi
+    echo -n "Associating Secondary IP ${SecondaryIP} address to instance ${InstId}..."
+    EIP2_ASSOCIATION_ID=$(aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP2} --public-ip $SecondaryIP | jq -r '.AssociationId')
+    echo "${EIP2_ASSOCIATION_ID}"
+    EIP2_ID=$(aws ec2 describe-addresses --public-ips ${SecondaryIP} | jq -r '.Addresses[].AllocationId')
+    aws ec2 create-tags --resources ${EIP2_ID} --tags Key="lastused",Value="${CURRENT_EPOCH}"
+    aws ec2 create-tags --resources ${EIP2_ID} --tags Key="Project",Value="${PROJECTTAG}"
+    echo "Secondary public IP is ${SecondaryIP}"
+  fi  
+}
+
+function cloud_aws_destructive_create {
+  if [[ "$BIG_INSTANCE" == true ]]; then
+    echo "Will use large m5a.4xlarge spot instance"
+    InstSize="m5a.4xlarge"
+    SpotPrice="0.69"
+  else
+    echo "Will use standard t3a.2xlarge spot instance"
+    InstSize="t3a.2xlarge"
+    SpotPrice="0.35"
+  fi
+
+  cloud_aws_prep_objects
+  update_ec2_security_group
+  cloud_aws_request_spot_instance
+  cloud_aws_assign_ip_addresses
+
+  echo
+  echo "Instance ${InstId} is ready!"
+  echo "Instance Public IP is ${PublicIP}"
+  echo "Instance Private IP is ${PrivateIP}"
+  echo
+
+  # Remove previous keys related to this IP from your SSH known hosts so you don't end up with a conflict
+  ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "${PublicIP}"
+
+  echo "ssh init"
+  # this is a do-nothing remote ssh command just to initialize ssh and make sure that the connection is working
+  until run "hostname"; do
+    sleep 5
+    echo "Retry ssh command.."
+  done
+  echo
+}
+
 function cloud_aws_create_instances {
   echo "Checking for existing cluster for ${AWSUSERNAME}."
   InstId=$(aws ec2 describe-instances \
@@ -888,12 +1102,14 @@ function cloud_aws_create_instances {
           echo "Secondary IP didn't exist at the time of creation of the instance, so cannot attach one without re-creating it with the -a flag selected."
           exit 1
         fi
+        break
         ;;
       "Recreate the EC2 instance from scratch")
         # Code for recreating the EC2 instance from scratch
+        break
         ;;
-      "Quit")
-        echo "Quitting..."
+      "Do nothing")
+        echo "Doing nothing..."
         exit 0
         ;;
       *)
@@ -904,206 +1120,7 @@ function cloud_aws_create_instances {
   fi
 
   if [[ "${RESET_K3D}" == false ]]; then
-    if [[ "$BIG_INSTANCE" == true ]]; then
-      echo "Will use large m5a.4xlarge spot instance"
-      InstSize="m5a.4xlarge"
-      SpotPrice="0.69"
-    else
-      echo "Will use standard t3a.2xlarge spot instance"
-      InstSize="t3a.2xlarge"
-      SpotPrice="0.35"
-    fi
-
-    #### Cleaning up unused Elastic IPs
-    ALLOCATIONIDs=($(aws ec2 describe-addresses --filters "Name=tag:Owner,Values=${AWSUSERNAME}" "Name=tag:Project,Values=${PROJECTTAG}" --query "Addresses[?AssociationId==null]" | jq -r '.[].AllocationId'))
-    for i in "${ALLOCATIONIDs[@]}"; do
-      echo -n "Releasing Elastic IP $i ..."
-      aws ec2 release-address --allocation-id $i
-      echo "done"
-    done
-
-    #### SSH Key Pair
-    # Create SSH key if it doesn't exist
-    echo -n Checking if key pair ${KeyName} exists ...
-    aws ec2 describe-key-pairs --output json --no-cli-pager --key-names ${KeyName} >/dev/null 2>&1 || keypair=missing
-    if [ "${keypair}" == "missing" ]; then
-      echo -n -e "missing\nCreating key pair ${KeyName} ... "
-      aws ec2 create-key-pair --output json --no-cli-pager --key-name ${KeyName} | jq -r '.KeyMaterial' >${SSHKEY}
-      chmod 600 ${SSHKEY}
-      echo done
-    else
-      echo found
-    fi
-
-    #### Security Group
-    # Create security group if it doesn't exist
-    echo -n "Checking if security group ${SGname} exists ..."
-    aws ec2 describe-security-groups --output json --no-cli-pager --group-names ${SGname} >/dev/null 2>&1 || secgrp=missing
-    if [ "${secgrp}" == "missing" ]; then
-      echo -e "missing\nCreating security group ${SGname} ... "
-      aws ec2 create-security-group --output json --no-cli-pager --description "IP based filtering for ${SGname}" --group-name ${SGname} --vpc-id ${VPC_ID}
-      echo done
-    else
-      echo found
-    fi
-
-    update_ec2_security_group
-
-    ##### Launch Specification
-    # Typical settings for Big Bang development
-    InstanceType="${InstSize}"
-    VolumeSize=120
-
-    echo "Using AMI image id ${AMI_ID}"
-    ImageId="${AMI_ID}"
-
-    # Create userdata.txt
-    mkdir -p ~/aws
-    cat <<EOF >~/aws/userdata.txt
-  MIME-Version: 1.0
-  Content-Type: multipart/mixed; boundary="==MYBOUNDARY=="
-
-  --==MYBOUNDARY==
-  Content-Type: text/x-shellscript; charset="us-ascii"
-
-  #!/bin/bash
-  '
-EOF
-
-    # Create the device mapping and spot options JSON files
-    echo "Creating device_mappings.json ..."
-    mkdir -p ~/aws
-
-    # gp3 volumes are 20% cheaper than gp2 and comes with 3000 Iops baseline and 125 MiB/s baseline throughput for free.
-    cat <<EOF >~/aws/device_mappings.json
-  [
-    {
-      "DeviceName": "/dev/sda1",
-      "Ebs": {
-        "DeleteOnTermination": true,
-        "VolumeType": "gp3",
-        "VolumeSize": ${VolumeSize},
-        "Encrypted": true
-      }
-    }
-  ]
-EOF
-
-    echo "Creating spot_options.json ..."
-    cat <<EOF >~/aws/spot_options.json
-  {
-    "MarketType": "spot",
-    "SpotOptions": {
-      "MaxPrice": "${SpotPrice}",
-      "SpotInstanceType": "one-time"
-    }
-  }
-EOF
-
-    #### Request a Spot Instance
-
-    # Run a spot instance with our launch spec for the max. of 6 hours
-    # NOTE: t3a.2xlarge spot price is 0.35 m5a.4xlarge is 0.69
-    echo "Running spot instance ..."
-
-    if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
-      # If we are using a secondary IP, we don't want to assign public IPs at launch time. Instead, the script will attach both public IPs after the instance is launched.
-      additional_create_instance_options="--no-associate-public-ip-address --secondary-private-ip-address-count 1"
-    else
-      additional_create_instance_options="--associate-public-ip-address"
-    fi
-
-    InstId=$(aws ec2 run-instances \
-      --output json --no-paginate \
-      --count 1 --image-id "${ImageId}" \
-      --instance-type "${InstanceType}" \
-      --subnet-id "${SUBNET_ID}" \
-      --key-name "${KeyName}" \
-      --security-group-ids "${SecurityGroupId}" \
-      --instance-initiated-shutdown-behavior "terminate" \
-      --user-data file://$HOME/aws/userdata.txt \
-      --block-device-mappings file://$HOME/aws/device_mappings.json \
-      --instance-market-options file://$HOME/aws/spot_options.json \
-      ${additional_create_instance_options} |
-      jq -r '.Instances[0].InstanceId')
-
-    # Check if spot instance request was not created
-    if [ -z ${InstId} ]; then
-      exit 1
-    fi
-
-    # Add name tag to spot instance
-    aws ec2 create-tags --resources ${InstId} --tags Key=Name,Value=${AWSUSERNAME}-dev &>/dev/null
-    aws ec2 create-tags --resources ${InstId} --tags Key=Project,Value=${PROJECTTAG} &>/dev/null
-
-    # Request was created, now you need to wait for it to be filled
-    echo "Waiting for instance ${InstId} to be ready ..."
-    aws ec2 wait instance-running --output json --no-cli-pager --instance-ids ${InstId} &>/dev/null
-
-    # allow some extra seconds for the instance to be fully initialized
-    echo "Almost there, 15 seconds to go..."
-    sleep 15
-
-    ## IP Address Allocation and Attachment
-    CURRENT_EPOCH=$(date +'%s')
-
-    # Get the private IP address of our instance
-    PrivateIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PrivateIpAddress')
-
-    # Use Elastic IPs if a Secondary IP is required, instead of the auto assigned one.
-    if [[ "${ATTACH_SECONDARY_IP}" == false ]]; then
-      PublicIP=$(aws ec2 describe-instances --output json --no-cli-pager --instance-ids ${InstId} | jq -r '.Reservations[0].Instances[0].PublicIpAddress')
-    else
-      echo "Checking to see if an Elastic IP is already allocated and not attached..."
-      PublicIP=$(aws ec2 describe-addresses --filters "Name=tag:Name,Values=${AWSUSERNAME}-EIP1" "Name=tag:Project,Values=${PROJECTTAG}" --query 'Addresses[?AssociationId==null]' | jq -r '.[0].PublicIp // ""')
-      if [[ -z "${PublicIP}" ]]; then
-        echo "Allocating a new/another primary elastic IP..."
-        PublicIP=$(aws ec2 allocate-address --output json --no-cli-pager --tag-specifications="ResourceType=elastic-ip,Tags=[{Key=Name,Value=${AWSUSERNAME}-EIP1},{Key=Owner,Value=${AWSUSERNAME}}]" | jq -r '.PublicIp')
-      else
-        echo "Previously allocated primary Elastic IP ${PublicIP} found."
-      fi
-
-      echo -n "Associating IP ${PublicIP} address to instance ${InstId} ..."
-      EIP1_ASSOCIATION_ID=$(aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP} --public-ip $PublicIP | jq -r '.AssociationId')
-      echo "${EIP1_ASSOCIATION_ID}"
-      EIP1_ID=$(aws ec2 describe-addresses --public-ips ${PublicIP} | jq -r '.Addresses[].AllocationId')
-      aws ec2 create-tags --resources ${EIP1_ID} --tags Key="lastused",Value="${CURRENT_EPOCH}"
-      aws ec2 create-tags --resources ${EIP1_ID} --tags Key="Project",Value="${PROJECTTAG}"
-
-      PrivateIP2=$(getPrivateIP2)
-      echo "Checking to see if a Secondary Elastic IP is already allocated and not attached..."
-      SecondaryIP=$(aws ec2 describe-addresses --filters "Name=tag:Name,Values=${AWSUSERNAME}-EIP2" "Name=tag:Project,Values=${PROJECTTAG}" --query 'Addresses[?AssociationId==null]' | jq -r '.[0].PublicIp // ""')
-      if [[ -z "${SecondaryIP}" ]]; then
-        echo "Allocating a new/another secondary elastic IP..."
-        SecondaryIP=$(aws ec2 allocate-address --output json --no-cli-pager --tag-specifications="ResourceType=elastic-ip,Tags=[{Key=Name,Value=${AWSUSERNAME}-EIP2},{Key=Owner,Value=${AWSUSERNAME}}]" | jq -r '.PublicIp')
-      else
-        echo "Previously allocated secondary Elastic IP ${SecondaryIP} found."
-      fi
-      echo -n "Associating Secondary IP ${SecondaryIP} address to instance ${InstId}..."
-      EIP2_ASSOCIATION_ID=$(aws ec2 associate-address --output json --no-cli-pager --instance-id ${InstId} --private-ip ${PrivateIP2} --public-ip $SecondaryIP | jq -r '.AssociationId')
-      echo "${EIP2_ASSOCIATION_ID}"
-      EIP2_ID=$(aws ec2 describe-addresses --public-ips ${SecondaryIP} | jq -r '.Addresses[].AllocationId')
-      aws ec2 create-tags --resources ${EIP2_ID} --tags Key="lastused",Value="${CURRENT_EPOCH}"
-      aws ec2 create-tags --resources ${EIP2_ID} --tags Key="Project",Value="${PROJECTTAG}"
-      echo "Secondary public IP is ${SecondaryIP}"
-    fi
-
-    echo
-    echo "Instance ${InstId} is ready!"
-    echo "Instance Public IP is ${PublicIP}"
-    echo "Instance Private IP is ${PrivateIP}"
-    echo
-
-    # Remove previous keys related to this IP from your SSH known hosts so you don't end up with a conflict
-    ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "${PublicIP}"
-
-    echo "ssh init"
-    # this is a do-nothing remote ssh command just to initialize ssh and make sure that the connection is working
-    until run "hostname"; do
-      sleep 5
-      echo "Retry ssh command.."
-    done
-    echo
+    cloud_aws_destructive_create
   fi
 }
 

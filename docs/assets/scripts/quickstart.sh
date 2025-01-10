@@ -29,14 +29,14 @@ declare -g arg_destroy=false
 declare -a arg_argv
 
 function checkout_bigbang_repo {
-    if [[ ! -f ${BIG_BANG_REPO} ]]; then
+    if [[ ! -d ${BIG_BANG_REPO} ]]; then
         mkdir -p ${BIG_BANG_REPO}
         git clone https://repo1.dso.mil/big-bang/bigbang.git ${BIG_BANG_REPO}
         cd ${BIG_BANG_REPO}
     else
         cd ${BIG_BANG_REPO}
-        git reset --hard
-        git clean -df
+        #git reset --hard
+        #git clean -df
     fi
     git fetch -a
     if [[ "${arg_version}" == "latest" ]]; then
@@ -234,9 +234,13 @@ function parse_arguments {
             ;;
         "--")
             shift
-            arg_argv=("$@")
+            arg_argv=("${@}")
+            return
             ;;
-        *) echo "Option $1 not recognized" ;;
+        *) 
+            echo "Option $1 not recognized" 
+            exit 1
+            ;;
 
         esac
         shift
