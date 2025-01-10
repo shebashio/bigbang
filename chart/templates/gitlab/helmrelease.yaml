@@ -46,9 +46,9 @@ spec:
   {{- if .Values.monitoring.enabled }}
   {{ include "gitlab.serviceMonitorPostRenderers" . | nindent 4 }}
   {{- end }}
-  {{- with .Values.addons.gitlab.postRenderers}}
+  {{- with .Values.addons.gitlab.postRenderers }}
   {{ toYaml . | nindent 4 }}
-  {{- end}}
+  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-gitlab-values
