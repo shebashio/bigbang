@@ -1900,6 +1900,25 @@ addons:
 
   mimir:
     enabled: true
+    values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-mimir"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'grafana.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
     minioObjectStorage:
       enabled: true
     networkPolicies:
@@ -1913,8 +1932,14 @@ addons:
     bbtests:
       enabled: true
       cypress:
+        artifacts: true
         envs:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+#      scripts:
+#        image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
+#         envs:
+#           MIMIR_URL: 'http://mimir-mimir-gateway:8080'
+
 
 
   mattermostOperator:
