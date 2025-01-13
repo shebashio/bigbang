@@ -1,7 +1,7 @@
 include:
   - project: 'big-bang/pipeline-templates/pipeline-templates'
-    ref: 'mmartin-test'
+    ref: 'fix-helm-release-checks'
     file: '/pipelines/bigbang.yaml'
 variables:
   CI_DEFAULT_BRANCH: 'mmartin-test-helm'
-  PIPELINE_REPO_BRANCH: 'mmartin-test'
+  PIPELINE_REPO_BRANCH: 'fix-helm-release-checks'
