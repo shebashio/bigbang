@@ -1919,6 +1919,16 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
+          envs:
+            cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+  #      scripts:
+  #        image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
+  #         envs:
+  #           MIMIR_URL: 'http://mimir-mimir-gateway:8080'
     minioObjectStorage:
       enabled: true
     networkPolicies:
@@ -1929,18 +1939,6 @@ addons:
       persistence:
         size: 5Gi
       localVolumeUpgrade: true
-    bbtests:
-      enabled: true
-      cypress:
-        artifacts: true
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-#      scripts:
-#        image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
-#         envs:
-#           MIMIR_URL: 'http://mimir-mimir-gateway:8080'
-
-
 
   mattermostOperator:
     enabled: false
