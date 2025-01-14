@@ -1909,7 +1909,7 @@ addons:
             cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
         scripts:
           envs:
-            MIMIR_URL: 'http://mimir-mimir-gateway:8080'
+            MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
     minioObjectStorage:
       enabled: true
     networkPolicies:
