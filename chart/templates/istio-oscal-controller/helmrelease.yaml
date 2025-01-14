@@ -27,4 +27,9 @@ spec:
   valuesFrom:
     {{- toYaml . | nindent 2 }}
   {{- end }}
+  {{ if .Values.istio.enabled }}
+  dependsOn:
+    - name: istio
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
 {{- end }}
