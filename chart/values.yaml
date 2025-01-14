@@ -256,11 +256,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.3-bb.2"
+    tag: "1.23.3-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.3-bb.2"
+    tag: "1.23.3-bb.3"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -1113,11 +1113,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.7.5-bb.1"
+      tag: "7.7.10-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.7.5-bb.1"
+      tag: "7.7.10-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -2157,12 +2157,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.11.0-bb.2"
+      tag: "0.11.0-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.11.0-bb.2"
+      tag: "0.11.0-bb.3"
 
     # -- Override flux settings for this package
     flux: {}
