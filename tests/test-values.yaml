@@ -1908,6 +1908,7 @@ addons:
           envs:
             cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
         scripts:
+          image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
           envs:
             MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
     minioObjectStorage:
