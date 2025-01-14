@@ -1934,10 +1934,9 @@ addons:
           artifacts: true
           envs:
             cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-  #      scripts:
-  #        image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
-  #         envs:
-  #           MIMIR_URL: 'http://mimir-mimir-gateway:8080'
+        scripts:
+          envs:
+            MIMIR_URL: 'http://mimir-mimir-gateway:8080'
     minioObjectStorage:
       enabled: true
     networkPolicies:
