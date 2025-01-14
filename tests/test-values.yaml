@@ -2128,7 +2128,10 @@ addons:
             MINIO_HOST: https://minio-api.dev.bigbang.mil
 
   keycloak:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: 233-update-chart-dependency
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
