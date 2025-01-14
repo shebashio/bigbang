@@ -31,7 +31,7 @@ istio:
   keycloak:
     enabled: true
     gateways:
-    - istio-system/{{ default "public" .Values.addons.keycloak.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.addons.keycloak.ingress.gateway }}
 
 {{- if $istioInjection }}
 podAnnotations:

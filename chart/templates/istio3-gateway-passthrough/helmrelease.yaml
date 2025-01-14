@@ -13,6 +13,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio3-gateway-passthrough/values.yaml") $ | sha256sum }}
 spec:
+  releaseName: passthrough-ingressgateway
   targetNamespace: istio-gateway
   chart:
     spec:

@@ -130,7 +130,7 @@ cr:
               namespace: istio-gateway
             {{- end }}
             {{- if .Values.istioGatewayPassthrough.enabled }}
-            - app_label: istio-gateway-passthrough-ingressgateway
+            - app_label: passthrough-ingressgateway
               is_core: true
               is_proxy: true
               namespace: istio-gateway
