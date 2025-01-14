@@ -60,9 +60,11 @@ spec:
     - name: mattermost-operator
       namespace: {{ .Release.Namespace }}
 
-    {{- if and .Values.addons.mattermost.minioOperator.enabled (not (and .Values.addons.mattermost.objectStorage.endpoint .Values.addons.mattermost.objectStorage.accessKey .Values.addons.mattermost.objectStorage.accessSecret .Values.addons.mattermost.objectStorage.bucket)) }} 
+    {{- with .Values.addons.mattermost }}
+    {{- if and .minioOperator.enabled (not (and .objectStorage.endpoint .objectStorage.accessKey .objectStorage.accessSecret .objectStorage.bucket)) }} 
     - name: minio-operator 
       namespace: {{ $.Release.Namespace }} 
+    {{- end }}
     {{- end }}
 
     {{- if and .Values.addons.mattermost.elasticsearch.enabled .Values.elasticsearchKibana.enabled }}
