@@ -19,4 +19,15 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
+
+{{- if .Values.addons.authservice.enabled }}
+istiod:
+  meshConfig:
+    extensionProviders:
+      - name: "authservice"
+        envoyExtAuthzGrpc:
+          service: "authservice.authservice.svc.cluster.local"
+          port: "10003"
+{{- end }}
+
 {{- end }}

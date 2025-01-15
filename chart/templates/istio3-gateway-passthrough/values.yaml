@@ -17,6 +17,9 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+labels:
+  istio: ingressgateway
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
