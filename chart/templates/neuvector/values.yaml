@@ -7,10 +7,10 @@ domain: {{ default .Values.domain .Values.hostname }}
 
 openshift: {{ .Values.openshift }}
 
-{{ $istioInjection := (and ( or .Values.istio.enabled .Values.istio3.enabled ) (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled")) }}
+{{ $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled")) }}
 
 istio:
-  enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.neuvector.values)
@@ -18,7 +18,7 @@ istio:
     }}
   neuvector:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.monitoring.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.monitoring.ingress.gateway }}
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
 monitoring:
@@ -113,7 +113,7 @@ cve:
     {{- end }}
 {{- end }}
 
-{{- if or .Values.istio.enabled .Values.istio3.enabled $.Values.kiali.enabled }}
+{{- if or (include "istioEnabled" .) $.Values.kiali.enabled }}
 manager:
   {{- if $istioInjection }}
   podAnnotations:

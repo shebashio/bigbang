@@ -18,10 +18,10 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled") (or .Values.istio3.enabled .Values.istio.enabled)) }}
+{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled") (include "istioEnabled" .)) }}
 
 istio:
-  enabled: {{ or .Values.istio3.enabled .Values.istio.enabled }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.keycloak.values)
@@ -31,7 +31,7 @@ istio:
   keycloak:
     enabled: true
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.addons.keycloak.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPassthroughGateway" . ) .Values.addons.keycloak.ingress.gateway }}
 
 {{- if $istioInjection }}
 podAnnotations:

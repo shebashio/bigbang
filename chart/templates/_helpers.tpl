@@ -448,10 +448,24 @@ data:
 {{- end -}}
 
 {{- /* Returns name of istio public gateway */ -}}
-{{- define "istioGatewayName" -}}
+{{- define "istioPublicGateway" -}}
 {{- if .Values.istio.enabled -}}
   {{- print "public" -}}
 {{- else -}}
   {{- print "public-ingressgateway" -}}
 {{- end -}}
+{{- end -}}
+
+{{- /* Returns name of istio passthrough gateway */ -}}
+{{- define "istioPassthroughGateway" -}}
+{{- if .Values.istio.enabled -}}
+  {{- print "passthrough" -}}
+{{- else -}}
+  {{- print "passthrough-ingressgateway" -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Returns true if either istio or istio3 is enabled */ -}}
+{{- define "istioEnabled" -}}
+{{ or .Values.istio.enabled .Values.istio3.enabled }}
 {{- end -}}

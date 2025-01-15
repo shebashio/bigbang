@@ -55,7 +55,7 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{ if or .Values.istio.enabled .Values.istio3.enabled .Values.monitoring.enabled }}
+  {{ if or (include "istioEnabled" . ) .Values.monitoring.enabled }}
   dependsOn:
   {{- if .Values.istio.enabled }}
     - name: istio

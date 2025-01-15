@@ -4,7 +4,7 @@
 
 {{- define "bigbang.defaults.tempo" -}}
 
-{{- if or .Values.istio.enabled .Values.istio3.enabled }}
+{{- if include "istioEnabled" . }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
@@ -64,7 +64,7 @@ networkPolicies:
     {{- end }}
 
 istio:
-  enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.tempo.values)
@@ -77,7 +77,7 @@ istio:
       - "tempo.{{ .Values.domain }}"
     {{- end }}
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioGatewayName" . ) .Values.tempo.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.tempo.ingress.gateway }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -87,7 +87,7 @@ serviceMonitor:
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT
-  {{- if and ( or .Values.istio.enabled .Values.istio3.enabled ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
+  {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem

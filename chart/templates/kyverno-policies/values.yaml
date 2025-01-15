@@ -88,7 +88,7 @@ policies:
     validationFailureAction: Enforce
 
   disallow-istio-injection-bypass:
-    enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
+    enabled: {{ include "istioEnabled" . }}
     exclude:
       any:
       # Istio does not inject itself
@@ -276,7 +276,7 @@ policies:
       - app.kubernetes.io/version
       
   require-istio-on-namespaces:
-    enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
+    enabled: {{ include "istioEnabled" . }}
     exclude:
       any:
       - resources:
@@ -297,7 +297,7 @@ policies:
 
   require-non-root-group:
     validationFailureAction: Enforce
-    {{ if or .Values.istio.enabled .Values.istio3.enabled }}
+    {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
         - istio-init
@@ -386,7 +386,7 @@ policies:
 
   require-non-root-user:
     validationFailureAction: Enforce
-    {{ if or .Values.istio.enabled .Values.istio3.enabled }}
+    {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
         - istio-init
@@ -510,7 +510,7 @@ policies:
       allow:
       # Defaults from https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
       - NET_BIND_SERVICE
-      {{- if or .Values.istio.enabled .Values.istio3.enabled }}
+      {{- if include "istioEnabled" . }}
       # Istio requires NET_ADMIN and NET_RAW for sidecar init: https://istio.io/latest/docs/ops/deployment/requirements/#pod-requirements
       # It uses these permissions to setup iptables for network routing
       # Cannot create exclusion since sidecar is injected in most containers, so allow the capabilities globally
@@ -1036,7 +1036,7 @@ policies:
           - gitlab-runner-*
 
 istio:
-  enabled: {{ or .Values.istio.enabled .Values.istio3.enabled }}
+  enabled: {{ include "istioEnabled" . }}
 
 {{- end }}
 
