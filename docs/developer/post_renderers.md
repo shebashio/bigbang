@@ -77,5 +77,5 @@ Post-renderers provide flexibility for last-minute customizations of Kubernetes 
 
 For more information, refer to:
 - [Helm Post-Rendering](https://helm.sh/docs/topics/advanced/#post-rendering)
-- [Flux Helm Controller](https://fluxcd.io/docs/components/helm/)
+- [Flux Helm Release Post Renderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers)
 - [Kustomize Documentation](https://kustomize.io/)
