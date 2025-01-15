@@ -132,27 +132,27 @@ postgresql:
 {{- end }}
 {{- end }}
 
-{{- with .Values.addons.mattermost.objectStorage }}
-{{- if and .endpoint .accessKey .accessSecret .bucket }}
+{{- if and .Values.addons.mattermost.objectStorage.endpoint .Values.addons.mattermost.objectStorage.bucket }}
 fileStore:
   secret: "mattermost-objectstorage-secret"
-  url: {{ .endpoint }}
-  bucket: {{ .bucket }}
-{{- else }}
+  url: {{ .Values.addons.mattermost.objectStorage.endpoint }}
+  bucket: {{ .Values.addons.mattermost.objectStorage.bucket }}
+{{- end }}
+
+{{- if and .Values.addons.minioOperator.enabled (dig "bb-minio" "enabled" false .Values.addons.mattermost) }}
 minio:
   install: true
-  accessKey: {{ .accessKey | default "minio" }}
-  secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
+  accessKey: {{ .Values.addons.mattermost.objectStorage.accessKey | default "minio" }}
+  secretKey: {{ .Values.addons.mattermost.objectStorage.secretKey | default "BigBangDEVONLY" }}
   imagePullSecrets:
     - name: private-registry
-  tenants:
+  tenant:
     metrics:
       enabled: {{ $.Values.monitoring.enabled }}
   {{- if $istioInjection }}
   annotations:
     {{ include "istioAnnotation" $ }}
   {{- end }}
-{{- end }}
 {{- end }}
 
 {{- if .Values.addons.mattermost.elasticsearch.enabled }}
