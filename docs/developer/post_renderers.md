@@ -1,0 +1,81 @@
+# Post-Renderers in Helm, Flux, and Kustomize
+
+Post-renderers are a powerful feature that extends the functionality of Helm by enabling custom modifications to rendered Kubernetes manifests before they are applied to the cluster. This doc explores post-renderers, their applications, advantages, and limitations, particularly in the context of Helm, Flux, and Kustomize.
+
+---
+
+## What Are Post-Renderers?
+
+A **post-renderer** is a program or script that Helm executes after rendering a chart but before applying the resulting Kubernetes manifests to a cluster. Post-renderers allow you to:
+
+- Make adjustments to kubernetes manifests without having to fork from upstream repository.
+- Apply organization-specific policies or transformations.
+- Integrate external tools to enhance the generated manifests.
+
+For more details, see the [Helm documentation on post-renderers](https://helm.sh/docs/topics/advanced/#post-rendering).
+
+---
+
+## Advantages of Using Post-Renderers
+
+Using post-renderers in a repository offers several advantages, the biggest of which at Big Bang is allowing for Big Bang security hardened modification without having to fork upstream charts:
+
+1. **Customizability:**
+   - Post-renderers allow you to tailor Kubernetes manifests to specific organizational requirements without altering the upstream Helm chart or templates.
+
+2. **Policy Enforcement:**
+   - You can enforce security and compliance policies dynamically, such as injecting labels, annotations, or security contexts into resources.
+
+3. **Reuse of Charts:**
+   - By using post-renderers, the same Helm chart can be reused across multiple environments with unique configurations applied during deployment.
+
+4. **Seamless Integration:**
+   - Post-renderers can integrate external tools or scripts into the deployment pipeline, making it easier to manage complex workflows.
+
+5. **Environment-Specific Customization:**
+   - Tailor deployments to different environments (e.g., development, staging, production) by dynamically altering configurations.
+
+---
+
+## How Post-Renderers Work in Helm
+
+1. **Execution Flow:**
+   - Helm renders the chart templates.
+   - The rendered output is passed to the post-renderer.
+   - The post-renderer modifies the manifests as needed and returns the updated output.
+
+---
+
+## Post-Renderers in Flux
+
+At Big Bang, we apply post-renders through Flux, as a GitOps tool, integratation with Helm charts through the Helm Controller using the HelmRelease resource's built-in Kustomize directives.
+
+**HelmRelease Resource:**
+   In Flux, the `HelmRelease` resource is used to deploy Helm charts, to apply Kustomize post-rendering you can use HelmResource `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) for more info) to modify kubernetes resources that are deployed from that Helm Release:
+   - Preprocess the manifests using Kustomize before defining them in the `HelmRelease`.
+   - Use pre-built automation pipelines in your CI/CD system to simulate post-renderer logic.
+
+## Example in Big Bang of the Use of Post-Rendering 
+An example of using post-renderers in Big Bang is Big Bang Mimir package. 
+
+1. In the Mimir template in upstream Big Bang repo, there is an added a `_postrenderers.tpl` file in the [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) directory (this specific template adds tcp/grpc to the Mimir service and adds containerPort and a `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
+2. In the HelmRelease resource for Mimir, under `spec.postRenderers` we have included the `mimir.istioPostRenderers` from the `_postrenderers.tpl` template, see line [ref](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/helmrelease.yaml?ref_type=heads#L42).
+3. The post-renderers will apply during the helm install, patching the Mimir service/deployments
+
+---
+
+## Limitations of Post-Renderers
+
+### Helm:
+- **Does not support Helm tests:** Post-renderers are not executed during `helm test` runs. This can lead to discrepancies between the test and actual deployments.
+
+---
+
+## Conclusion
+
+Post-renderers provide flexibility for last-minute customizations of Kubernetes manifests. However, their integration with tools like Flux and Kustomize introduces additional complexity. Understanding their advantages and limitations ensures smoother deployments and maintainable workflows.
+
+For more information, refer to:
+- [Helm Post-Rendering](https://helm.sh/docs/topics/advanced/#post-rendering)
+- [Flux Helm Controller](https://fluxcd.io/docs/components/helm/)
+- [Kustomize Documentation](https://kustomize.io/)
