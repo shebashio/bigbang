@@ -14,15 +14,29 @@ bigbang:
     enabled: {{ .Values.istio.enabled }}
 
 registryCredentials:
-  registry: {{ .Values.registryCredentials.registry }}
-  username: {{ .Values.registryCredentials.username }}
-  password: {{ .Values.registryCredentials.password }}
+{{- if and .Values.registryCredentials (kindIs "slice" .Values.registryCredentials) }}
+{{ with index .Values.registryCredentials 0 }}
+  registry: "{{ .registry }}"
+  username: "{{ .username }}"
+  password: "{{ .password }}"
+{{- end }}
+{{ else }}
+{{ toYaml .Values.registryCredentials }}
+{{- end }}
 
 credentialsFile:
   credentials:
+  {{- if and .Values.registryCredentials (kindIs "slice" .Values.registryCredentials) }}
+  {{- range $item := .Values.registryCredentials }}
+  - uri: {{ $item.registry }}
+    username: {{ $item.username }}
+    password: {{ $item.password }}
+  {{- end }}
+  {{ else }}
   - uri: {{ .Values.registryCredentials.registry }}
     username: {{ .Values.registryCredentials.username }}
     password: {{ .Values.registryCredentials.password }}
+  {{- end }}
   - uri: "{{ .Values.addons.bbctl.repoCredentials.repo }}"
     username: "{{ .Values.addons.bbctl.repoCredentials.username }}"
     password: "{{ .Values.addons.bbctl.repoCredentials.password }}"
