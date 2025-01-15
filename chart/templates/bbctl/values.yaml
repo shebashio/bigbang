@@ -43,8 +43,15 @@ credentialsFile:
 
 baseConfig:
   preflight-check:
+    {{- if and .Values.registryCredentials (kindIs "slice" .Values.registryCredentials) }}
+    {{ with index .Values.registryCredentials 0 }}
+    registryserver: "https://{{ .registry }}"
+    registryusername: {{ .username }}
+    registrypassword: {{ .password }}
+    {{- end }}
+    {{ else }}
     registryserver: "https://{{ .Values.registryCredentials.registry }}"
     registryusername: {{ .Values.registryCredentials.username }}
     registrypassword: {{ .Values.registryCredentials.password }}
-
+    {{- end }}
 {{- end -}}
