@@ -256,11 +256,11 @@ istio:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
     path: "./chart"
-    tag: "1.23.3-bb.3"
+    tag: "1.23.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio"
-    tag: "1.23.3-bb.3"
+    tag: "1.23.4-bb.0"
     # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
     # cosignVerify:
 
@@ -398,11 +398,11 @@ istioOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
     path: "./chart"
-    tag: "1.23.3-bb.0"
+    tag: "1.23.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-operator"
-    tag: "1.23.3-bb.0"
+    tag: "1.23.4-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Istio Operator Package
   flux: {}
@@ -597,11 +597,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.0"
+    tag: "3.3.4-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.0"
+    tag: "3.3.4-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -758,11 +758,11 @@ promtail:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
     path: "./chart"
-    tag: "6.16.2-bb.4"
+    tag: "6.16.6-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
-    tag: "6.16.2-bb.4"
+    tag: "6.16.6-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Promtail Package
   flux: {}
@@ -1015,11 +1015,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.8.2-bb.0"
+    tag: "8.8.2-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.8.2-bb.0"
+    tag: "8.8.2-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1480,11 +1480,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "10.6.1-bb.5"
+      tag: "10.6.1-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "10.6.1-bb.5"
+      tag: "10.6.1-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1730,11 +1730,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.2.0-bb.2"
+      tag: "10.2.0-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.2.0-bb.2"
+      tag: "10.2.0-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -2157,12 +2157,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.11.0-bb.3"
+      tag: "0.12.1-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.11.0-bb.3"
+      tag: "0.12.1-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2184,12 +2184,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "1.6.16-bb.0"
+      tag: "1.6.18-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "k8s-monitoring"
-      tag: "1.6.16-bb.0"
+      tag: "1.6.18-bb.0"
 
     values: {}
 
