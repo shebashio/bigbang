@@ -11,4 +11,50 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+k8s-monitoring:
+  metrics:
+    enabled: {{ or .Values.monitoring.enabled .Values.addons.mimir.enabled }}
+  logs:
+    enabled: {{ .Values.loki.enabled }}
+  traces:
+    enabled: {{ .Values.tempo.enabled }}
+
+  externalServices:
+    {{- if and .Values.monitoring.enabled (not .Values.addons.mimir.enabled ) }}
+    prometheus:
+      host: http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090
+      authMode: none
+      writeEndpoint: /api/v1/write
+    {{- end }}
+    {{- if and .Values.addons.mimir.enabled (not .Values.monitoring.enabled) }}
+    prometheus:
+      host: http://mimir-mimir-nginx.mimir.svc.cluster.local:80
+      authMode: none
+      writeEndpoint: /api/v1/push
+    {{- end }}
+    {{- if .Values.loki.enabled }}
+    loki:
+      host: logging-loki.logging.svc.cluster.local:3100
+      authMode: none
+    {{- end }}
+    {{- if .Values.tempo.enabled }}
+    tempo:
+      host: tempo-tempo.tempo.svc.cluster.local:4317
+      authMode: none
+      tls:
+        insecure: true
+    {{- end }}
+  {{- if and .Values.monitoring.enabled .Values.addons.mimir.enabled }}
+  extraConfig: |
+    prometheus.remote_write "monitoring" {
+      endpoint {
+        url = "http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+      }
+    }
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://mimir-mimir-nginx.mimir.svc.cluster.local:80/api/v1/push"
+      }
+    }
+  {{- end }}
 {{- end }}
