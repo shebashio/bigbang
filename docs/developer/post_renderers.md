@@ -8,7 +8,7 @@ Post-renderers are a powerful feature that extend the functionality of Helm by e
 
 A **post-renderer** is a program or script that Helm executes _after_ rendering a chart but _before_ applying the resulting Kubernetes manifests to a cluster. Post-renderers allow you to:
 
-- Make adjustments to kubernetes manifests without having to fork from upstream repository.
+- Make adjustments to Kubernetes manifests without having to fork from the upstream repository.
 - Apply organization-specific policies or transformations.
 - Integrate external tools to enhance the generated manifests.
 
