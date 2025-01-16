@@ -63,7 +63,7 @@ redis-bb:
       selector: 
         app.kubernetes.io/name: redis-bb
         app.kubernetes.io/instance: authservice-authservice
-      {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.authservice.values) "STRICT") }}
+      {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.authservice.values) "STRICT") }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
