@@ -56,7 +56,7 @@ At Big Bang we apply post-renders through Flux, a GitOps tool that integrates wi
    - Use pre-built automation pipelines in your CI/CD system to simulate post-renderer logic.
 
 ## Post-Rendering Example in Big Bang
-An example of using post-renderers in Big Bang is Big Bang Mimir package. 
+An example of using post-renderers in Big Bang can be found in the Mimir template. 
 
 1. In the Mimir template in upstream Big Bang repo, there is an added a `_postrenderers.tpl` file in the [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) directory (this specific template adds tcp/grpc to the Mimir service and adds containerPort and a `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
 2. In the HelmRelease resource for Mimir, under `spec.postRenderers` we have included the `mimir.istioPostRenderers` from the `_postrenderers.tpl` template, see line [ref](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/helmrelease.yaml?ref_type=heads#L42).
