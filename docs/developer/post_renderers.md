@@ -18,7 +18,7 @@ For more details, see the [Helm documentation on post-renderers](https://helm.sh
 
 ## Advantages of Using Post-Renderers
 
-Using post-renderers in a repository offers several advantages, the biggest of which at Big Bang is allowing for Big Bang security hardened modification without having to fork upstream charts:
+Using post-renderers in a repository offers several advantages, the biggest of which at Big Bang is allowing for security-hardened modifications without having to fork upstream charts:
 
 1. **Customizability:**
    - Post-renderers allow you to tailor Kubernetes manifests to specific organizational requirements without altering the upstream Helm chart or templates.
