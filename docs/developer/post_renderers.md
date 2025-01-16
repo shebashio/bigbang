@@ -60,7 +60,7 @@ An example of using post-renderers in Big Bang can be found in the Mimir templat
 
 1. The Mimir template in the Big Bang umbrella chart contains a `_postrenderers.tpl` file: [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) (this specific template adds tcp/grpc appProtocols to the Mimir service, a new containerPort, and an `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
 2. The HelmRelease resource for Mimir includes the `mimir.istioPostRenderers` from the `_postrenderers.tpl` template (found under `spec.postRenderers`): [bigbang/chart/templates/mimir/helmrelease.yaml](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/helmrelease.yaml?ref_type=heads#L42).
-3. The post-renderers will apply during the helm install, patching the Mimir service/deployments
+3. Post-renderers get applied during the `helm install`, patching the Mimir service/deployments.
 
 ---
 
