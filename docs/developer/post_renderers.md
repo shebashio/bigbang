@@ -58,7 +58,7 @@ At Big Bang we apply post-renders through Flux, a GitOps tool that integrates wi
 ## Post-Rendering Example in Big Bang
 An example of using post-renderers in Big Bang can be found in the Mimir template. 
 
-1. In the Mimir template in upstream Big Bang repo, there is an added a `_postrenderers.tpl` file in the [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) directory (this specific template adds tcp/grpc to the Mimir service and adds containerPort and a `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
+1. The Mimir template in the Big Bang umbrella chart contains a `_postrenderers.tpl` file: [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) (this specific template adds tcp/grpc appProtocols to the Mimir service, a new containerPort, and an `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
 2. In the HelmRelease resource for Mimir, under `spec.postRenderers` we have included the `mimir.istioPostRenderers` from the `_postrenderers.tpl` template, see line [ref](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/helmrelease.yaml?ref_type=heads#L42).
 3. The post-renderers will apply during the helm install, patching the Mimir service/deployments
 
