@@ -218,8 +218,7 @@ prometheus:
       - name: "config-reloader"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
     {{- if .Values.tempo.enabled }}
-    enableFeatures:
-      - remote-write-receiver
+    enableRemoteWriteReceiver: true
     {{- end }}
     podMetadata:
       labels:
@@ -247,6 +246,8 @@ prometheus:
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-inject-token: "true"
         vault.hashicorp.com/role: "prometheus"
+        vault.hashicorp.com/agent-run-as-user : "1000"
+        vault.hashicorp.com/agent-run-as-group : "2000"
         {{- end }}
       {{- end }}
     {{- if .Values.addons.vault.enabled }}
@@ -332,6 +333,7 @@ prometheus:
     # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
     {{- if (dig "globalPodEndpointMetrics" "enabled" false .Values.monitoring) }}
     - job_name: 'kubernetes-pods'
+
 
       kubernetes_sd_configs:
         - role: pod

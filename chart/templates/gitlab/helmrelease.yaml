@@ -41,7 +41,6 @@ spec:
 
 
   {{- toYaml $fluxSettingsGitlab | nindent 2 }}
-
   {{- if .Values.addons.gitlab.postRenderers }}
   postRenderers:
   {{ toYaml .Values.addons.gitlab.postRenderers | nindent 4 }}
