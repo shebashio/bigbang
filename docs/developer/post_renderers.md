@@ -24,7 +24,7 @@ Using post-renderers in a repository offers several advantages, the biggest of w
    - Post-renderers allow you to tailor Kubernetes manifests to specific organizational requirements without altering the upstream Helm chart or templates.
 
 2. **Policy Enforcement:**
-   - You can enforce security and compliance policies dynamically, such as injecting labels, annotations, or security contexts into resources.
+   - Security and compliance policies can be enforced dynamically by injecting labels, annotations, or security contexts into resources.
 
 3. **Reuse of Charts:**
    - By using post-renderers, the same Helm chart can be reused across multiple environments with unique configurations applied during deployment.
