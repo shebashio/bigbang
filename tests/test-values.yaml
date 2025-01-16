@@ -1085,6 +1085,7 @@ monitoring:
       disableOpenAPIValidation: true
       crds: CreateReplace
   sso:
+    enabled: true
     prometheus:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_prometheus
     alertmanager:
@@ -1138,6 +1139,7 @@ monitoring:
 
 grafana:
   sso:
+    enabled: true
     grafana:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_grafana
       scopes: "openid Grafana"
