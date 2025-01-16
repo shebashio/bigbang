@@ -67,7 +67,7 @@ An example of using post-renderers in Big Bang can be found in the Mimir templat
 ## Limitations of Post-Renderers
 
 ### Helm:
-- **Does not support Helm tests:** Post-renderers are not executed during `helm test` runs. This can lead to discrepancies between the test and actual deployments.
+- **Does not support Helm tests:** Post-renderers are not executed during `helm test` runs. This can lead to discrepancies between testing and actual deployments.
 
 ---
 
