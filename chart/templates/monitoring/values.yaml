@@ -8,7 +8,7 @@
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") (include "istioEnabled" .)) }}
+{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled")) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}

@@ -18,7 +18,7 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled") (include "istioEnabled" .)) }}
+{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled")) }}
 
 istio:
   enabled: {{ include "istioEnabled" . }}
