@@ -1,6 +1,6 @@
 # Post-Renderers in Helm, Flux, and Kustomize
 
-Post-renderers are a powerful feature that extends the functionality of Helm by enabling custom modifications to rendered Kubernetes manifests before they are applied to the cluster. This doc explores post-renderers, their applications, advantages, and limitations, particularly in the context of Helm, Flux, and Kustomize.
+Post-renderers are a powerful feature that extend the functionality of Helm by enabling custom modifications to rendered Kubernetes manifests before they are applied to the cluster. This doc explores post-renderers: their applications, advantages, and limitations, particularly in the context of Helm, Flux, and Kustomize.
 
 ---
 
