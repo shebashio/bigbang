@@ -48,7 +48,7 @@ Using post-renderers in a repository offers several advantages, the biggest of w
 
 ## Post-Renderers in Flux
 
-At Big Bang, we apply post-renders through Flux, as a GitOps tool, integratation with Helm charts through the Helm Controller using the HelmRelease resource's built-in Kustomize directives.
+At Big Bang we apply post-renders through Flux, a GitOps tool that integrates with Helm charts via the Helm Controller using the `HelmRelease` resource's built-in Kustomize directives.
 
 **HelmRelease Resource:**
    In Flux, the `HelmRelease` resource is used to deploy Helm charts, to apply Kustomize post-rendering you can use HelmResource `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) for more info) to modify kubernetes resources that are deployed from that Helm Release:
