@@ -73,7 +73,7 @@ An example of using post-renderers in Big Bang can be found in the Mimir templat
 
 ## Conclusion
 
-Post-renderers provide flexibility for last-minute customizations of Kubernetes manifests. However, their integration with tools like Flux and Kustomize introduces additional complexity. Understanding their advantages and limitations ensures smoother deployments and maintainable workflows.
+Post-renderers provide flexibility for concluding customizations of Kubernetes manifests. However, their integration with tools like Flux and Kustomize introduces additional complexity. Understanding their advantages and limitations ensures smoother deployments and maintainable workflows.
 
 For more information, refer to:
 - [Helm Post-Rendering](https://helm.sh/docs/topics/advanced/#post-rendering)
