@@ -5,6 +5,7 @@ metadata:
   name: istio-oscal-controller
   namespace: bigbang
   labels:
+    app.kubernetes.io/name: istio-oscal-controller
     {{- include "commonLabels" . | nindent 4}}
 spec:
   interval: {{ .Values.flux.interval }}
