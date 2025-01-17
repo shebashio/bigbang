@@ -12,12 +12,18 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 k8s-monitoring:
+  {{- if and (dig "metrics" "enabled" false .Values.addons.k8s-monitoring.values) (or .Values.monitoring.enabled .Values.addons.mimir.enabled) }}
   metrics:
-    enabled: {{ or .Values.monitoring.enabled .Values.addons.mimir.enabled }}
+    enabled: true
+  {{- end }}
+  {{- if and (dig "logs" "enabled" false .Values.addons.k8s-monitoring.values) .Values.loki.enabled }}
   logs:
-    enabled: {{ .Values.loki.enabled }}
+    enabled: true
+  {{- end }}
+  {{- if and (dig "traces" "enabled" false .Values.addons.k8s-monitoring.values) .Values.tempo.enabled }}
   traces:
-    enabled: {{ .Values.tempo.enabled }}
+    enabled: true
+  {{- end }}
 
   externalServices:
     {{- if and .Values.monitoring.enabled (not .Values.addons.mimir.enabled ) }}
