@@ -878,11 +878,12 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "62.4.0-bb.1"
+    tag: null
+    branch: "renovate/ironbank"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "62.4.0-bb.1"
+    tag: "null"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -2229,4 +2230,4 @@ packages:
     # -- Values to pass through to package Helm chart
     values: {}
 
-    
+
