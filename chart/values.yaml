@@ -892,11 +892,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.16.0-bb.0"
+    tag: "1.16.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.16.0-bb.0"
+    tag: "1.16.0-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1545,11 +1545,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.21"
+      tag: "1.1.2320154-bb.22"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.21"
+      tag: "1.1.2320154-bb.22"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
