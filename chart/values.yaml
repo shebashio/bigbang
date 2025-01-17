@@ -2118,16 +2118,19 @@ addons:
 
   mimir:
     # -- Toggle deployment of Mimir
-    enabled: true
+    enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/big-bang/apps/sandbox/mimir.git
-      tag: null
-      branch: main
+      tag: "5.5.1-bb.3"
       path: "./chart"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "mimir"
+      tag: "5.5.1-bb.3"
 
     # -- Enable Mimir Enterprise
     enterprise:
