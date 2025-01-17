@@ -2126,49 +2126,13 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/apps/sandbox/mimir.git
-      tag: "5.5.1-bb.3"
+      # tag: "5.5.1-bb.3"
+      branch: "main"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
       tag: "5.5.1-bb.3"
-
-    # -- Enable Mimir Enterprise
-    enterprise:
-      enabled: false
-
-    # -- Enable Big Bang MinIO dependency chart for Mimir
-    minioObjectStorage:
-      enabled: false
-      # -- MinIO root credentials
-      configSecret:
-        accessKey: "minio"
-        secretKey: "minio123" # default key, change this!
-      # Configures the Big Bang MinIO Tenant User Credentials
-      defaultUserCredentials:
-        username: "mimir-user"
-        password: "supersecret"
-
-    values: {}
-
-    postRenderers: []
-
-    # -- Flux reconciliation overrides specifically for the alloy package
-    flux: {}
-
-  mimir:
-    # -- Toggle deployment of Mimir
-    enabled: true
-
-    # -- Choose source type of "git" or "helmRepo"
-    sourceType: "git"
-
-    git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/mimir.git
-      tag: null
-      #branch: "main"
-      branch: "46-create-grafana-helm-test-as-part-of-mimir-bb-smoke-test"
-      path: "./chart"
 
     # -- Enable Mimir Enterprise
     enterprise:
