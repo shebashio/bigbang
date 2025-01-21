@@ -139,6 +139,11 @@ cr:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  {{- if .Values.istio3.enabled }}
+  istioSelector: 
+    enabled: true
+    name: istio3
+  {{- end }}
   ingressLabels:
     {{- if .Values.istio.enabled }}
     {{- $gateway := default "public" .Values.kiali.ingress.gateway }}
