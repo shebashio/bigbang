@@ -70,6 +70,10 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- if .Values.istio3.enabled }}
+    - name: istio3
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
     {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
