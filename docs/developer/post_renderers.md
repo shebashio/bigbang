@@ -39,16 +39,18 @@ Using post-renderers in a repository offers several advantages, the biggest of w
 
 ## How Post-Renderers Work in Helm
 
-1. **Execution Flow:**
-   - Helm renders the chart templates.
-   - The rendered output is passed to the post-renderer.
-   - The post-renderer modifies the manifests as needed and returns the updated output.
+- **Execution Flow:**
+   1. Helm renders the chart templates.
+   2. The rendered output is passed to the post-renderer.
+   3. The post-renderer modifies the manifests as needed and returns the updated output.
 
 ---
 
 ## Post-Renderers and Kustomize
 
 Kustomize is a tool for customizing Kubernetes YAML manifests without using templating. It allows you to define declarative patches or overlays to modify resources in a structured and reusable way. When you use Kustomize as a post-renderer, Helm passes the rendered manifests to Kustomize, which then applies its patches or overlays. The result is the modified manifests that Helm deploys to the cluster. For more information, see the [Kustomize](https://kubectl.docs.kubernetes.io/references/kustomize/) documentation.
+
+The Flux HelmRelease resource has an api reference for Kustomize to apply patches for Kubernetes manifest augmentation. Refer to to Flux [HelmRelease Kustomize api reference doc](https://v2-0.docs.fluxcd.io/flux/components/helm/api/#helm.toolkit.fluxcd.io/v2beta1.Kustomize) for more information.
 
 ___
 
@@ -57,9 +59,7 @@ ___
 As part of the Big Bang product, we apply post-renders through Flux, a GitOps tool that integrates with Helm charts via the Helm Controller using the `HelmRelease` resource's built-in Kustomize directives.
 
 **HelmRelease Resource:**
-   In Flux, the `HelmRelease` resource is used to deploy Helm charts. To apply Kustomize post-rendering you can use HelmRelease `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) for more info) to modify Kubernetes resources that are deployed from that HelmRelease. When using Kustomize to augment the manifest, you can refer to the Kustomize documentation, specifically the [Kustomize patches doc](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) is very helpful :
-   - Preprocess the manifests using Kustomize before defining them in the `HelmRelease`.
-   - Use pre-built automation pipelines in your CI/CD system to simulate post-renderer logic.
+   In Flux, the `HelmRelease` resource is used to deploy Helm charts. To apply Kustomize post-rendering you can use HelmRelease `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) and the [HelmRelease Kustomize api reference doc](https://v2-0.docs.fluxcd.io/flux/components/helm/api/#helm.toolkit.fluxcd.io/v2beta1.Kustomize)  for more info) to modify Kubernetes resources that are deployed from that HelmRelease. When using Kustomize to augment the manifest, you can refer to the Kustomize documentation, specifically the [Kustomize patches doc](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) as a helpful resource. 
 
 ## Post-Rendering Example in Big Bang
 An example of using post-renderers in Big Bang can be found in the Mimir template. 
@@ -73,7 +73,7 @@ An example of using post-renderers in Big Bang can be found in the Mimir templat
 ## Limitations of Post-Renderers
 
 ### Helm:
-- **Does not support Helm tests:** Post-renderers are not executed during `helm test` runs. This can lead to discrepancies between testing and actual deployments.
+- **Does not support Helm tests:** Post-renderers are not executed during `helm test` runs so it is not possible to augment the manifests that are deployment during `helm test` using HelmRelease post-renderers. 
 
 ---
 
