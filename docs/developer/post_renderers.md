@@ -46,19 +46,26 @@ Using post-renderers in a repository offers several advantages, the biggest of w
 
 ---
 
+## Post-Renderers and Kustomize
+
+Kustomize is a tool for customizing Kubernetes YAML manifests without using templating. It allows you to define declarative patches or overlays to modify resources in a structured and reusable way. When you use Kustomize as a post-renderer, Helm passes the rendered manifests to Kustomize, which then applies its patches or overlays. The result is the modified manifests that Helm deploys to the cluster. For more information, see the [Kustomize](https://kubectl.docs.kubernetes.io/references/kustomize/) documentation.
+- 
+
+___
+
 ## Post-Renderers in Flux
 
 As part of the Big Bang product, we apply post-renders through Flux, a GitOps tool that integrates with Helm charts via the Helm Controller using the `HelmRelease` resource's built-in Kustomize directives.
 
 **HelmRelease Resource:**
-   In Flux, the `HelmRelease` resource is used to deploy Helm charts. To apply Kustomize post-rendering you can use HelmRelease `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) for more info) to modify Kubernetes resources that are deployed from that HelmRelease:
+   In Flux, the `HelmRelease` resource is used to deploy Helm charts. To apply Kustomize post-rendering you can use HelmRelease `spec.postRenderers` (see [Helm Release postRenderers](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers) for more info) to modify Kubernetes resources that are deployed from that HelmRelease. When using Kustomize to augment the manifest, you can refer to the Kustomize documentation, specifically the [Kustomize patches doc](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) is very helpful :
    - Preprocess the manifests using Kustomize before defining them in the `HelmRelease`.
    - Use pre-built automation pipelines in your CI/CD system to simulate post-renderer logic.
 
 ## Post-Rendering Example in Big Bang
 An example of using post-renderers in Big Bang can be found in the Mimir template. 
 
-1. The Mimir template in the Big Bang umbrella chart contains a `_postrenderers.tpl` file: [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads) (this specific template adds tcp/grpc appProtocols to the Mimir service, a new containerPort, and an `app.kubernetes.io~1part-of` label to the Mimir query-frontend deployment).
+1. The Mimir template in the Big Bang umbrella chart contains a `_postrenderers.tpl` file: [bigbang/chart/templates/mimir/_postrenderers.tpl](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/_postrenderers.tpl?ref_type=heads). This specific template adds tcp/grpc appProtocols to the Mimir service, a new containerPort, and an `app.kubernetes.io/part-of` label. You can see this with `app.kubernetes.io~1part-of` which gets translated to `app.kubernetes.io/part-of`. This is because the RFC6902 JSON patches are expected to use RFC6901 JSON pointer syntax (Both are respectively outlined in: [JavaScript Object Notation (JSON) Patch](https://datatracker.ietf.org/doc/html/rfc6902) and [JavaScript Object Notation (JSON) Pointer](https://datatracker.ietf.org/doc/html/rfc6901)).
 2. The HelmRelease resource for Mimir includes the `mimir.istioPostRenderers` from the `_postrenderers.tpl` template (found under `spec.postRenderers`): [bigbang/chart/templates/mimir/helmrelease.yaml](https://repo1.dso.mil/big-bang/bigbang/-/blob/epic-414/mimir-sandbox/chart/templates/mimir/helmrelease.yaml?ref_type=heads#L42).
 3. Post-renderers get applied during the `helm install`, patching the Mimir service/deployments.
 
