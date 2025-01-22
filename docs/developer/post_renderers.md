@@ -49,7 +49,6 @@ Using post-renderers in a repository offers several advantages, the biggest of w
 ## Post-Renderers and Kustomize
 
 Kustomize is a tool for customizing Kubernetes YAML manifests without using templating. It allows you to define declarative patches or overlays to modify resources in a structured and reusable way. When you use Kustomize as a post-renderer, Helm passes the rendered manifests to Kustomize, which then applies its patches or overlays. The result is the modified manifests that Helm deploys to the cluster. For more information, see the [Kustomize](https://kubectl.docs.kubernetes.io/references/kustomize/) documentation.
-- 
 
 ___
 
