@@ -31,6 +31,10 @@ istio:
     minioOperator:
       enabled: {{ .Values.addons.minioOperator.enabled }}
   {{- end }}
+  loki:
+    enabled: true
+    gateways:
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) }}
 
 imagePullSecrets:
   - name: private-registry
