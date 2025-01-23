@@ -993,7 +993,8 @@ loki:
         size: 2Gi
       resources:
         limits:
-          cpu: null
+          # for some reason (probably toYaml) setting this to null changes to an invalid 0
+          # cpu: null
           memory: 1G
         requests:
           cpu: 500m
