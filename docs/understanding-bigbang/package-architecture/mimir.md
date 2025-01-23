@@ -1,7 +1,5 @@
 # Mimir
 
-fix(docs): correct spelling of Prometheus in Mimir docs
-
 Mimir is an open source, horizontally scalable, highly available, multi-tenant
 Time Series Database (TSDB) for long-term storage for Prometheus.
 
