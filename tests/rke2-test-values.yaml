@@ -342,8 +342,6 @@ addons:
               cpu: null
               memory: 128Mi
       postgresql:
-        install: false
-        ssl_mode: require
         persistence:
           size: 256Mi
         metrics:

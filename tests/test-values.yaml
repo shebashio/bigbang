@@ -795,6 +795,36 @@ kyvernoPolicies:
               - alloy-config-validator*
               - alloy-config-analysis*
               - alloy-test*
+      add-default-securitycontext:
+        exclude:
+          any:
+          - resources:
+              namespaces:
+              - metallb-system
+              names:
+              - speaker-*
+          - resources:
+              namespaces:
+              - argocd
+              names:
+              - guestbook*
+          - resources:
+              namespaces:
+              - velero
+              names:
+              - velero-backup-restore-test*
+          - resources:
+              namespaces:
+              - twistlock
+              names:
+              - volume-upgrade-job*
+          - resources:
+              namespaces:
+              - alloy
+              names:
+              - alloy-config-validator*
+              - alloy-config-analysis*
+              - alloy-test*
       disallow-namespaces:
         parameters:
           disallow:
@@ -1564,16 +1594,13 @@ addons:
           persistence:
             size: 256Mi
       bbtests:
-        # TODO: turn these back on once we get 2.39.0 out the door, provided we've managed to fix or remove the failing gitlab script tests
-        enabled: false
-        #cypress:
-        #  envs:
-        #    cypress_url: https://gitlab.dev.bigbang.mil
-        # scripts:
-        #   envs:
-        #     GITLAB_REPOSITORY: https://gitlab.dev.bigbang.mil
-        #     GITLAB_ORIGIN: https://testuser:Password123h56a78@gitlab.dev.bigbang.mil
-        #     GITLAB_REGISTRY: registry.dev.bigbang.mil
+        enabled: true
+        cypress:
+          envs:
+            cypress_url: https://gitlab.dev.bigbang.mil
+        scripts:
+          envs:
+            GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
     enabled: false
@@ -2008,8 +2035,6 @@ addons:
 
   mattermost:
     enabled: false
-    database:
-      ssl_mode: require
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_mattermost
@@ -2068,8 +2093,6 @@ addons:
                 resolution: DNS
 
       postgresql:
-        install: false
-        ssl_mode: require
         persistence:
           size: 256Mi
       resources:
@@ -2603,7 +2626,6 @@ addons:
           envs:
             cypress_url: "https://harbor.dev.bigbang.mil"
         scripts:
-          image: "registry1.dso.mil/bigbang-ci/devops-tester:1.1.1"
           envs:
             HARBOR_REGISTRY: "harbor.dev.bigbang.mil"
 
