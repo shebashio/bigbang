@@ -473,7 +473,7 @@ data:
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
 {{- if .Values.istio3.enabled -}}
-  {{- print "istio3" -}}
+  {{- print "istio-gateway" -}}
 {{- else -}}
   {{- print "istio-controlplane" -}}
 {{- end -}}
