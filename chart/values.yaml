@@ -231,10 +231,6 @@ istioGatewayPassthrough:
     repoName: "registry1"
     chartName: "istio-gateway"
     #tag:
-  # -- set the tls key/cert
-  # tls:
-  #   key: ""
-  #   cert: ""
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
