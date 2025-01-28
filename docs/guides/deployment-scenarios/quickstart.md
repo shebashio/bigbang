@@ -18,7 +18,7 @@ An SRE with a reasonable amount of experience operating in a command line enviro
 1. Ensure you have an account on [PlatformOne RegistryOne](https://registry1.dso.mil). You will need your username and access token ("CLI Secret") for this process.
 1. If you do not plan to deploy the bigbang quickstart cluster onto your own VM, and want the quickstart script to provision an AWS VM for you, you need to install and configure [the AWS cli](https://aws.amazon.com/cli/) for your AWS account.
 
-### Build the Cluster
+### Download the Quickstart Script
 
 Run the following commands in your terminal to download the quickstart script, which you will use in the next step:
 
@@ -29,6 +29,8 @@ export REPO1_LOCATION=LOCATION_ON_FILESYSTEM_TO_CHECK_OUT_BIGBANG_CODE
 
 curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/docs/assets/scripts/quickstart.sh?ref_type=heads
 ```
+
+### Build the Cluster
 
 #### Using a VM or other hardware you built yourself
 
