@@ -155,8 +155,8 @@ Optional Arguments:
     -v,--pipeline-templates-version v : String. Version of the bigbang pipeline-templates to use (Default "master")
     -R,--repolocation v : String. Location on your host filesystem where bigbang should be checked out (Default "${arg_repolocation}")
     -u,--registry1-username v : String. Username for your account on registry1.dso.mil (Default "${arg_registry1_username}")
-    -t,--registry1-token v : String. Access token for your account on registry1.dso.mil (Default "${arg_registry1_token}")
     -c,--cloud-provider v : String. If using cloud provisioning, which cloud provider should be used (Default "aws")
+    -t,--registry1-token v : String. Access token for your account on registry1.dso.mil (Default "${arg_registry1_token}")
     -m,--metallb : Boolean. Deploy a MetalLB on k3d 
     -p,--provision : Boolean. Provision the k3d cluster (implied) 
     -d,--deploy : Boolean. Deploy bigbang (implied) 
@@ -192,6 +192,16 @@ function parse_arguments {
             shift
             arg_host=$1
             ;;
+        "-P") ;&
+        "--privateip")
+            shift
+            arg_privateip=$1
+            ;;
+        "-U") ;&
+        "--username")
+            shift
+            arg_username=$1
+            ;;
         "-V") ;&
         "--version")
             shift
@@ -222,6 +232,10 @@ function parse_arguments {
             shift
             arg_cloud_provider=$1
             ;;
+        "-K") ;&
+        "--keyfile")
+            shift
+            arg_keyfile=${1}
         "-m") ;&
         "--metallb")
             arg_metallb=true

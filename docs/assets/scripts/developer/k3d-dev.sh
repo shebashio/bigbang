@@ -926,7 +926,11 @@ function cloud_aws_prep_objects {
   else
     echo found
   fi
-
+  if [[ ! -f ${SSHKEY} ]]; then
+    echo "Local key file ${SSHKEY} does not exist. Cannot continue." >&2
+    exit 1
+  fi
+  
   #### Security Group
   # Create security group if it doesn't exist
   echo -n "Checking if security group ${SGname} exists ..."
