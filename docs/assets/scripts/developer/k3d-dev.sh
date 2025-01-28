@@ -327,7 +327,8 @@ function run_batch_new() {
     exit 1
   fi
   RUN_BATCH_FILE=$(mktemp k3d_dev_run_batchXXX)
-  printf "#!/bin/bash\nset -xue\n" >> ${RUN_BATCH_FILE}
+  echo '#!/bin/bash' >> ${RUN_BATCH_FILE}
+  echo 'set -xue' >> ${RUN_BATCH_FILE}
 }
 
 function run_batch_add() {
@@ -491,14 +492,14 @@ function install_docker {
   echo "installing docker"
   # install dependencies
   run_batch_new
-  run_batch_add "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release gnupg-agent software-properties-common"
+  run_batch_add "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release gnupg-agent software-properties-common"
   # Add the Docker repository, we are installing from Docker and not the Ubuntu APT repo.
   run_batch_add 'sudo mkdir -m 0755 -p /etc/apt/keyrings'
   # gpg won't overwrite the file if we're rebuilding the cluster, we have to clear it
   run_batch_add 'sudo rm -f /etc/apt/keyrings/docker.gpg'
   run_batch_add 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --dearmor -o /etc/apt/keyrings/docker.gpg'
   run_batch_add 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
-  run_batch_add "sudo apt-get update && sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+  run_batch_add "sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
   # Add your base user to the Docker group so that you do not need sudo to run docker commands
   run_batch_add "sudo usermod -aG docker ubuntu"
   run_batch_execute
@@ -899,9 +900,9 @@ function initialize_instance {
   if [[ $APT_UPDATE = "true" ]]; then
     echo
     run_batch_add 'echo "updating packages"'
-    run_batch_add "sudo apt-get update && sudo apt-get upgrade -y"
+    run_batch_add "sudo DEBIAN_FRONTEND=noninteractive apt-get update"
+    run_batch_add "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y"
   fi
-
   run_batch_execute
 }
 
@@ -930,7 +931,7 @@ function cloud_aws_prep_objects {
     echo "Local key file ${SSHKEY} does not exist. Cannot continue." >&2
     exit 1
   fi
-  
+
   #### Security Group
   # Create security group if it doesn't exist
   echo -n "Checking if security group ${SGname} exists ..."
