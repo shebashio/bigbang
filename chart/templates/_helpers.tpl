@@ -469,3 +469,13 @@ data:
 {{- define "istioEnabled" -}}
 {{ or .Values.istio.enabled .Values.istio3.enabled }}
 {{- end -}}
+
+{{- /* Returns name of istio Namespace Selector*/ -}}
+{{- define "istioNamespaceSelector" -}}
+{{- if .Values.istio3.enabled -}}
+ingress: istio-gateway
+egress: istio3
+{{- else -}}
+ingress: istio-controlplane
+{{- end -}}
+{{- end -}}
