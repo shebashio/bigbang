@@ -371,7 +371,7 @@ function runwithexitcode() {
 }
 
 function runwithreturn() {
-  "$($(sshcmd) "$@")"
+  $(k3sshcmd) "$@"
 }
 
 function getPrivateIP2() {
