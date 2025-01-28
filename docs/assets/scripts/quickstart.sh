@@ -236,6 +236,7 @@ function parse_arguments {
         "--keyfile")
             shift
             arg_keyfile=${1}
+            ;;
         "-m") ;&
         "--metallb")
             arg_metallb=true
@@ -274,6 +275,11 @@ function parse_arguments {
 function main {
     set -e
     parse_arguments $@
+
+    if [[ ! -z "${arg_keyfile}" ]] && [[ ! -e ${arg_keyfile} ]] ; then
+        echo "SSH key file ${arg_keyfile} does not exist" >&2
+        exit 1
+    fi
 
     actions="provision deploy wait"
     user_actions=""
