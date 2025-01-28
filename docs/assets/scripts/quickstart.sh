@@ -153,9 +153,9 @@ Optional Arguments:
     -K,--keyfile v : String. SSH Key file to use when SSHing into the target VM 
     -V,--version v : String. Big Bang version to deploy (Default "latest")
     -v,--pipeline-templates-version v : String. Version of the bigbang pipeline-templates to use (Default "master")
-    -R,--repolocation v : String. Location on your host filesystem where bigbang should be checked out (Default "/Users/andrewkesterson/tmp/repo1.dso.mil")
-    -u,--registry1-username v : String. Username for your account on registry1.dso.mil (Default "AndrewKesterson")
-    -t,--registry1-token v : String. Access token for your account on registry1.dso.mil (Default "LLz4FHQAL8jFLAR5e5rCSa26UOgujnvE")
+    -R,--repolocation v : String. Location on your host filesystem where bigbang should be checked out (Default "${arg_repolocation}")
+    -u,--registry1-username v : String. Username for your account on registry1.dso.mil (Default "${arg_registry1_username}")
+    -t,--registry1-token v : String. Access token for your account on registry1.dso.mil (Default "${arg_registry1_token}")
     -c,--cloud-provider v : String. If using cloud provisioning, which cloud provider should be used (Default "aws")
     -m,--metallb : Boolean. Deploy a MetalLB on k3d 
     -p,--provision : Boolean. Provision the k3d cluster (implied) 
