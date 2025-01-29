@@ -657,7 +657,7 @@
                   "group": {
                     "type": "string"
                   },
-                  "global_role":{
+                  "global_role": {
                     "type": "string"
                   }
                 }
@@ -1255,6 +1255,13 @@
           ]
         },
         "mimir": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ]
+        },
+        "tetragon": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
