@@ -605,6 +605,12 @@ policies:
           - twistlock
           names:
           - twistlock-defender-ds*
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-alloy-alloy-metrics*
+          - monitoring-alloy-alloy-receiver*
     {{- end }}
 
   restrict-host-path-mount:
