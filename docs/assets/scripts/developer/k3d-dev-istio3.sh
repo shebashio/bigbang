@@ -5,7 +5,10 @@
 ### Initialized globals
 
 K3D_VERSION="5.7.3"
-DEFAULT_K3S_TAG="v1.31.4-k3s1"
+## we're still on istio 1.23 which works up to v1.30 of k8s
+## we switch to v1.31 after the istio 1.24 update
+DEFAULT_K3S_TAG="v1.30.3-k3s1" 
+#DEFAULT_K3S_TAG="v1.31.4-k3s1" 
 CLOUDPROVIDER="aws"
 SSHUSER=ubuntu
 action=create_instances
