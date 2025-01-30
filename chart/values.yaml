@@ -779,11 +779,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.24.0-bb.1"
+    tag: "6.24.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.24.0-bb.1"
+    tag: "6.24.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1197,11 +1197,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "6.0.4-bb.1"
+      tag: "7.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "6.0.4-bb.1"
+      tag: "7.0.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1226,11 +1226,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "6.0.4-bb.6"
+      tag: "7.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "6.0.4-bb.6"
+      tag: "7.0.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
