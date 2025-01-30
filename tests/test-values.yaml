@@ -1081,6 +1081,9 @@ promtail:
   enabled: true
 
 monitoring:
+  git: 
+    branch: istio-operatorless-network-policies
+    tag: null
   flux:
     timeout: 20m
     install:
