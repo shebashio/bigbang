@@ -462,11 +462,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.4.0-bb.0"
+    tag: "2.4.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.4.0-bb.0"
+    tag: "2.4.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -648,11 +648,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.24.0-bb.2"
+    tag: "1.25.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.24.0-bb.2"
+    tag: "1.25.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -701,11 +701,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "2.16.0-bb.0"
+    tag: "2.16.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "2.16.0-bb.0"
+    tag: "2.16.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -1062,11 +1062,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.18.0-bb.0"
+    tag: "0.18.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.18.0-bb.0"
+    tag: "0.18.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
