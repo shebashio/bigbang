@@ -1,0 +1,23 @@
+{{- if and (eq .Values.addons.tetragon.sourceType "git") (not .Values.offline) .Values.addons.tetragon.enabled }}
+{{- $gitCredsDict := dict
+  "name" "tetragon"
+  "packageGitScope" .Values.addons.tetragon.git
+  "rootScope" .
+  "releaseName" .Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tetragon
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: tetragon
+    {{- include "commonLabels" . | nindent 4}}
+spec:
+  interval: {{ .Values.flux.interval }}
+  url: {{ .Values.addons.tetragon.git.repo }}
+  ref:
+    {{- include "validRef" .Values.addons.tetragon.git | nindent 4 }}
+  {{ include "gitIgnore" . }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end }}

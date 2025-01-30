@@ -1,0 +1,15 @@
+{{- if .Values.addons.tetragon.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.addons.tetragon "name" "tetragon" "defaults" (include "bigbang.defaults.tetragon" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.tetragon" -}}
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+istio:
+  enabled: {{ .Values.istio.enabled }}
+{{- end }}
