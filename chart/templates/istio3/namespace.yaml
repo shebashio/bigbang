@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: istio3
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-{{- if or .Values.istioGatewayPublic.enabled .Values.istioGatewayPassthrough.enabled }}
+{{- if or .Values.istioGatewayPublic.enabled .Values.istioGatewayPassthrough.enabled .Values.istio3Gateways.enabled }}
 ---
 apiVersion: v1
 kind: Namespace

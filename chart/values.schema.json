@@ -15,6 +15,7 @@
     "networkPolicies",
     "imagePullPolicy",
     "istio3",
+    "istio3Gateways",
     "istioGatewayPublic",
     "istioGatewayPassthrough",
     "istio",
@@ -239,6 +240,24 @@
         "Always",
         "IfNotPresent"
       ]
+    },
+    "istio3Gateways": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true,
+        "tls": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
     },
     "istio3": {
       "properties": {

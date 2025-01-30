@@ -1,0 +1,93 @@
+{{- $fluxSettingsIstioGateway := merge .Values.istio3Gateways.flux .Values.flux -}}
+{{- if and .Values.istio3.enabled .Values.istio3Gateways.enabled }}
+{{/* Get defaults and user gateways */}}
+{{- $defaults := include "bigbang.defaults.istio3-gateways" . | fromYaml -}}
+{{- $userGateways := .Values.istio3Gateways.values.gateways | default dict -}}
+
+{{/* Build list of all gateway names */}}
+{{- $allGatewayNames := list -}}
+{{- range $name, $gateway := $defaults.gateways -}}
+  {{- if and $name $gateway -}}  {{/* Skip empty names and empty gateways */}}
+    {{- $allGatewayNames = append $allGatewayNames $name -}}
+  {{- end -}}
+{{- end -}}
+{{- range $name, $gateway := $userGateways -}}
+  {{- if and $name $gateway (not (has $name $allGatewayNames)) -}}  {{/* Skip empty names, empty gateways, and duplicates */}}
+    {{- $allGatewayNames = append $allGatewayNames $name -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* Create HelmRelease for each gateway */}}
+{{- range $name := $allGatewayNames }}
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ $name }}-ingressgateway
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: istio-gateway-{{ $name }}
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" $ | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio3-gateways/values.yaml") $ | sha256sum }}
+spec:
+  releaseName: {{ $name }}-ingressgateway
+  targetNamespace: istio-gateway
+  chart:
+    spec:
+      {{- if eq $.Values.istio3Gateways.sourceType "git" }}
+      chart: {{ $.Values.istio3Gateways.git.path }}
+      sourceRef:
+        kind: GitRepository
+        name: istio-gateways
+        namespace: {{ $.Release.Namespace }}
+      {{- else }}
+      chart: {{ $.Values.istio3Gateways.helmRepo.chartName }}
+      version: {{ $.Values.istio3Gateways.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ $.Values.istio3Gateways.helmRepo.repoName }}
+        namespace: {{ $.Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" $.Values.istio3Gateways.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and $.Values.istio3Gateways.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" $.Values.istio3Gateways.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsIstioGateway | nindent 2 }}
+
+  {{- if $.Values.istio3Gateways.postRenderers }}
+  postRenderers:
+  {{ toYaml $.Values.istio3Gateways.postRenderers | nindent 4 }}
+  {{- end }}
+  
+  valuesFrom:
+    - name: {{ $.Release.Name }}-istio3-{{ $name }}-ingressgateway-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ $.Release.Name }}-istio3-{{ $name }}-ingressgateway-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ $.Release.Name }}-istio3-{{ $name }}-ingressgateway-values
+      kind: Secret
+      valuesKey: "overlays"
+
+  dependsOn:
+    - name: istio3
+      namespace: {{ $.Release.Namespace }}
+    {{- if $.Values.gatekeeper.enabled }}
+    - name: gatekeeper
+      namespace: {{ $.Release.Namespace }}
+    {{- end }}
+    {{- if $.Values.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ $.Release.Namespace }}
+    {{- end }}
+status: {}
+{{- end }}
+{{- end }}

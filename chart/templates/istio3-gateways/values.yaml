@@ -1,0 +1,121 @@
+{{- define "bigbang.istio-gateway-secrets" -}}
+{{- $root := . -}}
+{{- $defaults := include "bigbang.defaults.istio3-gateways" . | fromYaml -}}
+
+{{/* Handle potential array or map input for user gateways */}}
+{{- $userGateways := dict -}}
+{{- if kindIs "map" .Values.istio3Gateways.values.gateways -}}
+  {{- $userGateways = .Values.istio3Gateways.values.gateways -}}
+{{- else if kindIs "slice" .Values.istio3Gateways.values.gateways -}}
+  {{- $userGateways = dict -}}
+{{- end -}}
+
+{{/* Build list of all gateway names */}}
+{{- $allGatewayNames := list -}}
+{{- range $name, $gateway := $defaults.gateways -}}
+  {{- if and $name $gateway -}}
+    {{- $allGatewayNames = append $allGatewayNames $name -}}
+  {{- end -}}
+{{- end -}}
+{{- range $name, $gateway := $userGateways -}}
+  {{- if and $name $gateway (not (has $name $allGatewayNames)) -}}
+    {{- $allGatewayNames = append $allGatewayNames $name -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* Create a secret for each gateway */}}
+{{- range $index, $name := $allGatewayNames }}
+{{- if $index }}
+---
+{{- end }}
+{{- $defaultGateway := get $defaults.gateways $name | default dict | toYaml }}
+{{- $overrides := get $userGateways $name | default dict }}
+{{- include "values-secret" (dict 
+  "root" $root 
+  "name" (printf "istio3-%s-ingressgateway" $name)
+  "defaults" $defaultGateway 
+  "package" (dict "values" $overrides)
+) }}
+{{- end }}
+{{- end -}}
+
+{{- define "bigbang.defaults.istio3-gateways" -}}
+gateways:
+  public:
+    createNamespace: true
+
+    imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+    imagePullSecrets:
+      - name: private-registry
+
+    networkPolicies:
+      enabled: {{ .Values.networkPolicies.enabled }}
+      controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+    labels:
+      istio: ingressgateway
+
+    monitoring:
+      enabled: {{ .Values.monitoring.enabled }}
+
+    gateway:
+      servers:
+      - hosts:
+        - '*.{{ .Values.domain }}'
+        port:
+          name: http
+          number: 8080
+          protocol: HTTP
+        tls:
+          httpsRedirect: true
+      - hosts:
+        - '*.{{ .Values.domain }}'
+        port:
+          name: https
+          number: 8443
+          protocol: HTTPS
+        tls:
+          credentialName: public-cert
+          mode: SIMPLE
+  passthrough:
+    createNamespace: true
+
+    imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+    imagePullSecrets:
+      - name: private-registry
+
+    networkPolicies:
+      enabled: {{ .Values.networkPolicies.enabled }}
+      controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+    labels:
+      istio: ingressgateway
+
+    monitoring:
+      enabled: {{ .Values.monitoring.enabled }}
+
+    gateway:
+      servers:
+      - hosts:
+        - '*.{{ .Values.domain }}'
+        port:
+          name: http
+          number: 8080
+          protocol: HTTP
+        tls:
+          httpsRedirect: true
+      - hosts:
+        - '*.{{ .Values.domain }}'
+        port:
+          name: https
+          number: 8443
+          protocol: HTTPS
+        tls:
+          mode: PASSTHROUGH
+{{- end -}}
+
+{{- if and .Values.istio3.enabled .Values.istio3Gateways.enabled }}
+{{- include "bigbang.istio-gateway-secrets" . }}
+{{- end }}

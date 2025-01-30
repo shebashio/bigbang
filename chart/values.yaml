@@ -192,6 +192,32 @@ istio3:
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
+istio3Gateways:
+  enabled: true
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+  values: {}
+  # -- Set the tls key/cert for the public gateway
+  #   gateways:
+  #   - public:
+  #       tls:
+  #         key: ""
+  #         cert: ""
+  #         minProtocolVersion: ""
+
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istioGatewayPublic:
   # -- Toggle deployment of the Istio public ingress gateway
   enabled: false
