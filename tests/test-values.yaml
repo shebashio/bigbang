@@ -1907,10 +1907,7 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: true
-    git:
-      tag: 5.5.1-bb.4
-      branch: null
+    enabled: false
     values:
       istio:
         hardened:
