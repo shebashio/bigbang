@@ -779,11 +779,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.24.0-bb.2"
+    tag: "6.24.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.24.0-bb.2"
+    tag: "6.24.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -2153,12 +2153,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.12.1-bb.2"
+      tag: "0.13.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.12.1-bb.2"
+      tag: "0.13.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
