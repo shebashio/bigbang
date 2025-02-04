@@ -726,11 +726,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.4-bb.0"
+    tag: "0.48.5-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.4-bb.0"
+    tag: "0.48.5-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -2153,12 +2153,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.13.0-bb.0"
+      tag: "0.13.0-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.13.0-bb.0"
+      tag: "0.13.0-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2203,12 +2203,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.5.1-bb.3"
+      tag: "5.5.1-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.5.1-bb.3"
+      tag: "5.5.1-bb.4"
 
     # -- Enable Mimir Enterprise
     enterprise:
