@@ -439,6 +439,9 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  git:
+    branch: 102-kyverno-reporter-add-istio-operatorless-netpol-support
+    tag: null
   values:
     bbtests:
       enabled: true
