@@ -437,6 +437,10 @@ kyverno:
             memory: 768Mi
     bbtests:
       enabled: true
+    features:
+      policyexceptions:
+        enabled: true
+        namespace: 'kyverno-bbtest'
 
 kyvernoReporter:
   values:
