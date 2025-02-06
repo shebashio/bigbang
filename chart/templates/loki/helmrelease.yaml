@@ -82,8 +82,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- with .Values.loki.objectStorage }}
-    {{- if and (eq $.Values.loki.strategy "scalable") (not (and .endpoint .bucketNames)) }}
+    {{- with .Values.loki.values.minio }}
+    {{- if .enabled }}
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
