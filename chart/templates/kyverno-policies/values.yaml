@@ -14,7 +14,7 @@ waitforready:
 
 policies:
 
-  {{- if or .Values.twistlock.enabled .Values.neuvector.enabled .Values.tetragon.enabled}}
+  {{- if or .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.tetragon.enabled}}
   disallow-host-namespaces:
     exclude:
       any:
@@ -37,7 +37,7 @@ policies:
           names:
           - neuvector-enforcer-pod*
       {{- end }}
-      {{ if .Values.tetragon.enabled }}
+      {{ if .Values.addons.tetragon.enabled }}
       # Tetragon needs access to host to inspect network traffic
       - resources:
           namespaces:
@@ -98,7 +98,7 @@ policies:
       - bigbang
       - default
 
-  {{- if or .Values.fluentbit.enabled .Values.neuvector.enabled .Values.tetragon.enabled}}
+  {{- if or .Values.fluentbit.enabled .Values.neuvector.enabled .Values.addons.tetragon.enabled}}
   disallow-privileged-containers:
     exclude:
       any:
@@ -121,7 +121,7 @@ policies:
           - neuvector-controller-pod*
           - neuvector-scanner-pod*
       {{- end }}
-      {{- if .Values.tetragon.enabled }}
+      {{- if .Values.addons.tetragon.enabled }}
       # Tetragon needs privileged access for realtime scanning of files from the node / access to the container runtime
       - resources:
           namespaces:
@@ -269,7 +269,7 @@ policies:
           names:
           - mimir-mimir-smoke-test-*
       {{- end }}
-      {{- if .Values.tetragon.enabled }}
+      {{- if .Values.addons.tetragon.enabled }}
       # Tetragon needs to be able to view network traffic
       - resources:
           namespaces:
@@ -503,7 +503,7 @@ policies:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.tetragon.enabled}}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.tetragon.enabled}}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -570,7 +570,7 @@ policies:
           names:
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.tetragon.enabled }}
+      {{- if .Values.addons.tetragon.enabled }}
       # Tetragon needs privileged access for realtime scanning of files from the node & access to system to set kprobes, etc
       - resources:
           namespaces:
@@ -735,7 +735,7 @@ policies:
 
   restrict-host-path-write:
     validationFailureAction: Enforce
-    {{- if or .Values.neuvector.enabled .Values.twistlock.enabled .Values.tetragon.enabled }}
+    {{- if or .Values.neuvector.enabled .Values.twistlock.enabled .Values.addons.tetragon.enabled }}
     exclude:
       any:
       # NEEDS FURTHER JUSTIFICATION
@@ -764,7 +764,7 @@ policies:
           - neuvector-controller-pod*
           - neuvector-enforcer-pod*
       {{- end }}
-      {{- if .Values.tetragon.enabled }}
+      {{- if .Values.addons.tetragon.enabled }}
       #  Tetragon needs access to /sys/fs/bpf to enable eBPP probes
       - resources:
           namespaces:

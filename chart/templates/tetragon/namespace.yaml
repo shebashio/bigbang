@@ -1,10 +1,10 @@
-{{- $pkg := "tetragon" }}
-{{- if (get .Values $pkg).enabled }}
+{{- if .Values.addons.tetragon.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ $pkg }}
+  name: tetragon
   labels:
-    app.kubernetes.io/name: {{ $pkg }}
+    app.kubernetes.io/name: tetragon
+    app.kubernetes.io/component: "addon"
     {{- include "commonLabels" . | nindent 4}}
 {{- end }}

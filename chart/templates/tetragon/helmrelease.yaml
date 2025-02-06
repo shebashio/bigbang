@@ -1,39 +1,38 @@
-{{- $pkg := "tetragon" }}
-{{- $fluxSettings := mergeOverwrite .Values.flux (get .Values $pkg).flux -}}
-{{- if (get .Values $pkg).enabled }}
+{{- $fluxSettings := mergeOverwrite .Values.flux .Values.addons.tetragon.flux -}}
+{{- if .Values.addons.tetragon.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: {{ $pkg }}
+  name: tetragon
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: {{ $pkg }}
+    app.kubernetes.io/name: tetragon
     {{- include "commonLabels" . | nindent 4}}
 spec:
-  targetNamespace: {{ $pkg }}
+  targetNamespace: tetragon
   chart:
     spec:
-      chart: {{ (get .Values $pkg).git.path }}
+      chart: {{ .Values.addons.tetragon.git.path }}
       interval: 5m
       sourceRef:
         kind: GitRepository
-        name: {{ $pkg }}
+        name: tetragon
         namespace: {{ .Release.Namespace }}
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if (get .Values $pkg).postRenderers }}
+  {{- if .Values.addons.tetragon.postRenderers }}
   postRenderers:
-  {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
+  {{ toYaml .Values.addons.tetragon.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
-    - name: {{ .Release.Name }}-{{ $pkg }}-values
+    - name: {{ .Release.Name }}-tetragon-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-{{ $pkg }}-values
+    - name: {{ .Release.Name }}-tetragon-values
       kind: Secret
       valuesKey: "defaults"
-    - name: {{ .Release.Name }}-{{ $pkg }}-values
+    - name: {{ .Release.Name }}-tetragon-values
       kind: Secret
       valuesKey: "overlays"
 {{- end }}
