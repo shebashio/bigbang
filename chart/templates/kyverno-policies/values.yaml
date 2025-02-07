@@ -597,6 +597,7 @@ policies:
     # - read logs from `/var/log` to watch for malicious processes
     # - audit modifications to `/etc/passwd` (watching for suspicious changes)
     # - access the container runtime socket (observing all running containers on a node)
+    {{- if or .Values.twistlock.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       {{- if .Values.twistlock.enabled }}
@@ -614,7 +615,7 @@ policies:
           - monitoring-alloy-alloy-metrics*
           - monitoring-alloy-alloy-receiver*
       {{- end }}
-
+    {{- end }}
   restrict-host-path-mount:
     validationFailureAction: Enforce
     {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
