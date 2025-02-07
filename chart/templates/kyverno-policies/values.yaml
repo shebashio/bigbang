@@ -614,6 +614,8 @@ policies:
           names:
           - monitoring-alloy-alloy-metrics*
           - monitoring-alloy-alloy-receiver*
+          - monitoring-alloy-alloy-logs*
+          - monitoring-alloy-alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
