@@ -940,12 +940,17 @@ fluentbit:
 
 
 loki:
+  enabled: true
+  git:
+    tag: null
+    branch: cypress-test-update
   strategy: scalable
   values:
     istio:
       loki:
         enabled: true
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-loki"
             enabled: true
