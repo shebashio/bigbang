@@ -477,6 +477,11 @@ kyvernoReporter:
 
 
 kyvernoPolicies:
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
+    path: ./chart
+    tag: null
+    branch: bug/fix-url
   values:
     bbtests:
       enabled: true
