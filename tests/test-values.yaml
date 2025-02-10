@@ -1262,6 +1262,11 @@ twistlock:
 
 # Addons are toggled based on labels in CI
 addons:
+  alloy:
+    enabled: true
+    git:
+      tag: null
+      branch: alloy-v2
   argocd:
     enabled: false
     sso:
@@ -1907,10 +1912,7 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: true
-    git:
-      tag: null
-      branch: alloy-v2
+    enabled: false
     values:
       istio:
         hardened:
