@@ -1015,6 +1015,9 @@ loki:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
 
 tempo:
+  git:
+    branch: 103-tempo-support-istio-operatorless-netpol
+    tag: null
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
