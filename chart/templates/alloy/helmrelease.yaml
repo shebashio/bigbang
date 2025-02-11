@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: k8s-alloy
+  name: alloy
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: alloy
