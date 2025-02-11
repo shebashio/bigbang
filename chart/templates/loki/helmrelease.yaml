@@ -82,11 +82,9 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- with .Values.loki.values.minio }}
-    {{- if .enabled }}
+    {{- if .Values.addons.minioOperator.enabled }}
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
-    {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
