@@ -18,7 +18,7 @@ spec:
       chart: {{ .Values.addons.alloy.git.path }}
       sourceRef:
         kind: GitRepository
-        name: alloy
+        name: k8s-alloy
         namespace: {{ .Release.Namespace }}
       {{- else }}
       chart: {{ .Values.addons.alloy.helmRepo.chartName }}
