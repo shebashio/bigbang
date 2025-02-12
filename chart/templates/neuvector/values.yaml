@@ -124,6 +124,8 @@ manager:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
   {{- if .Values.istio.enabled }}
     {{- $gateway := default "public" .Values.neuvector.ingress.gateway }}
