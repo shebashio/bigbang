@@ -114,3 +114,5 @@ At this point all services in the cluster should be reachable via the new servic
 - In order to continue utilizing Istio in Big Bang releases >=3.0 this migration is required
 - An upgrade to version 1.24 of Istio will soon follow in version 3.1 or version 3.2 of Big Bang in mid-2025
 - A rollback from Helm Istio to Operator Istio is possible by reversing the migration steps process
+- [Diagnostic Tools for Istio](https://istio.io/latest/docs/ops/diagnostic-tools) and [Troubleshooting tips](https://github.com/istio/istio/wiki/Troubleshooting-Istio) can be of assistance for troubled migrations
+- Similarly, there is [an Istio manifest tool](https://github.com/istio/istio/pull/52281) that can be used to compare pre and post upgrades
