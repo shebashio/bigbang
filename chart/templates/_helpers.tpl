@@ -474,7 +474,7 @@ data:
 {{- define "istioNamespaceSelector" -}}
 {{- if .Values.istioCore.enabled -}}
 ingress: istio-gateway
-egress: istioCore
+egress: istio-core
 {{- else -}}
 ingress: istio-controlplane
 {{- end -}}
