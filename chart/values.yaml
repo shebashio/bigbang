@@ -161,7 +161,7 @@ imagePullPolicy: IfNotPresent
 # Istio
 #
 
-istio3:
+istioCore:
   # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
@@ -173,7 +173,7 @@ istio3:
     #tag:
   helmRepo:
     repoName: "registry1"
-    chartName: "istio3"
+    chartName: "istioCore"
     #tag:
   # -- Values to passthrough to the istiod chart
   values:
