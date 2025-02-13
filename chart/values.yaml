@@ -1057,7 +1057,7 @@ grafana:
 #
 twistlock:
   # -- Toggle deployment of Twistlock.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1065,7 +1065,8 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.18.0-bb.1"
+    tag: null
+    branch: 'feat-scripts-update'
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
