@@ -3,10 +3,10 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: istioCore
+  name: istio-core
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: istioCore
+    app.kubernetes.io/name: istio-core
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
   annotations:
@@ -19,7 +19,7 @@ spec:
       chart: {{ .Values.istioCore.git.path }}
       sourceRef:
         kind: GitRepository
-        name: istioCore
+        name: istio-core
         namespace: {{ .Release.Namespace }}
       {{- else }}
       chart: {{ .Values.istioCore.helmRepo.chartName }}
@@ -45,13 +45,13 @@ spec:
   {{ toYaml .Values.istioCore.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
-    - name: {{ .Release.Name }}-istioCore-values
+    - name: {{ .Release.Name }}-istio-core-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-istioCore-values
+    - name: {{ .Release.Name }}-istio-core-values
       kind: Secret
       valuesKey: "defaults"
-    - name: {{ .Release.Name }}-istioCore-values
+    - name: {{ .Release.Name }}-istio-core-values
       kind: Secret
       valuesKey: "overlays"
 
