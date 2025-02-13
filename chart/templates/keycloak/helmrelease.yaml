@@ -70,7 +70,7 @@ spec:
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if .Values.istioCore.enabled }}
-  - name: istioCore
+  - name: istio-core
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if .Values.kyvernoPolicies.enabled }}
