@@ -8,10 +8,10 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: istioCore
+  name: istio-core
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: istioCore
+    app.kubernetes.io/name: istio-core
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
 spec:
