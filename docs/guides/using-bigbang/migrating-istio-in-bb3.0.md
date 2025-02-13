@@ -108,7 +108,9 @@ At this point all services in the cluster should be reachable via the new servic
 
 # Other Notes
 
-- The above migration from Operator Istio to Helm Istio maintains a consistent version (v1.23) of Istio to reduce the complexity of the process.
-- Operator Istio does not support any versions of Istio that follow after version 1.23 and this specific version of Istio, an LTS release, is only supported [through May 2025](https://istio.io/latest/docs/releases/supported-releases/#:~:text=1.25%2C%201.26%2C%201.27-,1.23,-Yes). 
-- In order to continue utilizing Istio with Big Bang in versions >=3.0 this migration is required and upgrade to v1.24 of Istio will soon follow in a near term Big Bang release, possibly in 3.1 or 3.2 in mid-2025.
-- Rollback from Helm Istio to Operator Istio -- A reversal of the above workflow is possible to revert back to the Operator deployment of Istio from the helm based deployment
+- The Istio Operator has reached its end of life not supporting versions of Istio after 1.23
+- An LTS release, Istio 1.23 is only supported [through May 2025](https://istio.io/latest/docs/releases/supported-releases/#:~:text=1.25%2C%201.26%2C%201.27-,1.23,-Yes)
+- The migration from Operator to Helm maintains a consistent version 1.23 to reduce the complexity of the process
+- In order to continue utilizing Istio in Big Bang releases >=3.0 this migration is required
+- An upgrade to version 1.24 of Istio will soon follow in version 3.1 or version 3.2 of Big Bang in mid-2025
+- A rollback from Helm Istio to Operator Istio is possible by reversing the migration steps process
