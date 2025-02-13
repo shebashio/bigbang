@@ -465,16 +465,16 @@ data:
 {{- end -}}
 {{- end -}}
 
-{{- /* Returns true if either istio or istio3 is enabled */ -}}
+{{- /* Returns true if either istio or istioCore is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ or .Values.istio.enabled .Values.istio3.enabled }}
+{{ or .Values.istio.enabled .Values.istioCore.enabled }}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
-{{- if .Values.istio3.enabled -}}
+{{- if .Values.istioCore.enabled -}}
 ingress: istio-gateway
-egress: istio3
+egress: istio-core
 {{- else -}}
 ingress: istio-controlplane
 {{- end -}}

@@ -1,5 +1,5 @@
 {{- $fluxSettingsIstioGatewayPublic := merge .Values.istioGatewayPublic.flux .Values.flux -}}
-{{- if and .Values.istio3.enabled .Values.istioGatewayPublic.enabled }}
+{{- if and .Values.istioCore.enabled .Values.istioGatewayPublic.enabled }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" $ | nindent 4}}
   annotations:
-    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio3-gateway-public/values.yaml") $ | sha256sum }}
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-gateway-public/values.yaml") $ | sha256sum }}
 spec:
   releaseName: public-ingressgateway
   targetNamespace: istio-gateway
@@ -58,7 +58,7 @@ spec:
       valuesKey: "overlays"
 
   dependsOn:
-    - name: istio3
+    - name: istioCore
       namespace: {{ $.Release.Namespace }}
     {{- if $.Values.gatekeeper.enabled }}
     - name: gatekeeper

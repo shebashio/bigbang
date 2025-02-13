@@ -43,7 +43,7 @@ elasticsearch:
   enabled: {{ .Values.elasticsearchKibana.enabled }}
 cr:
   spec:
-    {{- if .Values.istio3.enabled }}
+    {{- if .Values.istioCore.enabled }}
     istio_namespace: istio-system
     {{- end}}
     deployment:
@@ -128,7 +128,7 @@ cr:
               is_proxy: true
               namespace: istio-gateway
             {{- end }}
-        {{- if .Values.istio3.enabled }}
+        {{- if .Values.istioCore.enabled }}
         ingress_gateway_namespace: istio-gateway
         egress_gateway_namespace: istio-gateway
         {{- end }}
@@ -147,7 +147,7 @@ networkPolicies:
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
     {{- end }}
-    {{- if .Values.istio3.enabled }}
+    {{- if .Values.istioCore.enabled }}
     app: public-ingressgateway
     istio: ingressgateway
     {{- end }}
