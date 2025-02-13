@@ -58,7 +58,7 @@ spec:
       valuesKey: "overlays"
 
   dependsOn:
-    - name: istioCore
+    - name: istio-core
       namespace: {{ $.Release.Namespace }}
     {{- if $.Values.gatekeeper.enabled }}
     - name: gatekeeper
