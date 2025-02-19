@@ -11,7 +11,7 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-{{- if .Values.addons.alloy.disable-reporting }}
+{{- if .Values.addons.alloy.disable-reporting -}}
 extraArgs:
   --disable-reporting
 {{- end }}
