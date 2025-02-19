@@ -13,7 +13,7 @@ networkPolicies:
 
 {{- if .Values.addons.alloy.disable-reporting }}
 extraArgs:
-  --disable-reporting
+- --disable-reporting
 {{- end }}
 
 {{- end }}
