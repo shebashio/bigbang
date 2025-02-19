@@ -1140,7 +1140,7 @@ addons:
 
   minio:
     # -- Toggle deployment of minio.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1148,11 +1148,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.0.0-bb.1"
+      tag: null
+      branch: "139-wait-jobs-causing-kyverno-policy-issues"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.0.0-bb.1"
+      tag: null
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
