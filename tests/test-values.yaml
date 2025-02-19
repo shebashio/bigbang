@@ -1079,6 +1079,13 @@ tempo:
 
 promtail:
   enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"
+  values:
+    istio:
+      hardened:
+        enabled: true
 
 monitoring:
   flux:
