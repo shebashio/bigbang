@@ -2117,8 +2117,7 @@ addons:
     flux: {}
 
     # -- Toggle usage reporting, to prevent trying to reach out to the internet
-    disableReporting: true
-    #disableReporting: {{ .Values.addons.alloy.disableReporting }}
+    enableReporting: false
 
   mimir:
     # -- Toggle deployment of Mimir
