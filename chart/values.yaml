@@ -462,11 +462,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.4.0-bb.2"
+    tag: "2.5.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.4.0-bb.2"
+    tag: "2.5.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -648,11 +648,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.25.0-bb.0"
+    tag: "1.26.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.25.0-bb.0"
+    tag: "1.26.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -726,11 +726,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.5-bb.1"
+    tag: "0.48.5-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.5-bb.1"
+    tag: "0.48.5-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -754,11 +754,11 @@ promtail:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
     path: "./chart"
-    tag: "6.16.6-bb.0"
+    tag: "6.16.6-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
-    tag: "6.16.6-bb.0"
+    tag: "6.16.6-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Promtail Package
   flux: {}
@@ -779,11 +779,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.24.0-bb.5"
+    tag: "6.25.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.24.0-bb.5"
+    tag: "6.25.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -836,11 +836,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.3-bb.0"
+    tag: "2.8.3-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.3-bb.0"
+    tag: "2.8.3-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -888,11 +888,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.18.1-bb.0"
+    tag: "1.18.1-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.18.1-bb.0"
+    tag: "1.18.1-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2153,12 +2153,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.13.0-bb.2"
+      tag: "0.14.1-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.13.0-bb.2"
+      tag: "0.14.1-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
