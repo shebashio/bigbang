@@ -477,5 +477,6 @@ ingress: istio-gateway
 egress: istioCore
 {{- else -}}
 ingress: istio-controlplane
+egress: istio-controlplane
 {{- end -}}
 {{- end -}}
