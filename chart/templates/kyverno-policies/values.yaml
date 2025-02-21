@@ -72,11 +72,11 @@ policies:
           kinds:
           - Service
           names:
-          {{- if .Values.istioGatewayPassthrough.enabled }}
+          {{- if and .Values.istioGateway.enabled (dig "passthrough-ingress" false .Values.istioGateway.values.gateways) }}
           - "istio-gateway-passthrough-ingressgateway"
           {{- end }}
-          {{- if .Values.istioGatewayPublic }}
-          - "public-ingressgateway"
+          {{- if and .Values.istioGateway.enabled (dig "public-ingress" false .Values.istioGateway.values.gateways) }}
+          - "public-ingress-gateway"
           {{- end }}
           namespaces:
           - "istio-gateway"
