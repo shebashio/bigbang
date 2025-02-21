@@ -116,14 +116,14 @@ cr:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if .Values.istioGatewayPublic.enabled }}
-            - app_label: public-ingressgateway
+            {{- if and .Values.istioGateway.enabled (dig "public-ingress" false .Values.istioGateway.values.gateways) }}
+            - app_label: public-ingress-gateway
               is_core: true
               is_proxy: true
               namespace: istio-gateway
             {{- end }}
-            {{- if .Values.istioGatewayPassthrough.enabled }}
-            - app_label: passthrough-ingressgateway
+            {{- if and .Values.istioGateway.enabled (dig "passthrough-ingress" false .Values.istioGateway.values.gateways) }}
+            - app_label: passthrough-ingress-gateway
               is_core: true
               is_proxy: true
               namespace: istio-gateway
