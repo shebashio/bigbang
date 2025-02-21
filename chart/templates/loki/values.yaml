@@ -3,6 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.loki" -}}
+{{- $minioEnabled := (.Values.loki.minioObjectStorage.enabled) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -73,6 +74,19 @@ promtail:
   enabled: true
 {{- end }}
 
+{{- if $minioEnabled }}
+minio: 
+  enabled: true
+  tenant:
+    configSecret:
+      accessKey: {{ .Values.loki.minioObjectStorage.configSecret.accessKey }}
+      secretKey: {{ .Values.loki.minioObjectStorage.configSecret.secretKey }}
+    defaultUserCredentials:
+        username: {{ .Values.loki.minioObjectStorage.defaultUserCredentials.username }}
+        password: {{ .Values.loki.minioObjectStorage.defaultUserCredentials.password }}
+{{- end }}
+
+
 loki:
   extraMemberlistConfig:
     bind_addr:
@@ -82,6 +96,8 @@ loki:
     type: "filesystem"
     {{- else }}
     type: "s3"
+    # If MinIO enabled then enter MinIO ObjectConfig
+    # Else S3 below
     bucketNames:
       {{- toYaml .Values.loki.objectStorage.bucketNames | nindent 6 }}
     s3:

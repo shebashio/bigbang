@@ -716,6 +716,17 @@ loki:
   # -- Loki clusterName identifier for Promtail and Dashboards
   clusterName: ""
 
+  # -- Enable Big Bang MinIO dependency chart for Mimir
+  minioObjectStorage:
+    enabled: false
+    # -- MinIO root credentials
+    configSecret:
+      accessKey: "minio"
+      secretKey: "minio123" # default key, change this!
+    # Configures the Big Bang MinIO Tenant User Credentials
+    defaultUserCredentials:
+      username: "mimir-user"
+      password: "supersecret"
 
   objectStorage:
     # -- S3 compatible endpoint to use for connection information.
