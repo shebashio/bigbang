@@ -256,6 +256,12 @@
       ],
       "additionalProperties": true
     },
+    "istioGatewayPublic": {
+      "type": "object"
+    },
+    "istioGatewayPassthrough": {
+      "type": "object"
+    },
     "istioGateway": {
       "properties": {
         "enabled": true,
@@ -693,6 +699,7 @@
                   "group": {
                     "type": "string"
                   },
+                  "global_role": {
                   "global_role": {
                     "type": "string"
                   }
@@ -1936,6 +1943,19 @@
       ]
     },
     "postRenderers": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/postRenderersArray"
+          }
+        },
+        {
+          "$ref": "#/$defs/postRenderersArray"
+        }
+      ]
+    },
+    "postRenderersArray": {
       "oneOf": [
         {
           "type": "object",
