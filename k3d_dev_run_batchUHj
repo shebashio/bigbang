@@ -1,0 +1,9 @@
+#!/bin/bash
+set -xue
+kubectl create namespace metallb-system
+kubectl create secret docker-registry registry1       --docker-server=registry1.dso.mil       --docker-username=gmiernicki       --docker-password=gmiernicki       -n metallb-system
+kubectl apply -k /tmp/metallb
+echo "Waiting for MetalLB controller..."
+kubectl wait --for=condition=available --timeout 300s -n metallb-system deployment controller
+echo "MetalLB is installed"
+kubectl create -f /home/ubuntu/metallb-config.yaml
