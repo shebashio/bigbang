@@ -657,11 +657,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.3.4-bb.1"
+    tag: "3.3.6-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.3.4-bb.1"
+    tag: "3.3.6-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -707,11 +707,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "2.24.2-bb.2"
+    tag: "3.0.1-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "2.24.2-bb.2"
+    tag: "3.0.1-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -1198,11 +1198,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.0-bb.0"
+      tag: "7.8.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.0-bb.0"
+      tag: "7.8.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1355,11 +1355,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.8.1-bb.0"
+      tag: "8.8.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.8.1-bb.0"
+      tag: "8.8.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2215,12 +2215,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "15.9.1-bb.0"
+      tag: "15.9.1-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "15.9.1-bb.0"
+      tag: "15.9.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux: {}
@@ -2269,12 +2269,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "1.6.18-bb.0"
+      tag: "2.0.4-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "k8s-monitoring"
-      tag: "1.6.18-bb.0"
+      tag: "2.0.4-bb.0"
 
     values: {}
 
