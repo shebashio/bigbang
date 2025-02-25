@@ -8,4 +8,6 @@ variables:
   CI_MERGE_REQUEST_TARGET_BRANCH_NAME: "pipeline-test"
   # variables that can be overriden to target specific pipelines (NOT REQUIRED FOR ALL PIPELINES)
   DEBUG_ENABLED: "true"
-  CI_PIPELINE_SOURCE: "merge_request_event"
+  CLUSTER_TYPE: "RKE2"
+  JOB_TYPE: "nightly"
+  CI_PIPELINE_SOURCE: "schedule"
