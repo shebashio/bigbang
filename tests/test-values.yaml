@@ -55,9 +55,10 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-
+istioOperator:
+  enabled: false
 istio:
-  enabled: true
+  enabled: false
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
