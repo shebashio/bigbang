@@ -612,10 +612,10 @@ policies:
           namespaces:
           - alloy
           names:
-          - alloy-alloy-metrics*
-          - alloy-alloy-receiver*
-          - alloy-alloy-logs*
-          - alloy-alloy-singleton*
+          - alloy-metrics*
+          - alloy-receiver*
+          - alloy-logs*
+          - alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
