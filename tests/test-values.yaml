@@ -726,12 +726,12 @@ kyvernoPolicies:
       require-drop-all-capabilities:
         exclude:
           any:
-          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
+          # Exclude mutating policies from effecting require-drop-all-capabilities test
           - resources:
               namespaces:
               - default
               names:
-              - require-drop-all-capabilities*
+              - require-drop-all-capabilities-*
           # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
           - resources:
               namespaces:
