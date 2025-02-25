@@ -1,4 +1,4 @@
-{{- if and (eq .Values.istioCore.sourceType "git") (not .Values.offline) .Values.istioCore.enabled  (not .Values.istioOperator.enabled) }}
+{{- if and (eq .Values.istioCore.sourceType "git") (not .Values.offline) .Values.istioCore.enabled }}
 {{- $gitCredsDict := dict
   "name" "istioCore"
   "packageGitScope" .Values.istioCore.git

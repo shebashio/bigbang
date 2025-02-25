@@ -1,5 +1,5 @@
 {{- $fluxSettingsIstioGatewayPassthrough := merge .Values.istioGatewayPassthrough.flux .Values.flux -}}
-{{- if and .Values.istioCore.enabled .Values.istioGatewayPassthrough.enabled (not .Values.istio.enabled) }}
+{{- if and .Values.istioCore.enabled .Values.istioGatewayPassthrough.enabled }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

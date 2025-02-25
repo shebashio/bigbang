@@ -1,5 +1,5 @@
 {{- $fluxSettingsIstioGatewayPublic := merge .Values.istioGatewayPublic.flux .Values.flux -}}
-{{- if and .Values.istioCore.enabled .Values.istioGatewayPublic.enabled (not .Values.istio.enabled) }}
+{{- if and .Values.istioCore.enabled .Values.istioGatewayPublic.enabled }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
