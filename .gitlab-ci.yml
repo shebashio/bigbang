@@ -1,9 +1,9 @@
 include: # standard for the BB repo
   - project: 'big-bang/pipeline-templates/pipeline-templates'
-    ref: "istio-operatorless-updates"
+    ref: "istio-operatorless-pipeline-updates"
     file: '/pipelines/bigbang.yaml'
 variables:
-  PIPELINE_REPO_BRANCH: 'istio-operatorless-updates' 
+  PIPELINE_REPO_BRANCH: 'istio-operatorless-pipeline-updates' 
   CI_DEFAULT_BRANCH: "pipeline-test" 
   CI_MERGE_REQUEST_TARGET_BRANCH_NAME: "pipeline-test"
   # variables that can be overriden to target specific pipelines (NOT REQUIRED FOR ALL PIPELINES)
