@@ -162,6 +162,7 @@ imagePullPolicy: IfNotPresent
 #
 
 istioCore:
+  status: "alpha"
   # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
@@ -193,6 +194,7 @@ istioCore:
   postRenderers: []
 
 istioGatewayPublic:
+  status: "alpha"
   # -- Toggle deployment of the Istio public ingress gateway
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
@@ -218,6 +220,7 @@ istioGatewayPublic:
   postRenderers: []
 
 istioGatewayPassthrough:
+  status: "alpha"
   # -- Toggle deployment of the Istio passthrough ingress gateway
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
