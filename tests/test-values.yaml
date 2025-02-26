@@ -56,7 +56,7 @@ networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
 istio:
-  enabled: false
+  enabled: true
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
