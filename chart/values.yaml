@@ -329,7 +329,7 @@ istioGatewayPassthrough:
 
 istio:
   # -- Toggle deployment of Istio.
-  enabled: true
+  enabled: false
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
     # PERMISSIVE = Allow both plain text and mutual TLS traffic
@@ -475,7 +475,7 @@ istio:
 
 istioOperator:
   # -- Toggle deployment of Istio Operator.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
