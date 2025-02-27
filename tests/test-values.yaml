@@ -1907,7 +1907,10 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "mimir-tenant-upgrade"
     values:
       istio:
         hardened:
