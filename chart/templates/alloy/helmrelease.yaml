@@ -11,7 +11,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/alloy/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: monitoring
+  releaseName: alloy
+  targetNamespace: alloy
   chart:
     spec:
       {{- if eq .Values.addons.alloy.sourceType "git" }}
