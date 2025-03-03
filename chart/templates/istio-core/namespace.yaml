@@ -6,7 +6,7 @@ metadata:
   labels:
     istio-base-managed: Reconcile
     istio-injection: disabled
-    app.kubernetes.io/name: istioCore
+    app.kubernetes.io/name: istio-core
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
 {{- if or .Values.istioGatewayPublic.enabled .Values.istioGatewayPassthrough.enabled }}
