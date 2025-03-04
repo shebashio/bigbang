@@ -11,6 +11,7 @@ FLUX_KUSTOMIZATION="${FLUX_SCRIPT_DIR}/../base/flux"
 REGISTRY_URL=registry1.dso.mil
 FLUX_SECRET=private-registry
 WAIT_TIMEOUT=300
+NAMESPACE=flux-system
 
 #
 # helper functions
@@ -120,7 +121,6 @@ while (("$#")); do
       NAMESPACE=$2
       shift 2
     else
-      NAMESPACE="flux-system"
       shift
     fi
     ;;
