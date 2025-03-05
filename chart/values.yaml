@@ -1104,7 +1104,7 @@ twistlock:
 addons:
   argocd:
     # -- Toggle deployment of ArgoCD.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1112,11 +1112,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.2-bb.0"
+      # tag: "7.8.2-bb.0"
+      branch: "renovate/ironbank"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.2-bb.0"
+      tag: "7.8.7-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1148,7 +1149,10 @@ addons:
         g, Impact Level 2 Authorized, role:admin
 
     # -- Values to passthrough to the argocd chart: https://repo1.dso.mil/big-bang/product/packages/argocd.git
-    values: {}
+    values:
+      istio:
+        hardened:
+          enabled: true
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
