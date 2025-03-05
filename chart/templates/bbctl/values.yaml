@@ -42,6 +42,7 @@ credentialsFile:
     password: "{{ .Values.addons.bbctl.repoCredentials.password }}"
 
 baseConfig:
+  skip-update-check: true
   preflight-check:
     {{- if and .Values.registryCredentials (kindIs "slice" .Values.registryCredentials) }}
     {{ with index .Values.registryCredentials 0 }}
