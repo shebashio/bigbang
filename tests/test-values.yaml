@@ -1079,6 +1079,10 @@ promtail:
   enabled: true
 
 monitoring:
+  enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   flux:
     timeout: 20m
     install:
@@ -1095,6 +1099,7 @@ monitoring:
   values:
     istio:
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-monitoring"
             enabled: true
