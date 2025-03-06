@@ -86,16 +86,6 @@ jaeger:
   values:
     istio:
       hardened:
-        customAuthorizationPolicies:
-          - name: "allow-intranamespace-jaeger"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - jaeger
         customServiceEntries:
           - name: "cypress-service-entries-jaeger"
             enabled: true
