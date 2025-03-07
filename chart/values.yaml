@@ -160,6 +160,87 @@ imagePullPolicy: IfNotPresent
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
+
+istioCore:
+  status: "alpha"
+  # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-core.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-core"
+    #tag:
+  # -- Values to passthrough to the istiod chart
+  values:
+    # k8s 1.29+ native sidecars ~ https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates
+    # prevent jobs from hanging ~ https://istio.io/latest/blog/2023/native-sidecars/#sidecar-woes
+    istiod:
+      pilot:
+        env:
+          ENABLE_NATIVE_SIDECARS: 'true'
+    # # enable Tetrate FIPS compliant Istio images
+    # defaults:
+    #   global:
+    #     enterprise: true
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istioGatewayPublic:
+  status: "alpha"
+  # -- Toggle deployment of the Istio public ingress gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+  # -- set the tls key/cert
+  # tls:
+  #   key: ""
+  #   cert: ""
+  # -- Values to passthrough to the istio-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
+istioGatewayPassthrough:
+  status: "alpha"
+  # -- Toggle deployment of the Istio passthrough ingress gateway
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
+    path: "./chart"
+    branch: "main"
+    #tag:
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-gateway"
+    #tag:
+  # -- Values to passthrough to the istio-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
@@ -570,11 +651,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.26.0-bb.0"
+    tag: "1.27.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.26.0-bb.0"
+    tag: "1.27.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -648,11 +729,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.5-bb.2"
+    tag: "0.48.6-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.5-bb.2"
+    tag: "0.48.6-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -701,11 +782,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.25.1-bb.0"
+    tag: "6.25.1-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.25.1-bb.0"
+    tag: "6.25.1-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -810,11 +891,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.18.1-bb.1"
+    tag: "1.18.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.18.1-bb.1"
+    tag: "1.18.2-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -933,11 +1014,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.9.0-bb.0"
+    tag: "8.10.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.9.0-bb.0"
+    tag: "8.10.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1188,11 +1269,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.8.2-bb.0"
+      tag: "8.9.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.8.2-bb.0"
+      tag: "8.9.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1648,11 +1729,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.4.2-bb.1"
+      tag: "10.5.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.4.2-bb.1"
+      tag: "10.5.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -1810,7 +1891,7 @@ addons:
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
       # the istio gateway for keycloak must have tls.mode: PASSTHROUGH
-      gateway: "passthrough"
+      gateway: ""
       # -- Certificate/Key pair to use as the certificate for exposing Keycloak
       # Setting the ingress cert here will automatically create the volume and volumemounts in the Keycloak Package chart
       key: ""
@@ -1835,11 +1916,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.1-bb.5"
+      tag: "0.29.1-bb.8"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.29.1-bb.5"
+      tag: "0.29.1-bb.8"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -1929,12 +2010,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.12"
+      tag: "1.0.13"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"
-      tag: "1.0.12"
+      tag: "1.0.13"
 
     collectorAuth:
       # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
@@ -2075,12 +2156,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.14.2-bb.0"
+      tag: "0.14.3-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.14.2-bb.0"
+      tag: "0.14.3-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2125,12 +2206,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.5.1-bb.4"
+      tag: "5.5.1-bb.6"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.5.1-bb.4"
+      tag: "5.5.1-bb.6"
 
     # -- Enable Mimir Enterprise
     enterprise:
