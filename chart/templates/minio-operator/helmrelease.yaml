@@ -9,6 +9,8 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/minio-operator/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: minio-operator
+  driftDetection:
+    mode: warn
   chart:
     spec:
       {{- if eq .Values.addons.minioOperator.sourceType "git" }}
@@ -67,6 +69,10 @@ spec:
     {{- end }}
     {{- if .Values.istio.enabled }}
     - name: istio
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.istioCore.enabled }}
+    - name: istio-core
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.kyvernoPolicies.enabled }}

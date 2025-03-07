@@ -55,7 +55,6 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-
 istio:
   enabled: true
   ingressGateways:
@@ -79,7 +78,6 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-
 jaeger:
   enabled: false
   sso:
@@ -2213,7 +2211,7 @@ addons:
   keycloak:
     enabled: false
     ingress:
-      gateway: "passthrough"
+      gateway: ""
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
@@ -2632,6 +2630,21 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_holocron
     values:
+      istio:
+        hardened: 
+          enabled: true
+          customServiceEntries:
+            - name: "cypress-service-entries-holocron"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       bbtests:
         enabled: true
         cypress:
