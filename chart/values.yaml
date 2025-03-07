@@ -202,11 +202,11 @@ istioGatewayPublic:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    tag: "1.23.3-bb.2"
+    tag: "1.23.3-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: "1.23.3-bb.2"
+    tag: "1.23.3-bb.3"
   # -- set the tls key/cert
   # tls:
   #   key: ""
@@ -227,12 +227,11 @@ istioGatewayPassthrough:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
     path: "./chart"
-    branch: "main"
-    #tag:
+    tag: "1.23.3-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    #tag:
+    tag: "1.23.3-bb.3"
   # -- Values to passthrough to the istio-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
