@@ -651,11 +651,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.26.0-bb.0"
+    tag: "1.27.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.26.0-bb.0"
+    tag: "1.27.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -729,11 +729,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.5-bb.2"
+    tag: "0.48.6-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.5-bb.2"
+    tag: "0.48.6-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -782,11 +782,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.25.1-bb.1"
+    tag: "6.27.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.25.1-bb.1"
+    tag: "6.27.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -891,11 +891,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.18.1-bb.1"
+    tag: "1.18.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.18.1-bb.1"
+    tag: "1.18.2-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2010,12 +2010,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-      tag: "1.0.12"
+      tag: "1.0.13"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "holocron"
-      tag: "1.0.12"
+      tag: "1.0.13"
 
     collectorAuth:
       # -- Name of existing secret with auth tokens for collector services: https://repo1.dso.mil/groups/big-bang/apps/sandbox/holocron/-/wikis/Administrator-Guide
@@ -2156,12 +2156,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.14.2-bb.0"
+      tag: "0.14.3-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.14.2-bb.0"
+      tag: "0.14.3-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
