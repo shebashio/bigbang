@@ -1108,7 +1108,7 @@ grafana:
 #
 twistlock:
   # -- Toggle deployment of Twistlock.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1121,7 +1121,7 @@ twistlock:
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.18.0-bb.1"
+    tag: "0.19.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
