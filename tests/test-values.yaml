@@ -55,7 +55,6 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-
 istio:
   enabled: true
   ingressGateways:
@@ -79,7 +78,10 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-
+istioCore:
+  enabled: false
+istioGateway:
+  enabled: false
 jaeger:
   enabled: false
   sso:
@@ -1449,7 +1451,6 @@ addons:
       timeout: 30m
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
@@ -1544,7 +1545,6 @@ addons:
     enabled: false
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
@@ -1608,7 +1608,6 @@ addons:
         "TBD"
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "anchore-allow-cypress-tests"
@@ -1942,6 +1941,12 @@ addons:
         scripts:
           envs:
             MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
+      mimir-distributed:
+        mimir:
+          structuredConfig:
+            limits:
+              max_global_series_per_user: 0
+
     minioObjectStorage:
       enabled: true
     networkPolicies:
@@ -2123,7 +2128,6 @@ addons:
                   forceBasicAuth: true
                   httpPort: 5000
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-nexus"
@@ -2213,12 +2217,11 @@ addons:
   keycloak:
     enabled: false
     ingress:
-      gateway: "passthrough"
+      gateway: ""
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
       istio:
-        enabled: true
         hardened:
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
@@ -2454,7 +2457,6 @@ addons:
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
@@ -2632,6 +2634,20 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_holocron
     values:
+      istio:
+        hardened: 
+          customServiceEntries:
+            - name: "cypress-service-entries-holocron"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
       bbtests:
         enabled: true
         cypress:
@@ -2645,9 +2661,6 @@ addons:
 
   externalSecrets:
     values:
-      istio:
-        hardened:
-          enabled: true
       bbtests:
         enabled: true
         cypress:

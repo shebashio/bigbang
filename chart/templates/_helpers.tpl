@@ -171,6 +171,56 @@ stringData:
     {{- toYaml .package.values | nindent 4 }}
 {{- end -}}
 
+{{- define "enabledGateways" -}}
+  {{- $userGateways := deepCopy ($.Values.istioGateway.values.gateways | default dict) -}}
+  {{- $defaults := include "bigbang.defaults.istio-gateway" $ | fromYaml -}}
+
+  {{- $defaultImagePullConfig := dict 
+    "imagePullPolicy" .Values.imagePullPolicy
+    "imagePullSecrets" (list (dict "name" "private-registry"))
+  -}}
+
+  {{- $enabledGateways := dict -}}
+  
+  {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
+    {{- if and $name $mergedGW }}
+      {{- $gwType := dig "labels" "istio" "" $mergedGW -}}
+      
+      {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
+        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
+      {{ end -}}
+      
+      {{- $gwRecord := dict -}}
+      {{- $gwRecord = set $gwRecord "serviceName" (printf "%s-%s" $name $gwType) -}}
+      {{- $gwRecord = set $gwRecord "type" $gwType -}}
+      
+      {{- $gwDefaults := get $defaults.gateways $name | default dict -}}
+      {{- if $gwDefaults }}
+        {{- $gwRecord = set $gwRecord "defaults" $gwDefaults -}}
+      {{ end -}}
+      
+      {{- $gwOverlays := dig "gateways" $name dict $.Values.istioGateway.values -}}
+      {{- if $gwOverlays }}
+        {{- $gwRecord = set $gwRecord "overlays" (merge $gwOverlays $defaultImagePullConfig) -}}
+      {{ end -}}
+      
+      {{- $enabledGateways = set $enabledGateways $name $gwRecord -}}
+    {{ end -}}
+  {{ end -}}
+  
+  {{- range $name, $gw := $.Values.istioGateway.values.gateways }}
+    {{- if kindIs "map" $gw }}
+      {{- if eq (len $gw) 0 }}
+        {{- $enabledGateways = unset $enabledGateways $name -}}
+      {{ end -}}
+    {{- else -}}
+      {{- $enabledGateways = unset $enabledGateways $name -}}
+    {{ end -}}
+  {{ end -}}
+  
+  {{ toYaml $enabledGateways }}
+{{- end -}}
+
 {{/*
 bigbang.addValueIfSet can be used to nil check parameters before adding them to the values.
   Expects a list with the following params:
@@ -438,4 +488,45 @@ data:
   {{- end -}}
 {{- end -}}
 
+{{- /* Returns namespace of istio gateways */ -}}
+{{- define "istioGatewayNamespace" -}}
+{{- if .Values.istio.enabled -}}
+  {{- print "istio-system" -}}
+{{- else -}}
+  {{- print "istio-gateway" -}}
+{{- end -}}
+{{- end -}}
 
+{{- /* Returns name of istio public gateway */ -}}
+{{- define "istioPublicGateway" -}}
+{{- if .Values.istio.enabled -}}
+  {{- print "public" -}}
+{{- else -}}
+  {{- print "public-ingressgateway" -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Returns name of istio passthrough gateway */ -}}
+{{- define "istioPassthroughGateway" -}}
+{{- if .Values.istio.enabled -}}
+  {{- print "passthrough" -}}
+{{- else -}}
+  {{- print "passthrough-ingressgateway" -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Returns true if either istio or istioCore is enabled */ -}}
+{{- define "istioEnabled" -}}
+{{ or .Values.istio.enabled .Values.istioCore.enabled }}
+{{- end -}}
+
+{{- /* Returns name of istio Namespace Selector*/ -}}
+{{- define "istioNamespaceSelector" -}}
+{{- if .Values.istioCore.enabled -}}
+ingress: istio-gateway
+egress: istio-core
+{{- else -}}
+ingress: istio-controlplane
+egress: istio-controlplane
+{{- end -}}
+{{- end -}}
