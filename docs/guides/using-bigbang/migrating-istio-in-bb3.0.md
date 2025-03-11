@@ -77,7 +77,9 @@ Notice that services are now unreachable with errors like:
 ```
 upstream connect error or disconnect/reset before headers. retried and the latest reset reason: remote connection failure, transport failure reason: TLS_error:|268435581:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED:TLS_error_end
 ```
-To resolve this issue, cycle all istio-injected pods allowing their connection to the new service mesh. This simple bash script will iterate through all `istio-injected` namespaces and cycle all respective pods:
+To resolve this issue, cycle all Istio injected pods allowing their reconnection to the new service mesh.  
+  
+This simple bash script will iterate through all `istio-injected` namespaces and recycle pods:
 ```bash
 # in istio-injected namespaces, recycle pods
 for namespace in `kubectl get ns -o custom-columns=:.metadata.name --no-headers -l istio-injection=enabled`
