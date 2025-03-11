@@ -65,6 +65,8 @@ istioCore:
 istioGateway:
   enabled: true
 ```
+When migrating gateway configurations from Operator to Operatorless, see [the examples here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L209-263) as a reference for the supported values formatting.  
+  
 You can check that new gateway recieves an external IP (from MetalLB or AWS LB) with:
 ```bash
 kubectl get svc -n istio-gateway
