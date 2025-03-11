@@ -94,7 +94,7 @@ done
 ### Optionally reconcile Helm Releases
 It may be necessary, but not likely, to synchronize helm releases managed by Flux. Typically, this can occur when a Gitops deployment of Big Bang sees its helm resources get out of sync during an upgrade.  
   
-This step requires `flux` to be [installed locally](https://fluxcd.io/flux/installation/). Install it on macOS and Linux with:
+The `flux` CLI must be [installed locally](https://fluxcd.io/flux/installation/) -- on macOS and Linux:
 ```bash
 brew install fluxcd/tap/flux
 ```
@@ -107,16 +107,14 @@ do
     flux reconcile hr $hr -n bigbang --with-source
 done
 ```
-### Enjoy your new helm based deploymenbt of Istio!
-At this point all services in the cluster should be reachable via the new service mesh. 
 
-# Other Notes
+At this point all services in the cluster should be reachable via the new service mesh.  
 
-- The Istio Operator has reached its end of life not supporting versions of Istio after 1.23
+## Other Notes
+
+- The Istio Operator has reached its end of life and does not support versions of Istio after 1.23
 - An LTS release, Istio 1.23 is only supported [through May 2025](https://istio.io/latest/docs/releases/supported-releases/#:~:text=1.25%2C%201.26%2C%201.27-,1.23,-Yes)
-- The migration from Operator to Helm maintains a consistent version 1.23 to reduce the complexity of the process
-- In order to continue utilizing Istio in Big Bang releases >=3.0 this migration is required
-- An upgrade to version 1.24 of Istio will soon follow in version 3.1 or version 3.2 of Big Bang in mid-2025
-- A rollback from Helm Istio to Operator Istio is possible by reversing the migration steps process
+- In order to continue utilizing Istio in Big Bang releases beyond 3.0, this migration is required
+- An upgrade to version 1.25 of Istio will soon follow in version 3.1 or version 3.2 of Big Bang in mid-2025
+- A rollback from Helm Istio to Operator Istio is possible by reversing the migration process above
 - [Diagnostic Tools for Istio](https://istio.io/latest/docs/ops/diagnostic-tools) and [Troubleshooting tips](https://github.com/istio/istio/wiki/Troubleshooting-Istio) can be of assistance for troubled migrations
-- Similarly, there is [an Istio manifest tool](https://github.com/istio/istio/pull/52281) that can be used to compare pre and post upgrades
