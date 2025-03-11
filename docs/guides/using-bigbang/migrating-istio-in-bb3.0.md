@@ -3,18 +3,20 @@
 ### *The new Istio Helm packages are BETA in Big Bang 2.x and will be stable in 3.0*
 
 ### Step 1 : Remove Istio from your current deployment
-Before upgrading to the new Helm-based Istio packages, first disable the Istio and Istio's Operator packages.
+Before upgrading to the new Helm-based Istio packages, first disable the Istio and Istio's Operator packages:
 ```yaml
 istio:
   enabled: false
 istioOperator:
   enabled: false
 ```
-After a few minutes, all pods in both the `istio-system` and `istio-operator` namespaces should have terminated. However, due due to Istio's finalizer, it's likely that the `istio-system` namespace will be stuck in the `terminating` state. We can force the deletion of this namespace with the following:
+After a few minutes, all pods in both the `istio-system` and `istio-operator` namespaces will have terminated. However, due due to Istio's finalizer, the `istio-system` namespace will be stuck in the `terminating` state.  
+  
+Force the deletion of this namespace:
 ```bash
 kubectl get ns istio-system -o json | jq '.spec.finalizers = []' | kubectl replace --raw "/api/v1/namespaces/istio-system/finalize" -f -
 ```
-Both namespaces are now removed yet other remnants of Istio still linger in the cluster including custom resources. These also need to be removed as they will be re-instantiated via the helm deployment of Istio. There are various methods to accomplish this feat, but by far the easiest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
+Both Istio namespaces are now removed yet other remnants of Istio still linger in the cluster including custom resources. These also need to be removed as they will be re-instantiated via the helm deployment of Istio. There are various methods to accomplish this feat, but by far the easiest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
   
 If you're on Mac or Linux, you can quickly install it with:
 ```bash
