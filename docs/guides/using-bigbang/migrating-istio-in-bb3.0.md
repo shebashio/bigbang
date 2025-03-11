@@ -2,8 +2,8 @@
 
 ### *The new Istio Helm packages are BETA in Big Bang 2.x and will be stable in 3.0*
 
-### Step 1 : Remove Istio from your deployment
-Before upgrading to version 3.0 of Big Bang with the new Helm-based Istio packages, we first need to disable Istio and Istio's Operator packages in our 2.x deployment of Big Bang. We do this by disabling the two obsolete [Istio packages in our Gitops configuration](https://repo1.dso.mil/kipten/template/-/blob/main/package-strategy/configmap.yaml?ref_type=heads#L18-22).
+### Step 1 : Remove Istio from your current deployment
+Before upgrading to the new Helm-based Istio packages, first disable the Istio and Istio's Operator packages.
 ```yaml
 istio:
   enabled: false
