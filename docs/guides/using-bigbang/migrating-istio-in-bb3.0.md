@@ -65,19 +65,19 @@ istioCore:
 istioGateway:
   enabled: true
 ```
-When migrating gateway configurations from Operator to Operatorless, see [the examples here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L209-263) as a reference for the supported values formatting.  
+When migrating gateway configurations from Operator to Operatorless, see [the examples here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L209-263) as a reference to format values.  
   
-You can check that new gateway recieves an external IP (from MetalLB or AWS LB) with:
+After deployment, check that new gateway recieves an external IP (from MetalLB or AWS LB) with:
 ```bash
 kubectl get svc -n istio-gateway
 NAME                  TYPE         CLUSTER-IP    EXTERNAL-IP  PORT(S)                                    
 public-ingressgateway LoadBalancer 10.43.110.109 172.16.88.88 15021:31155/TCP,80:31302/TCP,443:31046/TCP 
 ```
-You'll notice at this point that services are unreachable with errors like:
+Notice that services are now unreachable with errors like:
 ```
 upstream connect error or disconnect/reset before headers. retried and the latest reset reason: remote connection failure, transport failure reason: TLS_error:|268435581:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED:TLS_error_end
 ```
-The reason for this is becuase we now need to cycle istio-injected pods so that they connect to the new service mesh. The simple bash script below will iterate through all istio-injected namespaces and cycles all pods therein:
+To resolve this issue, cycle all istio-injected pods allowing their connection to the new service mesh. This simple bash script will iterate through all `istio-injected` namespaces and cycle all respective pods:
 ```bash
 # in istio-injected namespaces, recycle pods
 for namespace in `kubectl get ns -o custom-columns=:.metadata.name --no-headers -l istio-injection=enabled`
