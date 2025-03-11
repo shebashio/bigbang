@@ -18,7 +18,7 @@ kubectl get ns istio-system -o json | jq '.spec.finalizers = []' | kubectl repla
 ```
 Both Istio namespaces are now removed yet other remnants of Istio still linger in the cluster including custom resources. Remove them as they will be recreated via the helm deployment of Istio. The quickest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
   
-If you're on Mac or Linux, you can install it with:
+On macOS or Linux install it with:
 ```bash
 brew install istioctl
 ```
@@ -92,13 +92,13 @@ do
 done
 ```
 ### Optionally reconcile Helm Releases
-You may also need to initiate a reconciliation to all of Big Bang's helm releases managed by `flux`.  
+It may be necessary, but not likely, to synchronize helm releases managed by Flux. Typically, this can occur when a Gitops deployment of Big Bang sees its helm resources get out of sync during an upgrade.  
   
-This step does require that `flux` is [installed locally](https://fluxcd.io/flux/installation/). Linux and Mac users can simply:
+This step requires `flux` to be [installed locally](https://fluxcd.io/flux/installation/). Install it on macOS and Linux with:
 ```bash
 brew install fluxcd/tap/flux
 ```
-This simple bash script will iterate through all of Big Bang managed Helm release and prompt `flux` to [reconcile](https://fluxcd.io/flux/cmd/flux_reconcile_helmrelease) each HR one at a time waiting for them to complete. Typically, this can be useful when managing a Gitops deployment of Big Bang during upgrades or when helm and its dependencies get out of sync.
+This bash script iterates through all helm releases managed by Big Bang and has `flux` initiate a [reconciliation](https://fluxcd.io/flux/cmd/flux_reconcile_helmrelease) on each HR one by one:
 ```bash
 # reconcile all of big bang's helm releases w/ flux
 for hr in `kubectl get hr --no-headers -n bigbang | awk '{ print $1 }'`
