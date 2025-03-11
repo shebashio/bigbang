@@ -18,15 +18,15 @@ kubectl get ns istio-system -o json | jq '.spec.finalizers = []' | kubectl repla
 ```
 Both Istio namespaces are now removed yet other remnants of Istio still linger in the cluster including custom resources. Remove them as they will be recreated via the helm deployment of Istio. The quickest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
   
-If you're on Mac or Linux, you can quickly install it with:
+If you're on Mac or Linux, you can install it with:
 ```bash
 brew install istioctl
 ```
-To complete the removal of the Istio remnants, purge [as per Istio's documentation](https://istio.io/latest/docs/setup/install/istioctl/#uninstall-istio):
+To complete the removal of remaining Istio components, purge as per [Istio's documentation](https://istio.io/latest/docs/setup/install/istioctl/#uninstall-istio):
 ```bash
 istioctl uninstall --purge
 ```
-Accept the prompt and these remnants are removed:
+Accept the prompt to proceed:
 ```bash
 All Istio resources will be pruned from the cluster
 Proceed? (y/N) y
@@ -57,14 +57,12 @@ Proceed? (y/N) y
 ✔ Uninstall complete 
 ```
 
-### Step 2 : Deploy the new Helm based version of Istio
-Enabling the Helm based version of Istio entails enabling the `istioCore` package that provides both the `istio-base` and `istiod` charts. The `istioGatewayPublic` package provides the default ingress gateway for most packages and the `istioGatewayPassthrough` provides a secondary non-TLS gated gateway for specific apps that require this like Keycloak.
+### Step 2 : Deploy the new Helm Istio package
+Enabling the Helm based version of Istio entails enabling the `istioCore` package that provides both the `istio-base` and `istiod` charts. The `istioGateway` package provides the ability to add one or more egress gateways:
 ```yaml
 istioCore:
   enabled: true
-istioGatewayPublic:
-  enabled: true
-istioGatewayPassthrough:
+istioGateway:
   enabled: true
 ```
 You can check that new gateway recieves an external IP (from MetalLB or AWS LB) with:
