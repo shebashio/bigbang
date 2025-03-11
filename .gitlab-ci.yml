@@ -1,0 +1,9 @@
+include:
+  - project: big-bang/pipeline-templates/pipeline-templates
+    ref: 633-remove-old-gateway-ci-machinery
+    file: /pipelines/bigbang.yaml
+variables:
+  PIPELINE_REPO_BRANCH: 633-remove-old-gateway-ci-machinery
+  CI_DEFAULT_BRANCH: remove-ol-istio-ci-machinery
+  CI_MERGE_REQUEST_TARGET_BRANCH_NAME: remove-ol-istio-ci-machinery
+  BB_REPO: repo1.dso.mil/big-bang/bigbang
