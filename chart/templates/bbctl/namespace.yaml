@@ -1,4 +1,4 @@
-{{- if and .Values.addons.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
+{{- if and .Values.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:

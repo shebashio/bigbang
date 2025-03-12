@@ -1,7 +1,7 @@
-{{- if and .Values.addons.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
+{{- if and .Values.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
 {{- $gitCredsDict := dict
   "name" "bbctl"
-  "packageGitScope" .Values.addons.bbctl.git
+  "packageGitScope" .Values.bbctl.git
   "rootScope" .
   "releaseName" .Release.Name
 }}
@@ -15,9 +15,9 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
 spec:
   interval: {{ .Values.flux.interval }}
-  url: {{ .Values.addons.bbctl.git.repo }}
+  url: {{ .Values.bbctl.git.repo }}
   ref:
-    {{- include "validRef" .Values.addons.bbctl.git | nindent 4 }}
+    {{- include "validRef" .Values.bbctl.git | nindent 4 }}
   {{ include "gitIgnore" . }}
   {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
 {{- end }}
