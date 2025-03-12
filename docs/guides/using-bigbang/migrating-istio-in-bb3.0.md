@@ -10,7 +10,7 @@ istio:
 istioOperator:
   enabled: false
 ```
-After a few minutes, all pods in both the `istio-system` and `istio-operator` namespaces will have terminated. However, due due to Istio's finalizer, the `istio-system` namespace will be stuck in the `terminating` state.  
+After a few minutes, all pods in both the `istio-system` and `istio-operator` namespaces will have terminated. However, due to Istio's finalizer, the `istio-system` namespace will be stuck in the `terminating` state.  
   
 Force the deletion of this namespace:
 ```bash
