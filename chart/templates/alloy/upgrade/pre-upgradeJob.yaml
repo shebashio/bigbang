@@ -24,91 +24,67 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: bb-alloy-upgrade
-          image: {{ $.Values.addons.alloy.AutoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.AutoRollingUpgrade.image.tag }}
+          image: "{{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}"
           command:
-            #!/bin/bash
+            - "/bin/bash"
+            - "-c"
+            - |
+              set -e  # Exit on first error
 
-            # Script to delete resources based on kubectl output
-            set -e
-            trap 'echo "Error occurred at line $LINENO"; exit 1' ERR
+              trap 'echo "Error occurred at line $LINENO"; exit 1' ERR
 
-            echo "Starting deletion of resources with label helm.toolkit.fluxcd.io/name=alloy in namespace monitoring..."
-            echo "Note: Skipping endpointslice resources"
+              echo "Starting deletion of resources with label helm.toolkit.fluxcd.io/name=alloy in namespace monitoring..."
+              echo "Note: Skipping endpointslice resources"
 
-            # Run the command and store output
-            cmd_output=$(kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring)
+              # Fetch resource types
+              resource_types=$(kubectl api-resources --verbs=list --namespaced -o name)
 
-            # Check if we have any resources to delete (beyond headers)
-            resource_count=0
-            while IFS= read -r line; do
-                if [[ ! "$line" =~ ^NAME && -n "$line" && "$line" == */* ]]; then
-                    resource_type=$(echo "$line" | awk '{print $1}' | cut -d'/' -f1)
-                    if [[ "$resource_type" != "endpointslice"* ]]; then
-                        ((resource_count++))
-                    fi
-                fi
-            done <<< "$cmd_output"
+              # Fetch all resources matching label, ignoring empty output
+              cmd_output=$(echo "$resource_types" | xargs -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring || true)
 
-            if [ $resource_count -eq 0 ]; then
-                echo "No resources found with label helm.toolkit.fluxcd.io/name=alloy in namespace monitoring."
-                echo "Nothing to delete. Exiting."
-                exit 0
-            fi
+              # Initialize count
+              resource_count=0
 
-            echo "Found $resource_count resources to delete."
+              # Process the output
+              while IFS= read -r line; do
+                  [[ -z "$line" || "$line" =~ ^NAME ]] && continue
 
-            # Process the output for deletion
-            echo "$cmd_output" | while IFS= read -r line; do
-                # Check if the line starts with "NAME" (header) or is empty
-                if [[ "$line" =~ ^NAME || -z "$line" ]]; then
-                    continue
-                fi
-                
-                # Extract resource type and name
-                # Format should be "resourcetype/resourcename OTHERSTUFF..."
-                resource_with_name=$(echo "$line" | awk '{print $1}')
-                
-                # Skip lines that don't have a slash (like section headers)
-                if [[ "$resource_with_name" != */* ]]; then
-                    continue
-                fi
-                
-                # Split into resource_type and resource_name
-                resource_type=$(echo "$resource_with_name" | cut -d'/' -f1)
-                resource_name=$(echo "$resource_with_name" | cut -d'/' -f2)
-                
-                # Skip endpointslice resources
-                if [[ "$resource_type" == "endpointslice"* ]]; then
-                    echo "Skipping $resource_type/$resource_name (endpointslice resources are excluded)"
-                    continue
-                fi
-                
-                # Execute deletion
-                echo "Deleting $resource_type/$resource_name in namespace monitoring..."
-                if kubectl delete "$resource_type" "$resource_name" -n monitoring; then
-                    echo "✓ Successfully deleted $resource_type/$resource_name"
-                else
-                    echo "✗ Failed to delete $resource_type/$resource_name"
-                    exit 1
-                fi
-            done
+                  resource_with_name=$(echo "$line" | awk '{print $1}')
+                  [[ "$resource_with_name" != */* ]] && continue
 
-            # This is a simple echo command, not meant to be executed
-            echo "Resource deletion completed successfully!"
-                                    
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 100m
-            memory: 256Mi
-        securityContext:
-          capabilities:
-            drop: ["ALL"]
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
+                  resource_type=$(echo "$resource_with_name" | cut -d'/' -f1)
+                  resource_name=$(echo "$resource_with_name" | cut -d'/' -f2)
+
+                  [[ "$resource_type" == "endpointslice"* ]] && continue
+
+                  ((resource_count++))
+                  echo "Deleting $resource_type/$resource_name in namespace monitoring..."
+                  kubectl delete "$resource_type" "$resource_name" -n monitoring || {
+                      echo "✗ Failed to delete $resource_type/$resource_name"
+                      exit 1
+                  }
+                  echo "✓ Successfully deleted $resource_type/$resource_name"
+              done <<< "$cmd_output"
+
+              if [[ "$resource_count" -eq 0 ]]; then
+                  echo "No matching resources found. Exiting."
+                  exit 0
+              fi
+
+              echo "Resource deletion completed successfully!"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          securityContext:
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
       restartPolicy: Never
 {{- end }}
