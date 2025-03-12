@@ -3,7 +3,7 @@
 ### *The new Istio Helm packages are BETA in Big Bang 2.x and will be stable in 3.0*
 
 ### Step 1 : Remove Istio from your current deployment
-Before upgrading to the new Helm-based Istio packages, first disable the Istio and Istio's Operator packages:
+Before upgrading to the new helm-based Istio packages, first disable the istio and istioOperator packages:
 ```yaml
 istio:
   enabled: false
