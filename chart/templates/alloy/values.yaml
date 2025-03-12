@@ -40,4 +40,50 @@ k8s-monitoring:
       {{- end }}
   {{- end }}
 
+  destinations:
+    {{- if .Values.monitoring.enabled }}
+    - name: metricsServicePrometheus
+      type: prometheus
+      url: http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+      metrics:
+        enabled: true
+      logs:
+        enabled: false
+      traces:
+        enabled: false
+    {{- end }}
+    {{- if .Values.addons.mimir.enabled .Values.alloy.alloy-metrics.enabled }}
+    - name: metricsServiceMimir
+      type: prometheus
+      url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
+      metrics:
+        enabled: true
+      logs:
+        enabled: false
+      traces:
+        enabled: false
+    {{- end }}
+    {{- if .Values.loki.enabled .Values.alloy.alloy-logs.enabled }}
+    - name: logsServiceLoki
+      type: loki
+      url: logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push
+      metrics:
+        enabled: false
+      logs:
+        enabled: true
+      traces:
+        enabled: false
+    {{- end }}
+    {{- if .Values.tempo.enabled .Values.alloy.alloy-receiver.enabled }}
+    - name: tracesServiceTempo
+      type: otlp
+      metrics:
+        enabled: false
+      logs:
+        enabled: false
+      traces:
+        enabled: true
+      url: tempo-tempo.tempo.svc.cluster.local:4317
+      tls: {}
+    {{- end }}
 {{- end }}
