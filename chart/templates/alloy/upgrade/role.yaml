@@ -13,4 +13,7 @@ rules:
 - apiGroups: ["security.istio.io", "networking.k8s.io", "apps", "","discovery.k8s.io"]
   resources: ["endpoints",authorizationpolicies", "networkpolicies", "deployments", "statefulsets", "daemonsets", "services", "serviceaccount","peerauthentications"]
   verbs: ["get", "list", "delete"]
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list"]
 {{- end }}

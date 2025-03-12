@@ -27,10 +27,9 @@ spec:
           image: {{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}
           command:
             - /bin/bash
-            - "-c"
+            - -c
             - |
               set -e  # Exit on first error
-
               trap 'echo "Error occurred at line $LINENO"; exit 1' ERR
 
               echo "Starting deletion of resources with label helm.toolkit.fluxcd.io/name=alloy in namespace monitoring..."
@@ -72,19 +71,19 @@ spec:
               fi
 
               echo "Resource deletion completed successfully!"
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 100m
-            memory: 256Mi
-        securityContext:
-          capabilities:
-            drop: ["ALL"]
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          securityContext:
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
       restartPolicy: Never
 {{- end }}
