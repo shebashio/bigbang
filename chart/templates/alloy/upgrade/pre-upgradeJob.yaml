@@ -13,7 +13,6 @@ spec:
   ttlSecondsAfterFinished: 480
   template:
     metadata:
-      name: bb-alloy-upgrade
       labels:
         app.kubernetes.io/name: bigbang-alloy-upgrade-job
     spec:
@@ -24,10 +23,10 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: bb-alloy-upgrade
-          image: {{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}
+          image: "{{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}"
           command:
-            - /bin/bash
-            - -c
+            - "/bin/bash"
+            - "-c"
             - |
               set -e  # Exit on first error
               trap 'echo "Error occurred at line $LINENO"; exit 1' ERR
@@ -36,10 +35,16 @@ spec:
               echo "Note: Skipping endpointslice resources"
 
               # Fetch resource types
-              resource_types=$(kubectl api-resources --verbs=list --namespaced -o name)
+              resource_types=$(kubectl api-resources --verbs=list --namespaced -o name | grep -v 'NAME')
 
               # Fetch all resources matching label, ignoring empty output
-              cmd_output=$(echo "$resource_types" | xargs -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring || true)
+              cmd_output=$(echo "$resource_types" | xargs -r -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring || true)
+
+              # Exit immediately if no resources are found
+              if [[ -z "$cmd_output" ]]; then
+                  echo "No matching resources found. Exiting."
+                  exit 0
+              fi
 
               # Initialize count
               resource_count=0
@@ -64,11 +69,6 @@ spec:
                   }
                   echo "✓ Successfully deleted $resource_type/$resource_name"
               done <<< "$cmd_output"
-
-              if [[ "$resource_count" -eq 0 ]]; then
-                  echo "No matching resources found. Exiting."
-                  exit 0
-              fi
 
               echo "Resource deletion completed successfully!"
           resources:
