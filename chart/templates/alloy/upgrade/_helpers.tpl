@@ -1,6 +1,6 @@
 {{- define "alloy.shouldDeployUpgradeResources" -}}
 {{/* Define upgradeVersion inside the template so it's available when the template is used */}}
-{{- $upgradeVersion := "2.0.4-bb.0" -}}
+{{- $upgradeVersion := "2.0.4-bb.1" -}}
 {{- if and .Values.alloy.AutoRollingUpgrade.enabled .Release.IsUpgrade .Values.addons.alloy.enabled -}}
   {{- $helmRelease := lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "alloy" -}}
   {{- if $helmRelease -}}

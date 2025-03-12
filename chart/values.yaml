@@ -2189,6 +2189,12 @@ addons:
       repoName: "registry1"
       chartName: "k8s-monitoring"
       tag: "2.0.4-bb.0"
+    
+    AutoRollingUpgrade:
+      enabled: true
+      image:
+        repository: registry1.dso.mil/ironbank/big-bang/base
+        tag: 2.1.0
 
     values: {}
 

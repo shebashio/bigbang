@@ -5,7 +5,7 @@ metadata:
   name: bb-alloy-upgrade
   namespace: monitoring
   annotations:
-    "helm.sh/hook": post-upgrade
+    "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
 spec:
@@ -24,7 +24,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: bb-alloy-upgrade
-          image: {{ $.Values.upgradeJob.image.repository }}:{{ $.Values.upgradeJob.image.tag }}
+          image: {{ $.Values.addons.alloy.AutoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.AutoRollingUpgrade.image.tag }}
           command:
             #!/bin/bash
 
