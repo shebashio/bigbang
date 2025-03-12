@@ -16,7 +16,7 @@ Force the deletion of this namespace:
 ```bash
 kubectl get ns istio-system -o json | jq '.spec.finalizers = []' | kubectl replace --raw "/api/v1/namespaces/istio-system/finalize" -f -
 ```
-Both Istio namespaces are now removed yet other remnants of Istio still linger in the cluster including custom resources. Remove them as they will be recreated via the helm deployment of Istio. The quickest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
+Both Istio namespaces are now removed yet other remnants still linger, not limited to, but including custom resources. Remove them as they will be recreated via the helm deployment of Istio. The quickest way to do this is by using the [istioctl CLI tool](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/).  
   
 On macOS or Linux install it with:
 ```bash
