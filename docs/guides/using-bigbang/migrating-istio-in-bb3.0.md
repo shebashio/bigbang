@@ -92,7 +92,7 @@ do
 done
 ```
 ### Optionally reconcile Helm Releases
-It may be necessary, but not likely, to synchronize helm releases managed by Flux. Typically, this can occur when a Gitops deployment of Big Bang sees its helm resources get out of sync during an upgrade.  
+It may (but unlikely) be necessary to synchronize the helm releases managed by Flux. Typically, this can occur when a Gitops deployment of Big Bang has its helm resources get out of sync during an upgrade.  
   
 The `flux` CLI must be [installed locally](https://fluxcd.io/flux/installation/) -- on macOS and Linux:
 ```bash
