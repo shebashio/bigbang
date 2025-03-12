@@ -143,9 +143,13 @@ image:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  networkPolicies:
+    istioNamespaceSelector:
+    {{ include "istioNamespaceSelector" . | nindent 4 }}
+
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.fluentbit.values)
