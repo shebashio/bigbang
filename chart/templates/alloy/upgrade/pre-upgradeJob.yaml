@@ -24,9 +24,9 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: bb-alloy-upgrade
-          image: "{{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}"
+          image: {{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}
           command:
-            - "/bin/bash"
+            - /bin/bash
             - "-c"
             - |
               set -e  # Exit on first error
@@ -72,19 +72,19 @@ spec:
               fi
 
               echo "Resource deletion completed successfully!"
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 100m
-              memory: 256Mi
-          securityContext:
-            capabilities:
-              drop: ["ALL"]
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
       restartPolicy: Never
 {{- end }}
