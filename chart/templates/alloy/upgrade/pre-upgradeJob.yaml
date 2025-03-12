@@ -1,0 +1,86 @@
+{{- if include "alloy.shouldDeployUpgradeResources" . }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bb-alloy-upgrade
+  namespace: monitoring
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 480
+  template:
+    metadata:
+      name: bb-alloy-upgrade
+      labels:
+        app.kubernetes.io/name: bigbang-alloy-upgrade-job
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      serviceAccountName: alloy-bb-upgrade
+      automountServiceAccountToken: true
+      containers:
+        - name: bb-alloy-upgrade
+          image: {{ $.Values.upgradeJob.image.repository }}:{{ $.Values.upgradeJob.image.tag }}
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              set -e  # Exit on first error
+              trap 'echo "Error occurred at line $LINENO"; exit 1' ERR
+
+              # Step 1: Delete all resources labeled with app.kubernetes.io/instance=monitoring-alloy in the monitoring namespace
+              echo "Deleting all resources in namespace 'monitoring' labeled with 'app.kubernetes.io/instance=monitoring-alloy'..."
+              if ! kubectl delete all -n monitoring -l app.kubernetes.io/instance=monitoring-alloy; then
+                  echo "Error: Failed to delete resources labeled with 'app.kubernetes.io/instance=monitoring-alloy' in 'monitoring' namespace.";
+                  exit 1;
+              fi
+
+              # Step 2: Check if Network Policies exist before deleting
+              if kubectl get netpol -n monitoring -l helm.toolkit.fluxcd.io/name=alloy &>/dev/null; then
+                  echo "Deleting Network Policies in namespace 'monitoring' labeled with 'helm.toolkit.fluxcd.io/name=alloy'..."
+                  if ! kubectl delete netpol -n monitoring -l helm.toolkit.fluxcd.io/name=alloy; then
+                      echo "Error: Failed to delete Network Policies labeled with 'helm.toolkit.fluxcd.io/name=alloy' in 'monitoring' namespace.";
+                      exit 1;
+                  fi
+              else
+                  echo "No matching Network Policies found in 'monitoring' namespace. Skipping deletion."
+              fi
+
+              # Step 3: Check if AuthorizationPolicies CRD exists before proceeding
+              if kubectl get crd authorizationpolicies.istio.io &>/dev/null; then
+                  echo "AuthorizationPolicies CRD found. Checking for resources to delete..."
+                  if kubectl get authorizationpolicies -n monitoring -l helm.toolkit.fluxcd.io/name=alloy &>/dev/null; then
+                      echo "Deleting Authorization Policies in namespace 'monitoring' labeled with 'helm.toolkit.fluxcd.io/name=alloy'..."
+                      if ! kubectl delete authorizationpolicies -n monitoring -l helm.toolkit.fluxcd.io/name=alloy; then
+                          echo "Error: Failed to delete Authorization Policies labeled with 'helm.toolkit.fluxcd.io/name=alloy' in 'monitoring' namespace.";
+                          exit 1;
+                      fi
+                  else
+                      echo "No matching Authorization Policies found in 'monitoring' namespace. Skipping deletion."
+                  fi
+              else
+                  echo "AuthorizationPolicies CRD not found. Skipping deletion."
+              fi
+
+              echo "Monitoring Alloy Cleanup completed!"
+                    
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+      restartPolicy: Never
+{{- end }}
