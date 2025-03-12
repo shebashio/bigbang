@@ -38,7 +38,7 @@ networkPolicies:
   nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
 
 istio:
-  enabled: {{ (include "istioEnabled" .) }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.twistlock.values)

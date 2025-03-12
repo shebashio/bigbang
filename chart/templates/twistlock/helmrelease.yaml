@@ -62,7 +62,7 @@ spec:
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if (include "istioEnabled" .) }}
+    {{- if include "istioEnabled" . }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
