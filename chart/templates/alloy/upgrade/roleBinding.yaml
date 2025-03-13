@@ -5,7 +5,7 @@ metadata:
   name: alloy-bb-upgrade
   namespace: {{ .Release.Namespace }}
   annotations:
-    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook": post-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
     
