@@ -25,17 +25,77 @@ spec:
         - name: bb-alloy-upgrade
           image: "{{ $.Values.addons.alloy.autoRollingUpgrade.image.repository }}:{{ $.Values.addons.alloy.autoRollingUpgrade.image.tag }}"
           command:
-            - "/bin/bash"
-            - "-c"
+            - /bin/sh
+            - -c
             - |
-              # Delete the alloy helmrelease with target namespace in monitoring prior to ugpragde and check if successful
-              if kubectl delete helmrelese alloy -n {{ .Release.Namespace }}; then
-                echo "helmrelease alloy (in monitoring namespace) deleted successfully."
-              else
-                echo "[ERROR] Failed to delete alloy helm release (in monitoring namespace)." >&2
-                exit 1
+              echo "🔄 Fetching resources with label helm.toolkit.fluxcd.io/name=alloy in namespace monitoring..."
+              echo "⚠️ Note: Endpointslice resources will NOT be deleted"
+
+              # Fetch resource types
+              resource_types=$(kubectl api-resources --verbs=list --namespaced -o name | grep -v 'NAME')
+
+              echo "📋 Fetching resource types"
+
+              # Fetch all resources matching label, ignoring empty output and headers
+              cmd_output=$(echo "$resource_types" | xargs -r -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring | tail -n +2 || true)
+
+              echo "📋 Fetched resources:"
+              echo "$cmd_output"
+              echo "-------------------------------------"
+
+              # Exit if no resources are found
+              if [[ -z "$cmd_output" ]]; then
+                  echo "✅ No matching resources found. Exiting."
+                  exit 0
               fi
 
+              # Process the output
+              while IFS= read -r line; do
+                  [[ -z "$line" ]] && continue  # Skip empty lines
+
+                  # Extract only the first field to get resourceType/resourceName
+                  first_field=$(echo "$line" | awk '{print $1}')
+
+                  # Ensure it contains a slash (resource type/name format)
+                  if [[ "$first_field" != */* ]]; then
+                      echo "⚠️ Skipping malformed line (no resource type): $line"
+                      continue
+                  fi
+
+                  resource_type=$(echo "$first_field" | cut -d'/' -f1)
+                  resource_name=$(echo "$first_field" | cut -d'/' -f2)
+
+                  echo "🛠 Extracted -> Type: $resource_type, Name: $resource_name"
+
+                  # Skip deletion for endpointslice
+                  if [[ "$resource_type" == "endpointslice.discovery.k8s.io" ]]; then
+                      echo "⏩ Skipping endpointslice: $resource_name"
+                      continue
+                  fi
+
+                  # Validate extraction
+                  if [[ -z "$resource_type" || -z "$resource_name" ]]; then
+                      echo "⚠️ Skipping malformed line: $line"
+                      continue
+                  fi
+
+                  ((resource_count++))
+                  echo "🚀 Deleting $resource_type/$resource_name in namespace monitoring..."
+
+                  # Attempt deletion with a retry
+                  if ! kubectl delete "$resource_type" "$resource_name" -n monitoring; then
+                      echo "⚠️ Retrying deletion of $resource_type/$resource_name..."
+                      sleep 2
+                      kubectl delete "$resource_type" "$resource_name" -n monitoring || {
+                          echo "❌ Failed to delete $resource_type/$resource_name"
+                          exit 1
+                      }
+                  fi
+
+                  echo "✅ Successfully deleted $resource_type/$resource_name"
+              done <<< "$cmd_output"
+
+              echo "🎉 Resource deletion completed successfully!"
           resources:
             requests:
               cpu: 100m
