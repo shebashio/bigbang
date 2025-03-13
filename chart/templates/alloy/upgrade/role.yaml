@@ -12,9 +12,5 @@ metadata:
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
-  resourceNames: ["*alloy*"]
-  verbs: ["delete"]
-- apiGroups: ["*"]
-  resources: ["*"]
-  verbs: ["list"]
+  verbs: ["list","delete"]
 {{- end }}
