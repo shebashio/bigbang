@@ -34,8 +34,7 @@ spec:
               # Fetch resource types
               resource_types=$(kubectl api-resources --verbs=list --namespaced -o name | grep -v 'NAME')
 
-              echo "📋 Fetched resource types:"
-              echo "$resource_types"
+              echo "📋 Fetching resource types"
               echo "-------------------------------------"
 
               # Fetch all resources matching label, ignoring empty output and headers

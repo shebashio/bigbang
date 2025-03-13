@@ -10,10 +10,7 @@ metadata:
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
     
 rules:
-- apiGroups: ["security.istio.io", "networking.k8s.io", "apps", "","discovery.k8s.io"]
-  resources: ["endpoints",authorizationpolicies", "networkpolicies", "deployments", "configmap", "statefulsets", "daemonsets", "services", "serviceaccount","peerauthentications"]
-  verbs: ["delete"]
 - apiGroups: ["*"]
   resources: ["*"]
-  verbs: ["list"]
+  verbs: ["list","delete"]
 {{- end }}
