@@ -5,7 +5,7 @@ metadata:
   name: bb-alloy-upgrade
   namespace: monitoring
   annotations:
-    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook": post-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
 spec:
@@ -35,7 +35,6 @@ spec:
               resource_types=$(kubectl api-resources --verbs=list --namespaced -o name | grep -v 'NAME')
 
               echo "📋 Fetching resource types"
-              echo "-------------------------------------"
 
               # Fetch all resources matching label, ignoring empty output and headers
               cmd_output=$(echo "$resource_types" | xargs -r -n 1 kubectl get --show-kind --ignore-not-found -l helm.toolkit.fluxcd.io/name=alloy -n monitoring | tail -n +2 || true)
