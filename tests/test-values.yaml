@@ -1320,7 +1320,8 @@ bbctl:
       cypress:
         envs:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-
+          cypress_grafana_username: 'admin'
+          cypress_grafana_password: 'prom-operator'
 
 # Addons are toggled based on labels in CI
 addons:
