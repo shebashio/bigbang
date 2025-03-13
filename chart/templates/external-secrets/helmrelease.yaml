@@ -14,7 +14,7 @@ metadata:
 spec:
   targetNamespace: external-secrets
   driftDetection:
-    mode: disabled
+    mode: enabled
   chart:
     spec:
       {{- if eq .Values.addons.externalSecrets.sourceType "git" }}

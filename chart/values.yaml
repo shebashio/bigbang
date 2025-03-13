@@ -2200,19 +2200,21 @@ addons:
 
   externalSecrets:
     # -- Toggle deployment of external secrets
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.14.3-bb.0"
+      tag: ""
+      branch: "71-resolve-errors-from-enabling-drift-detection-for-eso-package-level"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.14.3-bb.0"
+      tag: ""
+      branch: "71-resolve-errors-from-enabling-drift-detection-for-eso-package-level"
 
     # -- Override flux settings for this package
     flux: {}
