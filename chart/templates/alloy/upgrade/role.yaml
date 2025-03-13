@@ -11,9 +11,9 @@ metadata:
     
 rules:
 - apiGroups: ["security.istio.io", "networking.k8s.io", "apps", "","discovery.k8s.io"]
-  resources: ["endpoints",authorizationpolicies", "networkpolicies", "deployments", "statefulsets", "daemonsets", "services", "serviceaccount","peerauthentications"]
-  verbs: ["get", "list", "delete"]
+  resources: ["endpoints",authorizationpolicies", "networkpolicies", "deployments", "configmap", "statefulsets", "daemonsets", "services", "serviceaccount","peerauthentications"]
+  verbs: ["delete"]
 - apiGroups: ["*"]
   resources: ["*"]
-  verbs: ["get", "list"]
+  verbs: ["list"]
 {{- end }}
