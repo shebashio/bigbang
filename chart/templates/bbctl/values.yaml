@@ -7,12 +7,6 @@
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-bigbang:
-  monitoring:
-    enabled: {{ .Values.monitoring.enabled }}
-  istio:
-    enabled: {{ .Values.istio.enabled }}
-
 registryCredentials:
 {{- if and .Values.registryCredentials (kindIs "slice" .Values.registryCredentials) }}
 {{ with index .Values.registryCredentials 0 }}
