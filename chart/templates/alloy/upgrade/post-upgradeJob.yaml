@@ -6,7 +6,7 @@ metadata:
   namespace: monitoring
   annotations:
     "helm.sh/hook": post-upgrade
-    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
 spec:
   backoffLimit: 3
