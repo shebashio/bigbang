@@ -241,6 +241,13 @@ policies:
           names:
           - external-secrets*
       {{- end }}
+      {{- if .Values.addons.headlamp.enabled }}
+      - resources:
+          namespaces:
+          - headlamp
+          names:
+          - headlamp*
+      {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
   disallow-tolerations:
