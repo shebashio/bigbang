@@ -2640,3 +2640,54 @@ addons:
           insecure: true
           trace:
             enable: true
+
+  # ----------------------------------------------------------------------------------------------------------------------
+  # Holocron
+  #
+  holocron:
+    # -- Toggle deployment of holocron
+    enabled: false
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_holocron
+    values:
+      istio:
+        hardened: 
+          customServiceEntries:
+            - name: "cypress-service-entries-holocron"
+              enabled: true
+              spec:
+                hosts:
+                  - 'repo1.dso.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+      bbtests:
+        enabled: true
+        cypress:
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2G"
+            limits:
+              cpu: "2"
+              memory: "2G"
+
+  externalSecrets:
+    values:
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
+  # ----------------------------------------------------------------------------------------------------------------------
+  # Headlamp
+  #
+  headlamp:
+    values:
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
