@@ -1655,7 +1655,7 @@ addons:
 
   anchore:
     # -- Toggle deployment of Anchore.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1663,7 +1663,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.3.2-bb.0"
+      tag: null
+      branch: "208-anchore-add-dynamic-network-policy-support"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore"
