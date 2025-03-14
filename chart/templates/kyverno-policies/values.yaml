@@ -634,11 +634,12 @@ policies:
       - resources:
           namespaces:
           - alloy
+          - monitoring
           names:
-          - alloy-alloy-metrics*
-          - alloy-alloy-receiver*
-          - alloy-alloy-logs*
-          - alloy-alloy-singleton*
+          - *alloy-metrics*
+          - *alloy-receiver*
+          - *alloy-logs*
+          - *alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
@@ -1079,6 +1080,7 @@ policies:
           - monitoring-monitoring-kube-state-metrics*
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
+          - monitoring-alloy*
       - namespace: alloy
         pods:
           allow:
