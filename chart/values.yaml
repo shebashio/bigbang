@@ -1116,12 +1116,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: null
-    branch: 189-twistlock-add-dynamic-network-policy-support
+    tag:  "0.19.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: null
+    tag: "0.19.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
