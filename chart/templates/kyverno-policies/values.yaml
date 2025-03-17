@@ -639,14 +639,14 @@ policies:
           - alloy-alloy-receiver*
           - alloy-alloy-logs*
           - alloy-alloy-singleton*
-      # - resources:
-      #     namespaces:
-      #     - monitoring
-      #     names:
-      #     - monitoring-alloy-metrics*
-      #     - monitoring-alloy-receiver*
-      #     - monitoring-alloy-logs*
-      #     - monitoring-alloy-singleton*
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-alloy-metrics*
+          - monitoring-alloy-receiver*
+          - monitoring-alloy-logs*
+          - monitoring-alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
