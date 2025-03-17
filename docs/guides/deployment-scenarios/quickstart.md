@@ -4,24 +4,25 @@
 
 ## Big Bang in 1 hour
 
-An SRE with a reasonable amount of experience operating in a command line environment, equipped with a fast internet connection and a workstation they can install software on, should be able to complete this process and have an operational Big Bang dev environment in 1 hour or less.
+An SRE with a reasonable amount of experience operating in a command line environment, equipped with a fast internet connection and a workstation they can install software on, should be able to complete this process and have an operational [Big Bang](https://repo1.dso.mil/big-bang/bigbang) dev environment in 1 hour or less.
 
 ### Satisfy the Prerequisites
 
 1. Ensure your workstation has a functional GNU environment with `git`. Mac OS and Linux should be good to go out of the box. For Windows, the **only** supported method for this guide is to install WSL and run a WSL bash terminal, following the rest of the guide as a Linux user inside WSL.
-1. Install [jq](https://jqlang.github.io/jq/download/).
-1. Install [yq](https://github.com/mikefarah/yq/#install). yq needs to be available in your system path PATH as `yq`, so we recommend not using a dockerized installation.
-1. Install kubectl. Follow the instructions for [windows](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/), [macos](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) or [linux](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). (If you are running on WSL in Windows, you should install kubectl using the package manager inside of WSL to install kubectl.)
-1. Install [sshuttle](https://sshuttle.readthedocs.io/en/stable/installation.html)
-1. [Install helm](https://helm.sh/docs/intro/install/).
-1. [Install the Flux CLI](https://fluxcd.io/flux/installation/).
-1. Ensure you have bash version 4 installed. Linux and Windows with WSL users probably don't need to worry about this. For Mac OS users, install bash4 with homebrew or a similar package manager, as the bash that ships with Mac OS is hopelessly old. Mac OS users will use `/opt/homebrew/bin/bash` whenever `bash` is mentioned in this guide.
+1. Install [jq](https://jqlang.github.io/jq/download/) on your workstation.
+1. Install [yq](https://github.com/mikefarah/yq/#install) on your workstation. yq needs to be available in your system path PATH as `yq`, so we recommend not using a dockerized installation.
+1. Install kubectl on your workstation. Follow the instructions for [windows](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/), [macos](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) or [linux](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). (If you are running on WSL in Windows, you should install kubectl using the package manager inside of WSL to install kubectl.)
+1. Install [sshuttle](https://sshuttle.readthedocs.io/en/stable/installation.html) on your workstation
+1. [Install helm](https://helm.sh/docs/intro/install/) on your workstation.
+1. [Install the Flux CLI](https://fluxcd.io/flux/installation/) on your workstation.
+1. Ensure you have bash version 4 installed on your workstation. Linux and Windows with WSL users probably don't need to worry about this. For Mac OS users, install bash4 with homebrew or a similar package manager, as the bash that ships with Mac OS is hopelessly old. Mac OS users will use `/opt/homebrew/bin/bash` whenever `bash` is mentioned in this guide.
 1. Ensure you have an account on [PlatformOne RegistryOne](https://registry1.dso.mil). You will need your username and access token ("CLI Secret") for this process. (To retrieve your token, login to registry1, click your name in the top right, and copy the "CLI Secret" field.)
-1. If you do not plan to deploy the bigbang quickstart cluster onto your own VM, and want the quickstart script to provision an AWS VM for you, you need to install and configure [the AWS cli](https://aws.amazon.com/cli/) for your AWS account.
+1. If you do not plan to deploy the bigbang quickstart cluster onto your own VM, and want the quickstart script to provision an AWS VM for you, you need to install and configure [the AWS cli](https://aws.amazon.com/cli/) on your workstation for your AWS account.
+1. Select a location on your workstation for the quickstart script to check out the bigbang code from repo1. The quickstart will check out [a copy of the big-bang code](https://repo1.dso.mil/big-bang/bigbang) and some helper scripts into a location you provide on your workstation.
 
 ### Download the Quickstart Script
 
-Run the following commands in your terminal to download the quickstart script, which you will use in the next step:
+Run the following commands in your workstation's terminal to download the quickstart script, which you will use in the next step:
 
 ```
 export REGISTRY1_USERNAME=YOUR_REGISTRY1_USERNAME
@@ -36,7 +37,7 @@ curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/
 #### Using a VM or other hardware you built yourself
 
 1. Spin up an Ubuntu VM somewhere with 8 CPUs and 32gB of RAM. Make sure you can SSH to it. It doesn't matter what cloud provider you're using, it can even be on your local system if you have enough horsepower for it. 
-1. Run the following command in your command terminal:
+1. Run the following command in your workstation's terminal:
 
 ```
 bash quickstart.sh
@@ -49,7 +50,7 @@ bash quickstart.sh
 
 1. If your system is already configured to use AWS via the `aws-cli` and you don't want to go to the trouble of building your own VM, the quickstart can attempt to do it for you; simply run the quickstart with no arguments. Pay attention to the script output; the IP addresses of the created AWS EC2 instance will be printed after the cluster is built and before big bang is deployed. You may need these later.
     1. The quickstart is only so smart, and AWS environments can vary greatly. If the quickstart is not able to build an EC2 instance in AWS for you, please go build an EC2 instance suitable for your use case, then come back and follow the instructions for "Using a VM or other hardware you built yourself".
-1. Run the following commands in your command terminal:
+1. Run the following commands in your workstation's terminal:
 
 ```
 bash quickstart.sh
@@ -121,7 +122,7 @@ The quickstart.sh script performs several actions:
 
 ### Fix DNS to access the services in your browser
 
-You can now access your bigbang kubernetes cluster from the command line using `kubectl`, but you will need to perform one extra step to easily access bigbang services in your web browser (or from the command line using utilities like `curl`). You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was included in the final message of the quickstart, but here are the instructions again.
+You can now access your bigbang kubernetes cluster from your workstation's command line using `kubectl`, but you will need to perform one extra step to easily access bigbang services in your web browser (or from the command line using utilities like `curl`). You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was included in the final message of the quickstart, but here are the instructions again.
 
 **Remember to un-do this step when you are done experimenting with the bigbang quickstart.**
 
