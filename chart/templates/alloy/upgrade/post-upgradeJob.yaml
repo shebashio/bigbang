@@ -84,12 +84,14 @@ spec:
 
                   # Attempt deletion with a retry
                   if ! kubectl delete "$resource_type" "$resource_name" -n monitoring; then
-                      echo "⚠️ Checking if $resource_type/$resource_name exists"
                       sleep 2
                       kubectl get "$resource_type" "$resource_name" -n monitoring && {
-                          echo "❌ Failed to delete $resource_type/$resource_name"
-                          exit 1
+                          if ! kubectl delete "$resource_type" "$resource_name" -n monitoring; then
+                              echo "❌ Failed to delete $resource_type/$resource_name"
+                              exit 1
+                          fi
                       }
+                      echo "✅ $resource_type/$resource_name no longer exists"
                   fi
 
                   echo "✅ Successfully deleted $resource_type/$resource_name"
