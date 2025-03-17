@@ -15,8 +15,7 @@
     "networkPolicies",
     "imagePullPolicy",
     "istioCore",
-    "istioGatewayPublic",
-    "istioGatewayPassthrough",
+    "istioGateway",
     "istio",
     "istioOperator",
     "jaeger",
@@ -257,7 +256,7 @@
       ],
       "additionalProperties": true
     },
-    "istioGatewayPublic": {
+    "istioGateway": {
       "properties": {
         "enabled": true,
         "sourceType": true,
@@ -265,26 +264,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "tls": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": true
-    },
-    "istioGatewayPassthrough": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "tls": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -713,7 +693,7 @@
                   "group": {
                     "type": "string"
                   },
-                  "global_role":{
+                  "global_role": {
                     "type": "string"
                   }
                 }
@@ -1956,6 +1936,19 @@
       ]
     },
     "postRenderers": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/postRenderersArray"
+          }
+        },
+        {
+          "$ref": "#/$defs/postRenderersArray"
+        }
+      ]
+    },
+    "postRenderersArray": {
       "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
       "type": "array",
       "items": {
