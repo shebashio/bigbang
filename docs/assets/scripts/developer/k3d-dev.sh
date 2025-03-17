@@ -864,8 +864,8 @@ function initialize_instance {
     exit 1
   fi
 
+  run "sudo -S -- bash -c 'echo \"$SSHUSER ALL=(ALL:ALL) NOPASSWD: ALL\" | sudo tee /etc/sudoers.d/dont-prompt-$SSHUSER-for-sudo-password;'"
   run_batch_new
-  run_batch_add "sudo -S -- bash -c 'echo \"$SSHUSER ALL=(ALL:ALL) NOPASSWD: ALL\" | sudo tee /etc/sudoers.d/dont-prompt-$SSHUSER-for-sudo-password;'"
   run_batch_add "sudo -- bash -c \"sysctl -w vm.max_map_count=524288; \
     echo vm.max_map_count=524288 > /etc/sysctl.d/vm-max_map_count.conf; \
     sysctl -w fs.nr_open=13181252; \
