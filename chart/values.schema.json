@@ -694,7 +694,6 @@
                     "type": "string"
                   },
                   "global_role": {
-                  "global_role": {
                     "type": "string"
                   }
                 }
@@ -1937,19 +1936,6 @@
       ]
     },
     "postRenderers": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/$defs/postRenderersArray"
-          }
-        },
-        {
-          "$ref": "#/$defs/postRenderersArray"
-        }
-      ]
-    },
-    "postRenderersArray": {
       "oneOf": [
         {
           "type": "object",
