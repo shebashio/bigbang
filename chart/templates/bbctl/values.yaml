@@ -49,4 +49,13 @@ baseConfig:
     registryusername: {{ .Values.registryCredentials.username }}
     registrypassword: {{ .Values.registryCredentials.password }}
     {{- end }}
+
+istio:
+  enabled: {{ include "istioEnabled" . }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.bbctl.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
+
 {{- end -}}
