@@ -51,7 +51,7 @@ config:
         Suppress_Type_Name       On
         Retry_Limit              False
         Replace_Dots             On
-        {{- if and .Values.istio.enabled (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
+        {{- if and (or .Values.istio.enabled .Values.istioCore.enabled) (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
         tls                      Off
         {{- else }}
         tls                      On
@@ -170,7 +170,7 @@ serviceMonitor:
   # - istio: enabled
   # - mTLS: SCRICT
   # - istio injection: enabled (for logging ns)
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
+  {{- if and (or .Values.istio.enabled .Values.istioCore.enabled) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
