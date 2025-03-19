@@ -610,6 +610,30 @@ gatekeeper:
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Gateway API
+#
+gateways: []
+  # unified:
+  #   namespace: istio-gateway
+  #   enabled: false
+  #   labels: {}
+  #   annotations: {}
+  #   # If httpToHttpsRedirect is enabled, a HTTPRoute will be created to redirect all HTTP traffic to HTTPS
+  #   # This redirect only works if the Gateway's listeners are labeled http and https respectively
+  #   httpToHttpsRedirect: true
+  #   spec:
+  #     listeners:
+  #     - name: http
+  #       hostname: "*.{{ .Values.domain }}"
+  #       port: 80
+  #       protocol: HTTP
+  #       allowedRoutes:
+  #       namespaces:
+  #         from: All
+    
+# ----------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Kyverno
 #
 kyverno:

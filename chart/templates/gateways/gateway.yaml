@@ -1,0 +1,17 @@
+{{- range $name, $gw := $.Values.gateways }}
+{{- if $gw.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $name }}
+  namespace: {{ $gw.namespace | default "istio-gateway" }}
+  labels:
+{{ toYaml $gw.labels | indent 4 }}
+  annotations:
+{{ toYaml $gw.annotations | indent 4 }}
+spec:
+{{ toYaml $gw.spec | indent 2 }}
+status: {}
+{{ end -}}
+{{ end -}}

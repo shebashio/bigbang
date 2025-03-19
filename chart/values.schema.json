@@ -416,6 +416,33 @@
       ],
       "additionalProperties": false
     },
+    "gateways": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "object"
+          },
+          "annotations": {
+            "type": "object"
+          },
+          "spec": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "kyverno": {
       "properties": {
         "enabled": true,
