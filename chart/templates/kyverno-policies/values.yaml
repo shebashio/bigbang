@@ -379,7 +379,7 @@ policies:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -453,6 +453,16 @@ policies:
           - mattermost-operator
           names:
           - mattermost-*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - monitoring
+          names:
+          - monitoring-alloy-alloy-logs*
       {{- end }}
     {{- end }}
 
