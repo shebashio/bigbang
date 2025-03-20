@@ -13,7 +13,7 @@ monitoring:
 
 istio:
   enabled: {{ .Values.istio.enabled }}
-  oscal-controller:
+  oscalController:
     gateways:
     - istio-system/{{ default "public" .Values.addons.istioOscalController.ingress.gateway }}
 
