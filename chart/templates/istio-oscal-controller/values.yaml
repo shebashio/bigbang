@@ -11,4 +11,10 @@ image:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
+istio:
+  enabled: {{ .Values.istio.enabled }}
+  oscal-controller:
+    gateways:
+    - istio-system/{{ default "public" .Values.addons.istioOscalController.ingress.gateway }}
+
 {{- end -}}

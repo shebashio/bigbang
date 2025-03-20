@@ -2322,6 +2322,10 @@ addons:
       path: "./chart"
       tag: "0.0.3-bb.2"
 
+    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+    ingress:
+      gateway: ""
+
     flux: {}
 
     values: {}
