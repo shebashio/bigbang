@@ -1,3 +1,7 @@
+{{- define "defaultGatewayClassName" -}}
+gatewayClassName: istio
+{{- end -}}
+
 {{- range $name, $gw := $.Values.gateways }}
 {{- if $gw.enabled }}
 ---
@@ -11,7 +15,14 @@ metadata:
   annotations:
 {{ toYaml $gw.annotations | indent 4 }}
 spec:
-{{ toYaml $gw.spec | indent 2 }}
+{{- $baseSpec := $gw.spec | default dict }}
+{{- if $gw.templatedSpec }}
+{{- $templatedSpecYaml := tpl (toYaml $gw.templatedSpec) $ }}
+{{- $processedTemplatedSpec := fromYaml $templatedSpecYaml }}
+{{ toYaml (merge (fromYaml (include "defaultGatewayClassName" .)) $baseSpec $processedTemplatedSpec) | indent 2 }}
+{{- else }}
+{{ toYaml (merge (fromYaml (include "defaultGatewayClassName" .)) $baseSpec) | indent 2 }}
+{{- end }}
 status: {}
 {{ end -}}
 {{ end -}}

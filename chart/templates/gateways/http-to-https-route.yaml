@@ -1,5 +1,5 @@
 {{- range $name, $gw := $.Values.gateways }}
-{{- if and $gw.enabled $gw.httpToHttpsRedirect }}
+{{- if and $gw.enabled $gw.httpToHttpsRedirect false }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute

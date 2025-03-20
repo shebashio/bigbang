@@ -417,15 +417,12 @@
       "additionalProperties": false
     },
     "gateways": {
-      "type": "array",
-      "items": {
+      "type": "object",
+      "additionalProperties": {
         "type": "object",
         "properties": {
           "enabled": {
             "type": "boolean"
-          },
-          "name": {
-            "type": "string"
           },
           "namespace": {
             "type": "string"
@@ -438,10 +435,12 @@
           },
           "spec": {
             "type": "object"
+          },
+          "templatedSpec": {
+            "type": "object"
           }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "kyverno": {
       "properties": {

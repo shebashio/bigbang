@@ -612,24 +612,56 @@ gatekeeper:
 # ----------------------------------------------------------------------------------------------------------------------
 # Gateway API
 #
-gateways: []
-  # unified:
-  #   namespace: istio-gateway
-  #   enabled: false
-  #   labels: {}
-  #   annotations: {}
-  #   # If httpToHttpsRedirect is enabled, a HTTPRoute will be created to redirect all HTTP traffic to HTTPS
-  #   # This redirect only works if the Gateway's listeners are labeled http and https respectively
-  #   httpToHttpsRedirect: true
-  #   spec:
-  #     listeners:
-  #     - name: http
-  #       hostname: "*.{{ .Values.domain }}"
-  #       port: 80
-  #       protocol: HTTP
-  #       allowedRoutes:
-  #       namespaces:
-  #         from: All
+gateways: 
+  unified:
+    namespace: istio-gateway
+    enabled: true
+    labels: {}
+    annotations: {}
+    # If httpToHttpsRedirect is enabled, a HTTPRoute will be created to redirect all HTTP traffic to HTTPS
+    # This redirect only works if the Gateway's listeners are labeled http and https respectively
+    httpToHttpsRedirect: true
+
+    # templatedSpec is just like spec, but is templated by helm it will be merged with spec, with templatedSpec 
+    # taking precedence
+    templatedSpec:
+      listeners:
+      - name: http
+        hostname: "*.{{ .Values.domain }}"
+        port: 8080
+        protocol: HTTP
+        allowedRoutes:
+          namespaces:
+            from: All
+      - name: https
+        hostname: "*.{{ .Values.domain }}"
+        port: 8443
+        protocol: HTTPS
+        allowedRoutes:
+          namespaces:
+            from: All
+        tls:
+          mode: Terminate
+          certificateRefs:
+          - name: public-cert
+      - name: keycloak-https
+        hostname: "keycloak.{{ .Values.domain }}"
+        port: 8443
+        protocol: TLS
+        allowedRoutes:
+          namespaces:
+            from: All
+        tls:
+          mode: Passthrough
+      - name: vault-https
+        hostname: "vault.{{ .Values.domain }}"
+        port: 8443
+        protocol: TLS
+        allowedRoutes:
+          namespaces:
+            from: All
+        tls:
+          mode: Passthrough
     
 # ----------------------------------------------------------------------------------------------------------------------
 
