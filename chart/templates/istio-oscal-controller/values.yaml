@@ -17,5 +17,4 @@ istio:
     gateways:
     - istio-system/{{ default "public" .Values.addons.istioOscalController.ingress.gateway }}
 
-{{- end }}
 {{- end -}}
