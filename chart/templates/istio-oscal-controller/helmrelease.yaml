@@ -22,13 +22,13 @@ spec:
       interval: {{ .Values.flux.interval }}
 
   valuesFrom:
-    - name: {{ .Release.Name }}-istio-oscal-controller-value
+    - name: {{ .Release.Name }}-istio-oscal-controller-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-istio-oscal-controller-value
+    - name: {{ .Release.Name }}-istio-oscal-controller-values
       kind: Secret
       valuesKey: "defaults"
-    - name: {{ .Release.Name }}-istio-oscal-controller-value
+    - name: {{ .Release.Name }}-istio-oscal-controller-values
       kind: Secret
       valuesKey: "overlays"
 
