@@ -20,14 +20,18 @@ spec:
         name: istio-oscal-controller
         namespace: bigbang
       interval: {{ .Values.flux.interval }}
-  {{- with .Values.addons.istioOscalController.values }}
-  values:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- with .Values.addons.istioOscalController.valuesFrom }}
+
   valuesFrom:
-    {{- toYaml . | nindent 2 }}
-  {{- end }}
+    - name: {{ .Release.Name }}-istio-oscal-controller-value
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-istio-oscal-controller-value
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-istio-oscal-controller-value
+      kind: Secret
+      valuesKey: "overlays"
+
   {{ if .Values.istio.enabled }}
   dependsOn:
     - name: istio
