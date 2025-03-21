@@ -58,8 +58,11 @@ spec:
 
   {{- if or (include "istioEnabled" . ) .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
   dependsOn:
-    {{- if include "istioEnabled" .  }}
+    {{- if .Values.istio.enabled }}
     - name: istio
+      namespace: {{ .Release.Namespace }}
+    {{- else if .Values.istioCore.enabled -}}
+    - name: istioCore
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.kyvernoPolicies.enabled }}
