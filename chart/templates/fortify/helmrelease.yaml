@@ -56,9 +56,9 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.istio.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or (include "istioEnabled" . ) .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
   dependsOn:
-    {{- if .Values.istio.enabled }}
+    {{- if include "istioEnabled" .  }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
