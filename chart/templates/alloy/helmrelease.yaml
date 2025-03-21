@@ -41,6 +41,9 @@ spec:
 
   {{- if .Values.addons.alloy.postRenderers }}
   postRenderers:
+  {{- if and .Values.monitoring.enabled (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.alloy.values) "STRICT") }}
+  {{ include "alloy.istioPostRenderers" . | nindent 2 }}
+  {{- end }}
   {{ toYaml .Values.addons.alloy.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:

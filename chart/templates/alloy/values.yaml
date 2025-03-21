@@ -31,7 +31,6 @@ k8s-monitoring:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
       {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.alloy.values) "STRICT") }}
-      scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
         certFile: /etc/prom-certs/cert-chain.pem
@@ -42,7 +41,6 @@ k8s-monitoring:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
       {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.alloy.values) "STRICT") }}
-      scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
         certFile: /etc/prom-certs/cert-chain.pem
