@@ -38,8 +38,7 @@ spec:
       interval: 5m
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
-
-  {{- if .Values.addons.alloy.postRenderers }}
+  {{- if or .Values.addons.alloy.postRenderers (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.alloy.values) "STRICT") }}
   postRenderers:
   {{- if and .Values.monitoring.enabled (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.alloy.values) "STRICT") }}
   {{ include "alloy.istioPostRenderers" . | nindent 2 }}
