@@ -1988,7 +1988,7 @@ addons:
       chartName: "harbor"
       tag: "1.16.1-bb.0"
 
-    ## -- Flux reconciliation overrides specifically for the Jaeger Package
+    ### -- Flux reconciliation overrides specifically for the Jaeger Package
     flux: {}
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
