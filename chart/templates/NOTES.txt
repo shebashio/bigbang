@@ -414,3 +414,9 @@ PLATFORM ONE LOKI WARNING:
   BigBang does not support the Loki Distributed deployment mode. For production deployments,
   please set your strategy to "scalable" or "monolithic"
 {{- end }}
+
+{{- if .Values.promtail.enabled }}
+DEPRECATION NOTICE:
+  Grafana Promtail has been deprecated and will be removed in a future Big Bang release. 
+  Big Bang will be migrating to Grafana Alloy as the core log aggregator. 
+{{- end }}
