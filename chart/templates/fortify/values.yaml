@@ -24,13 +24,13 @@ istio:
     }}
   fortify:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPassthroughGateway" . ) .Values.addons.fortify.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.fortify.ingress.gateway }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default (include "istioPassthroughGateway" . ) .Values.addons.fortify.ingress.gateway }}
+    {{- $gateway := default (include "istioPublicGateway" . ) .Values.addons.fortify.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
   istioNamespaceSelector:
