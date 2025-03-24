@@ -88,34 +88,6 @@ jaeger:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
   values:
-    istio:
-      hardened:
-        customAuthorizationPolicies:
-          - name: "allow-intranamespace-jaeger"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - jaeger
-        customServiceEntries:
-          - name: "cypress-service-entries-jaeger"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'tracing.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     bbtests:
       enabled: true
       cypress:
@@ -125,7 +97,6 @@ jaeger:
           # cypress_tnr_username: "cypress"
           # cypress_tnr_password: "tnr_w!G33ZyAt@C8"
           # cypress_keycloak_test_enable: "true"
-
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
@@ -437,6 +408,11 @@ kyverno:
           requests:
             cpu: 1
             memory: 768Mi
+    features:
+      policyexceptions:
+        enabled: true
+        # -- Restrict policy exceptions to a single namespace
+        namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -847,7 +823,36 @@ kyvernoPolicies:
         parameters:
           disallow:
           - bigbang
-
+    additionalPolicyExceptions:
+      testpolicyexception:
+        enabled: true
+        kind: PolicyException
+        namespace: "kyverno"
+        annotations:
+          policies.kyverno.io/title: Test PolicyException
+          policies.kyverno.io/category: Test
+          policies.kyverno.io/subject: Pod
+          policies.kyverno.io/description: >-
+            This Test PolicyException allows pods to deploy busybox for debugging.
+        # -- PolicyException specification.  See `kubectl explain policyexceptions.spec`
+        spec:
+          exceptions:
+          #Name of Policy for exception
+          - policyName: block-ephemeral-containers
+            ruleNames:
+            - block-ephemeral-containers
+          match:
+            any:
+            - resources:
+                kinds:
+                - Pod
+                names:
+                - important-tool*
+          conditions:
+            any:
+            - key: "{{ request.object.metadata.labels.app || '' }}"
+              operator: Equals
+              value: busybox
 eckOperator:
   # -- Toggle deployment of ECK Operator.
   enabled: false
@@ -1802,7 +1807,7 @@ addons:
       account:
         adminPassword: new_admin_password
         currentAdminPassword: admin
-      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.0.0
+      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
