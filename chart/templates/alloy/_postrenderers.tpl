@@ -7,5 +7,5 @@
             value: https
         target:
           kind: ServiceMonitor
-          name: *alloy-alloy.*
+          name: ".*alloy-alloy.*"
 {{- end }}
