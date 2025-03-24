@@ -393,6 +393,7 @@ gatekeeper:
           - default/restrict-volume-types-.?
 
 kyverno:
+  enabled: false
   values:
     networkPolicies:
       externalRegistries:
@@ -417,6 +418,7 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  enabled: false
   values:
     bbtests:
       enabled: true
