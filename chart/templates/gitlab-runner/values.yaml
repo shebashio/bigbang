@@ -10,7 +10,7 @@ imagePullSecrets:
 - name: private-registry
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.gitlab.values)
@@ -23,6 +23,8 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+    {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 # no longer necessary to directly pass through .Values.monitoring.enabled
 # the package chart uses: .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" to toggle monitoring
@@ -32,7 +34,7 @@ metrics:
     enabled: {{ .Values.monitoring.enabled }}
 
 # When istio injected, add an annotation with the istio version to the manager pods only
-{{- if (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") .Values.istio.enabled) }}
+{{- if (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") include "istioEnabled" .) }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
