@@ -126,9 +126,17 @@ PLATFORM ONE LOGGING WARNING:
   {{- end }}
 {{- end }}
 
-{{- if and .Values.promtail.enabled .Values.fluentbit.enabled }}
+
+{{- $fluentbitEnabled := .Values.fluentbit.enabled }}
+{{- $promtailEnabled := .Values.promtail.enabled }}
+{{- $alloyLogsEnabled := (index .Values.addons.alloy.values "k8s-monitoring" "alloy-logs" "enabled") }}
+{{- $loggerCount := add $fluentbitEnabled $promtailEnabled $alloyLogsEnabled }}
+{{- if ge $loggerCount 2 }}
 PLATFORM ONE LOGGING WARNING:
-  You have enabled both Promtail and Fluentbit (log forwarders). This is not a supported configuration and you may see conflicts as a result of both applications attempting to ship logs.
+  You have enabled multiple log collectors.  This is not a supported configuration and you may see conflicts as a result of multiple applications attempting to ship logs.
+    - Fluentbit Enabled: {{ $fluentbitEnabled }}
+    - Promtail Enabled: {{ $promtailEnabled }}
+    - Alloy Enabled: {{ $alloyLogsEnabled }}
 {{- end }}
 
 {{- if and .Values.loki.enabled .Values.elasticsearchKibana.enabled }}
