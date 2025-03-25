@@ -27,7 +27,7 @@ istio:
     }}
 
 k8s-monitoring:
-  {{- range $service := list "alloy-metrics" "alloy-log" }} # Add/Remove Alloy Micro-Services as ALloy Configurations Change
+  {{- range $service := list "alloy-metrics" "alloy-log" }} # Add/Remove Alloy Micro-Services as Alloy Configurations Change
   {{ $service }}:
     serviceMonitor:
       enabled: {{ $.Values.monitoring.enabled }}
