@@ -8,7 +8,7 @@
 domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
-{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.addons.sonarqube) "enabled")) }}
+{{- $istioInjection := (and (include "istioEnabled" . ) (eq (dig "istio" "injection" "enabled" .Values.addons.sonarqube) "enabled")) }}
 
 OpenShift:
   enabled: {{ .Values.openshift }}
@@ -22,7 +22,7 @@ istio:
     }}
   sonarqube:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.sonarqube.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" .) .Values.addons.sonarqube.ingress.gateway }}
   injection: {{ dig "istio" "injection" "enabled" .Values.addons.sonarqube }}
 
 monitoring:
@@ -77,7 +77,7 @@ postgresql:
   enabled: false
   {{- else }}
 postgresql:
-  {{- if or $istioInjection $.Values.kiali.enabled}}
+  {{- if or $istioInjection $.Values.kiali.enabled }}
   master:
     {{- if $istioInjection }}
     podAnnotations:
