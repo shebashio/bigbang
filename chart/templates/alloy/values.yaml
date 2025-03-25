@@ -25,9 +25,9 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
       (dig "istio" "hardened" "enabled" false .Values.addons.alloy.values)
     }}
-    
+
 k8s-monitoring:
-  {{- range $service := list "alloy-metrics" "alloy-receiver" "alloy-log" }} # Add/Remove Alloy Micro-Services as ALloy Configurations Change
+  {{- range $service := list "alloy-metrics" "alloy-log" }} # Add/Remove Alloy Micro-Services as ALloy Configurations Change
   {{ $service }}:
     serviceMonitor:
       enabled: {{ $.Values.monitoring.enabled }}
