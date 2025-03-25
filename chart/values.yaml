@@ -647,11 +647,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.4"
+    tag: "3.3.4-bb.6"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.4"
+    tag: "3.3.4-bb.6"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -672,11 +672,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.0.1-bb.4"
+    tag: "3.0.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.0.1-bb.4"
+    tag: "3.0.3-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -1065,11 +1065,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.10.1-bb.0"
+    tag: "8.10.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.10.1-bb.0"
+    tag: "8.10.4-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1320,11 +1320,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.9.2-bb.0"
+      tag: "8.10.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.9.2-bb.0"
+      tag: "8.10.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2234,12 +2234,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "2.0.16-bb.0"
+      tag: "2.0.16-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "k8s-monitoring"
-      tag: "2.0.16-bb.0"
+      tag: "2.0.16-bb.1"
 
     values: {}
 
