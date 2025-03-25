@@ -2462,6 +2462,9 @@ addons:
 
   metricsServer:
     enabled: false
+    git:
+      branch: "111-metrics-server-add-dynamic-network-policy-support"
+      tag: null
     values:
       replicas: 1
       bbtests:
