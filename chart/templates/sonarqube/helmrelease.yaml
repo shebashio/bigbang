@@ -58,7 +58,7 @@ spec:
 
   values:
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled (include "istioEnabled" .) }}
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled (eq (include "istioEnabled" .) "true") }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
