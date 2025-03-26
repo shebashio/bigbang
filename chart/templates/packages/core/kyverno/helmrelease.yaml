@@ -1,5 +1,5 @@
-{{- $fluxSettingskyverno := merge .Values.kyverno.flux .Values.flux -}}
-{{- if or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled }}
+{{- $fluxSettingskyverno := merge .Values.packages.core.kyverno.flux .Values.flux -}}
+{{- if or .Values.packages.core.kyverno.enabled .Values.packages.core.kyvernoPolicies.enabled .Values.packages.addons.kyvernoReporter.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: kyverno
   chart:
     spec:
-      {{- if eq .Values.kyverno.sourceType "git" }}
-      chart: {{ .Values.kyverno.git.path | default "./chart" }}
+      {{- if eq .Values.packages.core.kyverno.sourceType "git" }}
+      chart: {{ .Values.packages.core.kyverno.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: kyverno
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.kyverno.helmRepo.chartName }}
-      version: {{ .Values.kyverno.helmRepo.tag }}
+      chart: {{ .Values.packages.core.kyverno.helmRepo.chartName }}
+      version: {{ .Values.packages.core.kyverno.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.kyverno.helmRepo.repoName }}
+        name: {{ .Values.packages.core.kyverno.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.kyverno.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.kyverno.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.core.kyverno.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.core.kyverno.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.kyverno.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.core.kyverno.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingskyverno | nindent 2 }}
 
-  {{- if .Values.kyverno.postRenderers }}
+  {{- if .Values.packages.core.kyverno.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.kyverno.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.core.kyverno.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-kyverno-values
@@ -54,7 +54,7 @@ spec:
     - name: {{ .Release.Name }}-kyverno-values
       kind: Secret
       valuesKey: "overlays"
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.addons.gatekeeper.enabled }}
   dependsOn:
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}

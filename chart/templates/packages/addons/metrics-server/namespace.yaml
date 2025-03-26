@@ -1,4 +1,4 @@
-{{- $enableFlag := .Values.addons.metricsServer.enabled | toString }}
+{{- $enableFlag := .Values.packages.addons.metricsServerServer.enabled | toString }}
 {{- $existingMetricsApi := (.Capabilities.APIVersions.Has "metrics.k8s.io/v1beta1") }}
 {{- $existingMetricsHelmRelease := (lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "metrics-server") }}
 {{- if or ( eq $enableFlag "true") (and (eq $enableFlag "auto") (or (not $existingMetricsApi) $existingMetricsHelmRelease)) }}
@@ -9,6 +9,6 @@ metadata:
     app.kubernetes.io/name: metrics-server
     app.kubernetes.io/component: "cluster-utilities"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.addons.metricsServer) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.metricsServerServer) "enabled")) }}
   name: metrics-server
 {{- end }}

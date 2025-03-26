@@ -1,5 +1,5 @@
-{{- if .Values.loki.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.loki "name" "loki" "defaults" (include "bigbang.defaults.loki" .)) }}
+{{- if .Values.packages.addons.loki.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.loki "name" "loki" "defaults" (include "bigbang.defaults.loki" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.loki" -}}
@@ -15,24 +15,24 @@ openshift: {{ .Values.openshift }}
 istio:
   enabled: {{ include "istioEnabled" . }}
   {{- if or 
-      (dig "hardened" "enabled" false .Values.istio.values)
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
   }}
   hardened:
     enabled: true
     monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
     promtail:
-      enabled: {{ .Values.promtail.enabled }}
+      enabled: {{ .Values.packages.addons.promtail.enabled }}
     fluentbit:
-      enabled: {{ .Values.fluentbit.enabled }}
+      enabled: {{ .Values.packages.addons.fluentbit.enabled }}
     minioOperator:
-      enabled: {{ .Values.addons.minioOperator.enabled }}
+      enabled: {{ .Values.packages.addons.minioOperator.enabled }}
   {{- end }}
   loki:
     enabled: true
@@ -52,11 +52,11 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
-    {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
+    {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.loki.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -68,13 +68,13 @@ monitoring:
     enabled: true
     alerting: true
 
-{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- if and .Values.fluentbit.enabled (not $disableDefaultFLB) }}
+{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.packages.addons.fluentbit.values }}
+{{- if and .Values.packages.addons.fluentbit.enabled (not $disableDefaultFLB) }}
 fluentbit:
   enabled: true
 {{- end }}
 
-{{- if .Values.promtail.enabled }}
+{{- if .Values.packages.addons.promtail.enabled }}
 promtail:
   enabled: true
 {{- end }}
@@ -84,19 +84,19 @@ loki:
     bind_addr:
       - ${MY_POD_IP}
   storage:
-    {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+    {{- if (and (eq .Values.packages.addons.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.addons.loki.values))) }}
     type: "filesystem"
     {{- else }}
     type: "s3"
     bucketNames:
-      {{- toYaml .Values.loki.objectStorage.bucketNames | nindent 6 }}
+      {{- toYaml .Values.packages.addons.loki.objectStorage.bucketNames | nindent 6 }}
     s3:
-      endpoint: {{ .Values.loki.objectStorage.endpoint }}
-      region: {{ .Values.loki.objectStorage.region }}
-      accessKeyId: {{ .Values.loki.objectStorage.accessKey }}
-      secretAccessKey: {{ .Values.loki.objectStorage.accessSecret }}
+      endpoint: {{ .Values.packages.addons.loki.objectStorage.endpoint }}
+      region: {{ .Values.packages.addons.loki.objectStorage.region }}
+      accessKeyId: {{ .Values.packages.addons.loki.objectStorage.accessKey }}
+      secretAccessKey: {{ .Values.packages.addons.loki.objectStorage.accessSecret }}
     {{- end }}
-  {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+  {{- if (and (eq .Values.packages.addons.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.addons.loki.values))) }}
   rulerConfig:
     storage:
       type: local
@@ -113,7 +113,7 @@ loki:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-{{- if (eq .Values.loki.strategy "monolith") }}
+{{- if (eq .Values.packages.addons.loki.strategy "monolith") }}
 deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
@@ -126,7 +126,7 @@ singleBinary:
           fieldPath: status.podIP
 {{- end }}
 
-{{- if (eq .Values.loki.strategy "scalable") }}
+{{- if (eq .Values.packages.addons.loki.strategy "scalable") }}
 deploymentMode: SimpleScalable
 singleBinary:
   replicas: 0
@@ -169,7 +169,7 @@ gateway:
 {{- end }}
 
 # Allows users to deploy distributed mode but calls out that we do not support it
-{{- if (eq .Values.loki.strategy "distributed") }}
+{{- if (eq .Values.packages.addons.loki.strategy "distributed") }}
 deploymentMode: Distributed
 {{- end -}}
 

@@ -1,9 +1,9 @@
-{{- if .Values.promtail.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.promtail "name" "promtail" "defaults" (include "bigbang.defaults.promtail" .)) }}
+{{- if .Values.packages.addons.promtail.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.promtail "name" "promtail" "defaults" (include "bigbang.defaults.promtail" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.promtail" -}}
-{{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
+{{- $clusterName := ( default "logging-loki" .Values.packages.addons.loki.clusterName ) }}
 hostname: {{ .Values.hostname }}
 
 image:
@@ -15,17 +15,17 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.promtail.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.promtail.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
 
 loki:
-  enabled: {{ .Values.loki.enabled }}
+  enabled: {{ .Values.packages.addons.loki.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   # conditional passes only for default istio: enabled, mTLS: SCRICT
-  {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.promtail.values) "STRICT") }}
+  {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.promtail.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
@@ -35,7 +35,7 @@ serviceMonitor:
   {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -48,10 +48,10 @@ podAnnotations:
 imagePullSecrets:
   - name: private-registry
 
-{{- if .Values.loki.enabled }}
+{{- if .Values.packages.addons.loki.enabled }}
 config:
   clients:
-    {{- if eq .Values.loki.strategy "monolith" }}
+    {{- if eq .Values.packages.addons.loki.strategy "monolith" }}
     - url: http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push
       external_labels:
         cluster: {{ $clusterName }}
@@ -62,10 +62,10 @@ config:
     {{- end }}
 {{- end }}
 # If loki is disabled and promtail is not
-{{- if and (not .Values.loki.enabled) (.Values.promtail.enabled) }}
+{{- if and (not .Values.packages.addons.loki.enabled) (.Values.packages.addons.promtail.enabled) }}
 # Promtail must have config.clients provided
-{{- if or (empty .Values.promtail.values.config) (empty .Values.promtail.values.config.clients) }}
-{{- fail "If Promtail is enabled and Loki is disabled, at least one client must be provided via '.Values.promtail.values.config.clients'"}}
+{{- if or (empty .Values.packages.addons.promtail.values.config) (empty .Values.packages.addons.promtail.values.config.clients) }}
+{{- fail "If Promtail is enabled and Loki is disabled, at least one client must be provided via '.Values.packages.addons.promtail.values.config.clients'"}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

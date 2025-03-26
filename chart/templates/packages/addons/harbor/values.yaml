@@ -16,34 +16,34 @@ externalURL: https://harbor.{{ .Values.domain }}
 domain: {{ .Values.domain }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.harbor.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.harbor }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.harbor }}
   harbor:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.harbor.ingress.gateway }}
+    - istio-system/{{ default "public" .Values.packages.addons.harbor.ingress.gateway }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.harbor.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.harbor.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
+  {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.tempo.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem

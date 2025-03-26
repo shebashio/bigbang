@@ -1,5 +1,5 @@
-{{- if .Values.kiali.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.kiali "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
+{{- if .Values.packages.addons.kiali.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.kiali "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
@@ -8,7 +8,7 @@
 domain: {{ $domainName }}
 
 sso:
-  enabled: {{ .Values.kiali.sso.enabled }}
+  enabled: {{ .Values.packages.addons.kiali.sso.enabled }}
 
 openshift: {{ .Values.openshift}}
 
@@ -19,31 +19,31 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.kiali.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.kiali.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
     monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
   kiali:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.kiali.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.kiali.ingress.gateway }}
 
 {{- if include "istioEnabled" . }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if and .Values.kiali.enabled .Values.kiali.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
+{{- if and .Values.packages.addons.kiali.enabled .Values.packages.addons.kiali.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
 oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 elasticsearch:
-  enabled: {{ .Values.elasticsearchKibana.enabled }}
+  enabled: {{ .Values.packages.addons.elasticsearchKibana.enabled }}
 cr:
   spec:
-    {{- if .Values.istioCore.enabled }}
+    {{- if .Values.packages.core.istioCore.enabled }}
     istio_namespace: istio-system
     {{- end}}
     deployment:
@@ -60,10 +60,10 @@ cr:
     server:
       web_port: "443"
     auth:
-      {{- if .Values.kiali.sso.enabled }}
+      {{- if .Values.packages.addons.kiali.sso.enabled }}
       strategy: openid
       openid:
-        client_id: "{{ .Values.kiali.sso.client_id }}"
+        client_id: "{{ .Values.packages.addons.kiali.sso.client_id }}"
         disable_rbac: true
         issuer_uri: "{{ include "sso.url" . }}"
         scopes:
@@ -75,24 +75,24 @@ cr:
       {{- end }}
     external_services:
       grafana:
-        enabled: {{ .Values.grafana.enabled }}
-        {{- $grafanaUrl := first (dig "istio" "grafana" "hosts" list .Values.grafana.values) }}
+        enabled: {{ .Values.packages.addons.grafana.enabled }}
+        {{- $grafanaUrl := first (dig "istio" "grafana" "hosts" list .Values.packages.addons.grafana.values) }}
         url: https://{{ tpl ($grafanaUrl | default (printf "%s.%s" "grafana" $domainName)) . }}
-        {{- if .Values.grafana.enabled }}
+        {{- if .Values.packages.addons.grafana.enabled }}
         auth:
-          {{- if (dig "admin" "existingSecret" "" .Values.grafana.values) }}
-          {{- $userKey := (dig "admin" "userKey" "admin-user" .Values.grafana.values) }}
-          {{- with lookup "v1" "Secret" "monitoring" .Values.grafana.values.admin.existingSecret }}
+          {{- if (dig "admin" "existingSecret" "" .Values.packages.addons.grafana.values) }}
+          {{- $userKey := (dig "admin" "userKey" "admin-user" .Values.packages.addons.grafana.values) }}
+          {{- with lookup "v1" "Secret" "monitoring" .Values.packages.addons.grafana.values.admin.existingSecret }}
           username: {{ (get .data $userKey | b64dec) | default "admin" }}
           {{- end }}
           {{- else }}
-          username: {{ dig "adminUser" "admin" .Values.grafana.values }}
+          username: {{ dig "adminUser" "admin" .Values.packages.addons.grafana.values }}
           {{- end }}
           password: "secret:grafana-auth:password"
         {{- end }}
       tracing:
-        enabled: {{ .Values.jaeger.enabled }}
-        {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
+        enabled: {{ .Values.packages.addons.jaeger.enabled }}
+        {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.packages.addons.jaeger.values) }}
         url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
       istio:
         component_status:
@@ -100,15 +100,15 @@ cr:
             - app_label: istiod
               is_core: true
               is_proxy: false
-            {{- if .Values.istio.enabled }}
-            {{- range $name, $values := .Values.istio.ingressGateways }}
+            {{- if .Values.packages.core.istio.enabled }}
+            {{- range $name, $values := .Values.packages.core.istio.ingressGateways }}
             {{ if ne $values.enabled false }}
             - app_label: {{ $name }}
               is_core: true
               is_proxy: true
             {{- end }}
             {{- end }}
-            {{- range $name, $values := .Values.istio.values.ingressGateways }}
+            {{- range $name, $values := .Values.packages.core.istio.values.ingressGateways }}
             {{ if ne $values.enabled false }}
             - app_label: {{ $name }}
               is_core: true
@@ -116,7 +116,7 @@ cr:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if .Values.istioGateway.enabled }}
+            {{- if .Values.packages.core.istioGateway.enabled }}
             {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
             {{- if eq $gw.type "ingressgateway" }}
             - app_label: {{ $gw.serviceName }}
@@ -126,7 +126,7 @@ cr:
             {{- end -}}
             {{- end -}}
             {{- end -}}
-        {{- if .Values.istioCore.enabled }}
+        {{- if .Values.packages.core.istioCore.enabled }}
         ingress_gateway_namespace: istio-gateway
         egress_gateway_namespace: istio-gateway
         {{- end }}
@@ -140,12 +140,12 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- if .Values.istio.enabled }}
-    {{- $gateway := default "public" .Values.kiali.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- if .Values.packages.core.istio.enabled }}
+    {{- $gateway := default "public" .Values.packages.addons.kiali.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
     {{- end }}
-    {{- if .Values.istioCore.enabled }}
+    {{- if .Values.packages.core.istioCore.enabled }}
     app: public-ingressgateway
     istio: ingressgateway
     {{- end }}

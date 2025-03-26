@@ -1,12 +1,12 @@
-{{- $mmOpOldValues := default dict .Values.addons.mattermostoperator -}}
-{{- $mmOpValues := mergeOverwrite $mmOpOldValues .Values.addons.mattermostOperator -}}
-{{- if or $mmOpValues.enabled .Values.addons.mattermost.enabled }}
+{{- $mmOpOldValues := default dict .Values.packages.addons.mattermostoperator -}}
+{{- $mmOpValues := mergeOverwrite $mmOpOldValues .Values.packages.addons.mattermostOperator -}}
+{{- if or $mmOpValues.enabled .Values.packages.addons.mattermost.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: mattermost-operator
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" $mmOpValues) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" $mmOpValues) "enabled")) }}
     app.kubernetes.io/name: mattermost-operator
     app.kubernetes.io/component: "collaboration-tools"
     {{- include "commonLabels" . | nindent 4}}

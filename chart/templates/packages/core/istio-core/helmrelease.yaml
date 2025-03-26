@@ -1,5 +1,5 @@
-{{- $fluxSettingsIstioCore := merge .Values.istioCore.flux .Values.flux -}}
-{{- if and .Values.istioCore.enabled }}
+{{- $fluxSettingsIstioCore := merge .Values.packages.core.istioCore.flux .Values.flux -}}
+{{- if and .Values.packages.core.istioCore.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: istio-system
   chart:
     spec:
-      {{- if eq .Values.istioCore.sourceType "git" }}
-      chart: {{ .Values.istioCore.git.path | default "./chart" }}
+      {{- if eq .Values.packages.core.istioCore.sourceType "git" }}
+      chart: {{ .Values.packages.core.istioCore.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: istio-core
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.istioCore.helmRepo.chartName }}
-      version: {{ .Values.istioCore.helmRepo.tag }}
+      chart: {{ .Values.packages.core.istioCore.helmRepo.chartName }}
+      version: {{ .Values.packages.core.istioCore.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.istioCore.helmRepo.repoName }}
+        name: {{ .Values.packages.core.istioCore.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istioCore.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.istioCore.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.core.istioCore.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.core.istioCore.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.istioCore.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.core.istioCore.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsIstioCore | nindent 2 }}
 
-  {{- if .Values.istioCore.postRenderers }}
+  {{- if .Values.packages.core.istioCore.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.istioCore.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.core.istioCore.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-istio-core-values
@@ -55,13 +55,13 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if or .Values.packages.addons.gatekeeper.enabled .Values.packages.core.kyvernoPolicies.enabled }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.addons.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}

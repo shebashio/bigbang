@@ -1,5 +1,5 @@
-{{- $fluxSettingsIstioGateway := merge .Values.istioGateway.flux .Values.flux -}}
-{{- if and .Values.istioCore.enabled .Values.istioGateway.enabled }}
+{{- $fluxSettingsIstioGateway := merge .Values.packages.core.istioGateway.flux .Values.flux -}}
+{{- if and .Values.packages.core.istioCore.enabled .Values.packages.core.istioGateway.enabled }}
 {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -18,38 +18,38 @@ spec:
   targetNamespace: istio-gateway
   chart:
     spec:
-      {{- if eq $.Values.istioGateway.sourceType "git" }}
-      chart: {{ $.Values.istioGateway.git.path | default "./chart" }}
+      {{- if eq $.Values.packages.core.istioGateway.sourceType "git" }}
+      chart: {{ $.Values.packages.core.istioGateway.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: istio-gateway
         namespace: {{ $.Release.Namespace }}
       {{- else }}
-      chart: {{ $.Values.istioGateway.helmRepo.chartName }}
-      version: {{ $.Values.istioGateway.helmRepo.tag }}
+      chart: {{ $.Values.packages.core.istioGateway.helmRepo.chartName }}
+      version: {{ $.Values.packages.core.istioGateway.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ $.Values.istioGateway.helmRepo.repoName }}
+        name: {{ $.Values.packages.core.istioGateway.helmRepo.repoName }}
         namespace: {{ $.Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" $.Values.istioGateway.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and $.Values.istioGateway.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" $.Values.packages.core.istioGateway.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and $.Values.packages.core.istioGateway.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" $.Values.istioGateway.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" $.Values.packages.core.istioGateway.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsIstioGateway | nindent 2 }}
 
-  {{- if $.Values.istioGateway.postRenderers }}
-  {{- if kindIs "slice" $.Values.istioGateway.postRenderers }}
+  {{- if $.Values.packages.core.istioGateway.postRenderers }}
+  {{- if kindIs "slice" $.Values.packages.core.istioGateway.postRenderers }}
   postRenderers:
-  {{ toYaml $.Values.istioGateway.postRenderers | nindent 4 }}
+  {{ toYaml $.Values.packages.core.istioGateway.postRenderers | nindent 4 }}
   {{- end }}
-  {{- if kindIs "map" $.Values.istioGateway.postRenderers }}
-  {{- $postRenderers := get $.Values.istioGateway.postRenderers $name }}
+  {{- if kindIs "map" $.Values.packages.core.istioGateway.postRenderers }}
+  {{- $postRenderers := get $.Values.packages.core.istioGateway.postRenderers $name }}
   {{- if $postRenderers }}
   postRenderers:
   {{ $postRenderers | toYaml | nindent 4 }}
@@ -71,11 +71,11 @@ spec:
   dependsOn:
     - name: istio-core
       namespace: {{ $.Release.Namespace }}
-    {{- if $.Values.gatekeeper.enabled }}
+    {{- if $.Values.packages.addons.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-    {{- if $.Values.kyvernoPolicies.enabled }}
+    {{- if $.Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ $.Release.Namespace }}
     {{- end }}

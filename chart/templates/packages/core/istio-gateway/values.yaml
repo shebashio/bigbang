@@ -26,7 +26,7 @@ gateways:
       istio: ingressgateway
 
     monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
     gateway:
       servers:
@@ -62,7 +62,7 @@ gateways:
       istio: ingressgateway
 
     monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
     gateway:
       servers:
@@ -84,6 +84,6 @@ gateways:
           mode: PASSTHROUGH
 {{- end -}}
 
-{{- if and .Values.istioCore.enabled .Values.istioGateway.enabled }}
+{{- if and .Values.packages.core.istioCore.enabled .Values.packages.core.istioGateway.enabled }}
 {{- include "bigbang.istio-gateway-secrets" . }}
 {{- end }}

@@ -1,6 +1,6 @@
-{{- $fluxSettingsHaProxy := merge .Values.addons.haproxy.flux .Values.flux -}}
-{{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
-{{- if and .Values.istio.enabled .Values.monitoring.enabled .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+{{- $fluxSettingsHaProxy := merge .Values.packages.addons.proxy.flux .Values.flux -}}
+{{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.packages.addons.monitoring }}
+{{- if and .Values.packages.core.istio.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -16,31 +16,31 @@ spec:
   targetNamespace: authservice
   chart:
     spec:
-      {{- if eq .Values.addons.haproxy.sourceType "git" }}
-      chart: {{ .Values.addons.haproxy.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.proxy.sourceType "git" }}
+      chart: {{ .Values.packages.addons.proxy.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: haproxy
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.haproxy.helmRepo.chartName }}
-      version: {{ .Values.addons.haproxy.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.proxy.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.proxy.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.haproxy.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.proxy.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.haproxy.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.haproxy.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.proxy.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.proxy.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.haproxy.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.proxy.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
-  {{- if .Values.addons.haproxy.postRenderers }}
+  {{- if .Values.packages.addons.proxy.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.haproxy.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.proxy.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-haproxy-sso-values
@@ -56,11 +56,11 @@ spec:
   {{- toYaml $fluxSettingsHaProxy | nindent 2 }}
 
   dependsOn:
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}

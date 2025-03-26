@@ -1,6 +1,6 @@
-{{- $mmOpOldValues := default dict .Values.addons.mattermostoperator -}}
-{{- $mmOpValues := mergeOverwrite $mmOpOldValues .Values.addons.mattermostOperator -}}
-{{- if or $mmOpValues.enabled .Values.addons.mattermost.enabled }}
+{{- $mmOpOldValues := default dict .Values.packages.addons.mattermostoperator -}}
+{{- $mmOpValues := mergeOverwrite $mmOpOldValues .Values.packages.addons.mattermostOperator -}}
+{{- if or $mmOpValues.enabled .Values.packages.addons.mattermost.enabled }}
 {{- include "values-secret" (dict "root" $ "package" $mmOpValues "name" "mattermost-operator" "defaults" (include "bigbang.defaults.mattermostOperator" .)) }}
 {{- end }}
 
@@ -11,7 +11,7 @@ imagePullSecrets:
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if .Values.istio.enabled }}
+{{- if .Values.packages.core.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end}}
@@ -21,15 +21,15 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.mattermostOperator.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.mattermostOperator.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 openshift: {{ .Values.openshift }}
 {{- end -}}

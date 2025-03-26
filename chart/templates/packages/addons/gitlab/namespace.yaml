@@ -1,4 +1,4 @@
-{{- if or .Values.addons.gitlab.enabled }}
+{{- if or .Values.packages.addons.gitlab.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -6,6 +6,6 @@ metadata:
     app.kubernetes.io/name: gitlab
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.gitlab) "enabled")) }}
   name: gitlab
 {{- end }}

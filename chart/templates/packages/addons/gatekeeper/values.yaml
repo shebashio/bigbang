@@ -1,4 +1,4 @@
-{{- if or .Values.gatekeeper.enabled .Values.clusterAuditor.enabled }}
+{{- if or .Values.packages.addons.gatekeeper.enabled .Values.clusterAuditor.enabled }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.gatekeeper" .))) "name" "gatekeeper" "defaults" (include "bigbang.defaults.gatekeeper" .)) }}
 {{- end }}
 
@@ -43,38 +43,38 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - registry1.dso.mil
         - registry.dso.mil
 
-  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled .Values.neuvector.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
+  {{- if or .Values.packages.addons.monitoring.enabled .Values.packages.addons.fluentbit.enabled .Values.packages.addons.twistlock.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.neuvector.enabled (and .Values.packages.addons.velero.enabled .Values.packages.addons.velero.values.deployNodeAgent)}}
   allowedHostFilesystem:
     parameters:
       excludedResources:
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       # Prometheus-node-exporter needs access to host to get node metrics
       - monitoring/monitoring-monitoring-prometheus-node-exporter-.*
       {{- end }}
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # Fluentbit pods need access to host to get log files
       - fluentbit/fluentbit-fluent-bit-.*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs access to host to inspect network traffic
       - neuvector/neuvector-enforcer-pod.*
       - neuvector/neuvector-controller-pod.*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - twistlock/twistlock-defender-ds-.*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # promtail requires hostpath volume mounts
       # https://github.com/grafana/helm-charts/blob/main/charts/promtail/templates/daemonset.yaml#L120
       - promtail/promtail-promtail-.*
       {{- end }}
-      {{- if and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent }}
+      {{- if and .Values.packages.addons.velero.enabled .Values.packages.addons.velero.values.deployNodeAgent }}
       # NodeAgent requires hostpath volume mount access in order to facilitate backing up cluster PV/C resources
       - velero/node-agent-.*
       {{- end }}
   {{- end }}
 
-  {{- if .Values.twistlock.enabled }}
+  {{- if .Values.packages.addons.twistlock.enabled }}
   hostNetworking:
     parameters:
       excludedResources:
@@ -85,14 +85,14 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - twistlock/twistlock-defender-ds-.*
   {{- end }}
 
-  {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}
+  {{- if or .Values.packages.addons.twistlock.enabled .Values.packages.addons.neuvector.enabled }}
   noHostNamespace:
     parameters:
       excludedResources:
-        {{- if .Values.twistlock.enabled }}
+        {{- if .Values.packages.addons.twistlock.enabled }}
         - twistlock/twistlock-defender-ds-.*
         {{- end }}
-        {{- if .Values.neuvector.enabled }}
+        {{- if .Values.packages.addons.neuvector.enabled }}
         # Neuvector needs access to host to inspect network traffic
         - neuvector/neuvector-enforcer-pod.*
         {{- end }}
@@ -102,7 +102,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
     enabled: false
 
   namespacesHaveIstio:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ .Values.packages.core.istio.enabled }}
     parameters:
       excludedResources:
         # Kuberentes control plane does not use Istio
@@ -120,13 +120,13 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         # Kyverno is installed prior to Istio
         - kyverno
 
-  {{- if or .Values.fluentbit.enabled .Values.neuvector.enabled }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.neuvector.enabled }}
   noPrivilegedContainers:
     parameters:
       excludedResources:
         # Fluentbit needs privileged to read and store the buffer for tailing logs from the nodes
         - fluentbit/fluent-bit
-        {{- if .Values.neuvector.enabled }}
+        {{- if .Values.packages.addons.neuvector.enabled }}
         # Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime
         - neuvector/neuvector-enforcer-pod.*
         - neuvector/neuvector-controller-pod.*
@@ -134,69 +134,69 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
   {{- end }}
 
   podsHaveIstio:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ .Values.packages.core.istio.enabled }}
     match:
       excludedNamespaces:
         # Istio does not inject sidecars in itself
         - istio-operator
         - istio-system
 
-  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled }}
+  {{- if or .Values.packages.addons.monitoring.enabled .Values.packages.addons.twistlock.enabled }}
   restrictedTaint:
     parameters:
       excludedResources:
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       # Prometheus Node Exporter needs to be able to run on all nodes, regardless of taint, to gather node metrics
       - monitoring/monitoring-monitoring-prometheus-node-exporter-.*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - twistlock/twistlock-defender-ds-.*
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.twistlock.enabled .Values.packages.addons.promtail.enabled }}
   selinuxPolicy:
     parameters:
       excludedResources:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # FluentBit needs selinux option type spc_t
       - fluentbit/fluent-bit
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock Defenders need selinux option type spc_t
       - twistlock/twistlock-defender
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # Promtail needs selinux option type spc_t
       - promtail/promtail
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.neuvector.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent) }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.twistlock.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.neuvector.enabled (and .Values.packages.addons.velero.enabled .Values.packages.addons.velero.values.deployNodeAgent) }}
   volumeTypes:
     parameters:
       excludedResources:
-       {{- if .Values.fluentbit.enabled }}
+       {{- if .Values.packages.addons.fluentbit.enabled }}
         # fluent-bit container requires certain host level access to ship logs and for keep track of state
         # https://docs.fluentbit.io/manual/pipeline/filters/kubernetes#workflow-of-tail-kubernetes-filter
         - fluentbit/fluentbit-fluent-bit-.*
        {{- end }}
-       {{- if .Values.twistlock.enabled }}
+       {{- if .Values.packages.addons.twistlock.enabled }}
         # Twistlock requires /dev/log for its syslog daemon.
         # https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/audit/logging.html#
         - twistlock/twistlock-defender-ds-.*
        {{- end }}
-       {{- if .Values.monitoring.enabled }}
+       {{- if .Values.packages.addons.monitoring.enabled }}
         # Prometheus node exported requires hostpath hardcoded in upstream chart on which monitoring pkg has a direct dependency
         # https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-node-exporter/templates/daemonset.yaml#L150
         - monitoring/monitoring-monitoring-prometheus-node-exporter-.*
        {{- end }}
-       {{- if .Values.promtail.enabled }}
+       {{- if .Values.packages.addons.promtail.enabled }}
         # Promtail requires hostpath volume types
         # https://github.com/grafana/helm-charts/blob/main/charts/promtail/templates/daemonset.yaml#L120
         - promtail/promtail-promtail-.*
        {{- end }}
-       {{- if .Values.neuvector.enabled }}
+       {{- if .Values.packages.addons.neuvector.enabled }}
         # Neuvector requires hostpath volume types
           # Neuvector mounts the following hostPaths:
           # `/var/neuvector`: (as writable) for Neuvector's buffering and persistent state
@@ -207,7 +207,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - neuvector/neuvector-enforcer-pod.*
         - neuvector/neuvector-controller-pod.*
        {{- end }}
-       {{- if and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent }}
+       {{- if and .Values.packages.addons.velero.enabled .Values.packages.addons.velero.values.deployNodeAgent }}
         # NodeAgent requires hostpath volume mounts in order to facilitate backing up cluster PV/C resources
         - velero/node-agent-.*
        {{- end }}
@@ -222,7 +222,7 @@ openshift: {{ .Values.openshift }}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any constraint to ignore the defaults */ -}}
 {{- define "bigbang.overlays.gatekeeper" }}
   {{- $defaults := fromYaml (include "bigbang.defaults.gatekeeper" .) }}
-  {{- $overlays := dig "values" dict .Values.gatekeeper }}
+  {{- $overlays := dig "values" dict .Values.packages.addons.gatekeeper }}
   {{- range $constraint, $default := $defaults.violations }}
     {{- $overlay := (dig "violations" $constraint dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set

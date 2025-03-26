@@ -1,5 +1,5 @@
-{{- if .Values.addons.minio.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.minio "name" "minio" "defaults" (include "bigbang.defaults.minio" .)) }}
+{{- if .Values.packages.addons.minio.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.minio "name" "minio" "defaults" (include "bigbang.defaults.minio" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.minio" -}}
@@ -12,15 +12,15 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   console:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.minio.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.minio.ingress.gateway }}
   api:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.minio.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.minio.ingress.gateway }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.minio.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.minioOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.minio.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
 
 {{- if include "istioEnabled" . }}
@@ -29,15 +29,15 @@ annotations:
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.minio.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.minio.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 podAnnotations:
   sidecar.istio.io/inject: "true"
@@ -45,8 +45,8 @@ podAnnotations:
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
 
 configSecret:
-  accessKey: {{ .Values.addons.minio.accesskey | default "minio" }}
-  secretKey: {{ .Values.addons.minio.secretkey | default "minio123" }}
+  accessKey: {{ .Values.packages.addons.minio.accesskey | default "minio" }}
+  secretKey: {{ .Values.packages.addons.minio.secretkey | default "minio123" }}
 
 tenant:
   image:
@@ -54,8 +54,8 @@ tenant:
   imagePullSecret:
     name: private-registry
   metrics:
-    enabled: {{ .Values.monitoring.enabled }}
-  {{- if .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   env:
     - name: MINIO_PROMETHEUS_AUTH_TYPE
       value: "public"

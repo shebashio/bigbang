@@ -1,5 +1,5 @@
-{{- if .Values.tempo.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.tempo "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
+{{- if .Values.packages.addons.tempo.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.tempo "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.tempo" -}}
@@ -10,14 +10,14 @@ podAnnotations:
 {{- end }}
 
 objectStorage: 
-  access_key_id: {{ .Values.tempo.objectStorage.accessKey }}
-  secret_access_key: {{ .Values.tempo.objectStorage.accessSecret }}
+  access_key_id: {{ .Values.packages.addons.tempo.objectStorage.accessKey }}
+  secret_access_key: {{ .Values.packages.addons.tempo.objectStorage.accessSecret }}
 
 tempo:
   pullPolicy: {{ .Values.imagePullPolicy }}
   global_overrides:
     ingestion_rate_limit_bytes: 30000000
-{{- with .Values.tempo.objectStorage }}
+{{- with .Values.packages.addons.tempo.objectStorage }}
 {{- if and .endpoint .region .bucket }}
   storage: 
     trace:
@@ -31,7 +31,7 @@ tempo:
 {{- end }}
 {{- end }}
 
-{{- if .Values.monitoring.enabled }}
+{{- if .Values.packages.addons.monitoring.enabled }}
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
@@ -55,12 +55,12 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- if .Values.istio.enabled }}
-    {{- $gateway := default "public" .Values.tempo.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- if .Values.packages.core.istio.enabled }}
+    {{- $gateway := default "public" .Values.packages.addons.tempo.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
     {{- end }}
-    {{- if .Values.istioCore.enabled }}
+    {{- if .Values.packages.core.istioCore.enabled }}
     app: public-ingressgateway
     istio: ingressgateway
     {{- end }}
@@ -69,27 +69,27 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.tempo.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.tempo.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   tempoQuery:
     # Set TempoQuery UI to "tempo." if Jaeger is enabled
-    {{- if .Values.jaeger.enabled }}
+    {{- if .Values.packages.addons.jaeger.enabled }}
     hosts:
       - "tempo.{{ .Values.domain }}"
     {{- end }}
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.tempo.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.tempo.ingress.gateway }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT
-  {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
+  {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.tempo.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
@@ -99,13 +99,13 @@ serviceMonitor:
   {{- end }}
 
 sso:
-  enabled: {{ .Values.tempo.sso.enabled }}
+  enabled: {{ .Values.packages.addons.tempo.sso.enabled }}
 
-{{- if or .Values.kiali.enabled .Values.tempo.sso.enabled }}
-{{- $tempoAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-{{- $tempoAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+{{- if or .Values.packages.addons.kiali.enabled .Values.packages.addons.tempo.sso.enabled }}
+{{- $tempoAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.addons.authservice.values) }}
+{{- $tempoAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.addons.authservice.values) }}
 podLabels:
-  {{- if .Values.tempo.sso.enabled }}
+  {{- if .Values.packages.addons.tempo.sso.enabled }}
   {{ $tempoAuthserviceKey }}: {{ $tempoAuthserviceValue }}
   {{- end }}
 {{- end }}

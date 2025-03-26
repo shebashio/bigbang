@@ -1,5 +1,5 @@
-{{- if or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.kyverno "name" "kyverno" "defaults" (include "bigbang.defaults.kyverno" .)) }}
+{{- if or .Values.packages.core.kyverno.enabled .Values.packages.core.kyvernoPolicies.enabled .Values.packages.addons.kyvernoReporter.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.core.kyverno "name" "kyverno" "defaults" (include "bigbang.defaults.kyverno" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno" -}}
@@ -17,30 +17,30 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   dashboards:
     namespace: monitoring
 
 admissionController:
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 backgroundController:
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 cleanupController:
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 reportsController:
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 grafana:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   namespace: monitoring
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
 {{- end -}}

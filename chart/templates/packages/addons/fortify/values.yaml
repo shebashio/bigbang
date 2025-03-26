@@ -16,30 +16,30 @@ externalURL: https://fortify.{{ .Values.domain }}
 domain: {{ .Values.domain }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.fortify.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   fortify:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.fortify.ingress.gateway }}
+    - istio-system/{{ default "public" .Values.packages.addons.fortify.ingress.gateway }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.fortify.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.fortify.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 openshift: {{ .Values.openshift }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 sso:
-  enabled: {{ default "false" .Values.addons.fortify.sso.enabled }}
+  enabled: {{ default "false" .Values.packages.addons.fortify.sso.enabled }}
 
 {{- end }}

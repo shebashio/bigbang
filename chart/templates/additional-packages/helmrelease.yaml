@@ -67,10 +67,10 @@ spec:
       kind: Secret
 
   {{- /* Always wait on policy enforcement */ -}}
-  {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
-  {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
+  {{- $gatekeeperDep := $.Values.packages.addons.gatekeeper.enabled -}}
+  {{- $kyvernoDep := $.Values.packages.core.kyvernoPolicies.enabled -}}
   {{- /* Wait on istio if sidecar is enabled */ -}}
-  {{- $istioDep := (and $.Values.istio.enabled (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
+  {{- $istioDep := (and $.Values.packages.core.istio.enabled (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
   {{- if or $gatekeeperDep $kyvernoDep $istioDep $vals.dependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}

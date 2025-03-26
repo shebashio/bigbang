@@ -1,6 +1,6 @@
 Thank you for supporting Platform One!
 
-{{ if $.Values.addons.gitlab.enabled }}
+{{ if $.Values.packages.addons.gitlab.enabled }}
 Gitlab is enabled.
 Please follow the Gitlab online documentation for proper configuration.
 This BigBang chart provides convenient enhancements to the Gitlab Package helm chart.
@@ -34,21 +34,21 @@ addons:
       accessSecret: mysecretkey
       bucketPrefix: prod
 
-{{ if $.Values.addons.gitlab.objectStorage.endpoint }}
+{{ if $.Values.packages.addons.gitlab.objectStorage.endpoint }}
 GITLAB: You have enabled Gitlab external object storage.
 Here is the list of buckets that you must provision in your s3 service:
-{{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
+{{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
+{{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
 {{- else }}
 gitlab-registry
 gitlab-lfs
@@ -64,7 +64,7 @@ gitlab-backup-tmp
 {{- end }}
 {{- end }}
 
-{{ if $.Values.addons.gitlab.database.host }}
+{{ if $.Values.packages.addons.gitlab.database.host }}
 {{ else }}
 PLATFORM ONE GITLAB WARNING:
   You have enabled an internal postgres database in the BigBang configuration.
@@ -72,7 +72,7 @@ PLATFORM ONE GITLAB WARNING:
   This option should only be used for development or CI pipelines.
 {{- end -}}
 
-{{ if $.Values.addons.gitlab.objectStorage.endpoint }}
+{{ if $.Values.packages.addons.gitlab.objectStorage.endpoint }}
 {{ else }}
 PLATFORM ONE GITLAB WARNING:
   You have enabled a MinIO internal service in the BigBang configuration.
@@ -81,44 +81,44 @@ PLATFORM ONE GITLAB WARNING:
 {{- end }}
 {{- end }}
 
-{{- if $.Values.addons.anchore.enabled }}
+{{- if $.Values.packages.addons.anchore.enabled }}
 Anchore is enabled.
-{{- if not (and $.Values.addons.anchore.database.host $.Values.addons.anchore.database.port $.Values.addons.anchore.database.username $.Values.addons.anchore.database.password $.Values.addons.anchore.database.database) }}
+{{- if not (and $.Values.packages.addons.anchore.database.host $.Values.packages.addons.anchore.database.port $.Values.packages.addons.anchore.database.username $.Values.packages.addons.anchore.database.password $.Values.packages.addons.anchore.database.database) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal postgres database (main-db) in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
-{{- if $.Values.addons.anchore.enterprise.enabled }}
-{{- if not (and $.Values.addons.anchore.redis.host $.Values.addons.anchore.redis.port $.Values.addons.anchore.redis.password) }}
+{{- if $.Values.packages.addons.anchore.enterprise.enabled }}
+{{- if not (and $.Values.packages.addons.anchore.redis.host $.Values.packages.addons.anchore.redis.port $.Values.packages.addons.anchore.redis.password) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal redis database in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
-{{- if not (and $.Values.addons.anchore.database.host $.Values.addons.anchore.database.port $.Values.addons.anchore.database.username $.Values.addons.anchore.database.password $.Values.addons.anchore.database.feeds_database) }}
+{{- if not (and $.Values.packages.addons.anchore.database.host $.Values.packages.addons.anchore.database.port $.Values.packages.addons.anchore.database.username $.Values.packages.addons.anchore.database.password $.Values.packages.addons.anchore.database.feeds_database) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal postgres database (feeds-db) in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- if and ($.Values.addons.anchore.enterprise.enabled) (not $.Values.addons.anchore.enterprise.licenseYaml) }}
+{{- if and ($.Values.packages.addons.anchore.enterprise.enabled) (not $.Values.packages.addons.anchore.enterprise.licenseYaml) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an enterprise Anchore in the values configuration, but not provided a license.
   Your deployment will fail without a license, please review your configuration and supply a license
   or disable the enterprise features.
 {{- end }}
-{{- if and ($.Values.addons.anchore.sso.enabled) (not $.Values.addons.anchore.enterprise.enabled) }}
+{{- if and ($.Values.packages.addons.anchore.sso.enabled) (not $.Values.packages.addons.anchore.enterprise.enabled) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled SSO in the values configuration, but not enabled enterprise Anchore.
   Your SSO configuration will be ignored, the Anchore UI is only available for enterprise deployments.
 {{- end }}
 {{- end }}
 
-{{- if and $.Values.eckOperator.enabled $.Values.elasticsearchKibana.enabled }}
-  {{- if $.Values.elasticsearchKibana.sso.enabled }}
-    {{- if and (not $.Values.elasticsearchKibana.license.trial) (not $.Values.elasticsearchKibana.license.keyJSON) }}
+{{- if and $.Values.packages.addons.eckOperator.enabled $.Values.packages.addons.elasticsearchKibana.enabled }}
+  {{- if $.Values.packages.addons.elasticsearchKibana.sso.enabled }}
+    {{- if and (not $.Values.packages.addons.elasticsearchKibana.license.trial) (not $.Values.packages.addons.elasticsearchKibana.license.keyJSON) }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled SSO but not provided an enterprise license configuration to use. SSO is not functional without a license.
   Edit the values for the eck-operator to specify a license key JSON or use the trial license for development.
@@ -126,36 +126,36 @@ PLATFORM ONE LOGGING WARNING:
   {{- end }}
 {{- end }}
 
-{{- if and .Values.promtail.enabled .Values.fluentbit.enabled }}
+{{- if and .Values.packages.addons.promtail.enabled .Values.packages.addons.fluentbit.enabled }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled both Promtail and Fluentbit (log forwarders). This is not a supported configuration and you may see conflicts as a result of both applications attempting to ship logs.
 {{- end }}
 
-{{- if and .Values.loki.enabled .Values.elasticsearchKibana.enabled }}
+{{- if and .Values.packages.addons.loki.enabled .Values.packages.addons.elasticsearchKibana.enabled }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled both Loki and Elastic (log storage). This is not a supported configuration and you may see issues as a result of running both applications.
   If using Elastic for other functionality, deploying both applications is acceptable.
 {{- end }}
 
-{{- if and $.Values.loki.enabled (dig "values" "global" "createGlobalConfig" false $.Values.loki) }}
+{{- if and $.Values.packages.addons.loki.enabled (dig "values" "global" "createGlobalConfig" false $.Values.packages.addons.loki) }}
 PLATFORM ONE LOKI WARNING:
   You still have Loki global values set but this version of Loki has changed significantly, please review the latest production document within the Loki package repo: https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/docs/production.md
 {{- end }}
 
-{{- if and $.Values.loki.enabled (dig "values" "gel" "enabled" false $.Values.loki) }}
+{{- if and $.Values.packages.addons.loki.enabled (dig "values" "gel" "enabled" false $.Values.packages.addons.loki) }}
 PLATFORM ONE LOKI WARNING:
   You still have Loki gel values set but this version of Loki has changed significantly, please review the latest grafana enterprise document within the Loki package repo: https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/docs/grafana-enterprise.md
 {{- end }}
 
-{{- if and $.Values.jaeger.enabled .Values.tempo.enabled }}
+{{- if and $.Values.packages.addons.jaeger.enabled .Values.packages.addons.tempo.enabled }}
 PLATFORM ONE TRACING WARNING:
   You have enabled both Jaeger and Tempo Tracing Engines.  This is permitted during beta testing of Tempo.
   After the beta period, only one Tracing engine will be supported at one time, with Tempo becoming the default supported engine over a direct Jaeger installation. Grafana has a built-in Tempo data source that can be used to query Tempo and visualize traces. 
 {{- end }}
 
-{{- if $.Values.addons.mattermost.enabled }}
+{{- if $.Values.packages.addons.mattermost.enabled }}
 Mattermost is enabled.
-{{- with .Values.addons.mattermost.database }}
+{{- with .Values.packages.addons.mattermost.database }}
 {{- if not (and .username .password .host .port .database .ssl_mode) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled an internal postgres database in the values configuration.
@@ -163,7 +163,7 @@ PLATFORM ONE MATTERMOST WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- with .Values.addons.mattermost.objectStorage }}
+{{- with .Values.packages.addons.mattermost.objectStorage }}
 {{- if not (and .endpoint .accessKey .accessSecret .bucket) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled an internal Minio instance in the values configuration.
@@ -171,7 +171,7 @@ PLATFORM ONE MATTERMOST WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- if and (.Values.addons.mattermost.enterprise.enabled) (not .Values.addons.mattermost.enterprise.license) }}
+{{- if and (.Values.packages.addons.mattermost.enterprise.enabled) (not .Values.packages.addons.mattermost.enterprise.license) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled enterprise Mattermost in the values configuration, but not provided a license.
   Make sure to go back and edit your values or ensure you add the license through the mattermost settings page.
@@ -184,14 +184,14 @@ DEPRECATION NOTICE:
   Please update your values override to use the "domain" key.
 {{- end }}
 
-{{- if .Values.addons.nexus }}
+{{- if .Values.packages.addons.nexus }}
 DEPRECATION NOTICE:
-  .Values.addons.nexus has been deprecated and will be removed in a future Big Bang release.
-  Please reconfigure your values overrides to use .Values.addons.nexusRepositoryManager
+  .Values.packages.addons.nexus has been deprecated and will be removed in a future Big Bang release.
+  Please reconfigure your values overrides to use .Values.packages.addons.nexusRepositoryManager
 {{- end }}
 
-{{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := merge $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusOldValues := default dict .Values.packages.addons.nexus -}}
+{{- $nexusValues := merge $nexusOldValues .Values.packages.addons.nexusRepositoryManager -}}
 
 {{- with .Values }}
 {{- if and .sso.url (coalesce .sso.oidc.host .sso.oidc.realm .sso.certificate_authority .sso.jwks .sso.jwks_uri .sso.client_id .sso.client_secret .sso.token_url .sso.auth_url .sso.secretName .elasticsearchKibana.sso.issuer .elasticsearchKibana.sso.auth_url .elasticsearchKibana.sso.token_url .elasticsearchKibana.sso.userinfo_url .elasticsearchKibana.sso.jwkset_url .elasticsearchKibana.sso.claims_principal .elasticsearchKibana.sso.endsession_url .elasticsearchKibana.sso.claims_group .elasticsearchKibana.sso.claims_mail .grafana.sso.grafana.auth_url .grafana.sso.grafana.token_url .grafana.sso.grafana.api_url .twistlock.sso.provider_name .twistlock.sso.issuer_uri .twistlock.sso.idp_url .twistlock.sso.console_url .twistlock.sso.cert .addons.argocd.sso.provider_name .addons.gitlab.sso.label .addons.gitlab.sso.issuer_uri .addons.gitlab.sso.end_session_uri .addons.gitlab.sso.uid_field .addons.mattermost.sso.auth_endpoint .addons.mattermost.sso.token_endpoint .addons.mattermost.sso.user_api_endpoint $nexusValues.sso.idp_data.idpMetadata .addons.sonarqube.sso.provider_name .addons.sonarqube.sso.certificate) }}
@@ -316,7 +316,7 @@ DEPRECATION NOTICE:
         idp_url: {{ .twistlock.sso.idp_url }}
         {{- end }}
         {{- if .twistlock.sso.console_url }}
-        # "console_url" deprecated.  It will be created from "twistlock.values.istio.console.hosts" or "twistlock.<domain>"
+        # "console_url" deprecated.  It will be created from "twistlock.Values.packages.core.istio.console.hosts" or "twistlock.<domain>"
         console_url: {{ .twistlock.sso.console_url }}
         {{- end }}
         {{- if .twistlock.sso.cert }}
@@ -392,13 +392,13 @@ DEPRECATION NOTICE:
   {{- end }}
 {{- end }}
 
-{{- if .Values.addons.mattermostoperator }}
+{{- if .Values.packages.addons.mattermostoperator }}
 DEPRECATION NOTICE:
-  .Values.addons.mattermostoperator has been deprecated and will be removed in a future Big Bang release.
-  Please reconfigure your values overrides to use .Values.addons.mattermostOperator
+  .Values.packages.addons.mattermostoperator has been deprecated and will be removed in a future Big Bang release.
+  Please reconfigure your values overrides to use .Values.packages.addons.mattermostOperator
 {{- end }}
 
-{{- if and $.Values.addons.thanos.enabled (not (dig "values" "prometheus" "prometheusSpec" "replicas" "" $.Values.monitoring)) }}
+{{- if and $.Values.packages.addons.thanos.enabled (not (dig "values" "prometheus" "prometheusSpec" "replicas" "" $.Values.packages.addons.monitoring)) }}
 PLATFORM ONE THANOS WARNING:
   You have enabled Thanos with the default Prometheus replicas set to 1.  For production deployments, 
   you can increase the number of replicas by adding:
@@ -409,7 +409,7 @@ PLATFORM ONE THANOS WARNING:
 
 {{- end }}
 
-{{- if (eq .Values.loki.strategy "distributed") }}
+{{- if (eq .Values.packages.addons.loki.strategy "distributed") }}
 PLATFORM ONE LOKI WARNING:
   BigBang does not support the Loki Distributed deployment mode. For production deployments,
   please set your strategy to "scalable" or "monolithic"

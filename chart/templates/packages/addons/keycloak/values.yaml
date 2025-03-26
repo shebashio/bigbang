@@ -1,5 +1,5 @@
-{{- if .Values.addons.keycloak.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.keycloak "name" "keycloak" "defaults" (include "bigbang.defaults.keycloak" .)) }}
+{{- if .Values.packages.addons.keycloak.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.keycloak "name" "keycloak" "defaults" (include "bigbang.defaults.keycloak" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.keycloak" -}}
@@ -18,20 +18,20 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
-{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled")) }}
+{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.keycloak) "enabled")) }}
 
 istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.keycloak.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.keycloak.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.keycloak }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.keycloak }}
   keycloak:
     enabled: true
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPassthroughGateway" . ) .Values.addons.keycloak.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPassthroughGateway" . ) .Values.packages.addons.keycloak.ingress.gateway }}
 
 {{- if $istioInjection }}
 podAnnotations:
@@ -44,16 +44,16 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "passthrough" .Values.addons.keycloak.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "passthrough" .Values.packages.addons.keycloak.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   # conditional passes only for default istio: enabled, mTLS: SCRICT, istio injection: enabled
-  {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.keycloak.values) "STRICT") }}
+  {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.keycloak.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
@@ -63,10 +63,10 @@ serviceMonitor:
     insecureSkipVerify: true
   {{- end }}
 
-{{- if .Values.addons.keycloak.database.host }}
+{{- if .Values.packages.addons.keycloak.database.host }}
 postgresql:
   enabled: false
-{{- else if or $istioInjection .Values.kiali.enabled }}
+{{- else if or $istioInjection .Values.packages.addons.kiali.enabled }}
 postgresql:
   primary:
     {{- if $istioInjection }}
@@ -80,18 +80,18 @@ postgresql:
     {{- end }}
 {{- end }}
 
-{{- if or .Values.addons.keycloak.database.host (and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key) }}
+{{- if or .Values.packages.addons.keycloak.database.host (and .Values.packages.addons.keycloak.ingress.cert .Values.packages.addons.keycloak.ingress.key) }}
 secrets:
-  {{- if and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key }}
+  {{- if and .Values.packages.addons.keycloak.ingress.cert .Values.packages.addons.keycloak.ingress.key }}
   tlscert:
     stringData:
-      tls.crt: {{ .Values.addons.keycloak.ingress.cert | quote }}
+      tls.crt: {{ .Values.packages.addons.keycloak.ingress.cert | quote }}
   tlskey:
     stringData:
-      tls.key: {{ .Values.addons.keycloak.ingress.key  | quote }}
+      tls.key: {{ .Values.packages.addons.keycloak.ingress.key  | quote }}
   {{- end }}
 
-  {{- with .Values.addons.keycloak.database }}
+  {{- with .Values.packages.addons.keycloak.database }}
   {{- if .host }}
   env:
     stringData:
@@ -113,7 +113,7 @@ secrets:
   {{- end }}
 {{- end }}
 
-{{- if and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key }}
+{{- if and .Values.packages.addons.keycloak.ingress.cert .Values.packages.addons.keycloak.ingress.key }}
 extraVolumesBigBang:
   - name: tlscert
     secret:

@@ -6,7 +6,7 @@
 
 {{- define "bigbang.defaults.kyverno-policies" -}}
 
-{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
+{{- $deployNodeAgent := (and .Values.packages.addons.velero.enabled (dig "deployNodeAgent" false .Values.packages.addons.velero.values)) }}
 
 waitforready:
   imagePullSecrets:
@@ -17,7 +17,7 @@ policies:
     validationFailureAction: Enforce
     exclude:
       any:
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs access to host to inspect network traffic
       - resources:
           namespaces:
@@ -29,35 +29,35 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
+      {{- if .Values.packages.addons.holocron.enabled }}
       - resources:
           namespaces:
           - holocron
           names:
           - holocron-postgresql-0
       {{- end }}
-      {{- if .Values.addons.velero.enabled }}
+      {{- if .Values.packages.addons.velero.enabled }}
       - resources:
           namespaces:
           - velero
           names:
           - velero-backup-restore-test*
       {{- end }}
-      {{- if .Values.addons.gitlabRunner.enabled }}
+      {{- if .Values.packages.addons.gitlabRunner.enabled }}
       - resources:
           namespaces:
           - gitlab-runner
           names:
           - runner*
       {{- end }}
-      {{- if .Values.addons.gitlab.enabled }}
+      {{- if .Values.packages.addons.gitlab.enabled }}
       - resources:
           namespaces:
           - gitlab
           names:
           - webservice-test-runner*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - resources:
           namespaces:
           - twistlock
@@ -65,14 +65,14 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
-      {{- if .Values.addons.mimir.enabled }}
+      {{- if .Values.packages.addons.mimir.enabled }}
       - resources:
           namespaces:
           - mimir
           names:
           - mimir-mimir-smoke-test*
       {{- end }}
-      {{- if .Values.addons.vault.enabled }}
+      {{- if .Values.packages.addons.vault.enabled }}
       - resources:
           namespaces:
           - vault
@@ -80,11 +80,11 @@ policies:
           - vault-vault-job-init*
       {{- end }}
 
-  {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}
+  {{- if or .Values.packages.addons.twistlock.enabled .Values.packages.addons.neuvector.enabled }}
   disallow-host-namespaces:
     exclude:
       any:
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock, by default, does its own network monitoring. hostNetworking is enabled by default for this purpose
       # With hostNetworking enabled, Istio sidecar injection is disabled. If this function is disabled, Twistlock will
       # not be able to self monitor. If both Istio sidecar injection and TL monitoring are disabled, a security gap will
@@ -95,7 +95,7 @@ policies:
           names:
           - twistlock-defender-ds*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs access to host to inspect network traffic
       - resources:
           namespaces:
@@ -106,13 +106,13 @@ policies:
   {{- end }}
 
   {{- $nodePortIngressGateways := list }}
-  {{- range $name, $values := .Values.istio.ingressGateways }}
+  {{- range $name, $values := .Values.packages.core.istio.ingressGateways }}
   {{- if eq $values.type "NodePort" }}
   {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
   {{- end }}
   {{- end }}
 
-  {{- range $name, $values := .Values.istio.values.ingressGateways }}
+  {{- range $name, $values := .Values.packages.core.istio.values.ingressGateways }}
   {{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
   {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
   {{- end }}
@@ -121,7 +121,7 @@ policies:
   # Istio services (istio ingress) can create type: NodePort services
   disallow-nodeport-services:
     validationFailureAction: Enforce
-    {{- if or $nodePortIngressGateways .Values.istioCore.enabled }}
+    {{- if or $nodePortIngressGateways .Values.packages.core.istioCore.enabled }}
     exclude:
       any:
       - resources:
@@ -133,7 +133,7 @@ policies:
           {{- end }}
           namespaces:
           - istio-system
-      {{- if and .Values.istioCore.enabled .Values.istioGateway.enabled }}
+      {{- if and .Values.packages.core.istioCore.enabled .Values.packages.core.istioGateway.enabled }}
       - resources:
           kinds:
           - Service
@@ -168,11 +168,11 @@ policies:
       - bigbang
       - default
 
-  {{- if or .Values.fluentbit.enabled .Values.neuvector.enabled}}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.neuvector.enabled}}
   disallow-privileged-containers:
     exclude:
       any:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # NEEDS FURTHER JUSTIFICATION
       # Fluentbit needs privileged to read and store the buffer for tailing logs from the nodes
       - resources:
@@ -181,7 +181,7 @@ policies:
           names:
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime
       - resources:
           namespaces:
@@ -199,7 +199,7 @@ policies:
     validationFailureAction: Audit
     exclude:
       any:
-      {{- if .Values.kyvernoReporter.enabled }}
+      {{- if .Values.packages.addons.kyvernoReporter.enabled }}
       - resources:
           namespaces:
           - kyverno-reporter 
@@ -209,7 +209,7 @@ policies:
           names:
           - kyverno-reporter*
       {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       - resources:
           namespaces:
           - flux-system
@@ -223,7 +223,7 @@ policies:
           - source-controller*
           - kustomize-controller*
       {{- end }}
-      {{- if .Values.addons.thanos.enabled }}
+      {{- if .Values.packages.addons.thanos.enabled }}
       - resources:
           namespaces:
           - thanos
@@ -234,7 +234,7 @@ policies:
           names:
           - thanos-compactor*
       {{- end }}
-      {{- if .Values.addons.externalSecrets.enabled }}
+      {{- if .Values.packages.addons.externalSecrets.enabled }}
       - resources:
           namespaces:
           - external-secrets 
@@ -242,11 +242,11 @@ policies:
           - external-secrets*
       {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.twistlock.enabled }}
   disallow-tolerations:
     exclude:
       any:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # Fluent bit needs to be able to run on all nodes to gather logs from the host for containers
       - resources:
           namespaces:
@@ -254,7 +254,7 @@ policies:
           names:
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       # Prometheus Node Exporter needs to be able to run on all nodes, regardless of taint, to gather node metrics
       - resources:
           namespaces:
@@ -262,7 +262,7 @@ policies:
           names:
           - monitoring-monitoring-prometheus-node-exporter*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # In order to provide real-time scanning of all nodes, Twistlock must ignore taints
       - resources:
           namespaces:
@@ -276,7 +276,7 @@ policies:
     validationFailureAction: Enforce
     exclude:
       any:
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs access to host to inspect network traffic
       - resources:
           namespaces:
@@ -288,35 +288,35 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
+      {{- if .Values.packages.addons.holocron.enabled }}
       - resources:
           namespaces:
           - holocron
           names:
           - holocron-postgresql-0
       {{- end }}
-      {{- if .Values.addons.velero.enabled }}
+      {{- if .Values.packages.addons.velero.enabled }}
       - resources:
           namespaces:
           - velero
           names:
           - velero-backup-restore-test*
       {{- end }}
-      {{- if .Values.addons.gitlabRunner.enabled }}
+      {{- if .Values.packages.addons.gitlabRunner.enabled }}
       - resources:
           namespaces:
           - gitlab-runner
           names:
           - runner-*
       {{- end }}
-      {{- if .Values.addons.gitlab.enabled }}
+      {{- if .Values.packages.addons.gitlab.enabled }}
       - resources:
           namespaces:
           - gitlab
           names:
           - webservice-test-runner-*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - resources:
           namespaces:
           - twistlock
@@ -324,7 +324,7 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
-      {{- if .Values.addons.mimir.enabled }}
+      {{- if .Values.packages.addons.mimir.enabled }}
       - resources:
           namespaces:
           - mimir
@@ -367,19 +367,19 @@ policies:
 
   add-default-securitycontext:
     validationFailureAction: Enforce
-    {{ if .Values.istio.enabled }}
+    {{ if .Values.packages.core.istio.enabled }}
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
+        {{ if not .Values.packages.addons.holocron.database.host }}
         - init-chmod-data
         {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
+    {{ else if not .Values.packages.addons.holocron.database.host }}
     parameters:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
+    {{- if or $deployNodeAgent .Values.packages.addons.twistlock.enabled .Values.packages.addons.fluentbit.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.neuvector.enabled .Values.packages.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -394,7 +394,7 @@ policies:
           names:
           - node-agent*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
       # - read logs from `/var/log` to watch for malicious processes
       # - audit modifications to `/etc/passwd` (watching for suspicious changes)
@@ -407,14 +407,14 @@ policies:
           - volume-upgrade-job*
       {{- end }}
       # For GitLab runner CI jobs that require root access
-      {{- if .Values.addons.gitlabRunner.enabled }}
+      {{- if .Values.packages.addons.gitlabRunner.enabled }}
       - resources:
           namespaces:
           - gitlab-runner
           names:
           - runner-*
       {{- end }}
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -424,7 +424,7 @@ policies:
           names:
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -435,7 +435,7 @@ policies:
           names:
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # neuvector enforcers run as root to perform real time scanning on the nodes/cluster
       - resources:
           namespaces:
@@ -445,7 +445,7 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
-      {{- if .Values.addons.mattermost.enabled }}
+      {{- if .Values.packages.addons.mattermost.enabled }}
         # Mattermost fails when policy was implemented
       - resources:
           namespaces:
@@ -454,7 +454,7 @@ policies:
           names:
           - mattermost-*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       # Alloy requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -473,21 +473,21 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
+        {{ if not .Values.packages.addons.holocron.database.host }}
         - init-chmod-data
         {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
+    {{ else if not .Values.packages.addons.holocron.database.host }}
     parameters:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
+    {{- if or $deployNodeAgent .Values.packages.addons.twistlock.enabled .Values.packages.addons.fluentbit.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.neuvector.enabled .Values.packages.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
           namespaces:
           - kube-system
-      {{ if .Values.istioCore.enabled }}
+      {{ if .Values.packages.core.istioCore.enabled }}
       - resources:
           namespaces:
           - istio-system
@@ -503,7 +503,7 @@ policies:
           names:
           - node-agent*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
       # - read logs from `/var/log` to watch for malicious processes
       # - audit modifications to `/etc/passwd` (watching for suspicious changes)
@@ -516,14 +516,14 @@ policies:
           - volume-upgrade-job*
       {{- end }}
       # For GitLab runner CI jobs that require root access
-      {{- if .Values.addons.gitlabRunner.enabled }}
+      {{- if .Values.packages.addons.gitlabRunner.enabled }}
       - resources:
           namespaces:
           - gitlab-runner
           names:
           - runner-*
       {{- end }}
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -533,7 +533,7 @@ policies:
           names:
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -544,7 +544,7 @@ policies:
           names:
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # neuvector enforcers run as root to perform real time scanning on the nodes/cluster
       - resources:
           namespaces:
@@ -554,7 +554,7 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       # Alloy requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -572,10 +572,10 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
+        {{ if not .Values.packages.addons.holocron.database.host }}
         - init-chmod-data
         {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
+    {{ else if not .Values.packages.addons.holocron.database.host }}
     parameters:
       excludeContainers:
         - init-chmod-data
@@ -585,8 +585,8 @@ policies:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
-      {{- if .Values.kiali.enabled }}
+    {{- if or $deployNodeAgent .Values.packages.addons.twistlock.enabled .Values.packages.addons.fluentbit.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.kiali.enabled .Values.packages.addons.neuvector.enabled .Values.packages.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
           namespaces:
@@ -594,7 +594,7 @@ policies:
           names:
           - kiali-*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime
       - resources:
           namespaces:
@@ -612,14 +612,14 @@ policies:
           - node-agent*
       {{- end }}
       # For GitLab runner CI jobs that require root access
-      {{- if .Values.addons.gitlabRunner.enabled }}
+      {{- if .Values.packages.addons.gitlabRunner.enabled }}
       - resources:
           namespaces:
           - gitlab-runner
           names:
           - runner-*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
       # - read logs from `/var/log` to watch for malicious processes
       # - audit modifications to `/etc/passwd` (watching for suspicious changes)
@@ -631,7 +631,7 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade-job*
       {{- end }}
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -641,7 +641,7 @@ policies:
           names:
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -652,7 +652,7 @@ policies:
           names:
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       # Alloy requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
@@ -664,7 +664,7 @@ policies:
       {{- end }}
     {{- end }}
 
-  {{- if .Values.twistlock.enabled }}
+  {{- if .Values.packages.addons.twistlock.enabled }}
   restrict-apparmor:
     exclude:
       any:
@@ -689,7 +689,7 @@ policies:
     # - MKNOD      - Create special files using mknod, used by docker-less registry scanning
     # - SETFCAP    - Set file capabilties, used by docker-less registry scanning
     # - IPC_LOCK
-    # {{- if .Values.twistlock.enabled }}
+    # {{- if .Values.packages.addons.twistlock.enabled }}
     # exclude:
     #   any:
     #   - resources:
@@ -713,17 +713,17 @@ policies:
     # - read logs from `/var/log` to watch for malicious processes
     # - audit modifications to `/etc/passwd` (watching for suspicious changes)
     # - access the container runtime socket (observing all running containers on a node)
-    {{- if or .Values.twistlock.enabled .Values.addons.alloy.enabled }}
+    {{- if or .Values.packages.addons.twistlock.enabled .Values.packages.addons.alloy.enabled }}
     exclude:
       any:
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - resources:
           namespaces:
           - twistlock
           names:
           - twistlock-defender-ds*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       - resources:
           namespaces:
           - alloy
@@ -736,10 +736,10 @@ policies:
     {{- end }}
   restrict-host-path-mount:
     validationFailureAction: Enforce
-    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
+    {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.twistlock.enabled .Values.packages.addons.neuvector.enabled .Values.packages.addons.alloy.enabled $deployNodeAgent }}
     exclude:
       any:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       - resources:
           namespaces:
           - fluentbit
@@ -753,7 +753,7 @@ policies:
           # FluentBit from the policy than add the paths as allowable mounts
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
           # Promtail mounts the following hostPaths:
           # - `/var/log/pods`: to tail pod logs
           # - `/var/lib/docker/containers`: to tail container logs
@@ -766,7 +766,7 @@ policies:
           names:
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       # Prometheus Node Exporter mounts the following hostPaths:
       # - `/`: monitor disk usage on filesystem mounts using e2fs call
       # - `/proc` and `/sys`: gather node metrics
@@ -778,7 +778,7 @@ policies:
           names:
           - monitoring-monitoring-prometheus-node-exporter*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # NEEDS FURTHER JUSTIFICATION
       # Twistlock mounts the following hostPaths:
       # - `/dev/log`: writing twistlock logs to syslog socket on node (if enabled)
@@ -796,7 +796,7 @@ policies:
           names:
           - twistlock-defender-ds*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
@@ -810,7 +810,7 @@ policies:
           - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       # Alloy mounts the following hostPaths:
       # - `/var/log`: to tail node logs (e.g. journal) and pod logs
       # - `/var/lib/docker/containers`: to tail container logs
@@ -840,7 +840,7 @@ policies:
 
   restrict-host-path-write:
     validationFailureAction: Enforce
-    {{- if or .Values.neuvector.enabled .Values.twistlock.enabled }}
+    {{- if or .Values.packages.addons.neuvector.enabled .Values.packages.addons.twistlock.enabled }}
     exclude:
       any:
       # NEEDS FURTHER JUSTIFICATION
@@ -852,14 +852,14 @@ policies:
       # - `/var/log/audit`: Audit logs
       # Because the mounts are dynamically created for defenders at runtime, we cannot
       # anticipate all of the paths it may mount and must exclude it from the policy
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       - resources:
           namespaces:
           - twistlock
           names:
           - twistlock-defender-ds*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector mounts the following hostPaths as writeable:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       - resources:
@@ -870,10 +870,10 @@ policies:
           - neuvector-enforcer-pod*
       {{- end }}
     {{- end }}
-    {{- if or .Values.fluentbit.enabled .Values.promtail.enabled }}
+    {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.promtail.enabled }}
     parameters:
       allow:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       # FluentBit - `/var/log/flb-storage`: fluent bit buffering and persistent state
       - /var/log/flb-storage/
       # FluentBit - `/var/log`
@@ -881,7 +881,7 @@ policies:
       # Temporarily added so policy could be enforced
       - /var/log
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       # Promtail - `/run/promtail`: promtail buffering and persistent state
       - /run/promtail
       {{- end }}
@@ -894,11 +894,11 @@ policies:
       - registry1.dso.mil
       - registry.dso.mil
 
-  {{- if or .Values.fluentbit.enabled .Values.promtail.enabled .Values.twistlock.enabled }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.twistlock.enabled }}
   restrict-selinux-type:
     exclude:
       any:
-      {{- if .Values.fluentbit.enabled }}
+      {{- if .Values.packages.addons.fluentbit.enabled }}
       - resources:
           namespaces:
           - fluentbit
@@ -907,7 +907,7 @@ policies:
           # FluentBit needs selinux option type spc_t
           - fluentbit-fluent-bit*
       {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       - resources:
           namespaces:
           - promtail
@@ -916,7 +916,7 @@ policies:
           # Promtail needs selinux option type spc_t
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # NEEDS FURTHER JUSTIFICATION
       # Twistlock Defenders need selinux option type spc_t
       - resources:
@@ -942,11 +942,11 @@ policies:
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
+  {{- if or .Values.packages.addons.fluentbit.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.promtail.enabled .Values.packages.addons.twistlock.enabled .Values.packages.addons.neuvector.enabled .Values.packages.addons.alloy.enabled $deployNodeAgent }}
   restrict-volume-types:
     exclude:
       any:
-      {{- if or .Values.fluentbit.enabled }}
+      {{- if or .Values.packages.addons.fluentbit.enabled }}
       - resources:
           namespaces:
           - fluentbit
@@ -955,7 +955,7 @@ policies:
           # https://docs.fluentbit.io/manual/pipeline/filters/kubernetes#workflow-of-tail-+-kubernetes-filter
           - fluentbit-fluent-bit*
           {{- end }}
-      {{- if .Values.promtail.enabled }}
+      {{- if .Values.packages.addons.promtail.enabled }}
       - resources:
           namespaces:
           - promtail
@@ -965,7 +965,7 @@ policies:
           # https://github.com/grafana/helm-charts/blob/main/charts/promtail/templates/daemonset.yaml#L120
           - promtail-promtail*
       {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       # Prometheus node exporter requires a HostPath volume to monitor host metrics in /proc and /sys
       - resources:
           namespaces:
@@ -973,7 +973,7 @@ policies:
           names:
           - monitoring-monitoring-prometheus-node-exporter*
       {{- end }}
-      {{- if .Values.twistlock.enabled }}
+      {{- if .Values.packages.addons.twistlock.enabled }}
       # Twistlock requires access to node logs, syslog, and docker daemon for defense monitoring
       # https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/audit/logging.html
       - resources:
@@ -982,7 +982,7 @@ policies:
           names:
           - twistlock-defender-ds*
       {{- end }}
-      {{- if .Values.neuvector.enabled }}
+      {{- if .Values.packages.addons.neuvector.enabled }}
       # Neuvector requires HostPath volume types
         # Neuvector mounts the following hostPaths:
         # `/var/neuvector`: (as writable) for Neuvector's buffering and persistent state
@@ -997,7 +997,7 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.packages.addons.alloy.enabled }}
       # Alloy mounts the following hostPaths:
       # - `/var/log`: to tail node logs (e.g. journal) and pod logs
       # - `/var/lib/docker/containers`: to tail container logs
@@ -1276,7 +1276,7 @@ istio:
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
   {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
-  {{- $overlays := dig "values" dict .Values.kyvernoPolicies -}}
+  {{- $overlays := dig "values" dict .Values.packages.core.kyvernoPolicies -}}
 
   {{- /* Global merge for exclude fields */ -}}
   {{- if and (dig "exclude" "any" list $defaults) (dig "exclude" "any" list $overlays) -}}

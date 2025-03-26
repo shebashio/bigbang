@@ -1,29 +1,29 @@
 {{- /* Create secret */ -}}
-{{- if .Values.addons.alloy.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.alloy "name" "alloy" "defaults" (include "bigbang.defaults.alloy" .)) }}
+{{- if .Values.packages.addons.alloy.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.alloy "name" "alloy" "defaults" (include "bigbang.defaults.alloy" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.alloy.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.mimir.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.alloy.values)
     }}
 
 {{- end }}

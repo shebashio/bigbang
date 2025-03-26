@@ -1,5 +1,5 @@
-{{- if .Values.istio.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.istio "name" "istio" "defaults" (include "bigbang.defaults.istio" .)) }}
+{{- if .Values.packages.core.istio.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.core.istio "name" "istio" "defaults" (include "bigbang.defaults.istio" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.istio" -}}
@@ -8,9 +8,9 @@
 domain: {{ $domainName }}
 
 mtls:
-  mode: {{ .Values.istio.mtls.mode }}
+  mode: {{ .Values.packages.core.istio.mtls.mode }}
 
-enterprise: {{ .Values.istio.enterprise }}
+enterprise: {{ .Values.packages.core.istio.enterprise }}
 
 istiod:
 {{- if not (semverCompare "<1.19" .Capabilities.KubeVersion.GitVersion) }}
@@ -37,19 +37,19 @@ istiod:
           targetAverageUtilization: 60
 {{- end }}
 
-{{- if or .Values.jaeger.enabled .Values.tempo.enabled }}
+{{- if or .Values.packages.addons.jaeger.enabled .Values.packages.addons.tempo.enabled }}
 tracing:
-{{- if .Values.jaeger.enabled }}
-  enabled: {{ .Values.jaeger.enabled }}
-{{- else if .Values.tempo.enabled }}
-  enabled:  {{ .Values.tempo.enabled }}
+{{- if .Values.packages.addons.jaeger.enabled }}
+  enabled: {{ .Values.packages.addons.jaeger.enabled }}
+{{- else if .Values.packages.addons.tempo.enabled }}
+  enabled:  {{ .Values.packages.addons.tempo.enabled }}
   address: 'tempo-tempo.tempo.svc'
   sampling: 100
   max_path_tag_length: 99999
 {{- end }}
 {{- end }}
 
-{{- if .Values.tempo.enabled }}
+{{- if .Values.packages.addons.tempo.enabled }}
 meshConfig:
   accessLogFormat: |
     [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS% %RESPONSE_CODE_DETAILS% %CONNECTION_TERMINATION_DETAILS% "%UPSTREAM_TRANSPORT_FAILURE_REASON%" %BYTES_RECEIVED% %BYTES_SENT% %DURATION% %RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)% "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%" %UPSTREAM_CLUSTER% %UPSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_REMOTE_ADDRESS% %REQUESTED_SERVER_NAME% %ROUTE_NAME% traceID=%REQ(x-b3-traceid)%
@@ -61,13 +61,13 @@ imagePullSecrets:
 openshift: {{ .Values.openshift }}
 
 authservice:
-  enabled: {{ or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.jaeger.enabled .Values.jaeger.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled) }}
+  enabled: {{ or .Values.packages.addons.authservice.enabled (and .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled) (and .Values.packages.addons.jaeger.enabled .Values.packages.addons.jaeger.sso.enabled) (and .Values.packages.addons.tempo.enabled .Values.packages.addons.tempo.sso.enabled) }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 kiali:
-  enabled: {{ .Values.kiali.enabled }}
+  enabled: {{ .Values.packages.addons.kiali.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -81,13 +81,13 @@ values:
     jwksResolverExtraRootCA: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
 {{- end }}
 
-{{- if .Values.istio.ingressGateways }}
+{{- if .Values.packages.core.istio.ingressGateways }}
 ingressGateways:
   istio-ingressgateway:
     enabled: false
 {{- end }}
 
-{{- range $name, $values := .Values.istio.ingressGateways }}
+{{- range $name, $values := .Values.packages.core.istio.ingressGateways }}
   {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
     {{- toYaml (merge (dict "k8s" $values.kubernetesResourceSpec) (dict "k8s" $values.k8s) (fromYaml (include "istio.ingressgateway.k8s" $values))) | nindent 4 }}
@@ -97,11 +97,11 @@ ingressGateways:
   {{- end }}
 {{- end }}
 
-{{- if .Values.istio.gateways }}
+{{- if .Values.packages.core.istio.gateways }}
 gateways:
   main: null
 {{- end }}
-{{- range $name, $values := .Values.istio.gateways }}
+{{- range $name, $values := .Values.packages.core.istio.gateways }}
   {{ if ne $values.enabled false }}
   {{ $name | nindent 2 }}:
     selector:

@@ -1,5 +1,5 @@
-{{- if .Values.addons.anchore.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.anchore "name" "anchore" "defaults" (include "bigbang.defaults.anchore" .)) }}
+{{- if .Values.packages.addons.anchore.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.anchore "name" "anchore" "defaults" (include "bigbang.defaults.anchore" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.anchore" -}}
@@ -13,21 +13,21 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.anchore.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.anchore.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
+  injection: {{ ternary "enabled" "disabled" (and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.addons.anchore) "enabled")) }}
   ui:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.anchore.ingress.gateway }}
+      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.anchore.ingress.gateway }}
   api:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.anchore.ingress.gateway }}
+      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.anchore.ingress.gateway }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
-  {{- if and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
-  {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchore) "STRICT") }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
+  {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.addons.anchore) "enabled") }}
+  {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.packages.addons.anchore) "STRICT") }}
   serviceMonitor:
     scheme: "https"
     tlsConfig:
@@ -43,22 +43,22 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.anchore.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.anchore.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
-{{- if .Values.addons.anchore.enterprise.licenseYaml }}
+{{- if .Values.packages.addons.anchore.enterprise.licenseYaml }}
 enterpriseLicenseYaml: |
-  {{ .Values.addons.anchore.enterprise.licenseYaml | nindent 2 }}
+  {{ .Values.packages.addons.anchore.enterprise.licenseYaml | nindent 2 }}
 {{- end }}
 
 sso:
-  enabled: {{ .Values.addons.anchore.sso.enabled }}
-  spEntityId: {{ .Values.addons.anchore.sso.client_id }}
-  {{- $anchoreUrl := first (dig "istio" "ui" "hosts" list .Values.addons.anchore.values) }}
+  enabled: {{ .Values.packages.addons.anchore.sso.enabled }}
+  spEntityId: {{ .Values.packages.addons.anchore.sso.client_id }}
+  {{- $anchoreUrl := first (dig "istio" "ui" "hosts" list .Values.packages.addons.anchore.values) }}
   acsUrl: https://{{ tpl ($anchoreUrl | default (printf "%s.%s" "anchore" $domainName)) . }}/service/sso/auth/keycloak
   idpMetadataUrl: "{{ include "sso.saml.descriptor" . }}"
-  roleAttribute: {{ .Values.addons.anchore.sso.role_attribute }}
+  roleAttribute: {{ .Values.packages.addons.anchore.sso.role_attribute }}
 
 global:
   imagePullSecretName: private-registry
@@ -66,42 +66,42 @@ global:
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 postgresql:
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end}}
   imagePullSecrets: private-registry
-  {{- if and .Values.addons.anchore.database.host .Values.addons.anchore.database.port .Values.addons.anchore.database.username .Values.addons.anchore.database.password .Values.addons.anchore.database.database }}
+  {{- if and .Values.packages.addons.anchore.database.host .Values.packages.addons.anchore.database.port .Values.packages.addons.anchore.database.username .Values.packages.addons.anchore.database.password .Values.packages.addons.anchore.database.database }}
   enabled: false
-  postgresUser: {{ .Values.addons.anchore.database.username }}
-  postgresPassword: {{ .Values.addons.anchore.database.password }}
-  postgresDatabase: {{ .Values.addons.anchore.database.database }}
-  externalEndpoint: "{{ .Values.addons.anchore.database.host }}"
-  postgresPort: {{ .Values.addons.anchore.database.port }}
+  postgresUser: {{ .Values.packages.addons.anchore.database.username }}
+  postgresPassword: {{ .Values.packages.addons.anchore.database.password }}
+  postgresDatabase: {{ .Values.packages.addons.anchore.database.database }}
+  externalEndpoint: "{{ .Values.packages.addons.anchore.database.host }}"
+  postgresPort: {{ .Values.packages.addons.anchore.database.port }}
   {{- end }}
-{{- if .Values.addons.anchore.adminPassword }}
+{{- if .Values.packages.addons.anchore.adminPassword }}
 anchoreConfig:
-  default_admin_password: {{ .Values.addons.anchore.adminPassword }}
+  default_admin_password: {{ .Values.packages.addons.anchore.adminPassword }}
 {{- end }}
 
 feeds:
   istio:
-    enabled: {{ .Values.istio.enabled }}
-    injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
+    enabled: {{ .Values.packages.core.istio.enabled }}
+    injection: {{ ternary "enabled" "disabled" (and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.addons.anchore) "enabled")) }}
 
   feeds-db:
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
     imagePullSecrets: private-registry
-    {{- if and .Values.addons.anchore.database.host .Values.addons.anchore.database.port .Values.addons.anchore.database.username .Values.addons.anchore.database.password .Values.addons.anchore.database.feeds_database }}
+    {{- if and .Values.packages.addons.anchore.database.host .Values.packages.addons.anchore.database.port .Values.packages.addons.anchore.database.username .Values.packages.addons.anchore.database.password .Values.packages.addons.anchore.database.feeds_database }}
     enabled: false
-    postgresUser: {{ .Values.addons.anchore.database.username }}
-    postgresPassword: {{ .Values.addons.anchore.database.password }}
-    postgresDatabase: {{ .Values.addons.anchore.database.feeds_database }}
-    externalEndpoint: "{{ .Values.addons.anchore.database.host }}"
-    postgresPort: {{ .Values.addons.anchore.database.port }}
+    postgresUser: {{ .Values.packages.addons.anchore.database.username }}
+    postgresPassword: {{ .Values.packages.addons.anchore.database.password }}
+    postgresDatabase: {{ .Values.packages.addons.anchore.database.feeds_database }}
+    externalEndpoint: "{{ .Values.packages.addons.anchore.database.host }}"
+    postgresPort: {{ .Values.packages.addons.anchore.database.port }}
     {{- end }}
 
 ui:
@@ -109,13 +109,13 @@ ui:
   imagePullSecretName: private-registry
 
 ui-redis:
-  {{- if and .Values.addons.anchore.redis.host .Values.addons.anchore.redis.port .Values.addons.anchore.redis.password }}
+  {{- if and .Values.packages.addons.anchore.redis.host .Values.packages.addons.anchore.redis.port .Values.packages.addons.anchore.redis.password }}
   enabled: false
-  externalEndpoint: "redis://{{ .Values.addons.anchore.redis.username | default "nouser" }}:{{ .Values.addons.anchore.redis.password }}@{{ .Values.addons.anchore.redis.host }}:{{ .Values.addons.anchore.redis.port }}"
+  externalEndpoint: "redis://{{ .Values.packages.addons.anchore.redis.username | default "nouser" }}:{{ .Values.packages.addons.anchore.redis.password }}@{{ .Values.packages.addons.anchore.redis.host }}:{{ .Values.packages.addons.anchore.redis.port }}"
   auth:
-    password: {{ .Values.addons.anchore.redis.password }}
+    password: {{ .Values.packages.addons.anchore.redis.password }}
   {{- end }}
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   master:
     podAnnotations:
       {{ include "istioAnnotation" . }}
@@ -126,7 +126,7 @@ ui-redis:
   image:
     pullSecrets:
       - private-registry
-  {{- if and .Values.monitoring.enabled (not (and .Values.addons.anchore.redis.host .Values.addons.anchore.redis.port .Values.addons.anchore.redis.password)) }}
+  {{- if and .Values.packages.addons.monitoring.enabled (not (and .Values.packages.addons.anchore.redis.host .Values.packages.addons.anchore.redis.port .Values.packages.addons.anchore.redis.password)) }}
   metrics:
     enabled: true
     image:
@@ -138,8 +138,8 @@ ui-redis:
       selector:
         app.kubernetes.io/name: anchore-ui-redis
         app.kubernetes.io/instance: anchore
-      {{- if and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
-      {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchore) "STRICT") }}
+      {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.addons.anchore) "enabled") }}
+      {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.packages.addons.anchore) "STRICT") }}
       scheme: "https"
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem

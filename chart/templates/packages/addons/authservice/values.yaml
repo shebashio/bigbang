@@ -1,25 +1,25 @@
-{{- if and (include "istioEnabled" .) (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.jaeger.enabled .Values.jaeger.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled) (and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled) (and .Values.addons.holocron.enabled .Values.addons.holocron.sso.enabled)) }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.authservice "name" "authservice" "defaults" (include "bigbang.defaults.authservice" .)) }}
+{{- if and (include "istioEnabled" .) (or .Values.packages.addons.authservice.enabled (and .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled) (and .Values.packages.addons.jaeger.enabled .Values.packages.addons.jaeger.sso.enabled) (and .Values.packages.addons.tempo.enabled .Values.packages.addons.tempo.sso.enabled) (and .Values.packages.addons.thanos.enabled .Values.packages.addons.thanos.sso.enabled) (and .Values.packages.addons.holocron.enabled .Values.packages.addons.holocron.sso.enabled)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.authservice "name" "authservice" "defaults" (include "bigbang.defaults.authservice" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.authservice" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $authServiceHardened := or
-    (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-    (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-    (dig "hardened" "enabled" false .Values.istio.values)
-    (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-    (dig "istio" "hardened" "enabled" false .Values.loki.values)
-    (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-    (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+    (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+    (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
 }}
 
 istio:
   enabled: {{ (include "istioEnabled" .) | default false }}
   hardened:
     enabled: {{ $authServiceHardened }}
-  clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istio.values }}
+  clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.packages.core.istio.values }}
 
 image: 
   pullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
@@ -33,27 +33,27 @@ podAnnotations:
 openshift: {{ .Values.openshift | default false }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled | default false }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled | default false }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled | default false }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.haproxy.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.proxy.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
-{{- if or (dig "redis" "enabled" false .Values.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.addons.authservice.values) }}
+{{- if or (dig "redis" "enabled" false .Values.packages.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.packages.addons.authservice.values) }}
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 3
 {{- end }}
 
-{{- if and (dig "redis" "enabled" false .Values.addons.authservice.values) (or .Values.monitoring.enabled .Values.kiali.enabled) }}
+{{- if and (dig "redis" "enabled" false .Values.packages.addons.authservice.values) (or .Values.packages.addons.monitoring.enabled .Values.packages.addons.kiali.enabled) }}
 redis-bb:
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   metrics:
     enabled: true 
     image:
@@ -65,7 +65,7 @@ redis-bb:
       selector: 
         app.kubernetes.io/name: redis-bb
         app.kubernetes.io/instance: authservice-authservice
-      {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.authservice.values) "STRICT") }}
+      {{- if and (include "istioEnabled" .) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.authservice.values) "STRICT") }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -95,12 +95,12 @@ global:
   jwks: {{ default (dig "oidc" "jwks" "" .Values.sso) .Values.sso.jwks | quote }}
   {{- end }}
 
-  {{- if or .Values.sso.client_id (dig "sso" "client_id" false .Values.addons.authservice) }}
-  client_id: {{ default (dig "sso" "client_id" "" .Values.addons.authservice) .Values.sso.client_id }}
+  {{- if or .Values.sso.client_id (dig "sso" "client_id" false .Values.packages.addons.authservice) }}
+  client_id: {{ default (dig "sso" "client_id" "" .Values.packages.addons.authservice) .Values.sso.client_id }}
   {{- end }}
 
-  {{- if or .Values.sso.client_secret (dig "sso" "client_secret" false .Values.addons.authservice) }}
-  client_secret: {{ default (dig "sso" "client_secret" "" .Values.addons.authservice) .Values.sso.client_secret }}
+  {{- if or .Values.sso.client_secret (dig "sso" "client_secret" false .Values.packages.addons.authservice) }}
+  client_secret: {{ default (dig "sso" "client_secret" "" .Values.packages.addons.authservice) .Values.sso.client_secret }}
   {{- end }}
 
   {{- if (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
@@ -113,7 +113,7 @@ global:
   logout_redirect_uri: {{ include "sso.oidc.endsession" . }}
   {{- end }}
 
-  {{- $authserviceValues := .Values.addons.authservice.values | default dict }}
+  {{- $authserviceValues := .Values.packages.addons.authservice.values | default dict }}
   {{- $redisValues := $authserviceValues.redis | default dict }}
   {{- if hasKey $redisValues "enabled" }}
   {{- if $redisValues.enabled }}
@@ -122,15 +122,15 @@ global:
   {{- end }}
 
 chains:
-  {{- if .Values.addons.authservice.chains }}
-  {{ .Values.addons.authservice.chains | toYaml | nindent 2 }}
+  {{- if .Values.packages.addons.authservice.chains }}
+  {{ .Values.packages.addons.authservice.chains | toYaml | nindent 2 }}
   {{- end }}
 
-  {{- if and .Values.jaeger.enabled .Values.jaeger.sso.enabled }}
+  {{- if and .Values.packages.addons.jaeger.enabled .Values.packages.addons.jaeger.sso.enabled }}
   jaeger:
     match:
       header: ":authority"
-    {{- $jaegerHosts := (dig "istio" "jaeger" "hosts" dict .Values.jaeger.values) }}
+    {{- $jaegerHosts := (dig "istio" "jaeger" "hosts" dict .Values.packages.addons.jaeger.values) }}
     {{- if $jaegerHosts }}
       prefix: {{ tpl ($jaegerHosts | first) $ }}
     callback_uri: https://{{ tpl ($jaegerHosts | first) $ }}/login
@@ -138,8 +138,8 @@ chains:
       prefix: {{ printf "tracing.%s" $domainName }}
     callback_uri: https://tracing.{{ $domainName }}/login
     {{- end }}
-    client_id: "{{ .Values.jaeger.sso.client_id }}"
-    client_secret: "{{ .Values.jaeger.sso.client_secret }}"
+    client_id: "{{ .Values.packages.addons.jaeger.sso.client_id }}"
+    client_secret: "{{ .Values.packages.addons.jaeger.sso.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -147,11 +147,11 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if and .Values.addons.holocron.enabled .Values.addons.holocron.sso.enabled }}
+  {{- if and .Values.packages.addons.holocron.enabled .Values.packages.addons.holocron.sso.enabled }}
   holocron:
     match:
       header: ":authority"
-    {{- $holocronHosts := (dig "istio" "holocron" "hosts" dict .Values.addons.holocron.values) }}
+    {{- $holocronHosts := (dig "istio" "holocron" "hosts" dict .Values.packages.addons.holocron.values) }}
     {{- if $holocronHosts }}
       prefix: {{ tpl ($holocronHosts | first) $ }}
     callback_uri: https://{{ tpl ($holocronHosts | first) $ }}/login
@@ -159,8 +159,8 @@ chains:
       prefix: {{ printf "holocron.%s" $domainName }}
     callback_uri: https://holocron.{{ $domainName }}/login
     {{- end }}
-    client_id: "{{ .Values.addons.holocron.sso.client_id }}"
-    client_secret: "{{ .Values.addons.holocron.sso.client_secret }}"
+    client_id: "{{ .Values.packages.addons.holocron.sso.client_id }}"
+    client_secret: "{{ .Values.packages.addons.holocron.sso.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -168,11 +168,11 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled }}
+  {{- if and .Values.packages.addons.thanos.enabled .Values.packages.addons.thanos.sso.enabled }}
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.addons.thanos.values) }}
+    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.packages.addons.thanos.values) }}
     {{- if $thanosHosts }}
       prefix: {{ tpl ($thanosHosts | first) $ }}
     callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
@@ -180,8 +180,8 @@ chains:
       prefix: {{ printf "thanos.%s" $domainName }}
     callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: "{{ .Values.addons.thanos.sso.client_id }}"
-    client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
+    client_id: "{{ .Values.packages.addons.thanos.sso.client_id }}"
+    client_secret: "{{ .Values.packages.addons.thanos.sso.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -189,11 +189,11 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if and .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
+  {{- if and .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled }}
   prometheus:
     match:
       header: ":authority"
-    {{- $prometheusHosts := (dig "istio" "prometheus" "hosts" dict .Values.monitoring.values) }}
+    {{- $prometheusHosts := (dig "istio" "prometheus" "hosts" dict .Values.packages.addons.monitoring.values) }}
     {{- if $prometheusHosts }}
       prefix: {{ tpl ($prometheusHosts | first) $ }}
     callback_uri: https://{{ tpl ($prometheusHosts | first) $ }}/login/generic_oauth
@@ -201,8 +201,8 @@ chains:
       prefix: {{ printf "prometheus.%s" $domainName }}
     callback_uri: https://prometheus.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: {{ .Values.monitoring.sso.prometheus.client_id }}
-    client_secret: "{{ .Values.monitoring.sso.prometheus.client_secret }}"
+    client_id: {{ .Values.packages.addons.monitoring.sso.prometheus.client_id }}
+    client_secret: "{{ .Values.packages.addons.monitoring.sso.prometheus.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -212,7 +212,7 @@ chains:
   alertmanager:
     match:
       header: ":authority"
-    {{- $alertmanagerHosts := (dig "istio" "alertmanager" "hosts" dict .Values.monitoring.values) }}
+    {{- $alertmanagerHosts := (dig "istio" "alertmanager" "hosts" dict .Values.packages.addons.monitoring.values) }}
     {{- if $alertmanagerHosts }}
       prefix: {{ tpl ($alertmanagerHosts | first) $ }}
     callback_uri: https://{{ tpl ($alertmanagerHosts | first) $ }}/login/generic_oauth
@@ -220,8 +220,8 @@ chains:
       prefix: {{ printf "alertmanager.%s" $domainName }}
     callback_uri: https://alertmanager.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: {{ .Values.monitoring.sso.alertmanager.client_id }}
-    client_secret: "{{ .Values.monitoring.sso.alertmanager.client_secret }}"
+    client_id: {{ .Values.packages.addons.monitoring.sso.alertmanager.client_id }}
+    client_secret: "{{ .Values.packages.addons.monitoring.sso.alertmanager.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}

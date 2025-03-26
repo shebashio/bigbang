@@ -1,4 +1,4 @@
-{{- if .Values.grafana.enabled }}
+{{- if .Values.packages.addons.grafana.enabled }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.grafana" .))) "name" "grafana" "defaults" (include "bigbang.defaults.grafana" .)) }}
 {{- end }}
 
@@ -8,10 +8,10 @@
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
-{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled")) }}
-{{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
-{{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
-{{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
+{{- $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.grafana) "enabled")) }}
+{{- $gitlabRedis := (and (ne .Values.packages.addons.gitlab.redis.password "" ) (or .Values.packages.addons.gitlab.enabled .Values.packages.addons.gitlabRunner.enabled)) }}
+{{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.packages.addons.authservice) .Values.packages.addons.authservice.enabled) }}
+{{- $redisDatasource := (or $gitlabRedis .Values.packages.addons.argocd.enabled $authserviceRedisEnabled) }}
 
 flux:
   enabled: true
@@ -22,48 +22,48 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.grafana.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.grafana.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 openshift: {{ .Values.openshift }}
 
 minioOperator:
-  enabled: {{ .Values.addons.minioOperator.enabled }}
+  enabled: {{ .Values.packages.addons.minioOperator.enabled }}
 
 gitlabRunner:
-  enabled: {{ .Values.addons.gitlabRunner.enabled }}
+  enabled: {{ .Values.packages.addons.gitlabRunner.enabled }}
 
 istio:
-  {{- $grafanaInjection := dig "istio" "injection" "enabled" .Values.grafana }}
+  {{- $grafanaInjection := dig "istio" "injection" "enabled" .Values.packages.addons.grafana }}
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
     }}
   grafana:
     enabled: true
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.grafana.ingress.gateway }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.grafana }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.grafana.ingress.gateway }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.grafana }}
 
 anchore:
-  enabled: {{ .Values.addons.anchore.enabled }}
+  enabled: {{ .Values.packages.addons.anchore.enabled }}
 
 kiali:
-  enabled: {{ .Values.kiali.enabled }}
+  enabled: {{ .Values.packages.addons.kiali.enabled }}
 
 loki:
-  enabled: {{ .Values.loki.enabled }}
+  enabled: {{ .Values.packages.addons.loki.enabled }}
 
 tempo:
-  enabled: {{ .Values.tempo.enabled }}
+  enabled: {{ .Values.packages.addons.tempo.enabled }}
 
 {{- if or $gitlabRedis $authserviceRedisEnabled $redisDatasource }}
 redis:
@@ -71,17 +71,17 @@ redis:
 {{- end }}
 
 vault:
-  enabled: {{ .Values.addons.vault.enabled }}
-  tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
+  enabled: {{ .Values.packages.addons.vault.enabled }}
+  tlsDisable: {{ dig "global" "tlsDisable" true .Values.packages.addons.vault.values }}
 
 sso:
-  enabled: {{ or .Values.grafana.sso.enabled .Values.grafana.sso.enabled }}
+  enabled: {{ or .Values.packages.addons.grafana.sso.enabled .Values.packages.addons.grafana.sso.enabled }}
 
 {{- if $gitlabRedis }}
 envFromSecret: grafana-env-secret
 {{- end }}
 
-{{- if .Values.tempo.enabled }}
+{{- if .Values.packages.addons.tempo.enabled }}
 env:
   GF_FEATURE_TOGGLES_ENABLE: "traceqlEditor tempoSearch tempoServiceGraph"
 {{- end }}
@@ -97,16 +97,16 @@ sidecar:
 podAnnotations:
   {{ include "istioAnnotation" . }}
   {{- if $gitlabRedis }}
-  checksum/gitlabRedisPassword: {{ sha256sum .Values.addons.gitlab.redis.password }}
+  checksum/gitlabRedisPassword: {{ sha256sum .Values.packages.addons.gitlab.redis.password }}
   {{- end }}
 {{- end }}
 
-{{- if or .Values.monitoring.enabled .Values.loki.enabled .Values.tempo.enabled $gitlabRedis $authserviceRedisEnabled .Values.addons.argocd.enabled }}
+{{- if or .Values.packages.addons.monitoring.enabled .Values.packages.addons.loki.enabled .Values.packages.addons.tempo.enabled $gitlabRedis $authserviceRedisEnabled .Values.packages.addons.argocd.enabled }}
 datasources:
   datasourcesbb.yaml:
     apiVersion: 1
     datasources:
-    {{- if .Values.addons.mimir.enabled }}
+    {{- if .Values.packages.addons.mimir.enabled }}
     - name: Mimir
       type: prometheus
       uid: mimir
@@ -114,8 +114,8 @@ datasources:
       url: http://mimir-mimir-gateway.mimir.svc.cluster.local/prometheus
       editable: true
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
-    {{- if .Values.addons.thanos.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
+    {{- if .Values.packages.addons.thanos.enabled }}
     - name: Thanos
       type: prometheus
       uid: prometheus
@@ -131,7 +131,7 @@ datasources:
       editable: true
     {{- end }}
     {{- end }}
-    {{- if .Values.addons.argocd.enabled }}
+    {{- if .Values.packages.addons.argocd.enabled }}
     - name: Argo Master
       type: redis-datasource
       access: proxy
@@ -181,10 +181,10 @@ datasources:
       secureJsonData:
         password: $GITLAB_REDIS_PASSWORD
     {{- end }}
-    {{- if .Values.loki.enabled }}
+    {{- if .Values.packages.addons.loki.enabled }}
     - name: Loki
       type: loki
-      {{- if eq .Values.loki.strategy "monolith" }}
+      {{- if eq .Values.packages.addons.loki.strategy "monolith" }}
       url: http://logging-loki.logging.svc.cluster.local:3100
       {{- else }}
       url: http://logging-loki-gateway.logging.svc.cluster.local
@@ -192,7 +192,7 @@ datasources:
       access: proxy
       editable: true
     {{- end }}
-    {{- if and .Values.loki.enabled .Values.tempo.enabled }}
+    {{- if and .Values.packages.addons.loki.enabled .Values.packages.addons.tempo.enabled }}
       jsonData:
         derivedFields:
           - datasourceName: Tempo
@@ -201,7 +201,7 @@ datasources:
             url: "$${__value.raw}"
             datasourceUid: tempo
     {{- end }}
-    {{- if .Values.tempo.enabled }}
+    {{- if .Values.packages.addons.tempo.enabled }}
     - name: Tempo
       type: tempo
       access: proxy
@@ -215,7 +215,7 @@ datasources:
         serviceMap:
           datasourceUid: 'prometheus'
     {{- end }}
-    {{- if and .Values.loki.enabled .Values.tempo.enabled }}
+    {{- if and .Values.packages.addons.loki.enabled .Values.packages.addons.tempo.enabled }}
       jsonData:
         httpMethod: GET
         tracesToLogs:
@@ -245,39 +245,39 @@ grafana.ini:
   {{- end }}
 
   auth.generic_oauth:
-    enabled: {{ or .Values.grafana.sso.enabled (and (dig "grafana" "client_id" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
+    enabled: {{ or .Values.packages.addons.grafana.sso.enabled (and (dig "grafana" "client_id" false .Values.packages.addons.monitoring.sso) .Values.packages.addons.monitoring.sso.enabled) }}
     {{- if .Values.sso.name }}
     name: {{ .Values.sso.name }}
     {{- end }}
-    {{- if or (and .Values.grafana.sso.enabled .Values.grafana.sso.grafana.client_id) (and (dig "grafana" "client_id" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
+    {{- if or (and .Values.packages.addons.grafana.sso.enabled .Values.packages.addons.grafana.sso.grafana.client_id) (and (dig "grafana" "client_id" false .Values.packages.addons.monitoring.sso) .Values.packages.addons.monitoring.sso.enabled) }}
     client_id: $__file{/etc/secrets/auth_generic_oauth/client_id}
     {{- end }}
-    {{- if or (and .Values.grafana.sso.enabled .Values.grafana.sso.grafana.client_secret) (and (dig "grafana" "client_secret" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
+    {{- if or (and .Values.packages.addons.grafana.sso.enabled .Values.packages.addons.grafana.sso.grafana.client_secret) (and (dig "grafana" "client_secret" false .Values.packages.addons.monitoring.sso) .Values.packages.addons.monitoring.sso.enabled) }}
     client_secret: $__file{/etc/secrets/auth_generic_oauth/client_secret}
     {{- end }}
-    {{- if (and (dig "grafana" "client_id" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
-    scopes: {{ ( dig "grafana" "scopes" false .Values.monitoring.sso) | default "openid profile email" }}
-    auth_url: {{ default (include "sso.oidc.auth" .) (dig "grafana" "auth_url" false .Values.monitoring.sso) }}
-    token_url: {{ default (include "sso.oidc.token" .) (dig "grafana" "token_url" false .Values.monitoring.sso) }}
-    api_url: {{ default (include "sso.oidc.userinfo" .) (dig "grafana" "api_url" false .Values.monitoring.sso) }}
-    allow_sign_up: {{ (dig "grafana" "allow_sign_up" false .Values.monitoring.sso) | default "True" }}
-    role_attribute_path: {{ (dig "grafana" "role_attribute_path" false .Values.monitoring.sso) | default "Viewer" }}
-    {{- else if .Values.grafana.sso.enabled }}
-    scopes: {{ .Values.grafana.sso.grafana.scopes | default "openid profile email" }}
-    auth_url: {{ default (include "sso.oidc.auth" .) .Values.grafana.sso.grafana.auth_url }}
-    token_url: {{ default (include "sso.oidc.token" .) .Values.grafana.sso.grafana.token_url }}
-    api_url: {{ default (include "sso.oidc.userinfo" .) .Values.grafana.sso.grafana.api_url }}
-    allow_sign_up: {{ .Values.grafana.sso.grafana.allow_sign_up | default "True" }}
-    role_attribute_path: {{ .Values.grafana.sso.grafana.role_attribute_path | default "Viewer" }}
+    {{- if (and (dig "grafana" "client_id" false .Values.packages.addons.monitoring.sso) .Values.packages.addons.monitoring.sso.enabled) }}
+    scopes: {{ ( dig "grafana" "scopes" false .Values.packages.addons.monitoring.sso) | default "openid profile email" }}
+    auth_url: {{ default (include "sso.oidc.auth" .) (dig "grafana" "auth_url" false .Values.packages.addons.monitoring.sso) }}
+    token_url: {{ default (include "sso.oidc.token" .) (dig "grafana" "token_url" false .Values.packages.addons.monitoring.sso) }}
+    api_url: {{ default (include "sso.oidc.userinfo" .) (dig "grafana" "api_url" false .Values.packages.addons.monitoring.sso) }}
+    allow_sign_up: {{ (dig "grafana" "allow_sign_up" false .Values.packages.addons.monitoring.sso) | default "True" }}
+    role_attribute_path: {{ (dig "grafana" "role_attribute_path" false .Values.packages.addons.monitoring.sso) | default "Viewer" }}
+    {{- else if .Values.packages.addons.grafana.sso.enabled }}
+    scopes: {{ .Values.packages.addons.grafana.sso.grafana.scopes | default "openid profile email" }}
+    auth_url: {{ default (include "sso.oidc.auth" .) .Values.packages.addons.grafana.sso.grafana.auth_url }}
+    token_url: {{ default (include "sso.oidc.token" .) .Values.packages.addons.grafana.sso.grafana.token_url }}
+    api_url: {{ default (include "sso.oidc.userinfo" .) .Values.packages.addons.grafana.sso.grafana.api_url }}
+    allow_sign_up: {{ .Values.packages.addons.grafana.sso.grafana.allow_sign_up | default "True" }}
+    role_attribute_path: {{ .Values.packages.addons.grafana.sso.grafana.role_attribute_path | default "Viewer" }}
     {{- end }}
-  {{- with .Values.grafana.sso.grafana }}
+  {{- with .Values.packages.addons.grafana.sso.grafana }}
     {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_client_cert" .tls_client_cert | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
   {{- end }}
-  {{- with .Values.monitoring.sso.grafana }}
+  {{- with .Values.packages.addons.monitoring.sso.grafana }}
     {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
     {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
@@ -285,16 +285,16 @@ grafana.ini:
     {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
   {{- end }}
 
-{{- if or (or .Values.grafana.sso.grafana.client_id (dig "grafana" "client_id" false .Values.monitoring.sso)) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+{{- if or (or .Values.packages.addons.grafana.sso.grafana.client_id (dig "grafana" "client_id" false .Values.packages.addons.monitoring.sso)) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
 extraSecretMounts:
-  {{- if or (and .Values.grafana.sso.enabled .Values.grafana.sso.grafana.client_id) (and (dig "grafana" "client_id" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
+  {{- if or (and .Values.packages.addons.grafana.sso.enabled .Values.packages.addons.grafana.sso.grafana.client_id) (and (dig "grafana" "client_id" false .Values.packages.addons.monitoring.sso) .Values.packages.addons.monitoring.sso.enabled) }}
   - name: auth-generic-oauth-secret
     mountPath: /etc/secrets/auth_generic_oauth
     secretName: grafana-sso
     defaultMode: 0440    
     readOnly: true
   {{- end }}
-  {{- if and (or .Values.grafana.sso.enabled .Values.monitoring.sso.enabled) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+  {{- if and (or .Values.packages.addons.grafana.sso.enabled .Values.packages.addons.monitoring.sso.enabled) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
   - name: "oidc-ca-certificate"
     mountPath: "/etc/oidc/ca.pem"
     secretName: "tls-ca-sso-grafana"
@@ -302,7 +302,7 @@ extraSecretMounts:
     subPath: "ca.pem"
   {{- end }}
 {{- end }}
-{{- if .Values.monitoring.enabled }}
+{{- if .Values.packages.addons.monitoring.enabled }}
 serviceMonitor:
   enabled: true
 {{- if $istioInjection }}
@@ -323,7 +323,7 @@ serviceMonitor:
 
   {{- $defaults := fromYaml (include "bigbang.defaults.grafana" .) }}
 
-  {{- $overlays := dig "values" dict .Values.grafana }}
+  {{- $overlays := dig "values" dict .Values.packages.addons.grafana }}
   {{- range $grafanaConfig, $default := $defaults }}
     {{- $overlay := (dig $grafanaConfig dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set

@@ -1,5 +1,5 @@
-{{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.minioOperator "name" "minio-operator" "defaults" (include "bigbang.defaults.minio-operator" .)) }}
+{{- if or .Values.packages.addons.minioOperator.enabled .Values.packages.addons.minio.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.minioOperator "name" "minio-operator" "defaults" (include "bigbang.defaults.minio-operator" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.minio-operator" -}}
@@ -23,7 +23,7 @@ operator:
   imagePullSecrets:
     - name: private-registry
 
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   env:
     - name: MINIO_OPERATOR_TLS_ENABLE
       value: "on"
@@ -41,21 +41,21 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.minio.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.minio.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.minio.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.minioOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.minio.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   console:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.minio.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.minio.ingress.gateway }}
 
 {{- if include "istioEnabled" . }}
 annotations:
@@ -63,5 +63,5 @@ annotations:
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 {{- end -}}

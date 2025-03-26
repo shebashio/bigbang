@@ -1,19 +1,19 @@
-{{- if .Values.fluentbit.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.fluentbit "name" "fluentbit" "defaults" (include "bigbang.defaults.fluentbit" .)) }}
+{{- if .Values.packages.addons.fluentbit.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.fluentbit "name" "fluentbit" "defaults" (include "bigbang.defaults.fluentbit" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.fluentbit" -}}
-{{- $disableDefault := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
+{{- $disableDefault := dig "additionalOutputs" "disableDefault" false .Values.packages.addons.fluentbit.values }}
+{{- $clusterName := ( default "logging-loki" .Values.packages.addons.loki.clusterName ) }}
 
 {{- if (not $disableDefault) }}
 loki:
-  enabled: {{ .Values.loki.enabled }}
+  enabled: {{ .Values.packages.addons.loki.enabled }}
 
 elasticsearchKibana:
-  enabled: {{.Values.elasticsearchKibana.enabled }}
+  enabled: {{.Values.packages.addons.elasticsearchKibana.enabled }}
 
-{{- if .Values.elasticsearchKibana.enabled }}
+{{- if .Values.packages.addons.elasticsearchKibana.enabled }}
 env:
   - name: FLUENT_ELASTICSEARCH_PASSWORD
     valueFrom:
@@ -37,32 +37,32 @@ extraVolumeMounts:
   - mountPath: /etc/elasticsearch/certs/
     name: elasticsearch-certs
 {{- end }}
-{{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled }}
+{{- if or .Values.packages.addons.elasticsearchKibana.enabled .Values.packages.addons.loki.enabled }}
 config:
   outputs: |
-    {{- if .Values.elasticsearchKibana.enabled }}
+    {{- if .Values.packages.addons.elasticsearchKibana.enabled }}
     [OUTPUT]
         Name                     es
         Match                    kube.*
-        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.packages.addons.fluentbit.values }}-es-http.logging
         HTTP_User                elastic
         HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
         Logstash_Format          On
         Suppress_Type_Name       On
         Retry_Limit              False
         Replace_Dots             On
-        {{- if and .Values.istio.enabled (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
+        {{- if and .Values.packages.core.istio.enabled (dig "istio" "elasticsearch" "enabled" false .Values.packages.addons.elasticsearchKibana.values) }}
         tls                      Off
         {{- else }}
         tls                      On
         tls.verify               On
         tls.ca_file              /etc/elasticsearch/certs/ca.crt
         {{- end }}
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.addons.fluentbit.values }}
     [OUTPUT]
         Name                     es
         Match                    host.*
-        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.packages.addons.fluentbit.values }}-es-http.logging
         HTTP_User                elastic
         HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
         Logstash_Format          On
@@ -72,15 +72,15 @@ config:
         tls                      On
         tls.verify               On
         tls.ca_file              /etc/elasticsearch/certs/ca.crt
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.addons.fluentbit.values }}
     {{- end }}
 
-    {{- if .Values.loki.enabled }}
+    {{- if .Values.packages.addons.loki.enabled }}
     [OUTPUT]
         name                   loki
         match                  kube.*
         labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
-        {{- if eq .Values.loki.strategy "monolith" }}
+        {{- if eq .Values.packages.addons.loki.strategy "monolith" }}
         host                   logging-loki.logging
         {{- else }}
         host                   logging-loki-write.logging
@@ -89,12 +89,12 @@ config:
         auto_kubernetes_labels on
         Retry_Limit            False
         tls                    Off
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.addons.fluentbit.values }}
     [OUTPUT]
         name                   loki
         match                  host.*
         labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
-        {{- if eq .Values.loki.strategy "monolith" }}
+        {{- if eq .Values.packages.addons.loki.strategy "monolith" }}
         host                   logging-loki.logging
         {{- else }}
         host                   logging-loki-write.logging
@@ -103,11 +103,11 @@ config:
         auto_kubernetes_labels on
         Retry_Limit            False
         tls                    Off
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.addons.fluentbit.values }}
     {{- end }}
 
   filters: |
-    {{- if .Values.loki.enabled }}
+    {{- if .Values.packages.addons.loki.enabled }}
     [FILTER]
         Name kubernetes
         Match kube.*
@@ -145,17 +145,17 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.fluentbit.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.fluentbit.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
 
 openShift:
   enabled: {{ .Values.openshift }}
 
-{{- if .Values.monitoring.enabled }}
+{{- if .Values.packages.addons.monitoring.enabled }}
 serviceMonitor:
   enabled: true
   namespace: monitoring
@@ -167,7 +167,7 @@ serviceMonitor:
   # - istio: enabled
   # - mTLS: SCRICT
   # - istio injection: enabled (for logging ns)
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
+  {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.packages.addons.elasticsearchKibana.values) "enabled") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
@@ -182,7 +182,7 @@ dashboards:
   namespace: monitoring
 {{- end }}
 
-{{- if .Values.istio.enabled }}
+{{- if .Values.packages.core.istio.enabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}

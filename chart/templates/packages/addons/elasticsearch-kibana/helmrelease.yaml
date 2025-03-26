@@ -1,5 +1,5 @@
-{{- $fluxSettingsEk := merge .Values.elasticsearchKibana.flux .Values.flux -}}
-{{- if .Values.elasticsearchKibana.enabled }}
+{{- $fluxSettingsEk := merge .Values.packages.addons.elasticsearchKibana.flux .Values.flux -}}
+{{- if .Values.packages.addons.elasticsearchKibana.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -17,34 +17,34 @@ spec:
   targetNamespace: logging
   chart:
     spec:
-      {{- if eq .Values.elasticsearchKibana.sourceType "git" }}
-      chart: {{ .Values.elasticsearchKibana.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.elasticsearchKibana.sourceType "git" }}
+      chart: {{ .Values.packages.addons.elasticsearchKibana.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: elasticsearch-kibana
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.elasticsearchKibana.helmRepo.chartName }}
-      version: {{ .Values.elasticsearchKibana.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.elasticsearchKibana.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.elasticsearchKibana.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.elasticsearchKibana.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.elasticsearchKibana.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.elasticsearchKibana.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.elasticsearchKibana.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.elasticsearchKibana.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.elasticsearchKibana.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.elasticsearchKibana.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.elasticsearchKibana.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsEk | nindent 2 }}
 
-  {{- if .Values.elasticsearchKibana.postRenderers }}
+  {{- if .Values.packages.addons.elasticsearchKibana.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.elasticsearchKibana.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.elasticsearchKibana.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-ek-values
@@ -57,19 +57,19 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{/* ECK and Logging _always_ depend on .Values.elasticsearchKibana being enabled, so can assume they exist here */}}
+  {{/* ECK and Logging _always_ depend on .Values.packages.addons.elasticsearchKibana being enabled, so can assume they exist here */}}
   dependsOn:
     - name: eck-operator
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.addons.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}

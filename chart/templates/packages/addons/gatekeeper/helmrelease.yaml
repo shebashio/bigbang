@@ -1,5 +1,5 @@
-{{- $fluxSettingsGatekeeper := merge .Values.gatekeeper.flux .Values.flux -}}
-{{- if or .Values.gatekeeper.enabled .Values.clusterAuditor.enabled }}
+{{- $fluxSettingsGatekeeper := merge .Values.packages.addons.gatekeeper.flux .Values.flux -}}
+{{- if or .Values.packages.addons.gatekeeper.enabled .Values.clusterAuditor.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -17,34 +17,34 @@ spec:
   targetNamespace: gatekeeper-system
   chart:
     spec:
-      {{- if eq .Values.gatekeeper.sourceType "git" }}
-      chart: {{ .Values.gatekeeper.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.gatekeeper.sourceType "git" }}
+      chart: {{ .Values.packages.addons.gatekeeper.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: gatekeeper
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.gatekeeper.helmRepo.chartName }}
-      version: {{ .Values.gatekeeper.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.gatekeeper.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.gatekeeper.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.gatekeeper.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.gatekeeper.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.gatekeeper.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.gatekeeper.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.gatekeeper.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.gatekeeper.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.gatekeeper.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.gatekeeper.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsGatekeeper | nindent 2 }}
 
-  {{- if .Values.gatekeeper.postRenderers }}
+  {{- if .Values.packages.addons.gatekeeper.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.gatekeeper.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.gatekeeper.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-gatekeeper-values

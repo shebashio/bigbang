@@ -1,13 +1,13 @@
-{{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
-{{- if and .Values.istio.enabled .Values.monitoring.enabled .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.haproxy "name" "haproxy-sso" "defaults" (include "bigbang.defaults.haproxy-sso" .)) }}
+{{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.packages.addons.monitoring }}
+{{- if and .Values.packages.core.istio.enabled .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.proxy "name" "haproxy-sso" "defaults" (include "bigbang.defaults.haproxy-sso" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.haproxy-sso" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-{{- $haproxyAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-{{- $haproxyAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+{{- $haproxyAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.addons.authservice.values) }}
+{{- $haproxyAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.addons.authservice.values) }}
 podLabels:
   {{ $haproxyAuthserviceKey }}: {{ $haproxyAuthserviceValue }}
 config: |
@@ -68,17 +68,17 @@ config: |
     unique-id-format %{+X}o\ 1-%[date,hex,bytes(8,8),lower]-%[capture.req.hdr(3)]
     http-request set-header X-Amzn-Trace-Id Root=%[unique-id,lower]
     bind :8080
-    {{- $monitoringValues := .Values.monitoring.values | default dict }}
+    {{- $monitoringValues := .Values.packages.addons.monitoring.values | default dict }}
     {{- $monitoringIstioValues := $monitoringValues.istio | default dict }}
     {{- $prometheusHostValues := $monitoringIstioValues.prometheus | default dict}}
     {{- $alertmanagerHostValues := $monitoringIstioValues.alertmanager | default dict}}
     {{- if hasKey $alertmanagerHostValues "hosts" }}
-    acl host_alertmanager hdr(host) -i {{ range .Values.monitoring.values.istio.alertmanager.hosts }}{{ tpl . $}}{{ end }}
+    acl host_alertmanager hdr(host) -i {{ range .Values.packages.addons.monitoring.Values.packages.core.istio.alertmanager.hosts }}{{ tpl . $}}{{ end }}
     {{- else }}
     acl host_alertmanager hdr(host) -i alertmanager.{{ $domainName }}
     {{- end }}
     {{- if hasKey $prometheusHostValues "hosts" }}
-    acl host_prometheus hdr(host) -i {{ range .Values.monitoring.values.istio.prometheus.hosts }}{{ tpl . $}}{{ end }}
+    acl host_prometheus hdr(host) -i {{ range .Values.packages.addons.monitoring.Values.packages.core.istio.prometheus.hosts }}{{ tpl . $}}{{ end }}
     {{- else }}
     acl host_prometheus hdr(host) -i prometheus.{{ $domainName }}
     {{- end }}
@@ -101,17 +101,17 @@ image:
 containerPorts:
   http: 8080
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.haproxy.values)
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.proxy.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
     }}
 openshift: {{ .Values.openshift }}  
 {{- end -}}

@@ -1,4 +1,4 @@
-{{- if and (not .Values.monitoring.enabled) .Values.grafana.enabled }}
+{{- if and (not .Values.packages.addons.monitoring.enabled) .Values.packages.addons.grafana.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7,5 +7,5 @@ metadata:
     app.kubernetes.io/name: monitoring
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.grafana) "enabled")) }}
 {{- end }}

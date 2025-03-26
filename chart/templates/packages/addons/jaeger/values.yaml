@@ -1,5 +1,5 @@
-{{- if .Values.jaeger.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.jaeger "name" "jaeger" "defaults" (include "bigbang.defaults.jaeger" .)) }}
+{{- if .Values.packages.addons.jaeger.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.jaeger "name" "jaeger" "defaults" (include "bigbang.defaults.jaeger" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.jaeger" -}}
@@ -18,13 +18,13 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.jaeger.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.jaeger.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   jaeger:
     enabled: {{ include "istioEnabled" . }}
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.jaeger.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.jaeger.ingress.gateway }}
 
 {{- if include "istioEnabled" . }}
 annotations:
@@ -32,9 +32,9 @@ annotations:
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   # conditional passes only for default istio: enabled, mTLS: SCRICT
-  {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.jaeger.values) "STRICT") }}
+  {{- if and (include "istioEnabled" . ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.jaeger.values) "STRICT") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
@@ -45,20 +45,20 @@ monitoring:
   {{- end }}
 
 elasticsearch:
-  enabled: {{ .Values.elasticsearchKibana.enabled }}
+  enabled: {{ .Values.packages.addons.elasticsearchKibana.enabled }}
 
 sso:
-  enabled: {{ .Values.jaeger.sso.enabled }}
+  enabled: {{ .Values.packages.addons.jaeger.sso.enabled }}
 
 
-{{- if or .Values.jaeger.sso.enabled (include "istioEnabled" .) .Values.kiali.enabled }}
+{{- if or .Values.packages.addons.jaeger.sso.enabled (include "istioEnabled" .) .Values.packages.addons.kiali.enabled }}
 jaeger:
   spec:
-    {{- if or .Values.jaeger.sso.enabled (include "istioEnabled" .) }}
-    {{- $jaegerAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-    {{- $jaegerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+    {{- if or .Values.packages.addons.jaeger.sso.enabled (include "istioEnabled" .) }}
+    {{- $jaegerAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.addons.authservice.values) }}
+    {{- $jaegerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.addons.authservice.values) }}
     allInOne:
-      {{- if .Values.jaeger.sso.enabled }}
+      {{- if .Values.packages.addons.jaeger.sso.enabled }}
       labels:
         {{ $jaegerAuthserviceKey }}: {{ $jaegerAuthserviceValue }}
       {{- end }}
@@ -67,7 +67,7 @@ jaeger:
         {{ include "istioAnnotation" . }}
       {{- end }}
     query:
-      {{- if .Values.jaeger.sso.enabled }}
+      {{- if .Values.packages.addons.jaeger.sso.enabled }}
       labels:
         {{ $jaegerAuthserviceKey }}: {{ $jaegerAuthserviceValue }}
       {{- end }}
@@ -96,9 +96,9 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.jaeger.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.jaeger.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 webhookCertGen:
   image:

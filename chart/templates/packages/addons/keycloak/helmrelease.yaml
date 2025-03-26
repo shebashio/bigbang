@@ -1,5 +1,5 @@
-{{- $fluxSettingsKeycloak := merge .Values.addons.keycloak.flux .Values.flux -}}
-{{- if .Values.addons.keycloak.enabled }}
+{{- $fluxSettingsKeycloak := merge .Values.packages.addons.keycloak.flux .Values.flux -}}
+{{- if .Values.packages.addons.keycloak.enabled }}
 {{ $name := "keycloak" }}
 {{ $component := "security-tools" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -18,32 +18,32 @@ spec:
   targetNamespace: {{ $name }}
   chart:
     spec:
-      {{- if eq .Values.addons.keycloak.sourceType "git" }}
-      chart: {{ .Values.addons.keycloak.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.keycloak.sourceType "git" }}
+      chart: {{ .Values.packages.addons.keycloak.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: {{ $name }}
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.keycloak.helmRepo.chartName }}
-      version: {{ .Values.addons.keycloak.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.keycloak.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.keycloak.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.keycloak.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.keycloak.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.keycloak.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.keycloak.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.keycloak.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.keycloak.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.keycloak.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.keycloak.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
-  {{- if .Values.addons.keycloak.postRenderers }}
+  {{- if .Values.packages.addons.keycloak.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.keycloak.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.keycloak.postRenderers | nindent 4 }}
   {{- end }}
 
   {{- toYaml $fluxSettingsKeycloak | nindent 2 }}
@@ -59,25 +59,25 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled (include "istioEnabled" .) .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.packages.addons.gatekeeper.enabled (include "istioEnabled" .) .Values.packages.core.kyvernoPolicies.enabled .Values.packages.addons.monitoring.enabled }}
   dependsOn:
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.addons.gatekeeper.enabled }}
   - name: gatekeeper
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   - name: istio
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.istioCore.enabled }}
+  {{- if .Values.packages.core.istioCore.enabled }}
   - name: istio-core
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.core.kyvernoPolicies.enabled }}
   - name: kyverno-policies
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}

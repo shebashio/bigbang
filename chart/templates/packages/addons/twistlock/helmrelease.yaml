@@ -1,5 +1,5 @@
-{{- $fluxSettingsTwistlock := merge .Values.twistlock.flux .Values.flux -}}
-{{- if .Values.twistlock.enabled }}
+{{- $fluxSettingsTwistlock := merge .Values.packages.addons.twistlock.flux .Values.flux -}}
+{{- if .Values.packages.addons.twistlock.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: twistlock
   chart:
     spec:
-      {{- if eq .Values.twistlock.sourceType "git" }}
-      chart: {{ .Values.twistlock.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.twistlock.sourceType "git" }}
+      chart: {{ .Values.packages.addons.twistlock.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: twistlock
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.twistlock.helmRepo.chartName }}
-      version: {{ .Values.twistlock.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.twistlock.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.twistlock.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.twistlock.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.twistlock.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.twistlock.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.twistlock.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.twistlock.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.twistlock.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.twistlock.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.twistlock.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsTwistlock | nindent 2 }}
   
-  {{- if .Values.twistlock.postRenderers }}
+  {{- if .Values.packages.addons.twistlock.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.twistlock.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.twistlock.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-twistlock-values
@@ -56,21 +56,21 @@ spec:
       valuesKey: "overlays"
 
   # TODO: DRY this up
-  {{- if or .Values.gatekeeper.enabled .Values.istio.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.packages.addons.gatekeeper.enabled .Values.packages.core.istio.enabled .Values.packages.core.kyvernoPolicies.enabled .Values.packages.addons.monitoring.enabled }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.addons.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}

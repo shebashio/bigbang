@@ -1,4 +1,4 @@
-{{- if and .Values.loki.enabled (not .Values.elasticsearchKibana.enabled) }}
+{{- if and .Values.packages.addons.loki.enabled (not .Values.packages.addons.elasticsearchKibana.enabled) }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7,5 +7,5 @@ metadata:
     app.kubernetes.io/name: logging
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.loki) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.loki) "enabled")) }}
 {{- end }}

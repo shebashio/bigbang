@@ -7,34 +7,34 @@ domain: {{ default .Values.domain .Values.hostname }}
 
 openshift: {{ .Values.openshift }}
 
-{{ $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled")) }}
+{{ $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.neuvector) "enabled")) }}
 
 istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.neuvector.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.neuvector.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   neuvector:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.monitoring.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.monitoring.ingress.gateway }}
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
-{{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled $.Values.kiali.enabled}}
+{{- if or .Values.packages.addons.monitoring.enabled $istioInjection .Values.packages.addons.neuvector.sso.enabled $.Values.packages.addons.kiali.enabled}}
 controller:
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-  {{- if or .Values.monitoring.enabled .Values.neuvector.sso.enabled }}
+  {{- if or .Values.packages.addons.monitoring.enabled .Values.packages.addons.neuvector.sso.enabled }}
   secret:
     enabled: true
     data: 
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       userinitcfg.yaml:
         always_reload: true
         users:
@@ -43,20 +43,20 @@ controller:
           role: reader
           fullname: metrics
       {{- end }}
-      {{- if .Values.neuvector.sso.enabled }}
+      {{- if .Values.packages.addons.neuvector.sso.enabled }}
       oidcinitcfg.yaml:
         always_reload: true
-        enable: {{ .Values.neuvector.sso.enabled }}
-        issuer: {{ default (include "sso.url" .) (tpl (default "" .Values.neuvector.sso.issuer) .) }}
-        client_id: {{ .Values.neuvector.sso.client_id }}
-        client_secret: {{ .Values.neuvector.sso.client_secret | default "no-secret" }}
-        default_role: {{ .Values.neuvector.sso.default_role }}
-        group_claim: {{ .Values.neuvector.sso.group_claim }}
+        enable: {{ .Values.packages.addons.neuvector.sso.enabled }}
+        issuer: {{ default (include "sso.url" .) (tpl (default "" .Values.packages.addons.neuvector.sso.issuer) .) }}
+        client_id: {{ .Values.packages.addons.neuvector.sso.client_id }}
+        client_secret: {{ .Values.packages.addons.neuvector.sso.client_secret | default "no-secret" }}
+        default_role: {{ .Values.packages.addons.neuvector.sso.default_role }}
+        group_claim: {{ .Values.packages.addons.neuvector.sso.group_claim }}
         group_mapped_roles: 
-          {{ toYaml .Values.neuvector.sso.group_mapped_roles | nindent 10 }}
+          {{ toYaml .Values.packages.addons.neuvector.sso.group_mapped_roles | nindent 10 }}
       {{- end }}
   {{- end }}
-  {{- if and .Values.neuvector.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+  {{- if and .Values.packages.addons.neuvector.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
   sso:
     certificateAuthority:
       secretName: {{ default (dig "certificateAuthority" "secretName" "" .Values.sso) .Values.sso.secretName }}
@@ -64,12 +64,12 @@ controller:
 {{- end }}
 
 monitor:
-  install: {{ .Values.monitoring.enabled }}
+  install: {{ .Values.packages.addons.monitoring.enabled }}
   exporter:
-    enabled: {{ .Values.monitoring.enabled }}
-    {{- if or .Values.monitoring.enabled $istioInjection }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
+    {{- if or .Values.packages.addons.monitoring.enabled $istioInjection }}
     podAnnotations:
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.addons.monitoring.enabled }}
       checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
       {{- end }}
       {{- if $istioInjection }}
@@ -77,9 +77,9 @@ monitor:
       {{- end }}
     {{- end }}
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
       # conditional passes only for default istio: enabled, mTLS: SCRICT
-      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
+      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.neuvector.values) "STRICT") .Values.packages.addons.monitoring.enabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -88,13 +88,13 @@ monitor:
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
     svc:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.addons.monitoring.enabled }}
       type: ClusterIP
     CTRL_USERNAME: metrics
     CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
 
 
-{{- if or $istioInjection $.Values.kiali.enabled }}
+{{- if or $istioInjection $.Values.packages.addons.kiali.enabled }}
 enforcer:
   {{- if $istioInjection }}
   podAnnotations:
@@ -113,7 +113,7 @@ cve:
     {{- end }}
 {{- end }}
 
-{{- if or (include "istioEnabled" .) $.Values.kiali.enabled }}
+{{- if or (include "istioEnabled" .) $.Values.packages.addons.kiali.enabled }}
 manager:
   {{- if $istioInjection }}
   podAnnotations:
@@ -127,18 +127,18 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-  {{- if .Values.istio.enabled }}
-    {{- $gateway := default "public" .Values.neuvector.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+  {{- if .Values.packages.core.istio.enabled }}
+    {{- $gateway := default "public" .Values.packages.addons.neuvector.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
   {{- end }}
-  {{- if .Values.istioCore.enabled }}
+  {{- if .Values.packages.core.istioCore.enabled }}
     app: public-ingressgateway
     istio: ingressgateway
   {{- end }}
 {{- end }}
 
 {{- /* Create secret */ -}}
-{{- if .Values.neuvector.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.neuvector "name" "neuvector" "defaults" (include "bigbang.defaults.neuvector" .)) }}
+{{- if .Values.packages.addons.neuvector.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.neuvector "name" "neuvector" "defaults" (include "bigbang.defaults.neuvector" .)) }}
 {{- end }}

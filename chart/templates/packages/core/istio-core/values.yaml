@@ -8,7 +8,7 @@
 {{- define "bigbang.defaults.istio-core" -}}
 createNamespace: true
 
-enterprise: {{ .Values.istioCore.enterprise }}
+enterprise: {{ .Values.packages.core.istioCore.enterprise }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 imagePullSecrets:
@@ -20,9 +20,9 @@ istiod:
     controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
   monitoring:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
     
-{{- if .Values.addons.authservice.enabled }}
+{{- if .Values.packages.addons.authservice.enabled }}
   meshConfig:
     extensionProviders:
       - name: "authservice"

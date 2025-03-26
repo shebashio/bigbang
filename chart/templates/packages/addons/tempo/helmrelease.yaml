@@ -1,5 +1,5 @@
-{{- $fluxSettingsTempo := merge .Values.tempo.flux .Values.flux -}}
-{{- if .Values.tempo.enabled }}
+{{- $fluxSettingsTempo := merge .Values.packages.addons.tempo.flux .Values.flux -}}
+{{- if .Values.packages.addons.tempo.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -17,34 +17,34 @@ spec:
   targetNamespace: tempo
   chart:
     spec:
-      {{- if eq .Values.tempo.sourceType "git" }}
-      chart: {{ .Values.tempo.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.tempo.sourceType "git" }}
+      chart: {{ .Values.packages.addons.tempo.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: tempo
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.tempo.helmRepo.chartName }}
-      version: {{ .Values.tempo.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.tempo.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.tempo.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.tempo.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.tempo.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.tempo.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.tempo.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.tempo.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.tempo.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.tempo.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.tempo.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
 
-  {{- if .Values.tempo.postRenderers }}
+  {{- if .Values.packages.addons.tempo.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.tempo.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.tempo.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-tempo-values
@@ -56,21 +56,21 @@ spec:
     - name: {{ .Release.Name }}-tempo-values
       kind: Secret
       valuesKey: "overlays"
-  {{- if or .Values.monitoring.enabled .Values.tempo.sso.enabled (include "istioEnabled" .) }}
+  {{- if or .Values.packages.addons.monitoring.enabled .Values.packages.addons.tempo.sso.enabled (include "istioEnabled" .) }}
   dependsOn:
-    {{- if  .Values.monitoring.enabled }}
+    {{- if  .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.tempo.sso.enabled }}
+    {{- if .Values.packages.addons.tempo.sso.enabled }}
     - name: authservice
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.istioCore.enabled }}
+    {{- if .Values.packages.core.istioCore.enabled }}
     - name: istio-core
       namespace: {{ .Release.Namespace }}
     {{- end }}

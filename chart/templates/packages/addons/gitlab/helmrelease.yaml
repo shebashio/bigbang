@@ -1,5 +1,5 @@
-{{- $fluxSettingsGitlab := merge .Values.addons.gitlab.flux .Values.flux -}}
-{{- if .Values.addons.gitlab.enabled }}
+{{- $fluxSettingsGitlab := merge .Values.packages.addons.gitlab.flux .Values.flux -}}
+{{- if .Values.packages.addons.gitlab.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -16,37 +16,37 @@ spec:
   targetNamespace: gitlab
   chart:
     spec:
-      {{- if eq .Values.addons.gitlab.sourceType "git" }}
-      chart: {{ .Values.addons.gitlab.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.gitlab.sourceType "git" }}
+      chart: {{ .Values.packages.addons.gitlab.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: gitlab
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.gitlab.helmRepo.chartName }}
-      version: {{ .Values.addons.gitlab.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.gitlab.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.gitlab.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.gitlab.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.gitlab.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.gitlab.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.gitlab.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.gitlab.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.gitlab.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.gitlab.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.gitlab.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
 
   {{- toYaml $fluxSettingsGitlab | nindent 2 }}
-  {{- if or .Values.addons.gitlab.postRenderers .Values.monitoring.enabled }}
+  {{- if or .Values.packages.addons.gitlab.postRenderers .Values.packages.addons.monitoring.enabled }}
   postRenderers:
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   {{ include "gitlab.serviceMonitorPostRenderers" . | nindent 4 }}
   {{- end }}
-  {{- with .Values.addons.gitlab.postRenderers }}
+  {{- with .Values.packages.addons.gitlab.postRenderers }}
   {{ toYaml . | nindent 4 }}
   {{- end }}
   {{- end }}
@@ -61,21 +61,21 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled .Values.istio.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.packages.addons.gatekeeper.enabled .Values.packages.core.istio.enabled .Values.packages.core.kyvernoPolicies.enabled .Values.packages.addons.monitoring.enabled }}
   dependsOn:
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.addons.gatekeeper.enabled }}
   - name: gatekeeper
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   - name: istio
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.core.kyvernoPolicies.enabled }}
   - name: kyverno-policies
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}

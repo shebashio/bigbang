@@ -1,5 +1,5 @@
-{{- $fluxSettingsArgo := merge .Values.addons.argocd.flux .Values.flux -}}
-{{- if .Values.addons.argocd.enabled }}
+{{- $fluxSettingsArgo := merge .Values.packages.addons.argocd.flux .Values.flux -}}
+{{- if .Values.packages.addons.argocd.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: argocd
   chart:
     spec:
-      {{- if eq .Values.addons.argocd.sourceType "git" }}
-      chart: {{ .Values.addons.argocd.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.argocd.sourceType "git" }}
+      chart: {{ .Values.packages.addons.argocd.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: argocd
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.argocd.helmRepo.chartName }}
-      version: {{ .Values.addons.argocd.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.argocd.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.argocd.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.argocd.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.argocd.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.argocd.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.argocd.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.argocd.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.argocd.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.argocd.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.argocd.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsArgo | nindent 2 }}
 
-  {{- if .Values.addons.argocd.postRenderers }}
+  {{- if .Values.packages.addons.argocd.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.argocd.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.argocd.postRenderers | nindent 4 }}
   {{- end }}
 
   valuesFrom:
@@ -56,13 +56,13 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.monitoring.enabled .Values.istio.enabled }}
+  {{- if or .Values.packages.addons.monitoring.enabled .Values.packages.core.istio.enabled }}
   dependsOn:
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   - name: istio
     namespace: {{ .Release.Namespace}}
   {{- end}}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}

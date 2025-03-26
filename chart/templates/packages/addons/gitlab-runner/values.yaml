@@ -1,5 +1,5 @@
-{{- if .Values.addons.gitlabRunner.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.gitlabRunner "name" "gitlab-runner" "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
+{{- if .Values.packages.addons.gitlabRunner.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.gitlabRunner "name" "gitlab-runner" "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.gitlab-runner" -}}
@@ -10,40 +10,40 @@ imagePullSecrets:
 - name: private-registry
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlab.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.gitlab.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.gitlabRunner.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlabRunner }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.gitlabRunner }}
 
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-# no longer necessary to directly pass through .Values.monitoring.enabled
+# no longer necessary to directly pass through .Values.packages.addons.monitoring.enabled
 # the package chart uses: .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" to toggle monitoring
 metrics:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 # When istio injected, add an annotation with the istio version to the manager pods only
-{{- if (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") .Values.istio.enabled) }}
+{{- if (and (eq (dig "istio" "injection" "enabled" .Values.packages.addons.gitlab) "enabled") .Values.packages.core.istio.enabled) }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 # autoRegister requires kyverno
-{{- if and .Values.kyverno.enabled .Values.addons.gitlab.enabled }}
+{{- if and .Values.packages.core.kyverno.enabled .Values.packages.addons.gitlab.enabled }}
 autoRegister:
-  enabled: {{ dig  "autoRegister" "enabled" "true" .Values.addons.gitlabRunner }}
+  enabled: {{ dig  "autoRegister" "enabled" "true" .Values.packages.addons.gitlabRunner }}
 {{- end }}
 
 {{- end -}}

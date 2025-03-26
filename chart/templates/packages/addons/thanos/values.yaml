@@ -6,7 +6,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.thanos" -}}
-{{- $thanosS3Endpoint := (printf "%s.s3.dualstack.%s.amazonaws.com" .Values.addons.thanos.objectStorage.bucket .Values.addons.thanos.objectStorage.region) }}
+{{- $thanosS3Endpoint := (printf "%s.s3.dualstack.%s.amazonaws.com" .Values.packages.addons.thanos.objectStorage.bucket .Values.packages.addons.thanos.objectStorage.region) }}
 
 imagePullSecrets:
 - name: private-registry
@@ -17,13 +17,13 @@ externalURL: https://thanos.{{ .Values.domain }}
 domain: {{ .Values.domain }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.thanos.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.thanos.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-    {{- if and (or (dig "values" "istio" "hardened" "enabled" false .Values.addons.thanos) (dig "hardened" "enabled" false .Values.istio.values)) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+    {{- if and (or (dig "values" "istio" "hardened" "enabled" false .Values.packages.addons.thanos) (dig "hardened" "enabled" false .Values.packages.core.istio.values)) (contains "s3" .Values.packages.addons.thanos.objectStorage.endpoint) }}
     customServiceEntries:
       - name: egress-object-store
         enabled: true
@@ -39,10 +39,10 @@ istio:
   {{- end }}
   thanos:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
+    - istio-system/{{ default "public" .Values.packages.addons.thanos.ingress.gateway }}
 
-{{- with .Values.addons.thanos.objectStorage }}
-{{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
+{{- with .Values.packages.addons.thanos.objectStorage }}
+{{- if and (eq $.Values.packages.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
 minio:
   enabled: true
 {{- end }}
@@ -52,12 +52,12 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.thanos.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.thanos.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 storegateway:
   enabled: false
@@ -70,46 +70,46 @@ query:
     # With Istio, the combination of headless service + TCP port will create an entry
     # for each pod IP:PORT and that makes communication via IP:PORT viable
     enabled: false
-  {{- if or .Values.monitoring.enabled (dig "values" "storegateway" "enabled" false .Values.addons.thanos) }}
+  {{- if or .Values.packages.addons.monitoring.enabled (dig "values" "storegateway" "enabled" false .Values.packages.addons.thanos) }}
   stores:
   {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:10901
     {{- end }}
-    {{- if (dig "values" "storegateway" "enabled" false .Values.addons.thanos) }}
+    {{- if (dig "values" "storegateway" "enabled" false .Values.packages.addons.thanos) }}
     - dns+thanos-storegateway.thanos.svc.cluster.local:10901
     {{- end }}
-  {{- if or .Values.addons.thanos.sso.enabled .Values.kiali.enabled }}
+  {{- if or .Values.packages.addons.thanos.sso.enabled .Values.packages.addons.kiali.enabled }}
   podLabels:
-    {{- if .Values.addons.thanos.sso.enabled }}
-    {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-    {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+    {{- if .Values.packages.addons.thanos.sso.enabled }}
+    {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.addons.authservice.values) }}
+    {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.addons.authservice.values) }}
     {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
     {{- end }}
   {{- end }}
 
-{{- if or (dig "compactor" "enabled" false .Values.addons.thanos.values) (not (.Values.addons.thanos.objectStorage.endpoint | empty)) }}
+{{- if or (dig "compactor" "enabled" false .Values.packages.addons.thanos.values) (not (.Values.packages.addons.thanos.objectStorage.endpoint | empty)) }}
 compactor:
   enabled: true
 {{- end }}
 
-{{- if not (.Values.addons.thanos.objectStorage.endpoint | empty) }}
+{{- if not (.Values.packages.addons.thanos.objectStorage.endpoint | empty) }}
 objstoreConfig: |-
   type: s3
   config:
-    bucket: {{ .Values.addons.thanos.objectStorage.bucket }}
-    endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
-    access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
-    secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
-    insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+    bucket: {{ .Values.packages.addons.thanos.objectStorage.bucket }}
+    endpoint: {{ .Values.packages.addons.thanos.objectStorage.endpoint }}
+    access_key: {{ .Values.packages.addons.thanos.objectStorage.accessKey }}
+    secret_key: {{ .Values.packages.addons.thanos.objectStorage.accessSecret }}
+    insecure: {{ .Values.packages.addons.thanos.objectStorage.insecure }}
 
 storegateway:
   enabled: true
   useEndpointGroup: true
-  endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
+  endpoint: {{ .Values.packages.addons.thanos.objectStorage.endpoint }}
 
 query:
   extraFlags:
-    - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
+    - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "query" "containerPorts" "grpc" 10901 .Values.packages.addons.thanos }}"
 {{- end }}
 {{- end }}

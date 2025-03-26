@@ -1,5 +1,5 @@
 {{- $pkg := "kyvernoReporter" }}
-{{- $fluxSettings := merge .Values.kyvernoReporter.flux .Values.flux -}}
+{{- $fluxSettings := merge .Values.packages.addons.kyvernoReporter.flux .Values.flux -}}
 {{- if (get .Values $pkg).enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -57,15 +57,15 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}

@@ -1,5 +1,5 @@
-{{- if .Values.elasticsearchKibana.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.elasticsearchKibana "name" "ek" "defaults" (include "bigbang.defaults.logging" .)) }}
+{{- if .Values.packages.addons.elasticsearchKibana.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.elasticsearchKibana "name" "ek" "defaults" (include "bigbang.defaults.logging" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.logging" -}}
@@ -13,43 +13,43 @@ openshift: {{ .Values.openshift }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.elasticsearchKibana.values)
     }}
   kibana:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+    - istio-system/{{ default "public" .Values.packages.addons.elasticsearchKibana.ingress.gateway }}
   elasticsearch:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+    - istio-system/{{ default "public" .Values.packages.addons.elasticsearchKibana.ingress.gateway }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.elasticsearchKibana.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.elasticsearchKibana.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
-{{- if and .Values.addons.mattermost.elasticsearch.enabled .Values.addons.mattermost.enabled }}
+{{- if and .Values.packages.addons.mattermost.elasticsearch.enabled .Values.packages.addons.mattermost.enabled }}
 mattermost:
   enabled: true
 {{- end }}
 
-{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- if and .Values.fluentbit.enabled (not $disableDefaultFLB) }}
+{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.packages.addons.fluentbit.values }}
+{{- if and .Values.packages.addons.fluentbit.enabled (not $disableDefaultFLB) }}
 fluentbit:
   enabled: true
 {{- end }}
 
-{{- with .Values.elasticsearchKibana.sso }}
+{{- with .Values.packages.addons.elasticsearchKibana.sso }}
 {{- if .enabled }}
 sso:
   enabled: {{ .enabled }}
@@ -79,23 +79,23 @@ sso:
 kibana:
   imagePullSecrets:
     - name: private-registry
-{{- if .Values.istio.enabled }}
+{{- if .Values.packages.core.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.kibana }}
+{{- if not .Values.packages.addons.elasticsearchKibana.serviceAccountAnnotations.kibana }}
   serviceAccountAnnotations: {}
 {{- else }}
-  serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.kibana | nindent 4 }}
+  serviceAccountAnnotations: {{ toYaml .Values.packages.addons.elasticsearchKibana.serviceAccountAnnotations.kibana | nindent 4 }}
 {{- end }}
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 metrics:
-  enabled: {{ .Values.monitoring.enabled }}
-  {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") .Values.istio.enabled) }}
-  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
+  {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.packages.addons.elasticsearchKibana) "enabled") .Values.packages.core.istio.enabled) }}
+  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.elasticsearchKibana.values) "STRICT") $istioInjection }}
   serviceMonitor:
     scheme: https
     tlsConfig:
@@ -122,7 +122,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if .Values.packages.addons.elasticsearchKibana.sso.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -130,7 +130,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -148,7 +148,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if .Values.packages.addons.elasticsearchKibana.sso.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -156,7 +156,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -174,7 +174,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if .Values.packages.addons.elasticsearchKibana.sso.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -182,7 +182,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -200,7 +200,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if .Values.packages.addons.elasticsearchKibana.sso.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -208,7 +208,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -226,7 +226,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if .Values.packages.addons.elasticsearchKibana.sso.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -234,13 +234,13 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if .Values.packages.core.istio.enabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
-  {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
+  {{- if not .Values.packages.addons.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
   serviceAccountAnnotations: {}
   {{- else }}
-  serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
+  serviceAccountAnnotations: {{ toYaml .Values.packages.addons.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
 {{- end -}}

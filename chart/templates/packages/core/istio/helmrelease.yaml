@@ -1,5 +1,5 @@
-{{- $fluxSettingsIstioCp := merge .Values.istio.flux .Values.flux -}}
-{{- if .Values.istio.enabled }}
+{{- $fluxSettingsIstioCp := merge .Values.packages.core.istio.flux .Values.flux -}}
+{{- if .Values.packages.core.istio.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: istio-system
   chart:
     spec:
-      {{- if eq .Values.istio.sourceType "git" }}
-      chart: {{ .Values.istio.git.path | default "./chart" }}
+      {{- if eq .Values.packages.core.istio.sourceType "git" }}
+      chart: {{ .Values.packages.core.istio.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: istio
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.istio.helmRepo.chartName }}
-      version: {{ .Values.istio.helmRepo.tag }}
+      chart: {{ .Values.packages.core.istio.helmRepo.chartName }}
+      version: {{ .Values.packages.core.istio.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.istio.helmRepo.repoName }}
+        name: {{ .Values.packages.core.istio.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istio.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.istio.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.core.istio.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.core.istio.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.istio.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.core.istio.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsIstioCp | nindent 2 }}
 
-  {{- if .Values.istio.postRenderers }}
+  {{- if .Values.packages.core.istio.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.istio.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.core.istio.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-istio-values
@@ -58,11 +58,11 @@ spec:
   dependsOn:
     - name: istio-operator
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.addons.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.core.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}

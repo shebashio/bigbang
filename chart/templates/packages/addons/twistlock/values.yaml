@@ -1,5 +1,5 @@
-{{- if .Values.twistlock.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.twistlock "name" "twistlock" "defaults" (include "bigbang.defaults.twistlock" .)) }}
+{{- if .Values.packages.addons.twistlock.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.twistlock "name" "twistlock" "defaults" (include "bigbang.defaults.twistlock" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.twistlock" -}}
@@ -10,11 +10,11 @@ domain: {{ $domainName }}
 openshift: {{ .Values.openshift }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
-    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.twistlock.values) "STRICT") }}
+    {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.twistlock.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -31,9 +31,9 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.twistlock.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.twistlock.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
 
@@ -41,14 +41,14 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.twistlock.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.twistlock.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   console:
     gateways:
-     - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.twistlock.ingress.gateway }}
+     - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.twistlock.ingress.gateway }}
 
-{{- if .Values.istio.enabled }}
+{{- if .Values.packages.core.istio.enabled }}
 annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
@@ -58,14 +58,14 @@ console:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 sso:
-  enabled: {{ .Values.twistlock.sso.enabled }}
-  client_id: {{ .Values.twistlock.sso.client_id }}
-  provider_name: {{ default .Values.sso.name .Values.twistlock.sso.provider_name }}
-  provider_type: {{ .Values.twistlock.sso.provider_type }}
-  issuer_uri: {{ default (include "sso.url" .) (tpl (default "" .Values.twistlock.sso.issuer_uri) .) }}
-  idp_url: {{ default (include "sso.saml.service" .) (tpl (default "" .Values.twistlock.sso.idp_url) .) }}
-  {{- $console := first (dig "istio" "console" "hosts" (list (printf "twistlock.%s" $domainName)) .Values.twistlock.values) }}
-  console_url: {{ tpl (default (printf "https://%s" $console) .Values.twistlock.sso.console_url) . }}
-  groups: {{ .Values.twistlock.sso.groups }}
-  cert: {{ default (include "sso.saml.cert.withheaders" .) .Values.twistlock.sso.cert | quote }}
+  enabled: {{ .Values.packages.addons.twistlock.sso.enabled }}
+  client_id: {{ .Values.packages.addons.twistlock.sso.client_id }}
+  provider_name: {{ default .Values.sso.name .Values.packages.addons.twistlock.sso.provider_name }}
+  provider_type: {{ .Values.packages.addons.twistlock.sso.provider_type }}
+  issuer_uri: {{ default (include "sso.url" .) (tpl (default "" .Values.packages.addons.twistlock.sso.issuer_uri) .) }}
+  idp_url: {{ default (include "sso.saml.service" .) (tpl (default "" .Values.packages.addons.twistlock.sso.idp_url) .) }}
+  {{- $console := first (dig "istio" "console" "hosts" (list (printf "twistlock.%s" $domainName)) .Values.packages.addons.twistlock.values) }}
+  console_url: {{ tpl (default (printf "https://%s" $console) .Values.packages.addons.twistlock.sso.console_url) . }}
+  groups: {{ .Values.packages.addons.twistlock.sso.groups }}
+  cert: {{ default (include "sso.saml.cert.withheaders" .) .Values.packages.addons.twistlock.sso.cert | quote }}
 {{- end -}}

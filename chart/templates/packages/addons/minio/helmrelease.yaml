@@ -1,5 +1,5 @@
-{{- $fluxSettingsMinio := merge .Values.addons.minio.flux .Values.flux -}}
-{{- if .Values.addons.minio.enabled }}
+{{- $fluxSettingsMinio := merge .Values.packages.addons.minio.flux .Values.flux -}}
+{{- if .Values.packages.addons.minio.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -13,34 +13,34 @@ spec:
     mode: disabled
   chart:
     spec:
-      {{- if eq .Values.addons.minio.sourceType "git" }}
-      chart: {{ .Values.addons.minio.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.minio.sourceType "git" }}
+      chart: {{ .Values.packages.addons.minio.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: minio
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.minio.helmRepo.chartName }}
-      version: {{ .Values.addons.minio.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.minio.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.minio.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.minio.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.minio.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.minio.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.minio.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.minio.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.minio.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.minio.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.minio.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsMinio | nindent 2 }}
   
-  {{- if .Values.addons.minio.postRenderers }}
+  {{- if .Values.packages.addons.minio.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.minio.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.minio.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-minio-values
@@ -56,7 +56,7 @@ spec:
   dependsOn:
     - name: minio-operator
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.addons.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}      

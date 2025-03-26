@@ -1,21 +1,21 @@
-{{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusOldValues := default dict .Values.packages.addons.nexus -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.packages.addons.nexusRepositoryManager -}}
 {{- if $nexusValues.enabled  }}
 {{- include "values-secret" (dict "root" $ "package" $nexusValues "name" "nexus-repository-manager" "defaults" (include "bigbang.defaults.nexus-repository-manager" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.nexus-repository-manager" -}}
-{{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusOldValues := default dict .Values.packages.addons.nexus -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.packages.addons.nexusRepositoryManager -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
 hostname: nexus
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false $nexusValues.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
   injection: {{ dig "istio" "injection" "enabled" $nexusValues }}
   nexus:
@@ -31,10 +31,10 @@ job_image:
   pullPolicy: {{ .Values.imagePullPolicy }}
   
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   serviceMonitor:
-    createMetricsUser: {{ .Values.monitoring.enabled }}
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.velero.values) "STRICT") }}
+    createMetricsUser: {{ .Values.packages.addons.monitoring.enabled }}
+  {{- if and .Values.packages.core.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.velero.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -47,13 +47,13 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   ingressLabels:
     {{- $gateway := default "public" $nexusValues.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
 
 nexus:
   imagePullSecrets:
     - name: private-registry
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}

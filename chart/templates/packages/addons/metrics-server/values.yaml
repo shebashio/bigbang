@@ -1,8 +1,8 @@
-{{- $enableFlag := .Values.addons.metricsServer.enabled | toString }}
+{{- $enableFlag := .Values.packages.addons.metricsServerServer.enabled | toString }}
 {{- $existingMetricsApi := (.Capabilities.APIVersions.Has "metrics.k8s.io/v1beta1") }}
 {{- $existingMetricsHelmRelease := (lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "metrics-server") }}
 {{- if or ( eq $enableFlag "true") (and (eq $enableFlag "auto") (or (not $existingMetricsApi) $existingMetricsHelmRelease)) }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.metricsServer "name" "metrics" "defaults" (include "bigbang.defaults.metrics-server" .)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.addons.metricsServerServer "name" "metrics" "defaults" (include "bigbang.defaults.metrics-server" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.metrics-server" -}}
@@ -11,25 +11,25 @@
 domain: {{ $domainName }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ .Values.packages.core.istio.enabled }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.metricsServer.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.metricsServerServer.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ ternary "enabled" "disabled" .Values.istio.enabled }}
+  injection: {{ ternary "enabled" "disabled" .Values.packages.core.istio.enabled }}
 
 
-{{- if .Values.istio.enabled }}
+{{- if .Values.packages.core.istio.enabled }}
 podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
 
 metrics:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
   dashboards:
     namespace: monitoring
 

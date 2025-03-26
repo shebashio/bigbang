@@ -1,4 +1,4 @@
-{{- if .Values.twistlock.enabled }}
+{{- if .Values.packages.addons.twistlock.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7,5 +7,5 @@ metadata:
     app.kubernetes.io/name: twistlock
     app.kubernetes.io/component: "security"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.twistlock) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.packages.addons.twistlock) "enabled")) }}
 {{- end }}

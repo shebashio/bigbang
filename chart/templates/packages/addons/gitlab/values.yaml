@@ -1,7 +1,7 @@
-{{- if .Values.addons.gitlab.enabled }}
+{{- if .Values.packages.addons.gitlab.enabled }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.gitlab" .))) "name" "gitlab" "defaults" (include "bigbang.defaults.gitlab" .)) }}
 {{- end }}
-{{- if and (ne .Values.addons.gitlab.objectStorage.iamProfile "") (ne .Values.addons.gitlab.objectStorage.accessKey "") }}{{- fail "Must choose to use an IAM profile OR an AWS accessKey/accessSecret at .Values.addons.gitlab.objectStorage" }}{{- end }}
+{{- if and (ne .Values.packages.addons.gitlab.objectStorage.iamProfile "") (ne .Values.packages.addons.gitlab.objectStorage.accessKey "") }}{{- fail "Must choose to use an IAM profile OR an AWS accessKey/accessSecret at .Values.packages.addons.gitlab.objectStorage" }}{{- end }}
 {{- define "bigbang.defaults.gitlab" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -9,9 +9,9 @@ hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") (include "istioEnabled" .)) }}
-{{- $extObjStorageIsConfigured := (or .Values.addons.gitlab.objectStorage.region .Values.addons.gitlab.objectStorage.endpoint) }}
-{{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
+{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.packages.addons.gitlab) "enabled") (include "istioEnabled" .)) }}
+{{- $extObjStorageIsConfigured := (or .Values.packages.addons.gitlab.objectStorage.region .Values.packages.addons.gitlab.objectStorage.endpoint) }}
+{{- $iamProfile := (and (ne .Values.packages.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
 
 openshift: {{ .Values.openshift }}
 
@@ -19,39 +19,39 @@ istio:
   enabled: {{ include "istioEnabled" . }}
   hardened:
     enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlab.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.gitlab.values)
+      (dig "istio" "hardened" "enabled" false .Values.packages.addons.gitlabRunner.values)
+      (dig "hardened" "enabled" false .Values.packages.core.istio.values)
     }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlab }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.gitlab }}
   gitlab:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.gitlab.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.gitlab.ingress.gateway }}
   registry:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.gitlab.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.packages.addons.gitlab.ingress.gateway }}
 
 # Used for istio SSO serviceEntry
 sso:
-  enabled: {{ .Values.addons.gitlab.sso.enabled }}
+  enabled: {{ .Values.packages.addons.gitlab.sso.enabled }}
   host: {{ include "sso.host" . }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.addons.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.gitlab.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- $gateway := default "public" .Values.packages.addons.gitlab.ingress.gateway }}
+    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.packages.core.istio) "istio" nil }}
+    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.packages.core.istio) | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
     {{ include "istioNamespaceSelector" . | nindent 4 }}
 
-{{- if and (or $istioInjection .Values.monitoring.enabled) (dig "redis" "install" true .Values.addons.gitlab.values) }}
+{{- if and (or $istioInjection .Values.packages.addons.monitoring.enabled) (dig "redis" "install" true .Values.packages.addons.gitlab.values) }}
 redis:
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   metrics:
     serviceMonitor:
       enabled: true
@@ -67,9 +67,9 @@ redis:
   {{- end }}
 {{- end }}
 
-{{- if or .Values.addons.gitlab.database.host $istioInjection }}
+{{- if or .Values.packages.addons.gitlab.database.host $istioInjection }}
 postgresql:
-  {{- if .Values.addons.gitlab.database.host }}
+  {{- if .Values.packages.addons.gitlab.database.host }}
   install: false
   {{- end }}
   {{- if $istioInjection }}
@@ -92,13 +92,13 @@ registry:
   {{- if or $iamProfile $istioInjection }}
   annotations: 
     {{- if $iamProfile }}
-    iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+    iam.amazonaws.com/role: {{ .Values.packages.addons.gitlab.objectStorage.iamProfile }}
     {{- end }}
     {{- if $istioInjection }}
     {{ include "istioAnnotation" . }}
     {{- end }}
   {{- end }}
-  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlab.values) "STRICT") $istioInjection }}
+  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.gitlab.values) "STRICT") $istioInjection }}
   metrics:
     serviceMonitor:
       endpointConfig:
@@ -124,7 +124,7 @@ gitlab:
     {{- if or $iamProfile $istioInjection }}
     annotations:
       {{- if $iamProfile }}
-      iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+      iam.amazonaws.com/role: {{ .Values.packages.addons.gitlab.objectStorage.iamProfile }}
       {{- end }}
       {{- if $istioInjection }}
       {{ include "istioAnnotation" . }}
@@ -132,13 +132,13 @@ gitlab:
     {{- end }}
   {{- end }}
   gitlab-exporter:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.addons.monitoring.enabled }}
     {{- if $istioInjection }}
     metrics:
       annotations:
         {{ include "istioAnnotation" . }}
     {{- end }}
-    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlab.values) "STRICT") $istioInjection }}
+    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.gitlab.values) "STRICT") $istioInjection }}
     metrics:
       serviceMonitor:
         endpointConfig:
@@ -152,7 +152,7 @@ gitlab:
 
   {{- if or $iamProfile $istioInjection }}
   webservice:
-  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlab.values) "STRICT") $istioInjection }}
+  {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.gitlab.values) "STRICT") $istioInjection }}
     metrics:
       serviceMonitor:
         endpointConfig:
@@ -176,7 +176,7 @@ gitlab:
   {{- if or $iamProfile $istioInjection }}
     annotations: 
       {{- if $iamProfile }}
-      iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+      iam.amazonaws.com/role: {{ .Values.packages.addons.gitlab.objectStorage.iamProfile }}
       {{- end }}
       {{- if $istioInjection }}
       {{ include "istioAnnotation" . }}
@@ -184,7 +184,7 @@ gitlab:
   sidekiq:
     annotations: 
       {{- if $iamProfile }}
-      iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+      iam.amazonaws.com/role: {{ .Values.packages.addons.gitlab.objectStorage.iamProfile }}
       {{- end }}
       {{- if $istioInjection }}
       {{ include "istioAnnotation" . }}
@@ -198,7 +198,7 @@ gitlab:
   gitaly:
     annotations:
       {{ include "istioAnnotation" . }}
-    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlab.values) "STRICT") $istioInjection }}
+    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.gitlab.values) "STRICT") $istioInjection }}
     metrics:
       serviceMonitor:
         endpointConfig:
@@ -212,7 +212,7 @@ gitlab:
   gitlab-shell:
     annotations:
       {{ include "istioAnnotation" . }}
-    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlab.values) "STRICT") $istioInjection }}
+    {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.addons.gitlab.values) "STRICT") $istioInjection }}
     metrics:
       serviceMonitor:
         endpointConfig:
@@ -239,10 +239,10 @@ minio:
 {{- end }}
 
 global:
-  {{- if and .Values.addons.gitlab.sso.enabled (or (dig "certificateAuthority" "secretName" false .Values.sso) .Values.sso.secretName) }}
+  {{- if and .Values.packages.addons.gitlab.sso.enabled (or (dig "certificateAuthority" "secretName" false .Values.sso) .Values.sso.secretName) }}
   certificates:
     customCAs:
-      {{- if and .Values.addons.gitlab.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+      {{- if and .Values.packages.addons.gitlab.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
       - secret: {{ default (dig "certificateAuthority" "secretName" "" .Values.sso) .Values.sso.secretName }}
       {{- end }}
       - secret: ca-certs-australian-defence-organisation-cross-cert-chain
@@ -283,28 +283,28 @@ global:
     
   istio:
     enabled: {{ include "istioEnabled" . }}
-    injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlab }}
+    injection: {{ dig "istio" "injection" "enabled" .Values.packages.addons.gitlab }}
 
   hosts:
     domain: {{ $domainName }}
 
     gitlab:
-      name: {{ .Values.addons.gitlab.hostnames.gitlab }}.{{ $domainName }}
+      name: {{ .Values.packages.addons.gitlab.hostnames.gitlab }}.{{ $domainName }}
 
     registry:
-      name: {{ .Values.addons.gitlab.hostnames.registry }}.{{ $domainName }}
+      name: {{ .Values.packages.addons.gitlab.hostnames.registry }}.{{ $domainName }}
 
-  {{- if or (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured }}
+  {{- if or (ne .Values.packages.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured }}
   minio:
     enabled: false
   {{- end }}
 
-  {{- if .Values.addons.gitlab.database.host }}
+  {{- if .Values.packages.addons.gitlab.database.host }}
   psql:
-    host: {{ .Values.addons.gitlab.database.host }}
-    port: {{ .Values.addons.gitlab.database.port }}
-    username: {{ .Values.addons.gitlab.database.username }}
-    database: {{ .Values.addons.gitlab.database.database }}
+    host: {{ .Values.packages.addons.gitlab.database.host }}
+    port: {{ .Values.packages.addons.gitlab.database.port }}
+    username: {{ .Values.packages.addons.gitlab.database.username }}
+    database: {{ .Values.packages.addons.gitlab.database.database }}
     password:
       secret: gitlab-database
       key: PGPASSWORD
@@ -312,30 +312,30 @@ global:
 
   {{- if $extObjStorageIsConfigured }}
   registry:
-    {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-    bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
+    {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+    bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
     {{- else }}
     bucket: gitlab-registry
     {{- end }}
   {{- end }}
 
-  {{- if or .Values.addons.gitlab.sso.enabled $extObjStorageIsConfigured }}
+  {{- if or .Values.packages.addons.gitlab.sso.enabled $extObjStorageIsConfigured }}
   appConfig:
     {{- end }}
 
-    {{- if .Values.addons.gitlab.sso.enabled }}
+    {{- if .Values.packages.addons.gitlab.sso.enabled }}
     omniauth:
       enabled: true
-      {{- $global := .Values.addons.gitlab.values.global | default dict }}
+      {{- $global := .Values.packages.addons.gitlab.values.global | default dict }}
       {{- $appConfig := $global.appConfig | default dict }}
       {{- $omniauth := $appConfig.omniauth | default dict }}
       {{- if hasKey $omniauth "allowSingleSignOn" }}
-      allowSingleSignOn: {{ .Values.addons.gitlab.values.global.appConfig.omniauth.allowSingleSignOn }}
+      allowSingleSignOn: {{ .Values.packages.addons.gitlab.values.global.appConfig.omniauth.allowSingleSignOn }}
       {{- else }}
       allowSingleSignOn: ['openid_connect']
       {{- end }}
       {{- if hasKey $omniauth "blockAutoCreatedUsers" }}
-      blockAutoCreatedUsers: {{ .Values.addons.gitlab.values.global.appConfig.omniauth.blockAutoCreatedUsers }}
+      blockAutoCreatedUsers: {{ .Values.packages.addons.gitlab.values.global.appConfig.omniauth.blockAutoCreatedUsers }}
       {{- else }}
       blockAutoCreatedUsers: false
       {{- end }}
@@ -347,92 +347,92 @@ global:
 
     {{- if $extObjStorageIsConfigured }}
     lfs:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
       {{- else }}
       bucket: gitlab-lfs
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     artifacts:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
       {{- else }}
       bucket: gitlab-artifacts
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     uploads:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
       {{- else }}
       bucket: gitlab-uploads
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     packages:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
       {{- else }}
       bucket: gitlab-packages
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     externalDiffs:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
       {{- else }}
       bucket: gitlab-mr-diffs
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     terraformState:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
       {{- else }}
       bucket: gitlab-terraform-state
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     dependencyProxy:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
       {{- else }}
       bucket: gitlab-dependency-proxy
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.packages.addons.gitlab.values)}}
       connection:
         secret: gitlab-object-storage
         key: rails
       {{- end }}
 
     pseudonymizer:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
       {{- else }}
       bucket: gitlab-pseudo
       {{- end }}
@@ -441,37 +441,37 @@ global:
         key: rails
 
     backups:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
       {{- else }}
       bucket: gitlab-backup
       {{- end }}
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      tmpBucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
+      {{- if .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}
+      tmpBucket: {{ .Values.packages.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
       {{- else }}
       tmpBucket: gitlab-backup-tmp
     {{- end }}
   {{- end }}
 
-  {{- if and (ne .Values.addons.gitlab.redis.password "") (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled) }}
+  {{- if and (ne .Values.packages.addons.gitlab.redis.password "") (or .Values.packages.addons.gitlab.enabled .Values.packages.addons.gitlabRunner.enabled) }}
   redis:  
     password:
       secret: "gitlab-redis-secret-bb"
   {{- end }}
 
-  {{- if .Values.addons.gitlab.smtp.password }}
+  {{- if .Values.packages.addons.gitlab.smtp.password }}
   smtp:
     password:
       secret: "gitlab-smtp-password"
   {{- end }}
 
-  {{- if .Values.addons.gitlab.railsSecret }}
+  {{- if .Values.packages.addons.gitlab.railsSecret }}
   railsSecrets:
     secret: "gitlab-rails-secret-bb"
   {{- end }}
 
 
-{{- if ne .Values.addons.gitlab.objectStorage.iamProfile "" }}
+{{- if ne .Values.packages.addons.gitlab.objectStorage.iamProfile "" }}
 use_iam_profile: true
 {{- end }}
 {{- end -}}
@@ -485,7 +485,7 @@ use_iam_profile: true
 
   {{- $defaults := fromYaml (include "bigbang.defaults.gitlab" .) }}
 
-  {{- $overlays := dig "values" dict .Values.addons.gitlab }}
+  {{- $overlays := dig "values" dict .Values.packages.addons.gitlab }}
   {{- range $certificates, $default := $defaults.global }}
     {{- $overlay := (dig "global" $certificates dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set

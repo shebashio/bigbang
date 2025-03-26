@@ -1,4 +1,4 @@
-{{- if .Values.addons.sonarqube.enabled }}
+{{- if .Values.packages.addons.sonarqube.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7,5 +7,5 @@ metadata:
     app.kubernetes.io/name: sonarqube
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and .Values.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.addons.sonarqube) "enabled")) }}
+    istio-injection: {{ ternary "enabled" "disabled" (and .Values.packages.core.istio.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.addons.sonarqube) "enabled")) }}
 {{- end }}

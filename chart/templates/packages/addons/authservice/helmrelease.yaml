@@ -1,5 +1,5 @@
-{{- $fluxSettingsAuthservice := merge .Values.addons.authservice.flux .Values.flux -}}
-{{- if and (include "istioEnabled" .) (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.jaeger.enabled .Values.jaeger.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
+{{- $fluxSettingsAuthservice := merge .Values.packages.addons.authservice.flux .Values.flux -}}
+{{- if and (include "istioEnabled" .) (or .Values.packages.addons.authservice.enabled (and .Values.packages.addons.monitoring.enabled .Values.packages.addons.monitoring.sso.enabled) (and .Values.packages.addons.jaeger.enabled .Values.packages.addons.jaeger.sso.enabled) (and .Values.packages.addons.tempo.enabled .Values.packages.addons.tempo.sso.enabled)) }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,34 +15,34 @@ spec:
   targetNamespace: authservice
   chart:
     spec:
-      {{- if eq .Values.addons.authservice.sourceType "git" }}
-      chart: {{ .Values.addons.authservice.git.path | default "./chart" }}
+      {{- if eq .Values.packages.addons.authservice.sourceType "git" }}
+      chart: {{ .Values.packages.addons.authservice.git.path | default "./chart" }}
       sourceRef:
         kind: GitRepository
         name: authservice
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.addons.authservice.helmRepo.chartName }}
-      version: {{ .Values.addons.authservice.helmRepo.tag }}
+      chart: {{ .Values.packages.addons.authservice.helmRepo.chartName }}
+      version: {{ .Values.packages.addons.authservice.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.addons.authservice.helmRepo.repoName }}
+        name: {{ .Values.packages.addons.authservice.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.authservice.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.addons.authservice.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.addons.authservice.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.addons.authservice.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.addons.authservice.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.addons.authservice.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsAuthservice | nindent 2 }}
 
-  {{- if .Values.addons.authservice.postRenderers }}
+  {{- if .Values.packages.addons.authservice.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.authservice.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.addons.authservice.postRenderers | nindent 4 }}
   {{- end }}
 
   valuesFrom:
@@ -57,15 +57,15 @@ spec:
       valuesKey: "overlays"
 
   dependsOn:
-  {{- if .Values.istio.enabled }}
+  {{- if .Values.packages.core.istio.enabled }}
   - name: istio
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.addons.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.istioCore.enabled }}
+  {{- if .Values.packages.core.istioCore.enabled }}
   - name: istio-core
     namespace: {{ .Release.Namespace }}
   {{- end }}
