@@ -1,0 +1,31 @@
+{{- range .Values.packages }}
+  # Only process packages that are of sourceType "git" and are enabled.
+  {{- if and (eq .sourceType "git") (toBool (default false .enabled)) }}
+    # Construct a dictionary for Git credentials.
+    {{- $gitCredsDict := dict
+      "name" .name
+      "packageGitScope" (default "master" .gitRepository.ref)
+      "rootScope" .
+      "releaseName" .Release.Name
+    }}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace | default .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .name }}
+    {{- include "commonLabels" . | nindent 4 }}
+spec:
+  interval: {{ .gitRepository.interval | default "1m" }}
+  url: {{ .gitRepository.url }}
+  ref:
+    # Include a validated Git reference using a helper template.
+    {{- include "validRef" .gitRepository.ref | nindent 4 }}
+  # Optionally include gitIgnore settings via a helper template.
+  {{ include "gitIgnore" . }}
+  # Add extended Git credentials using the constructed dictionary.
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+---
+  {{- end }}
+{{- end }}
