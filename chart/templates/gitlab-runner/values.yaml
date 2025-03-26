@@ -34,7 +34,7 @@ metrics:
     enabled: {{ .Values.monitoring.enabled }}
 
 # When istio injected, add an annotation with the istio version to the manager pods only
-{{- if (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") include "istioEnabled" .) }}
+{{- if (and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") (eq (include "istioEnabled" . ) "true")) }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
