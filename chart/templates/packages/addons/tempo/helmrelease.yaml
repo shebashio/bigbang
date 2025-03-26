@@ -1,0 +1,78 @@
+{{- $fluxSettingsTempo := merge .Values.tempo.flux .Values.flux -}}
+{{- if .Values.tempo.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tempo
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/tempo/values.yaml") . | sha256sum }}
+spec:
+  driftDetection:
+    mode: warn
+  targetNamespace: tempo
+  chart:
+    spec:
+      {{- if eq .Values.tempo.sourceType "git" }}
+      chart: {{ .Values.tempo.git.path | default "./chart" }}
+      sourceRef:
+        kind: GitRepository
+        name: tempo
+        namespace: {{ .Release.Namespace }}
+      {{- else }}
+      chart: {{ .Values.tempo.helmRepo.chartName }}
+      version: {{ .Values.tempo.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.tempo.helmRepo.repoName }}
+        namespace: {{ .Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.tempo.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.tempo.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" .Values.tempo.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsTempo | nindent 2 }}
+
+  {{- if .Values.tempo.postRenderers }}
+  postRenderers:
+  {{ toYaml .Values.tempo.postRenderers | nindent 4 }}
+  {{- end }}
+  valuesFrom:
+    - name: {{ .Release.Name }}-tempo-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-tempo-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-tempo-values
+      kind: Secret
+      valuesKey: "overlays"
+  {{- if or .Values.monitoring.enabled .Values.tempo.sso.enabled (include "istioEnabled" .) }}
+  dependsOn:
+    {{- if  .Values.monitoring.enabled }}
+    - name: monitoring
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.tempo.sso.enabled }}
+    - name: authservice
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.istio.enabled }}
+    - name: istio
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.istioCore.enabled }}
+    - name: istio-core
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+  {{- end }}
+{{- end }}

@@ -159,9 +159,6 @@ imagePullPolicy: IfNotPresent
 
 packages:
   core:
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Istio
-    #
     istioCore:
       name: istio-core
       status: "alpha"
@@ -169,6 +166,10 @@ packages:
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          branch: "main"
+          #tag:
       helmRepo:
         repoName: "registry1"
         chartName: "istio-core"
@@ -189,17 +190,15 @@ packages:
       flux: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-core.git
-          path: "./chart"
-          branch: "main"
-          #tag:
     istioGateway:
       name: istio-gateway
       status: "alpha"
       enabled: false
       sourceType: "git"
+      gitRepository:
+        ref:
+          branch: "main"
+          #tag:
       helmRepo:
         repoName: "registry1"
         chartName: "istio-gateway"
@@ -289,16 +288,8 @@ packages:
       #           - op: add
       #             path: /metadata/annotations/bigbang.dev~1example
       #             value: example
-
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-gateway.git
-          path: "./chart"
-          branch: "main"
-          #tag:
     istio:
       name: istio-controlplane
-      # -- Toggle deployment of Istio.
       enabled: true
       mtls:
         # -- STRICT = Allow only mutual TLS traffic,
@@ -306,6 +297,9 @@ packages:
         mode: STRICT
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.23.5-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "istio"
@@ -429,17 +423,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
-          path: "./chart"
-          tag: "1.23.5-bb.0"
     istioOperator:
       name: istio-operator
-      # -- Toggle deployment of Istio Operator.
       enabled: true
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.23.5-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "istio-operator"
@@ -450,150 +441,15 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
-          path: "./chart"
-          tag: "1.23.5-bb.0"
-    jaeger:
-      name: jaeger
-      # -- Toggle deployment of Jaeger.
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "jaeger"
-        tag: "2.57.0-bb.5"
-      # -- Flux reconciliation overrides specifically for the Jaeger Package
-      flux:
-        install:
-          crds: CreateReplace
-        upgrade:
-          crds: CreateReplace
-      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-      ingress:
-        gateway: ""
-      sso:
-        # -- Toggle SSO for Jaeger on and off
-        enabled: false
-        # -- OIDC Client ID to use for Jaeger
-        client_id: ""
-        # -- OIDC Client Secret to use for Jaeger
-        client_secret: ""
-      # -- Values to pass through to Jaeger chart: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-          path: "./chart"
-          tag: "2.57.0-bb.5"
-    kiali:
-      name: kiali
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Kiali.
-      enabled: true
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "kiali"
-        tag: "2.6.0-bb.0"
-      # -- Flux reconciliation overrides specifically for the Kiali Package
-      flux: {}
-      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-      ingress:
-        gateway: ""
-      sso:
-        # -- Toggle SSO for Kiali on and off
-        enabled: false
-        # -- OIDC Client ID to use for Kiali
-        client_id: ""
-        # -- OIDC Client Secret to use for Kiali
-        client_secret: ""
-      # -- Values to pass through to Kiali chart: https://repo1.dso.mil/big-bang/product/packages/kiali
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
-          path: "./chart"
-          tag: "2.6.0-bb.0"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Cluster Auditor
-    #
-    clusterAuditor:
-      name: cluster-auditor
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Cluster Auditor.
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "cluster-auditor"
-        tag: "1.5.0-bb.22"
-      # -- Flux reconciliation overrides specifically for the Cluster Auditor Package
-      flux: {}
-      # -- Values to passthrough to the cluster auditor chart: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
-          path: "./chart"
-          tag: "1.5.0-bb.22"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # OPA Gatekeeper
-    #
-    gatekeeper:
-      name: policy
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of OPA Gatekeeper.
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "gatekeeper"
-        tag: "3.18.2-bb.4"
-      # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
-      flux:
-        install:
-          crds: CreateReplace
-        upgrade:
-          crds: CreateReplace
-      # -- Values to passthrough to the gatekeeper chart: https://repo1.dso.mil/big-bang/product/packages/policy.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
-          path: "./chart"
-          tag: "3.18.2-bb.4"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Kyverno
-    #
     kyverno:
       name: kyverno
       # -- Toggle deployment of Kyverno.
       enabled: true
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.3.6-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "kyverno"
@@ -604,17 +460,15 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
-          path: "./chart"
-          tag: "3.3.6-bb.0"
     kyvernoPolicies:
       name: kyverno-policies
       # -- Toggle deployment of Kyverno policies
       enabled: true
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.3.4-bb.6"
       helmRepo:
         repoName: "registry1"
         chartName: "kyverno-policies"
@@ -625,132 +479,111 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
-          path: ./chart
-          tag: "3.3.4-bb.6"
-    kyvernoReporter:
-      name: kyverno-reporter
+
+  addons:
+    monitoring:
+      name: monitoring
       # ----------------------------------------------------------------------------------------------------------------------
 
-      # -- Toggle deployment of Kyverno Reporter
-      enabled: true
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "kyverno-reporter"
-        tag: "3.0.3-bb.0"
-      # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
-      flux: {}
-      # -- Values to passthrough to the kyverno reporter chart: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
-          path: ./chart
-          tag: "3.0.3-bb.0"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Elasticsearch, Kibana, Fluentbit Logging stack
-    #
-    elasticsearchKibana:
-      name: elasticsearch-kibana
-      # -- Toggle deployment of Logging (EFK).
+      # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "69.7.3-bb.1"
       helmRepo:
         repoName: "registry1"
-        chartName: "elasticsearch-kibana"
-        tag: "1.27.0-bb.0"
-      # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
+        chartName: "monitoring"
+        tag: "69.7.3-bb.1"
+      # -- Flux reconciliation overrides specifically for the Monitoring Package
       flux:
-        timeout: 20m
+        install:
+          crds: CreateReplace
+        upgrade:
+          crds: CreateReplace
       # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
       ingress:
         gateway: ""
       sso:
-        # -- Toggle OIDC SSO for Kibana/Elasticsearch on and off.
-        # Enabling this option will auto-create any required secrets.
+        # -- Toggle SSO for monitoring components on and off
         enabled: false
-        # -- Elasticsearch/Kibana OIDC client ID
-        client_id: ""
-        # -- Elasticsearch/Kibana OIDC client secret
-        client_secret: ""
-      # -- Elasticsearch/Kibana Service Account Annotations
-      serviceAccountAnnotations:
-        elasticsearch: {}
-        kibana: {}
-      license:
-        # -- Toggle trial license installation of elasticsearch.  Note that enterprise (non trial) is required for SSO to work.
-        trial: false
-        # -- Elasticsearch license in json format seen here: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana#enterprise-license
-        keyJSON: ""
-      # -- Values to passthrough to the elasticsearch-kibana chart: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
+        prometheus:
+          # -- Prometheus OIDC client ID
+          client_id: ""
+          # -- Prometheus OIDC client secret
+          client_secret: ""
+        alertmanager:
+          # -- Alertmanager OIDC client ID
+          client_id: ""
+          # -- Alertmanager OIDC client secret
+          client_secret: ""
+      # -- Values to passthrough to the monitoring chart: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
-          path: "./chart"
-          tag: "1.27.0-bb.0"
-    eckOperator:
-      name: eck-operator
-      # -- Toggle deployment of ECK Operator.
+    grafana:
+      name: grafana
+      # ----------------------------------------------------------------------------------------------------------------------
+
+      # -- Toggle deployment of Grafana
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "8.10.4-bb.0"
       helmRepo:
         repoName: "registry1"
-        chartName: "eck-operator"
-        tag: "2.16.1-bb.0"
-      # -- Flux reconciliation overrides specifically for the ECK Operator Package
+        chartName: "grafana"
+        tag: "8.10.4-bb.0"
+      # -- Flux reconciliation overrides specifically for the Monitoring Package
       flux: {}
-      # -- Values to passthrough to the eck-operator chart: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
+      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+      ingress:
+        gateway: ""
+      sso:
+        # -- Toggle SSO for grafana components on and off
+        enabled: false
+        grafana:
+          # -- Grafana OIDC client ID
+          client_id: ""
+          # -- Grafana OIDC client secret
+          client_secret: ""
+          # -- Grafana OIDC client scopes, comma separated, see https://grafana.com/docs/grafana/latest/auth/generic-oauth/
+          scopes: ""
+          allow_sign_up: true
+          role_attribute_path: "Viewer"
+          # -- Other options available, see package Documentation.
+      # -- Values to passthrough to the grafana chart: https://repo1.dso.mil/big-bang/product/packages/grafana.git
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
-          path: "./chart"
-          tag: "2.16.1-bb.0"
-    fluentbit:
-      name: fluentbit
-      # -- Toggle deployment of Fluent-Bit.
+    alloy:
+      name: alloy
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "fluentbit"
-        tag: "0.48.6-bb.0"
-      # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
-      flux: {}
-      # -- Values to passthrough to the fluentbit chart: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
       gitRepository:
         ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
-          path: "./chart"
-          tag: "0.48.6-bb.0"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Promtail / Loki Logging stack
-    #
+          tag: "2.0.16-bb.2"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "k8s-monitoring"
+        tag: "2.0.16-bb.2"
+      values: {}
+      postRenderers: []
+      # -- Flux reconciliation overrides specifically for the alloy package
+      flux: {}
     promtail:
       name: promtail
       # -- Toggle deployment of Promtail.
-      enabled: true
+      enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "6.16.6-bb.2"
       helmRepo:
         repoName: "registry1"
         chartName: "promtail"
@@ -761,19 +594,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
-          path: "./chart"
-          tag: "6.16.6-bb.2"
     loki:
       name: loki
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Loki.
-      enabled: true
+      enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "6.27.0-bb.1"
       helmRepo:
         repoName: "registry1"
         chartName: "loki"
@@ -804,64 +632,145 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
-          path: "./chart"
-          tag: "6.27.0-bb.1"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    neuvector:
-      name: neuvector
+    kyvernoReporter:
+      name: kyverno-reporter
       # ----------------------------------------------------------------------------------------------------------------------
 
-      # -- Toggle deployment of Neuvector.
-      enabled: true
+      # -- Toggle deployment of Kyverno Reporter
+      enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.0.3-bb.0"
       helmRepo:
         repoName: "registry1"
-        chartName: "neuvector"
-        tag: "2.8.3-bb.1"
-      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-      ingress:
-        gateway: ""
-      sso:
-        # -- Toggle SSO for Neuvector on and off
-        enabled: false
-        # -- OIDC Client ID to use for Neuvector
-        client_id: ""
-        # -- OIDC Client Secret to use for Neuvector
-        client_secret: ""
-        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
-        default_role: ""
-        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
-        group_claim: ""
-        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
-        group_mapped_roles: []
-      # -- Flux reconciliation overrides specifically for the Neuvector Package
+        chartName: "kyverno-reporter"
+        tag: "3.0.3-bb.0"
+      # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
       flux: {}
-      # -- Values to passthrough to the Neuvector chart: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
+      # -- Values to passthrough to the kyverno reporter chart: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
-          path: "./chart"
-          tag: "2.8.3-bb.1"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    tempo:
-      name: tempo
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Tempo.
-      enabled: true
+    metricsServer:
+      name: metrics-server
+      # Acceptable options are enabled: true, enabled: false, enabled: auto
+      # true = enabled / false = disabled / auto = automatic (Installs only if metrics API endpoint is not present)
+      enabled: auto
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.12.2-bb.2"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "metrics-server"
+        tag: "3.12.2-bb.2"
+      # -- Flux reconciliation overrides specifically for the metrics server Package
+      flux: {}
+      # -- Values to passthrough to the metrics server chart: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    mimir:
+      name: mimir
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "5.5.1-bb.8"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "mimir"
+        tag: "5.5.1-bb.8"
+      # -- Enable Mimir Enterprise
+      enterprise:
+        enabled: false
+      # -- Enable Big Bang MinIO dependency chart for Mimir
+      minioObjectStorage:
+        enabled: false
+        # -- MinIO root credentials
+        configSecret:
+          accessKey: "minio"
+          secretKey: "minio123" # default key, change this!
+        # Configures the Big Bang MinIO Tenant User Credentials
+        defaultUserCredentials:
+          username: "mimir-user"
+          password: "supersecret"
+      # -- Configure Mimir to use S3 bucket
+      s3ObjectStorage:
+        enabled: false
+        # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
+        endpoint: ""
+        # -- S3 compatible region to use for connection information.
+        region: ""
+        # -- Access key for connecting to object storage endpoint.
+        accessKey: ""
+        # -- Secret key for connecting to object storage endpoint.
+        # Unencoded string data. This should be placed in the secret values and then encrypted
+        accessSecret: ""
+        # -- Bucket name for the Mimir bucket as YAML
+        bucketName: ""
+        # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
+        insecure: false
+      values: {}
+      postRenderers: []
+      # -- Flux reconciliation overrides specifically for the alloy package
+      flux: {}
+    thanos:
+      name: thanos
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "15.9.1-bb.2"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "thanos"
+        tag: "15.9.1-bb.2"
+      sso:
+        # -- Toggle SSO for Thanos on and off
+        enabled: false
+        # -- OIDC Client ID to use for Thanos
+        client_id: ""
+        # -- OIDC Client Secret to use for Thanos
+        client_secret: ""
+      #Enable S3 Object Storage for Thanos-sidecar https://thanos.io/tip/components/sidecar.md/ and enables Thanos Store Gateway by default https://thanos.io/tip/components/store.md/
+      objectStorage:
+        # -- S3 compatible endpoint to use for connection information.
+        # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
+        # Note: Thanos does not require protocol prefix for URL.
+        endpoint: ""
+        # -- S3 compatible region to use for connection information.
+        region: ""
+        # -- Access key for connecting to object storage endpoint.
+        accessKey: ""
+        # -- Secret key for connecting to object storage endpoint.
+        # Unencoded string data. This should be placed in the secret values and then encrypted
+        accessSecret: ""
+        # -- Bucket Name for Thanos
+        # examples: "Thanos-metrics"
+        bucket: ""
+        # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
+        insecure: false
+      # -- Flux reconciliation overrides specifically for the Thanos Package
+      flux: {}
+      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+      ingress:
+        gateway: ""
+      values: {}
+      postRenderers: []
+    tempo:
+      name: tempo
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.18.3-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "tempo"
@@ -900,30 +809,19 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
-          path: "./chart"
-          tag: "1.18.3-bb.0"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # Monitoring
-    #
-    monitoring:
-      name: monitoring
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
-      enabled: true
+    jaeger:
+      name: jaeger
+      enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "2.57.0-bb.5"
       helmRepo:
         repoName: "registry1"
-        chartName: "monitoring"
-        tag: "69.7.3-bb.1"
-      # -- Flux reconciliation overrides specifically for the Monitoring Package
+        chartName: "jaeger"
+        tag: "2.57.0-bb.5"
+      # -- Flux reconciliation overrides specifically for the Jaeger Package
       flux:
         install:
           crds: CreateReplace
@@ -933,83 +831,161 @@ packages:
       ingress:
         gateway: ""
       sso:
-        # -- Toggle SSO for monitoring components on and off
+        # -- Toggle SSO for Jaeger on and off
         enabled: false
-        prometheus:
-          # -- Prometheus OIDC client ID
-          client_id: ""
-          # -- Prometheus OIDC client secret
-          client_secret: ""
-        alertmanager:
-          # -- Alertmanager OIDC client ID
-          client_id: ""
-          # -- Alertmanager OIDC client secret
-          client_secret: ""
-      # -- Values to passthrough to the monitoring chart: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
+        # -- OIDC Client ID to use for Jaeger
+        client_id: ""
+        # -- OIDC Client Secret to use for Jaeger
+        client_secret: ""
+      # -- Values to pass through to Jaeger chart: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
-          path: "./chart"
-          tag: "69.7.3-bb.1"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # Grafana
-    #
-    grafana:
-      name: grafana
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Grafana
-      enabled: true
+    eckOperator:
+      name: eck-operator
+      enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "2.16.1-bb.0"
       helmRepo:
         repoName: "registry1"
-        chartName: "grafana"
-        tag: "8.10.4-bb.0"
-      # -- Flux reconciliation overrides specifically for the Monitoring Package
+        chartName: "eck-operator"
+        tag: "2.16.1-bb.0"
+      # -- Flux reconciliation overrides specifically for the ECK Operator Package
+      flux: {}
+      # -- Values to passthrough to the eck-operator chart: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    elasticsearchKibana:
+      name: elasticsearch-kibana
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.27.0-bb.0"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "elasticsearch-kibana"
+        tag: "1.27.0-bb.0"
+      # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
+      flux:
+        timeout: 20m
+      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+      ingress:
+        gateway: ""
+      sso:
+        # -- Toggle OIDC SSO for Kibana/Elasticsearch on and off.
+        # Enabling this option will auto-create any required secrets.
+        enabled: false
+        # -- Elasticsearch/Kibana OIDC client ID
+        client_id: ""
+        # -- Elasticsearch/Kibana OIDC client secret
+        client_secret: ""
+      # -- Elasticsearch/Kibana Service Account Annotations
+      serviceAccountAnnotations:
+        elasticsearch: {}
+        kibana: {}
+      license:
+        # -- Toggle trial license installation of elasticsearch.  Note that enterprise (non trial) is required for SSO to work.
+        trial: false
+        # -- Elasticsearch license in json format seen here: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana#enterprise-license
+        keyJSON: ""
+      # -- Values to passthrough to the elasticsearch-kibana chart: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    fluentbit:
+      name: fluentbit
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "0.48.6-bb.0"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "fluentbit"
+        tag: "0.48.6-bb.0"
+      # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
+      flux: {}
+      # -- Values to passthrough to the fluentbit chart: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    kiali:
+      name: kiali
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "2.6.0-bb.0"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "kiali"
+        tag: "2.6.0-bb.0"
+      # -- Flux reconciliation overrides specifically for the Kiali Package
       flux: {}
       # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
       ingress:
         gateway: ""
       sso:
-        # -- Toggle SSO for grafana components on and off
+        # -- Toggle SSO for Kiali on and off
         enabled: false
-        grafana:
-          # -- Grafana OIDC client ID
-          client_id: ""
-          # -- Grafana OIDC client secret
-          client_secret: ""
-          # -- Grafana OIDC client scopes, comma separated, see https://grafana.com/docs/grafana/latest/auth/generic-oauth/
-          scopes: ""
-          allow_sign_up: true
-          role_attribute_path: "Viewer"
-          # -- Other options available, see package Documentation.
-      # -- Values to passthrough to the grafana chart: https://repo1.dso.mil/big-bang/product/packages/grafana.git
+        # -- OIDC Client ID to use for Kiali
+        client_id: ""
+        # -- OIDC Client Secret to use for Kiali
+        client_secret: ""
+      # -- Values to pass through to Kiali chart: https://repo1.dso.mil/big-bang/product/packages/kiali
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
-          path: "./chart"
-          tag: "8.10.4-bb.0"
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Twistlock
-    #
-    twistlock:
-      name: twistlock
-      # -- Toggle deployment of Twistlock.
+    neuvector:
+      name: neuvector
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "2.8.3-bb.1"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "neuvector"
+        tag: "2.8.3-bb.1"
+      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+      ingress:
+        gateway: ""
+      sso:
+        # -- Toggle SSO for Neuvector on and off
+        enabled: false
+        # -- OIDC Client ID to use for Neuvector
+        client_id: ""
+        # -- OIDC Client Secret to use for Neuvector
+        client_secret: ""
+        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
+        default_role: ""
+        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
+        group_claim: ""
+        # -- Default role to use for Neuvector OIDC users. Supports admin, reader, or no default
+        group_mapped_roles: []
+      # -- Flux reconciliation overrides specifically for the Neuvector Package
+      flux: {}
+      # -- Values to passthrough to the Neuvector chart: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    twistlock:
+      name: twistlock
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "0.19.0-bb.3"
       helmRepo:
         repoName: "registry1"
         chartName: "twistlock"
@@ -1033,22 +1009,36 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      #
-      # ----------------------------------------------------------------------------------------------------------------------
-      #
-
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
-          path: "./chart"
-          tag: "0.19.0-bb.3"
-  addons:
-    argocd:
-      name: argocd
-      # -- Toggle deployment of ArgoCD.
+    gatekeeper:
+      name: policy
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.18.2-bb.4"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "gatekeeper"
+        tag: "3.18.2-bb.4"
+      # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
+      flux:
+        install:
+          crds: CreateReplace
+        upgrade:
+          crds: CreateReplace
+      # -- Values to passthrough to the gatekeeper chart: https://repo1.dso.mil/big-bang/product/packages/policy.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+    argocd:
+      name: argocd
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "7.8.7-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "argocd"
@@ -1078,49 +1068,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
-          path: "./chart"
-          tag: "7.8.7-bb.0"
-    authservice:
-      name: authservice
-      # -- Toggle deployment of Authservice.
-      # if enabling authservice, a filter needs to be provided by either enabling
-      # sso for monitoring or istio, or manually adding a filter chain in the values here:
-      # values:
-      #   chain:
-      #     minimal:
-      #       callback_uri: "https://somecallback"
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "authservice"
-        tag: "1.0.4-bb.1"
-      # -- Flux reconciliation overrides specifically for the Authservice Package
-      flux: {}
-      # -- Values to passthrough to the authservice chart: https://repo1.dso.mil/big-bang/product/packages/authservice.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      # -- Additional authservice chain configurations.
-      chains: {}
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
-          path: "./chart"
-          tag: "1.0.4-bb.1"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Minio Operator and Instance
-    #
     minioOperator:
       name: minio-operator
-      # -- Toggle deployment of minio operator and instance.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "7.0.0-bb.1"
       helmRepo:
         repoName: "registry1"
         chartName: "minio-operator"
@@ -1134,17 +1089,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
-          path: "./chart"
-          tag: "7.0.0-bb.1"
     minio:
       name: minio
-      # -- Toggle deployment of minio.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "7.0.0-bb.3"
       helmRepo:
         repoName: "registry1"
         chartName: "minio-instance"
@@ -1162,14 +1114,8 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
-          path: "./chart"
-          tag: "7.0.0-bb.3"
     gitlab:
       name: gitlab
-      # -- Toggle deployment of Gitlab
       enabled: false
       hostnames:
         # host name only without the domain
@@ -1177,6 +1123,9 @@ packages:
         registry: registry
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "8.10.0-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "gitlab"
@@ -1255,17 +1204,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
-          path: "./chart"
-          tag: "8.10.0-bb.0"
     gitlabRunner:
       name: gitlab-runner
-      # -- Toggle deployment of Gitlab Runner
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "0.73.0-bb.1"
       helmRepo:
         repoName: "registry1"
         chartName: "gitlab-runner"
@@ -1276,17 +1222,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
-          path: "./chart"
-          tag: "0.73.0-bb.1"
     nexusRepositoryManager:
       name: nexus
-      # -- Toggle deployment of Nexus Repository Manager.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "75.0.0-bb.2"
       helmRepo:
         repoName: "registry1"
         chartName: "nexus-repository-manager"
@@ -1331,17 +1274,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
-          path: "./chart"
-          tag: "75.0.0-bb.2"
     sonarqube:
       name: sonarqube
-      # -- Toggle deployment of SonarQube.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "10.7.0-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "sonarqube"
@@ -1380,17 +1320,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
-          path: "./chart"
-          tag: "10.7.0-bb.0"
     fortify:
       name: fortify
-      # -- Toggle deployment of Fortify.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.1.2320154-bb.22"
       helmRepo:
         repoName: "registry1"
         chartName: "fortify-ssc"
@@ -1411,18 +1348,16 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
-          path: "./chart"
-          tag: "1.1.2320154-bb.22"
+    haproxy:
     # ----------------------------------------------------------------------------------------------------------------------
     # Deployment of HAProxy is automatically toggled depending on Monitoring SSO and Monitoring Istio Injection
     #
-    haproxy:
       name: haproxy
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.19.3-bb.10"
       helmRepo:
         repoName: "registry1"
         chartName: "haproxy"
@@ -1436,17 +1371,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/haproxy.git
-          path: "./chart"
-          tag: "1.19.3-bb.10"
     anchore:
       name: anchore-enterprise
-      # -- Toggle deployment of Anchore.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "3.5.0-bb.1"
       helmRepo:
         repoName: "registry1"
         chartName: "anchore"
@@ -1505,20 +1437,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
-          path: "./chart"
-          tag: "3.5.0-bb.1"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Mattermost Operator and Instance
-    #
     mattermostOperator:
       name: mattermost-operator
-      # -- Toggle deployment of Mattermost Operator.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.22.1-bb.1"
       helmRepo:
         repoName: "registry1"
         chartName: "mattermost-operator"
@@ -1529,17 +1455,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
-          path: "./chart"
-          tag: "1.22.1-bb.1"
     mattermost:
       name: mattermost
-      # -- Toggle deployment of Mattermost.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "10.5.1-bb.3"
       helmRepo:
         repoName: "registry1"
         chartName: "mattermost"
@@ -1602,20 +1525,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
-          path: "./chart"
-          tag: "10.5.1-bb.3"
     velero:
       name: velero
-      #
-      # ----------------------------------------------------------------------------------------------------------------------
-
-      # -- Toggle deployment of Velero.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "8.3.0-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "velero"
@@ -1630,25 +1547,16 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
-          path: "./chart"
-          tag: "8.3.0-bb.0"
-    #
-    # ----------------------------------------------------------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Keycloak
-    #
     keycloak:
       name: keycloak
-      # -- Toggle deployment of Keycloak.
       # if you enable Keycloak you should uncomment the istio passthrough configurations above
       # istio.ingressGateways.passthrough-ingressgateway and istio.gateways.passthrough
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "2.5.1-bb.6"
       helmRepo:
         repoName: "registry1"
         chartName: "keycloak"
@@ -1681,20 +1589,40 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
-          path: "./chart"
-          tag: "2.5.1-bb.6"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Vault
-    #
-    vault:
-      name: vault
-      # -- Toggle deployment of Vault.
+    authservice:
+      name: authservice
+      # if enabling authservice, a filter needs to be provided by either enabling
+      # sso for monitoring or istio, or manually adding a filter chain in the values here:
+      # values:
+      #   chain:
+      #     minimal:
+      #       callback_uri: "https://somecallback"
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.0.4-bb.1"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "authservice"
+        tag: "1.0.4-bb.1"
+      # -- Flux reconciliation overrides specifically for the Authservice Package
+      flux: {}
+      # -- Values to passthrough to the authservice chart: https://repo1.dso.mil/big-bang/product/packages/authservice.git
+      values: {}
+      # -- Post Renderers.  See docs/postrenders.md
+      postRenderers: []
+      # -- Additional authservice chain configurations.
+      chains: {}
+    vault:
+      name: vault
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "0.29.1-bb.9"
       helmRepo:
         repoName: "registry1"
         chartName: "vault"
@@ -1712,46 +1640,33 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
-          path: "./chart"
-          tag: "0.29.1-bb.9"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Metrics Server
-    #
-    metricsServer:
-      name: metrics-server
-      # -- Toggle deployment of metrics server
-      # Acceptable options are enabled: true, enabled: false, enabled: auto
-      # true = enabled / false = disabled / auto = automatic (Installs only if metrics API endpoint is not present)
-      enabled: auto
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "metrics-server"
-        tag: "3.12.2-bb.2"
-      # -- Flux reconciliation overrides specifically for the metrics server Package
-      flux: {}
-      # -- Values to passthrough to the metrics server chart: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
-      values: {}
-      # -- Post Renderers.  See docs/postrenders.md
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
-          path: "./chart"
-          tag: "3.12.2-bb.2"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # Harbor
-    #
-    harbor:
-      name: harbor
-      # -- Toggle deployment of harbor
+    externalSecrets:
+      name: external-secrets
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "0.14.4-bb.0"
+      helmRepo:
+        repoName: "registry1"
+        chartName: "external-secrets"
+        tag: "0.14.4-bb.0"
+      # -- Override flux settings for this package
+      flux: {}
+      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+      ingress:
+        gateway: ""
+      values: {}
+      postRenderers: []
+    harbor:
+      name: harbor
+      enabled: false
+      # -- Choose source type of "git" or "helmRepo"
+      sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.16.1-bb.0"
       helmRepo:
         repoName: "registry1"
         chartName: "harbor"
@@ -1765,17 +1680,14 @@ packages:
       values: {}
       # -- Post Renderers.  See docs/postrenders.md
       postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-          tag: "1.16.1-bb.0"
-          path: "./chart"
     holocron:
       name: holocron
-      # -- Toggle deployment of Holocron.
       enabled: false
       # -- Choose source type of "git" or "helmRepo"
       sourceType: "git"
+      gitRepository:
+        ref:
+          tag: "1.0.13"
       helmRepo:
         repoName: "registry1"
         chartName: "holocron"
@@ -1831,158 +1743,11 @@ packages:
       postRenderers: []
       # -- Values to passthrough to the Holocron chart: https://repo1.dso.mil/big-bang/product/packages/holocron.git
       values: {}
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/holocron.git
-          tag: "1.0.13"
-          path: "./chart"
-    # ----------------------------------------------------------------------------------------------------------------------
-    # thanos
-    #
-    thanos:
-      name: thanos
-      # -- Toggle deployment of thanos
-      enabled: false
-      sso:
-        # -- Toggle SSO for Thanos on and off
-        enabled: false
-        # -- OIDC Client ID to use for Thanos
-        client_id: ""
-        # -- OIDC Client Secret to use for Thanos
-        client_secret: ""
-      #Enable S3 Object Storage for Thanos-sidecar https://thanos.io/tip/components/sidecar.md/ and enables Thanos Store Gateway by default https://thanos.io/tip/components/store.md/
-      objectStorage:
-        # -- S3 compatible endpoint to use for connection information.
-        # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
-        # Note: Thanos does not require protocol prefix for URL.
-        endpoint: ""
-        # -- S3 compatible region to use for connection information.
-        region: ""
-        # -- Access key for connecting to object storage endpoint.
-        accessKey: ""
-        # -- Secret key for connecting to object storage endpoint.
-        # Unencoded string data. This should be placed in the secret values and then encrypted
-        accessSecret: ""
-        # -- Bucket Name for Thanos
-        # examples: "Thanos-metrics"
-        bucket: ""
-        # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
-        insecure: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "thanos"
-        tag: "15.9.1-bb.2"
-      # -- Flux reconciliation overrides specifically for the Thanos Package
-      flux: {}
-      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-      ingress:
-        gateway: ""
-      values: {}
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-          tag: "15.9.1-bb.2"
-          path: "./chart"
-    externalSecrets:
-      name: external-secrets
-      # -- Toggle deployment of external secrets
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "external-secrets"
-        tag: "0.14.4-bb.0"
-      # -- Override flux settings for this package
-      flux: {}
-      # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-      ingress:
-        gateway: ""
-      values: {}
-      postRenderers: []
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-          tag: "0.14.4-bb.0"
-          path: "./chart"
-    alloy:
-      name: alloy
-      # -- Toggle deployment of grafana alloy
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "k8s-monitoring"
-        tag: "2.0.16-bb.2"
-      values: {}
-      postRenderers: []
-      # -- Flux reconciliation overrides specifically for the alloy package
-      flux: {}
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-          tag: "2.0.16-bb.2"
-          path: "./chart"
-    mimir:
-      name: mimir
-      # -- Toggle deployment of Mimir
-      enabled: false
-      # -- Choose source type of "git" or "helmRepo"
-      sourceType: "git"
-      helmRepo:
-        repoName: "registry1"
-        chartName: "mimir"
-        tag: "5.5.1-bb.8"
-      # -- Enable Mimir Enterprise
-      enterprise:
-        enabled: false
-      # -- Enable Big Bang MinIO dependency chart for Mimir
-      minioObjectStorage:
-        enabled: false
-        # -- MinIO root credentials
-        configSecret:
-          accessKey: "minio"
-          secretKey: "minio123" # default key, change this!
-        # Configures the Big Bang MinIO Tenant User Credentials
-        defaultUserCredentials:
-          username: "mimir-user"
-          password: "supersecret"
-      # -- Configure Mimir to use S3 bucket
-      s3ObjectStorage:
-        enabled: false
-        # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
-        endpoint: ""
-        # -- S3 compatible region to use for connection information.
-        region: ""
-        # -- Access key for connecting to object storage endpoint.
-        accessKey: ""
-        # -- Secret key for connecting to object storage endpoint.
-        # Unencoded string data. This should be placed in the secret values and then encrypted
-        accessSecret: ""
-        # -- Bucket name for the Mimir bucket as YAML
-        bucketName: ""
-        # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
-        insecure: false
-      values: {}
-      postRenderers: []
-      # -- Flux reconciliation overrides specifically for the alloy package
-      flux: {}
-      gitRepository:
-        ref:
-          repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-          tag: "5.5.1-bb.8"
-          path: "./chart"
-
 
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
-
   helmRepo:
     # -- Repository holding OCI chart, corresponding to `helmRepositories` name
     repoName: "registry1"
