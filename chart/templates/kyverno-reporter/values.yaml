@@ -45,7 +45,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   grafana:
     namespace: monitoring
-  {{- if .Values.istio.enabled }}
+  {{- if (eq (include "istioEnabled" .) "true") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
