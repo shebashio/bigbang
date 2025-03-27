@@ -11,7 +11,7 @@ license:
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if or .Values.istio.enabled .Values.istioCore.enabled}}
+{{- if (eq (include "istioEnabled" .) "true") }}
 podAnnotations:
   traffic.sidecar.istio.io/includeInboundPorts: "*"
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
