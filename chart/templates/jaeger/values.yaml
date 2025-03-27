@@ -34,7 +34,7 @@ annotations:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   # conditional passes only for default istio: enabled, mTLS: SCRICT
-  {{- if and (eq (include "istioEnabled" .) "true") ) (eq (dig "istio" "mtls" "mode" "STRICT" .Values.jaeger.values) "STRICT") }}
+  {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "mtls" "mode" "STRICT" .Values.jaeger.values) "STRICT") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
