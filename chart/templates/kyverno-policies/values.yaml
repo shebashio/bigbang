@@ -356,6 +356,9 @@ policies:
     {{ if .Values.istio.enabled }}
     parameters:
       excludeContainers:
+        - istio-init
+    parameters:
+      excludeContainers:
         - init-chmod-data
     {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
@@ -451,6 +454,9 @@ policies:
     {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
+        - istio-init
+    parameters:
+      excludeContainers:
         - init-chmod-data
     {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
@@ -541,6 +547,9 @@ policies:
   require-non-root-user:
     validationFailureAction: Enforce
     {{ if include "istioEnabled" . }}
+    parameters:
+      excludeContainers:
+        - istio-init
     parameters:
       excludeContainers:
         - init-chmod-data
