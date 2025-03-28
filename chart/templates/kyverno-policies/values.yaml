@@ -29,13 +29,6 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
-      - resources:
-          namespaces:
-          - holocron
-          names:
-          - holocron-postgresql-0
-      {{- end }}
       {{- if .Values.addons.velero.enabled }}
       - resources:
           namespaces:
@@ -288,13 +281,6 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
-      - resources:
-          namespaces:
-          - holocron
-          names:
-          - holocron-postgresql-0
-      {{- end }}
       {{- if .Values.addons.velero.enabled }}
       - resources:
           namespaces:
@@ -368,13 +354,6 @@ policies:
   add-default-securitycontext:
     validationFailureAction: Enforce
     {{ if .Values.istio.enabled }}
-    parameters:
-      excludeContainers:
-        - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
     parameters:
       excludeContainers:
         - init-chmod-data
@@ -472,13 +451,6 @@ policies:
     {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
-        - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
         - init-chmod-data
     {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
@@ -569,13 +541,6 @@ policies:
   require-non-root-user:
     validationFailureAction: Enforce
     {{ if include "istioEnabled" . }}
-    parameters:
-      excludeContainers:
-        - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
     parameters:
       excludeContainers:
         - init-chmod-data
