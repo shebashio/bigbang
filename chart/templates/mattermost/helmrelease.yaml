@@ -15,7 +15,7 @@ spec:
   releaseName: mattermost
   targetNamespace: mattermost
   driftDetection:
-    mode: enabled
+    mode: disabled
     ignore:
      - paths: ["/spec/size"]
        target:
