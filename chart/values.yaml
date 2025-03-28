@@ -473,11 +473,11 @@ jaeger:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
     path: "./chart"
-    tag: "2.57.0-bb.5"
+    tag: "2.57.0-bb.6"
   helmRepo:
     repoName: "registry1"
     chartName: "jaeger"
-    tag: "2.57.0-bb.5"
+    tag: "2.57.0-bb.6"
 
   # -- Flux reconciliation overrides specifically for the Jaeger Package
   flux:
@@ -1967,11 +1967,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.1-bb.9"
+      tag: "0.29.1-bb.10"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.29.1-bb.9"
+      tag: "0.29.1-bb.10"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
