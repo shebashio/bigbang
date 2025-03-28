@@ -39,7 +39,7 @@ istio:
   {{- end }}
   thanos:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) }}
 
 {{- with .Values.addons.thanos.objectStorage }}
 {{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
