@@ -195,7 +195,7 @@ policies:
       {{- if .Values.kyvernoReporter.enabled }}
       - resources:
           namespaces:
-          - kyverno-reporter 
+          - kyverno-reporter
           kinds:
           - Pod
           - Deployment
@@ -230,7 +230,7 @@ policies:
       {{- if .Values.addons.externalSecrets.enabled }}
       - resources:
           namespaces:
-          - external-secrets 
+          - external-secrets
           names:
           - external-secrets*
       {{- end }}
@@ -330,7 +330,7 @@ policies:
       require:
       - app.kubernetes.io/name
       - app.kubernetes.io/version
-      
+
   require-istio-on-namespaces:
     enabled: {{ include "istioEnabled" . }}
     exclude:
@@ -357,6 +357,7 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
+    {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
@@ -451,6 +452,7 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
+    {{- end }}
     {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
@@ -542,6 +544,7 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
+    {{- end }}
     exclude:
       any:
       - resources:
@@ -1032,7 +1035,7 @@ policies:
       - namespace: twistlock
         pods:
           allow:
-          # twistlock-init pods require get/list/patch/etc to several resources. 
+          # twistlock-init pods require get/list/patch/etc to several resources.
           # More details in twistlock/chart/templates/init/clusterrole.yaml
           - twistlock-init-*
           # twistlock-volume-upgrade-job requires patch/get/list/update to deployments and get/list to pods
@@ -1106,14 +1109,14 @@ policies:
           - neuvector-updater-pod-*
           - neuvector-prometheus-exporter-pod-*
           - neuvector-registry-adapter-pod-*
-      - namespace: kiali 
+      - namespace: kiali
         pods:
           allow:
           - kiali-*
       - namespace: argocd
         pods:
           allow:
-          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs 
+          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs
           # More details in argocd/chart/templates/argocd-application-controller/role.yaml
           - argocd-argocd-application-controller-*
           # dex pods interact with secrets and configmaps
@@ -1122,7 +1125,7 @@ policies:
           # argocd-upgrade-job interacts with CRDs
           # More details in argocd/chart/templates/bigbang/upgrade-job.yaml
           - argocd-upgrade-job
-          # argocd server pods interact with secrets, configmaps, events, and CRDs 
+          # argocd server pods interact with secrets, configmaps, events, and CRDs
           # More details in argocd/chart/templates/argocd-server/role.yaml
           - argocd-argocd-server-*
           # repo server pods require access to the K8s API if using RBAC
@@ -1138,8 +1141,8 @@ policies:
           # More details in argocd/chart/templates/argocd-notifications/bots/slack/role.yaml
           - argocd-argocd-notifications-controller-*
       - namespace: harbor
-        # Omitting the serviceAccount and Pods section forces the policy to apply to 
-        # all of the serviceAccount and Pods in the namespace 
+        # Omitting the serviceAccount and Pods section forces the policy to apply to
+        # all of the serviceAccount and Pods in the namespace
       - namespace: authservice
         pods:
           allow:
@@ -1181,7 +1184,7 @@ policies:
           - vault-vault-*
           - vault-vault-agent-injector-*
           - vault-vault-job-init-*
-      - namespace: promtail 
+      - namespace: promtail
         pods:
           allow:
           - promtail-promtail-*
@@ -1196,7 +1199,7 @@ policies:
       - namespace: nexus-repository-manager
         pods:
           allow:
-          - nexus-repository-manager-* 
+          - nexus-repository-manager-*
       - namespace: thanos
         pods:
           allow:
