@@ -2173,6 +2173,8 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+      networkPolicies:
+        enabled: false
       bbtests:
         enabled: true
         cypress:
@@ -2181,6 +2183,7 @@ addons:
         scripts:
           envs:
             docker_host: "containers.dev.bigbang.mil"
+        
 
   velero:
     enabled: false
