@@ -2328,7 +2328,8 @@ wrapper:
     # -- Path inside of the git repo to find the helm chart, example: chart
     path: "chart"
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
-    tag: "0.4.12"
+    tag: null
+    branch: "40-wrapper-add-dynamic-network-policy-support"
 
 # -- Packages to deploy with Big Bang
 # @default - '{}'
