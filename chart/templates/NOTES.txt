@@ -426,5 +426,5 @@ PLATFORM ONE LOKI WARNING:
 {{- if .Values.promtail.enabled }}
 DEPRECATION NOTICE:
   Grafana Promtail has been deprecated and will be removed in a future Big Bang release. 
-  Big Bang will be migrating to Grafana Alloy as the core log aggregator. 
+  Big Bang will be migrating to Grafana Alloy (https://docs-bigbang.dso.mil/latest/packages/alloy/) as the core log aggregator. 
 {{- end }}
