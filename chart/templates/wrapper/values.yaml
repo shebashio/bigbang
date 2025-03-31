@@ -27,8 +27,3 @@ stringData:
 ---
 {{ end -}}
 {{- end -}}
-
-bigbang:
-  networkPolicies:
-    istioNamespaceSelector:
-    {{ include "istioNamespaceSelector" . | nindent 4 }}
