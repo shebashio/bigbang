@@ -385,6 +385,7 @@ gatekeeper:
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
           - mimir/mimir-cypress-test
+          - headlamp/headlamp-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -610,6 +611,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
         parameters:
@@ -651,6 +653,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
           - resources:
@@ -699,6 +702,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
       update-image-registry:
