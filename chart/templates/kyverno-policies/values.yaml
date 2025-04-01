@@ -386,7 +386,7 @@ policies:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -461,6 +461,16 @@ policies:
           names:
           - mattermost-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
 
@@ -478,7 +488,7 @@ policies:
       excludeContainers:
         - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -551,6 +561,16 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
   require-non-root-user:
@@ -572,7 +592,7 @@ policies:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled}}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -620,7 +640,7 @@ policies:
       {{- end }}
       {{- if .Values.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       - resources:
           namespaces:
@@ -630,7 +650,7 @@ policies:
       {{- end }}
       {{- if .Values.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       # promtail requires access to /run/promtail for its buffering and persistent state.
       - resources:
@@ -638,6 +658,16 @@ policies:
           - promtail
           names:
           - promtail-promtail*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
     {{- end }}
 
@@ -703,17 +733,17 @@ policies:
       {{- if .Values.addons.alloy.enabled }}
       - resources:
           namespaces:
-          - monitoring
+          - alloy
           names:
-          - monitoring-alloy-alloy-metrics*
-          - monitoring-alloy-alloy-receiver*
-          - monitoring-alloy-alloy-logs*
-          - monitoring-alloy-alloy-singleton*
+          - alloy-alloy-metrics*
+          - alloy-alloy-receiver*
+          - alloy-alloy-logs*
+          - alloy-alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
     validationFailureAction: Enforce
-    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
     exclude:
       any:
       {{- if .Values.fluentbit.enabled }}
@@ -786,6 +816,16 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -909,7 +949,7 @@ policies:
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
   restrict-volume-types:
     exclude:
       any:
@@ -963,6 +1003,16 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -1149,7 +1199,10 @@ policies:
           - monitoring-monitoring-kube-state-metrics*
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
-          - monitoring-alloy-*
+      - namespace: alloy
+        pods:
+          allow:
+          - alloy-*
       - namespace: mimir
         pods:
           allow:
