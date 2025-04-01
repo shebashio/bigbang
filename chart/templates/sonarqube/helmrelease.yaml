@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/sonarqube/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   releaseName: sonarqube
   targetNamespace: sonarqube
   chart:

@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/alloy/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   targetNamespace: alloy
   releaseName: alloy
   chart:

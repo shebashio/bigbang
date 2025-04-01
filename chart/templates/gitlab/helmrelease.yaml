@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/gitlab/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   releaseName: gitlab
   targetNamespace: gitlab
   chart:

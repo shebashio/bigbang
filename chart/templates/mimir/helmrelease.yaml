@@ -11,6 +11,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/mimir/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   targetNamespace: mimir
   chart:
     spec:
