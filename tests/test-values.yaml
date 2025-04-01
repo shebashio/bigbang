@@ -2658,8 +2658,13 @@ addons:
   # Headlamp
   #
   headlamp:
+    sso:
+      enabled: false
+      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_headlamp
     values:
       bbtests:
         enabled: true
         cypress:
           artifacts: true
+          envs:
+            cypress_url: https://headlamp.dev.bigbang.mil
