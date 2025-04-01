@@ -2279,13 +2279,13 @@ addons:
     sourceType: "git"
 
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/headlamp.git
-      tag: "0.29.0-bb.0"
+      repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
+      tag: "0.29.0-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.29.0-bb.0"
+      tag: "0.29.0-bb.3"
 
     # -- Override flux settings for this package
     flux: {}
