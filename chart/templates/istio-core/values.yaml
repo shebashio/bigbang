@@ -14,6 +14,10 @@ imagePullPolicy: {{ .Values.imagePullPolicy }}
 imagePullSecrets:
   - private-registry
 
+base:
+  excludedCRDs: []
+  enableCRDTemplates: true
+
 istiod:
   networkPolicies:
     enabled: {{ .Values.networkPolicies.enabled }}
