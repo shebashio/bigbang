@@ -164,7 +164,7 @@ imagePullPolicy: IfNotPresent
 istioCore:
   status: "alpha"
   # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -292,7 +292,7 @@ istioGateway:
 
 istio:
   # -- Toggle deployment of Istio.
-  enabled: true
+  enabled: false
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
     # PERMISSIVE = Allow both plain text and mutual TLS traffic
