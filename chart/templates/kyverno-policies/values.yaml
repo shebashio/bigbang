@@ -1238,6 +1238,10 @@ policies:
         pods:
           allow:
           - gitlab-runner-*
+      - namespace: headlamp
+        pods:
+          allow:
+          - headlamp-*
 
 istio:
   enabled: {{ include "istioEnabled" . }}

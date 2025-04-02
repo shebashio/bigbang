@@ -2280,7 +2280,8 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.29.0-bb.0"
+      tag: null #"0.29.0-bb.0"
+      branch: 17-setup-keycloak
       path: "./chart"
     helmRepo:
       repoName: "registry1"
