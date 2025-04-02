@@ -170,12 +170,11 @@ istioCore:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-core.git
     path: "./chart"
-    branch: "main"
-    #tag:
+    tag: 1.23.3-bb.4
   helmRepo:
     repoName: "registry1"
     chartName: "istio-core"
-    #tag:
+    tag: 1.23.3-bb.4
   # -- Values to passthrough to the istiod chart
   values:
     # k8s 1.29+ native sidecars ~ https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates
@@ -200,12 +199,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    branch: "main"
-    #tag:
+    tag: 1.23.3-bb.3
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    #tag:
+    tag: 1.23.3-bb.3
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
@@ -516,11 +514,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.6.0-bb.0"
+    tag: "2.7.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.6.0-bb.0"
+    tag: "2.7.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux: {}
@@ -833,11 +831,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.27.0-bb.1"
+    tag: "6.27.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.27.0-bb.1"
+    tag: "6.27.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1065,11 +1063,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.10.4-bb.0"
+    tag: "8.10.4-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.10.4-bb.0"
+    tag: "8.10.4-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1147,6 +1145,38 @@ twistlock:
   values: {}
 
   # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+# ----------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------
+# BBCTL Dashboards
+#
+# Requires monitoring, grafana, loki, and promtail to be deployed
+bbctl:
+    # -- Toggle deployment of the bbctl dashboards
+  enabled: false
+
+  sourceType: "git"
+
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
+    tag: "1.0.0-bb.2"
+    path: "./chart"
+  helmRepo:
+    repoName: "registry1"
+    chartName: "bbctl"
+    tag: "1.0.0-bb.2"
+
+  repoCredentials:
+    repo: "repo1.dso.mil"
+    username: ""
+    password: ""
+
+  # -- Override flux settings for this package
+  flux: {}
+
+  values: {}
+
   postRenderers: []
 
 #
@@ -1280,11 +1310,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.0.0-bb.4"
+      tag: "7.0.0-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.0.0-bb.4"
+      tag: "7.0.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -2158,6 +2188,16 @@ addons:
       repoName: "registry1"
       chartName: "k8s-monitoring"
       tag: "2.0.16-bb.2"
+
+    # -- Toggle Alloy to collect logs 
+    alloyLogs:
+      enabled: true
+    # -- Toggle Alloy to scrape metrics
+    alloyMetrics:
+      enabled: true
+    # -- Toggle Alloy to receive traces
+    alloyTraces:
+      enabled: false
 
     values: {}
 
