@@ -1,0 +1,34 @@
+{{- if .Values.addons.backstage.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.addons.backstage "name" "backstage" "defaults" (include "bigbang.defaults.backstage" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.backstage" -}}
+
+{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.addons.backstage) "enabled") .Values.istio.enabled) }}
+
+# hostname is deprecated and replaced with domain. But if hostname exists then use it.
+{{- $domainName := default .Values.domain .Values.hostname }}
+domain: {{ $domainName }}
+
+istio:
+  enabled: {{ include "istioEnabled" . }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.addons.backstage.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+    }}
+  injection: {{ dig "istio" "injection" "enabled" .Values.addons.backstage }}
+  backstage:
+    gateways:
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.backstage.ingress.gateway }}
+
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
+
+{{- end -}}
+
