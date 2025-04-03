@@ -58,7 +58,7 @@ minio-tenant:
 
 mimir-distributed:
   query_scheduler:
-    enabled: {{ not .Values.istio.enabled }}
+    enabled: {{ not (eq (include "istioEnabled" .) "true") }}
   {{- if or $minioEnabled $s3Enabled }}
   {{- if $s3Enabled }}
   global:

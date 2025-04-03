@@ -25,7 +25,7 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- if .Values.istio.enabled }}
+    {{- if (eq (include "istioEnabled" .) "true") }}
     {{- $gateway := default "public" .Values.monitoring.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
@@ -45,7 +45,7 @@ gitlabRunner:
 
 istio:
   {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
-  enabled: {{ (eq (include "istioEnabled" .) "true")}}
+  enabled: {{ (eq (include "istioEnabled" .) "true") }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -184,7 +184,7 @@ prometheus:
 
     {{- if .Values.addons.mimir.enabled }}
     remoteWrite:
-      {{- if (eq (include "istioEnabled" .) "true") }}
+      {{- if (eq (include "istioEnabled" . ) "true") }}
       # I promise it's not a typo; the port is 80 even though it's TLS
       - url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
       {{- else }}
