@@ -38,7 +38,7 @@ k8s-monitoring:
   {{- range $service := list "alloy-metrics" "alloy-logs" }} # Add/Remove Alloy Micro-Services as Alloy Configurations Change
   {{ $service }}:
     serviceMonitor:
-      enabled: {{ and $alloyMetricsEnabled (or .Values.monitoring.enabled .Values.addons.mimir.enabled) }}
+      enabled: {{ and $alloyMetricsEnabled (or $.Values.monitoring.enabled $.Values.addons.mimir.enabled) }}
       {{- if and (include "istioEnabled" $) (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.addons.alloy.values) "STRICT") }}
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
