@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/fortify/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: enabled
+    mode: disabled
   releaseName: {{ $pkg }}
   targetNamespace: {{ $pkg }}
   chart:
