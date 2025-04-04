@@ -831,11 +831,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.27.0-bb.1"
+    tag: "6.27.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.27.0-bb.1"
+    tag: "6.27.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1063,11 +1063,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.10.4-bb.1"
+    tag: "8.11.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.10.4-bb.1"
+    tag: "8.11.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1310,11 +1310,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.0.0-bb.4"
+      tag: "7.0.0-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.0.0-bb.4"
+      tag: "7.0.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1997,11 +1997,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.1-bb.10"
+      tag: "0.29.1-bb.11"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.29.1-bb.10"
+      tag: "0.29.1-bb.11"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -2062,12 +2062,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-      tag: "1.16.1-bb.0"
+      tag: "1.16.2-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.16.1-bb.0"
+      tag: "1.16.2-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Jaeger Package
     flux: {}
