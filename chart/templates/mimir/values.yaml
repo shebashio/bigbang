@@ -13,9 +13,11 @@ monitoring:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ (eq (include "istioEnabled" .) "true") }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -56,7 +58,7 @@ minio-tenant:
 
 mimir-distributed:
   query_scheduler:
-    enabled: {{ not .Values.istio.enabled }}
+    enabled: {{ not (eq (include "istioEnabled" .) "true") }}
   {{- if or $minioEnabled $s3Enabled }}
   {{- if $s3Enabled }}
   global:
