@@ -202,9 +202,15 @@ istioGateway:
     tag: 1.23.3-bb.3
   values: {}
   # use Tetrate's Enterprise FIPS compliant Istio image
-  # image:
-  #   repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
-  #   tag: 1.25.1-tetratefipslatest1
+  # gateways:
+  #   passthrough:
+  #     image:
+  #       repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
+  #       tag: 1.25.1-tetratefipslatest1
+  #   public:
+  #     image:
+  #       repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
+  #       tag: 1.25.1-tetratefipslatest1
   #
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
