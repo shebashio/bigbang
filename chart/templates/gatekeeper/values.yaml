@@ -43,7 +43,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - registry1.dso.mil
         - registry.dso.mil
 
-  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled .Values.neuvector.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
+  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
   allowedHostFilesystem:
     parameters:
       excludedResources:
@@ -67,6 +67,10 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # promtail requires hostpath volume mounts
       # https://github.com/grafana/helm-charts/blob/main/charts/promtail/templates/daemonset.yaml#L120
       - promtail/promtail-promtail-.*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # alloy pods need access to host for logs
+      - alloy/alloy-alloy-logs-.*
       {{- end }}
       {{- if and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent }}
       # NodeAgent requires hostpath volume mount access in order to facilitate backing up cluster PV/C resources
