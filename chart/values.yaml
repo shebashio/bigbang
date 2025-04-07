@@ -170,11 +170,11 @@ istioCore:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-core.git
     path: "./chart"
-    tag: 1.23.3-bb.4
+    tag: 1.25.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-core"
-    tag: 1.23.3-bb.4
+    tag: 1.25.1-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # use Tetrate's Enterprise FIPS compliant Istio image
@@ -195,11 +195,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.23.3-bb.3
+    tag: 1.25.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.23.3-bb.3
+    tag: 1.25.1-bb.0
   values: {}
   # use Tetrate's Enterprise FIPS compliant Istio image
   # gateways:
