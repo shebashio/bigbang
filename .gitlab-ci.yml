@@ -1,9 +1,9 @@
 include:
   - project: 'big-bang/pipeline-templates/pipeline-templates'
-    ref: master
+    ref: "test-sleep-times"
     file: '/pipelines/bigbang.yaml'
 variables:
-  PIPELINE_REPO_BRANCH: 'master'
+  PIPELINE_REPO_BRANCH: 'test-sleep-times'
   DEBUG_ENABLED: "true"
   CI_DEBUG_TRACE: "true"
   CLUSTER_TYPE: "EKS"
