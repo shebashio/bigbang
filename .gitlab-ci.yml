@@ -1,0 +1,12 @@
+include:
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: master
+    file: '/pipelines/bigbang.yaml'
+variables:
+  PIPELINE_REPO_BRANCH: 'master'
+  DEBUG_ENABLED: "true"
+  CI_DEBUG_TRACE: "true"
+  CLUSTER_TYPE: "EKS"
+  JOB_TYPE: "nightly" 
+  CI_PIPELINE_SOURCE: "schedule"
+  CI_DEFAULT_BRANCH: "t-sleep-master"
