@@ -4,9 +4,9 @@
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
-{{- $alloyMetricsEnabled := (.Values.addons.alloy.alloyMetrics.enabled) }}
-{{- $alloyLogsEnabled := (.Values.addons.alloy.alloyLogs.enabled) }}
-{{- $alloyTracesEnabled := (.Values.addons.alloy.alloyTraces.enabled) }}
+{{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.addons.alloy) }}
+{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.addons.alloy) }}
+{{- $alloyTracesEnabled := (dig "alloyTraces" "enabled" false .Values.addons.alloy) }}
 
 {{- $lokiWriteDestUrl := ternary
     "http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push"
