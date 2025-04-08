@@ -170,18 +170,18 @@ istioCore:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-core.git
     path: "./chart"
-    tag: 1.25.1-bb.0
+    tag: 1.25.1-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-core"
-    tag: 1.25.1-bb.0
+    tag: 1.25.1-bb.1
   # -- Values to passthrough to the istiod chart
   values: {}
   # use Tetrate's Enterprise FIPS compliant Istio image
-  # istiod:
-  #   global:
-  #     hub: registry1.dso.mil/ironbank/tetrate/istio
-  #     tag: 1.25.1-tetratefipslatest1
+  #   istiod:
+  #     global:
+  #       hub: registry1.dso.mil/ironbank/tetrate/istio
+  #       tag: 1.25.1-tetratefipslatest1
 
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux: {}
@@ -201,16 +201,16 @@ istioGateway:
     chartName: "istio-gateway"
     tag: 1.25.1-bb.0
   values: {}
-  # use Tetrate's Enterprise FIPS compliant Istio image
-  # gateways:
-  #   passthrough:
-  #     image:
-  #       repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
-  #       tag: 1.25.1-tetratefipslatest1
-  #   public:
-  #     image:
-  #       repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
-  #       tag: 1.25.1-tetratefipslatest1
+  # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
+  #   gateways:
+  #     passthrough:
+  #       image:
+  #         repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
+  #         tag: 1.25.1-tetratefipslatest1
+  #     public:
+  #       image:
+  #         repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
+  #         tag: 1.25.1-tetratefipslatest1
   #
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
