@@ -170,11 +170,11 @@ istioCore:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-core.git
     path: "./chart"
-    tag: 1.23.3-bb.4
+    tag: 1.25.1-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-core"
-    tag: 1.23.3-bb.4
+    tag: 1.25.1-bb.1
   # -- Values to passthrough to the istiod chart
   values:
     # k8s 1.29+ native sidecars ~ https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates
@@ -806,11 +806,11 @@ promtail:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
     path: "./chart"
-    tag: "6.16.6-bb.2"
+    tag: "6.16.6-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
-    tag: "6.16.6-bb.2"
+    tag: "6.16.6-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Promtail Package
   flux: {}
@@ -1193,11 +1193,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.11-bb.0"
+      tag: "7.8.21-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.11-bb.0"
+      tag: "7.8.21-bb.1"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1464,12 +1464,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.73.0-bb.2"
+      tag: "0.73.0-bb.3"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.73.0-bb.2"
+      tag: "0.73.0-bb.3"
 
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1997,11 +1997,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.29.1-bb.11"
+      tag: "0.30.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.29.1-bb.11"
+      tag: "0.30.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
