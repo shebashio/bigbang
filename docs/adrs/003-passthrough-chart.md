@@ -8,7 +8,7 @@ Date: 2025-04-04
 
 ## Context
 
-The passthrough helm chart pattern was developed as a way for the internal Big Bang engineering team to both speed up renovates as well as curb the reliance on an outdated and no longer support version of the [kpt](https://kpt.dev/) tool. This patten simply involves utilizing the upstream creator's chart as a helm dependency and layering the default values required to run the chart within the compliance standards of Big Bang.
+The Big Bang team is moving forward with using the passthrough helm chart pattern wherever possible. This pattern is intended to reduce the maintenance workload and complexity for renovating big bang packages. This new pattern for big bang packages will also reduce the reliance on an outdated and no longer support version of the [kpt](https://kpt.dev/) tool. This patten simply involves utilizing the upstream creator's chart as a helm dependency and layering the default values required to run the chart within the compliance standards of Big Bang.
 
 ## Decision
 
@@ -45,4 +45,8 @@ Sample post renderer config:
     {{- end }}
 ```
 
+Big Bang internally created template files(e.g. `NetworkPolicy`s, `AuthorizationPolicy`s, etc.) will still be created under the `chart/templates/bigbang/` directory, with the aim being that commonly utilized template files will be consolidated into a repository within repo1.dso.mil for all packages to pull from in the future.
+
 ## Consequences 
+
+Users will no longer be able to view the package values directly in the Big Bang package git repository. The `values.yaml` file will exist in a passthrough sub-chart tarfile bundle, which is still stored in the git repo, but not viewable from the GitLab console directly. The upstream GitHub repository for each sub chart linked in the Big Bang chart's `README` can be used for viewing the `values.yaml` file and template files, however users should take care to ensure they are viewing the correct version of the files that is deployed via the passthrough sub-chart.
