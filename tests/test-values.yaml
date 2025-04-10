@@ -850,7 +850,7 @@ kyvernoPolicies:
               value: busybox
 eckOperator:
   # -- Toggle deployment of ECK Operator.
-  enabled: false
+  enabled: true
   values:
     istio:
       hardened:
@@ -871,7 +871,7 @@ eckOperator:
             resolution: DNS
             
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kibana
@@ -931,7 +931,10 @@ elasticsearchKibana:
             memory: "4Gi"
 
 fluentbit:
-  enabled: false
+  enabled: enabled
+  git:
+    branch: "173-replace-jq-image-with-base-image"
+    tag: null
   values:
     istio:
       hardened:
