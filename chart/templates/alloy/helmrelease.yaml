@@ -78,6 +78,10 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
+  {{- if .Values.addons.alloy.alloyLogs.enabled }}
+    - name: loki
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
   {{- end }}
 {{- end }}
 
