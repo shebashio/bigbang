@@ -56,12 +56,14 @@ Another consequence of this passthrough chart pattern is that values settings wi
 While setting values in an override file, additional nesting is also required. And example for enabling logs and pod logs in Big Bang's implementation of [Grafana Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)(which follows this passthrough pattern) is provided below:
 
 ```yaml
+  # Package name
   alloy:
     enabled: true
     git:
       tag: null
       branch: alloy-92/add-dynamic-netpol
     values:
+      # Upstream Chart Name
       k8s-monitoring:
         alloy-logs:
           enabled: true
