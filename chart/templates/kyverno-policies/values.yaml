@@ -29,13 +29,6 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
-      - resources:
-          namespaces:
-          - holocron
-          names:
-          - holocron-postgresql-0
-      {{- end }}
       {{- if .Values.addons.velero.enabled }}
       - resources:
           namespaces:
@@ -202,7 +195,7 @@ policies:
       {{- if .Values.kyvernoReporter.enabled }}
       - resources:
           namespaces:
-          - kyverno-reporter 
+          - kyverno-reporter
           kinds:
           - Pod
           - Deployment
@@ -237,7 +230,7 @@ policies:
       {{- if .Values.addons.externalSecrets.enabled }}
       - resources:
           namespaces:
-          - external-secrets 
+          - external-secrets
           names:
           - external-secrets*
       {{- end }}
@@ -288,13 +281,6 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
-      - resources:
-          namespaces:
-          - holocron
-          names:
-          - holocron-postgresql-0
-      {{- end }}
       {{- if .Values.addons.velero.enabled }}
       - resources:
           namespaces:
@@ -344,7 +330,7 @@ policies:
       require:
       - app.kubernetes.io/name
       - app.kubernetes.io/version
-      
+
   require-istio-on-namespaces:
     enabled: {{ include "istioEnabled" . }}
     exclude:
@@ -371,15 +357,8 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -454,6 +433,16 @@ policies:
           names:
           - mattermost-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
 
@@ -463,15 +452,8 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -544,6 +526,16 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
   require-non-root-user:
@@ -552,20 +544,13 @@ policies:
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
     exclude:
       any:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled}}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -613,7 +598,7 @@ policies:
       {{- end }}
       {{- if .Values.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       - resources:
           namespaces:
@@ -623,7 +608,7 @@ policies:
       {{- end }}
       {{- if .Values.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       # promtail requires access to /run/promtail for its buffering and persistent state.
       - resources:
@@ -631,6 +616,16 @@ policies:
           - promtail
           names:
           - promtail-promtail*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
     {{- end }}
 
@@ -696,17 +691,17 @@ policies:
       {{- if .Values.addons.alloy.enabled }}
       - resources:
           namespaces:
-          - monitoring
+          - alloy
           names:
-          - monitoring-alloy-alloy-metrics*
-          - monitoring-alloy-alloy-receiver*
-          - monitoring-alloy-alloy-logs*
-          - monitoring-alloy-alloy-singleton*
+          - alloy-alloy-metrics*
+          - alloy-alloy-receiver*
+          - alloy-alloy-logs*
+          - alloy-alloy-singleton*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
     validationFailureAction: Enforce
-    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
     exclude:
       any:
       {{- if .Values.fluentbit.enabled }}
@@ -779,6 +774,16 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -902,7 +907,7 @@ policies:
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
   restrict-volume-types:
     exclude:
       any:
@@ -956,6 +961,16 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -1020,7 +1035,7 @@ policies:
       - namespace: twistlock
         pods:
           allow:
-          # twistlock-init pods require get/list/patch/etc to several resources. 
+          # twistlock-init pods require get/list/patch/etc to several resources.
           # More details in twistlock/chart/templates/init/clusterrole.yaml
           - twistlock-init-*
           # twistlock-volume-upgrade-job requires patch/get/list/update to deployments and get/list to pods
@@ -1094,14 +1109,14 @@ policies:
           - neuvector-updater-pod-*
           - neuvector-prometheus-exporter-pod-*
           - neuvector-registry-adapter-pod-*
-      - namespace: kiali 
+      - namespace: kiali
         pods:
           allow:
           - kiali-*
       - namespace: argocd
         pods:
           allow:
-          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs 
+          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs
           # More details in argocd/chart/templates/argocd-application-controller/role.yaml
           - argocd-argocd-application-controller-*
           # dex pods interact with secrets and configmaps
@@ -1110,7 +1125,7 @@ policies:
           # argocd-upgrade-job interacts with CRDs
           # More details in argocd/chart/templates/bigbang/upgrade-job.yaml
           - argocd-upgrade-job
-          # argocd server pods interact with secrets, configmaps, events, and CRDs 
+          # argocd server pods interact with secrets, configmaps, events, and CRDs
           # More details in argocd/chart/templates/argocd-server/role.yaml
           - argocd-argocd-server-*
           # repo server pods require access to the K8s API if using RBAC
@@ -1126,8 +1141,8 @@ policies:
           # More details in argocd/chart/templates/argocd-notifications/bots/slack/role.yaml
           - argocd-argocd-notifications-controller-*
       - namespace: harbor
-        # Omitting the serviceAccount and Pods section forces the policy to apply to 
-        # all of the serviceAccount and Pods in the namespace 
+        # Omitting the serviceAccount and Pods section forces the policy to apply to
+        # all of the serviceAccount and Pods in the namespace
       - namespace: authservice
         pods:
           allow:
@@ -1142,7 +1157,10 @@ policies:
           - monitoring-monitoring-kube-state-metrics*
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
-          - monitoring-alloy-*
+      - namespace: alloy
+        pods:
+          allow:
+          - alloy-*
       - namespace: mimir
         pods:
           allow:
@@ -1166,7 +1184,7 @@ policies:
           - vault-vault-*
           - vault-vault-agent-injector-*
           - vault-vault-job-init-*
-      - namespace: promtail 
+      - namespace: promtail
         pods:
           allow:
           - promtail-promtail-*
@@ -1181,7 +1199,7 @@ policies:
       - namespace: nexus-repository-manager
         pods:
           allow:
-          - nexus-repository-manager-* 
+          - nexus-repository-manager-*
       - namespace: thanos
         pods:
           allow:
