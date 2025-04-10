@@ -555,6 +555,11 @@ prometheusOperator:
       {{- if and (dig "additionalScrapeConfigs"  list $default) (dig "additionalScrapeConfigs"  list $overlay) }}
          {{ $_ := set $overlay "additionalScrapeConfigs" (concat $default.additionalScrapeConfigs $overlay.additionalScrapeConfigs) }}
       {{- end }}
+
+      # Add any default additionalDataSources to overlay
+      {{- if and (dig "additionalDataSources" list $default) (dig "additionalDataSources" list $overlay) }}
+         {{ $_ := set $overlay "additionalDataSources" (concat $default.additionalDataSources $overlay.additionalDataSources) }}
+      {{- end }}
       
     {{- end }}
   {{- end }}
