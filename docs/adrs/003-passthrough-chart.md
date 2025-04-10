@@ -18,7 +18,7 @@ In order to convert an existing `kpt` configured chart, the process is slightly 
 
 Sample Renovate package rule from:
 
-```yaml
+```json
     {
       "customType": "regex",
       "description": "Update <chart> version>",
