@@ -1499,7 +1499,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "77.1.0-bb.0"
+      tag: null
+      branch: "nexus-script-test-only"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
