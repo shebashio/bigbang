@@ -6,7 +6,7 @@ Generate an Image Pull Secret resource
 apiVersion: v1
 kind: Secret
 metadata:
-  name: private-registry-{{.name}}
+  name: private-registry
   namespace: {{ (include "bigbang.package.getNamespace" .name) | kebabcase }}
   labels:
     app.kubernetes.io/name: {{ .name | kebabcase }}
