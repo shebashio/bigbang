@@ -530,3 +530,69 @@ ingress: istio-controlplane
 egress: istio-controlplane
 {{- end -}}
 {{- end -}}
+
+{{/*
+Generate a GitRepository resource
+*/}}
+{{- define "gitRepository" -}}
+{{- $gitCredsDict := dict
+  "name" .name
+  "packageGitScope" .git
+  "rootScope" .root
+  "releaseName" .root.Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: {{ .name | kebabcase }}
+  namespace: {{ .root.Release.Namespace }}
+  annotations:
+    genned: "true"
+  labels:
+    app.kubernetes.io/name: {{ .name | kebabcase }}
+    app.kubernetes.io/component: {{ include "componentFor" .name  }}
+spec:
+  interval: {{ .root.Values.flux.interval }}
+  url: {{ .git.repo }}
+  ref:
+    {{- include "validRef" .git | nindent 4 }}
+  {{ include "gitIgnore" .root }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end -}}
+
+{{/*
+Generate GitRepository resources for all enabled packages and addons that use git
+*/}}
+
+{{- define "generateGitRepositories" -}}
+{{- $packages := include "bigbang.enabledPackages" . | fromYaml }}
+{{- range $name, $pkg := $packages }}
+  {{- if eq $pkg.sourceType "git" -}}
+    {{- $gitRepoDict := dict
+      "name" $name
+      "git" $pkg.git
+      "root" $
+    }}
+---
+    {{- include "gitRepository" $gitRepoDict }}
+  {{- end -}}
+{{- end }}
+{{- end -}}
+
+{{/*
+Generate git credentials for all enabled packages and addons that use git
+*/}}
+{{- define "generateGitCredentials" -}}
+{{- $packages := include "bigbang.enabledPackages" . | fromYaml }}
+{{- range $name, $pkg := $packages }}
+  {{- if eq $pkg.sourceType "git" -}}
+    {{- $gitCredsSecretDict := dict
+      "name" $name
+      "targetScope" $pkg
+      "releaseName" $.Release.Name
+      "releaseNamespace" $.Release.Namespace
+    }}
+    {{- include "gitCredsSecret" $gitCredsSecretDict | nindent 0 -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
