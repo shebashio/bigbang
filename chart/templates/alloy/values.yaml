@@ -12,7 +12,7 @@
     (eq .Values.loki.strategy "monolith")
 }}
 
-{{- $istioInjection := (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.alloy) "enabled")) }}
+{{- $istioInjection := (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.alloy) "enabled")) }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
