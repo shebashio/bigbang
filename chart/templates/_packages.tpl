@@ -20,7 +20,6 @@ Output all packages (top-level + addons) regardless of enabled
   {{- $all | toYaml -}}
 {{- end -}}
 
-
 {{/*
 Helper: bigbang.enabledPackages
 Output only enabled packages
@@ -35,4 +34,29 @@ Output only enabled packages
   {{- end -}}
 
   {{- $enabled | toYaml -}}
+{{- end -}}
+
+{{/*
+Helper: getNamespace
+Get namespace for a package, with special cases for certain packages
+*/}}
+{{- define "bigbang.package.getNamespace" -}}
+{{- $name := . -}}
+{{- if eq $name "loki" -}}
+logging
+{{- else if eq $name "elasticsearchKibana" -}}
+logging
+{{- else if eq $name "gatekeeper" -}}
+gatekeeper-system
+{{- else if eq $name "grafana" -}}
+monitoring
+{{- else if eq $name "istio" -}}
+istio-system
+{{- else if eq $name "istio-core" -}}
+istio-system
+{{- else if eq $name "istio-operator" -}}
+istio-operator
+{{- else -}}
+{{- $name -}}
+{{- end -}}
 {{- end -}}

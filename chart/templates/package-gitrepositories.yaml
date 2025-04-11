@@ -1,0 +1,12 @@
+{{- $packages := include "bigbang.enabledPackages" . | fromYaml }}
+{{- range $name, $pkg := $packages }}
+  {{- if eq $pkg.sourceType "git" -}}
+    {{- $gitRepoDict := dict
+      "name" $name
+      "git" $pkg.git
+      "root" $
+    }}
+---
+    {{- include "gitRepository" $gitRepoDict }}
+  {{- end -}}
+{{- end }}
