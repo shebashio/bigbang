@@ -17,6 +17,8 @@
 
 | Package | Status | Monitoring | Tracing | Network Policies | mTLS |
 |----|----|----|----|----|----|
+| [Istio Core _(beta)_](https://repo1.dso.mil/big-bang/product/packages/istio-core) |  ![Istio Core Build](https://repo1.dso.mil/big-bang/product/packages/istio-core/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/4906) | Yes |
+| [Istio Gateway _(beta)_](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |  ![Istio Gateway Build](https://repo1.dso.mil/big-bang/product/packages/istio-gateway/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/4906) | Yes |
 | [Istio Operator](https://repo1.dso.mil/big-bang/product/packages/istio-operator) |  ![Istio Operator Build](https://repo1.dso.mil/big-bang/product/packages/istio-operator/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/641) | Yes |
 | [Istio Controlplane](https://repo1.dso.mil/big-bang/product/packages/istio-controlplane) |  ![Istio Controlplane Build](https://repo1.dso.mil/big-bang/product/packages/istio-controlplane/badges/main/pipeline.svg) | Yes | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/632) | Yes |
 | [Jaeger](https://repo1.dso.mil/big-bang/product/packages/jaeger) |  ![Jaeger Build](https://repo1.dso.mil/big-bang/product/packages/jaeger/badges/main/pipeline.svg) | Yes | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/602) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1295) |
@@ -61,7 +63,6 @@
 | [Sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |  ![Sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube/badges/main/pipeline.svg) | N/A | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/503) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/1508) |
 | [Harbor](https://repo1.dso.mil/big-bang/product/packages/harbor) |  ![Harbor](https://repo1.dso.mil/big-bang/product/packages/harbor/badges/main/pipeline.svg) | Yes | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/2939) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/2939) |
 | [Fortify](https://repo1.dso.mil/big-bang/product/packages/fortify) |  ![Fortify](https://repo1.dso.mil/big-bang/product/packages/fortify/badges/main/pipeline.svg) | No | Yes | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3027) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3027) |
-| [Holocron](https://repo1.dso.mil/big-bang/product/packages/holocron) | ![Holocron](https://repo1.dso.mil/big-bang/product/packages/holocron/badges/main/pipeline.svg) | No | No | [Yes](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3726) | [Yes (STRICT)](https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/3726) |
 
 > `*` inherited from Gitlab when installed in the same namespace.
 

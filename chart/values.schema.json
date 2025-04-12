@@ -35,6 +35,7 @@
     "monitoring",
     "grafana",
     "twistlock",
+    "bbctl",
     "addons"
   ],
   "additionalProperties": false,
@@ -255,12 +256,6 @@
         }
       ],
       "additionalProperties": true
-    },
-    "istioGatewayPublic": {
-      "type": "object"
-    },
-    "istioGatewayPassthrough": {
-      "type": "object"
     },
     "istioGateway": {
       "properties": {
@@ -869,6 +864,40 @@
       },
       "additionalProperties": false
     },
+    "bbctl": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true,
+        "repoCredentials": {
+          "type": "object",
+          "items": {
+            "repo": {
+              "description": "Hostname of the source code repository website.",
+              "type": "string"
+            },
+            "username": {
+              "description": "Username used to acess the repository. Only required when using a private repository.",
+              "type": "string"
+            },
+            "password": {
+              "description": "Password or API token used to acess the repository. Only required when using a private repository.",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "grafana": {
       "allOf": [
         {
@@ -1247,18 +1276,6 @@
           }
         },
         "harbor": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/basePackage"
-            }
-          ],
-          "properties": {
-            "istio": {
-              "$ref": "#/$defs/istio"
-            }
-          }
-        },
-        "holocron": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
