@@ -8,9 +8,9 @@
   
 ### Considerations:
 
-- The Istio Operator reached its end of life and does not support versions of Istio after 1.23
-- An LTS release, Istio 1.23 is only supported [through April 2025](https://istio.io/latest/docs/releases/supported-releases/#:~:text=1.25%2C%201.26%2C%201.27-,1.23,-Yes)
-- [Diagnostic Tools for Istio](https://istio.io/latest/docs/ops/diagnostic-tools) and [Troubleshooting tips](https://github.com/istio/istio/wiki/Troubleshooting-Istio) can be of assistance  
+- The helm packages update Istio from 1.23 to 1.25
+- The Istio Operator is *End of Life* and does not support versions of Istio after 1.23
+- Istio 1.23 is only supported [through April 2025](https://istio.io/latest/docs/releases/supported-releases/#:~:text=1.25%2C%201.26%2C%201.27-,1.23,-Yes)
   
 ## Migration Process  
   
@@ -93,3 +93,7 @@ done
 ```
   
 All services in the cluster should once again be reachable.  
+
+### ⚠️ Other Resources ⚠️
+- [Diagnostic Tools for Istio](https://istio.io/latest/docs/ops/diagnostic-tools)
+- [Troubleshooting tips](https://github.com/istio/istio/wiki/Troubleshooting-Istio)
