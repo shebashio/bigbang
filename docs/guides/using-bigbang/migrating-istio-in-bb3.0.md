@@ -1,6 +1,10 @@
-# Upgrading from the Istio Operator to Helm based Istio 
-
-### *The new Istio Helm packages are BETA in Big Bang 2.x and will be stable in 3.0*
+# Upgrading from the Istio Operator to Helm based Istio
+  
+### Timeline
+- The new Istio Helm packages: [istio-core](https://repo1.dso.mil/big-bang/product/packages/istio-core) and [istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) are *Beta* in [Big Bang 2.51](https://repo1.dso.mil/big-bang/bigbang/-/releases)
+-  These packages will be GA/stable in 2.52 (or 2.53)
+-  The [istio-operator](https://repo1.dso.mil/big-bang/product/packages/istio-operator) and [istio-controlplane](https://repo1.dso.mil/big-bang/product/packages/istio-controlplane) packages will be completely removed and no longer available in Big Bang in 3.0
+- In order to continue using Istio as a part of Big Bang you must migrate from operator to helm in BB 2.52 (or 2.53)
 
 ### Step 1 : Remove Istio from your current deployment
 Before upgrading to the new helm-based Istio packages, first disable the istio and istioOperator packages:
