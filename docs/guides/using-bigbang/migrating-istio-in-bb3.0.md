@@ -34,6 +34,8 @@ Give the cluster a few minutes for all helm releases to become `ready`.
   
 Removal of the operator and the enablement of the new gateway package reinstantiates cluster gateways.  
   
+When migrating gateway configurations, see [the examples here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L205-269) as a reference to format values.  
+    
 ```yaml
 istioOperator:
   enabled: false
@@ -45,7 +47,6 @@ istioCore:
 istioGateway:
   enabled: true
 ```
-When migrating gateway configurations, see [the examples here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml#L205-269) as a reference to format values.  
   
 After all helm releases become `ready` once again, verify gateway(s) recieves an external IP:
 ```bash
