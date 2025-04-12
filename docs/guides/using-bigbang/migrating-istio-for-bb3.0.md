@@ -4,8 +4,8 @@
 - The new Istio Helm packages: [istio-core](https://repo1.dso.mil/big-bang/product/packages/istio-core) and [istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) are *Beta* in [Big Bang 2.51](https://repo1.dso.mil/big-bang/bigbang/-/releases)
 -  These packages will be GA/stable in 2.52 (or 2.53)
 -  The [istio-operator](https://repo1.dso.mil/big-bang/product/packages/istio-operator) and [istio-controlplane](https://repo1.dso.mil/big-bang/product/packages/istio-controlplane) packages will be completely removed and no longer available in Big Bang in 3.0
-- In order to continue utilizing Istio as a component of Big Bang you must migrate from operator to helm in BB 2.52 (or 2.53)
-  
+- In order to continue utilizing Istio as a component of Big Bang you must migrate from operator to helm in BB 2.52 (or 2.53) before upgrading to BB 3.0  
+    
 ### Considerations:
 
 - The helm packages update Istio from 1.23 to 1.25
