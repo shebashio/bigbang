@@ -60,7 +60,8 @@ The migration process is now complete.
   
 Below are a few tips for troubleshooting if the migration did not go as smoothly as expected.  
   
-### ⛔ Services are unreachable ⛔
+### ⛔ Services are unreachable
+  
 ```
 upstream connect error or disconnect/reset before headers. retried and the latest reset reason: remote connection failure, transport failure reason: TLS_error:|268435581:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED:TLS_error_end
 ```
@@ -80,7 +81,8 @@ done
 ```
   
 Pods should return to `ready` within a few minutes.
-### ⛔ Reconcile Helm Releases ⛔
+### ⛔ Reconcile Helm Releases
+  
 If may be necessary to synchronize helm releases managed by Flux when they become *out of sync*.  
   
 The `flux` CLI must be [installed](https://fluxcd.io/flux/installation/) to use this bash script that iterates across all helm releases initiating a [reconciliation](https://fluxcd.io/flux/cmd/flux_reconcile_helmrelease):
@@ -95,6 +97,7 @@ done
   
 All services in the cluster should once again be reachable.  
 
-### ⚠️ Other Resources ⚠️
+### ⚠️ Other Resources
+  
 - [Diagnostic Tools for Istio](https://istio.io/latest/docs/ops/diagnostic-tools)
 - [Troubleshooting tips](https://github.com/istio/istio/wiki/Troubleshooting-Istio)
