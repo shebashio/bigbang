@@ -62,7 +62,7 @@ Below are a few tips for troubleshooting if the migration did not go as smoothly
   
 ### Services are unreachable
   
-```
+```bash
 upstream connect error or disconnect/reset before headers. retried and the latest reset reason: remote connection failure, transport failure reason: TLS_error:|268435581:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED:TLS_error_end
 ```
 To resolve this issue, cycle all Istio injected pods allowing their reconnection.  
