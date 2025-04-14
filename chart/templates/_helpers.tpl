@@ -522,9 +522,9 @@ data:
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
-{{- if .Values.istioCore.enabled -}}
+{{- if .Values.istiod.enabled -}}
 ingress: istio-gateway
-egress: istio-core
+egress: istio-system
 {{- else -}}
 ingress: istio-controlplane
 egress: istio-controlplane
