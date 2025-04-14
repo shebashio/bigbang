@@ -1,8 +1,8 @@
 {{- $pkg := "istioCRDs" }}
 
 {{- /* Create secret */ -}}
-{{- if (get .Values $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
+{{- if .Values.istioCRDs.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-crds" "defaults" (include "bigbang.defaults.istio-crds" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.istio-crds" -}}

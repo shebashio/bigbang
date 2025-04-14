@@ -1,5 +1,8 @@
 {{- $fluxSettingsIstioCore := merge .Values.istiod.flux .Values.flux -}}
-{{- if and .Values.istiod.enabled }}
+{{- if .Values.istiod.enabled }}
+{{- if not .Values.istioCRDs.enabled }}
+{{- fail "istiod requires istioCRDs to be enabled" }}
+{{- end }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
