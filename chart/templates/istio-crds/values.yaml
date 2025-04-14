@@ -1,0 +1,13 @@
+{{- $pkg := "istioCRDs" }}
+
+{{- /* Create secret */ -}}
+{{- if (get .Values $pkg).enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" ($pkg | kebabcase) "defaults" (include (printf "bigbang.defaults.%s" $pkg | kebabcase) .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istio-crds" -}}
+upstream:
+  global:
+    imagePullSecrets:
+      - private-registry
+{{- end }}
