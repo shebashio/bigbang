@@ -1,0 +1,7 @@
+{{- $packages := include "bigbang.allPackages" . | fromYaml }}
+{{- range $name, $pkg := $packages }}
+{{- if eq (include "isEnabled" (dict "name" $name "root" $)) "true" }}
+{{- include "genImagePullSecret" (dict "name" $name "pkg" $pkg "root" $) }}
+---
+{{- end }}
+{{- end }}
