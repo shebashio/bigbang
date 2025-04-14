@@ -517,7 +517,7 @@ data:
 
 {{- /* Returns true if either istio or istioCore is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ or .Values.istio.enabled .Values.istioCore.enabled }}
+{{ or .Values.istio.enabled .Values.istiod.enabled }}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
