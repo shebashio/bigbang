@@ -479,11 +479,11 @@ jaeger:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
     path: "./chart"
-    tag: "2.57.0-bb.6"
+    tag: "2.57.0-bb.7"
   helmRepo:
     repoName: "registry1"
     chartName: "jaeger"
-    tag: "2.57.0-bb.6"
+    tag: "2.57.0-bb.7"
 
   # -- Flux reconciliation overrides specifically for the Jaeger Package
   flux:
@@ -786,11 +786,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.9-bb.1"
+    tag: "0.48.9-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.9-bb.1"
+    tag: "0.48.9-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -839,11 +839,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.27.0-bb.2"
+    tag: "6.27.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.27.0-bb.2"
+    tag: "6.27.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -948,11 +948,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.19.0-bb.0"
+    tag: "1.20.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.19.0-bb.0"
+    tag: "1.20.0-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1016,11 +1016,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "69.7.3-bb.1"
+    tag: "70.4.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "69.7.3-bb.1"
+    tag: "70.4.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1472,12 +1472,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.73.0-bb.3"
+      tag: "0.75.1-bb.0"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.73.0-bb.3"
+      tag: "0.75.1-bb.0"
 
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1912,11 +1912,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "8.4.0-bb.3"
+      tag: "8.7.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "8.4.0-bb.3"
+      tag: "8.7.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
