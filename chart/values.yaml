@@ -2282,13 +2282,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: null #"0.29.0-bb.0"
-      branch: 17-setup-keycloak
+      tag: "0.30.1-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.29.0-bb.0"
+      tag: "0.30.1-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
