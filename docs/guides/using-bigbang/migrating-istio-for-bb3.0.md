@@ -1,4 +1,4 @@
-# Upgrading from Istio Operator to Helm based Istio
+# Migrating from Istio Operator to Helm based Istio
   
 ### Timeline:
 - The new Istio Helm packages: [istio-core](https://repo1.dso.mil/big-bang/product/packages/istio-core) and [istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) are *Beta* in [Big Bang 2.51](https://repo1.dso.mil/big-bang/bigbang/-/releases)
