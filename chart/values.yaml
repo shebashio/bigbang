@@ -177,12 +177,6 @@ istioCRDs:
     tag: 1.25.1-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
-  # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
-  #   istiod:
-  #     global:
-  #       hub: registry1.dso.mil/ironbank/tetrate/istio
-  #       tag: 1.25.1-tetratefipslatest1
-
   # -- Flux reconciliation overrides specifically for the Istio Core Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
@@ -205,10 +199,9 @@ istiod:
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
-  #   istiod:
+  #   upstream:
   #     global:
   #       hub: registry1.dso.mil/ironbank/tetrate/istio
-  #       tag: 1.25.1-tetratefipslatest1
 
   # -- Flux reconciliation overrides specifically for the Istio Core Package
   flux: {}
