@@ -655,7 +655,9 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.6"
+    #tag: "3.3.4-bb.6"
+    tag: null
+    branch: "153-resolve-error-from-enabling-drift-detection-on-kyverno-policies"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
