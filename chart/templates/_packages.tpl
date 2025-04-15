@@ -56,6 +56,8 @@ istio-system
 istio-system
 {{- else if eq $name "istioOperator" -}}
 istio-operator
+{{- else if eq $name "kyvernoPolicies" -}}
+kyverno
 {{- else -}}
 {{- $name -}}
 {{- end -}}
