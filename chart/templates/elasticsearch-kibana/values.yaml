@@ -26,10 +26,10 @@ istio:
     }}
   kibana:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.elasticsearchKibana.ingress.gateway }}
   elasticsearch:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.elasticsearchKibana.ingress.gateway }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
