@@ -224,17 +224,6 @@ istioGateway:
     tag: 1.25.1-bb.1
   # -- Values to passthrough to the gateway chart(s)
   values: {}
-  # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
-  #   gateways:
-  #     passthrough:
-  #       image:
-  #         repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
-  #         tag: 1.25.1-tetratefipslatest1
-  #     public:
-  #       image:
-  #         repo: registry1.dso.mil/ironbank/tetrate/istio/proxyv2
-  #         tag: 1.25.1-tetratefipslatest1
-  #
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
   #     public:
@@ -246,8 +235,9 @@ istioGateway:
   # EXAMPLE: Create an entirely new ingress gateway
   #   gateways:
   #     custom: # name of the gateway; will be templated to custom-ingressgateway
-  #       labels:
-  #         istio: ingressgateway
+  #       upstream:
+  #         labels:
+  #           istio: ingressgateway
   #       gateway:
   #         servers:
   #         - hosts:
@@ -277,8 +267,9 @@ istioGateway:
   #     # https://istio.io/latest/docs/tasks/traffic-management/egress/egress-gateway/
   #     # https://istio.io/latest/blog/2023/egress-sni/
   #     outbound: # name of the gateway; will be templated to outbound-egressgateway
-  #       labels:
-  #         istio: egressgateway
+  #       upstream:
+  #         labels:
+  #           istio: egressgateway
   #       gateway:
   #         servers:
   #         - port:
