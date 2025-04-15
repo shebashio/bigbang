@@ -80,6 +80,9 @@ istio:
           strategy: "anonymous"
 istioGateway:
   enabled: false
+  git:
+    tag: null
+    branch: passthrough-refactor
 jaeger:
   enabled: false
   sso:
