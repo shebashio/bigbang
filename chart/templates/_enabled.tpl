@@ -8,6 +8,7 @@
   {{- $_ := set $special "metricsServer" (or (eq (.root.Values.addons.metricsServer.enabled | toString) "true") (and (eq (.root.Values.addons.metricsServer.enabled | toString) "auto") (or (not (.root.Capabilities.APIVersions.Has "metrics.k8s.io/v1beta1")) (lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "metrics-server")))) -}}
   {{- $_ := set $special "haproxy" (and .root.Values.istio.enabled .root.Values.monitoring.enabled .root.Values.monitoring.sso.enabled (eq (dig "istio" "injection" "enabled" .root.Values.monitoring) "disabled")) -}}
   {{- $_ := set $special "istioGateway" (and .root.Values.istioCore.enabled .root.Values.istioGateway.enabled) -}}
+  {{- $_ := set $special "loki" (and .root.Values.loki.enabled (not .root.Values.elasticsearchKibana.enabled)) -}}
   {{- $_ := set $special "wrapper" false -}}
 
   {{- if hasKey $special .name -}}
