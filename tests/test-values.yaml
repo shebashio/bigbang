@@ -2390,6 +2390,8 @@ addons:
         - name: quarkusproperties
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
+      networkPolicies:
+        enabled: true    
 
   vault:
     enabled: false
