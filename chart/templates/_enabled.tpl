@@ -1,188 +1,24 @@
 {{- define "isEnabled" -}}
-  {{- $helper := printf "%sEnabled" .name -}}
-  {{- include $helper .root -}}
-{{- end }}
+  {{- $special := dict -}}
+  {{- $_ := set $special "authservice" (and (include "istioEnabled" .root) (or .root.Values.addons.authservice.enabled (and .root.Values.monitoring.enabled .root.Values.monitoring.sso.enabled) (and .root.Values.jaeger.enabled .root.Values.jaeger.sso.enabled) (and .root.Values.tempo.enabled .root.Values.tempo.sso.enabled) (and .root.Values.addons.thanos.enabled .root.Values.addons.thanos.sso.enabled))) -}}
+  {{- $_ := set $special "eckOperator" (or .root.Values.eckOperator.enabled .root.Values.elasticsearchKibana.enabled) -}}
+  {{- $_ := set $special "grafana" (and (not .root.Values.monitoring.enabled) .root.Values.grafana.enabled) -}}
+  {{- $_ := set $special "kyverno" (or .root.Values.kyverno.enabled .root.Values.kyvernoPolicies.enabled .root.Values.kyvernoReporter.enabled) -}}
+  {{- $_ := set $special "bbctl" (and .root.Values.bbctl.enabled .root.Values.loki.enabled .root.Values.promtail.enabled .root.Values.monitoring.enabled .root.Values.grafana.enabled) -}}
+  {{- $_ := set $special "metricsServer" (or (eq (.root.Values.addons.metricsServer.enabled | toString) "true") (and (eq (.root.Values.addons.metricsServer.enabled | toString) "auto") (or (not (.root.Capabilities.APIVersions.Has "metrics.k8s.io/v1beta1")) (lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "metrics-server")))) -}}
+  {{- $_ := set $special "haproxy" (and .root.Values.istio.enabled .root.Values.monitoring.enabled .root.Values.monitoring.sso.enabled (eq (dig "istio" "injection" "enabled" .root.Values.monitoring) "disabled")) -}}
+  {{- $_ := set $special "istioGateway" (and .root.Values.istioCore.enabled .root.Values.istioGateway.enabled) -}}
+  {{- $_ := set $special "wrapper" false -}}
 
-{{- define "anchoreEnabled" -}}
-  {{- .Values.addons.anchore.enabled }}
-{{- end }}
-
-{{- define "alloyEnabled" -}}
-  {{- .Values.addons.alloy.enabled -}}
-{{- end }}
-
-{{- define "lokiEnabled" -}}
-  {{- .Values.loki.enabled -}}
-{{- end }}
-
-{{- define "authserviceEnabled" -}}
-  {{- and (include "istioEnabled" .) (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.jaeger.enabled .Values.jaeger.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled) (and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled)) -}}
-{{- end }}
-
-{{- define "clusterAuditorEnabled" -}}
-  {{- .Values.clusterAuditor.enabled -}}
-{{- end }}
-
-{{- define "elasticsearchKibanaEnabled" -}}
-  {{- .Values.elasticsearchKibana.enabled -}}
-{{- end }}
-
-{{- define "eckOperatorEnabled" -}}
-  {{- or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled  -}}
-{{- end }}
-
-{{- define "externalSecretsEnabled" -}}
-  {{- .Values.addons.externalSecrets.enabled -}}
-{{- end }}
-
-{{- define "fluentbitEnabled" -}}
-  {{- .Values.fluentbit.enabled -}}
-{{- end }}
-
-{{- define "fortifyEnabled" -}}
-  {{- .Values.addons.fortify.enabled -}}
-{{- end }}
-
-{{- define "gatekeeperEnabled" -}}
-  {{- .Values.gatekeeper.enabled -}}
-{{- end }}
-
-{{- define "gitlabEnabled" -}}
-  {{- .Values.addons.gitlab.enabled -}}
-{{- end }}
-
-{{- define "gitlabRunnerEnabled" -}}
-  {{- .Values.addons.gitlabRunner.enabled -}}
-{{- end }}
-
-{{- define "grafanaEnabled" -}}
-  {{- and (not .Values.monitoring.enabled) .Values.grafana.enabled -}}
-{{- end }}
-
-{{- define "monitoringEnabled" -}}
-  {{- .Values.monitoring.enabled -}}
-{{- end }}
-
-{{- define "istioEnabled" -}}
-  {{- .Values.istio.enabled -}}
-{{- end }}
-
-{{- define "istioCoreEnabled" -}}
-  {{- .Values.istioCore.enabled -}}
-{{- end }}
-
-{{- define "istioGatewayEnabled" -}}
-  {{- .Values.istioGateway.enabled -}}
-{{- end }}
-
-{{- define "istioOperatorEnabled" -}}
-  {{- .Values.istioOperator.enabled -}}
-{{- end }}
-
-{{- define "jaegerEnabled" -}}
-  {{- .Values.jaeger.enabled -}}
-{{- end }}
-
-{{- define "kialiEnabled" -}}
-  {{- .Values.kiali.enabled -}}
-{{- end }}
-
-{{- define "kyvernoEnabled" -}}
-  {{- or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled -}}
-{{- end }}
-
-{{- define "kyvernoPoliciesEnabled" -}}
-  {{- .Values.kyvernoPolicies.enabled -}}
-{{- end }}
-
-{{- define "kyvernoReporterEnabled" -}}
-  {{- .Values.kyvernoReporter.enabled -}}
-{{- end }}
-
-{{- define "mattermostEnabled" -}}
-  {{- .Values.addons.mattermost.enabled -}}
-{{- end }}
-
-{{- define "mattermostOperatorEnabled" -}}
-  {{- .Values.addons.mattermost.enabled -}}
-{{- end }}
-
-{{- define "mimirEnabled" -}}
-  {{- .Values.addons.mimir.enabled -}}
-{{- end }}
-
-{{- define "minioEnabled" -}}
-  {{- .Values.addons.minio.enabled -}}
-{{- end }}
-
-{{- define "minioOperatorEnabled" -}}
-  {{- .Values.addons.minioOperator.enabled -}}
-{{- end }}
-
-{{- define "neuvectorEnabled" -}}
-  {{- .Values.neuvector.enabled -}}
-{{- end }}
-
-{{- define "nexusRepositoryManagerEnabled" -}}
-  {{- .Values.addons.nexusRepositoryManager.enabled -}}
-{{- end }}
-
-{{- define "sonarqubeEnabled" -}}
-  {{- .Values.addons.sonarqube.enabled -}}
-{{- end }}
-
-{{- define "veleroEnabled" -}}
-  {{- .Values.addons.velero.enabled -}}
-{{- end }}
-
-{{- define "promtailEnabled" -}}
-  {{- .Values.promtail.enabled -}}
-{{- end }}
-
-{{- define "tempoEnabled" -}}
-  {{- .Values.tempo.enabled -}}
-{{- end }}
-
-{{- define "thanosEnabled" -}}
-  {{- .Values.addons.thanos.enabled -}}
-{{- end }}
-
-{{- define "twistlockEnabled" -}}
-  {{- .Values.twistlock.enabled -}}
-{{- end }}
-
-{{- define "vaultEnabled" -}}
-  {{- .Values.addons.vault.enabled -}}
-{{- end }}
-
-{{- define "argocdEnabled" -}}
-  {{- .Values.addons.argocd.enabled -}}
-{{- end }}
-
-{{- define "harborEnabled" -}}
-  {{- .Values.addons.harbor.enabled -}}
-{{- end }}
-
-{{- define "keycloakEnabled" -}}
-  {{- .Values.addons.keycloak.enabled -}}
-{{- end }}
-
-{{- define "bbctlEnabled" -}}
-  {{- and .Values.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
-{{- end }}
-
-{{- define "metricsServerEnabled" -}}
-  {{- $enableFlag := .Values.addons.metricsServer.enabled | toString }}
-  {{- $existingMetricsApi := (.Capabilities.APIVersions.Has "metrics.k8s.io/v1beta1") }}
-  {{- $existingMetricsHelmRelease := (lookup "helm.toolkit.fluxcd.io/v2" "HelmRelease" "bigbang" "metrics-server") }}
-  {{- or ( eq $enableFlag "true") (and (eq $enableFlag "auto") (or (not $existingMetricsApi) $existingMetricsHelmRelease)) }}
-{{- end }}
-
-{{- define "haproxyEnabled" -}}
-  {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
-  {{- and .Values.istio.enabled .Values.monitoring.enabled .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
-{{- end }}
-
-{{- define "wrapperEnabled" -}}
-  {{- false -}}
+  {{- if hasKey $special .name -}}
+    {{- get $special .name -}}
+  {{- else -}}
+    {{- $allPackages := include "bigbang.allPackages" .root | fromYaml -}}
+    {{- $pkg := index $allPackages (last (splitList "." .name)) -}}
+    {{- if $pkg -}}
+      {{- $pkg.enabled -}}
+    {{- else -}}
+      {{- false -}}
+    {{- end -}}
+  {{- end -}}
 {{- end }}
