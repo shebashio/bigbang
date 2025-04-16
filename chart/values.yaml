@@ -190,7 +190,9 @@ istioCore:
 
 istioGateway:
   status: "alpha"
+  # -- Toggle deployment of Istio Gateway(s)  
   enabled: false
+  # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
@@ -479,11 +481,11 @@ jaeger:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
     path: "./chart"
-    tag: "2.57.0-bb.6"
+    tag: "2.57.0-bb.7"
   helmRepo:
     repoName: "registry1"
     chartName: "jaeger"
-    tag: "2.57.0-bb.6"
+    tag: "2.57.0-bb.7"
 
   # -- Flux reconciliation overrides specifically for the Jaeger Package
   flux:
@@ -786,11 +788,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.9-bb.2"
+    tag: "0.48.9-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.9-bb.2"
+    tag: "0.48.9-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1201,11 +1203,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.21-bb.1"
+      tag: "7.8.23-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.21-bb.1"
+      tag: "7.8.23-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1472,12 +1474,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.73.0-bb.3"
+      tag: "0.75.1-bb.0"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.73.0-bb.3"
+      tag: "0.75.1-bb.0"
 
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -2163,12 +2165,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.14.4-bb.0"
+      tag: "0.15.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.14.4-bb.0"
+      tag: "0.15.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
