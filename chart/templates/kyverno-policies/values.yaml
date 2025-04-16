@@ -56,7 +56,6 @@ policies:
           - twistlock
           names:
           - twistlock-console*
-          - twistlock-init*
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
@@ -384,7 +383,6 @@ policies:
           namespaces:
           - twistlock
           names:
-          - twistlock-init
           - twistlock-console*
           - twistlock-defender-ds*
           - volume-upgrade-job*
@@ -691,7 +689,6 @@ policies:
           - twistlock
           names:
           - twistlock-defender-ds*
-          - twistlock-console*
       {{- end }}
       {{- if .Values.addons.alloy.enabled }}
       - resources:
