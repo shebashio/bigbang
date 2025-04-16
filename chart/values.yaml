@@ -163,7 +163,7 @@ imagePullPolicy: IfNotPresent
 
 istioCRDs:
   status: "beta"
-  # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
+  # -- Toggle deployment of Istio CRDs
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -177,14 +177,14 @@ istioCRDs:
     tag: 1.25.1-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
-  # -- Flux reconciliation overrides specifically for the Istio Core Package
+  # -- Flux reconciliation overrides specifically for the Istio CRDs Package
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
 istiod:
   status: "beta"
-  # -- Toggle deployment of Istio (helm deployment of istio-base and istiod)
+  # -- Toggle deployment of istiod
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
