@@ -2285,9 +2285,9 @@ addons:
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
 
-   # -- Mimir Service Account Annotations 
+    # -- Mimir Service Account Annotations 
     serviceAccountAnnotations: {}
-      ### Example IRSA Service Account Annotation
+      ## Example IRSA Service Account Annotation
       # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>" 
 
     values: {}
