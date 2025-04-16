@@ -1,7 +1,14 @@
 {{- $packages := include "bigbang.allPackages" . | fromYaml }}
+{{- $secretsByNamespace := dict }}
 {{- range $name, $pkg := $packages }}
 {{- if and (eq (include "isEnabled" (dict "name" $name "root" $)) "true") (ne $name "kyvernoPolicies") }}
-{{- include "genImagePullSecret" (dict "name" $name "pkg" $pkg "root" $) }}
----
+{{- $namespace := (include "bigbang.package.getNamespace" $name) | kebabcase }}
+{{- if not (hasKey $secretsByNamespace $namespace) }}
+{{- $_ := set $secretsByNamespace $namespace (dict "name" $name "pkg" $pkg) }}
 {{- end }}
+{{- end }}
+{{- end }}
+{{- range $namespace, $data := $secretsByNamespace }}
+{{- include "genImagePullSecret" (dict "name" $data.name "pkg" $data.pkg "root" $) }}
+---
 {{- end }}
