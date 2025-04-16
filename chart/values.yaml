@@ -2285,8 +2285,9 @@ addons:
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
 
-      # -- If using IRSA then provide the IAM Role ARN ex. "eks.amazonaws.com/role-arn: <S3_ROLE_ARN>"
+      # -- If using IRSA then provide the IAM Role ARN ex. eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
       serviceAccountAnnotations: {}
+        # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
 
     values: {}
 
