@@ -2681,3 +2681,13 @@ addons:
           insecure: true
           trace:
             enable: true
+
+  # ----------------------------------------------------------------------------------------------------------------------
+  # External Secrets
+  #
+  externalSecrets:
+    values:
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
