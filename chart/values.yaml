@@ -190,7 +190,9 @@ istioCore:
 
 istioGateway:
   status: "alpha"
+  # -- Toggle deployment of Istio Gateway(s)  
   enabled: false
+  # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
@@ -786,11 +788,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.9-bb.2"
+    tag: "0.48.9-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.9-bb.2"
+    tag: "0.48.9-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1201,11 +1203,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.21-bb.1"
+      tag: "7.8.23-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.21-bb.1"
+      tag: "7.8.23-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
