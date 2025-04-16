@@ -68,10 +68,10 @@ mimir-distributed:
     - secretRef:
         name: mimir-objstore-secret
   {{- end }}
-  {{- if .Values.addons.mimir.s3ObjectStorage.serviceAccountAnnotations }}
+  {{- if .Values.addons.mimir.serviceAccountAnnotations }}
   serviceAccount:
     annotations:
-      {{- range $key, $value :=  .Values.addons.mimir.s3ObjectStorage.serviceAccountAnnotations }}
+      {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
       {{ $key }}: {{ $value | quote }}
       {{- end }}
   {{- end }}
