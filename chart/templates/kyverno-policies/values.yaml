@@ -647,6 +647,7 @@ policies:
   {{- end }}
 
   restrict-capabilities:
+    validationFailureAction: Enforce
     # NEEDS FURTHER JUSTIFICATION
     # Twistlock Defenders require the following capabilities
     # - NET_ADMIN  - Process monitoring and Iptables
@@ -690,6 +691,7 @@ policies:
           - twistlock
           names:
           - twistlock-defender-ds*
+          - twistlock-console*
       {{- end }}
       {{- if .Values.addons.alloy.enabled }}
       - resources:
