@@ -15,7 +15,6 @@ waitforready:
 policies:
   add-default-capability-drop:
     enabled: true
-    validationFailureAction: Enforce
     exclude:
       any:
       {{- if .Values.neuvector.enabled }}
