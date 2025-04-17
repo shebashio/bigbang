@@ -1,23 +1,24 @@
-{{- if and (eq .Values.bbctl.sourceType "git") (not .Values.offline) .Values.bbctl.enabled .Values.loki.enabled .Values.promtail.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
+{{- if and (eq .Values.istioCRDs.sourceType "git") (not .Values.offline) .Values.istioCRDs.enabled }}
 {{- $gitCredsDict := dict
-  "name" "bbctl"
-  "packageGitScope" .Values.bbctl.git
+  "name" "istioCRDs"
+  "packageGitScope" .Values.istioCRDs.git
   "rootScope" .
   "releaseName" .Release.Name
 }}
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: bbctl
+  name: istio-crds
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: bbctl
+    app.kubernetes.io/name: istio-crds
+    app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
 spec:
   interval: {{ .Values.flux.interval }}
-  url: {{ .Values.bbctl.git.repo }}
+  url: {{ .Values.istioCRDs.git.repo }}
   ref:
-    {{- include "validRef" .Values.bbctl.git | nindent 4 }}
+    {{- include "validRef" .Values.istioCRDs.git | nindent 4 }}
   {{ include "gitIgnore" . }}
   {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
 {{- end }}
