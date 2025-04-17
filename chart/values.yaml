@@ -323,6 +323,9 @@ istioGateway:
 istio:
   # -- Toggle deployment of Istio.
   enabled: true
+  git:
+    branch: renovate/ironbank
+    tag: null
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
     # PERMISSIVE = Allow both plain text and mutual TLS traffic
@@ -469,6 +472,9 @@ istio:
 istioOperator:
   # -- Toggle deployment of Istio Operator.
   enabled: true
+  git:
+    branch: renovate/ironbank
+    tag: nul
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
