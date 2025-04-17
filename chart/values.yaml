@@ -1244,7 +1244,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
       path: "./chart"
-      tag: "1.9.6-bb.10"
+      #tag: "1.9.6-bb.10"
+      tag: null
+      branch: "50-istio-sidecar-template-fix"
     helmRepo:
       repoName: "registry1"
       chartName: "backstage"
