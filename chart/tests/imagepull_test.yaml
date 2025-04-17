@@ -1,0 +1,128 @@
+templates:
+  - package-imagepull.yaml
+set:
+  registryCredentials:
+    registry: registry1.dso.mil
+    username: foo
+    password: bar
+tests:
+  - it: should output 12 total image pull secrets by default
+    asserts:
+      - hasDocuments:
+          count: 12
+  - it: should output a secret named private-registry in authservice namespace if authservice is enabled
+    set:
+      addons.authservice:
+        enabled: true
+    documentIndex: 0
+    documentSelector:
+      path: metadata.namespace
+      value: authservice
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - equal:
+          path: metadata.namespace
+          value: authservice
+  - it: should output a secret named private-registry in bbctl namespace if bbtcl is enabled
+    set:
+      bbctl:
+        enabled: true
+    documentIndex: 0
+    documentSelector:
+      path: metadata.namespace
+      value: bbctl
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - equal:
+          path: metadata.namespace
+          value: bbctl
+  - it: should output a secret named private-registry if top level package is enabled (common case in helper)
+    set:
+      loki:
+        enabled: true
+    documentIndex: 0
+    documentSelector:
+      path: metadata.namespace
+      value: logging
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - equal:
+          path: metadata.namespace
+          value: logging
+  - it: should not output a secret named private-registry if top level package is disabled
+    set:
+      loki:
+        enabled: false
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - notEqual:
+          path: metadata.namespace
+          value: logging
+  - it: should not generate private-registry in bbctl namespace if bbtcl is enabled, but promtail is disabled
+    set:
+      bbctl:
+        enabled: true
+      promtail:
+        enabled: false
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - notEqual:
+          path: metadata.namespace
+          value: bbctl
+  - it: should not generate private-registry in istio-gateway namespace if istioCore is not enabled
+    set:
+      istioGateway:
+        enabled: true
+      istioCore:
+        enabled: false
+    asserts:
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - notEqual:
+          path: metadata.namespace
+          value: istio-gateway
+  - it: should only generate one private-registry per namespace if multiple packages are enabled
+    set:
+      loki:
+        enabled: true
+      elasticsearchKibana:
+        enabled: true
+    documentIndex: 0
+    documentSelector:
+      kind: Secret
+      path: metadata.namespace
+      name: private-registry
+      value: logging
+      matchMany: true
+    asserts:
+      - hasDocuments:
+          filterAware: true
+          count: 1
+  - it: should only generate one private-registry in istio-gateway if istio-gateway enabled
+    set:
+      istioGateway:
+        enabled: true
+      istioCore:
+        enabled: true
+    documentIndex: 0
+    documentSelector:
+      kind: Secret
+      path: metadata.namespace
+      name: private-registry
+      value: istio-gateway
+      matchMany: true
+    asserts:
+      - hasDocuments:
+          filterAware: true
+          count: 1

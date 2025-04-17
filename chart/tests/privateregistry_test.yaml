@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json
+suite: "legacy private‑registry"
+
+excludeTemplates:
+  - "package-imagepull.yaml"
+set:
+  registryCredentials:
+    registry: registry1.dso.mil
+    username: foo
+    password: bar
+  istioGateway:
+    enabled: true
+  istioCore:
+    enabled: true
+tests:
+  - it: does not render any private-registry secrets outside of the package-imagepull
+    documentSelector:
+      path: metadata.name
+      value: private-registry
+      matchMany: true
+      skipEmptyTemplates: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
