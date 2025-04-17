@@ -1057,6 +1057,13 @@
       },
       "additionalProperties": false
     },
+    "alloy": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ]
+    },
     "addons": {
       "type": "object",
       "properties": {
@@ -1321,13 +1328,6 @@
           }
         },
         "externalSecrets": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/basePackage"
-            }
-          ]
-        },
-        "alloy": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
