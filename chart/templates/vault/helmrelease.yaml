@@ -65,6 +65,10 @@ spec:
     - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- if .Values.istiod.enabled }}
+    - name: istiod
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
 
     {{- if (dig "values" "minio" "enabled" false .Values.addons.vault) }}
     - name: minio-operator
