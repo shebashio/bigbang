@@ -234,6 +234,17 @@ policies:
           names:
           - external-secrets*
       {{- end }}
+      {{- if .Values.addons.backstage.enabled }}
+      - resources:
+          namespaces:
+            - backstage
+          kinds:
+            - Pod
+            - Deployment
+            - ReplicaSet
+          names:
+            - backstage-*
+      {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
   disallow-tolerations:
