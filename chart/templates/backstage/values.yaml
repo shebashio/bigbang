@@ -31,7 +31,8 @@ backstage:
           secret: "XxNl2b+/hGH7w7RJk8c5LXNOBh6+kzysxgYXlMK5Pgo="
         environment: development
         providers:
-          guest: {}
+          guest:
+            dangerouslyAllowOutsideDevelopment: false
           keycloak:
             development:
               metadataUrl: "{{ .Values.sso.url }}/.well-known/openid-configuration"
