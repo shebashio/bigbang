@@ -242,6 +242,7 @@ policies:
             - Pod
             - Deployment
             - ReplicaSet
+            - ServiceAccount
           names:
             - backstage-*
       {{- end }}
