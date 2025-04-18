@@ -22,6 +22,25 @@ istio:
     gateways:
     - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.backstage.ingress.gateway }}
 
+{{- if .Values.addons.backstage.sso }}
+backstage:
+  backstage:
+    appConfig:
+      auth:
+        session:
+          secret: "XxNl2b+/hGH7w7RJk8c5LXNOBh6+kzysxgYXlMK5Pgo="
+        environment: development
+        providers:
+          guest: {}
+          keycloak:
+            development:
+              metadataUrl: "{{ include "sso.host" }}/.well-known/openid-configuration"
+              clientId: "{{ .Values.addons.backstage.sso.client_id }}"
+              clientSecret: "{{ .Values.addons.backstage.sso.client_id }}"
+              prompt: auto
+
+{{- end }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 

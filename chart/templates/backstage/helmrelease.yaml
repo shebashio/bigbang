@@ -65,6 +65,8 @@ spec:
   {{- if .Values.grafana.enabled }}
   - name: grafana
     namespace: {{ .Release.Namespace }}
+  - name: kyverno
+    namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
 {{- end }}
