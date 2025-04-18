@@ -237,14 +237,14 @@ policies:
       {{- if .Values.addons.backstage.enabled }}
       - resources:
           namespaces:
-            - backstage
+          - backstage
           kinds:
-            - Pod
-            - Deployment
-            - ReplicaSet
-            - ServiceAccount
+          - Pod
+          - Deployment
+          - ReplicaSet
+          - ServiceAccount
           names:
-            - backstage-*
+          - backstage-*
       {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
