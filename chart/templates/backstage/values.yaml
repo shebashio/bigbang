@@ -34,7 +34,7 @@ backstage:
           guest: {}
           keycloak:
             development:
-              metadataUrl: "{{ include "sso.host" . }}/.well-known/openid-configuration"
+              metadataUrl: "{{ .Values.sso.url }}/.well-known/openid-configuration"
               clientId: "{{ .Values.addons.backstage.sso.client_id }}"
               clientSecret: "{{ .Values.addons.backstage.sso.client_secret }}"
               prompt: auto
