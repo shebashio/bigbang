@@ -22,7 +22,7 @@ istio:
     gateways:
     - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.backstage.ingress.gateway }}
 
-{{- if .Values.addons.backstage.sso }}
+{{- if .Values.addons.backstage.sso.enabled }}
 backstage:
   backstage:
     appConfig:
@@ -36,7 +36,7 @@ backstage:
             development:
               metadataUrl: "{{ include "sso.host" }}/.well-known/openid-configuration"
               clientId: "{{ .Values.addons.backstage.sso.client_id }}"
-              clientSecret: "{{ .Values.addons.backstage.sso.client_id }}"
+              clientSecret: "{{ .Values.addons.backstage.sso.client_secret }}"
               prompt: auto
 
 {{- end }}
