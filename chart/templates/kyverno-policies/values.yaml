@@ -244,7 +244,8 @@ policies:
           - ReplicaSet
           - ServiceAccount
           names:
-          - backstage-*
+          - backstage
+          - backstage*
       {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
