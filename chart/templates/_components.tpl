@@ -13,7 +13,7 @@ developer-tools:
   - nexusRepositoryManager
 core:
   - istio
-  - istioCore
+  - istioCRDs
   - istioGateway
   - istioOperator
   - authservice

@@ -79,11 +79,11 @@ tests:
       - notEqual:
           path: metadata.namespace
           value: bbctl
-  - it: should not generate private-registry in istio-gateway namespace if istioCore is not enabled
+  - it: should not generate private-registry in istio-gateway namespace if istiod is not enabled
     set:
       istioGateway:
         enabled: true
-      istioCore:
+      istiod:
         enabled: false
     asserts:
       - equal:
@@ -113,7 +113,7 @@ tests:
     set:
       istioGateway:
         enabled: true
-      istioCore:
+      istiod:
         enabled: true
     documentIndex: 0
     documentSelector:
@@ -126,3 +126,29 @@ tests:
       - hasDocuments:
           filterAware: true
           count: 1
+  - it: should generate private-registry in istio-system if istioCRDs is enabled, with istio-crds label
+    set:
+      istioGateway:
+        enabled: true
+      istioCRDs:
+        enabled: true
+      istiod:
+        enabled: true
+      istioOperator:
+        enabled: false
+      istio:
+        enabled: false
+    documentIndex: 0
+    documentSelector:
+      kind: Secret
+      path: metadata.namespace
+      name: private-registry
+      value: istio-system
+      matchMany: true
+    asserts:
+      - hasDocuments:
+          filterAware: true
+          count: 1
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: istio-crds

@@ -10,7 +10,7 @@ set:
     password: bar
   istioGateway:
     enabled: true
-  istioCore:
+  istiod:
     enabled: true
 tests:
   - it: does not render any private-registry secrets outside of the package-imagepull
