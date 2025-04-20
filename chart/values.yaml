@@ -648,7 +648,8 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.3.6-bb.1"
+    tag: null
+    branch: "144-spike-investigate-kyverno-with-pass-through-pattern"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
