@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.grafana" -}}
-# hostname is deprecated and replaced with domain. But if hostname exists then use it.
+# hostname is deprecated and replaced with domain. But if hostname exists then use it. test
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
