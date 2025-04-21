@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno-policies/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: disabled
+    mode: enabled
   targetNamespace: kyverno
   chart:
     spec:
