@@ -931,7 +931,8 @@ elasticsearchKibana:
         enabled: true
         # -- image to use for script based tests
         image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
-
+    waitJob:
+      enabled: false
 
 fluentbit:
   enabled: false
