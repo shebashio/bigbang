@@ -184,10 +184,10 @@ stringData:
   
   {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
     {{- if and $name $mergedGW }}
-      {{- $gwType := dig "labels" "istio" "" $mergedGW -}}
+      {{- $gwType := dig "upstream" "labels" "istio" "" $mergedGW -}}
       
       {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
-        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
+        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; upstream.labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
       {{ end -}}
       
       {{- $gwRecord := dict -}}
@@ -515,16 +515,16 @@ data:
 {{- end -}}
 {{- end -}}
 
-{{- /* Returns true if either istio or istioCore is enabled */ -}}
+{{- /* Returns true if either istio or istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ or .Values.istio.enabled .Values.istioCore.enabled }}
+{{ or .Values.istio.enabled .Values.istiod.enabled }}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
-{{- if .Values.istioCore.enabled -}}
+{{- if .Values.istiod.enabled -}}
 ingress: istio-gateway
-egress: istio-core
+egress: istio-system
 {{- else -}}
 ingress: istio-controlplane
 egress: istio-controlplane

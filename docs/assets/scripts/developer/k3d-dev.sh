@@ -535,7 +535,7 @@ function install_k3d {
   echo "Installing k3d on instance"
   # Shared k3d settings across all options
   # 1 server, 3 agents
-  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 --verbose"
+  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
   # Volumes to support Twistlock defenders
   k3d_command+=" -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:*"
   # Disable traefik and metrics-server
@@ -598,6 +598,7 @@ function install_k3d {
   fi
   run_batch_add "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
   run_batch_add "k3d version"
+  run_batch_add "sudo mkdir -p /cypress && sudo chown 1000:1000 /cypress"
   run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
   run_batch_add "${k3d_command}"
   run_batch_execute
@@ -640,12 +641,12 @@ function install_metallb {
     echo "Installing MetalLB..."
     run_batch_new
   
-    until [[ ${REGISTRY_USERNAME} ]]; do
-      read -p "Please enter your Registry1 username: " REGISTRY_USERNAME
-    done
-    until [[ ${REGISTRY_PASSWORD} ]]; do
-      read -s -p "Please enter your Registry1 password: " REGISTRY_PASSWORD
-    done
+#    until [[ ${REGISTRY_USERNAME} ]]; do
+#      read -p "Please enter your Registry1 username: " REGISTRY_USERNAME
+#    done
+#    until [[ ${REGISTRY_PASSWORD} ]]; do
+#      read -s -p "Please enter your Registry1 password: " REGISTRY_PASSWORD
+#    done
 
     scp -r -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SCRIPT_DIR}/metallb ${SSHUSER}@${PublicIP}:/tmp/
     
@@ -1004,7 +1005,7 @@ EOF
   #### Request a Spot Instance
 
   # Run a spot instance with our launch spec for the max. of 6 hours
-  # NOTE: t3a.2xlarge spot price is 0.35 m5a.4xlarge is 0.69
+  # NOTE: t3.2xlarge spot price is 0.0996 m5a.4xlarge is 0.69
   echo "Running spot instance ..."
 
   if [[ "${ATTACH_SECONDARY_IP}" == true ]]; then
@@ -1161,12 +1162,12 @@ function cloud_aws_create_instances {
   if [[ "${RESET_K3D}" == false ]] ; then
     if [[ "$BIG_INSTANCE" == true ]]; then
       echo "Will use large m5a.4xlarge spot instance"
-      InstSize="m5a.4xlarge"
-      SpotPrice="0.69"
+      InstSize="m5.12xlarge"
+      SpotPrice="0.7121"
     else
-      echo "Will use standard t3a.2xlarge spot instance"
-      InstSize="t3a.2xlarge"
-      SpotPrice="0.35"
+      echo "Will use standard t3.2xlarge spot instance"
+      InstSize="t3.2xlarge"
+      SpotPrice="0.2"
     fi
 
     cloud_aws_prep_objects
