@@ -66,8 +66,8 @@ spec:
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if (eq (include "istioEnabled" .) "true") }}
-    - name: {{ include "istioHelmRelease" . }}
-      namespace: {{ .Release.Namespace }}
+  - name: {{ include "istioHelmRelease" . }}
+    namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if .Values.kyvernoPolicies.enabled }}
   - name: kyverno-policies
