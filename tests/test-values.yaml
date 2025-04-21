@@ -2691,3 +2691,16 @@ addons:
         enabled: true
         cypress:
           artifacts: true
+        namespace: external-secrets
+        serviceAccount:
+          name: external-secrets-test
+        rolebinding:
+          name: external-secrets-test-read-pods
+        role:
+          name: external-secrets-pod-reader
+          rules:
+            - apiGroups: [""]
+              resources: ["pods"]
+              verbs: ["get", "list", "watch"]       
+        scripts:
+          image: registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.31.7      
