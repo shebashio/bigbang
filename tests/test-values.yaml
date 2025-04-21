@@ -928,6 +928,7 @@ elasticsearchKibana:
             cpu: "2"
             memory: "4Gi"
       scripts:
+        enabled: true
         # -- image to use for script based tests
         image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
