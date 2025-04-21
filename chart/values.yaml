@@ -900,7 +900,9 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.3-bb.1"
+    #tag: "2.8.3-bb.1"
+    tag: null
+    branch: "fix_error_after_enabled_drift_detection"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
