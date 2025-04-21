@@ -10,7 +10,7 @@ metadata:
 spec:
   targetNamespace: minio-operator
   driftDetection:
-    mode: warn
+    mode: enabled
   chart:
     spec:
       {{- if eq .Values.addons.minioOperator.sourceType "git" }}

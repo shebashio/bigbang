@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/eck-operator/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: warn
+    mode: enabled
   targetNamespace: eck-operator
   chart:
     spec:

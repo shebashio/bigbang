@@ -14,7 +14,7 @@ metadata:
 spec:
   targetNamespace: velero
   driftDetection:
-    mode: warn
+    mode: enabled
   chart:
     spec:
       {{- if eq .Values.addons.velero.sourceType "git" }}

@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/thanos/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: warn
+    mode: enabled
     ignore:
       - paths: [""]
         target:
