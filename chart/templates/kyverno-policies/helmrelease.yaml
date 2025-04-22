@@ -45,7 +45,7 @@ spec:
   {{- if (get .Values $pkg).postRenderers }}
   postRenderers:
     - kustomize:
-    patches:
+      patches:
       - target:
           version: v1
           kind: ClusterPolicy
