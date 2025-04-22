@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno-policies/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: disabled
+    mode: enabled
   targetNamespace: kyverno
   chart:
     spec:
@@ -45,7 +45,16 @@ spec:
   {{- if (get .Values $pkg).postRenderers }}
   postRenderers:
   {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
-  {{- end }}
+    - kustomize:
+    patches:
+      - target:
+          version: v1
+          kind: ClusterPolicy
+        patch: |
+          - op: add
+            path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
+            value: disabled 
+  {{- end }}    
   valuesFrom:
     - name: {{ .Release.Name }}-{{ $pkg | kebabcase }}-values
       kind: Secret
