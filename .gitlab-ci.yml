@@ -1,0 +1,7 @@
+include: # standard for the BB repo
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: "operatorless-vault-coredns"
+    file: '/pipelines/bigbang.yaml'
+variables:
+  PIPELINE_REPO_BRANCH: operatorless-vault-coredns
+  CI_DEFAULT_BRANCH: robferguson-bigbang-master
