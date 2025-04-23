@@ -63,10 +63,10 @@ spec:
   {{- if (eq (include "istioEnabled" .) "true") }}
     - name: {{ include "istioHelmRelease" . }}
       namespace: {{ .Release.Namespace }}
-  {{- end }}
-  {{- if .Values.monitoring.enabled }}
+    {{- end }}
+    {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
-  {{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}
