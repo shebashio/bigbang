@@ -210,7 +210,7 @@ istiod:
 
 istioGateway:
   status: "beta"
-  # -- Toggle deployment of Istio Gateway(s)  
+  # -- Toggle deployment of Istio Gateway(s)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -909,11 +909,12 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.3-bb.1"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "neuvector"
-    tag: "2.8.3-bb.1"
+    tag: null
+    branch: "renovate/ironbank"
+  # helmRepo:
+  #   repoName: "registry1"
+  #   chartName: "neuvector"
+  #   tag: "2.8.3-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2210,7 +2211,7 @@ addons:
       chartName: "k8s-monitoring"
       tag: "2.0.23-bb.0"
 
-    # -- Toggle Alloy to collect logs 
+    # -- Toggle Alloy to collect logs
     alloyLogs:
       enabled: true
 
@@ -2252,7 +2253,7 @@ addons:
       defaultUserCredentials:
         username: "mimir-user"
         password: "supersecret"
-    
+
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
       enabled: false
@@ -2272,14 +2273,14 @@ addons:
 
       # -- Bucket name for the Mimir bucket as YAML
       bucketName: ""
-      
+
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
 
-    # -- Mimir Service Account Annotations 
+    # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}
       ## Example IRSA Service Account Annotation
-      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>" 
+      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
 
     values: {}
 
@@ -2401,4 +2402,4 @@ packages:
     # -- Values to pass through to package Helm chart
     values: {}
 
-    
+
