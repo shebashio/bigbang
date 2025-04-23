@@ -10,7 +10,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ $pkg }}
     {{- include "commonLabels" $ | nindent 4 }}
-    {{- if or $.Values.istio.enabled $.Values.istiod.enabled }}
+    {{- if (eq (include "istioEnabled" $) "true") }}
     istio-injection: {{ tpl ((dig "istio" "injection" "enabled" $vals)) $ }}
     {{- end }}
     {{- if (dig "namespace" "labels" nil $vals) -}}
