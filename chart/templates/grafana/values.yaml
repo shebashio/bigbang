@@ -8,7 +8,7 @@
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
-{{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled") .Values.istio.enabled) }}
+{{- $istioInjection := (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled")) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
@@ -18,6 +18,8 @@ flux:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
     {{- $gateway := default "public" .Values.grafana.ingress.gateway }}
@@ -34,7 +36,7 @@ gitlabRunner:
 
 istio:
   {{- $grafanaInjection := dig "istio" "injection" "enabled" .Values.grafana }}
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ (eq (include "istioEnabled" .) "true") }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -48,7 +50,7 @@ istio:
   grafana:
     enabled: true
     gateways:
-    - istio-system/{{ default "public" .Values.grafana.ingress.gateway }}
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.grafana.ingress.gateway }}
   injection: {{ dig "istio" "injection" "enabled" .Values.grafana }}
 
 anchore:
@@ -104,6 +106,14 @@ datasources:
   datasourcesbb.yaml:
     apiVersion: 1
     datasources:
+    {{- if .Values.addons.mimir.enabled }}
+    - name: Mimir
+      type: prometheus
+      uid: mimir
+      access: proxy
+      url: http://mimir-mimir-gateway.mimir.svc.cluster.local/prometheus
+      editable: true
+    {{- end }}
     {{- if .Values.monitoring.enabled }}
     {{- if .Values.addons.thanos.enabled }}
     - name: Thanos
@@ -229,7 +239,7 @@ datasources:
 {{- end }}
 
 grafana.ini:
-  {{- if .Values.istio.enabled }}
+  {{- if (eq (include "istioEnabled" .) "true") }}
   server:
     root_url: https://grafana.{{ $domainName }}/
   {{- end }}
@@ -295,7 +305,6 @@ extraSecretMounts:
 {{- if .Values.monitoring.enabled }}
 serviceMonitor:
   enabled: true
-{{- end }}
 {{- if $istioInjection }}
   scheme: https
   tlsConfig:
@@ -303,6 +312,7 @@ serviceMonitor:
     certFile: /etc/prom-certs/cert-chain.pem
     keyFile: /etc/prom-certs/key.pem
     insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+{{- end }}
 {{- end }}
 {{- end }}
 

@@ -55,7 +55,6 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-
 istio:
   enabled: true
   ingressGateways:
@@ -79,41 +78,14 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-
+istioGateway:
+  enabled: false
 jaeger:
   enabled: false
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
   values:
-    istio:
-      hardened:
-        customAuthorizationPolicies:
-          - name: "allow-intranamespace-jaeger"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - jaeger
-        customServiceEntries:
-          - name: "cypress-service-entries-jaeger"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'tracing.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     bbtests:
       enabled: true
       cypress:
@@ -123,7 +95,6 @@ jaeger:
           # cypress_tnr_username: "cypress"
           # cypress_tnr_password: "tnr_w!G33ZyAt@C8"
           # cypress_keycloak_test_enable: "true"
-
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
@@ -255,7 +226,6 @@ gatekeeper:
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - holocron/holocron-cypress-test
           - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
@@ -274,6 +244,7 @@ gatekeeper:
           - thanos/thanos-cypress-test
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
+          - mimir/mimir-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -397,7 +368,6 @@ gatekeeper:
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - holocron/holocron-cypress-test
           - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
@@ -416,6 +386,7 @@ gatekeeper:
           - thanos/thanos-cypress-test
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
+          - mimir/mimir-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -437,6 +408,11 @@ kyverno:
           requests:
             cpu: 1
             memory: 768Mi
+    features:
+      policyexceptions:
+        enabled: true
+        # -- Restrict policy exceptions to a single namespace
+        namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -503,6 +479,21 @@ kyvernoPolicies:
     # Parameters are copied from kyverno policies for test vectors
     # Exclusions are for allowing other helm tests to function
     policies:
+      add-default-capability-drop:
+        exclude:
+          any:
+          # Need to be able to test the `require-drop-all-capabilities` policy
+          # without this policy mutating the podspecs and adding the "missing" capability
+          - resources:
+              namespaces:
+              - default
+              names:
+              - require-drop-all-capabilities*
+          - resources:
+              namespaces:
+              - argocd
+              names:
+              - guestbook-ui-*
       clone-configs:
         parameters:
           clone:
@@ -605,6 +596,7 @@ kyvernoPolicies:
               - keycloak
               - jaeger
               - kyverno-reporter
+              - mimir
               - monitoring
               - vault
               - logging
@@ -619,7 +611,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               - alloy
               names:
               - "*-cypress-test*"
@@ -646,6 +637,7 @@ kyvernoPolicies:
               - keycloak
               - kyverno-reporter
               - jaeger
+              - mimir
               - monitoring
               - vault
               - logging
@@ -660,7 +652,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               - alloy
               names:
               - "*-cypress-test*"
@@ -694,6 +685,7 @@ kyvernoPolicies:
               - keycloak
               - kyverno-reporter
               - jaeger
+              - mimir
               - monitoring
               - vault
               - logging
@@ -708,7 +700,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               - alloy
               names:
               - "*-cypress-test*"
@@ -829,7 +820,36 @@ kyvernoPolicies:
         parameters:
           disallow:
           - bigbang
-
+    additionalPolicyExceptions:
+      testpolicyexception:
+        enabled: true
+        kind: PolicyException
+        namespace: "kyverno"
+        annotations:
+          policies.kyverno.io/title: Test PolicyException
+          policies.kyverno.io/category: Test
+          policies.kyverno.io/subject: Pod
+          policies.kyverno.io/description: >-
+            This Test PolicyException allows pods to deploy busybox for debugging.
+        # -- PolicyException specification.  See `kubectl explain policyexceptions.spec`
+        spec:
+          exceptions:
+          #Name of Policy for exception
+          - policyName: block-ephemeral-containers
+            ruleNames:
+            - block-ephemeral-containers
+          match:
+            any:
+            - resources:
+                kinds:
+                - Pod
+                names:
+                - important-tool*
+          conditions:
+            any:
+            - key: "{{ request.object.metadata.labels.app || '' }}"
+              operator: Equals
+              value: busybox
 eckOperator:
   # -- Toggle deployment of ECK Operator.
   enabled: false
@@ -1273,9 +1293,52 @@ twistlock:
       scripts:
         envs:
           twistlock_host: "https://twistlock.dev.bigbang.mil"
+bbctl:
+  enabled: true
+  values:
+    istio:
+      hardened:
+        customServiceEntries:
+          - name: "cypress-service-entries-bbctl"
+            enabled: true
+            spec:
+              hosts:
+                - 'registry.npmjs.org'
+                - 'download.cypress.io'
+                - 'cdn.cypress.io'
+                - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
+        customAuthorizationPolicies:
+          - name: "allow-intranamespace-bctl"
+            enabled: true
+            spec:
+              action: ALLOW
+              rules:
+              - from:
+                - source:
+                    namespaces:
+                    - loki
+                    - grafana
+                    - promtail
+                    - monitoring
+    bbtests:
+      enabled: true
+      cypress:
+        envs:
+          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_grafana_username: 'admin'
+          cypress_grafana_password: 'prom-operator'
 
 # Addons are toggled based on labels in CI
 addons:
+  alloy:
+    enabled: false
   argocd:
     enabled: false
     sso:
@@ -1488,7 +1551,6 @@ addons:
       timeout: 30m
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-gitlab"
@@ -1607,7 +1669,6 @@ addons:
     enabled: false
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-gitlab-runner"
@@ -1673,7 +1734,6 @@ addons:
         "TBD"
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "anchore-allow-cypress-tests"
@@ -1915,7 +1975,7 @@ addons:
       account:
         adminPassword: new_admin_password
         currentAdminPassword: admin
-      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.0.0
+      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
@@ -1995,6 +2055,9 @@ addons:
       tenant:
         pools:
         - name: pool-0
+          labels:
+            app: minio
+            app.kubernetes.io/name: minio
           servers: 3
           volumesPerServer: 4
           size: 256Mi
@@ -2017,7 +2080,6 @@ addons:
             capabilities:
               drop:
               - ALL
-
       bbtests:
         # There have been intermittent failures of the tests in the past.   The issue is tracked in the below issue.
         # https://repo1.dso.mil/big-bang/product/packages/minio/-/issues/7
@@ -2030,6 +2092,59 @@ addons:
           envs:
             MINIO_PORT: ''
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
+
+  mimir:
+    enabled: false
+    values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-mimir"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'grafana.dev.bigbang.mil'
+                  - 'optimizationguide-pa.googleapis.com'
+                  - 'clientservices.googleapis.com'
+                  - 'accounts.google.com'
+                  - 'redirector.gvt1.com'
+                  - 'content-autofill.googleapis.com'
+                  - 'safebrowsing.googleapis.com'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
+          envs:
+            cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+        scripts:
+          envs:
+            MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
+      mimir-distributed:
+        mimir:
+          structuredConfig:
+            limits:
+              max_global_series_per_user: 0
+
+    minioObjectStorage:
+      enabled: true
+    networkPolicies:
+      enabled: true
+    imagePullSecrets:
+      - name: private-registry
+    console:
+      persistence:
+        size: 5Gi
+      localVolumeUpgrade: true
 
   mattermostOperator:
     enabled: false
@@ -2107,6 +2222,9 @@ addons:
         tenant:
           pools:
           - name: pool-0
+            labels:
+              app: minio
+              app.kubernetes.io/name: minio
             servers: 1
             volumesPerServer: 4
             size: 256Mi
@@ -2228,7 +2346,6 @@ addons:
                   forceBasicAuth: true
                   httpPort: 5000
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "cypress-service-entries-nexus"
@@ -2260,6 +2377,7 @@ addons:
         scripts:
           envs:
             docker_host: "containers.dev.bigbang.mil"
+            docker_host_tls_enabled: "true"
 
   velero:
     enabled: false
@@ -2318,12 +2436,11 @@ addons:
   keycloak:
     enabled: false
     ingress:
-      gateway: "passthrough"
+      gateway: ""
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
       istio:
-        enabled: true
         hardened:
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
@@ -2388,7 +2505,7 @@ addons:
             quarkus.properties: '{{ .Files.Get "resources/dev/quarkus.properties" }}'
       extraInitContainers: |-
         - name: plugin
-          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.5.7
+          image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.7
           imagePullPolicy: Always
           command:
           - sh
@@ -2436,6 +2553,8 @@ addons:
         - name: quarkusproperties
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
+      networkPolicies:
+        enabled: true    
 
   vault:
     enabled: false
@@ -2561,7 +2680,6 @@ addons:
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
-        enabled: true
         hardened:
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
@@ -2675,6 +2793,9 @@ addons:
         tenant:
           pools:
           - name: pool-0
+            labels:
+              app: minio
+              app.kubernetes.io/name: minio
             servers: 1
             volumesPerServer: 4
             size: 256Mi
@@ -2725,34 +2846,3 @@ addons:
           insecure: true
           trace:
             enable: true
-
-  # ----------------------------------------------------------------------------------------------------------------------
-  # Holocron
-  #
-  holocron:
-    # -- Toggle deployment of holocron
-    enabled: false
-    sso:
-      enabled: false
-      client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_holocron
-    values:
-      bbtests:
-        enabled: true
-        cypress:
-          resources:
-            requests:
-              cpu: "2"
-              memory: "2G"
-            limits:
-              cpu: null
-              memory: "2G"
-
-  externalSecrets:
-    values:
-      istio:
-        hardened:
-          enabled: true
-      bbtests:
-        enabled: true
-        cypress:
-          artifacts: true

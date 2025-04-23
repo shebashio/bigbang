@@ -38,7 +38,6 @@ gatekeeper:
           - neuvector/neuvector-.*
           - argocd/guestbook-ui-.*
           - keycloak/keycloak-.*
-          - holocron/holocron-postgresql-0
           - velero/velero-backup-restore-test.*
           - vault/vault-vault.*
           - monitoring/monitoring-monitoring-kube-admission-create-.*
@@ -360,7 +359,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               names:
               - "*-cypress-test*"
           - resources:
@@ -396,7 +394,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               names:
               - "*-cypress-test*"
           - resources:
@@ -432,7 +429,6 @@ kyvernoPolicies:
               - harbor
               - fortify
               - thanos
-              - holocron
               names:
               - "*-cypress-test*"
           - resources:

@@ -4,11 +4,60 @@
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
+{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.addons.alloy) }}
+
+{{- $lokiWriteDestUrl := ternary
+    "http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push"
+    "http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push"
+    (eq .Values.loki.strategy "monolith")
+}}
+
+{{- $istioInjection := (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.alloy) "enabled")) }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
+istio:
+  enabled: {{ (eq (include "istioEnabled" .) "true") }}
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+      (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
+      (dig "istio" "hardened" "enabled" false .Values.addons.alloy.values)
+    }}
+
+k8s-monitoring:
+  destinations:
+    {{- if and $alloyLogsEnabled .Values.loki.enabled }}
+    - name: loki
+      type: loki
+      url: {{ $lokiWriteDestUrl }}
+    {{- end }}
+  {{- if and $alloyLogsEnabled .Values.loki.enabled }}
+  alloy-logs:
+    enabled: true
+    serviceMonitor:
+      enabled: {{ $.Values.monitoring.enabled }}
+      {{- if and (include "istioEnabled" $) (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.addons.alloy.values) "STRICT") }}
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      {{- end }}
+  podLogs:
+    enabled: true
+  {{- end }}
 {{- end }}

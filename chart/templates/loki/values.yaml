@@ -3,14 +3,17 @@
 {{- end }}
 
 {{- define "bigbang.defaults.loki" -}}
-hostname: {{ .Values.hostname }}
+# hostname is deprecated and replaced with domain. But if hostname exists then use it.
+{{- $domainName := default .Values.domain .Values.hostname }}
+hostname: {{ $domainName }}
+domain: {{ $domainName }}
 
 clusterName: ""
 
 openshift: {{ .Values.openshift }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ (eq (include "istioEnabled" .) "true") }}
   {{- if or 
       (dig "hardened" "enabled" false .Values.istio.values)
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -30,7 +33,13 @@ istio:
       enabled: {{ .Values.fluentbit.enabled }}
     minioOperator:
       enabled: {{ .Values.addons.minioOperator.enabled }}
+    alloy:
+      enabled: {{ .Values.addons.alloy.enabled }}
   {{- end }}
+  loki:
+    enabled: true
+    gateways:
+    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) }}
 
 imagePullSecrets:
   - name: private-registry
@@ -41,13 +50,15 @@ image:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:
     enabled: {{ .Values.monitoring.enabled }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
-    {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
+    {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -99,7 +110,13 @@ loki:
     filesystem:
       directory: /var/loki/chunks
   {{- end }}
-  {{- if .Values.istio.enabled }}
+  # The bbctl violations dashboard output can be larger than the default loki line limit of 256KB
+  # Setting max_line_size = 0 removes the limit so the data can be ingested properly
+  {{- if .Values.bbctl.enabled }}
+  limits_config:
+    max_line_size: 0
+  {{- end }}
+  {{- if (eq (include "istioEnabled" .) "true") }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -150,9 +167,6 @@ backend:
           fieldPath: status.podIP
 gateway:
   enabled: true
-  service:
-    labels:
-      prometheus.io/service-monitor: "false"
   extraArgs:
     - -config.expand-env=true
   extraEnv:
@@ -160,14 +174,6 @@ gateway:
       valueFrom:
         fieldRef:
           fieldPath: status.podIP
-{{- end }}
-
-{{- with .Values.loki.objectStorage }}
-{{- if and (eq $.Values.loki.strategy "scalable") (not (and .endpoint .region)) }}
-minio:
-  enabled: true
-
-{{- end }}
 {{- end }}
 
 # Allows users to deploy distributed mode but calls out that we do not support it

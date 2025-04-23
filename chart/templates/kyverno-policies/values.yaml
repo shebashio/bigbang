@@ -13,6 +13,66 @@ waitforready:
   - name: private-registry
 
 policies:
+  add-default-capability-drop:
+    enabled: true
+    exclude:
+      any:
+      {{- if .Values.neuvector.enabled }}
+      # Neuvector needs access to host to inspect network traffic
+      - resources:
+          namespaces:
+          - neuvector
+          names:
+          - neuvector-enforcer-pod*
+          - neuvector-cert-upgrader-job*
+          - neuvector-controller-pod*
+          - neuvector-scanner-pod*
+          - neuvector-prometheus-exporter-pod*
+      {{- end }}
+      {{- if .Values.addons.velero.enabled }}
+      - resources:
+          namespaces:
+          - velero
+          names:
+          - velero-backup-restore-test*
+      {{- end }}
+      {{- if .Values.addons.gitlabRunner.enabled }}
+      - resources:
+          namespaces:
+          - gitlab-runner
+          names:
+          - runner*
+      {{- end }}
+      {{- if .Values.addons.gitlab.enabled }}
+      - resources:
+          namespaces:
+          - gitlab
+          names:
+          - webservice-test-runner*
+      {{- end }}
+      {{- if .Values.twistlock.enabled }}
+      - resources:
+          namespaces:
+          - twistlock
+          names:
+          - twistlock-console*
+          - twistlock-defender-ds*
+          - volume-upgrade*
+      {{- end }}
+      {{- if .Values.addons.mimir.enabled }}
+      - resources:
+          namespaces:
+          - mimir
+          names:
+          - mimir-mimir-smoke-test*
+      {{- end }}
+      {{- if .Values.addons.vault.enabled }}
+      - resources:
+          namespaces:
+          - vault
+          names:
+          - vault-vault-job-init*
+      {{- end }}
 
   {{- if or .Values.twistlock.enabled .Values.neuvector.enabled }}
   disallow-host-namespaces:
@@ -55,7 +115,7 @@ policies:
   # Istio services (istio ingress) can create type: NodePort services
   disallow-nodeport-services:
     validationFailureAction: Enforce
-    {{- if $nodePortIngressGateways }}
+    {{- if or $nodePortIngressGateways .Values.istiod.enabled }}
     exclude:
       any:
       - resources:
@@ -66,21 +126,47 @@ policies:
           - {{ $name }}
           {{- end }}
           namespaces:
-          - "istio-system"
+          - istio-system
+      {{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
+      - resources:
+          kinds:
+          - Service
+          names:
+          {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
+          - {{ $gw.serviceName }}
+          {{ end -}}
+          namespaces:
+          - istio-gateway
+      {{- end }}
     {{- end }}
 
   disallow-image-tags:
     enabled: true
     validationFailureAction: Enforce
+    exclude:
+      any:
+      # istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config.
+      {{- if .Values.istioGateway.enabled }}
+      - resources:
+          namespaces:
+          - istio-gateway
+          names:
+          - '*-ingressgateway'
+          - '*-egressgateway'
+      {{- end }}
 
   disallow-istio-injection-bypass:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ include "istioEnabled" . }}
     exclude:
       any:
       # Istio does not inject itself
       - resources:
           namespaces:
           - istio-system
+          - istio-gateway
 
   disallow-namespaces:
     enabled: true
@@ -124,7 +210,7 @@ policies:
       {{- if .Values.kyvernoReporter.enabled }}
       - resources:
           namespaces:
-          - kyverno-reporter 
+          - kyverno-reporter
           kinds:
           - Pod
           - Deployment
@@ -159,9 +245,20 @@ policies:
       {{- if .Values.addons.externalSecrets.enabled }}
       - resources:
           namespaces:
-          - external-secrets 
+          - external-secrets
           names:
           - external-secrets*
+      {{- end }}
+      {{- if .Values.gatekeeper.enabled }}
+      - resources:
+          namespaces:
+          - gatekeeper-system
+          kinds:
+          - Pod
+          - Deployment
+          names:
+          - gatekeeper-audit*
+          - gatekeeper-controller-manager*
       {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
@@ -210,13 +307,6 @@ policies:
           - neuvector-scanner-pod*
           - neuvector-prometheus-exporter-pod*
       {{- end }}
-      {{- if .Values.addons.holocron.enabled }}
-      - resources:
-          namespaces:
-          - holocron
-          names:
-          - holocron-postgresql-0
-      {{- end }}
       {{- if .Values.addons.velero.enabled }}
       - resources:
           namespaces:
@@ -246,6 +336,13 @@ policies:
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
+      {{- if .Values.addons.mimir.enabled }}
+      - resources:
+          namespaces:
+          - mimir
+          names:
+          - mimir-mimir-smoke-test-*
+      {{- end }}
 
   # Kyverno Beta feature - https://kyverno.io/docs/writing-policies/verify-images/
   require-image-signature:
@@ -259,9 +356,9 @@ policies:
       require:
       - app.kubernetes.io/name
       - app.kubernetes.io/version
-      
+
   require-istio-on-namespaces:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ include "istioEnabled" . }}
     exclude:
       any:
       - resources:
@@ -278,22 +375,16 @@ policies:
           # Istio does not inject itself
           - istio-operator
           - istio-system
+          - istio-gateway
 
   add-default-securitycontext:
-    validationFailureAction: Enforce
+    enabled: true
     {{ if .Values.istio.enabled }}
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
@@ -317,6 +408,7 @@ policies:
           namespaces:
           - twistlock
           names:
+          - twistlock-console*
           - twistlock-defender-ds*
           - volume-upgrade-job*
       {{- end }}
@@ -368,29 +460,39 @@ policies:
           names:
           - mattermost-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
 
   require-non-root-group:
     validationFailureAction: Enforce
-    {{ if .Values.istio.enabled }}
+    {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled }}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
       - resources:
           namespaces:
           - kube-system
+      {{ if .Values.istiod.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - istiod*
+      {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods.
@@ -451,28 +553,31 @@ policies:
           - neuvector-controller-pod-*
           - neuvector-cert-upgrader-job-*
       {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
+      {{- end }}
     {{- end }}
 
   require-non-root-user:
     validationFailureAction: Enforce
-    {{ if .Values.istio.enabled }}
+    {{ if include "istioEnabled" . }}
     parameters:
       excludeContainers:
         - istio-init
-        {{ if not .Values.addons.holocron.database.host }}
-        - init-chmod-data
-        {{- end }}
-    {{ else if not .Values.addons.holocron.database.host }}
-    parameters:
-      excludeContainers:
-        - init-chmod-data
     {{- end }}
     exclude:
       any:
       - resources:
           namespaces:
           - kube-system
-    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled}}
+    {{- if or $deployNodeAgent .Values.twistlock.enabled .Values.fluentbit.enabled .Values.promtail.enabled .Values.kiali.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled }}
       {{- if .Values.kiali.enabled }}
       # Kiali needs exception for operator to deploy Kiali server
       - resources:
@@ -520,7 +625,7 @@ policies:
       {{- end }}
       {{- if .Values.fluentbit.enabled }}
       # Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       - resources:
           namespaces:
@@ -530,7 +635,7 @@ policies:
       {{- end }}
       {{- if .Values.promtail.enabled }}
       # promtail requires access to journalctl as well as /var/log.  This would require modifications
-      # to the host operating system, creating a user, adding that user to the  systemd-journal user group
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log.
       # promtail requires access to /run/promtail for its buffering and persistent state.
       - resources:
@@ -538,6 +643,16 @@ policies:
           - promtail
           names:
           - promtail-promtail*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      # to the host operating system, creating a user, adding that user to the systemd-journal user group
+      # and then granting permissions recursively on /var/log.
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
     {{- end }}
 
@@ -579,30 +694,41 @@ policies:
       allow:
       # Defaults from https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
       - NET_BIND_SERVICE
-      {{- if .Values.istio.enabled }}
+      {{- if include "istioEnabled" . }}
       # Istio requires NET_ADMIN and NET_RAW for sidecar init: https://istio.io/latest/docs/ops/deployment/requirements/#pod-requirements
       # It uses these permissions to setup iptables for network routing
       # Cannot create exclusion since sidecar is injected in most containers, so allow the capabilities globally
       - NET_ADMIN
       - NET_RAW
       {{- end }}
-    {{- if .Values.twistlock.enabled }}
     # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
     # - read logs from `/var/log` to watch for malicious processes
     # - audit modifications to `/etc/passwd` (watching for suspicious changes)
     # - access the container runtime socket (observing all running containers on a node)
+    {{- if or .Values.twistlock.enabled .Values.addons.alloy.enabled }}
     exclude:
       any:
+      {{- if .Values.twistlock.enabled }}
       - resources:
           namespaces:
           - twistlock
           names:
           - twistlock-defender-ds*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-metrics*
+          - alloy-alloy-receiver*
+          - alloy-alloy-logs*
+          - alloy-alloy-singleton*
+      {{- end }}
     {{- end }}
-
   restrict-host-path-mount:
     validationFailureAction: Enforce
-    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+    {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
     exclude:
       any:
       {{- if .Values.fluentbit.enabled }}
@@ -675,6 +801,16 @@ policies:
           - neuvector-enforcer-pod*
           - neuvector-cert-upgrader-job-*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -749,6 +885,20 @@ policies:
       allow:
       - registry1.dso.mil
       - registry.dso.mil
+    exclude:
+      any:
+      # istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config.
+      {{- if .Values.istioGateway.enabled }}
+      - resources:
+          namespaces:
+          - istio-gateway
+          names:
+          - '*-ingressgateway'
+          - '*-egressgateway'
+      {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.promtail.enabled .Values.twistlock.enabled }}
   restrict-selinux-type:
@@ -798,7 +948,7 @@ policies:
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled $deployNodeAgent }}
+  {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled $deployNodeAgent }}
   restrict-volume-types:
     exclude:
       any:
@@ -852,6 +1002,16 @@ policies:
           names:
           - neuvector-enforcer-pod*
           - neuvector-controller-pod*
+      {{- end }}
+      {{- if .Values.addons.alloy.enabled }}
+      # Alloy mounts the following hostPaths:
+      # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+      # - `/var/lib/docker/containers`: to tail container logs
+      - resources:
+          namespaces:
+          - alloy
+          names:
+          - alloy-alloy-logs*
       {{- end }}
       {{- if $deployNodeAgent }}
       # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
@@ -916,7 +1076,7 @@ policies:
       - namespace: twistlock
         pods:
           allow:
-          # twistlock-init pods require get/list/patch/etc to several resources. 
+          # twistlock-init pods require get/list/patch/etc to several resources.
           # More details in twistlock/chart/templates/init/clusterrole.yaml
           - twistlock-init-*
           # twistlock-volume-upgrade-job requires patch/get/list/update to deployments and get/list to pods
@@ -990,14 +1150,14 @@ policies:
           - neuvector-updater-pod-*
           - neuvector-prometheus-exporter-pod-*
           - neuvector-registry-adapter-pod-*
-      - namespace: kiali 
+      - namespace: kiali
         pods:
           allow:
           - kiali-*
       - namespace: argocd
         pods:
           allow:
-          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs 
+          # application-controller pods interact with secrets, configmaps, events, and Argo CRDs
           # More details in argocd/chart/templates/argocd-application-controller/role.yaml
           - argocd-argocd-application-controller-*
           # dex pods interact with secrets and configmaps
@@ -1006,7 +1166,7 @@ policies:
           # argocd-upgrade-job interacts with CRDs
           # More details in argocd/chart/templates/bigbang/upgrade-job.yaml
           - argocd-upgrade-job
-          # argocd server pods interact with secrets, configmaps, events, and CRDs 
+          # argocd server pods interact with secrets, configmaps, events, and CRDs
           # More details in argocd/chart/templates/argocd-server/role.yaml
           - argocd-argocd-server-*
           # repo server pods require access to the K8s API if using RBAC
@@ -1022,8 +1182,8 @@ policies:
           # More details in argocd/chart/templates/argocd-notifications/bots/slack/role.yaml
           - argocd-argocd-notifications-controller-*
       - namespace: harbor
-        # Omitting the serviceAccount and Pods section forces the policy to apply to 
-        # all of the serviceAccount and Pods in the namespace 
+        # Omitting the serviceAccount and Pods section forces the policy to apply to
+        # all of the serviceAccount and Pods in the namespace
       - namespace: authservice
         pods:
           allow:
@@ -1038,7 +1198,15 @@ policies:
           - monitoring-monitoring-kube-state-metrics*
           - monitoring-monitoring-kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
-          - monitoring-alloy-*
+      - namespace: alloy
+        pods:
+          allow:
+          - alloy-*
+      - namespace: mimir
+        pods:
+          allow:
+          - mimir-mimir-rollout-operator-*
+          - mimir-mimir-minio*
       - namespace: anchore
         pods:
           allow:
@@ -1057,7 +1225,7 @@ policies:
           - vault-vault-*
           - vault-vault-agent-injector-*
           - vault-vault-job-init-*
-      - namespace: promtail 
+      - namespace: promtail
         pods:
           allow:
           - promtail-promtail-*
@@ -1072,7 +1240,7 @@ policies:
       - namespace: nexus-repository-manager
         pods:
           allow:
-          - nexus-repository-manager-* 
+          - nexus-repository-manager-*
       - namespace: thanos
         pods:
           allow:
@@ -1105,7 +1273,7 @@ policies:
           - gitlab-runner-*
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ include "istioEnabled" . }}
 
 {{- end }}
 
