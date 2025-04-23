@@ -125,6 +125,7 @@ kiali:
           strategy: "anonymous"
     resources:
       limits:
+        cpu: null
     bbtests:
       enabled: true
       cypress:
@@ -140,6 +141,7 @@ kiali:
             cpu: 3
             memory: 4Gi
           limits:
+            cpu: null
             memory: 4Gi
 
 
@@ -151,6 +153,7 @@ clusterAuditor:
         cpu: 100m
         memory: 256Mi
       limits:
+        cpu: null
         memory: 256Mi
     bbtests:
       enabled: true
@@ -186,6 +189,7 @@ gatekeeper:
     controllerManager:
       resources:
         limits:
+          cpu: null
           memory: 256Mi
         requests:
           cpu: 100m
@@ -399,6 +403,7 @@ kyverno:
           webhookTimeout: 30
         resources:
           limits:
+            cpu: null
             memory: 768Mi
           requests:
             cpu: 1
@@ -425,6 +430,7 @@ kyvernoReporter:
             cpu: 2
             memory: 3Gi
           limits:
+            cpu: null
             memory: 3Gi
     istio:
       hardened:
@@ -898,6 +904,7 @@ elasticsearchKibana:
             cpu: .5
             memory: 1Gi
           limits:
+            cpu: null
             memory: 1Gi
         heap:
           min: 1g
@@ -911,6 +918,7 @@ elasticsearchKibana:
             cpu: .5
             memory: 1Gi
           limits:
+            cpu: null
             memory: 1Gi
         heap:
           min: 1g
@@ -927,6 +935,7 @@ elasticsearchKibana:
             cpu: "2"
             memory: "4Gi"
           limits:
+            cpu: null
             memory: "4Gi"
 
 fluentbit:
@@ -993,6 +1002,7 @@ loki:
         size: 2Gi
       resources:
         limits:
+          cpu: null
           memory: 1G
         requests:
           cpu: 1
@@ -1003,6 +1013,8 @@ loki:
         size: 2Gi
       resources:
         limits:
+          # for some reason (probably toYaml) setting this to null changes to an invalid 0
+          # cpu: null
           memory: 1G
         requests:
           cpu: 500m
@@ -1013,6 +1025,7 @@ loki:
         size: 2Gi
       resources:
         limits:
+          cpu: null
           memory: 500Mi
         requests:
           cpu: 400m
@@ -1060,6 +1073,7 @@ tempo:
     tempo:
       resources:
         limits:
+          cpu: null
           memory: 512Mi
         requests:
           cpu: 200m
@@ -1087,6 +1101,7 @@ tempo:
     tempoQuery:
       resources:
         limits:
+          cpu: null
           memory: 128Mi
         requests:
           cpu: 200m
@@ -1137,6 +1152,7 @@ monitoring:
           cpu: 10m
           memory: 32Mi
         limits:
+          cpu: null
           memory: 32Mi
     prometheus-node-exporter:
       resources:
@@ -1144,6 +1160,7 @@ monitoring:
           cpu: 100m
           memory: 30Mi
         limits:
+          cpu: null
           memory: 30Mi
     bbtests:
       enabled: true
@@ -1340,6 +1357,7 @@ addons:
             cpu: 1
             memory: 2Gi
           limits:
+            cpu: null
             memory: 2Gi
       redis-bb:
         master:
@@ -1357,6 +1375,7 @@ addons:
             cpu: 100m
             memory: 256Mi
           limits:
+            cpu: null
             memory: 256Mi
       repoServer:
         resources:
@@ -1364,6 +1383,7 @@ addons:
             cpu: 50m
             memory: 128Mi
           limits:
+            cpu: null
             memory: 128Mi
       configs:
         secret:
@@ -1378,6 +1398,7 @@ addons:
               cpu: 1
               memory: 12Gi
             limits:
+              cpu: null
               memory: 12Gi
         scripts:
           envs:
@@ -1424,6 +1445,7 @@ addons:
           cpu: 100m
           memory: 100Mi
         limits:
+          cpu: null
           memory: 100Mi
       redis:
         enabled: true
@@ -1473,6 +1495,7 @@ addons:
       initContainer:
         resources:
           limits:
+            cpu: null
             memory: 500Mi
           requests:
             cpu: 100m
@@ -1492,6 +1515,7 @@ addons:
         primary:
           resources:
             limits:
+              cpu: null
               memory: 2Gi
             requests:
               cpu: 100m
@@ -1499,6 +1523,7 @@ addons:
         secondary:
           resources:
             limits:
+              cpu: null
               memory: 500Mi
             requests:
               cpu: 100m
@@ -1506,6 +1531,7 @@ addons:
         metrics:
           resources:
             limits:
+              cpu: null
               memory: 500Mi
             requests:
               cpu: 100m
@@ -1557,6 +1583,7 @@ addons:
             cpu: 10m
             memory: 500Mi
           limits:
+            cpu: null
             memory: 500Mi
       gitlab:
         webservice:
@@ -1577,6 +1604,7 @@ addons:
               cpu: 10m
               memory: 256Mi
           limits:
+            cpu: null
             memory: 256Mi
         migrations:
           resources:
@@ -1584,6 +1612,7 @@ addons:
               cpu: 10m
               memory: 256Mi
             limits:
+              cpu: null
               memory: 256Mi
         toolbox:
           persistence:
@@ -1593,6 +1622,7 @@ addons:
               cpu: 10m
               memory: 256Mi
             limits:
+              cpu: null
               memory: 256Mi
       registry:
         hpa:
@@ -1607,6 +1637,7 @@ addons:
               cpu: 10m
               memory: 256Mi
             limits:
+              cpu: null
               memory: 256Mi
       minio:
         persistence:
@@ -1616,6 +1647,7 @@ addons:
             cpu: 50m
             memory: 256Mi
           limits:
+            cpu: null
             memory: 256Mi
       redis:
         master:
@@ -1660,6 +1692,7 @@ addons:
           cpu: 50m
         limits:
           memory: 64Mi
+          cpu: null
       runners:
         protected: false
       networkPolicies:
@@ -1681,6 +1714,7 @@ addons:
               cpu: 2
               memory: 6Gi
             limits:
+              cpu: null
               memory: 6Gi
           envs:
             cypress_url: "https://gitlab.dev.bigbang.mil"
@@ -1725,6 +1759,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       sso:
         resources:
@@ -1732,6 +1767,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       postgresql:
         persistence:
@@ -1741,6 +1777,7 @@ addons:
             cpu: 100m
             memory: 1024Mi
           limits:
+            cpu: null
             memory: 1024Mi
         metrics:
           resources:
@@ -1748,6 +1785,7 @@ addons:
               cpu: 100m
               memory: 200Mi
             limits:
+              cpu: null
               memory: 200Mi
       analyzer:
         replicaCount: 1
@@ -1756,6 +1794,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       api:
         resources:
@@ -1763,6 +1802,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       catalog:
         resources:
@@ -1770,6 +1810,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       policyEngine:
         resources:
@@ -1777,6 +1818,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       simpleQueue:
         resources:
@@ -1784,6 +1826,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       upgradeJob:
         resources:
@@ -1791,6 +1834,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       feeds:
         resources:
@@ -1798,6 +1842,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
         feeds-db:
           resources:
@@ -1805,6 +1850,7 @@ addons:
               cpu: 100m
               memory: 200Mi
             limits:
+              cpu: null
               memory: 200Mi
           metrics:
             resources:
@@ -1812,6 +1858,7 @@ addons:
                 cpu: 100m
                 memory: 200Mi
               limits:
+                cpu: null
                 memory: 200Mi
         feedsUpgradeJob:
           resources:
@@ -1819,6 +1866,7 @@ addons:
               cpu: 100m
               memory: 200Mi
             limits:
+              cpu: null
               memory: 200Mi
       rbacManager:
         resources:
@@ -1826,6 +1874,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       reports:
         resources:
@@ -1833,6 +1882,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       notifications:
         resources:
@@ -1840,6 +1890,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       ui:
         resources:
@@ -1847,6 +1898,7 @@ addons:
             cpu: 100m
             memory: 200Mi
           limits:
+            cpu: null
             memory: 200Mi
       ui-redis:
         replica:
@@ -1907,6 +1959,7 @@ addons:
           cpu: 100m
           memory: 200Mi
         limits:
+          cpu: null
           memory: 200Mi
       persistence:
         size: 5Gi
@@ -2013,6 +2066,7 @@ addons:
               cpu: 250m
               memory: 2Gi
             limits:
+              cpu: null
               memory: 2Gi
           securityContext:
             runAsUser: 1001
@@ -2162,6 +2216,7 @@ addons:
           cpu: 100m
           memory: 128Mi
         limits:
+          cpu: null
           memory: 128Mi
       minio:
         tenant:
@@ -2178,6 +2233,7 @@ addons:
                 cpu: 250m
                 memory: 2Gi
               limits:
+                cpu: null
                 memory: 2Gi
             securityContext:
               runAsUser: 1001
@@ -2260,6 +2316,7 @@ addons:
             cpu: 100m
             memory: 1500Mi
           limits:
+            cpu: null
             memory: 1500Mi
         docker:
           enabled: true
@@ -2400,6 +2457,7 @@ addons:
           cpu: 250m
           memory: 250Mi
         limits:
+          cpu: null
           memory: 250Mi
       bbtests:
         enabled: true
@@ -2669,6 +2727,7 @@ addons:
             cpu: 160m
             memory: 500Mi
           limits:
+            cpu: null
             memory: 500Mi
       #notary:
         #server:
@@ -2745,6 +2804,7 @@ addons:
                 cpu: 250m
                 memory: 2Gi
               limits:
+                cpu: null
                 memory: 2Gi
             securityContext:
               runAsUser: 1001

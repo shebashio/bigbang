@@ -8,6 +8,7 @@ istio:
           cpu: 100m
           memory: 256Mi
         limits:
+          cpu: null
           memory: 256Mi
     values:
       global:
@@ -17,6 +18,7 @@ istio:
               cpu: 50m
               memory: 128Mi
             limits:
+              cpu: null
               memory: 128Mi
         proxy_init:
           resources:
@@ -24,6 +26,7 @@ istio:
               cpu: 50m
               memory: 128Mi
             limits:
+              cpu: null
               memory: 128Mi
 
 istioOperator:
@@ -34,6 +37,7 @@ istioOperator:
           cpu: 100m
           memory: 128Mi
         limits:
+          cpu: null
           memory: 128Mi
 
 jaeger:
@@ -50,6 +54,7 @@ clusterAuditor:
         cpu: 100m
         memory: 256Mi
       limits:
+        cpu: null
         memory: 256Mi
 
 gatekeeper:
@@ -62,6 +67,7 @@ gatekeeper:
           cpu: 100m
           memory: 256Mi
         limits:
+          cpu: null
           memory: 256Mi
     audit:
       resources:
@@ -69,6 +75,7 @@ gatekeeper:
           cpu: 100m
           memory: 512Mi
         limits:
+          cpu: null
           memory: 512Mi
 
 kyverno:
@@ -77,6 +84,7 @@ kyverno:
     replicaCount: 1
     resources:
       limits:
+        cpu: null
         memory: 512Mi
       requests:
         cpu: 350m
@@ -87,6 +95,7 @@ kyvernoReporter:
   values:
     resources:
       limits:
+        cpu: null
         memory: 100Mi
       requests:
         cpu: 50m
@@ -112,6 +121,7 @@ promtail:
         cpu: 50m
         memory: 32Mi
       limits:
+        cpu: null
         memory: 32Mi
 
 loki:
@@ -124,6 +134,7 @@ loki:
           cpu: 100m
           memory: 256Mi
         limits:
+          cpu: null
           memory: 256Mi
 
 neuvector:
@@ -133,6 +144,7 @@ neuvector:
       replicas: 1
     resources:
       limits:
+        cpu: null
         memory: 768Mi
       requests:
         cpu: 100m
@@ -149,6 +161,7 @@ tempo:
     tempo:
       resources:
         limits:
+          cpu: null
           memory: 256Mi
         requests:
           cpu: 200m
@@ -156,6 +169,7 @@ tempo:
     tempoQuery:
       resources:
         limits:
+          cpu: null
           memory: 256Mi
         requests:
           cpu: 100m
@@ -171,6 +185,7 @@ monitoring:
             cpu: 100m
             memory: 2Gi
           limits:
+            cpu: null
             memory: 2Gi
     kube-state-metrics:
       resources:
@@ -178,6 +193,7 @@ monitoring:
           cpu: 10m
           memory: 128Mi
         limits:
+          cpu: null
           memory: 128Mi
     prometheus-node-exporter:
       hostRootFsMount:
@@ -187,6 +203,7 @@ monitoring:
           cpu: 100m
           memory: 128Mi
         limits:
+          cpu: null
           memory: 128Mi
     grafana:
       testFramework:
@@ -197,6 +214,7 @@ monitoring:
           cpu: 100m
           memory: 128Mi
         limits:
+          cpu: null
           memory: 128Mi
       prometheusConfigReloader:
         resources:
@@ -204,6 +222,7 @@ monitoring:
             cpu: 50m
             memory: 50Mi
           limits:
+            cpu: null
             memory: 50Mi
 
 twistlock:
@@ -215,10 +234,12 @@ twistlock:
         cpu: 50m
       limits:
         memory: 512Mi
+        cpu: null
     init:
       resources:
         requests:
           cpu: 100m
           memory: 128Mi 
         limits:
+          cpu: null
           memory: 128Mi 

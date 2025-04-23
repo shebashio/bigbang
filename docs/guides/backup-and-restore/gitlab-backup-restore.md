@@ -60,6 +60,7 @@ addons:
                 size: '200Gi'
               resources:
                 limits:
+                  cpu: null
                   memory: "2Gi"
                 requests:
                   cpu: 800m

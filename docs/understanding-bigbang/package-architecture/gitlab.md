@@ -92,6 +92,7 @@ addons:
         gitaly:
           resources:
             limits:
+              cpu: null
               memory: 4G
             requests:
               cpu: 2
