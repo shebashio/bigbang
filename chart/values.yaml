@@ -217,11 +217,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.25.1-bb.3
+    tag: 1.25.2-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.25.1-bb.3
+    tag: 1.25.2-bb.1
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -721,11 +721,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.28.0-bb.3"
+    tag: "1.28.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.28.0-bb.3"
+    tag: "1.28.0-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -774,11 +774,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "2.16.1-bb.1"
+    tag: "3.0.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "2.16.1-bb.1"
+    tag: "3.0.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -799,11 +799,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.9-bb.3"
+    tag: "0.48.9-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.9-bb.3"
+    tag: "0.48.9-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1181,12 +1181,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.2"
+    tag: "1.0.0-bb.4"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.2"
+    tag: "1.0.0-bb.4"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1331,11 +1331,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.0.0-bb.7"
+      tag: "7.0.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.0.0-bb.7"
+      tag: "7.0.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1371,11 +1371,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.10.1-bb.0"
+      tag: "8.10.4-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.10.1-bb.0"
+      tag: "8.10.4-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1512,11 +1512,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "75.0.0-bb.2"
+      tag: "77.1.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "75.0.0-bb.2"
+      tag: "77.1.0-bb.2"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -2018,11 +2018,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.0"
+      tag: "0.30.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.0"
+      tag: "0.30.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
