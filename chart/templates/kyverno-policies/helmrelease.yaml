@@ -15,8 +15,11 @@ spec:
   driftDetection:
     mode: enabled
     ignore:
-    - paths: ["/spec/rules[0].match.any[0].resources.names"]
-    - paths: ["/spec/rules[0].match.any[1].resources.names"]
+    - paths: 
+      - ["/spec/rules[0].match.any[0].resources.names"]
+      - ["/spec/rules[0].match.any[1].resources.names"]
+      target:
+        kind: ClusterPolicy
   targetNamespace: kyverno
   chart:
     spec:
