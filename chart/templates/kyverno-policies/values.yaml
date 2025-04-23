@@ -261,6 +261,7 @@ policies:
           names:
           - backstage
           - backstage*
+      {{- end }}
       {{- if .Values.gatekeeper.enabled }}
       - resources:
           namespaces:
