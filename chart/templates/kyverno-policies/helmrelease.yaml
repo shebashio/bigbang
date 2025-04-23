@@ -42,8 +42,17 @@ spec:
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if (get .Values $pkg).postRenderers }}
   postRenderers:
+    - kustomize:
+      patches:
+        - target:
+            version: v1
+            kind: ClusterPolicy
+          patch: |
+            - op: add
+              path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
+              value: disabled
+  {{- if (get .Values $pkg).postRenderers }}  
   {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
   {{- end }}    
   valuesFrom:
