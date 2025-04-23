@@ -36,7 +36,7 @@ server:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
-  {{- if eq .Values.addons.vault.ingress.gateway "passthrough" }}
+  {{- if eq .Values.addons.vault.ingress.gateway (include "istioPassthroughGateway" . ) }}
   volumes:
   - name: tls
     secret:
