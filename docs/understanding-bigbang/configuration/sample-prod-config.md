@@ -67,7 +67,6 @@ addons:
         webservice:
           resources:
             limits:
-              cpu: null
               memory: 4G
             requests:
               cpu: 2
@@ -75,7 +74,6 @@ addons:
         gitaly:
           resources:
             limits:
-              cpu: null
               memory: 4G
             requests:
               cpu: 2
@@ -206,7 +204,6 @@ addons:
             cpu: 2000m
           limits:
             memory: 8Gi
-            cpu: null
 
         # disable the Vault provided ingress so that Istio ingress can be used.
         ingress:
