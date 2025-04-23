@@ -16,8 +16,8 @@ spec:
     mode: enabled
     ignore:
     - paths: 
-      - ["/spec/rules[0].match.any[0].resources.names"]
-      - ["/spec/rules[0].match.any[1].resources.names"]
+      - ["/spec/rules[0].match.any[0]"]
+      - ["/spec/rules[0].match.any[1]"]
       target:
         kind: ClusterPolicy
   targetNamespace: kyverno
