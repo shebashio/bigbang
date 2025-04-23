@@ -14,6 +14,9 @@ metadata:
 spec:
   driftDetection:
     mode: enabled
+    ignore:
+    - paths: ["/spec/rules[0].match.any[0].resources.names"]
+    - paths: ["/spec/rules[0].match.any[1].resources.names"]
   targetNamespace: kyverno
   chart:
     spec:
