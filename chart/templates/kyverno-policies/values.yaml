@@ -379,7 +379,7 @@ policies:
 
   add-default-securitycontext:
     enabled: true
-    {{ if .Values.istio.enabled }}
+    {{ if (eq (include "istioEnabled" .) "true") }}
     parameters:
       excludeContainers:
         - istio-init

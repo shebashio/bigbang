@@ -21,7 +21,7 @@ global:
   - name: private-registry
 
 injector:
-  {{- if .Values.istio.enabled }}
+  {{- if (eq (include "istioEnabled" .) "true") }}
   annotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -29,7 +29,7 @@ injector:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
 server:
-  {{- if .Values.istio.enabled }}
+  {{- if (eq (include "istioEnabled" .) "true") }}
   annotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -80,7 +80,7 @@ istio:
       key:  {{ .Values.addons.vault.ingress.key | quote }}
     {{- end }}
 
-{{- if .Values.istio.enabled }}
+{{- if (eq (include "istioEnabled" .) "true") }}
 minio:
   annotations:
     {{ include "istioAnnotation" . }}
