@@ -51,10 +51,7 @@ spec:
           patch: |
             - op: add
               path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-              value: disabled
-  {{- if (get .Values $pkg).postRenderers }}  
-  {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
-  {{- end }}    
+              value: disabled    
   valuesFrom:
     - name: {{ .Release.Name }}-{{ $pkg | kebabcase }}-values
       kind: Secret
