@@ -170,11 +170,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-crds.git
     path: "./chart"
-    tag: 1.25.1-bb.0
+    tag: 1.25.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.25.1-bb.0
+    tag: 1.25.2-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -191,11 +191,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
     path: "./chart"
-    tag: 1.25.1-bb.0
+    tag: 1.25.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.25.1-bb.0
+    tag: 1.25.2-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -2230,12 +2230,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.6.0-bb.1"
+      tag: "5.7.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.6.0-bb.1"
+      tag: "5.7.0-bb.0"
 
     # -- Enable Mimir Enterprise
     enterprise:
