@@ -255,6 +255,7 @@ policies:
           - headlamp
           names:
           - headlamp*
+      {{- end }}
       {{- if .Values.gatekeeper.enabled }}
       - resources:
           namespaces:
