@@ -14,7 +14,7 @@ waitforready:
 
 policies:
   add-default-capability-drop:
-    validationFailureAction: Enforce
+    enabled: true
     exclude:
       any:
       {{- if .Values.neuvector.enabled }}
@@ -55,6 +55,7 @@ policies:
           namespaces:
           - twistlock
           names:
+          - twistlock-console*
           - twistlock-defender-ds*
           - volume-upgrade*
       {{- end }}
@@ -114,7 +115,7 @@ policies:
   # Istio services (istio ingress) can create type: NodePort services
   disallow-nodeport-services:
     validationFailureAction: Enforce
-    {{- if or $nodePortIngressGateways .Values.istioCore.enabled }}
+    {{- if or $nodePortIngressGateways .Values.istiod.enabled }}
     exclude:
       any:
       - resources:
@@ -126,7 +127,7 @@ policies:
           {{- end }}
           namespaces:
           - istio-system
-      {{- if and .Values.istioCore.enabled .Values.istioGateway.enabled }}
+      {{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
       - resources:
           kinds:
           - Service
@@ -142,6 +143,20 @@ policies:
   disallow-image-tags:
     enabled: true
     validationFailureAction: Enforce
+    exclude:
+      any:
+      # istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config.
+      {{- if .Values.istioGateway.enabled }}
+      - resources:
+          namespaces:
+          - istio-gateway
+          names:
+          - '*-ingressgateway'
+          - '*-egressgateway'
+      {{- end }}
 
   disallow-istio-injection-bypass:
     enabled: {{ include "istioEnabled" . }}
@@ -240,6 +255,16 @@ policies:
           - headlamp
           names:
           - headlamp*
+      {{- if .Values.gatekeeper.enabled }}
+      - resources:
+          namespaces:
+          - gatekeeper-system
+          kinds:
+          - Pod
+          - Deployment
+          names:
+          - gatekeeper-audit*
+          - gatekeeper-controller-manager*
       {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.monitoring.enabled .Values.twistlock.enabled }}
@@ -359,7 +384,7 @@ policies:
           - istio-gateway
 
   add-default-securitycontext:
-    validationFailureAction: Enforce
+    enabled: true
     {{ if .Values.istio.enabled }}
     parameters:
       excludeContainers:
@@ -389,6 +414,7 @@ policies:
           namespaces:
           - twistlock
           names:
+          - twistlock-console*
           - twistlock-defender-ds*
           - volume-upgrade-job*
       {{- end }}
@@ -466,7 +492,7 @@ policies:
       - resources:
           namespaces:
           - kube-system
-      {{ if .Values.istioCore.enabled }}
+      {{ if .Values.istiod.enabled }}
       - resources:
           namespaces:
           - istio-system
@@ -865,6 +891,20 @@ policies:
       allow:
       - registry1.dso.mil
       - registry.dso.mil
+    exclude:
+      any:
+      # istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config.
+      {{- if .Values.istioGateway.enabled }}
+      - resources:
+          namespaces:
+          - istio-gateway
+          names:
+          - '*-ingressgateway'
+          - '*-egressgateway'
+      {{- end }}
 
   {{- if or .Values.fluentbit.enabled .Values.promtail.enabled .Values.twistlock.enabled }}
   restrict-selinux-type:
