@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/monitoring/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: disabled
+    mode: enabled
   targetNamespace: monitoring
   chart:
     spec:
