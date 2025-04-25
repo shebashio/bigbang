@@ -8,13 +8,13 @@ Accepted
 
 ## Context
 
-Grafana Promtail has served as our primary log collection agent, shipping logs to Loki for storage and aggregation. Grafana has announced that Promtail is now deprecated and has entered Long-Term Support (LTS) on February 13, 2025.
+Grafana Promtail has served as our primary log collection agent, shipping logs to Loki for storage and aggregation. Grafana has announced that Promtail is now deprecated and moved to Long-Term Support (LTS) on February 13, 2025.
 
 Grafana Labs will no longer be adding additional features to products in LTS, but will continue to fix critical bugs and security issues. At the time of writing Grafana anticipates LTS for Promtail will extend until February 28, 2026 at which point Promtail will be end-of-life (EOL) and will stop receiving updates entirely.
 
-Grafana Labs has officially announced Promtail's deprecation in favor of Grafana Alloy, which serves as their next-generation collector built on top of OpenTelemetry Collector.
+Grafana Labs has officially announced Promtail's deprecation in favor of Grafana Alloy, which serves as their next-generation collector built on top of [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
 
-If customers have any custom promtail configurations they want to make available to Alloy, they will need to follow Grafana's recommended upgrade path to convert Promtail configurations to Alloy compatible configurations:
+If customers have any custom Promtail configurations they want to make available to Alloy, they will need to follow Grafana's recommended upgrade path to convert Promtail configurations to Alloy compatible configurations:
 
 `alloy convert --source-format=promtail --output=<OUTPUT_CONFIG_PATH> <INPUT_CONFIG_PATH>`
 
@@ -38,7 +38,7 @@ For additional context on Grafana Labs' decision to migrate to Alloy we recommen
 We will replace Grafana Promtail with Grafana Alloy as our primary log collection agent. This transition will be implemented according to the following guidelines:
 
 1. The Big Bang 3.0 release will come preset with Alloy and alloy-logs features enabled, with Promtail disabled.
-2. Promtail will not be removed from Big Bang until minimally the 3.05 release, giving customers ample time to convert their configurations using Grafana Labs' provided path.
+2. Promtail will not be removed from Big Bang until the 3.05 release, or later, giving customers ample time to convert their configurations using Grafana Labs' provided path.
 3. Alloy will be enabled with capabilities that are equivalent to the current Promtail setup.
 
 ## Consequences
