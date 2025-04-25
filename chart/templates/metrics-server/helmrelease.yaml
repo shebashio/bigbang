@@ -14,6 +14,8 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/metrics-server/values.yaml") . | sha256sum }}
+    bigbang.dev/passthrough: "true"
+    bigbang.dev/passthrough-toplevel-key: upstream
 spec:
   driftDetection:
     mode: warn
@@ -46,9 +48,14 @@ spec:
 
   {{- toYaml $fluxSettingsMetrics | nindent 2 }}
 
-  {{- if .Values.addons.metricsServer.postRenderers }}
+  {{- if or .Values.addons.metricsServer.postRenderers .Values.addons.metricsServer.automountServiceAccountToken }}
   postRenderers:
-  {{ toYaml .Values.addons.metricsServer.postRenderers | nindent 4 }}
+  {{- if .Values.addons.metricsServer.automountServiceAccountToken }}
+  {{ include "metricsServer.automountServiceAccountTokenPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{ with .Values.addons.metricsServer.postRenderers }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
 
   valuesFrom:
