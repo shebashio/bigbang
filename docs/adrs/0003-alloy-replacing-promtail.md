@@ -10,7 +10,7 @@ Accepted
 
 Grafana Promtail has served as our primary log collection agent, shipping logs to Loki for storage and aggregation. Grafana has announced that Promtail is now deprecated and has entered Long-Term Support (LTS) on February 13, 2025.
 
-Grafana Labs will no longer be adding additional features to products in LTS, but will continue to fix critical bugs and security issues. At the time of writing Grafana anticipates LTS for Promtail will extend until Feruary 28, 2026 at which point Promtail will be end-of-life (EOL) and will stop receiving updates entirely.
+Grafana Labs will no longer be adding additional features to products in LTS, but will continue to fix critical bugs and security issues. At the time of writing Grafana anticipates LTS for Promtail will extend until February 28, 2026 at which point Promtail will be end-of-life (EOL) and will stop receiving updates entirely.
 
 Grafana Labs has officially announced Promtail's deprecation in favor of Grafana Alloy, which serves as their next-generation collector built on top of OpenTelemetry Collector.
 
