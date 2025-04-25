@@ -15,6 +15,8 @@ spec:
   targetNamespace: kyverno
   chart:
     spec:
+      interval: 10m
+      timeout: 5m
       {{- if (eq (get .Values $pkg).sourceType "git") }}
       chart: {{ (get .Values $pkg).git.path }}
       sourceRef:
@@ -36,7 +38,6 @@ spec:
           name: {{ printf "%s-cosign-pub" (get .Values $pkg).helmRepo.repoName }}
       {{- end }}
       {{- end }}
-      interval: 5m
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
