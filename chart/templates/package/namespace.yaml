@@ -12,7 +12,7 @@ metadata:
     {{- include "commonLabels" $ | nindent 4 }}
     {{- if (eq (include "istioEnabled" $) "true") }}
     istio-injection: {{ tpl ((dig "istio" "injection" "enabled" $vals)) $ }}
-    {{- end -}}
+    {{- end }}
     {{- if (dig "namespace" "labels" nil $vals) -}}
     {{- toYaml $vals.namespace.labels | nindent 4 -}}
     {{- end -}}
