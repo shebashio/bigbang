@@ -53,10 +53,10 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or (eq (include "istioEnabled" .) "true") .Values.monitoring.enabled }}
+  {{- if or .Values.istio.enabled .Values.monitoring.enabled }}
   dependsOn:
-    {{- if (eq (include "istioEnabled" .) "true") }}
-    - name: {{ include "istioHelmRelease" . }}
+    {{- if .Values.istio.enabled }}
+    - name: istio
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.monitoring.enabled }}
