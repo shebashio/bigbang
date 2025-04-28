@@ -852,11 +852,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.27.0-bb.3"
+    tag: "6.29.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.27.0-bb.3"
+    tag: "6.29.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1029,11 +1029,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "70.4.1-bb.0"
+    tag: "70.7.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "70.4.1-bb.0"
+    tag: "70.7.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1084,11 +1084,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.11.0-bb.0"
+    tag: "8.12.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.11.0-bb.0"
+    tag: "8.12.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1214,11 +1214,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.23-bb.1"
+      tag: "7.8.26-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.23-bb.1"
+      tag: "7.8.26-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1342,11 +1342,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.0.1-bb.3"
+      tag: "7.1.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.0.1-bb.3"
+      tag: "7.1.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1871,11 +1871,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.6.1-bb.4"
+      tag: "10.6.1-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.6.1-bb.4"
+      tag: "10.6.1-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -2189,12 +2189,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "15.9.1-bb.3"
+      tag: "16.0.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "15.9.1-bb.3"
+      tag: "16.0.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux: {}
@@ -2339,14 +2339,14 @@ wrapper:
     # -- Name of the OCI chart in `repo`
     chartName: wrapper
     # -- Tag of the OCI chart in `repo`
-    tag: "0.4.13"
+    tag: "0.4.14"
   git:
     # -- Git repo holding the wrapper helm chart, example: https://repo1.dso.mil/big-bang/product/packages/wrapper
     repo: "https://repo1.dso.mil/big-bang/product/packages/wrapper.git"
     # -- Path inside of the git repo to find the helm chart, example: chart
     path: "chart"
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
-    tag: "0.4.13"
+    tag: "0.4.14"
 
 # -- Packages to deploy with Big Bang
 # @default - '{}'
