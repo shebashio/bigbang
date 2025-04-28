@@ -1585,11 +1585,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "10.7.0-bb.1"
+      tag: "10.7.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "10.7.0-bb.1"
+      tag: "10.7.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1650,7 +1650,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.24"
+      #tag: "1.1.2320154-bb.24"
+      tag: null
+      branch: "151-resolve-error-from-enabling-drift-detection-on-fortify"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
