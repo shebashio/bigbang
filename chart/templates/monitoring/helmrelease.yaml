@@ -14,10 +14,6 @@ metadata:
 spec:
   driftDetection:
     mode: enabled
-    ignore:
-      - paths: ["/spec/thanos/volumes"]
-        target:
-          kind: Prometheus
   targetNamespace: monitoring
   chart:
     spec:

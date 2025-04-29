@@ -666,9 +666,7 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    #tag: "3.3.4-bb.8"
-    tag: null
-    branch: "153-resolve-error-from-enabling-drift-detection-on-kyverno-policies"
+    tag: "3.3.4-bb.8"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
@@ -1650,9 +1648,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      #tag: "1.1.2320154-bb.24"
-      tag: null
-      branch: "151-resolve-error-from-enabling-drift-detection-on-fortify"
+      tag: 1.1.2320154-bb.24
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
