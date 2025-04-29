@@ -7,7 +7,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: backstage
-    app.kubernetes.io/component: "core"
+    app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/backstage/values.yaml") . | sha256sum }}
