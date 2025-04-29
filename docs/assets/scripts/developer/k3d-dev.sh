@@ -727,7 +727,7 @@ spec:
       - istio-gateway
     serviceSelectors:
       - matchExpressions:
-          - {key: app, operator: In, values: [passthrough-ingressgateway]}
+          - {key: app, operator: In, values: [custom-ingressgateway]}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
