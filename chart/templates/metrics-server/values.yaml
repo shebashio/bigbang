@@ -8,7 +8,7 @@
 {{- define "bigbang.defaults.metrics-server" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-upstream:
+package:
   domain: {{ $domainName }}
 
   {{- if (eq (include "istioEnabled" .) "true") }}
