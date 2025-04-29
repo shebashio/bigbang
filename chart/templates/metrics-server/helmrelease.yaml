@@ -16,7 +16,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/metrics-server/values.yaml") . | sha256sum }}
     bigbang.dev/passthrough: "true"
-    bigbang.dev/passthrough-toplevel-key: upstream
+    bigbang.dev/passthrough-toplevel-key: package
 spec:
   driftDetection:
     mode: warn
