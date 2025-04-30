@@ -16,7 +16,7 @@ Creating a passthrough chart pattern is relatively simple. Using the command `he
 
 In order to convert an existing `kpt` configured chart, the process is slightly more complicated. Remove all forked upstream template files, not Big Bang created template files, and `kptfile` while making note of any changes made to the upstream template files. Run the `helm dependency add <upstream dependent chart>` to add the chart as a dependency. Changes made to the template files can the be attempted to be made within the `values.yaml` file. For any changes that cannot be applied via `values.yaml`, a post renderer will need to be created in the Big Bang Repository. 
 
-Sample Renovate package rule from:
+Sample Renovate config rule from:
 
 ```json
     {
@@ -30,7 +30,7 @@ Sample Renovate package rule from:
     }
 ```
 
-Sample post renderer config: 
+Sample post-renderer config: 
 
 ```yaml
     {{- toYaml $fluxSettings<package> | nindent 2 }}
@@ -49,11 +49,11 @@ Big Bang internally created template files(e.g. `NetworkPolicy`s, `Authorization
 
 ## Consequences 
 
-Users will no longer be able to view the package values directly in the Big Bang package git repository. The `values.yaml` file will exist in a passthrough sub-chart tarfile bundle, which is still stored in the git repo, but not viewable from the GitLab console directly. The upstream GitHub repository for each sub chart linked in the Big Bang chart's `README` can be used for viewing the `values.yaml` file and template files, however users should take care to ensure they are viewing the correct version of the files that is deployed via the passthrough sub-chart.
+Users will no longer be able to view the package values directly in the Big Bang package git repository. The `values.yaml` file will exist in a passthrough sub-chart tarfile bundle, which is still stored in the git repo, but not viewable from the GitLab console directly. The upstream GitHub repository for each sub-chart linked in the Big Bang chart's `README` can be used for viewing the `values.yaml` file and template files, however users should take care to ensure they are viewing the correct version of the files that is deployed via the passthrough sub-chart.
 
 Another consequence of this passthrough chart pattern is that values settings will be abstracted one further layer than previously, requiring internal engineers and customers to modify their existing values overrides. Instead of previously where simply `.Values.<package-name>.<value-to-set>` was the way to access values on a package, now you will need to access it by also providing the upstream chart name, for example: `.Values.<package-name>.<upstream-chart-name>.<value-to-set>`. 
 
-While setting values in an override file, additional nesting is also required. And example for enabling logs and pod logs in Big Bang's implementation of [Grafana Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)(which follows this passthrough pattern) is provided below:
+While setting values in an override file, additional nesting is also required. An example for enabling logs and pod logs in Big Bang's implementation of [Grafana Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy) (which follows this passthrough pattern) is provided below:
 
 ```yaml
   # Package name
