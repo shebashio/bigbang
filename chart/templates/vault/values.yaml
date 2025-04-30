@@ -73,7 +73,8 @@ istio:
     }}
   vault:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.vault.ingress.gateway }}
+    {{- $gatewayResourceName := ternary (printf "%s-ingressgateway" .Values.addons.vault.ingress.gateway) .Values.addons.vault.ingress.gateway .Values.istioGateway.enabled }}
+      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) $gatewayResourceName }}
     {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
     tls:
       cert: {{ .Values.addons.vault.ingress.cert | quote }}
