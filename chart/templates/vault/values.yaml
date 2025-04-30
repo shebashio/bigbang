@@ -3,6 +3,8 @@
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
+# temporary shim name for vault ingressgateway name while we migrate to operatorless gateway
+{{- $gatewayResourceName := ternary (printf "%s-ingressgateway" .Values.addons.vault.ingress.gateway) .Values.addons.vault.ingress.gateway .Values.istioGateway.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -36,7 +38,7 @@ server:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
-  {{- if eq .Values.addons.vault.ingress.gateway (include "istioPassthroughGateway" . ) }}
+  {{- if eq $gatewayResourceName (include "istioPassthroughGateway" . ) }}
   volumes:
   - name: tls
     secret:
@@ -73,7 +75,6 @@ istio:
     }}
   vault:
     gateways:
-    {{- $gatewayResourceName := ternary (printf "%s-ingressgateway" .Values.addons.vault.ingress.gateway) .Values.addons.vault.ingress.gateway .Values.istioGateway.enabled }}
       - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) $gatewayResourceName }}
     {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
     tls:
