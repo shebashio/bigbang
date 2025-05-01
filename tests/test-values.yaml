@@ -317,6 +317,8 @@ gatekeeper:
           excludedResources:
           # Allow kyverno test vectors for Helm test
           - default/restrict-sysctls-.?
+          - istio-gateway/public-ingressgateway-.*
+          - istio-gateway/passthrough-ingressgateway-.*
       readOnlyRoot:
         parameters:
           excludedResources:
@@ -1320,11 +1322,10 @@ bbctl:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           cypress_grafana_username: 'admin'
           cypress_grafana_password: 'prom-operator'
-
+alloy:
+  enabled: false
 # Addons are toggled based on labels in CI
 addons:
-  alloy:
-    enabled: false
   argocd:
     enabled: false
     sso:
