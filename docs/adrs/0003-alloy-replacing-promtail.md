@@ -29,7 +29,9 @@ For additional context on Grafana Labs' decision to migrate to Alloy we recommen
 
 | Milestone | Date | Description |
 |-----------|------|-------------|
-| 2.51.00 | Q1 2025 | Alloy-logging features added to Big Bang, Promtail deprecation warning added to release notes and NOTES.txt |
+| 2.50.00 | Q1 2025 | Promtail deprecation notice started being included in release notes, Alloy moved to individual namespace | 
+| 2.51.00 | Q1 2025 | Alloy-logging features added to Big Bang, Promtail deprecation warning added to NOTES.txt |
+| 2.53.00 | Q2 2025 | Alloy moved to Big Bang "core" values, removed from addons | 
 | 3.00.00 | Q2 2025 | Alloy with alloy-logs enabled by default, Promtail disabled by default |
 | 3.05.00 | Q2 2025 | Promtail removed from Big Bang charts, Promtail repository migrated to `community` | 
 
