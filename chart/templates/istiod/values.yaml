@@ -8,6 +8,8 @@
 {{- define "bigbang.defaults.istiod" -}}
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCIDRs:
+    - {{ .Values.networkPolicies.controlPlaneCidr }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
