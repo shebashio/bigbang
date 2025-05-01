@@ -70,7 +70,7 @@ spec:
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
   {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
   {{- /* Wait on istio if sidecar is enabled */ -}}
-  {{- $istioDep := (and (or $.Values.istio.enabled $.Values.istiod.enabled) (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
+  {{- $istioDep := (and (eq (include "istioEnabled" $) "true") (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
   {{- if or $gatekeeperDep $kyvernoDep $istioDep $vals.dependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}
@@ -81,12 +81,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}
-    {{- if and $istioDep $.Values.istio.enabled }}
-    - name: istio
-      namespace: {{ default "bigbang" $.Release.namespace }}
-    {{- end -}}
-    {{- if and $istioDep $.Values.istiod.enabled }}
-    - name: istiod
+    {{- if and $istioDep (eq (include "istioEnabled" $) "true") }}
+    - name: {{ include "istioHelmRelease" $ }}
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}
     {{- if $vals.dependsOn }}
