@@ -191,11 +191,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
     path: "./chart"
-    tag: 1.25.2-bb.0
+    tag: 1.25.2-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.25.2-bb.0
+    tag: 1.25.2-bb.1
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -721,11 +721,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.28.0-bb.5"
+    tag: "1.29.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.28.0-bb.5"
+    tag: "1.29.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -961,11 +961,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.20.0-bb.0"
+    tag: "1.21.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.20.0-bb.0"
+    tag: "1.21.0-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1135,11 +1135,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.20.0-bb.0"
+    tag: "0.20.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.20.0-bb.0"
+    tag: "0.20.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1199,8 +1199,39 @@ bbctl:
   values: {}
 
   postRenderers: []
+# ----------------------------------------------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Alloy
 #
+alloy:
+  # -- Toggle deployment of grafana alloy
+  enabled: false
+
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
+    tag: "2.0.23-bb.0"
+    path: "./chart"
+  helmRepo:
+    repoName: "registry1"
+    chartName: "k8s-monitoring"
+    tag: "2.0.23-bb.0"
+
+  # -- Toggle Alloy to collect logs 
+  alloyLogs:
+    enabled: true
+
+  values: {}
+
+  postRenderers: []
+
+  # -- Flux reconciliation overrides specifically for the alloy package
+  flux: {}
+# ----------------------------------------------------------------------------------------------------------------------
+
 # ----------------------------------------------------------------------------------------------------------------------
 #
 addons:
@@ -1214,11 +1245,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "7.8.23-bb.1"
+      tag: "7.8.26-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.23-bb.1"
+      tag: "7.8.26-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1254,6 +1285,46 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+
+  backstage:
+    # -- Toggle deployment of Backstage.
+    enabled: false
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
+      path: "./chart"
+      tag: "2.5.1-bb.0"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "backstage"
+      tag: "2.5.1-bb.0"
+
+    # -- Flux reconciliation overrides specifically for the Backstage Package
+    flux: { }
+
+    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+    ingress:
+      gateway: ""
+
+    sso:
+      # -- Toggle SSO for Backstage on and off
+      enabled: false
+
+      # -- Backstage OIDC client ID
+      client_id: ""
+
+      # -- Backstage OIDC client secret
+      client_secret: ""
+
+
+    # -- Values to passthrough to the Backstage chart: https://repo1.dso.mil/big-bang/product/packages/backstage.git
+    values: { }
+
+    # -- Post Renderers.  See docs/postrenders.md
+    postRenderers: [ ]
 
   authservice:
     # -- Toggle deployment of Authservice.
@@ -1512,11 +1583,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "77.1.0-bb.2"
+      tag: "79.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "77.1.0-bb.2"
+      tag: "79.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -2018,11 +2089,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.1"
+      tag: "0.30.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.1"
+      tag: "0.30.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -2193,33 +2264,6 @@ addons:
     values: {}
 
     postRenderers: []
-
-  alloy:
-    # -- Toggle deployment of grafana alloy
-    enabled: false
-
-    # -- Choose source type of "git" or "helmRepo"
-    sourceType: "git"
-
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "2.0.23-bb.0"
-      path: "./chart"
-    helmRepo:
-      repoName: "registry1"
-      chartName: "k8s-monitoring"
-      tag: "2.0.23-bb.0"
-
-    # -- Toggle Alloy to collect logs 
-    alloyLogs:
-      enabled: true
-
-    values: {}
-
-    postRenderers: []
-
-    # -- Flux reconciliation overrides specifically for the alloy package
-    flux: {}
 
   mimir:
     # -- Toggle deployment of Mimir
