@@ -215,6 +215,7 @@ gatekeeper:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
+          - backstage/backstage-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -316,6 +317,8 @@ gatekeeper:
           excludedResources:
           # Allow kyverno test vectors for Helm test
           - default/restrict-sysctls-.?
+          - istio-gateway/public-ingressgateway-.*
+          - istio-gateway/passthrough-ingressgateway-.*
       readOnlyRoot:
         parameters:
           excludedResources:
@@ -358,6 +361,7 @@ gatekeeper:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
+          - backstage/backstage-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
@@ -583,6 +587,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -624,6 +629,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -672,6 +678,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -1315,11 +1322,10 @@ bbctl:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           cypress_grafana_username: 'admin'
           cypress_grafana_password: 'prom-operator'
-
+alloy:
+  enabled: false
 # Addons are toggled based on labels in CI
 addons:
-  alloy:
-    enabled: false
   argocd:
     enabled: false
     sso:
@@ -1399,6 +1405,32 @@ addons:
                     protocol: HTTP
                     name: http
                 resolution: DNS
+
+  backstage:
+    enabled: false
+    values:
+      bbtests:
+        enabled: true
+        cypress:
+          envs:
+            cypress_url: "https://backstage.dev.bigbang.mil"
+      backstage:
+        backstage:
+          appConfig:
+            organization:
+              name: "P1"
+            auth:
+              environment: development
+              providers:
+                guest:
+                  # because we use NODE_ENV: production, we must set this to allow guest development login
+                  dangerouslyAllowOutsideDevelopment: true
+            proxy:
+              '/grafana/api':
+                # May be a public or an internal DNS
+                target: "https://example.com"
+                headers:
+                  Authorization: "Bearer abc-123"
 
   authservice:
     enabled: false
