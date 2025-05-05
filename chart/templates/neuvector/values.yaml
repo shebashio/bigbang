@@ -7,10 +7,11 @@ domain: {{ default .Values.domain .Values.hostname }}
 
 openshift: {{ .Values.openshift }}
 
-{{ $istioInjection := (and (include "istioEnabled" .) (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled")) }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" -}}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled") -}}
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.neuvector.values)
@@ -113,7 +114,7 @@ cve:
     {{- end }}
 {{- end }}
 
-{{- if or (include "istioEnabled" .) $.Values.kiali.enabled }}
+{{- if or $istioEnabled $.Values.kiali.enabled }}
 manager:
   {{- if $istioInjection }}
   podAnnotations:
@@ -127,7 +128,7 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-  {{- if (eq (include "istioEnabled" .) "true") }}
+  {{- if $istioEnabled }}
     {{- $gateway := default "public" .Values.neuvector.ingress.gateway }}
     {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
     {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
