@@ -61,6 +61,8 @@ redis:
 {{- end }}
 
 redis-bb:
+  networkPolicy:
+    enabled: {{ .Values.networkPolicies.enabled }}
   {{- if and .Values.addons.argocd.redis.host .Values.addons.argocd.redis.port }}
   enabled: false
   {{- else }}
