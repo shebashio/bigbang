@@ -1045,7 +1045,6 @@ tempo:
       tempoQuery:
         hosts:
           - "tempo.{{ .Values.domain }}"
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
@@ -1219,7 +1218,6 @@ neuvector:
     k3s:
       enabled: true
     istio:
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-neuvector"
