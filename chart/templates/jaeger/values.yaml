@@ -55,6 +55,7 @@ sso:
 {{- if or .Values.jaeger.sso.enabled $istioEnabled .Values.kiali.enabled }}
 jaeger:
   spec:
+    strategy: allInOne
     {{- if or .Values.jaeger.sso.enabled $istioEnabled }}
     {{- $jaegerAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
     {{- $jaegerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
