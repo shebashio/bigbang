@@ -81,7 +81,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}
-    {{- if and $istioDep (eq (include "istioEnabled" $) "true") }}
+    {{- if $istioDep }}
     - name: {{ include "istioHelmRelease" $ }}
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}

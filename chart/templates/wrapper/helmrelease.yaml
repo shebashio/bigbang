@@ -63,7 +63,7 @@ spec:
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
   {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
   {{- /* Wait on istio operator if creating a Virtual Service */ -}}
-  {{- $istioOpDep := and $.Values.istio.enabled (dig "istio" "hosts" false $vals) -}}
+  {{- $istioOpDep := and (eq (include "istioEnabled" $) "true") (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
   {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep }}
@@ -77,7 +77,7 @@ spec:
       namespace: {{ $.Release.Namespace }}
     {{- end }}
     {{- if $istioOpDep }}
-    - name: istio-operator
+    - name: {{ include "istioHelmRelease" $ }}
       namespace: {{ $.Release.Namespace }}
     {{- end }}
     {{- if $monitoringDep }}
