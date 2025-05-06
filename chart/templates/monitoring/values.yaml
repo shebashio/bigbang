@@ -435,10 +435,42 @@ global:
 sso:
   enabled: {{ .Values.monitoring.sso.enabled }}
 
-prometheus-node-exporter:
+{{- if $lokiEnabled }}
+prometheus-blackbox-exporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
+  {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
+  {{- if $lokiEnabled }}
+  serviceMonitor:
+    enabled: true
+    additionalMetricsRelabels:
+      - action: replace
+        replacement: {{ $clusterName }}
+        targetLabel: cluster
+      - targetLabel: "instance"
+        sourceLabels:
+          - "__meta_kubernetes_pod_node_name"
+    {{- if $istioInjection }}
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
+  {{- end }}
+
+  {{- if $istioInjection }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
+{{- end }}
+
+
+prometheus-node-exporter:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
 
   {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
   prometheus:
