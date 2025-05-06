@@ -25,7 +25,7 @@ istio:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
-{{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled $.Values.kiali.enabled}}
+{{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled }}
 controller:
   {{- if $istioInjection }}
   podAnnotations:
@@ -95,31 +95,20 @@ monitor:
     CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
 
 
-{{- if or $istioInjection $.Values.kiali.enabled }}
+{{- if $istioInjection }}
 enforcer:
-  {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
-  {{- end }}
 cve:
   updater:
-    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
   scanner:
-    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
-{{- end }}
-
-{{- if or $istioEnabled $.Values.kiali.enabled }}
 manager:
-  {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
-  {{- end }}
 {{- end }}
 
 networkPolicies:
