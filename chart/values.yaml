@@ -1084,11 +1084,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.12.1-bb.0"
+    tag: "8.14.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.12.1-bb.0"
+    tag: "8.14.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -2247,12 +2247,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.15.1-bb.0"
+      tag: "0.16.1-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.15.1-bb.0"
+      tag: "0.16.1-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
