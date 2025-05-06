@@ -8,6 +8,8 @@
 {{- define "bigbang.defaults.istiod" -}}
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCIDRs:
+    - {{ .Values.networkPolicies.controlPlaneCidr }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -17,14 +19,25 @@ upstream:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
       - private-registry
-    
-{{- if .Values.addons.authservice.enabled }}
+ 
+  {{- if or .Values.addons.authservice.enabled .Values.jaeger.enabled }}
   meshConfig:
+    {{- if .Values.jaeger.enabled }}
+    enableTracing: true
+    defaultConfig:
+      tracing:
+        sampling: 10
+        zipkin:
+          address: "jaeger-collector.jaeger.svc:9411"
+    {{- end }}
+    {{- if .Values.addons.authservice.enabled }}
     extensionProviders:
       - name: "authservice"
         envoyExtAuthzGrpc:
           service: "authservice.authservice.svc.cluster.local"
           port: "10003"
-{{- end }}
+    {{- end }}
+  {{- end }}
 
 {{- end }}
+

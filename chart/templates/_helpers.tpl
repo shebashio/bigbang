@@ -184,10 +184,10 @@ stringData:
   
   {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
     {{- if and $name $mergedGW }}
-      {{- $gwType := dig "labels" "istio" "" $mergedGW -}}
+      {{- $gwType := dig "upstream" "labels" "istio" "" $mergedGW -}}
       
       {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
-        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
+        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; upstream.labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
       {{ end -}}
       
       {{- $gwRecord := dict -}}
@@ -518,6 +518,15 @@ data:
 {{- /* Returns true if either istio or istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
 {{ or .Values.istio.enabled .Values.istiod.enabled }}
+{{- end -}}
+
+{{- /* Returns the name of the appropriate HelmRelease depending on which is enabled. */ -}}
+{{- define "istioHelmRelease" -}}
+{{- if .Values.istiod.enabled -}}
+istiod
+{{- else -}}
+istio
+{{- end -}}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}

@@ -43,7 +43,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - registry1.dso.mil
         - registry.dso.mil
 
-  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
+  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.alloy.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
   allowedHostFilesystem:
     parameters:
       excludedResources:
@@ -68,7 +68,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # https://github.com/grafana/helm-charts/blob/main/charts/promtail/templates/daemonset.yaml#L120
       - promtail/promtail-promtail-.*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.alloy.enabled }}
       # alloy pods need access to host for logs
       - alloy/alloy-alloy-logs-.*
       {{- end }}
@@ -106,7 +106,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
     enabled: false
 
   namespacesHaveIstio:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ (eq (include "istioEnabled" .) "true") }}
     parameters:
       excludedResources:
         # Kuberentes control plane does not use Istio
@@ -121,6 +121,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         # Istio does not inject itself
         - istio-operator
         - istio-system
+        - istio-gateway
         # Kyverno is installed prior to Istio
         - kyverno
 
@@ -138,14 +139,15 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
   {{- end }}
 
   podsHaveIstio:
-    enabled: {{ .Values.istio.enabled }}
+    enabled: {{ (eq (include "istioEnabled" .) "true") }}
     match:
       excludedNamespaces:
         # Istio does not inject sidecars in itself
         - istio-operator
         - istio-system
+        - istio-gateway
 
-  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled }}
+  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled .Values.alloy.enabled }}
   restrictedTaint:
     parameters:
       excludedResources:
@@ -155,6 +157,9 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
       {{- if .Values.twistlock.enabled }}
       - twistlock/twistlock-defender-ds-.*
+      {{- end }}
+      {{- if .Values.alloy.enabled }}
+      - alloy/alloy-alloy-logs-.*
       {{- end }}
   {{- end }}
 
@@ -176,7 +181,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.addons.alloy.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent) }}
+  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.monitoring.enabled .Values.promtail.enabled .Values.neuvector.enabled .Values.alloy.enabled (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent) }}
   volumeTypes:
     parameters:
       excludedResources:
@@ -211,7 +216,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       - neuvector/neuvector-enforcer-pod.*
       - neuvector/neuvector-controller-pod.*
       {{- end }}
-      {{- if .Values.addons.alloy.enabled }}
+      {{- if .Values.alloy.enabled }}
       # alloy requires hostpath volume types
       - alloy/alloy-alloy-logs-.*
       {{- end }}
