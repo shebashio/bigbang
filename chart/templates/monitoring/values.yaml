@@ -444,13 +444,14 @@ prometheus-blackbox-exporter:
   {{- if $lokiEnabled }}
   serviceMonitor:
     enabled: true
-    additionalMetricsRelabels:
-      - action: replace
-        replacement: {{ $clusterName }}
-        targetLabel: cluster
-      - targetLabel: "instance"
-        sourceLabels:
-          - "__meta_kubernetes_pod_node_name"
+    defaults:
+      additionalMetricsRelabels:
+        - action: replace
+          replacement: {{ $clusterName }}
+          targetLabel: cluster
+        - targetLabel: "instance"
+          sourceLabels:
+            - "__meta_kubernetes_pod_node_name"
     {{- if $istioInjection }}
     scheme: https
     tlsConfig:
@@ -464,6 +465,7 @@ prometheus-blackbox-exporter:
   {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
+  {{- end }}
   {{- end }}
 {{- end }}
 
