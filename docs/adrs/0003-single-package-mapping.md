@@ -22,6 +22,9 @@ This structure has several limitations:
 - Any more granular categorizaton of packages becomes strained because the package type (package metadata) is codified as the value structure
 - Iterating through all packages with helm templating (or any tooling) is clunky because core packages are at the top level while addon packages are nested
 
+> [!NOTE]  
+> Divorcing the package category (addons vs core) from the values structure creates an opportunity to introduce alternative package metadata mechanisms, but the implementation is considered out of scope for this document and will be addressed in a future ADR.
+
 ## Decision
 
 We will restructure the values.yaml file to:
