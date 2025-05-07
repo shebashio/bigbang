@@ -3,6 +3,8 @@
 {{- if and (dig "enabled" true $vals) (dig "wrapper" "enabled" false $vals) -}}
 {{- $pkg = include "resourceName" $pkg -}}
 {{- $fluxSettings := merge (dig "flux" dict $vals) $.Values.flux -}}
+{{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
+
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -63,7 +65,7 @@ spec:
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
   {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
   {{- /* Wait on istio operator if creating a Virtual Service */ -}}
-  {{- $istioOpDep := and (eq (include "istioEnabled" $) "true") (dig "istio" "hosts" false $vals) -}}
+  {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
   {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep }}
