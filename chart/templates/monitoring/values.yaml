@@ -437,7 +437,7 @@ sso:
 
 
 # {{- if $lokiEnabled }}
-blackboxExporter:
+prometheus-blackbox-exporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
