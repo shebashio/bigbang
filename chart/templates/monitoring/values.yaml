@@ -435,8 +435,6 @@ global:
 sso:
   enabled: {{ .Values.monitoring.sso.enabled }}
 
-
-# {{- if $lokiEnabled }}
 prometheus-blackbox-exporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -444,9 +442,9 @@ prometheus-blackbox-exporter:
   {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
   {{- if $lokiEnabled }}
   serviceMonitor:
-    enabled: true
     selfMonitor:
       enabled: true
+
     defaults:
       additionalMetricsRelabels:
         - action: replace
@@ -470,7 +468,6 @@ prometheus-blackbox-exporter:
     {{ include "istioAnnotation" . }}
   {{- end }}
   {{- end }}
-# {{- end }}
 
 
 prometheus-node-exporter:
