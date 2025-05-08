@@ -435,7 +435,7 @@ global:
 sso:
   enabled: {{ .Values.monitoring.sso.enabled }}
 
-prometheus-blackbox-exporter:
+blackboxExporter:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
