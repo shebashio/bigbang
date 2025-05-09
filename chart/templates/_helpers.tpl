@@ -162,7 +162,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{ $origDefaults := fromYaml .defaults }}
 {{- $defaults := deepCopy $origDefaults }}
 {{- $origUpstream := dig "upstream" "" $defaults -}}
-{{- upstream := deepCopy $origDefaults }}
+{{- $upstream := deepCopy $origDefaults }}
 {{- if $origUpstream }}
 {{- $upstream = mustMergeOverwrite (deepCopy $origDefaults) (deepCopy $origUpstream) }}
 {{- end -}}
