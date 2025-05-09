@@ -1,4 +1,4 @@
-# 3. Grafana Alloy replacing Promtail as core log collector
+# 4. Grafana Alloy replacing Promtail as core log collector
 
 Date: 2025-04-25
 
