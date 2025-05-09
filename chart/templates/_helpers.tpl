@@ -158,6 +158,19 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
 {{- define "values-secret" -}}
+{{/* This is a workaround for passthrough charts */}}
+{{ $origDefaults := fromYaml .defaults }}
+{{- $defaults := deepCopy $origDefaults }}
+{{/*- if eq .name "kiali" */}}
+{{/*- printf "kiali origDefaults, %s, defaults, %s, directDefaults, %s" (toYaml $origDefaults) (toYaml $defaults) (toYaml .defaults) | fail */}}
+{{- $origUpstream := dig "upstream" "" $defaults -}}
+{{- if $origUpstream }}
+{{- $upstream := mustMergeOverwrite (deepCopy $origDefaults) (deepCopy $origUpstream) }}
+{{- $newDefaults := dict "upstream" $upstream }}
+{{- $defaults = mustMergeOverwrite (deepCopy $origDefaults) $newDefaults }}
+{{- end -}}
+{{/*- end -*/}}
+{{/* This is the end of the workaround */}}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -166,7 +179,7 @@ metadata:
 type: generic
 stringData:
   common: ""
-  defaults: {{- toYaml .defaults | nindent 4 }}
+  defaults: {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
 {{- end -}}
