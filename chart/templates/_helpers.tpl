@@ -158,6 +158,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
 {{- define "values-secret" -}}
+{{- $legacyValuesUpstreamMapper := pick .package.values "nameOverride" "fullnameOverride" "image" "extraLabels" "nodeSelector" "podAnnotations" "podLabels" "env" "tolerations" "resources" "affinity" "replicaCount" "priorityClassName" "securityContext" "metrics" "debug" "watchNamespace" "clusterRoleCreator" "onlyViewOnlyMode" "allowAdHocKialiNamespace" "allowAdHocKialiImage" "allowAdHocOSSMConsoleImage" "allowSecurityContextOverride" "allowAllAccessibleNamespaces" "watchesFile" "cr" }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -169,6 +170,10 @@ stringData:
   defaults: {{- toYaml .defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
+  upstreamShim:
+    upstream:
+      {{- toYaml $legacyValuesUpstreamMapper | nindent 6 }}
+
 {{- end -}}
 
 {{- define "enabledGateways" -}}

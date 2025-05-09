@@ -559,7 +559,10 @@ kiali:
     client_secret: ""
 
   # -- Values to pass through to Kiali chart: https://repo1.dso.mil/big-bang/product/packages/kiali
-  values: {}
+  values: 
+    cr:
+      server:
+        web_port: "443"
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []

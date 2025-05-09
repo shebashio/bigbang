@@ -54,6 +54,9 @@ spec:
     - name: {{ .Release.Name }}-kiali-values
       kind: Secret
       valuesKey: "overlays"
+    - name: {{ .Release.Name }}-kiali-values
+      kind: Secret
+      valuesKey: "upstreamShim"
 
   {{ if or (eq (include "istioEnabled" . ) "true") .Values.monitoring.enabled }}
   dependsOn:
