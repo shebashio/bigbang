@@ -159,6 +159,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{- define "values-secret" -}}
 {{/* This is a workaround for passthrough charts */}}
+{{/* Could add a global and per package flag to disable this workaround */}}
 {{ $origDefaults := fromYaml .defaults }}
 {{- $defaults := deepCopy $origDefaults }}
 {{- $origUpstream := dig "upstream" "" $defaults -}}
