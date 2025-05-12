@@ -90,10 +90,12 @@ upstream:
             {{- end }}
             password: "secret:grafana-auth:password"
           {{- end }}
+        {{- if or .Values.istiod.enabled .Values.tempo.enabled }}
         tracing:
-          enabled: {{ .Values.jaeger.enabled }}
+          enabled: true
           {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
           url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
+        {{- end }}
         istio:
           component_status:
             components:
