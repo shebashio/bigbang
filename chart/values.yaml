@@ -2250,12 +2250,16 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.16.1-bb.0"
+      #tag: "0.16.1-bb.0"
+      tag: ""
+      branch: "81-setting-bbtests-enable-to-false"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.16.1-bb.0"
+      #tag: "0.16.1-bb.0"
+      tag: ""
+      branch: "81-setting-bbtests-enable-to-false"
 
     # -- Override flux settings for this package
     flux: {}
