@@ -2512,9 +2512,13 @@ addons:
             cypress_vault_url: "https://vault.dev.bigbang.mil"
 
   metricsServer:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "pass-through-refactor"
     values:
-      replicas: 1
+      upstream: 
+        replicas: 1
       bbtests:
         enabled: true
 
