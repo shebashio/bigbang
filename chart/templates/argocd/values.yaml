@@ -165,9 +165,7 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.argocd.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "gateway" .Values.addons.argocd.ingress.gateway "pkg" .Values.addons.argocd "root" .) | nindent 4 }}
 
 {{- if .Values.addons.argocd.sso.enabled }}
 sso:
