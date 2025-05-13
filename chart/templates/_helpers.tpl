@@ -555,7 +555,7 @@ Args:
   {{- $gateways := (include "enabledGateways" .root) | fromYaml }}
   {{- $gw := get $gateways $gateway }}
   {{- if $gw }}
-    {{- toYaml (dict "app" $gw.serviceName "istio" nil) }}
+    {{- toYaml (dict "app" $gw.serviceName "istio" "ingressgateway") }}
   {{- end }}
 {{- else }}
   {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .root.Values.istio) "istio" nil }}

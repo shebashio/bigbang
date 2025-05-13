@@ -69,7 +69,7 @@ tests:
           path: stringData.defaults.networkPolicies.ingressLabels
           value:
             app: passthrough-ingressgateway
-            istio: null
+            istio: ingressgateway
       - equal:
           path: stringData.defaults.istio.grafana.gateways
           value:
