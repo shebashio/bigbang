@@ -1,0 +1,74 @@
+suite: test vault values
+templates:
+  - vault/values.yaml
+postRenderer:
+  cmd: "yq"
+  args:
+    - ".stringData.defaults |= (.|from_yaml)"
+tests:
+  - it: should render istio gateway label selectors by default (operator)
+    set:
+      addons.vault.enabled: true
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: stringData.defaults.networkPolicies.istioNamespaceSelector
+          value:
+            ingress: istio-controlplane
+            egress: istio-controlplane
+      - equal:
+          path: stringData.defaults.networkPolicies.ingressLabels
+          value:
+            app: public-ingressgateway
+            istio: null
+  - it: should render istio gateway label correctly if set to passthrough (operator)
+    values:
+      - ../../tests/test-values.yaml
+    set:
+      addons.vault.enabled: true
+      addons.vault.ingress.gateway: "passthrough"
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: stringData.defaults.networkPolicies.istioNamespaceSelector
+          value:
+            ingress: istio-controlplane
+            egress: istio-controlplane
+      - equal:
+          path: stringData.defaults.networkPolicies.ingressLabels
+          value:
+            app: passthrough-ingressgateway
+            istio: null
+      - equal:
+          path: stringData.defaults.istio.vault.gateways
+          value:
+            - istio-system/passthrough
+  - it: should render istio gateway label selectors correctly with test-values (operatorless)
+    values:
+      - ../../tests/test-values.yaml
+    set:
+      addons.vault.enabled: true
+      addons.vault.ingress.gateway: "passthrough"
+      istiod.enabled: true
+      istioCRDs.enabled: true
+      istioGateway.enabled: true
+      istio.enabled: false
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: stringData.defaults.networkPolicies.istioNamespaceSelector
+          value:
+            ingress: istio-gateway
+            egress: istio-system
+      - equal:
+          path: stringData.defaults.networkPolicies.ingressLabels
+          value:
+            app: passthrough-ingressgateway
+            istio: null
+      - equal:
+          path: stringData.defaults.istio.vault.gateways
+          value:
+            - istio-gateway/passthrough-ingressgateway
