@@ -44,7 +44,7 @@ tracing:
 {{- else if .Values.tempo.enabled }}
   enabled:  {{ .Values.tempo.enabled }}
   address: tempo-tempo.tempo.svc
-  port: 3100
+  port: 9411
   sampling: 100
   max_path_tag_length: 99999
 {{- end }}
