@@ -856,6 +856,9 @@ eckOperator:
             
 elasticsearchKibana:
   enabled: true
+  git:
+    tag: null
+    branch: 241-the-script-based-tests-are-not-executed-at-all-in-pipelines
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kibana
@@ -903,16 +906,6 @@ elasticsearchKibana:
       count: 1
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_kibana_url: "https://kibana.dev.bigbang.mil"
-        resources:
-          requests:
-            cpu: "2"
-            memory: "4Gi"
-          limits:
-            cpu: "2"
-            memory: "4Gi"
       scripts:
         # -- image to use for script based tests
         image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
