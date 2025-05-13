@@ -566,8 +566,8 @@ Args:
 {{- /*
 Gets the gateway name for a package
 Args:
-    - default: The default gateway name to use if none specified
-    - gateway: The gateway name (default: "public")
+    - default: The default gateway name to use if none specified (default: "public")
+    - gateway: The gateway name
     - root: The root context
 */}}
 {{- define "getGatewayName" -}}

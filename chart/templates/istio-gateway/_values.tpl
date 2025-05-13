@@ -78,6 +78,4 @@ gateways:
 
       labels:
         istio: ingressgateway
-
-
 {{- end -}}
