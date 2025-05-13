@@ -15,6 +15,8 @@ spec:
   targetNamespace: kyverno
   chart:
     spec:
+      driftDetection:
+        mode: enabled
       {{- if (eq (get .Values $pkg).sourceType "git") }}
       chart: {{ (get .Values $pkg).git.path }}
       sourceRef:
