@@ -12,6 +12,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-crds/values.yaml") . | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   releaseName: istio-crds
   targetNamespace: istio-system
   chart:

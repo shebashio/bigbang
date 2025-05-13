@@ -14,6 +14,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-gateway/values.yaml") $ | sha256sum }}
 spec:
+  driftDetection:
+    mode: enabled
   releaseName: {{ $gw.serviceName }}
   targetNamespace: istio-gateway
   chart:

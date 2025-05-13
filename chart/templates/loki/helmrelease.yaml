@@ -14,7 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/loki/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: warn
+    mode: enabled
     ignore:
       - paths: [""]
         target:
