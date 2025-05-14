@@ -488,15 +488,6 @@ data:
   {{- end -}}
 {{- end -}}
 
-{{- /* Returns namespace of istio gateways */ -}}
-{{- define "istioGatewayNamespace" -}}
-{{- if .Values.istio.enabled -}}
-  {{- print "istio-system" -}}
-{{- else -}}
-  {{- print "istio-gateway" -}}
-{{- end -}}
-{{- end -}}
-
 {{- /* Returns name of istio public gateway */ -}}
 {{- define "istioPublicGateway" -}}
 {{- if .Values.istio.enabled -}}
@@ -550,7 +541,7 @@ Args:
 */}}
 {{- define "getGatewaySelector" -}}
 {{- $default := default "public" .default }}
-{{- $gateway := default $default .gateway }}
+{{- $gateway := default $default .pkg.ingress.gateway }}
 {{- if .root.Values.istioGateway.enabled }}
   {{- $gateways := (include "enabledGateways" .root) | fromYaml }}
   {{- $gw := get $gateways $gateway }}
@@ -576,8 +567,8 @@ Args:
 {{- if .root.Values.istioGateway.enabled }}
   {{- $gateways := (include "enabledGateways" .root) | fromYaml }}
   {{- $gw := get $gateways $gateway }}
-  {{- printf "%s" $gw.serviceName }}
+  {{- printf "istio-gateway/%s" $gw.serviceName }}
 {{- else }}
-  {{- printf "%s" $gateway }}
+  {{- printf "istio-system/%s" $gateway }}
 {{- end }}
 {{- end -}}
