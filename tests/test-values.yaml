@@ -917,19 +917,8 @@ elasticsearchKibana:
             cpu: "2"
             memory: "4Gi"
       scripts:
-        # -- image to use for script based tests
-        image: registry1.dso.mil/ironbank/big-bang/base:2.1.0
-        # -- ENVs added to script test pods
         envs:
-          elasticsearch_host: "https://{{ .Release.Name }}-es-http.{{ .Release.Namespace }}.svc.cluster.local:9200"
-          desired_version: "{{ .Values.elasticsearch.version }}"
-        # -- ENVs added to script test pods from existing secrets
-        secretEnvs:
-          - name: ELASTIC_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: "logging-ek-es-elastic-user"
-                key: elastic
+          elasticsearch_host: "https://logging-ek-es-http.logging.svc.cluster.local:9200"
 
 fluentbit:
   enabled: false
