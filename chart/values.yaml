@@ -721,11 +721,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.29.0-bb.0"
+    tag: "1.28.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.29.0-bb.0"
+    tag: "1.28.0-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -799,11 +799,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.9-bb.0"
+    tag: "0.48.10-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.9-bb.0"
+    tag: "0.48.10-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1029,11 +1029,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "71.2.0-bb.0"
+    tag: "72.2.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "71.2.0-bb.0"
+    tag: "72.2.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1213,16 +1213,19 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "2.0.23-bb.0"
+    tag: "2.0.27-bb.0"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "2.0.23-bb.0"
+    tag: "2.0.27-bb.0"
 
   # -- Toggle Alloy to collect logs 
   alloyLogs:
     enabled: true
+
+  # -- Additional Alloy destinations not included in Big Bang
+  additionalDestinations: []
 
   values: {}
 
@@ -1245,14 +1248,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      #tag: "7.8.26-bb.0"
-      tag: ""
-      branch: "istio-logic-fixes"
-      
+      tag: "7.9.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "7.8.26-bb.0"
+      tag: "7.9.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1345,11 +1345,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.0.4-bb.2"
+      tag: "1.0.4-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.0.4-bb.2"
+      tag: "1.0.4-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1445,11 +1445,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.10.4-bb.0"
+      tag: "8.11.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.10.4-bb.0"
+      tag: "8.11.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1905,11 +1905,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.7.1-bb.1"
+      tag: "10.7.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.7.1-bb.1"
+      tag: "10.7.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
@@ -2250,12 +2250,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.16.1-bb.0"
+      tag: "0.16.1-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.16.1-bb.0"
+      tag: "0.16.1-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2277,12 +2277,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.7.0-bb.0"
+      tag: "5.7.0-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.7.0-bb.0"
+      tag: "5.7.0-bb.1"
 
     # -- Enable Mimir Enterprise
     enterprise:
