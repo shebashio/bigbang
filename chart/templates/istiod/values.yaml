@@ -40,9 +40,6 @@ upstream:
           service: "authservice.authservice.svc.cluster.local"
           port: "10003"
     {{- end }}
-  {{ if .Values.addons.authservice.enabled }}
-  jwksResolverExtraRootCA: {{ .Values.sso.certificateAuthority.cert }}
-  {{- end }}
   {{- end }}
 
 {{- end }}
