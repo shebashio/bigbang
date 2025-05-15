@@ -39,7 +39,7 @@ istiod:
 
 {{- if or .Values.jaeger.enabled .Values.tempo.enabled }}
 tracing:
-  enabled: {{ or .Values.jaeger.enabled .Values.tempo.enabled }}
+  enabled: true
   {{- if .Values.tempo.enabled }}
   address: tempo-tempo.tempo.svc
   port: 9411
