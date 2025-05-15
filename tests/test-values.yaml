@@ -181,7 +181,7 @@ gatekeeper:
           # Allow kyverno test vectors for Helm test
           - default/c.?
           - default/i.?
-          - gitlab/gitlab-postgresql-.*
+          - gitlab/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
