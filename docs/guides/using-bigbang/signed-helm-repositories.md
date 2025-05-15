@@ -60,16 +60,6 @@ helmRepositories:
         ...
         -----END PUBLIC KEY-----
 
-istio:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: true
-
-istioOperator:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: true
-
 kiali:
   sourceType: "helmRepo"
   helmRepo:

@@ -19,14 +19,19 @@ git:
     publicKey: ""
     knownHosts: ""
 
-istio:
+istioCRDs:
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
     branch: "my-dev-branch"
-istioOperator:
+istiod:
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
+    path: "./chart"
+    branch: "my-dev-branch"
+istioGateway:
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
     branch: "my-dev-branch"
 jaeger:
