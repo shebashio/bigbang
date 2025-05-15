@@ -534,8 +534,7 @@ egress: istio-controlplane
 {{- /*
 Gets the gateway selector configuration for a package
 Args:
-    - default: The default gateway name to use if none specified
-    - gateway: The gateway name (default: "public")
+    - default: The default gateway name to use if none specified (default: "public")
     - pkg: The package values (e.g. .Values.addons.argocd)
     - root: The root context
 */}}
