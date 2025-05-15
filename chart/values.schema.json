@@ -17,8 +17,6 @@
     "istioCRDs",
     "istioGateway",
     "istiod",
-    "istio",
-    "istioOperator",
     "jaeger",
     "kiali",
     "clusterAuditor",
@@ -291,52 +289,6 @@
         }
       ],
       "additionalProperties": true
-    },
-    "istio": {
-      "properties": {
-        "enabled": true,
-        "mtls": {
-          "type": "object"
-        },
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "enterprise": {
-          "type": "boolean"
-        },
-        "ingressGateways": {
-          "type": "object"
-        },
-        "gateways": {
-          "type": "object"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "istioOperator": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
     },
     "jaeger": {
       "required": [
