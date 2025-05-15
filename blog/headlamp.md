@@ -28,6 +28,7 @@ For developers or DevOps engineers managing multiple clusters, Headlamp provides
 Here’s a closer look at some of Headlamp’s standout features:
 🔍 Real-Time Cluster Insights
 It provides live updates of cluster objects (pods, nodes, services, etc.), helping you keep an eye on what’s happening in real time.
+A map view on how each namepsace is structured and connected (pods, services, endpoints, config maps, etc.)
 💡 Plugin System
 Headlamp is extensible through plugins. Developers can write custom plugins to add new views, tools, or external integrations directly into the interface.
 📦 Multi-Cluster Support
@@ -47,3 +48,12 @@ What the Flux Plugin Does:
 •	Offers visual feedback on GitOps workflows, making troubleshooting easier.
 
 This plugin bridges the gap between declarative infrastructure and observability, giving platform teams and developers more visibility and control over their deployments.
+
+## Advantages Over the Competition
+
+Some advantages compared to alternatives like Lens, Rancher, OpenLens: 
+•	Lightweight and simple 
+•	Open-source and easily extendable/customizable with •	JavaScript/React plugins 
+•	Easy to deploy within a cluster
+•	Supports RBAC, enabling fine-grain access
+•	Secured by design, leveraging native Kubernetes authentication
