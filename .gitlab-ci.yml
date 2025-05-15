@@ -1,0 +1,9 @@
+include: # standard for the BB repo
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: "ingress-certs-source"
+    file: '/pipelines/bigbang.yaml'
+variables:
+  PIPELINE_REPO_BRANCH: 'ingress-certs-source' 
+  # variables that can be overriden to target specific pipelines (NOT REQUIRED FOR ALL PIPELINES)
+  DEBUG_ENABLED: "true"
+  CI_MERGE_REQUEST_SOURCE_BRANCH_NAME: "2662-Operatorless-Istio-Gateway-Fix"
