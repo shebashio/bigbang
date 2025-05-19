@@ -13,6 +13,8 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: kyverno
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       {{- if eq .Values.kyverno.sourceType "git" }}

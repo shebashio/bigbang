@@ -17,7 +17,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/metrics-server/values.yaml") . | sha256sum }}
 spec:
   driftDetection:
-    mode: warn
+    mode: enabled
   releaseName: metrics-server
   targetNamespace: metrics-server
   chart:

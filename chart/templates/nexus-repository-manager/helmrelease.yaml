@@ -17,6 +17,8 @@ metadata:
 spec:
   targetNamespace: nexus-repository-manager
   releaseName: nexus-repository-manager
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       {{- if (eq $nexusValues.sourceType "git") }}
