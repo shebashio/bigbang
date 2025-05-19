@@ -191,11 +191,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
     path: "./chart"
-    tag: 1.25.2-bb.3
+    tag: 1.25.2-bb.4
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.25.2-bb.3
+    tag: 1.25.2-bb.4
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -673,11 +673,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.8"
+    tag: "3.3.4-bb.9"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.8"
+    tag: "3.3.4-bb.9"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -1188,12 +1188,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.7"
+    tag: "1.0.0-bb.8"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.7"
+    tag: "1.0.0-bb.8"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1727,11 +1727,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.24"
+      tag: "1.1.2320154-bb.25"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.24"
+      tag: "1.1.2320154-bb.25"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
