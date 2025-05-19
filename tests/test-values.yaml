@@ -916,9 +916,6 @@ elasticsearchKibana:
           limits:
             cpu: "2"
             memory: "4Gi"
-      scripts:
-        envs:
-          elasticsearch_host: "https://logging-ek-es-http.logging.svc.cluster.local:9200"
 
 fluentbit:
   enabled: false
