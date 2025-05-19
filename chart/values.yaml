@@ -698,7 +698,8 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.0.3-bb.1"
+    tag: null
+    branch: "111-refactor-kyverno-reporter-with-pass-through-pattern"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"

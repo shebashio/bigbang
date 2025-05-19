@@ -22,8 +22,9 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-kyvernoPlugin:
-  image:
+plugin:
+  kyverno:
+    enabled: true
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
   - name: private-registry
