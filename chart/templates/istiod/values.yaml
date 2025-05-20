@@ -41,8 +41,8 @@ upstream:
           port: "10003"
     {{- end }}
   {{- end }}
-{{- if and .Values.addons.authservice.enabled .Values.sso.certificateAuthority.cert }}
-  jwksResolverExtraRootCA: |-{{ .Values.sso.certificateAuthority.cert | trim | nindent 4 }}
+{{ if and .Values.addons.authservice.enabled .Values.sso.certificateAuthority.cert }}
+  jwksResolverExtraRootCA: {{ .Values.sso.certificateAuthority.cert  | quote }}
 {{- end }}
 {{- end }}
 
