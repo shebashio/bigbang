@@ -10,7 +10,7 @@ Headlamp is an open-source web-based Kubernetes user interface (UI). Unlike the 
 
 Built using React and Node.js, Headlamp connects directly to your Kubernetes API server and works out-of-the-box with minimal configuration.
 
-## How Headlamp is Used
+##  How Headlamp is Provided as a Big Bang Package
 
 Headlamp is deployed inside your Kubernetes cluster. It interacts with the Kubernetes API server to fetch and display real-time cluster information.
 
@@ -49,11 +49,10 @@ What the Flux Plugin Does:
 
 This plugin bridges the gap between declarative infrastructure and observability, giving platform teams and developers more visibility and control over their deployments.
 
-## Advantages Over the Competition
+## Benefits to using Headlamp
 
-Some advantages compared to alternatives like Lens, Rancher, OpenLens: 
 •	Lightweight and simple 
-•	Open-source and easily extendable/customizable with •	JavaScript/React plugins 
+•	Open-source and easily extendable/customizable with JavaScript/React plugins 
 •	Easy to deploy within a cluster
 •	Supports RBAC, enabling fine-grain access
 •	Secured by design, leveraging native Kubernetes authentication
