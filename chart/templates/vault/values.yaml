@@ -3,6 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -21,7 +22,7 @@ global:
   - name: private-registry
 
 injector:
-  {{- if .Values.istio.enabled }}
+  {{- if $istioEnabled }}
   annotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -29,13 +30,14 @@ injector:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
 server:
-  {{- if .Values.istio.enabled }}
+  {{- if $istioEnabled }}
   annotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
+  # In this context, we do not use any istio helpers (.vault.ingress.gateway would be "passthrough" in both istio versions)
   {{- if eq .Values.addons.vault.ingress.gateway "passthrough" }}
   volumes:
   - name: tls
@@ -57,15 +59,13 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}  
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.vault.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.vault "root" .) | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
   vpcCidr: {{ .Values.networkPolicies.vpcCidr }}  
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.vault.values)
@@ -73,14 +73,14 @@ istio:
     }}
   vault:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.vault.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.vault.ingress.gateway "root" .)}}
     {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
     tls:
       cert: {{ .Values.addons.vault.ingress.cert | quote }}
       key:  {{ .Values.addons.vault.ingress.key | quote }}
     {{- end }}
 
-{{- if .Values.istio.enabled }}
+{{- if $istioEnabled }}
 minio:
   annotations:
     {{ include "istioAnnotation" . }}

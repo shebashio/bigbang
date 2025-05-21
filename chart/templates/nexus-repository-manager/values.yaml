@@ -8,10 +8,11 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
 {{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 domain: {{ $domainName }}
 hostname: nexus
 istio:
-  enabled: {{ eq (include "istioEnabled" .) "true" }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false $nexusValues.values)
@@ -20,7 +21,7 @@ istio:
   injection: {{ dig "istio" "injection" "enabled" $nexusValues }}
   nexus:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" .) $nexusValues.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" $nexusValues.ingress.gateway "root" .)}}
 
 openshift: {{ .Values.openshift }}
 
@@ -34,7 +35,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:
     createMetricsUser: {{ .Values.monitoring.enabled }}
-  {{- if and .Values.istio.enabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.velero.values) "STRICT") }}
+  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.velero.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -48,14 +49,12 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   enabled: {{ .Values.networkPolicies.enabled }}
   ingressLabels:
-    {{- $gateway := default "public" $nexusValues.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" $nexusValues "root" .) | nindent 4 }}
 
 nexus:
   imagePullSecrets:
     - name: private-registry
-  {{- if .Values.istio.enabled }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}

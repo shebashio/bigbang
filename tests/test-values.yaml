@@ -99,33 +99,13 @@ kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
   values:
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-kiali"
-            enabled: true
-            spec:
-              hosts:
-                - 'kiali.dev.bigbang.mil'
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
-    cr:
-      spec:
-        auth:
-          # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
-          # strategy defaults to "openid"
-          strategy: "anonymous"
-    resources:
-      limits:
-        cpu: null
+    upstream:
+      cr:
+        spec:
+          auth:
+            # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
+            # strategy defaults to "openid"
+            strategy: "anonymous"
     bbtests:
       enabled: true
       cypress:
@@ -136,15 +116,6 @@ kiali:
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
           #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
-        resources:
-          requests:
-            cpu: 3
-            memory: 4Gi
-          limits:
-            cpu: null
-            memory: 4Gi
-
-
 clusterAuditor:
   enabled: false
   values:
@@ -214,11 +185,13 @@ gatekeeper:
           # Allow kyverno test vectors for Helm test
           - default/c.?
           - default/i.?
+          - gitlab/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
+          - backstage/backstage-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -245,6 +218,7 @@ gatekeeper:
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
           - mimir/mimir-cypress-test
+          - headlamp/headlamp-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -362,6 +336,7 @@ gatekeeper:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
+          - backstage/backstage-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
@@ -387,6 +362,7 @@ gatekeeper:
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
           - mimir/mimir-cypress-test
+          - headlamp/headlamp-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -587,6 +563,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -612,6 +589,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
         parameters:
@@ -628,6 +606,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -653,6 +632,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
           - resources:
@@ -676,6 +656,7 @@ kyvernoPolicies:
           - resources:
               namespaces:
               - anchore
+              - backstage
               - gitlab
               - gitlab-runner
               - kiali
@@ -701,6 +682,7 @@ kyvernoPolicies:
               - fortify
               - thanos
               - alloy
+              - headlamp
               names:
               - "*-cypress-test*"
       update-image-registry:
@@ -820,6 +802,12 @@ kyvernoPolicies:
         parameters:
           disallow:
           - bigbang
+      restrict-image-registries:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - gitlab
     additionalPolicyExceptions:
       testpolicyexception:
         enabled: true
@@ -1049,7 +1037,6 @@ tempo:
       tempoQuery:
         hosts:
           - "tempo.{{ .Values.domain }}"
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
@@ -1231,7 +1218,6 @@ neuvector:
     k3s:
       enabled: true
     istio:
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-neuvector"
@@ -1334,11 +1320,10 @@ bbctl:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           cypress_grafana_username: 'admin'
           cypress_grafana_password: 'prom-operator'
-
+alloy:
+  enabled: false
 # Addons are toggled based on labels in CI
 addons:
-  alloy:
-    enabled: false
   argocd:
     enabled: false
     sso:
@@ -1433,6 +1418,32 @@ addons:
                     protocol: HTTP
                     name: http
                 resolution: DNS
+
+  backstage:
+    enabled: false
+    values:
+      bbtests:
+        enabled: true
+        cypress:
+          envs:
+            cypress_url: "https://backstage.dev.bigbang.mil"
+      backstage:
+        backstage:
+          appConfig:
+            organization:
+              name: "P1"
+            auth:
+              environment: development
+              providers:
+                guest:
+                  # because we use NODE_ENV: production, we must set this to allow guest development login
+                  dangerouslyAllowOutsideDevelopment: true
+            proxy:
+              '/grafana/api':
+                # May be a public or an internal DNS
+                target: "https://example.com"
+                headers:
+                  Authorization: "Bearer abc-123"
 
   authservice:
     enabled: false
@@ -2846,3 +2857,29 @@ addons:
           insecure: true
           trace:
             enable: true
+
+  # ----------------------------------------------------------------------------------------------------------------------
+  # External Secrets
+  #
+  externalSecrets:
+    enabled: false
+    values:
+      bbtests:
+        enabled: true
+        
+  # ----------------------------------------------------------------------------------------------------------------------
+  # Headlamp
+  #
+  headlamp:
+    values:
+      istio:
+        hardened:
+          enabled: true
+      networkPolicies:
+        enabled: true
+      bbtests:
+        enabled: true
+        cypress:
+          artifacts: true
+          envs:
+            cypress_url: https://headlamp.dev.bigbang.mil
