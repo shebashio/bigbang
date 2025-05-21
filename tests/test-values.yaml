@@ -1138,7 +1138,6 @@ monitoring:
           cpu: 10m
           memory: 32Mi
         limits:
-          cpu: null
           memory: 32Mi
     prometheus-node-exporter:
       resources:
@@ -1146,7 +1145,6 @@ monitoring:
           cpu: 100m
           memory: 30Mi
         limits:
-          cpu: null
           memory: 30Mi
     bbtests:
       enabled: true
