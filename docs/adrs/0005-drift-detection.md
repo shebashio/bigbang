@@ -8,7 +8,7 @@ Accepted
 
 ## Context 
 
-In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes. 
+In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. If a drift is detected, Flux will modify the live environment back to what is defined.  This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes. 
 
 ## Decision 
 

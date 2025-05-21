@@ -15,8 +15,6 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istiod/values.yaml") . | sha256sum }}
 spec:
-  driftDetection:
-    mode: enabled
   releaseName: istiod
   targetNamespace: istio-system
   chart:
