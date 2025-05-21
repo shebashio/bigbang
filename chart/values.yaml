@@ -2143,6 +2143,9 @@ addons:
       chartName: "metrics-server"
       tag: "3.12.2-bb.4"
 
+    # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
+    automountServiceAccountToken: true
+
     # -- Flux reconciliation overrides specifically for the metrics server Package
     flux: {}
 
