@@ -8,7 +8,7 @@ Accepted
 
 ## Context 
 
-In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. If a drift is detected, Flux will modify the live environment back to what is defined.  This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes. 
+In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. If there is a mismatch or a drift is detected, Flux will modify the live environment back to what is defined in Git.  This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes. 
 
 ## Decision 
 
@@ -18,9 +18,7 @@ The Big Bang 3.0 release will come preset with driftDetection enabled for all te
 
 Some newer packages such as Backstage or Istio Operatorless will not have driftDetection enabled in time for 3.0 and will be enabled soon after. 
 
-Few packages that have similar functionalities such as Alloy and Fluentbit will have Alloy enabled with drift detection and not yet for Fluentbit. 
-
- 
+Few packages in the process of phasing out will also not be included.
 
 ## Consequences 
 
@@ -28,10 +26,11 @@ Few packages that have similar functionalities such as Alloy and Fluentbit will 
 
 Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
 
-Functional tests on resources such as cpu/memory, replicas and image locations will be checked and compared to what's defined in the repository.  If a discrepancy is found the values will be modified to conform with the values in the repository. 
+Drift detection on resources such as cpu/memory, replicas and image locations were performed for each packages.
 
-### Negative 
+### Negative  
 
-Any other resources besides cpu/memory, replicas and image location needs to be checked to make sure it's in flux drift detection checklist. 
+Takes longer to deploy or upgrade (should have less than 20% overhead). 
 
-May cause more complication when upgrade to from non drift detection mode to drift detection mode. 
+May need more resources such as cpu/memory/storage and network speed.
+
