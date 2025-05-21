@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.gatekeeper" -}}
-{{- $istioEnabled := eq (include "istioEnabled" .) "true" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
   pullSecrets:
@@ -137,6 +137,14 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - neuvector/neuvector-enforcer-pod.*
         - neuvector/neuvector-controller-pod.*
         {{- end }}
+  {{- end }}
+
+  {{- if .Values.istioGateway.enabled }}
+  noSysctls:
+    parameters:
+      excludedResources:
+      # Allow safe sysctl used by ingressgateways
+      - istio-gateway/.*
   {{- end }}
 
   podsHaveIstio:

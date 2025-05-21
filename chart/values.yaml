@@ -191,11 +191,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
     path: "./chart"
-    tag: 1.25.2-bb.3
+    tag: 1.25.2-bb.4
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.25.2-bb.3
+    tag: 1.25.2-bb.4
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -227,14 +227,21 @@ istioGateway:
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
   #     public:
-  #       tls:
-  #         key: "<my-key>"
-  #         cert: "<my-cert>"
-  #         minProtocolVersion: "<my-min-protocol-version>"
+  #       gatewayCerts:
+  #         - name: public-cert
+  #           tls:
+  #             key: "<my-key>"
+  #             cert: "<my-cert>"
+  #       minProtocolVersion: "<my-min-protocol-version>"
   #
   # EXAMPLE: Create an entirely new ingress gateway
   #   gateways:
   #     custom: # name of the gateway; will be templated to custom-ingressgateway
+  #       gatewayCerts:
+  #         - name: custom-cert
+  #           tls:
+  #             key: "<my-key>"
+  #             cert: "<my-cert>"
   #       upstream:
   #         labels:
   #           istio: ingressgateway
@@ -255,7 +262,7 @@ istioGateway:
   #             number: 8443
   #             protocol: HTTPS
   #           tls:
-  #             credentialName: public-cert
+  #             credentialName: custom-cert
   #             mode: SIMPLE
   #
   # EXAMPLE: Disable the existing passthrough gateway
@@ -608,11 +615,11 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.18.2-bb.5"
+    tag: "3.19.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
-    tag: "3.18.2-bb.5"
+    tag: "3.19.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
@@ -666,11 +673,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.8"
+    tag: "3.3.4-bb.9"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.8"
+    tag: "3.3.4-bb.9"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -909,11 +916,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.5-bb.0"
+    tag: "2.8.6-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.5-bb.0"
+    tag: "2.8.6-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -961,11 +968,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.21.0-bb.0"
+    tag: "1.21.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.21.0-bb.0"
+    tag: "1.21.0-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1181,12 +1188,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.4"
+    tag: "1.0.0-bb.8"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.4"
+    tag: "1.0.0-bb.8"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1299,11 +1306,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
       path: "./chart"
-      tag: "2.5.1-bb.2"
+      tag: "2.5.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "backstage"
-      tag: "2.5.1-bb.2"
+      tag: "2.5.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Backstage Package
     flux: { }
@@ -1445,11 +1452,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.11.2-bb.1"
+      tag: "8.11.2-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.11.2-bb.1"
+      tag: "8.11.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1720,11 +1727,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.24"
+      tag: "1.1.2320154-bb.26"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.24"
+      tag: "1.1.2320154-bb.26"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1999,11 +2006,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "8.7.1-bb.0"
+      tag: "8.7.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "8.7.1-bb.0"
+      tag: "8.7.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -2250,12 +2257,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.16.1-bb.1"
+      tag: "0.16.2-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.16.1-bb.1"
+      tag: "0.16.2-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
