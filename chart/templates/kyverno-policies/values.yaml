@@ -100,7 +100,7 @@ policies:
   {{- end }}
 
   {{- $nodePortIngressGateways := list }}
-  {{- range $name, $values := .Values.istioGateways.values.gateway }}
+  {{- range $name, $values := .Values.istioGateway.values.gateway }}
   {{- if eq $values.type "NodePort" }}
   {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
   {{- end }}
