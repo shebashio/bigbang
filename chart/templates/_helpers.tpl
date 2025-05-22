@@ -308,6 +308,11 @@ bigbang.dev/istioVersion: {{ .Values.istiod.helmRepo.tag }}
   {{- join " " (uniq $namespaces) | trim -}}
 {{- end -}}
 
+{{- /* Prints istio version */ -}}
+{{- define "istioVersion" -}}
+  {{- regexReplaceAll "-bb.+$" (coalesce .Values.istiod.git.semver .Values.istiod.git.tag .Values.istiod.git.branch) "" -}}
+{{- end -}}
+
 {{- /* Returns an SSO host */ -}}
 {{- define "sso.host" -}}
   {{- coalesce .Values.sso.oidc.host (regexReplaceAll ".*//([^/]*)/?.*" .Values.sso.url "${1}") -}}
