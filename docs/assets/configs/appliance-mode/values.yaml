@@ -1,33 +1,5 @@
 ---
 # Enables and configures packages for [Appliance Mode](../../../guides/deployment-scenarios/appliance-mode.md):
-istio:
-  values:
-    istiod:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 256Mi
-    values:
-      global:
-        proxy:
-          resources:
-            requests:
-              cpu: 50m
-              memory: 128Mi
-        proxy_init:
-          resources:
-            requests:
-              cpu: 50m
-              memory: 128Mi
-
-istioOperator:
-  values:
-    operator:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 128Mi
-
 jaeger:
   enabled: false
 

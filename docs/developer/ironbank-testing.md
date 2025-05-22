@@ -44,6 +44,6 @@ Big Bang package values can differ from this example. Navigate to the specific B
 
 * Expand the 03_wait_for_helmreleases.sh. At the bottom of this section, users can review that all pods were running on the cluster at completion of this script.
 * Collapse the previous section and review the 03_helm_tests.sh. This section should contain results of our CI tests on the live applications installed by Big Bang. Each package testing is different. Packages with frontends typically include a cypress test. Cypress test artifacts can typically be reviewed from the Job Artifacts. Navigate to browse job artifacts to watch a .mp4 video file of the cypress test for your package.
-* Some packages do not include cypress tests. Some do not include tests at all (e.g., istioOperator) In this case we recommend validating that the package installed to the cluster and that the tenant application ran successfully in the CI job output. Verify pods running using the 03_wait_for_helmreleases.sh section and all helmReleases succeeded using the Helmreleases section.
+* Some packages do not include cypress tests. Some do not include tests at all. In this case we recommend validating that the package installed to the cluster and that the tenant application ran successfully in the CI job output. Verify pods running using the 03_wait_for_helmreleases.sh section and all helmReleases succeeded using the Helmreleases section.
 
 7. Once testing is complete, close the MR and the branch will be cleaned up automatically.

@@ -29,16 +29,6 @@ elasticsearchKibana:
   git:
     repo: ssh://git@host.k3d.internal/home/git/repos/elasticsearch-kibana
 
-istio:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/istio-controlplane
-
-istioOperator:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/istio-operator
-
 clusterAuditor:
   enabled: true
   git:
