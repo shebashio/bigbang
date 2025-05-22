@@ -65,7 +65,7 @@ istio:
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.tempo.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "hardened" "enabled" false .Values.istiod.values)
     }}
   tempoQuery:
     # Set TempoQuery UI to "tempo." if Jaeger is enabled
