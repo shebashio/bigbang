@@ -14,28 +14,35 @@ In GitOps, drift detection identifies discrepancies between the actual state of 
 
 We will enable Flux Drift Detection in big bang packages.  It is specified in helmrelease.yaml under bigbang/chart/templates/packages_name. 
 
-The Big Bang 3.0 release will come preset with driftDetection enabled for all tested packages. 
+An example for enabled mode:
+```
+spec:
+  driftDetection:
+    mode: enabled
+```
 
-Some newer packages such as Backstage or Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be enabled soon after. 
+1. The Big Bang 3.0 release will come preset with driftDetection enabled for all tested packages. 
 
-Few packages in the process of phasing out will also not be included.
+2. Some newer packages such as Backstage or Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be enabled soon after. 
+
+3. Few packages in the process of phasing out will not be included.
 
 ## Consequences 
 
 ### Positive 
 
-Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
+1. Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
 
-Drift detection on resources such as cpu/memory, replicas and image locations will be active for enabled packages.
+2. Drift detection will constantly check for configurations such as cpu, memory, replicas and image location (image:) for discrepencies with the Git repository and reconcile them.
 
 ### Negative  
 
-It might take longer to deploy or upgrade. 
+1. It may take longer to deploy or upgrade. 
 
-May need more resources such as cpu/memory/storage and network bandwidth.
+2. More resources may be needed for cpu, memory, storage or network bandwidth.
 
 ## Reference
 
-[Fluxcd drift detection technical document](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection)
+1. [Fluxcd drift detection technical document](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection)
 
-[Fluxcd cluster-state drift detection blog](https://github.com/fluxcd/helm-controller/issues/643)
+2. [Fluxcd cluster-state drift detection blog](https://github.com/fluxcd/helm-controller/issues/643)
