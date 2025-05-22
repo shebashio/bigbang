@@ -18,12 +18,12 @@ flowchart LR
     direction BT
 
     subgraph L[Logging]
-      subgraph EFK[Default]
-        Kibana & Fluentbit --> Elastic
+      subgraph PLG[Default]
+        Alloy[Alloy*] --> Loki[Loki*]
       end
-      subgraph PLG[Alternative]
-      style PLG stroke-dasharray: 10 10
-        Promtail[Promtail*] --> Loki[Loki*]
+      subgraph EFK[Alternative]
+        style EFK stroke-dasharray: 10 10
+        Kibana & Fluentbit --> Elastic
       end
     end
 
@@ -33,36 +33,36 @@ flowchart LR
     end
 
     subgraph PE[Policy Enforcement]
-      subgraph KyvernoStack[Default]
-      direction BT
-        KyvernoReporter[Kyverno Reporter*] --> Kyverno[Kyverno*]
-      end
       subgraph CA[Alternative]
       style CA stroke-dasharray: 10 10
       direction BT
         ClusterAuditor --> OPA[OPA Gatekeeper]
       end
+      subgraph KyvernoStack[Default]
+      direction BT
+        KyvernoReporter[Kyverno Reporter*] --> Kyverno[Kyverno*]
+      end
     end
 
     subgraph RS[Runtime Security]
       subgraph TL[Default]
-        Twistlock[Prisma Cloud Compute]
+        Neuvector[Neuvector]
       end
     end
 
     subgraph DT[Distributed Tracing]
-      subgraph J[Default]
+      subgraph J[Deprecated]
         Jaeger ----> Elastic
       end
-      subgraph T[Alternative]
-      style T stroke-dasharray: 10 10
-        Tempo[Tempo*] -.-> Grafana
+      subgraph T[Default]
+      style J stroke-dasharray: 10 10
+        Tempo[Tempo*] --> Grafana
       end
     end
 
     subgraph SM[Service Mesh]
       Jaeger --> Istio
-      Tempo -.-> Istio
+      Tempo --> Istio
       Kiali --> Jaeger & Istio & Prometheus
     end
   end
@@ -84,7 +84,7 @@ flowchart LR
 
     subgraph "Security"
     direction BT
-      Anchore
+      Anchore[Anchore Enterprise]
       Authservice --> I[Istio]
       Keycloak
       Vault[Vault*]
