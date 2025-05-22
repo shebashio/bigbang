@@ -55,29 +55,6 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-istio:
-  enabled: true
-  ingressGateways:
-    passthrough-ingressgateway:
-      type: "LoadBalancer"
-  gateways:
-    passthrough:
-      ingressGateway: "passthrough-ingressgateway"
-      hosts:
-      - "*.{{ .Values.domain }}"
-      tls:
-        mode: "PASSTHROUGH"
-    public:
-      tls:
-        key: "" # Gets added via chart/ingress-certs.yaml
-        cert: "" # Gets added via chart/ingress-certs.yaml
-  values:
-    hardened:
-      enabled: true
-    kiali:
-      dashboard:
-        auth:
-          strategy: "anonymous"
 istioGateway:
   enabled: false
 jaeger:

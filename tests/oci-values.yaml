@@ -13,12 +13,17 @@ helmRepositories:
         R8XrntaedsdEhPPchOQuFzqTyyAPGifV1SaEu8medVRi6mVICWbVwOteNg==
         -----END PUBLIC KEY-----
 
-istio:
+istioCRDs:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
 
-istioOperator:
+istiod:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+istioGateway:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
