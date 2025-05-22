@@ -968,11 +968,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.21.0-bb.1"
+    tag: "1.21.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.21.0-bb.1"
+    tag: "1.21.1-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1662,11 +1662,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "10.7.0-bb.1"
+      tag: "10.7.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "10.7.0-bb.1"
+      tag: "10.7.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -2137,11 +2137,14 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.12.2-bb.3"
+      tag: "3.12.2-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.12.2-bb.3"
+      tag: "3.12.2-bb.4"
+
+    # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
+    automountServiceAccountToken: true
 
     # -- Flux reconciliation overrides specifically for the metrics server Package
     flux: {}

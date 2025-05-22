@@ -2672,7 +2672,8 @@ addons:
   metricsServer:
     enabled: false
     values:
-      replicas: 1
+      upstream:
+        replicas: 1
       bbtests:
         enabled: true
 
