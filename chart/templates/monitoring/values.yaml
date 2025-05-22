@@ -520,8 +520,13 @@ kube-state-metrics:
   # Add in the custom resource states, so the grafana flux charts work
   # See Documentation for flux -- https://fluxcd.io/flux/monitoring/metrics/
   # These overrides are found in https://github.com/fluxcd/flux2-monitoring-example/blob/main/monitoring/controllers/kube-prometheus-stack/kube-state-metrics-config.yaml
-  extraArgs:
-    - --custom-resource-state-only=true
+  #
+  # For kube-prometheus-stacks that are already installed and configured with
+  # custom collectors, commenting out the collectors and extraArgs below will
+  # retain any existing kube-state-metrics configuration.
+  #collectors: [ ]
+  #extraArgs:  
+  #  - --custom-resource-state-only=true
   rbac:
     extraRules:
       - apiGroups:
@@ -792,9 +797,6 @@ kube-state-metrics:
                   ready: [ status, conditions, "[type=Ready]", status ]
                   suspended: [ spec, suspend ]
                   source_name: [ spec, sourceRef, name ]
-      
-    
-  
 
 prometheusOperator:
   image:
