@@ -537,9 +537,6 @@ Args:
   {{- if $gw }}
     {{- toYaml (dict "app" $gw.serviceName "istio" "ingressgateway") }}
   {{- end }}
-{{- else }}
-  {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .root.Values.istio) "istio" nil }}
-  {{- toYaml (dig "values" "gateways" $gateway "selector" $default .root.Values.istio) }}
 {{- end }}
 {{- end -}}
 
