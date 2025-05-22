@@ -13,6 +13,7 @@ In GitOps, drift detection identifies discrepancies between the actual state of 
 ## Reference
 
 [Fluxcd drift detection technical document](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection)
+
 [Fluxcd cluster-state drift detection blog](https://github.com/fluxcd/helm-controller/issues/643)
 
 ## Decision 
