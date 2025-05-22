@@ -121,8 +121,9 @@ A service mesh is a dedicated infrastructure layer for making service-to-service
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|Istio|Istio Operator|Operator|[istio-operator](https://repo1.dso.mil/big-bang/product/packages/istio-operator)|
-|X|Istio|[Istio](./istio.md)|Control Plane|[istio-controlplane](https://repo1.dso.mil/big-bang/product/packages/istio-controlplane)|
+|X|Istio|Istio CRDs|CRDs|[istio-crds](https://repo1.dso.mil/big-bang/product/packages/istio-crds)|
+|X|Istio|istiod|Daemon|[istiod](https://repo1.dso.mil/big-bang/product/packages/istiod)|
+|X|Istio|Istio Gateway|Gateway(s)|[istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway)|
 |X|Istio|[Kiali](./kiali.md)|Management Console|[kiali](https://repo1.dso.mil/big-bang/product/packages/kiali)|
 
 ### Logging

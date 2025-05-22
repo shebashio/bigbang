@@ -23,24 +23,24 @@ Upgrading a single package in Big Bang is done by changing the tag in the values
 For a git repository:
 
 ```yaml
-istio:
+istiod:
   sourceType: "git"
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: "1.17.1-bb.1"
+    tag: "1.26.0-bb.0"
 
 ```
 
 For a helm repository:
 
 ```yaml
-istio:
+istiod:
   sourceType: "helmRepo"
   helmRepo:
     repoName: "registry1"
-    chartName: "istio"
-    tag: "1.17.1-bb.1"
+    chartName: "istiod"
+    tag: "1.26.0-bb.0"
 ```
 
 These values are in `chart/values.yaml` of the Big Bang helm chart.
@@ -76,8 +76,9 @@ Verify all the helm releases have succeeded
 NAMESPACE   NAME              AGE    READY   STATUS
 bigbang     kyverno           5h1m   True    Release reconciliation succeeded
 bigbang     kyvernopolicies   5h1m   True    Release reconciliation succeeded
-bigbang     istio-operator    5h1m   True    Release reconciliation succeeded
-bigbang     istio             5h1m   True    Release reconciliation succeeded
+bigbang     istio-crds        5h1m   True    Release reconciliation succeeded
+bigbang     istiod            5h1m   True    Release reconciliation succeeded
+bigbang     istio-gateway     5h1m   True    Release reconciliation succeeded
 ```
 
 ### Verify Pods

@@ -93,8 +93,8 @@ Grafana (part of the monitoring packages) is a standalone component of Big Bang 
 
 There are standard readiness probes built into the envoy sidecars and istio containers. See [here](https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#ReadinessProbe) for more info.
 
-You can get events in an istio-injected namespace to see if your sidecars are unhealthy or having issues. To check the health/status of the istio installation, run `kubectl get istiooperators -n istio-system`.
-
 ### Dependant Packages
 
-- istio-operator
+- istio-crds
+- istiod
+- istio-gateway

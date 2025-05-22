@@ -12,8 +12,8 @@ We have also documented the package overrides required if you want to set a sing
 
 | Package | Default | Value Override |
 |---|---|---|
-| Istio Controlplane | None | <pre lang="yaml">istio:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
-| Istio Operator | `IfNotPresent` | <pre lang="yaml">istio-operator:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
+| istiod | `IfNotPresent` | <pre lang="yaml">istiod:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
+| Istio Gateway | `IfNotPresent` | <pre lang="yaml">istio-gateway:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
 | Jaeger | `Always` | <pre lang="yaml">jaeger:<br>  values:<br>    image:<br>      pullPolicy: IfNotPresent</pre> |
 | Kiali | `IfNotPresent` | <pre lang="yaml">kiali:<br>  values:<br>    image:<br>      pullPolicy: IfNotPresent<br>    cr:<br>      spec:<br>        deployment:<br>          image_pull_policy: IfNotPresent</pre> |
 | Cluster Auditor | `Always` | <pre lang="yaml">clusterAuditor:<br>  values:<br>    image:<br>      imagePullPolicy: IfNotPresent</pre> |
