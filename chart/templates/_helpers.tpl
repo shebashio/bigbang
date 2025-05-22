@@ -264,6 +264,23 @@ bigbang.addValueIfSet can be used to nil check parameters before adding them to 
   {{- end }}
 {{- end -}}
 
+{{/*
+Annotation for Istio version
+*/}}
+{{- define "istioAnnotation" -}}
+{{- if (eq .Values.istiod.sourceType "git") -}}
+{{- if .Values.istiod.git.semver -}}
+bigbang.dev/istioVersion: {{ .Values.istiod.git.semver | trimSuffix (regexFind "-bb.*" .Values.istiod.git.semver) }}
+{{- else if .Values.istiod.git.tag -}}
+bigbang.dev/istioVersion: {{ .Values.istiod.git.tag | trimSuffix (regexFind "-bb.*" .Values.istiod.git.tag) }}
+{{- else if .Values.istiod.git.branch -}}
+bigbang.dev/istioVersion: {{ .Values.istiod.git.branch }}
+{{- end -}}
+{{- else -}}
+bigbang.dev/istioVersion: {{ .Values.istiod.helmRepo.tag }}
+{{- end -}}
+{{- end -}}
+
 {{- /* Helpers below this line are in support of the Big Bang extensibility feature */ -}}
 
 {{- /* Converts the string in . to a legal Kubernetes resource name */ -}}
@@ -468,7 +485,7 @@ data:
 
 {{- /* Returns name of istio public gateway */ -}}
 {{- define "istioPublicGateway" -}}
-{{- if .Values.istio.enabled -}}
+{{- if .Values.istioGateway.enabled -}}
   {{- print "public" -}}
 {{- else -}}
   {{- print "public-ingressgateway" -}}
@@ -477,7 +494,7 @@ data:
 
 {{- /* Returns name of istio passthrough gateway */ -}}
 {{- define "istioPassthroughGateway" -}}
-{{- if .Values.istio.enabled -}}
+{{- if .Values.istioGateway.enabled -}}
   {{- print "passthrough" -}}
 {{- else -}}
   {{- print "passthrough-ingressgateway" -}}
