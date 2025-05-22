@@ -860,6 +860,9 @@ eckOperator:
             resolution: DNS
 
 elasticsearchKibana:
+  git:
+    tag: null
+    branch: 1.28.0-bb.6
   enabled: false
   sso:
     enabled: false
@@ -1620,7 +1623,6 @@ addons:
               cpu: 10m
               memory: 256Mi
             limits:
-              cpu: null
               memory: 256Mi
         toolbox:
           persistence:
@@ -1630,7 +1632,6 @@ addons:
               cpu: 10m
               memory: 256Mi
             limits:
-              cpu: null
               memory: 256Mi
       registry:
         hpa:
@@ -1655,7 +1656,6 @@ addons:
             cpu: 50m
             memory: 256Mi
           limits:
-            cpu: null
             memory: 256Mi
       redis:
         master:
