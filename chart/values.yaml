@@ -1188,12 +1188,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.8"
+    tag: "1.0.0-bb.9"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.8"
+    tag: "1.0.0-bb.9"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1412,11 +1412,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.0.1-bb.0"
+      tag: "7.1.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.0.1-bb.0"
+      tag: "7.1.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
