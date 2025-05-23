@@ -14,6 +14,8 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/twistlock/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: twistlock
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       {{- if eq .Values.twistlock.sourceType "git" }}
