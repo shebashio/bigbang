@@ -39,8 +39,6 @@ spec:
 
 1. It may take longer to deploy or upgrade. 
 
-2. More resources may be needed for cpu, memory, storage or network bandwidth.
-
 ## Reference
 
 1. [Fluxcd drift detection technical document](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection)
