@@ -294,6 +294,35 @@
       ],
       "additionalProperties": true
     },
+    "istio": {
+      "properties": {
+        "enabled": true,
+        "mtls": {
+          "type": "object"
+        },
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true,
+        "enterprise": {
+          "type": "boolean"
+        },
+        "ingressGateways": {
+          "type": "object"
+        },
+        "gateways": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
     "jaeger": {
       "required": [
         "sso",
