@@ -1,4 +1,4 @@
-# Network Hardening
+# Istio Hardened
 Big Bang has added the `.Values.istio.hardened` map attibute to the values of applications that can be istio-injected, when `.Values.istio.enabled` is `true`. This document walks through the impact of setting `.Values.istio.hardened: true` on how traffic is managed within a given istio-injected package.
 
 ## Prerequisites
