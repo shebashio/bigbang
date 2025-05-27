@@ -16,7 +16,6 @@ We have also documented the package overrides required if you want to set a sing
 | Istio Operator | `IfNotPresent` | <pre lang="yaml">istio-operator:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
 | Jaeger | `Always` | <pre lang="yaml">jaeger:<br>  values:<br>    image:<br>      pullPolicy: IfNotPresent</pre> |
 | Kiali | `IfNotPresent` | <pre lang="yaml">kiali:<br>  values:<br>    image:<br>      pullPolicy: IfNotPresent<br>    cr:<br>      spec:<br>        deployment:<br>          image_pull_policy: IfNotPresent</pre> |
-| Cluster Auditor | `Always` | <pre lang="yaml">clusterAuditor:<br>  values:<br>    image:<br>      imagePullPolicy: IfNotPresent</pre> |
 | OPA Gatekeeper | `IfNotPresent` | <pre lang="yaml">gatekeeper:<br>  values:<br>    postInstall:<br>      labelNamespace:<br>        image:<br>          pullPolicy: IfNotPresent<br>    postUpgrade:<br>      cleanupCRD:<br>        image:<br>          pullPolicy: IfNotPresent<br>    image:<br>      pullPolicy: IfNotPresent</pre> |
 | Kyverno  | `IfNotPresent` | <pre lang="yaml">addons:<br>  kyverno:<br>    values:<br>      image:<br>        pullPolicy: IfNotPresent<br>      initImage:<br>        pullPolicy: IfNotPresent</pre> |
 | Elasticsearch / Kibana | `IfNotPresent` | <pre lang="yaml">elasticsearchKibana:<br>  values:<br>    imagePullPolicy: IfNotPresent</pre> |
