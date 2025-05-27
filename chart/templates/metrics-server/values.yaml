@@ -6,35 +6,37 @@
 {{- end }}
 
 {{- define "bigbang.defaults.metrics-server" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+
+upstream:
+  domain: {{ $domainName }}
+
+  {{- if (eq (include "istioEnabled" .) "true") }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
+
+  nameOverride: "metrics-server"
+  fullnameOverride: "metrics-server"
+
+  serviceMonitor:
+    enabled: {{ .Values.monitoring.enabled }}
+    dashboards:
+      namespace: monitoring
+
+  metrics:
+    enabled: {{ .Values.monitoring.enabled }}
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.metricsServer.values)
       (dig "hardened" "enabled" false .Values.istio.values)
     }}
-  injection: {{ ternary "enabled" "disabled" .Values.istio.enabled }}
-
-
-{{- if .Values.istio.enabled }}
-podAnnotations:
-    {{ include "istioAnnotation" . }}
-{{- end }}
-
-metrics:
-  enabled: {{ .Values.monitoring.enabled }}
-
-serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
-  dashboards:
-    namespace: monitoring
-
-# Default to 2 replicas for HA
-replicas: 2
+  injection: {{ ternary "enabled" "disabled" $istioEnabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

@@ -6,6 +6,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.thanos" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $thanosS3Endpoint := (printf "%s.s3.dualstack.%s.amazonaws.com" .Values.addons.thanos.objectStorage.bucket .Values.addons.thanos.objectStorage.region) }}
 
 imagePullSecrets:
@@ -17,7 +18,7 @@ externalURL: https://thanos.{{ .Values.domain }}
 domain: {{ .Values.domain }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.thanos.values)
@@ -39,7 +40,7 @@ istio:
   {{- end }}
   thanos:
     gateways:
-    - istio-system/{{ default "public" .Values.addons.thanos.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.thanos.ingress.gateway "root" .)}}
 
 {{- with .Values.addons.thanos.objectStorage }}
 {{- if and (eq $.Values.addons.thanos.strategy "scalable") (not (and .endpoint .region)) }}
@@ -52,9 +53,9 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.thanos.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.thanos "root" .) | nindent 4 }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

@@ -184,10 +184,10 @@ stringData:
   
   {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
     {{- if and $name $mergedGW }}
-      {{- $gwType := dig "labels" "istio" "" $mergedGW -}}
+      {{- $gwType := dig "upstream" "labels" "istio" "" $mergedGW -}}
       
       {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
-        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
+        {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; upstream.labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
       {{ end -}}
       
       {{- $gwRecord := dict -}}
@@ -488,15 +488,6 @@ data:
   {{- end -}}
 {{- end -}}
 
-{{- /* Returns namespace of istio gateways */ -}}
-{{- define "istioGatewayNamespace" -}}
-{{- if .Values.istio.enabled -}}
-  {{- print "istio-system" -}}
-{{- else -}}
-  {{- print "istio-gateway" -}}
-{{- end -}}
-{{- end -}}
-
 {{- /* Returns name of istio public gateway */ -}}
 {{- define "istioPublicGateway" -}}
 {{- if .Values.istio.enabled -}}
@@ -515,18 +506,68 @@ data:
 {{- end -}}
 {{- end -}}
 
-{{- /* Returns true if either istio or istioCore is enabled */ -}}
+{{- /* Returns true if either istio or istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ or .Values.istio.enabled .Values.istioCore.enabled }}
+{{ or .Values.istio.enabled .Values.istiod.enabled }}
+{{- end -}}
+
+{{- /* Returns the name of the appropriate HelmRelease depending on which is enabled. */ -}}
+{{- define "istioHelmRelease" -}}
+{{- if .Values.istiod.enabled -}}
+istiod
+{{- else -}}
+istio
+{{- end -}}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
-{{- if .Values.istioCore.enabled -}}
+{{- if .Values.istiod.enabled -}}
 ingress: istio-gateway
-egress: istio-core
+egress: istio-system
 {{- else -}}
 ingress: istio-controlplane
 egress: istio-controlplane
 {{- end -}}
+{{- end -}}
+
+{{- /*
+Gets the gateway selector configuration for a package
+Args:
+    - default: The default gateway name to use if none specified (default: "public")
+    - pkg: The package values (e.g. .Values.addons.argocd)
+    - root: The root context
+*/}}
+{{- define "getGatewaySelector" -}}
+{{- $default := default "public" .default }}
+{{- $gateway := default $default .pkg.ingress.gateway }}
+{{- if .root.Values.istioGateway.enabled }}
+  {{- $gateways := (include "enabledGateways" .root) | fromYaml }}
+  {{- $gw := get $gateways $gateway }}
+  {{- if $gw }}
+    {{- toYaml (dict "app" $gw.serviceName "istio" "ingressgateway") }}
+  {{- end }}
+{{- else }}
+  {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .root.Values.istio) "istio" nil }}
+  {{- toYaml (dig "values" "gateways" $gateway "selector" $default .root.Values.istio) }}
+{{- end }}
+{{- end -}}
+
+{{- /*
+Gets the gateway name for a package
+Args:
+    - default: The default gateway name to use if none specified (default: "public")
+    - gateway: The gateway name
+    - root: The root context
+*/}}
+{{- define "getGatewayName" -}}
+{{- $default := default "public" .default }}
+{{- $gateway := default $default .gateway }}
+{{- if .root.Values.istioGateway.enabled }}
+  {{- $gateways := (include "enabledGateways" .root) | fromYaml }}
+  {{- $gw := get $gateways $gateway }}
+  {{- printf "istio-gateway/%s" $gw.serviceName }}
+{{- else }}
+  {{- printf "istio-system/%s" $gateway }}
+{{- end }}
 {{- end -}}

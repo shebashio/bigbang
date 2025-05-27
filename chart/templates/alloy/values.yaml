@@ -1,10 +1,11 @@
 {{- /* Create secret */ -}}
-{{- if .Values.addons.alloy.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.alloy "name" "alloy" "defaults" (include "bigbang.defaults.alloy" .)) }}
+{{- if .Values.alloy.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.alloy "name" "alloy" "defaults" (include "bigbang.defaults.alloy" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
-{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.addons.alloy) }}
+{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
 {{- $lokiWriteDestUrl := ternary
     "http://logging-loki.logging.svc.cluster.local:3100/loki/api/v1/push"
@@ -12,15 +13,19 @@
     (eq .Values.loki.strategy "monolith")
 }}
 
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.alloy) "enabled")) }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -31,33 +36,44 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
       (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
       (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.alloy.values)
+      (dig "istio" "hardened" "enabled" false .Values.alloy.values)
     }}
 
 k8s-monitoring:
-  {{- range $service := list "alloy-metrics" "alloy-log" }} # Add/Remove Alloy Micro-Services as Alloy Configurations Change
-  {{ $service }}:
-    serviceMonitor:
-      enabled: {{ $.Values.monitoring.enabled }}
-      {{- if and (include "istioEnabled" $) (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.addons.alloy.values) "STRICT") }}
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-      {{- end }}
-  {{- end }}
-
   destinations:
     {{- if and $alloyLogsEnabled .Values.loki.enabled }}
     - name: loki
       type: loki
       url: {{ $lokiWriteDestUrl }}
     {{- end }}
-  {{- if and $alloyLogsEnabled .Values.loki.enabled }}
+  {{- if .Values.alloy.additionalDestinations }}
+  {{- toYaml .Values.alloy.additionalDestinations | nindent 4 }}
+  {{- end }}
+  {{- if $alloyLogsEnabled }}
   alloy-logs:
     enabled: true
+    serviceMonitor:
+      enabled: {{ $.Values.monitoring.enabled }}
+      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      {{- end }}
   podLogs:
     enabled: true
+    destinations:
+      {{- if .Values.loki.enabled }}
+      - loki
+      {{- end }}
+      {{- if .Values.alloy.additionalDestinations }}
+      {{- range $dest := .Values.alloy.additionalDestinations }}
+      {{- if eq (lower $dest.type) "loki" }}
+      - {{ $dest.name }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+    collector: alloy-logs
   {{- end }}
 {{- end }}

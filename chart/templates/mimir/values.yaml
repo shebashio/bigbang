@@ -4,18 +4,24 @@
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+
 {{- $minioEnabled := (.Values.addons.mimir.minioObjectStorage.enabled) }}
 {{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.mimir) "enabled"))  }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -53,16 +59,22 @@ minio-tenant:
         username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
         password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
 {{- end }}
-
 mimir-distributed:
   query_scheduler:
-    enabled: {{ not .Values.istio.enabled }}
+    enabled: {{ not $istioEnabled }}
   {{- if or $minioEnabled $s3Enabled }}
-  {{- if $s3Enabled }}
+  {{- if and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
   global:
     extraEnvFrom:
     - secretRef:
         name: mimir-objstore-secret
+  {{- end }}
+  {{- if .Values.addons.mimir.serviceAccountAnnotations }}
+  serviceAccount:
+    annotations:
+      {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
   {{- end }}
   mimir:
     structuredConfig:
@@ -88,10 +100,12 @@ mimir-distributed:
             bucket_name: mimir
             {{- else }}
             {{- if $s3Enabled }}
+            {{- if and .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
             access_key_id: "${AWS_ACCESS_KEY_ID}" # This is a secret injected via an environment variable
+            secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
+            {{- end }}
             endpoint: {{ .Values.addons.mimir.s3ObjectStorage.endpoint }}
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
-            secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
           {{- end }}

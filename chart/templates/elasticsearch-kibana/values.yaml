@@ -5,6 +5,8 @@
 {{- define "bigbang.defaults.logging" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
@@ -13,7 +15,7 @@ openshift: {{ .Values.openshift }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 istio:
-  enabled: {{ .Values.istio.enabled }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
@@ -26,17 +28,17 @@ istio:
     }}
   kibana:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
   elasticsearch:
     gateways:
-    - istio-system/{{ default "public" .Values.elasticsearchKibana.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.elasticsearchKibana.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.elasticsearchKibana "root" .) | nindent 4 }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 {{- if and .Values.addons.mattermost.elasticsearch.enabled .Values.addons.mattermost.enabled }}
 mattermost:
@@ -79,7 +81,7 @@ sso:
 kibana:
   imagePullSecrets:
     - name: private-registry
-{{- if .Values.istio.enabled }}
+{{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
@@ -94,7 +96,6 @@ monitoring:
 
 metrics:
   enabled: {{ .Values.monitoring.enabled }}
-  {{- $istioInjection := (and (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") .Values.istio.enabled) }}
   {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
   serviceMonitor:
     scheme: https
@@ -130,7 +131,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -156,7 +157,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -182,7 +183,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -208,7 +209,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -234,7 +235,7 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if .Values.istio.enabled }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}

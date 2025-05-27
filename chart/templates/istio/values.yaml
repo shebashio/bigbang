@@ -39,14 +39,13 @@ istiod:
 
 {{- if or .Values.jaeger.enabled .Values.tempo.enabled }}
 tracing:
-{{- if .Values.jaeger.enabled }}
-  enabled: {{ .Values.jaeger.enabled }}
-{{- else if .Values.tempo.enabled }}
-  enabled:  {{ .Values.tempo.enabled }}
-  address: 'tempo-tempo.tempo.svc'
+  enabled: true
+  {{- if .Values.tempo.enabled }}
+  address: tempo-tempo.tempo.svc
+  port: 9411
   sampling: 100
   max_path_tag_length: 99999
-{{- end }}
+  {{- end }}
 {{- end }}
 
 {{- if .Values.tempo.enabled }}
@@ -126,7 +125,7 @@ gateways:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $servervalues) }}
         mode: {{ $tlsMode }}
         {{- if or (eq $tlsMode "SIMPLE") (eq $tlsMode "MUTUAL") (eq $tlsMode "OPTIONAL_MUTUAL") }}
-        credentialName: {{ $index }}-{{ $name }}-cert
+        credentialName: {{ default (printf "%d-%s-cert" $index $name) $servervalues.tls.credentialName }}
         {{- end }}
         {{- $tlsMinVersion := (dig "tls" "minProtocolVersion" "" $values) }}
         {{- if $tlsMinVersion }}
@@ -149,7 +148,8 @@ gateways:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $values) }}
         mode: {{ $tlsMode }}
         {{- if or (eq $tlsMode "SIMPLE") (eq $tlsMode "MUTUAL") (eq $tlsMode "OPTIONAL_MUTUAL") }}
-        credentialName: {{ $name }}-cert
+        {{- $tlsCredName := (dig "tls" "credentialName" "" $values) }}
+        credentialName: {{ default (printf "%s-cert" $name) $tlsCredName}}
         {{- end }}
         {{- $tlsMinVersion := (dig "tls" "minProtocolVersion" "" $values) }}
         {{- if $tlsMinVersion }}
@@ -172,7 +172,8 @@ gateways:
         {{- $tlsMode := (dig "tls" "mode" "SIMPLE" $values) }}
         mode: {{ $tlsMode }}
         {{- if or (eq $tlsMode "SIMPLE") (eq $tlsMode "MUTUAL") (eq $tlsMode "OPTIONAL_MUTUAL") }}
-        credentialName: {{ $name }}-cert
+        {{- $tlsCredName := (dig "tls" "credentialName" "" $values) }}
+        credentialName: {{ default (printf "%s-cert" $name) $tlsCredName}}
         {{- end }}
         {{- $tlsMinVersion := (dig "tls" "minProtocolVersion" "" $values) }}
         {{- if $tlsMinVersion }}
