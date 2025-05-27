@@ -163,7 +163,7 @@ imagePullPolicy: IfNotPresent
 
 istioCRDs:
   # -- Toggle deployment of Istio CRDs
-  enabled: true
+  enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -183,7 +183,7 @@ istioCRDs:
 
 istiod:
   # -- Toggle deployment of istiod
-  enabled: true
+  enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -208,7 +208,7 @@ istiod:
 
 istioGateway:
   # -- Toggle deployment of Istio Gateway(s)  
-  enabled: true
+  enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -317,7 +317,7 @@ istioGateway:
 
 istio:
   # -- Toggle deployment of Istio.
-  enabled: false
+  enabled: true
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
     # PERMISSIVE = Allow both plain text and mutual TLS traffic
@@ -463,7 +463,7 @@ istio:
 
 istioOperator:
   # -- Toggle deployment of Istio Operator.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
