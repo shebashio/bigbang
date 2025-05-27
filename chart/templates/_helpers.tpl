@@ -160,10 +160,10 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- define "values-secret" -}}
 {{/* This is a workaround for passthrough charts */}}
 {{/* This is temporary and will be removed in a future release */}}
-{{ $origDefaults := fromYaml .defaults }}
+{{ $origDefaults := default (dict) (fromYaml .defaults) }}
 {{- $defaults := deepCopy $origDefaults }}
 {{- if and (not .root.Values.disableAutomaticPassthroughValues) (not .package.disableAutomaticPassthroughValues) }}
-{{- $origUpstream := dig "upstream" "" $defaults -}}
+{{- $origUpstream := dig "upstream" (dict) $defaults -}}
 {{- $upstream := deepCopy $origDefaults }}
 {{- if $origUpstream }}
 {{- $upstream = mustMergeOverwrite (deepCopy $origDefaults) (deepCopy $origUpstream) }}
