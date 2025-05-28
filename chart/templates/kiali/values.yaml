@@ -3,6 +3,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -16,7 +17,7 @@ image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.kiali.values)
@@ -26,9 +27,9 @@ istio:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.kiali.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
 
-{{- if include "istioEnabled" . }}
+{{- if $istioEnabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
@@ -42,7 +43,7 @@ monitoring:
 upstream:
   cr:
     spec:
-      {{- if .Values.istiod.enabled }}
+      {{- if $istioEnabled }}
       istio_namespace: istio-system
       {{- end}}
       deployment:
@@ -89,17 +90,24 @@ upstream:
             {{- end }}
             password: "secret:grafana-auth:password"
           {{- end }}
+        {{- if or .Values.istiod.enabled .Values.tempo.enabled }}
         tracing:
-          enabled: {{ .Values.jaeger.enabled }}
+          enabled: true
+          {{- if .Values.jaeger.enabled }}
           {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
           url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
+          {{- else if .Values.tempo.enabled }}
+          internal_url: http://tempo-tempo.tempo.svc.cluster.local:3100
+          provider: tempo
+          {{- end}}
+        {{- end }}
         istio:
           component_status:
             components:
               - app_label: istiod
                 is_core: true
                 is_proxy: false
-              {{- if (eq (include "istioEnabled" .) "true") }}
+              {{- if $istioEnabled }}
               {{- range $name, $values := .Values.istio.ingressGateways }}
               {{ if ne $values.enabled false }}
               - app_label: {{ $name }}
@@ -135,13 +143,5 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- if (eq (include "istioEnabled" .) "true") }}
-    {{- $gateway := default "public" .Values.kiali.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.istiod.enabled }}
-    app: public-ingressgateway
-    istio: ingressgateway
-    {{- end }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.kiali "root" .) | nindent 4 }}
 {{- end -}}

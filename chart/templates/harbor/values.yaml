@@ -6,6 +6,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.harbor" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
 imagePullSecrets:
 - name: private-registry
@@ -16,7 +17,7 @@ externalURL: https://harbor.{{ .Values.domain }}
 domain: {{ .Values.domain }}
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values)
@@ -25,15 +26,13 @@ istio:
   injection: {{ dig "istio" "injection" "enabled" .Values.addons.harbor }}
   harbor:
     gateways:
-    - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" .) .Values.addons.harbor.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.harbor.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.harbor.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.harbor "root" .) | nindent 4 }}
   istioNamespaceSelector:
     {{ include "istioNamespaceSelector" . | nindent 4 }}
 
@@ -46,7 +45,7 @@ serviceMonitor:
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT
-  {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
+  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem

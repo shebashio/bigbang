@@ -5,28 +5,29 @@
 {{- define "bigbang.defaults.anchore" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
 istio:
-  enabled: {{ include "istioEnabled" . }}
+  enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.anchore.values)
       (dig "hardened" "enabled" false .Values.istio.values)
     }}
-  injection: {{ ternary "enabled" "disabled" (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
+  injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
   ui:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.anchore.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchore.ingress.gateway "root" .)}}
   api:
     gateways:
-      - {{ include "istioGatewayNamespace" . }}/{{ default (include "istioPublicGateway" . ) .Values.addons.anchore.ingress.gateway }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchore.ingress.gateway "root" .)}}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
-  {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
+  {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
   {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchore) "STRICT") }}
   serviceMonitor:
     scheme: "https"
@@ -43,9 +44,7 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
-    {{- $gateway := default "public" .Values.addons.anchore.ingress.gateway }}
-    {{- $default := dict "app" (dig "gateways" $gateway "ingressGateway" nil .Values.istio) "istio" nil }}
-    {{- toYaml (dig "values" "gateways" $gateway "selector" $default .Values.istio) | nindent 4 }}
+    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.anchore "root" .) | nindent 4 }}
 
 {{- if .Values.addons.anchore.enterprise.licenseYaml }}
 enterpriseLicenseYaml: |
@@ -66,7 +65,7 @@ global:
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 postgresql:
-  {{- if (eq (include "istioEnabled" .) "true") }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end}}
@@ -86,11 +85,11 @@ anchoreConfig:
 
 feeds:
   istio:
-    enabled: {{ (eq (include "istioEnabled" .) "true") }}
-    injection: {{ ternary "enabled" "disabled" (and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
+    enabled: {{ $istioEnabled }}
+    injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled")) }}
 
   feeds-db:
-    {{- if (eq (include "istioEnabled" .) "true") }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -115,7 +114,7 @@ ui-redis:
   auth:
     password: {{ .Values.addons.anchore.redis.password }}
   {{- end }}
-  {{- if (eq (include "istioEnabled" .) "true") }}
+  {{- if $istioEnabled }}
   master:
     podAnnotations:
       {{ include "istioAnnotation" . }}
@@ -138,7 +137,7 @@ ui-redis:
       selector:
         app.kubernetes.io/name: anchore-ui-redis
         app.kubernetes.io/instance: anchore
-      {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
+      {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchore) "enabled") }}
       {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchore) "STRICT") }}
       scheme: "https"
       tlsConfig:

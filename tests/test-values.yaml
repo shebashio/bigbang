@@ -185,6 +185,8 @@ gatekeeper:
           # Allow kyverno test vectors for Helm test
           - default/c.?
           - default/i.?
+          - gitlab/.*
+          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
@@ -217,6 +219,7 @@ gatekeeper:
           - twistlock/twistlock-cypress-test
           - vault/vault-cypress-test
           - mimir/mimir-cypress-test
+          - headlamp/headlamp-cypress-test
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -292,8 +295,6 @@ gatekeeper:
           excludedResources:
           # Allow kyverno test vectors for Helm test
           - default/restrict-sysctls-.?
-          - istio-gateway/public-ingressgateway-.*
-          - istio-gateway/passthrough-ingressgateway-.*
       readOnlyRoot:
         parameters:
           excludedResources:
@@ -370,25 +371,26 @@ gatekeeper:
 
 kyverno:
   values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    features:
-      policyexceptions:
-        enabled: true
-        # -- Restrict policy exceptions to a single namespace
-        namespace: 'kyverno'
+    kyverno:
+      networkPolicies:
+        externalRegistries:
+          allowEgress: true
+      admissionController:
+        container:
+          extraArgs:
+            webhookTimeout: 30
+          resources:
+            limits:
+              cpu: 1
+              memory: 768Mi
+            requests:
+              cpu: 1
+              memory: 768Mi
+      features:
+        policyexceptions:
+          enabled: true
+          # -- Restrict policy exceptions to a single namespace
+          namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -1030,7 +1032,6 @@ tempo:
       tempoQuery:
         hosts:
           - "tempo.{{ .Values.domain }}"
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
@@ -1204,7 +1205,6 @@ neuvector:
     k3s:
       enabled: true
     istio:
-      enabled: true
       hardened:
         customServiceEntries:
           - name: "cypress-service-entries-neuvector"
@@ -2519,7 +2519,8 @@ addons:
   metricsServer:
     enabled: false
     values:
-      replicas: 1
+      upstream:
+        replicas: 1
       bbtests:
         enabled: true
 
@@ -2704,11 +2705,11 @@ addons:
   # External Secrets
   #
   externalSecrets:
+    enabled: false
     values:
       bbtests:
         enabled: true
-        cypress:
-          artifacts: true
+        
   # ----------------------------------------------------------------------------------------------------------------------
   # Headlamp
   #
