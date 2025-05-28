@@ -55,6 +55,10 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
+
+# This should be set to true when we are getting ready to remove the workaround.
+# disableAutomaticPassthroughValues: true
+
 istio:
   enabled: true
   ingressGateways:

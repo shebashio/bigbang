@@ -169,7 +169,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- $upstream = mustMergeOverwrite (deepCopy $origDefaults) (deepCopy $origUpstream) }}
 {{- end -}}
 {{- $newDefaults := dict "upstream" $upstream }}
-{{- $defaults = mustMergeOverwrite (deepCopy $origDefaults) $newDefaults }}
+{{- $defaults = mustMergeOverwrite (deepCopy $origDefaults) $newDefaults | toYaml }}
 {{- end -}}
 {{/* This is the end of the workaround */}}
 apiVersion: v1
