@@ -386,6 +386,12 @@ kyverno:
           enabled: true
           # -- Restrict policy exceptions to a single namespace
           namespace: 'kyverno'
+      test:
+        image:
+          registry: registry1.dso.mil
+          repository: ironbank/redhat/ubi/ubi9-minimal
+          tag: '9.5'
+          pullPolicy: ~          
     bbtests:
       enabled: true
 
