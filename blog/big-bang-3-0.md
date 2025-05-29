@@ -4,7 +4,7 @@ The countdown is on! Big Bang 3.0 is on track for release on June 13, 2025. This
 
 ## ⚙️ Istio Goes Operatorless
 
-Service mesh management receives a major upgrade in 3.0 with the **removal of the Istio Operator in favor of direct Helm-based Istio deployments**. The operator, initially implemented to address limitations of Helm v2, became obsolete with the release of Helm v3, prompting its deprecation by the Istio Project last year.
+Service mesh management receives a major upgrade in 3.0 with the **removal of the Istio Operator in favor of direct Helm-based Istio deployments**. The operator, initially implemented to address limitations of Helm v2, became obsolete with the release of Helm v3, prompting its [deprecation by the Istio Project last year](https://istio.io/latest/blog/2024/in-cluster-operator-deprecation-announcement/).
 
 By migrating to direct Helm deployments, Big Bang adopts recommended practices for Istio management and improves its overall security posture through the removal of the high-privilege operator. This transition also offers a standardized and more secure method for managing Istio configurations, simplifying installation and upgrades, and paving the way for Ambient Mode integration in future releases.
 
