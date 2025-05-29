@@ -42,8 +42,17 @@ spec:
 
   {{- toYaml $fluxSettingskyverno | nindent 2 }}
 
-  {{- if .Values.kyverno.postRenderers }}
   postRenderers:
+  - kustomize:
+      patches:
+      - patch: |
+          - op: add
+            path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
+            value: disabled
+        target:
+          kind: ServiceMonitor
+          version: v1  
+  {{- if .Values.kyverno.postRenderers }}
   {{ toYaml .Values.kyverno.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
