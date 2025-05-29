@@ -52,4 +52,4 @@ We're excited to bring you Big Bang 3.0 and hope you find these improvements val
 - Join the Big Bang Distro List for the latest Big Bang BBTOC, Immersion Series, and e-mail updates (e-mail `aflcmc.hncx.platformonebigbang@us.af.mil` to be added)
 - [Join the Big Bang Slack Channel](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-36e17n71f-w1hALTP5OH6wkkX7Eo2G~Q)
 
-We also extend a sincere thank you to everyone who participated in the Istio beta program, and to all our community members making contributions, bug reports, and feature requests. Your feedback is invaluable to the work that we do. So, as always, *thank you* for helping us build a better Big Bang! 🚀
+We also extend a sincere thank you to everyone who participated in the Istio beta program, and to all our community members submitting contributions, bug reports, and feature requests. Your feedback is invaluable to the work that we do. So, as always, *thank you* for helping us build a better Big Bang! 🚀
