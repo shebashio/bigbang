@@ -12,7 +12,7 @@ Be advised, **this is a breaking change**, but our engineers have worked hard to
 
 ## 🧰 Grafana Alloy Replaces Promtail
 
-Keeping with the theme of deprecated packages, we’re also upgrading our primary log collection agent from **Promtail** to **Grafana Alloy**, following Grafana Labs' deprecation of Promtail earlier this year. Alloy brings several key improvements to Big Bang's telemetry collection, including greater efficiency, lower costs for Prometheus-compatible metrics, full OTLP compatibility, and native support for metrics, logs, traces, and profiles.
+Keeping with the theme of deprecated packages, we’re also replacing our primary log collection agent, **Promtail**, with **Grafana Alloy**, following Grafana Labs' [deprecation of Promtail earlier this year](https://grafana.com/docs/loki/latest/release-notes/v3-4/#deprecations). Alloy brings several key improvements to Big Bang's telemetry collection, including greater efficiency, lower costs for Prometheus-compatible metrics, full OTLP compatibility, and native support for metrics, logs, traces, and profiles.
 
 Much of this transition is already complete. Alloy-logging features were added in 2.51, and the Alloy chart was moved into core in 2.53. With Alloy enabled by default in 3.0 and Promtail disabled, we'll be removing Promtail entirely from Big Bang in release 3.05, after which it will be community-supported.
 
