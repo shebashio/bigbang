@@ -159,6 +159,7 @@ gatekeeper:
           - default/c.?
           - default/i.?
           - gitlab/.*
+          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
@@ -343,25 +344,26 @@ gatekeeper:
 
 kyverno:
   values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    features:
-      policyexceptions:
-        enabled: true
-        # -- Restrict policy exceptions to a single namespace
-        namespace: 'kyverno'
+    kyverno:
+      networkPolicies:
+        externalRegistries:
+          allowEgress: true
+      admissionController:
+        container:
+          extraArgs:
+            webhookTimeout: 30
+          resources:
+            limits:
+              cpu: 1
+              memory: 768Mi
+            requests:
+              cpu: 1
+              memory: 768Mi
+      features:
+        policyexceptions:
+          enabled: true
+          # -- Restrict policy exceptions to a single namespace
+          namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -2268,6 +2270,21 @@ addons:
     values:
       istio:
         hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-keycloak"
+              enabled: true
+              spec:
+                hosts:
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS        
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
