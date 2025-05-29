@@ -163,7 +163,7 @@ imagePullPolicy: IfNotPresent
 
 istioCRDs:
   # -- Toggle deployment of Istio CRDs
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -183,7 +183,7 @@ istioCRDs:
 
 istiod:
   # -- Toggle deployment of istiod
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -208,7 +208,7 @@ istiod:
 
 istioGateway:
   # -- Toggle deployment of Istio Gateway(s)  
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
