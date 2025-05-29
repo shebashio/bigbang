@@ -55,6 +55,10 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
+istiod:
+  enabled: true
+istioCRDs:
+  enabled: true
 istioOperator:
   enabled: false
 istio:
@@ -81,7 +85,7 @@ istio:
         auth:
           strategy: "anonymous"
 istioGateway:
-  enabled: false
+  enabled: true
 jaeger:
   enabled: false
   sso:
