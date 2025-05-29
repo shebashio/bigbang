@@ -30,7 +30,7 @@ While drift detection will be enabled by default for most existing HelmReleases,
 
 To further enhance Big Bang’s value as a comprehensive platform for building, deploying, and managing secure and compliant Kubernetes applications, our 3.0 release broadens its capabilities with the addition of three new packages to the umbrella chart:  
 
-- **[Headlamp](https://headlamp.dev/)** – A user-friendly Kubernetes UI, specifically recommended by the Flux maintainers for monitoring Flux state without requiring `kubectl` or similar tools.
+- **[Headlamp](https://headlamp.dev/)** – A user-friendly Kubernetes UI, specifically recommended by the Flux maintainers for monitoring Flux Custom Resource state without requiring `kubectl` or similar tools.
 - **[Backstage](https://backstage.io/)** – An open-source framework for building developer portals with additional customized modules for integrating with many of the applications in Big Bang. It’s already popular among the Big Bang community for providing self-service portals.
 - **[Compliance Dashboard](https://repo1.dso.mil/big-bang/apps/sandbox/compliance-dashboard)** – A unified dashboard for reviewing cluster security policies and overall compliance, helping SREs address the challenge of parsing disparate security data sources by aggregating data from multiple security tools into one easy-to-read UI and assigning clusters an overall Compliance Score.
 
