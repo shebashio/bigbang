@@ -182,12 +182,14 @@ gatekeeper:
           - default/c.?
           - default/i.?
           - gitlab/.*
+          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -366,25 +368,26 @@ gatekeeper:
 
 kyverno:
   values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    features:
-      policyexceptions:
-        enabled: true
-        # -- Restrict policy exceptions to a single namespace
-        namespace: 'kyverno'
+    kyverno:
+      networkPolicies:
+        externalRegistries:
+          allowEgress: true
+      admissionController:
+        container:
+          extraArgs:
+            webhookTimeout: 30
+          resources:
+            limits:
+              cpu: 1
+              memory: 768Mi
+            requests:
+              cpu: 1
+              memory: 768Mi
+      features:
+        policyexceptions:
+          enabled: true
+          # -- Restrict policy exceptions to a single namespace
+          namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -560,6 +563,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -2291,6 +2295,21 @@ addons:
     values:
       istio:
         hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-keycloak"
+              enabled: true
+              spec:
+                hosts:
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS        
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
