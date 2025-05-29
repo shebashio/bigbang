@@ -19,7 +19,6 @@
     "istiod",
     "istio",
     "istioOperator",
-    "jaeger",
     "kiali",
     "clusterAuditor",
     "gatekeeper",
@@ -256,7 +255,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istiod": {
       "properties": {
@@ -273,7 +272,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istioGateway": {
       "properties": {
@@ -290,7 +289,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istio": {
       "properties": {
@@ -330,36 +329,6 @@
         "flux": true,
         "values": true,
         "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "jaeger": {
-      "required": [
-        "sso",
-        "ingress"
-      ],
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
-        },
-        "sso": {
-          "$ref": "#/$defs/sso"
-        },
-        "ingress": {
-          "$ref": "#/$defs/ingress"
-        }
       },
       "allOf": [
         {
