@@ -2288,6 +2288,9 @@ addons:
         - "start"
         - "--import-realm"
         extraEnv: |-
+          - name: JAVA_OPTS_APPEND
+            value: >-
+              -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
           - name: KC_HTTPS_CERTIFICATE_FILE
             value: /opt/keycloak/conf/tls.crt
           - name: KC_HTTPS_CERTIFICATE_KEY_FILE
