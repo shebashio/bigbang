@@ -37,10 +37,6 @@ istio:
       (dig "hardened" "enabled" false .Values.istio.values)
     }}
   headlamp:
-    {{- if .Values.addons.headlamp.enabled }}
-    hosts:
-      - "headlamp.{{ .Values.addons.headlamp.domain }}"
-    {{- end }}
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.headlamp.ingress.gateway "root" .)}}
 
