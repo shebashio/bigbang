@@ -16,7 +16,7 @@ Keeping with the theme of deprecated packages, we’re also replacing our primar
 
 Much of this transition is already complete. Alloy-logging features were added to Big Bang in version 2.51, and the Alloy chart was moved into Core in 2.53. With Alloy enabled by default in 3.0 and Promtail disabled, we'll be removing Promtail entirely from Big Bang in release 3.5.0, after which the package will move to Community-supported.
 
-Users with custom Promtail configurations will need to convert and test their setups with Alloy before release 3.05. To assist with this transition, please refer to [Grafana's migration guide](https://grafana.com/docs/alloy/latest/set-up/migrate/from-promtail/) for detailed instructions, and the [Big Bang ADR](https://repo1.dso.mil/big-bang/bigbang/-/blob/7fa70f7b4cc4ca66c20ac28b74f19c265eaa798a/docs/adrs/0004-alloy-replacing-promtail.md) for general information about this change.  
+Users with custom Promtail configurations will need to convert and test their setups with Alloy before release 3.5.0. To assist with this transition, please refer to [Grafana's migration guide](https://grafana.com/docs/alloy/latest/set-up/migrate/from-promtail/) for detailed instructions, and the [Big Bang ADR](https://repo1.dso.mil/big-bang/bigbang/-/blob/7fa70f7b4cc4ca66c20ac28b74f19c265eaa798a/docs/adrs/0004-alloy-replacing-promtail.md) for general information about this change.  
 
 ## 🛡️ Flux Drift Detection By Default
 
