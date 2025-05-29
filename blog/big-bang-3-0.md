@@ -1,6 +1,6 @@
 # Big Bang 3.0
 
-The countdown is on! Big Bang 3.0 is on track for release on June 13, 2025. This marks our third major release since version 2.0 in April 2023, and the Big Bang team has been working diligently to deliver a platform that's secure, feature-rich, and ready for your most critical missions. The Big Bang universe is ever-expanding, read on to learn more!
+The countdown is on! Big Bang 3.0 is on track for release on June 13, 2025. This marks the next major release since version 2.0 in April 2023, and the Big Bang team has been working diligently to deliver a platform that's secure, feature-rich, and ready for your most critical missions. The Big Bang universe is ever-expanding, read on to learn more!
 
 ---
 
