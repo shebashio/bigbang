@@ -24,6 +24,16 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+istio:
+  enabled: {{ $istioEnabled }}
+  headlamp:
+    {{- if .Values.addons.headlamp.enabled }}
+    hosts:
+      - "headlamp.{{ .Values.addons.domain }}"
+    {{- end }}
+    gateways:
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.headlamp.ingress.gateway "root" .)}}
+
 {{- if (eq (include "istioEnabled" .) "true") }}
 annotations:
   {{ include "istioAnnotation" . }}
