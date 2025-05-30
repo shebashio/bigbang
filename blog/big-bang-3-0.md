@@ -36,7 +36,7 @@ To further enhance Big Bang’s value as a comprehensive platform for building, 
 
 ## ⚡️ Streamlining Updates with the Passthrough Pattern
 
-This release introduces a new values pattern to some of our packages that we're calling the "Passthrough Pattern." While primarily an under-the-hood improvement, this change streamlines the delivery of security patches and upstream updates, making the process faster and more seamless.
+This release introduces a new values pattern to some of our packages that we're calling the "Passthrough Pattern." While primarily an under-the-hood improvement, this change streamlines the delivery of package updates to our users. Under the hood, Big Bang team is maintaining Big Bang packages without forking upstream project helm charts. This simple change greatly reduces the workload of our routine package renovate process. If we need to modify a package's helm templates, we either contribute upstream or modify using mutating webhooks or post renderers.
 
 You may have already seen this pattern in a few packages, like Kiali, Backstage, and Operatorless Istio, with many more adopting it in 3.0. Watch the Upgrade Notices in the Release Notes for instructions on how to update your deployments as we roll out this change.
 
