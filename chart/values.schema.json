@@ -20,7 +20,6 @@
     "istio",
     "istioOperator",
     "kiali",
-    "clusterAuditor",
     "gatekeeper",
     "kyverno",
     "kyvernoPolicies",
@@ -358,26 +357,6 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "clusterAuditor": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
         }
       },
       "allOf": [
