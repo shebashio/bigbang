@@ -1,0 +1,22 @@
+apiVersion: catalog.bigbang.dev/v1alpha1
+kind: PackageCatalog
+metadata:
+  name: Big Bang Core
+  labels:
+    catalog.alpha.bigbang.dev/id: core
+packages:
+- name: Loki # A display name for any UI purposes that may arise later on
+  description: "Loki is a horizontally scalable, highly available, multi-tenant log aggregation \nsystem inspired by Prometheus. It is designed to be very cost effective and easy to operate. \nIt does not index the contents of the logs, but rather a set of labels for each log stream.\n"
+  id: loki # The actual key for the package that will be used in the values overlay
+  version: 6.29.0-bb.1
+  dependsOn:
+  - id: istiod
+    condition: istiod.enabled # (optional) CEL expression for dependency condition; dependency is always required if no condition
+  - id: monitoring
+  sources:
+    helm: # Keep the possibility of additional sources like Kustomizations or raw manifests in the future
+      oci: oci://registry1.dso.mil/bigbang/loki
+      git: https://repo1.dso.mil/big-bang/product/packages/loki.git
+- name: Istio Pilot
+  id: istiod
+  version:
