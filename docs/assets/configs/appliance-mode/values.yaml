@@ -46,17 +46,6 @@ jaeger:
 kiali:
   enabled: false
 
-clusterAuditor:
-  enabled: false
-  values:
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: null
-        memory: 256Mi
-
 gatekeeper:
   enabled: false
   values:
@@ -113,7 +102,7 @@ eckOperator:
 fluentbit:
   enabled: false
 
-promtail:
+alloy:
   enabled: true
   values:
     resources:
@@ -123,6 +112,8 @@ promtail:
       limits:
         cpu: null
         memory: 32Mi
+  alloyLogs:
+    enabled: true
 
 loki:
   enabled: true
