@@ -53,13 +53,6 @@ spec:
               - op: add
                 path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
                 value: disabled 
-          - target:
-              version: v1
-              kind: PrometheusRule
-            patch: |
-              - op: add
-                path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-                value: disabled
   {{- if .Values.monitoring.postRenderers }}
   {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
   {{- end }}
