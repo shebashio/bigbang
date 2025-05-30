@@ -1091,14 +1091,14 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
+          cpu: 100m
+          memory: 64Mi
         limits: {}
     prometheus-node-exporter:
       resources:
         requests:
           cpu: 100m
-          memory: 30Mi
+          memory: 364i
         limits: {}
     bbtests:
       enabled: true
