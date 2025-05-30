@@ -294,8 +294,6 @@ To validate that the Helm chart is working, perform the following steps to deplo
     # Gatekeeper
     gatekeeper:
       enabled: false
-    clusterAuditor:
-      enabled: false
 
     # Logging
     eckOperator:
