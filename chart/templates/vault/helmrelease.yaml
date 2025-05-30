@@ -16,7 +16,7 @@ metadata:
 spec:
   targetNamespace: vault
   driftDetection:
-    mode: enabled
+    mode: warn
   chart:
     spec:
       {{- if eq .Values.addons.vault.sourceType "git" }}
