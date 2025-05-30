@@ -55,8 +55,14 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-istio:
+istiod:
   enabled: true
+istioCRDs:
+  enabled: true
+istioOperator:
+  enabled: false
+istio:
+  enabled: false
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
@@ -79,7 +85,7 @@ istio:
         auth:
           strategy: "anonymous"
 istioGateway:
-  enabled: false
+  enabled: true
 jaeger:
   enabled: false
   sso:
@@ -301,6 +307,7 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
@@ -573,6 +580,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -623,6 +631,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -1091,9 +1100,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 100m
-          memory: 64Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
