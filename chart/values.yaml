@@ -1392,11 +1392,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "79.0.0-bb.1"
+      tag: "79.0.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "79.0.0-bb.1"
+      tag: "79.0.0-bb.2"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1898,11 +1898,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
