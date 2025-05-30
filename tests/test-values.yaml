@@ -55,8 +55,12 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
+istiod:
+  enabled: true
+istioCRDs:
+  enabled: true
 istioGateway:
-  enabled: false
+  enabled: true
 jaeger:
   enabled: false
   sso:
@@ -1071,9 +1075,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
