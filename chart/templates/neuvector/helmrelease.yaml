@@ -15,32 +15,16 @@ metadata:
 spec:
   driftDetection:
     mode: enabled
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              version: v1
-              kind: Secret
-              name: neuvector-internal-certs
-            patch: |
-              - op: add
-                path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-                value: disabled
-          - target:
-              version: v1
-              kind: Cronjob 
-              name: neuvector-cert-upgrader-pod
-            patch: |
-              - op: add
-                path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-                value: disabled
-          - target:
-              version: v1
-              kind: Lease
-            patch: |
-              - op: add
-                path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-                value: disabled
+    ignore:
+      - paths: [""]
+        target:
+          kind: Cronjob    
+      - paths: [""]
+        target:
+          kind: Lease    
+      - paths: [""]
+        target:
+          kind: Secret    
   targetNamespace: neuvector
   chart:
     spec:

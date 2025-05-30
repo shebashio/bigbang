@@ -15,6 +15,13 @@ metadata:
 spec:
   driftDetection:
     mode: enabled
+    ignore:
+      - paths: [""]
+        target:
+          kind: Alertmanager    
+      - paths: [""]
+        target:
+          kind: Prometheus    
   targetNamespace: monitoring
   chart:
     spec:
@@ -43,17 +50,8 @@ spec:
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
 
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              version: v1
-              kind: Prometheus
-            patch: |
-              - op: add
-                path: /metadata/annotations/helm.toolkit.fluxcd.io~1driftDetection
-                value: disabled 
   {{- if .Values.monitoring.postRenderers }}
+  postRenderers:
   {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:

@@ -14,6 +14,10 @@ metadata:
 spec:
   driftDetection:
     mode: enabled
+    ignore:
+      - paths: [""]
+        target:
+          kind: CustomResourceDefinition    
   targetNamespace: kyverno
   chart:
     spec:
