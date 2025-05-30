@@ -1163,8 +1163,8 @@ function cloud_aws_create_instances {
 
   if [[ "${RESET_K3D}" == false ]] ; then
     if [[ "$BIG_INSTANCE" == true ]]; then
-      echo "Will use large m5.12xlarge spot instance"
-      InstSize="m5.12xlarge"
+      echo "Will use large m5a.4xlarge spot instance"
+      InstSize="m5a.4xlarge"
       SpotPrice="0.69"
     else
       echo "Will use standard t3.2xlarge spot instance"
