@@ -175,6 +175,7 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -546,6 +547,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
