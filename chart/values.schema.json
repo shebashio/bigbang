@@ -22,7 +22,6 @@
     "istioOperator",
     "jaeger",
     "kiali",
-    "clusterAuditor",
     "gatekeeper",
     "kyverno",
     "kyvernoPolicies",
@@ -300,6 +299,7 @@
     },
     "istio": {
       "properties": {
+        "status": true,
         "enabled": true,
         "mtls": {
           "type": "object"
@@ -330,6 +330,7 @@
     },
     "istioOperator": {
       "properties": {
+        "status": true,
         "enabled": true,
         "sourceType": true,
         "git": true,
@@ -398,27 +399,6 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        },
-        "disableAutomaticPassthroughValues": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "clusterAuditor": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
         },
         "disableAutomaticPassthroughValues": true
       },

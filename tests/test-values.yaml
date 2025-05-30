@@ -59,8 +59,14 @@ networkPolicies:
 # This should be set to true when we are getting ready to remove the workaround.
 # disableAutomaticPassthroughValues: true
 
-istio:
+istiod:
   enabled: true
+istioCRDs:
+  enabled: true
+istioOperator:
+  enabled: false
+istio:
+  enabled: false
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
@@ -83,7 +89,7 @@ istio:
         auth:
           strategy: "anonymous"
 istioGateway:
-  enabled: false
+  enabled: true
 jaeger:
   enabled: false
   sso:
@@ -120,40 +126,6 @@ kiali:
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
           #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
-clusterAuditor:
-  enabled: false
-  values:
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits: {}
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_url: 'https://grafana.dev.bigbang.mil/d/YBgRZG6Mz/opa-violations?orgId=1'
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-cluster-auditor"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'prometheus.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
 
 gatekeeper:
   enabled: false
@@ -193,6 +165,7 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -338,6 +311,7 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
@@ -566,6 +540,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -609,6 +584,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -659,6 +635,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -1127,9 +1104,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
@@ -2297,6 +2276,21 @@ addons:
     values:
       istio:
         hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-keycloak"
+              enabled: true
+              spec:
+                hosts:
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS        
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
