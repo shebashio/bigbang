@@ -15,6 +15,7 @@
     "networkPolicies",
     "imagePullPolicy",
     "istioCRDs",
+    "istioCNI",
     "istioGateway",
     "istiod",
     "istio",
@@ -256,6 +257,24 @@
       ],
       "additionalProperties": false
     },
+    "istioCNI": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": true
+    },
+
     "istiod": {
       "properties": {
         "enabled": true,
