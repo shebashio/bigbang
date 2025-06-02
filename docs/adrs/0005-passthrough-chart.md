@@ -53,20 +53,17 @@ Users will no longer be able to view the package values directly in the Big Bang
 
 Another consequence of this passthrough chart pattern is that values settings will be abstracted one further layer than previously, requiring internal engineers and customers to modify their existing values overrides. Instead of previously where simply `.Values.<package-name>.<value-to-set>` was the way to access values on a package, now you will need to access it by also providing the package name, followed by an "upstream" alias, for example: `.Values.<package-name>.upstream.<value-to-set>`. 
 
-While setting values in an override file, additional nesting is also required. An example for enabling logs and pod logs in Big Bang's implementation of [Grafana Alloy](https://repo1.dso.mil/big-bang/product/packages/alloy) (which follows this passthrough pattern) is provided below:
+While setting values in an override file, additional nesting is also required. An example for setting Tetrate's enterprise FIPS compliant image for Big Bang's implementation of [Istiod](https://repo1.dso.mil/big-bang/product/packages/istiod) (which follows this passthrough pattern) is provided below:
 
 ```yaml
-  # Package name
-  alloy:
-    enabled: true
-    git:
-      tag: null
-      branch: alloy-92/add-dynamic-netpol
-    values:
-      # Upstream Chart Name
-      k8s-monitoring:
-        alloy-logs:
-          enabled: true
-        podLogs: 
-          enabled: true 
+# Package name
+istiod:
+  enabled: true
+  # -- Values to passthrough to the istiod chart
+  values: {}
+  # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
+  #   upstream:
+  #     global:
+  #       hub: registry1.dso.mil/ironbank/tetrate/istio
+
 ```
