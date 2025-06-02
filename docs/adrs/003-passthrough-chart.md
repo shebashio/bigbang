@@ -24,15 +24,18 @@ In order to convert an existing `kpt` configured chart, the process is slightly 
 Sample Renovate config rule from:
 
 ```json
+"customManagers": [
     {
       "customType": "regex",
-      "description": "Update <chart> version>",
+      "description": "Update <chart> version",
       "fileMatch": ["^chart/Chart\\.yaml$"],
       "matchStrings": ["version:\\s+(?<currentValue>.+)-bb\\.\\d+"],
+      "autoReplaceStringTemplate": "version: {{newValue}}-bb.0",
       "depNameTemplate": "<chart-name>",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "<upstream helm repository>"
     }
+]
 ```
 
 Sample post-renderer config: 
