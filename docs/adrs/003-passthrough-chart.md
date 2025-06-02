@@ -19,7 +19,7 @@ In order to convert an existing `kpt` configured chart, the process is slightly 
 1. The `kptfile` and all forked upstream template files should be removed from the repository (while making note of any changes made to the upstream template files)
 2. Big Bang created template files should remain in the repository
 3. Run `helm dependency add <upstream dependent chart>` to add the upstream chart as a dependency
-4. Recreate any changes made to the forked template files within the `values.yaml` file (any changes that cannot be applied via overrides in `values.yaml` will require a [post-renderer](https://docs-bigbang.dso.mil/latest/docs/developer/post_renderers/) created in the Big Bang Repository)
+4. Recreate any changes made to the forked template files within the `values.yaml` file (any changes that cannot be applied via overrides in `values.yaml` will require a [post-renderer](https://docs-bigbang.dso.mil/latest/docs/developer/post_renderers/) created in the Big Bang Repository) OR navigate to the upstream project and make a contribution
 
 Sample Renovate config rule from:
 
