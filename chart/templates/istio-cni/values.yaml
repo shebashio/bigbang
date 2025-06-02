@@ -1,0 +1,13 @@
+{{- $pkg := "istioCNI" }}
+
+{{- /* Create secret */ -}}
+{{- if .Values.istioCNI.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-cni" "defaults" (include "bigbang.defaults.istio-cni" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istio-cni" -}}
+upstream:
+  global:
+    imagePullSecrets:
+      - private-registry
+{{- end }}
