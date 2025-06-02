@@ -8,7 +8,7 @@ Date: 2025-04-04
 
 ## Context
 
-The Big Bang team is moving forward with using the passthrough helm chart pattern wherever possible. This pattern is intended to reduce the maintenance workload and complexity for renovating big bang packages. This new pattern for big bang packages will also reduce the reliance on an outdated and no longer support version of the [kpt](https://kpt.dev/) tool. This patten simply involves utilizing the upstream creator's chart as a helm dependency and layering the default values required to run the chart within the compliance standards of Big Bang.
+The Big Bang team is moving forward with using the passthrough helm chart pattern wherever possible. This pattern is intended to reduce the maintenance workload and complexity of the [Renovate](https://github.com/renovatebot/renovate) process for Big Bang packages. The new pattern will also reduce our dependency on an outdated and unsupported version of the [kpt](https://kpt.dev/) tool. Rather than using a third-party tool to sync changes from the upstream chart, the passthrough pattern references the upstream chart as a helm dependency and adds a configuration layer of values required to run the chart within the compliance standards of Big Bang.
 
 ## Decision
 
