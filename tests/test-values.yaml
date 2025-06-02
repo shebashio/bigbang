@@ -2256,6 +2256,8 @@ addons:
               - 'keycloak.dev.bigbang.mil'
               - 'repo1.dso.mil'
               location: MESH_EXTERNAL
+              exportTo:
+              - '.'
               ports:
               - number: 443
                 protocol: HTTPS
