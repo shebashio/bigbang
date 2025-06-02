@@ -84,10 +84,8 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
-
 istioGateway:
-  enabled: false
-
+  enabled: true
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
