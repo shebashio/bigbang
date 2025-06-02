@@ -1,0 +1,9 @@
+istiod:
+  values:
+    mtls:
+      mode: STRICT
+
+    upstream:
+      meshConfig:
+        meshMTLS:
+          minProtocolVersion: TLSV1_3

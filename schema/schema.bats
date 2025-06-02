@@ -112,3 +112,9 @@ invalid() {
   valid monitoring
   invalid monitoring
 }
+
+# Test istiod schema validation
+@test "helm template validate istiod schema" {
+  valid istiod
+  invalid istiod
+}
