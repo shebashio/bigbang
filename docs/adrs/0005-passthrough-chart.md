@@ -1,6 +1,6 @@
-# 3. Passthrough Package Helm Charts
+# 5. Passthrough Package Helm Charts
 
-Date: 2025-04-04
+Date: 2025-06-02
 
 ## Status
 
@@ -8,34 +8,26 @@ Date: 2025-04-04
 
 ## Context
 
-The Big Bang team is moving forward with using the passthrough helm chart pattern wherever possible. This pattern is intended to reduce the maintenance workload and complexity of the [Renovate](https://github.com/renovatebot/renovate) process for Big Bang packages. The new pattern will also reduce our dependency on an outdated and unsupported version of the [kpt](https://kpt.dev/) tool. Rather than using a third-party tool to sync changes from the upstream chart, the passthrough pattern references the upstream chart as a helm dependency and adds a configuration layer of values required to run the chart within the compliance standards of Big Bang.
+The Big Bang team is moving forward with using the passthrough helm chart pattern wherever possible. This pattern is intended to reduce the maintenance workload and complexity for renovating big bang packages. This new pattern for big bang packages will also reduce the reliance on an outdated and no longer support version of the [kpt](https://kpt.dev/) tool. This patten simply involves utilizing the upstream creator's chart as a helm dependency and layering the default values required to run the chart within the compliance standards of Big Bang.
 
 ## Decision
 
 Creating a passthrough chart pattern is relatively simple. Using the command `helm dependency add <upstream dependent chart>` will add the upstream chart to the helm dependencies for the internal big back package, pulling it as a tarfile. Sample renovate config is listed below for automating the new helm dependency update.
 
-In order to convert an existing `kpt` configured chart, the process is slightly more complicated:
-
-1. The `kptfile` and all forked upstream template files should be removed from the repository (while making note of any changes made to the upstream template files)
-2. Big Bang created template files should remain in the repository
-3. Run `helm dependency add <upstream dependent chart>` to add the upstream chart as a dependency
-4. Recreate any changes made to the forked template files within the `values.yaml` file (any changes that cannot be applied via overrides in `values.yaml` will require a [post-renderer](https://docs-bigbang.dso.mil/latest/docs/developer/post_renderers/) created in the Big Bang Repository) OR navigate to the upstream project and make a contribution
+In order to convert an existing `kpt` configured chart, the process is slightly more complicated. Remove all forked upstream template files, not Big Bang created template files, and `kptfile` while making note of any changes made to the upstream template files. Run the `helm dependency add <upstream dependent chart>` to add the chart as a dependency. Changes made to the template files can the be attempted to be made within the `values.yaml` file. For any changes that cannot be applied via `values.yaml`, a post renderer will need to be created in the Big Bang Repository. 
 
 Sample Renovate config rule from:
 
 ```json
-"customManagers": [
     {
       "customType": "regex",
-      "description": "Update <chart> version",
+      "description": "Update <chart> version>",
       "fileMatch": ["^chart/Chart\\.yaml$"],
       "matchStrings": ["version:\\s+(?<currentValue>.+)-bb\\.\\d+"],
-      "autoReplaceStringTemplate": "version: {{newValue}}-bb.0",
       "depNameTemplate": "<chart-name>",
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "<upstream helm repository>"
     }
-]
 ```
 
 Sample post-renderer config: 
