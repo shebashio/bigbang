@@ -255,7 +255,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istiod": {
       "properties": {
@@ -274,7 +274,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istioGateway": {
       "properties": {
@@ -291,7 +291,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istio": {
       "properties": {
@@ -2363,7 +2363,7 @@
         "upstream": {
           "type": "object",
           "description": "Values to pass to the upstream istiod chart (https://github.com/istio/istio/blob/master/manifests/charts/istio-control/istio-discovery/values.yaml)",
-          "additionalProperties": true,
+          "additionalProperties": false,
           "properties": {
             "env": {
               "type": "object",
