@@ -317,6 +317,7 @@ istioGateway:
 
 istio:
   # -- Toggle deployment of Istio.
+  status: "deprecated"
   enabled: true
   mtls:
     # -- STRICT = Allow only mutual TLS traffic,
@@ -462,6 +463,7 @@ istio:
   postRenderers: []
 
 istioOperator:
+  status: "deprecated"
   # -- Toggle deployment of Istio Operator.
   enabled: true
 
@@ -729,11 +731,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1111,12 +1113,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.9"
+    tag: "1.0.0-bb.10"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.9"
+    tag: "1.0.0-bb.10"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1516,11 +1518,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "79.0.0-bb.1"
+      tag: "79.0.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "79.0.0-bb.1"
+      tag: "79.0.0-bb.2"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -2022,11 +2024,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux: {}
@@ -2280,12 +2282,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.30.1-bb.7"
+      tag: "0.30.1-bb.8"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.30.1-bb.7"
+      tag: "0.30.1-bb.8"
 
     # -- Override flux settings for this package
     flux: {}

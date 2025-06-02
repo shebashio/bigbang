@@ -55,8 +55,14 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-istio:
+istiod:
   enabled: true
+istioCRDs:
+  enabled: true
+istioOperator:
+  enabled: false
+istio:
+  enabled: false
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
@@ -78,6 +84,7 @@ istio:
       dashboard:
         auth:
           strategy: "anonymous"
+
 istioGateway:
   enabled: false
 
@@ -1075,9 +1082,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
