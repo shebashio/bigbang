@@ -60,10 +60,9 @@ While setting values in an override file, additional nesting is also required. A
 istiod:
   enabled: true
   # -- Values to passthrough to the istiod chart
-  values: {}
-  # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
-  #   upstream:
-  #     global:
-  #       hub: registry1.dso.mil/ironbank/tetrate/istio
+  values:
+    upstream:
+      global:
+        hub: registry1.dso.mil/ironbank/tetrate/istio
 
 ```
