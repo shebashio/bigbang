@@ -37,7 +37,7 @@ spec:
 
 ### Negative  
 
-1. It may take longer to deploy or upgrade.  Cpu may take 20% hit during deployment when drift detection mode is changed from disabled to enabled.  No noticable resource increase for cpu or memory during normal operation.  
+1. It may take longer to deploy or upgrade.  Cpu usage for Flux may seen 20-50% average increase (200ms).  Memory may seen 10-25% increase (50 MiB). API Requests also seen noticeable increase.   
 
 ## Reference
 
