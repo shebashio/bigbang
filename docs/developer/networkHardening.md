@@ -1,11 +1,11 @@
-# Istio Hardened
-Big Bang has added the `.Values.istio.hardened` map attibute to the values of applications that can be istio-injected, when `.Values.istio.enabled` is `true`. This document walks through the impact of setting `.Values.istio.hardened: true` on how traffic is managed within a given istio-injected package.
+# Network Hardening
+Big Bang has added the root `.Values.networkHardening` attibute for applications that can be istio-injected. When `.Values.networkHardening` is set to `true` an extra set of security hardening rules are applied to the configurations of the sidecar proxies in the service mesh. This document walks through the impact of setting `.Values.networkHardening` to `true` on how traffic is managed within a given istio-injected package.
 
 ## Prerequisites
-In order for `.Values.istio.hardened.enabled: true` to have any impact, the package must also have `.Values.istio.enabled: true` set. This is because all of the resources created by setting `.Values.istio.hardened.enabled: true` are applied to the istio service mesh, which includes istio sidecar proxies. If there are no istio proxies, then no mesh components exist in the namespace and therefore istio Kubernetes resources in the namespace will not effect anything.
+In order for `.Values.networkHardening` to have any impact, the package must also have istio sidecar proxies. If there are no istio proxies, then no mesh components exist in the namespace and therefore istio Kubernetes resources in the namespace will not effect anything.
 
 ## REGISTRY_ONLY Istio Sidecar Resources
-When `.Values.istio.hardened.enabled: true` is set, a `Sidecar` resource is applied to the package's namespace that sets the outboundTrafficPolicy of the Sidecar to `REGISTRY_ONLY`. What this means is that for pods with an istio-proxy running as a "sidecar", the only egress traffic allowed is for traffic that is destinated for a service that exists within the istio service mesh registry.
+When `.Values.networkHardening` is set to `true`, a `Sidecar` resource is applied to the package's namespace that sets the outboundTrafficPolicy of the Sidecar to `REGISTRY_ONLY`. What this means is that for pods with an istio-proxy running as a "sidecar", the only egress traffic allowed is for traffic that is destinated for a service that exists within the istio service mesh registry.
 
 By default, all Kubernetes Services are added to this registry. However, cluster-external hostnames, IP addresses, and other endpoints will NOT be reachable with this Sidecar in place. For example, if an application attempts to reach out to the Kubernetes API Service at `kubernetes.default.svc.cluster.local`, or any of it's SANs, the request will not be blocked by the Sidecar. Conversely, if the application attempts to reach out to s3.us-gov-west-1.amazonaws.com, the request with fail unless there is a ServiceEntry (refer to the example below) that adds s3.us-gov-west-1.amazonaws.com to the service mesh registry. This Sidecar is added in order to provide defense in depth, working alongside NetworkPolicies to prevent data exfiltration by malicious actors.
 
