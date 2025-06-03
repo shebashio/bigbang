@@ -1,1 +1,9 @@
 # use fips-enabled MR label to include these values in addtion to test-values and rke/eks overrides (if applicable)
+
+# use Tetrate FIPS compliant enterprise Istio image
+istiod:
+  enabled: true
+  values:
+    global:
+      hub: registry1.dso.mil/ironbank/tetrate/istio
+      tag: 1.25.2-tetratefipslatest1 # see for tags: https://ironbank.dso.mil/repomap/details;registry1Path=tetrate%252Fistio%252Fproxyv2
