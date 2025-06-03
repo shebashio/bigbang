@@ -2086,7 +2086,13 @@ addons:
       tag: "0.30.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
-    flux: {}
+    flux:
+      driftDetection:
+        mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
+        ignore:
+          - paths: [""]
+            target:
+              kind: MutatingWebhookConfiguration      
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
