@@ -1,0 +1,11 @@
+#!/bin/bash
+set -xue
+kubectl create namespace metallb-system
+kubectl create secret docker-registry registry1       --docker-server=registry1.dso.mil       --docker-username=gmiernicki       --docker-password=4cdzuEO3G       -n metallb-system
+kubectl apply -k /tmp/metallb
+echo "Waiting for MetalLB controller..."
+kubectl wait --for=condition=available --timeout 300s -n metallb-system deployment controller
+echo "MetalLB is installed"
+docker run -d --name=primaryProxy --network=k3d-network -p 172.31.1.206:443:443  -v /home/ubuntu/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:5.7.3
+docker run -d --name=secondaryProxy --network=k3d-network -p 172.31.0.53:443:443 -v /home/ubuntu/secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:5.7.3
+kubectl create -f /home/ubuntu/metallb-config.yaml
