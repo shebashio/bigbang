@@ -10,6 +10,7 @@ domain: {{ default .Values.domain .Values.hostname }}
 
 openshift: {{ .Values.openshift }}
 
+
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
