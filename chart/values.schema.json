@@ -18,7 +18,6 @@
     "istioCRDs",
     "istioGateway",
     "istiod",
-    "jaeger",
     "kiali",
     "gatekeeper",
     "kyverno",
@@ -257,7 +256,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istiod": {
       "properties": {
@@ -274,7 +273,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istioGateway": {
       "properties": {
@@ -291,38 +290,21 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
-    "jaeger": {
-      "required": [
-        "sso",
-        "ingress"
-      ],
+    "istio": {
       "properties": {
+        "status": true,
         "enabled": true,
+        "mtls": {
+          "type": "object"
+        },
         "sourceType": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
-        },
-        "sso": {
-          "$ref": "#/$defs/sso"
-        },
-        "ingress": {
-          "$ref": "#/$defs/ingress"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
     "kiali": {
       "required": [
         "sso",

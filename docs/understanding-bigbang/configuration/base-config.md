@@ -100,21 +100,6 @@ Kubernetes: `>=1.29.0-0`
 | istioGateway.values | object | `{}` | Values to passthrough to the gateway chart(s) |
 | istioGateway.flux | object | `{}` | Flux reconciliation overrides specifically for the Istio Gateway Package |
 | istioGateway.postRenderers | list | `[]` | Post Renderers.  See docs/postrenders.md The istioGateway package supports advanced postRenderer definitions. If an array of postRenderers is provided, the postRenderers will be applied to all gateways. If a map of postRenderers is provided, the postRenderers will be applied only to their respective gateways. The map key must match the gateway name for the postRenderers to be applied to that gateway. You cannot mix array and map postRenderers. |
-| jaeger.enabled | bool | `false` | Toggle deployment of Jaeger. |
-| jaeger.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
-| jaeger.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/jaeger.git"` |  |
-| jaeger.git.path | string | `"./chart"` |  |
-| jaeger.git.tag | string | `"2.57.0-bb.8"` |  |
-| jaeger.helmRepo.repoName | string | `"registry1"` |  |
-| jaeger.helmRepo.chartName | string | `"jaeger"` |  |
-| jaeger.helmRepo.tag | string | `"2.57.0-bb.8"` |  |
-| jaeger.flux | object | `{"install":{"crds":"CreateReplace"},"upgrade":{"crds":"CreateReplace"}}` | Flux reconciliation overrides specifically for the Jaeger Package |
-| jaeger.ingress | object | `{"gateway":""}` | Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public". |
-| jaeger.sso.enabled | bool | `false` | Toggle SSO for Jaeger on and off |
-| jaeger.sso.client_id | string | `""` | OIDC Client ID to use for Jaeger |
-| jaeger.sso.client_secret | string | `""` | OIDC Client Secret to use for Jaeger |
-| jaeger.values | object | `{}` | Values to pass through to Jaeger chart: https://repo1.dso.mil/big-bang/product/packages/jaeger.git |
-| jaeger.postRenderers | list | `[]` | Post Renderers.  See docs/postrenders.md |
 | kiali.enabled | bool | `true` | Toggle deployment of Kiali. |
 | kiali.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | kiali.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/kiali.git"` |  |

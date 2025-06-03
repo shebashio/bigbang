@@ -211,7 +211,7 @@ istiod:
   postRenderers: []
 
 istioGateway:
-  # -- Toggle deployment of Istio Gateway(s)  
+  # -- Toggle deployment of Istio Gateway(s)
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -318,49 +318,6 @@ istioGateway:
   #           - op: add
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
-
-jaeger:
-  # -- Toggle deployment of Jaeger.
-  enabled: false
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-    path: "./chart"
-    tag: "2.57.0-bb.8"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "jaeger"
-    tag: "2.57.0-bb.8"
-
-  # -- Flux reconciliation overrides specifically for the Jaeger Package
-  flux:
-    install:
-      crds: CreateReplace
-    upgrade:
-      crds: CreateReplace
-
-  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-  ingress:
-    gateway: ""
-
-  sso:
-    # -- Toggle SSO for Jaeger on and off
-    enabled: false
-
-    # -- OIDC Client ID to use for Jaeger
-    client_id: ""
-
-    # -- OIDC Client Secret to use for Jaeger
-    client_secret: ""
-
-  # -- Values to pass through to Jaeger chart: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
 
 kiali:
   # -- Toggle deployment of Kiali.
@@ -527,11 +484,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.29.0-bb.0"
+    tag: "1.30.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.29.0-bb.0"
+    tag: "1.30.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -658,11 +615,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.30.1-bb.0"
+    tag: "6.30.1-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.30.1-bb.0"
+    tag: "6.30.1-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -835,11 +792,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "72.2.0-bb.2"
+    tag: "72.2.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "72.2.0-bb.2"
+    tag: "72.2.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -941,11 +898,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.20.1-bb.0"
+    tag: "0.20.1-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.20.1-bb.0"
+    tag: "0.20.1-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -987,12 +944,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.10"
+    tag: "1.0.0-bb.11"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.10"
+    tag: "1.0.0-bb.11"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1026,7 +983,7 @@ alloy:
     chartName: "k8s-monitoring"
     tag: "2.0.27-bb.0"
 
-  # -- Toggle Alloy to collect logs 
+  # -- Toggle Alloy to collect logs
   alloyLogs:
     enabled: true
 
@@ -1211,11 +1168,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1973,7 +1930,7 @@ addons:
       chartName: "harbor"
       tag: "1.16.2-bb.4"
 
-    # -- Flux reconciliation overrides specifically for the Jaeger Package
+    # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
@@ -2108,7 +2065,7 @@ addons:
       defaultUserCredentials:
         username: "mimir-user"
         password: "supersecret"
-    
+
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
       enabled: false
@@ -2128,14 +2085,14 @@ addons:
 
       # -- Bucket name for the Mimir bucket as YAML
       bucketName: ""
-      
+
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
 
-    # -- Mimir Service Account Annotations 
+    # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}
       ## Example IRSA Service Account Annotation
-      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>" 
+      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
 
     values: {}
 
@@ -2299,4 +2256,4 @@ packages:
     # -- Values to pass through to package Helm chart
     values: {}
 
-    
+
