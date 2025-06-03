@@ -93,6 +93,4 @@ gateways:
         istio: ingressgateway
 {{- end -}}
 
-{{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
-{{- include "bigbang.istio-gateway-secrets" . }}
-{{- end }}
+
