@@ -616,11 +616,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.3.6-bb.2"
+    tag: "3.3.6-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.3.6-bb.2"
+    tag: "3.3.6-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -641,11 +641,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.9"
+    tag: "3.3.4-bb.10"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.9"
+    tag: "3.3.4-bb.10"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux: {}
@@ -696,11 +696,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.28.0-bb.6"
+    tag: "1.29.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.28.0-bb.6"
+    tag: "1.29.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -774,11 +774,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -827,11 +827,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.29.0-bb.1"
+    tag: "6.30.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.29.0-bb.1"
+    tag: "6.30.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux: {}
@@ -1004,11 +1004,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "72.2.0-bb.0"
+    tag: "72.2.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "72.2.0-bb.0"
+    tag: "72.2.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1156,12 +1156,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.9"
+    tag: "1.0.0-bb.10"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.9"
+    tag: "1.0.0-bb.10"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1420,11 +1420,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.0.1-bb.0"
+      tag: "9.0.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.0.1-bb.0"
+      tag: "9.0.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1880,11 +1880,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.8.1-bb.0"
+      tag: "10.8.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.8.1-bb.0"
+      tag: "10.8.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux: {}
