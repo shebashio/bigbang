@@ -292,19 +292,6 @@
       ],
       "additionalProperties": false
     },
-    "istio": {
-      "properties": {
-        "status": true,
-        "enabled": true,
-        "mtls": {
-          "type": "object"
-        },
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
     "kiali": {
       "required": [
         "sso",
