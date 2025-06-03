@@ -124,7 +124,7 @@ flux:
   test:
     enable: false
   driftDetection:
-    mode: &DEFAULT_FLUX_DRIFT_DETECTION_MODE enabled # Valid Modes disabled | enabled | warn 
+    mode: enabled # Valid Modes disabled | enabled | warn 
   install:
     remediation:
       retries: -1
@@ -588,7 +588,6 @@ kyverno:
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
     driftDetection:
-      mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
       ignore:
         - paths: [""]
           target:
@@ -619,7 +618,6 @@ kyvernoPolicies:
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
     driftDetection:
-      mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
       ignore:
         - paths: [""]
           target:
@@ -812,7 +810,6 @@ loki:
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux:
     driftDetection:
-      mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
       ignore:
         - paths: [""]
           target:
@@ -901,7 +898,6 @@ neuvector:
   # -- Flux reconciliation overrides specifically for the Neuvector Package
   flux:
     driftDetection:
-      mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
       ignore:
         - paths: [""]
           target:
@@ -1014,7 +1010,6 @@ monitoring:
     upgrade:
       crds: CreateReplace
     driftDetection:
-      mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
       ignore:
         - paths: [""]
           target:
@@ -1895,7 +1890,6 @@ addons:
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
       driftDetection:
-        mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
         ignore:
          - paths: ["/spec/size"]
            target:
@@ -2088,7 +2082,6 @@ addons:
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
       driftDetection:
-        mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
         ignore:
           - paths: [""]
             target:
@@ -2229,7 +2222,6 @@ addons:
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux:
       driftDetection:
-        mode: *DEFAULT_FLUX_DRIFT_DETECTION_MODE
         ignore:
           - paths: [""]
             target:
