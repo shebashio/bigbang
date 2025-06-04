@@ -1,5 +1,5 @@
 {{- $fluxSettingsbbctl := merge .Values.bbctl.flux .Values.flux -}}
-{{- if and .Values.bbctl.enabled .Values.loki.enabled .Values.alloy.enabled .Values.alloy.alloyLogs.enabled .Values.monitoring.enabled .Values.grafana.enabled }}
+{{- if .Values.bbctl.enabled }}
 
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -57,12 +57,20 @@ spec:
       valuesKey: "overlays"
 
   dependsOn:
+    {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.grafana.enabled }}
     - name: grafana
       namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.loki.enabled }}
     - name: loki
       namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.alloy.enabled }}
     - name: alloy
       namespace: {{ .Release.Namespace }}
+    {{- end }}
 {{- end }}
