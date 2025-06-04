@@ -98,19 +98,8 @@ monitoring          alertmanager-monitoring-monitoring-kube-alertmanager-0      
    - There may be cases where you are hoping to use new features in a new package version, as such it can be beneficial to validate that package did update to the new version as expected.
    - It can also be important to validate Istio sidecar versions, especially for packages outside of Big Bang core/addons. See an example of checking the image version of the running pod below:
 ```bash
-❯ k get pod -n istio-system istiod-78c5bf85fc-68xv6 -o yaml
-apiVersion: v1
-kind: Pod
-spec:
-  affinity: {}
-  containers:
-  - args:
-    image: registry1.dso.mil/ironbank/opensource/istio/pilot:1.17.1
-...
-status:
-  containerStatuses:
-  - containerID: containerd://451827d87a5209b4cb10ff074d986f00ec3bd7d36082cb49b8612e3a48eea9b7
-    image: registry1.dso.mil/ironbank/opensource/istio/pilot:1.17.1
+❯ kubectl get po -n istio-system -o yaml|grep image|head -1
+      image: registry1.dso.mil/ironbank/opensource/istio/pilot:1.25.2
 ```
 ### Check Package Usability
  - Validate the UI for web applications loads properly.
