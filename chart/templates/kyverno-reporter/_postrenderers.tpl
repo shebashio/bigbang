@@ -3,7 +3,7 @@
         patches:
           - target:
               kind: ServiceMonitor
-              name: {{ include "monitoring.fullname" . }}
+              name: policy-reporter-monitoring
             patch: |-
               - op: add
                 path: /spec/endpoints/0/scheme
