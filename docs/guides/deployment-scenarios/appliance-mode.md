@@ -10,7 +10,6 @@ There is a values.yaml file in this same directory which provides an example of 
 |-------|---|
 | Flux | source, helm, kustomize & notification controllers |
 | Istio | Possibly too heavy for reduced compute but still able to run on above machine |
-| Jaeger | Not enough value to justify value and footprint above Tempo |
 | Tempo | tracing capability integrated with grafana |
 | Kiali | Not enough value to justify running in smaller footprint |
 | Monitoring | Prometheus/Alertmanager/Grafana for monitoring/alerting |
