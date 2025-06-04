@@ -513,17 +513,13 @@ data:
 
 {{- /* Returns the name of the Istio HelmRelease. */ -}}
 {{- define "istioHelmRelease" -}}
-{{- if .Values.istiod.enabled -}}
 istiod
-{{- end -}}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
-{{- if .Values.istiod.enabled -}}
 ingress: istio-gateway
 egress: istio-system
-{{- end -}}
 {{- end -}}
 
 {{- /*
