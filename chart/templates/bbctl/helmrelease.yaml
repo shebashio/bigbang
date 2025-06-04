@@ -66,5 +66,5 @@ spec:
     {{- if .Values.alloy.enabled }}
     - name: alloy
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.alloy.enabled }}
+    {{- end }}
 {{- end }}
