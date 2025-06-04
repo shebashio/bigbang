@@ -508,7 +508,7 @@ data:
 
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ .Values.istiod.enabled | default false }}
+{{ .Values.istiod.enabled }}
 {{- end -}}
 
 {{- /* Returns the name of the Istio HelmRelease. */ -}}
