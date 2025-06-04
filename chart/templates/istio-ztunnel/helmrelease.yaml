@@ -12,7 +12,7 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-ztunnel/values.yaml") . | sha256sum }}
 spec:
-  releaseName: istio-ztunnel
+  releaseName: ztunnel
   targetNamespace: istio-system
   chart:
     spec:
