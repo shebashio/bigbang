@@ -18,8 +18,8 @@ flowchart LR
     direction BT
 
     subgraph L[Logging]
-      subgraph PLG[Default]
-        Alloy[Alloy*] --> Loki[Loki*]
+      subgraph ALG[Default]
+        Alloy[Alloy] --> Loki[Loki]
       end
       subgraph EFK[Alternative]
         style EFK stroke-dasharray: 10 10
@@ -40,7 +40,7 @@ flowchart LR
       end
       subgraph KyvernoStack[Default]
       direction BT
-        KyvernoReporter[Kyverno Reporter*] --> Kyverno[Kyverno*]
+        KyvernoReporter[Kyverno Reporter] --> Kyverno[Kyverno]
       end
     end
 
