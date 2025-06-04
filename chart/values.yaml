@@ -267,6 +267,26 @@ istioCNI:
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
+istioZtunnel:
+  status: "beta"
+  # -- Toggle deployment of Istio CNI
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/ztunnel.git
+    path: "./chart"
+    tag: 1.25.2-bb.0
+  helmRepo:
+    repoName: "registry1"
+    chartName: "ztunnel"
+    tag: 1.25.2-bb.0
+  # -- Values to passthrough to the Istio CRDs chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio CRDs Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
 
 istioGateway:
   # -- Toggle deployment of Istio Gateway(s)

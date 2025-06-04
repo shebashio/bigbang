@@ -17,6 +17,7 @@
     "disableAutomaticPassthroughValues",
     "istioCRDs",
     "istioCNI",
+    "istioZtunnel",
     "istioGateway",
     "istiod",
     "kiali",
@@ -278,7 +279,23 @@
       ],
       "additionalProperties": true
     },
-
+    "istioZtunnel": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": true
+    },
     "istiod": {
       "properties": {
         "enabled": true,
