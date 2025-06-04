@@ -527,6 +527,12 @@ data:
 {{ .Values.istiod.enabled }}
 {{- end -}}
 
+{{- /* Returns true is Istio Ambient mode is enabled */ -}}
+{{- define "istioAmbient" -}}
+{{ and .Values.istiod.enabled .Values.istioZtunnel.enabled }}
+{{- end -}}
+
+
 {{- /* Returns the name of the Istio HelmRelease. */ -}}
 {{- define "istioHelmRelease" -}}
 istiod
