@@ -100,13 +100,13 @@ policies:
   {{- end }}
 
   {{- $nodePortIngressGateways := list }}
-  {{- range $name, $values := .Values.istioGateway.values.gateway }}
+  {{- range $name, $values := .Values.istioGateway.values.gateways }}
   {{- if eq $values.type "NodePort" }}
   {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
   {{- end }}
   {{- end }}
 
-  {{- range $name, $values := .Values.istioGateway.values.gateway }}
+  {{- range $name, $values := .Values.istioGateway.values.gateways }}
   {{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
   {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
   {{- end }}
