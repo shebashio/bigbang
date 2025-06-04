@@ -36,7 +36,7 @@ flowchart LR
       subgraph CA[Alternative]
       style CA stroke-dasharray: 10 10
       direction BT
-        ClusterAuditor --> OPA[OPA Gatekeeper]
+        OPA[OPA Gatekeeper]
       end
       subgraph KyvernoStack[Default]
       direction BT
@@ -134,8 +134,6 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 | |EFK|Elastic Cloud on Kubernetes (ECK) Operator|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)
 | |EFK|[Elasticsearch / Kibana](./elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
 | |EFK|[Fluentbit](./fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
-|X|Grafana|[Loki](./loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
-|X|Grafana|[Alloy](./alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
 > ALG stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
 
 ### Policy Enforcement
