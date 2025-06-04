@@ -11,5 +11,9 @@
                 value: https
               - op: add
                 path: /spec/endpoints/0/tlsConfig
-                value: {{ toYaml .Values.monitoring.kyverno.serviceMonitor.tlsConfig | nindent 18 }}
+                value:     
+                  caFile: /etc/prom-certs/root-cert.pem
+                  certFile: /etc/prom-certs/cert-chain.pem
+                  keyFile: /etc/prom-certs/key.pem
+                  insecureSkipVerify: true
 {{- end }}

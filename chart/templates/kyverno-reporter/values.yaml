@@ -42,15 +42,6 @@ monitoring:
     dashboards:
       enabled: true
       namespace: monitoring
-  {{- if $istioEnabled }}
-  serviceMonitor:
-    scheme: https
-    tlsConfig:
-      caFile: /etc/prom-certs/root-cert.pem
-      certFile: /etc/prom-certs/cert-chain.pem
-      keyFile: /etc/prom-certs/key.pem
-      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-  {{- end }}
 
 openshift: {{ .Values.openshift }}
 
