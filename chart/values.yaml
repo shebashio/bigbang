@@ -214,11 +214,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.25.3-bb.0
+    tag: 1.25.3-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.25.3-bb.0
+    tag: 1.25.3-bb.1
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -1113,12 +1113,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.11"
+    tag: "2.0.0-bb.0"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.11"
+    tag: "2.0.0-bb.0"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1231,11 +1231,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
       path: "./chart"
-      tag: "2.5.2-bb.1"
+      tag: "2.5.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "backstage"
-      tag: "2.5.2-bb.1"
+      tag: "2.5.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Backstage Package
     flux: { }
