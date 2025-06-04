@@ -265,8 +265,16 @@ function cloud_aws_toolnames {
 }
 
 function cloud_aws_configure {
-  # getting AWS user name
-  AWSUSERNAME=$(aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/')
+  # getting AWS ARN
+  ARN=$(aws sts get-caller-identity --query Arn --output text)
+  # Getting the proper username
+  if echo "$ARN" | grep ".*assumed-role.*"; then
+    RAW_USERNAME=$(echo "$ARN" | cut -f 3 -d '/')
+    AWSUSERNAME=$(echo "$RAW_USERNAME" | cut -d '@' -f 1)
+    AWSUSERNAME+=$(echo "$RAW_USERNAME" | cut -d '@' -f 2)
+  else
+    AWSUSERNAME=$(echo "$ARN" | cut -f 2 -d '/')
+  fi
 
   SGname="${AWSUSERNAME}-dev-${PROJECTTAG}"
   KeyName="${AWSUSERNAME}-dev-${PROJECTTAG}"
@@ -526,7 +534,9 @@ function install_docker {
   run_batch_add 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
   run_batch_add "sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
   # Add your base user to the Docker group so that you do not need sudo to run docker commands
+  run_batch_add "sudo groupadd -f docker"
   run_batch_add "sudo usermod -aG docker ${SSHUSER}"
+  run_batch_add "sudo systemctl enable --now docker"
   run_batch_execute
 }
 

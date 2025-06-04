@@ -55,8 +55,14 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-istio:
+istiod:
   enabled: true
+istioCRDs:
+  enabled: true
+istioOperator:
+  enabled: false
+istio:
+  enabled: false
   ingressGateways:
     passthrough-ingressgateway:
       type: "LoadBalancer"
@@ -79,22 +85,7 @@ istio:
         auth:
           strategy: "anonymous"
 istioGateway:
-  enabled: false
-jaeger:
-  enabled: false
-  sso:
-    enabled: false
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
-  values:
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_url: "https://tracing.dev.bigbang.mil"
-          # uncomment following variables for sso keycloak testing in bb
-          # cypress_tnr_username: "cypress"
-          # cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-          # cypress_keycloak_test_enable: "true"
+  enabled: true
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
@@ -116,40 +107,6 @@ kiali:
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
           #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
-clusterAuditor:
-  enabled: false
-  values:
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits: {}
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_url: 'https://grafana.dev.bigbang.mil/d/YBgRZG6Mz/opa-violations?orgId=1'
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-cluster-auditor"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'prometheus.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
 
 gatekeeper:
   enabled: false
@@ -182,12 +139,14 @@ gatekeeper:
           - default/c.?
           - default/i.?
           - gitlab/.*
+          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -195,7 +154,6 @@ gatekeeper:
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
           - kyverno-reporter/kyverno-reporter-cypress-test
@@ -333,13 +291,13 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
           - kyverno-reporter/kyverno-reporter-cypress-test
@@ -366,25 +324,26 @@ gatekeeper:
 
 kyverno:
   values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    features:
-      policyexceptions:
-        enabled: true
-        # -- Restrict policy exceptions to a single namespace
-        namespace: 'kyverno'
+    kyverno:
+      networkPolicies:
+        externalRegistries:
+          allowEgress: true
+      admissionController:
+        container:
+          extraArgs:
+            webhookTimeout: 30
+          resources:
+            limits:
+              cpu: 1
+              memory: 768Mi
+            requests:
+              cpu: 1
+              memory: 768Mi
+      features:
+        policyexceptions:
+          enabled: true
+          # -- Restrict policy exceptions to a single namespace
+          namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -560,6 +519,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -567,7 +527,6 @@ kyvernoPolicies:
               - mattermost
               - nexus-repository-manager
               - keycloak
-              - jaeger
               - kyverno-reporter
               - mimir
               - monitoring
@@ -603,6 +562,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -611,7 +571,6 @@ kyvernoPolicies:
               - nexus-repository-manager
               - keycloak
               - kyverno-reporter
-              - jaeger
               - mimir
               - monitoring
               - vault
@@ -653,6 +612,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -661,7 +621,6 @@ kyvernoPolicies:
               - nexus-repository-manager
               - keycloak
               - kyverno-reporter
-              - jaeger
               - mimir
               - monitoring
               - vault
@@ -1121,9 +1080,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
@@ -1297,6 +1258,7 @@ bbctl:
     bbtests:
       enabled: true
       cypress:
+        artifacts: true
         envs:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           cypress_grafana_username: 'admin'
@@ -2291,6 +2253,21 @@ addons:
     values:
       istio:
         hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-keycloak"
+              enabled: true
+              spec:
+                hosts:
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS        
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
