@@ -145,7 +145,7 @@ PLATFORM ONE LOGGING WARNING:
   If using Elastic for other functionality, deploying both applications is acceptable.
 {{- end }}
 
-{{- if and (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled .Values.alloy.alloyLogs.enabled) (not .Values.loki.enabled) (not .Values.alloy.additionalDestinations) }}
+{{- if and (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) (not .Values.loki.enabled) (not .Values.alloy.additionalDestinations) }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled Alloy with logging but a logging destination has not been configured.
   Resolution Options:
@@ -162,12 +162,6 @@ PLATFORM ONE LOKI WARNING:
 {{- if and $.Values.loki.enabled (dig "values" "gel" "enabled" false $.Values.loki) }}
 PLATFORM ONE LOKI WARNING:
   You still have Loki gel values set but this version of Loki has changed significantly, please review the latest grafana enterprise document within the Loki package repo: https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/docs/grafana-enterprise.md
-{{- end }}
-
-{{- if and $.Values.jaeger.enabled .Values.tempo.enabled }}
-PLATFORM ONE TRACING WARNING:
-  You have enabled both Jaeger and Tempo Tracing Engines.  This is permitted during beta testing of Tempo.
-  After the beta period, only one Tracing engine will be supported at one time, with Tempo becoming the default supported engine over a direct Jaeger installation. Grafana has a built-in Tempo data source that can be used to query Tempo and visualize traces. 
 {{- end }}
 
 {{- if and .Values.bbctl.enabled (or (not .Values.loki.enabled) (not .Values.alloy.enabled) (not .Values.alloy.alloyLogs.enabled) (not .Values.monitoring.enabled) (not .Values.grafana.enabled)) }}
