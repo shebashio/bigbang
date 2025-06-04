@@ -499,7 +499,7 @@ data:
 
 {{- /* Returns name of istio passthrough gateway */ -}}
 {{- define "istioPassthroughGateway" -}}
-{{- if .Values.istioGateway.enabled -}}
+{{- if .Values.istio.enabled -}}
   {{- print "passthrough" -}}
 {{- else -}}
   {{- print "passthrough-ingressgateway" -}}
