@@ -224,7 +224,8 @@ istioGateway:
     chartName: "istio-gateway"
     tag: 1.25.3-bb.1
   # -- Values to passthrough to the gateway chart(s)
-  values: {}
+  values:
+  # values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
   #     public:
@@ -267,8 +268,9 @@ istioGateway:
   #             mode: SIMPLE
   #
   # EXAMPLE: Disable the existing passthrough gateway
-  #   gateways:
-  #     passthrough: {}
+    gateways:
+      public: {}
+      passthrough: {}
   #
   # EXAMPLE: Create an egress gateway
   #   gateways:
