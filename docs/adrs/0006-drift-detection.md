@@ -1,6 +1,6 @@
-# 5. Enabling Flux Drift Detection  
+# 6. Enabling Flux Drift Detection  
 
-Date: 2025-05-23 
+Date: 2025-06-04 
 
 ## Status 
 
@@ -14,16 +14,16 @@ In GitOps, drift detection identifies discrepancies between the actual state of 
 
 We will enable Flux Drift Detection in big bang packages.  It is specified in helmrelease.yaml under bigbang/chart/templates/packages_name. 
 
-An example for enabled mode:
+An example for enabled mode (other valid modes: warn and disabled):
 ```
-spec:
+flux:
   driftDetection:
     mode: enabled
 ```
 
 1. The Big Bang 3.0 release will come preset with driftDetection enabled for all tested packages. 
 
-2. Some newer packages such as Backstage or Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be enabled soon after. 
+2. Some newer packages such as Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be enabled soon after. 
 
 3. Few packages in the process of phasing out will not be included.
 
@@ -37,7 +37,7 @@ spec:
 
 ### Negative  
 
-1. It may take longer to deploy or upgrade.  Cpu usage for Flux may seen 20-50% average increase (200ms).  Memory may seen 10-25% increase (50 MiB). API Requests also seen noticeable increase.   
+1. It may take longer to deploy or upgrade.  Cpu usage for Flux may have 20-50% average increase (~200ms).  Memory may have 10-25% increase (~50 MiB). API Requests may also have noticeable increase.   
 
 ## Reference
 
