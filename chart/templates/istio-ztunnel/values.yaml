@@ -1,0 +1,13 @@
+{{- $pkg := "istioZtunnel" }}
+
+{{- /* Create secret */ -}}
+{{- if .Values.istioZtunnel.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-ztunnel" "defaults" (include "bigbang.defaults.istio-ztunnel" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.istio-ztunnel" -}}
+upstream:
+  global:
+    imagePullSecrets:
+      - private-registry
+{{- end }}

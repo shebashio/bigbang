@@ -1,0 +1,70 @@
+{{- $fluxSettingsIstioCore := merge .Values.istioZtunnel.flux .Values.flux -}}
+{{- if and .Values.istioZtunnel.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-ztunnel
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: istio-ztunnel
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/istio-ztunnel/values.yaml") . | sha256sum }}
+spec:
+  releaseName: istio-ztunnel
+  targetNamespace: istio-system
+  chart:
+    spec:
+      {{- if eq .Values.istioZtunnel.sourceType "git" }}
+      chart: {{ .Values.istioZtunnel.git.path }}
+      sourceRef:
+        kind: GitRepository
+        name: istio-ztunnel
+        namespace: {{ .Release.Namespace }}
+      {{- else }}
+      chart: {{ .Values.istioZtunnel.helmRepo.chartName }}
+      version: {{ .Values.istioZtunnel.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.istioZtunnel.helmRepo.repoName }}
+        namespace: {{ .Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.istioZtunnel.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.istioZtunnel.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" .Values.istioZtunnel.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsIstioCore | nindent 2 }}
+
+  {{- if .Values.istioZtunnel.postRenderers }}
+  postRenderers:
+  {{ toYaml .Values.istioZtunnel.postRenderers | nindent 4 }}
+  {{- end }}
+  valuesFrom:
+    - name: {{ .Release.Name }}-istio-ztunnel-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-istio-ztunnel-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-istio-ztunnel-values
+      kind: Secret
+      valuesKey: "overlays"
+
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
+  dependsOn:
+    {{- if .Values.gatekeeper.enabled }}
+    - name: gatekeeper
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if .Values.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+  {{- end }}
+{{- end }}
