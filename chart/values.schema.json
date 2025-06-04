@@ -19,9 +19,7 @@
     "istiod",
     "istio",
     "istioOperator",
-    "jaeger",
     "kiali",
-    "clusterAuditor",
     "gatekeeper",
     "kyverno",
     "kyvernoPolicies",
@@ -256,7 +254,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istiod": {
       "properties": {
@@ -273,7 +271,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istioGateway": {
       "properties": {
@@ -290,10 +288,11 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istio": {
       "properties": {
+        "status": true,
         "enabled": true,
         "mtls": {
           "type": "object"
@@ -323,6 +322,7 @@
     },
     "istioOperator": {
       "properties": {
+        "status": true,
         "enabled": true,
         "sourceType": true,
         "git": true,
@@ -330,36 +330,6 @@
         "flux": true,
         "values": true,
         "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "jaeger": {
-      "required": [
-        "sso",
-        "ingress"
-      ],
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
-        },
-        "sso": {
-          "$ref": "#/$defs/sso"
-        },
-        "ingress": {
-          "$ref": "#/$defs/ingress"
-        }
       },
       "allOf": [
         {
@@ -389,26 +359,6 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "clusterAuditor": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
         }
       },
       "allOf": [

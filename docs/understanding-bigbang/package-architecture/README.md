@@ -129,12 +129,14 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
+|X|ALG|[Alloy](./alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
+|X|ALG|[Loki](./loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
 | |EFK|Elastic Cloud on Kubernetes (ECK) Operator|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)
 | |EFK|[Elasticsearch / Kibana](./elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
 | |EFK|[Fluentbit](./fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
 |X|Grafana|[Loki](./loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
 |X|Grafana|[Alloy](./alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
-> Grafana stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
+> ALG stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
 
 ### Policy Enforcement
 
