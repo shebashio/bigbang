@@ -214,11 +214,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.25.3-bb.0
+    tag: 1.25.3-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.25.3-bb.0
+    tag: 1.25.3-bb.1
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -751,7 +751,7 @@ fluentbit:
 #
 promtail:
   # -- Toggle deployment of Promtail.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1113,12 +1113,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "2.0.0-bb.0"
+    tag: "2.0.0-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "2.0.0-bb.0"
+    tag: "2.0.0-bb.1"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1138,7 +1138,7 @@ bbctl:
 #
 alloy:
   # -- Toggle deployment of grafana alloy
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
