@@ -454,11 +454,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.0.3-bb.1"
+    tag: "3.0.3-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.0.3-bb.1"
+    tag: "3.0.3-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -582,7 +582,7 @@ fluentbit:
 #
 promtail:
   # -- Toggle deployment of Promtail.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -944,12 +944,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "2.0.0-bb.0"
+    tag: "2.0.0-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "2.0.0-bb.0"
+    tag: "2.0.0-bb.1"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -969,7 +969,7 @@ bbctl:
 #
 alloy:
   # -- Toggle deployment of grafana alloy
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
