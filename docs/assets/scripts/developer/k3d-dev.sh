@@ -265,8 +265,16 @@ function cloud_aws_toolnames {
 }
 
 function cloud_aws_configure {
-  # getting AWS user name
-  AWSUSERNAME=$(aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/')
+  # getting AWS ARN
+  ARN=$(aws sts get-caller-identity --query Arn --output text)
+  # Getting the proper username
+  if echo "$ARN" | grep ".*assumed-role.*"; then
+    RAW_USERNAME=$(echo "$ARN" | cut -f 3 -d '/')
+    AWSUSERNAME=$(echo "$RAW_USERNAME" | cut -d '@' -f 1)
+    AWSUSERNAME+=$(echo "$RAW_USERNAME" | cut -d '@' -f 2)
+  else
+    AWSUSERNAME=$(echo "$ARN" | cut -f 2 -d '/')
+  fi
 
   SGname="${AWSUSERNAME}-dev-${PROJECTTAG}"
   KeyName="${AWSUSERNAME}-dev-${PROJECTTAG}"
@@ -507,6 +515,8 @@ function destroy_instances {
     aws ec2 release-address --allocation-id $i
     echo "done"
   done
+
+  echo "Cloud resource cleanup complete"
 }
 
 function update_instances {
@@ -941,6 +951,13 @@ function cloud_aws_prep_objects {
   aws ec2 describe-key-pairs --output json --no-cli-pager --key-names ${KeyName} >/dev/null 2>&1 || keypair=missing
   if [ "${keypair}" == "missing" ]; then
     echo -n -e "missing\nCreating key pair ${KeyName} ... "
+    # Create SSH key directory if it does not exist
+    SSHKEY_DIR=$(dirname -- "$SSHKEY")
+    if [[ ! -d "$SSHKEY_DIR" ]]; then
+      printf "Creating directory %s...\n" "$SSHKEY_DIR"
+      mkdir -p -- "$SSHKEY_DIR"
+      chmod 700 "$SSHKEY_DIR"
+    fi
     aws ec2 create-key-pair --output json --no-cli-pager --key-name ${KeyName} | jq -r '.KeyMaterial' >${SSHKEY}
     chmod 600 ${SSHKEY}
     echo done
