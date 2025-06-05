@@ -57,6 +57,9 @@ networkPolicies:
   #controlPlaneCidr: 172.16.0.0/12
 istiod:
   enabled: true
+  values:
+    hardened:
+      enabled: true
 istioCRDs:
   enabled: true
 istioGateway:
