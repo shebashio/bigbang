@@ -36,8 +36,6 @@ Please note:
 
 * Some newer packages such as Istio Operatorless may not have driftDetection enabled in time for 3.0 release and will be set to warn (flag enabled) until fully tested. 
 
-* Few packages in the process of phasing out will not be included.
-
 ## Consequences 
 
 ### Positive 
