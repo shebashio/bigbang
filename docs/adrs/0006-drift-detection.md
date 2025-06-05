@@ -12,18 +12,28 @@ In GitOps, drift detection identifies discrepancies between the actual state of 
 
 ## Decision 
 
-We will enable Flux Drift Detection in big bang packages.  It is specified in helmrelease.yaml under bigbang/chart/templates/packages_name. 
+We will enable Flux Drift Detection by default for all packages.  
 
-An example for enabled mode (other valid modes are warn and disabled):
+This is set globally with flux.driftDetection.mode=enabled in Big Bang's values.yaml file.
+
+Individual packages can turn off driftDetection or add additional field inside values.yaml or using overrides.  e.g.
 ```
-flux:
-  driftDetection:
-    mode: enabled
-```
+monitoring:
+  flux:
+    driftDetection:
+      mode: disabled
 
-1. The Big Bang 3.0 release will come preset with driftDetection enabled for all tested packages. 
+addons:
+  mattermost:
+    flux:
+      driftDetection:
+        ignore:
+          - paths: ["/spec/size"]
+            target:
+            kind: Mattermost
+``` 
 
-2. Some newer packages such as Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be enabled soon after. 
+2. Some newer packages such as Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be set for warn (flag enabled) until fully tested. 
 
 3. Few packages in the process of phasing out will not be included.
 
