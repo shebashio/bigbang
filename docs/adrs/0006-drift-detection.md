@@ -8,13 +8,13 @@ Accepted
 
 ## Context 
 
-In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. If there is a mismatch or a drift is detected, Flux will modify the live environment back to what is defined in Git.  This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes. 
+In GitOps, drift detection identifies discrepancies between the actual state of infrastructure or applications and the desired state as defined in a Git repository. Essentially, it checks if the live environment matches the configuration defined in Git which serves as the source of truth. If a mismatch or drift is detected, Flux will modify the live environment to match what is defined in Git.  This helps maintain consistency and avoid unexpected issues caused by unauthorized or undocumented changes.  To explore how drift detection works behind the scenes refer to [official documentation here](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection).
 
 ## Decision 
 
 We will enable Flux Drift Detection in big bang packages.  It is specified in helmrelease.yaml under bigbang/chart/templates/packages_name. 
 
-An example for enabled mode (other valid modes: warn and disabled):
+An example for enabled mode (other valid modes are warn and disabled):
 ```
 flux:
   driftDetection:
@@ -33,7 +33,7 @@ flux:
 
 1. Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
 
-2. Drift detection will constantly check for configurations such as cpu, memory, replicas and image location (image:) for discrepencies with the Git repository and reconcile them.
+2. Drift detection will constantly check for configurations such as cpu, memory, replicas or image for discrepencies with the Git repository and reconcile them.
 
 ### Negative  
 
