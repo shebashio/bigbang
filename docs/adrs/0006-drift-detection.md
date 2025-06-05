@@ -32,22 +32,23 @@ addons:
             target:
             kind: Mattermost
 ``` 
+Please note:
 
-2. Some newer packages such as Istio Operatorless may not have driftDetection enabled in time for 3.0 release and will be set to warn (flag enabled) until fully tested. 
+* Some newer packages such as Istio Operatorless may not have driftDetection enabled in time for 3.0 release and will be set to warn (flag enabled) until fully tested. 
 
-3. Few packages in the process of phasing out will not be included.
+* Few packages in the process of phasing out will not be included.
 
 ## Consequences 
 
 ### Positive 
 
-1. Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
+* Enabling drift detection is a crucial aspect of Defense in Depth (DiD) in cybersecurity. 
 
-2. Drift detection will constantly check for configurations such as cpu, memory, replicas or image for discrepencies with the Git repository and reconcile them.
+* Drift detection will constantly check for configurations such as cpu, memory, replicas or image for discrepencies with the Git repository and reconcile them.
 
 ### Negative  
 
-1. It may take longer to deploy or upgrade.  Cpu usage for Flux may have 20-50% average increase (~200ms).  Memory may have 10-25% increase (~50 MiB). API Requests may also have noticeable increase.   
+* It may take longer to deploy or upgrade.  Cpu usage for Flux may have 20-50% average increase (~200ms).  Memory may have 10-25% increase (~50 MiB). API Requests may also have noticeable increase.   
 
 ## Reference
 
