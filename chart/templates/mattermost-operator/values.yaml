@@ -12,7 +12,7 @@ imagePullSecrets:
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if .Values.istio.enabled }}
+{{- if $istioEnabled  }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end}}
