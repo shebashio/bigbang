@@ -33,7 +33,7 @@ addons:
             kind: Mattermost
 ``` 
 
-2. Some newer packages such as Istio Operatorless will not have driftDetection enabled in time for 3.0 release and will be set for warn (flag enabled) until fully tested. 
+2. Some newer packages such as Istio Operatorless may not have driftDetection enabled in time for 3.0 release and will be set to warn (flag enabled) until fully tested. 
 
 3. Few packages in the process of phasing out will not be included.
 
