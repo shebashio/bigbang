@@ -57,9 +57,9 @@ upstream:
   # monitoring contains configurations related to monitoring
   monitoring:
     # -- Enables the Prometheus Operator integration
-    enabled: {{- .Values.monitoring.enabled }}
+    enabled: {{ .Values.monitoring.enabled }}
     grafana:
       dashboards:
-        enabled: {{- .Values.monitoring.enabled }}
+        enabled: {{ .Values.grafana.enabled }}
         namespace: monitoring
 {{- end -}}
