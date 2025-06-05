@@ -28,6 +28,21 @@ istioGateway:
   helmRepo:
     cosignVerify: false
 
+istioGateway:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+alloy:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+bbctl:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
 kiali:
   sourceType: "helmRepo"
   helmRepo:
