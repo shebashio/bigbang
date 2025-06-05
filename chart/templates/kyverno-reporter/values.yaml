@@ -40,15 +40,26 @@ upstream:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+  
+  plugin:
+    kyverno:
+      enabled: true
+      image:
+        pullPolicy: {{ .Values.imagePullPolicy }}
+      imagePullSecrets:
+      - name: private-registry
+      {{- if $istioEnabled }}
+      podAnnotations:
+        {{ include "istioAnnotation" . }}
+      {{- end }}
 
-  {{- if .Values.monitoring.enabled }}
-    # monitoring contains configurations related to monitoring
+
+  # monitoring contains configurations related to monitoring
   monitoring:
     # -- Enables the Prometheus Operator integration
-    enabled: true
+    enabled: {{- .Values.monitoring.enabled }}
     grafana:
       dashboards:
-        enabled: true
+        enabled: {{- .Values.monitoring.enabled }}
         namespace: monitoring
-  {{- end -}}
 {{- end -}}
