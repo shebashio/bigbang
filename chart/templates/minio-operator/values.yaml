@@ -50,7 +50,7 @@ istio:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values)
       (dig "istio" "hardened" "enabled" false .Values.addons.minio.values)
-      .Values.networkHardening
+      (dig "hardened" "enabled" false .Values.istiod.values)
     }}
   console:
     gateways:

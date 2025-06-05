@@ -54,6 +54,6 @@ baseConfig:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.bbctl.values) .Values.networkHardening }}
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.bbctl.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
 {{- end -}}

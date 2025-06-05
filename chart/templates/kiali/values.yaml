@@ -19,7 +19,7 @@ image:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) .Values.networkHardening }}
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
     monitoring:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:

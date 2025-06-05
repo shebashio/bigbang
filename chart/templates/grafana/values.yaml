@@ -38,7 +38,7 @@ istio:
   enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or
-      .Values.networkHardening
+      (dig "hardened" "enabled" false .Values.istiod.values)
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
       (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
       (dig "istio" "hardened" "enabled" false .Values.grafana.values)
