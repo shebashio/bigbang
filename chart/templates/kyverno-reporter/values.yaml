@@ -60,6 +60,6 @@ upstream:
     enabled: {{ .Values.monitoring.enabled }}
     grafana:
       dashboards:
-        enabled: {{- or .Values.monitoring.enabled .Values.grafana.enabled }}
+        enabled: {{ or .Values.monitoring.enabled .Values.grafana.enabled }}
         namespace: monitoring
 {{- end -}}
