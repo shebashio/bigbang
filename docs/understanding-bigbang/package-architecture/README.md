@@ -143,7 +143,6 @@ Policy Enforcement is the ability to validate Kubernetes resources against compl
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
 | |Gatekeeper|[OPA Gatekeeper](./opa-gatekeeper.md)|Engine & Policies|[policy](https://repo1.dso.mil/big-bang/product/packages/policy)|
-| |Gatekeeper|[Cluster Auditor](./cluster-auditor.md)|Reporting|[cluster-auditor](https://repo1.dso.mil/big-bang/product/packages/cluster-auditor)|
 |X|Kyverno|[Kyverno](./kyverno.md)|Engine|[kyverno](https://repo1.dso.mil/big-bang/product/packages/kyverno)|
 |X|Kyverno|Kyverno Policies|Policies|[kyverno-policies](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies)|
 |X|Kyverno|Kyverno Reporter|Reporting|[kyverno-reporter](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter)|
