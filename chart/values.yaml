@@ -125,7 +125,7 @@ flux:
     enable: false
   driftDetection:
     mode: enabled # Valid Modes disabled | enabled | warn
-    ignore: 
+    ignore:
       - paths: [""] # ignore all jobs, as jobs with ttlSecondsAfterFinished are not handled
         target:
           kind: Job
@@ -1681,7 +1681,7 @@ addons:
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
 
-  anchore:
+  anchoreEnterprise:
     # -- Toggle deployment of Anchore.
     enabled: false
 
