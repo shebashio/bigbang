@@ -8,7 +8,7 @@
 istio:
   enabled: {{ $istioEnabled  }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) .Values.networkHardening }}
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
 domain: {{ .Values.domain }}
 
