@@ -124,7 +124,7 @@ flux:
   test:
     enable: false
   driftDetection:
-    mode: enabled # Valid Modes disabled | enabled | warn 
+    mode: enabled # Valid Modes disabled | enabled | warn
   install:
     remediation:
       retries: -1
@@ -622,7 +622,7 @@ kyvernoPolicies:
         - paths: [""]
           target:
             kind: ClusterPolicy
-    
+
 
   # -- Values to passthrough to the kyverno policies chart: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
   values: {}
@@ -901,13 +901,13 @@ neuvector:
       ignore:
         - paths: [""]
           target:
-            kind: Cronjob    
+            kind: Cronjob
         - paths: [""]
           target:
-            kind: Lease    
+            kind: Lease
         - paths: [""]
           target:
-            kind: Secret   
+            kind: Secret
 
   # -- Values to passthrough to the Neuvector chart: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
   values: {}
@@ -1013,10 +1013,10 @@ monitoring:
       ignore:
         - paths: [""]
           target:
-            kind: Alertmanager    
+            kind: Alertmanager
         - paths: [""]
           target:
-            kind: Prometheus 
+            kind: Prometheus
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1754,7 +1754,7 @@ addons:
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
 
-  anchore:
+  anchoreEnterprise:
     # -- Toggle deployment of Anchore.
     enabled: false
 
@@ -1893,7 +1893,7 @@ addons:
         ignore:
           - paths: ["/spec/size"]
             target:
-            kind: Mattermost  
+            kind: Mattermost
 
     # -- Mattermost Enterprise functionality.
     enterprise:
@@ -2085,7 +2085,7 @@ addons:
         ignore:
           - paths: [""]
             target:
-              kind: MutatingWebhookConfiguration      
+              kind: MutatingWebhookConfiguration
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
