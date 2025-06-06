@@ -579,7 +579,8 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.3.6-bb.4"
+    tag: null
+    branch: main
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
