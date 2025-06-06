@@ -29,11 +29,6 @@ upstream:
     enabled: {{ .Values.monitoring.enabled }}
     namespace: monitoring
 
-  serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
-    dashboards:
-      namespace: monitoring
-
   admissionController:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
