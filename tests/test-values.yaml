@@ -2253,7 +2253,7 @@ addons:
             enabled: true
             spec:
               hosts:
-              - 'keycloak.dev.bigbang.mil'
+              - 'repo1.dso.mil'
               location: MESH_EXTERNAL
               exportTo:
               - '.'
@@ -2262,23 +2262,6 @@ addons:
                 protocol: HTTPS
                 name: https
               resolution: DNS
-          - name: "cypress-service-entries-keycloak"
-            enabled: true
-            spec:
-              hosts:
-              - 'keycloak.dev.bigbang.mil'
-              location: MESH_INTERNAL
-              exportTo:
-              - '.'
-              ports:
-              - number: 443
-                protocol: HTTPS
-                name: https
-              resolution: DNS
-              endpoints:
-              - address: passthrough-ingressgateway.istio-gateway.svc.cluster.local
-                ports:
-                  https: 443
           customAuthorizationPolicies:
           - name: "allow-intranamespace-keycloak"
             enabled: true
