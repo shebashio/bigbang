@@ -10,7 +10,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/anchore-enterprise/values.yaml") . | sha256sum }}
 spec:
   releaseName: anchore-enterprise
-  targetNamespace: anchore-enterprise
+  targetNamespace: anchore
   chart:
     spec:
       {{- if eq .Values.addons.anchoreEnterprise.sourceType "git" }}
