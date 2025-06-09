@@ -31,7 +31,7 @@ upstream:
 
   admissionController:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.monitoring.enabled  }}
 
   backgroundController:
     serviceMonitor:
