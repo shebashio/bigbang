@@ -756,10 +756,10 @@ neuvector:
       ignore:
         - paths: [""]
           target:
-            kind: CronJob    
+            kind: CronJob
         - paths: [""]
           target:
-            kind: Lease    
+            kind: Lease
         - paths: [""]
           target:
             kind: Secret
@@ -871,10 +871,10 @@ monitoring:
       ignore:
         - paths: [""]
           target:
-            kind: Alertmanager    
+            kind: Alertmanager
         - paths: [""]
           target:
-            kind: Prometheus 
+            kind: Prometheus
         - paths: [""]
           target:
             kind: PrometheusRule
@@ -1757,7 +1757,7 @@ addons:
         ignore:
           - paths: ["/spec/size"]
             target:
-            kind: Mattermost
+              kind: Mattermost
           - paths: [""]
             target:
               kind: Job
