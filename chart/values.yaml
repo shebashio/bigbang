@@ -182,6 +182,11 @@ istioCRDs:
   flux:
     driftDetection:
       mode: warn
+      ignore:
+      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istiod-default-validator
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -209,6 +214,11 @@ istiod:
   flux:
     driftDetection:
       mode: warn
+      ignore:
+      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istio-validator-istio-system
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -220,11 +230,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.25.3-bb.1
+    tag: 1.25.3-bb.2
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.25.3-bb.1
+    tag: 1.25.3-bb.2
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -905,7 +915,7 @@ neuvector:
       ignore:
         - paths: [""]
           target:
-            kind: Cronjob    
+            kind: CronJob    
         - paths: [""]
           target:
             kind: Lease    
@@ -1021,6 +1031,9 @@ monitoring:
         - paths: [""]
           target:
             kind: Prometheus 
+        - paths: [""]
+          target:
+            kind: PrometheusRule
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2150,12 +2163,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-      tag: "1.16.2-bb.4"
+      tag: "1.17.1-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.16.2-bb.4"
+      tag: "1.17.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
