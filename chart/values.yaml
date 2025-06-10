@@ -592,6 +592,10 @@ kyverno:
         - paths: [""]
           target:
             kind: CustomResourceDefinition
+    install:
+      crds: CreateReplace
+    upgrade:
+      crds: CreateReplace
 
   # -- Values to passthrough to the kyverno chart: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
   values: {}
