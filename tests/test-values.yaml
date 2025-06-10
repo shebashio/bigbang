@@ -61,33 +61,11 @@ networkPolicies:
 
 istiod:
   enabled: true
-istioCRDs:
-  enabled: true
-istioOperator:
-  enabled: false
-istio:
-  enabled: false
-  ingressGateways:
-    passthrough-ingressgateway:
-      type: "LoadBalancer"
-  gateways:
-    passthrough:
-      ingressGateway: "passthrough-ingressgateway"
-      hosts:
-      - "*.{{ .Values.domain }}"
-      tls:
-        mode: "PASSTHROUGH"
-    public:
-      tls:
-        key: "" # Gets added via chart/ingress-certs.yaml
-        cert: "" # Gets added via chart/ingress-certs.yaml
   values:
     hardened:
       enabled: true
-    kiali:
-      dashboard:
-        auth:
-          strategy: "anonymous"
+istioCRDs:
+  enabled: true
 istioGateway:
   enabled: true
 kiali:
@@ -818,7 +796,7 @@ eckOperator:
                 protocol: TLS
                 name: https
             resolution: DNS
-            
+
 elasticsearchKibana:
   enabled: false
   sso:
@@ -1043,7 +1021,7 @@ tempo:
           memory: 128Mi
 
 promtail:
-  enabled: true
+  enabled: false
 
 monitoring:
   flux:
@@ -1268,7 +1246,23 @@ bbctl:
           cypress_grafana_username: 'admin'
           cypress_grafana_password: 'prom-operator'
 alloy:
-  enabled: false
+  enabled: true
+  alloyLogs:
+    enabled: true
+  values:
+    k8s-monitoring:
+      destinations:
+        - name: loki
+          type: loki
+          url: http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push
+      alloy-logs:
+        enabled: true
+      podLogs:
+        enabled: true
+        destinations:
+          - loki
+        collector: alloy-logs
+
 # Addons are toggled based on labels in CI
 addons:
   argocd:
@@ -1286,7 +1280,7 @@ addons:
       controller:
         resources:
           requests:
-            memory: 2Gi      
+            memory: 2Gi
       redis-bb:
         master:
           persistence:
@@ -1300,12 +1294,12 @@ addons:
       redis:
         resources:
           requests:
-            memory: 256Mi 
+            memory: 256Mi
       repoServer:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi          
+            memory: 128Mi
       configs:
         secret:
           argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
@@ -1664,90 +1658,90 @@ addons:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       sso:
         resources:
           requests:
-            memory: 200Mi          
+            memory: 200Mi
       postgresql:
         persistence:
           size: 256Mi
         resources:
           requests:
-            memory: 1024Mi          
+            memory: 1024Mi
         metrics:
           resources:
             requests:
-              memory: 200Mi            
+              memory: 200Mi
       analyzer:
         replicaCount: 1
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       api:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       catalog:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       policyEngine:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       simpleQueue:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       upgradeJob:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       feeds:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
         feeds-db:
           resources:
             requests:
-              memory: 200Mi            
+              memory: 200Mi
           metrics:
             resources:
               requests:
-                memory: 200Mi              
+                memory: 200Mi
         feedsUpgradeJob:
           resources:
             requests:
               cpu: 100m
-              memory: 200Mi            
+              memory: 200Mi
       rbacManager:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       reports:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       notifications:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       ui:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       ui-redis:
         replica:
           replicaCount: 0
@@ -1805,12 +1799,12 @@ addons:
       resources:
         requests:
           cpu: 100m
-          memory: 200Mi        
+          memory: 200Mi
       persistence:
         size: 5Gi
       postgresql:
         persistence:
-          size: 256Mi      
+          size: 256Mi
       bbtests:
         enabled: true
         cypress:
@@ -2271,7 +2265,7 @@ addons:
                   - number: 443
                     protocol: TLS
                     name: https
-                resolution: DNS        
+                resolution: DNS
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
@@ -2382,7 +2376,7 @@ addons:
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
       networkPolicies:
-        enabled: true    
+        enabled: true
 
   vault:
     enabled: false
@@ -2505,7 +2499,6 @@ addons:
   harbor:
     # -- Toggle deployment of harbor
     enabled: false
-
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
@@ -2684,7 +2677,7 @@ addons:
     values:
       bbtests:
         enabled: true
-        
+
   # ----------------------------------------------------------------------------------------------------------------------
   # Headlamp
   #
