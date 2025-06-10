@@ -180,7 +180,8 @@ metadata:
 type: generic
 stringData:
   common: ""
-  defaults: {{- toYaml $defaults | nindent 4 }}
+  defaults: |
+    {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
 {{- end -}}
