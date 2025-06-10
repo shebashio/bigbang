@@ -295,7 +295,7 @@ extraSecretMounts:
   {{- end }}
   {{- if and (or .Values.grafana.sso.enabled .Values.monitoring.sso.enabled) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
   - name: "oidc-ca-certificate"
-    mountPath: "/etc/oidc/ca.pem"
+    mountPath: "/etc/ssl/certs/oidc-ca.pem"
     secretName: "tls-ca-sso-grafana"
     readOnly: true
     subPath: "ca.pem"
