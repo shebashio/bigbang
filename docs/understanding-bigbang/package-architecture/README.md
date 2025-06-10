@@ -13,9 +13,8 @@ The Big Bang TOC supports users and contributors of the Big Bang ecosystem.  If 
 Several of Big Bang's packages have dependencies on other packages.  A Dependency exists if the package would have a significant (or total) loss in functionality if the dependency was not present.
 
 ```mermaid
-flowchart LR
+flowchart BT
   subgraph Core
-    direction BT
 
     subgraph L[Logging]
       subgraph ALG[Default]
@@ -66,39 +65,71 @@ flowchart LR
 ```
 
 ```mermaid
-flowchart LR
+flowchart BT
   subgraph AddOns
-    subgraph AppUtils[Application Utilities]
-      MinIO
+  direction LR
+
+    subgraph r2
+    style r2 fill:transparent,stroke:transparent,color:transparent
+    direction BT
+
+      subgraph DT[Developer Tools]
+      direction BT
+        GLRunners[GitLab Runners] --> GitLab
+        Nexus[Nexus Repository]
+        Harbor
+        Sonarqube
+        Fortify
+        Backstage
+        Headlamp
+      end
+
+      subgraph "Collaboration"
+        Mattermost
+      end
+
+      subgraph AppUtils[Storage Utilities]
+        MinIO
+      end
+
+
     end
 
-    subgraph ClusterUtils[Cluster Utilities]
+    subgraph Row1
+    style Row1 fill:transparent,stroke:transparent,color:transparent
     direction BT
-      ArgoCD
-      Metrics[Metrics Server]
-      Velero
+
+      Istio
+      formattingNode[ ]:::invisible
+
+      subgraph Row1Grouper
+      style Row1Grouper fill:transparent,stroke:transparent,color:transparent
+
+        subgraph CUtil[Cluster Utilities]
+          ArgoCD
+          Velero
+          Metrics[Metrics Server]
+          Mimir
+          Thanos
+        end
+
+        subgraph Sec[Security]
+          Anchore
+          Authservice
+          Keycloak
+          Vault[Vault*]
+          ESO[External Secrets]
+        end
+      end
+
+      Authservice --> Istio
+      ArgoCD ~~~ formattingNode
+
     end
 
-    subgraph "Security"
-    direction BT
-      Anchore[Anchore Enterprise]
-      Authservice --> I[Istio]
-      Keycloak
-      Vault[Vault*]
-    end
-
-    subgraph "Collaboration"
-    direction BT
-      Mattermost
-    end
-
-    subgraph "Developer Tools"
-    direction BT
-      GLRunners[GitLab Runners] --> GitLab
-      Nexus[Nexus Repository]
-      Sonarqube
-    end
   end
+
+classDef invisible fill:transparent,stroke:transparent,color:transparent
 ```
 
 > Footnotes:
