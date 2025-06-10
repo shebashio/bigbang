@@ -125,8 +125,8 @@ flux:
     enable: false
   driftDetection:
     mode: enabled # Valid Modes disabled | enabled | warn
-    ignore: # ignore all jobs, as jobs with ttlSecondsAfterFinished are not handled
-      - paths: [""]
+    ignore: 
+      - paths: [""] # ignore all jobs, as jobs with ttlSecondsAfterFinished are not handled
         target:
           kind: Job
   install:
@@ -312,7 +312,21 @@ istioGateway:
   #           mode: ISTIO_MUTUAL
 
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: PeerAuthentication
+            namespace: "istio-gateway"
+        - paths: [""]
+          target:
+            kind: AuthorizationPolicy
+            namespace: "istio-gateway"
+        - paths: [""]
+          target:
+            kind: NetworkPolicy
+            namespace: "istio-gateway"
   # -- Post Renderers.  See docs/postrenders.md
   # The istioGateway package supports advanced postRenderer definitions. If an array of postRenderers is provided, the
   # postRenderers will be applied to all gateways. If a map of postRenderers is provided, the postRenderers
