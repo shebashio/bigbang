@@ -16,50 +16,64 @@ Several of Big Bang's packages have dependencies on other packages.  A Dependenc
 flowchart BT
   subgraph Core
 
-    subgraph L[Logging]
-      subgraph ALG[Default]
-        Alloy[Alloy] --> Loki[Loki]
+    subgraph Group2
+      style Group2 fill:transparent,stroke:transparent,color:transparent
+      direction RL
+
+      subgraph RS[Runtime Security]
+        subgraph CC[Alternative]
+          style CC stroke-dasharray: 10 10
+          Twistlock[Prisma Cloud Compute]
+        end
+        subgraph NV[Default]
+          Neuvector[Neuvector]
+        end
       end
-      subgraph EFK[Alternative]
-        style EFK stroke-dasharray: 10 10
-        Kibana & Fluentbit --> Elastic
+
+      subgraph PE[Policy Enforcement]
+        direction BT
+        subgraph CA[Alternative]
+          style CA stroke-dasharray: 10 10
+          direction BT
+          OPA[OPA Gatekeeper]
+        end
+        subgraph KyvernoStack[Default]
+          direction BT
+          KyvernoReporter[Kyverno Reporter] --> Kyverno[Kyverno]
+        end
       end
+
     end
 
-    subgraph M[Monitoring]
-      Grafana --> Prometheus
-      Grafana -.-> Loki
-    end
-
-    subgraph PE[Policy Enforcement]
-      subgraph CA[Alternative]
-      style CA stroke-dasharray: 10 10
+    subgraph Group1
+      style Group1 fill:transparent,stroke:transparent,color:transparent
       direction BT
-        OPA[OPA Gatekeeper]
-      end
-      subgraph KyvernoStack[Default]
-      direction BT
-        KyvernoReporter[Kyverno Reporter] --> Kyverno[Kyverno]
-      end
-    end
 
-    subgraph RS[Runtime Security]
-      subgraph CC[Alternative]
-        style CC stroke-dasharray: 10 10
-        Twistlock[Prisma Cloud Compute]
+      subgraph L[Logging]
+        subgraph ALG[Default]
+          Alloy[Alloy] --> Loki[Loki]
+        end
+        subgraph EFK[Alternative]
+          style EFK stroke-dasharray: 10 10
+          direction BT
+          Kibana & Fluentbit --> Elastic
+        end
       end
-      subgraph TL[Default]
-        Neuvector[Neuvector]
+
+      subgraph M[Monitoring]
+        Grafana --> Prometheus
+        Grafana -.-> Loki
       end
-    end
 
-    subgraph DT[Distributed Tracing]
-      Tempo[Tempo] --> Grafana
-    end
+      subgraph DT[Distributed Tracing]
+        Tempo[Tempo] --> Grafana
+      end
 
-    subgraph SM[Service Mesh]
-      Tempo --> Istio
-      Kiali --> Istio & Prometheus
+      subgraph SM[Service Mesh]
+        Tempo --> Istio
+        Kiali --> Istio & Prometheus
+      end
+
     end
   end
 ```
@@ -67,14 +81,14 @@ flowchart BT
 ```mermaid
 flowchart BT
   subgraph AddOns
-  direction LR
+    direction LR
 
     subgraph r2
-    style r2 fill:transparent,stroke:transparent,color:transparent
-    direction BT
+      style r2 fill:transparent,stroke:transparent,color:transparent
+      direction BT
 
       subgraph DT[Developer Tools]
-      direction BT
+        direction BT
         GLRunners[GitLab Runners] --> GitLab
         Nexus[Nexus Repository]
         Harbor
@@ -96,14 +110,14 @@ flowchart BT
     end
 
     subgraph Row1
-    style Row1 fill:transparent,stroke:transparent,color:transparent
-    direction BT
+      style Row1 fill:transparent,stroke:transparent,color:transparent
+      direction BT
 
       Istio
       formattingNode[ ]:::invisible
 
       subgraph Row1Grouper
-      style Row1Grouper fill:transparent,stroke:transparent,color:transparent
+        style Row1Grouper fill:transparent,stroke:transparent,color:transparent
 
         subgraph CUtil[Cluster Utilities]
           ArgoCD
