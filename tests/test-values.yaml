@@ -857,7 +857,10 @@ elasticsearchKibana:
             memory: "4Gi"
 
 fluentbit:
-  enabled: false
+  enabled: true
+  git:
+    tag: null
+    branch: 178-convert-fluentbit-to-passthrough-chart
   values:
     istio:
       hardened:
