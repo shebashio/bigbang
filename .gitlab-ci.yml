@@ -1,0 +1,9 @@
+include: # standard for the BB repo
+  - project: 'big-bang/pipeline-templates/pipeline-templates'
+    ref: "dax/update-anchore-naming"
+    file: '/pipelines/bigbang.yaml'
+variables:
+  PIPELINE_REPO_BRANCH: "dax/update-anchore-naming"
+  CI_DEFAULT_BRANCH: "daxmc99-repo-master"
+  # variables that can be overriden to target specific pipelines (NOT REQUIRED FOR ALL PIPELINES)
+  DEBUG_ENABLED: "true"
