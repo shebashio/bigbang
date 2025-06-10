@@ -531,6 +531,17 @@ elasticsearchKibana:
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
     timeout: 20m
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: Kibana
+        - paths: [""]
+          target:
+            kind: Elasticsearch
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
