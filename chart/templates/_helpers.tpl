@@ -170,6 +170,8 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 {{- $newDefaults := dict "upstream" $upstream }}
 {{- $defaults = mustMergeOverwrite (deepCopy $origDefaults) $newDefaults | toYaml }}
+{{- else }}
+{{ $defaults = $origDefaults | toYaml }}
 {{- end -}}
 {{/* This is the end of the workaround */}}
 apiVersion: v1
@@ -180,8 +182,7 @@ metadata:
 type: generic
 stringData:
   common: ""
-  defaults: |
-    {{- toYaml $defaults | nindent 4 }}
+  defaults: {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
 {{- end -}}
