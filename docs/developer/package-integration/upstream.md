@@ -4,8 +4,8 @@ Before beginning the process of integrating a package into Big Bang, you will ne
 
 ## Prerequisites
 
-- [Kpt version 0.39.2](https://github.com/kptdev/kpt/releases/tag/v0.39.2) (Later versions of kpt are incompatible with Bigbang)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [Helm](https://helm.sh/docs/intro/install/)
 
 > Throughout this document, we will be setting up an application called `podinfo` as a demonstration.
 
@@ -35,19 +35,33 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
     > * Does not bundle several packages together (unless they can be individually disabled); and
     > * Provides advanced features like high availability, scaling, affinity, taints/tolerations, and security context.
 
-1. Using [Kpt](https://googlecontainertools.github.io/kpt/installation/), create a clone of the package's Helm chart
+1. With the release of Big Bang 3.0, we have begun transitioning our packages to what we call the passthrough pattern.  This should help streamline the process of both  bringing in new packages and updating them via Renovate.  We need to pull in very little from the upstream chart for this. First thing to do is copy the upstream  `Chart.yaml` file into your repo under the `/chart` directory. In order 
+to do this, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
-    ```shell
-    # Change these for your upstream helm chart
-    export GITREPO=https://github.com/stefanprodan/podinfo
-    export GITDIR=charts/podinfo
-    export GITTAG=5.2.1
-
-    # Clone
-    kpt pkg get $GITREPO/$GITDIR@$GITTAG chart
-    ```
-
-    > Always use an release tag for `GITTAG` so your chart is immutable.  Never use a branch or `latest`.
+   ```yaml
+   apiVersion: v1
+   version: 6.9.0-bb.0
+   appVersion: 6.9.0
+   name: podinfo
+   engine: gotpl
+   description: Podinfo Helm chart for Kubernetes
+   home: https://github.com/stefanprodan/podinfo
+   maintainers:
+     - email: stefanprodan@users.noreply.github.com
+       name: stefanprodan
+   sources:
+     - https://github.com/stefanprodan/podinfo
+   dependencies:
+     - name: podinfo 
+       version: 6.9.0
+       repository: https://stefanprodan.github.io/podinfo
+   kubeVersion: ">=1.23.0-0"
+   annotations:
+     helm.sh/images: |
+       - name: podinfo
+         image: registry1.dso.mil/ironbank/opensource/podinfo:6.9.0 
+   ```
+   Additionally, as shown above, make sure to add any images under the `annotations/helm.sh/images` section of `Chart.yaml` as well. 
 
 1. Add `-bb.0` suffix on `chart/Chart.yaml`, `version`.  For example:
 
