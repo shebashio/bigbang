@@ -13,7 +13,7 @@ The Big Bang TOC supports users and contributors of the Big Bang ecosystem.  If 
 Several of Big Bang's packages have dependencies on other packages.  A Dependency exists if the package would have a significant (or total) loss in functionality if the dependency was not present.
 
 ```mermaid
-flowchart BT
+flowchart LR
   subgraph Core
 
     subgraph Group2
