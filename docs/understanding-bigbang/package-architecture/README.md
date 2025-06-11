@@ -49,30 +49,55 @@ flowchart BT
       style Group1 fill:transparent,stroke:transparent,color:transparent
       direction BT
 
+      subgraph M[Monitoring]
+        Grafana[Grafana]
+        Prometheus[Prometheus]
+      end
+
       subgraph L[Logging]
         subgraph ALG[Default]
-          Alloy[Alloy] --> Loki[Loki]
+          Alloy[Alloy]
+          Loki[Loki]
         end
         subgraph EFK[Alternative]
           style EFK stroke-dasharray: 10 10
           direction BT
-          Kibana & Fluentbit --> Elastic
+          Kibana[Kibana]
+          Fluentbit[Fluentbit]
+          Elastic[Elastic]
         end
       end
 
-      subgraph M[Monitoring]
-        Grafana --> Prometheus
-        Grafana -.-> Loki
-      end
-
       subgraph DT[Distributed Tracing]
-        Tempo[Tempo] --> Grafana
+        Tempo[Tempo]
       end
 
       subgraph SM[Service Mesh]
-        Tempo --> Istio
-        Kiali --> Istio & Prometheus
+        Kiali[Kiali]
+        Istio[Istio]
       end
+
+      %% Forces DT subgraph under SM subgraph
+      DT ~~~ SM
+
+      %% SM Dependencies
+      Kiali --> Istio
+      Kiali --> Prometheus
+      Tempo --> Istio
+
+      %% ALG Dependencies
+      Alloy -.-> Prometheus
+      Alloy --> Loki
+      Alloy -.-> Tempo
+
+      Grafana --> Prometheus
+      Grafana -.-> Loki
+      Grafana --> Tempo
+      Grafana -.-> Alloy
+
+      %% EFK Dependencies
+      Kibana --> Elastic
+      Fluentbit --> Elastic
 
     end
   end
