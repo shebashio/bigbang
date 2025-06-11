@@ -862,6 +862,9 @@ fluentbit:
     tag: null
     branch: 178-convert-fluentbit-to-passthrough-chart
   values:
+    upstream:
+      securityContext:
+        privileged: true
     istio:
       hardened:
         customServiceEntries:
@@ -878,12 +881,8 @@ fluentbit:
                 - number: 443
                   protocol: TLS
                   name: https
-
-    securityContext:
-      privileged: true
     bbtests:
       enabled: true
-
 
 loki:
   strategy: scalable

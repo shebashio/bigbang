@@ -7,146 +7,11 @@
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
-{{- if (not $disableDefault) }}
-loki:
-  enabled: {{ .Values.loki.enabled }}
-
-elasticsearchKibana:
-  enabled: {{.Values.elasticsearchKibana.enabled }}
-
-{{- if .Values.elasticsearchKibana.enabled }}
-env:
-  - name: FLUENT_ELASTICSEARCH_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: logging-ek-es-elastic-user
-        key: elastic
-
-extraVolumes:
-  - hostPath:
-      path: /var/log/flb-storage/
-      type: DirectoryOrCreate
-    name: flb-storage
-  - secret:
-      secretName: logging-ek-es-http-certs-public
-    name: elasticsearch-certs
-
-extraVolumeMounts:
-  - mountPath: /var/log/flb-storage/
-    name: flb-storage
-    readOnly: false
-  - mountPath: /etc/elasticsearch/certs/
-    name: elasticsearch-certs
-{{- end }}
-{{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled }}
-config:
-  outputs: |
-    {{- if .Values.elasticsearchKibana.enabled }}
-    [OUTPUT]
-        Name                     es
-        Match                    kube.*
-        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
-        HTTP_User                elastic
-        HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
-        Logstash_Format          On
-        Suppress_Type_Name       On
-        Retry_Limit              False
-        Replace_Dots             On
-        {{- if and $istioEnabled (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
-        tls                      Off
-        {{- else }}
-        tls                      On
-        tls.verify               On
-        tls.ca_file              /etc/elasticsearch/certs/ca.crt
-        {{- end }}
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
-    [OUTPUT]
-        Name                     es
-        Match                    host.*
-        Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
-        HTTP_User                elastic
-        HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
-        Logstash_Format          On
-        Suppress_Type_Name       On
-        Logstash_Prefix          node
-        Retry_Limit              False
-        tls                      On
-        tls.verify               On
-        tls.ca_file              /etc/elasticsearch/certs/ca.crt
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
-    {{- end }}
-
-    {{- if .Values.loki.enabled }}
-    [OUTPUT]
-        name                   loki
-        match                  kube.*
-        labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
-        {{- if eq .Values.loki.strategy "monolith" }}
-        host                   logging-loki.logging
-        {{- else }}
-        host                   logging-loki-write.logging
-        {{- end }}
-        port                   3100
-        auto_kubernetes_labels on
-        Retry_Limit            False
-        tls                    Off
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
-    [OUTPUT]
-        name                   loki
-        match                  host.*
-        labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
-        {{- if eq .Values.loki.strategy "monolith" }}
-        host                   logging-loki.logging
-        {{- else }}
-        host                   logging-loki-write.logging
-        {{- end }}
-        port                   3100
-        auto_kubernetes_labels on
-        Retry_Limit            False
-        tls                    Off
-        storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
-    {{- end }}
-
-  filters: |
-    {{- if .Values.loki.enabled }}
-    [FILTER]
-        Name kubernetes
-        Match kube.*
-        Kube_CA_File /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        Kube_Token_File /var/run/secrets/kubernetes.io/serviceaccount/token
-        Merge_Log On
-        Merge_Log_Key log_processed
-        K8S-Logging.Parser On
-        K8S-Logging.Exclude Off
-        Buffer_Size 1M
-    [FILTER]
-        Name          lua
-        Match         kube.*
-        script        /fluent-bit/scripts/remove_labels.lua
-        call          remove_labels
-    [FILTER]
-        Alias         lua.add
-        Name          lua
-        Match         kube.*
-        script        /fluent-bit/scripts/add_labels.lua
-        call          add_labels
-    {{- end }}
-
-{{- end }}
-{{- end }}
-
-imagePullSecrets:
-  - name: private-registry
-
-image:
-  pullPolicy: {{ .Values.imagePullPolicy }}
-
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
-
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -156,107 +21,241 @@ istio:
       (dig "hardened" "enabled" false .Values.istiod.values)
     }}
 
-openShift:
-  enabled: {{ .Values.openshift }}
-
-{{- if .Values.monitoring.enabled }}
-serviceMonitor:
-  enabled: true
-  namespace: monitoring
-  interval: 10s
-  scrapeTimeout: 10s
-  selector:
-    prometheus: monitoring-monitoring-kube-prometheus
-  # conditional passes only if all conditionals are true:
-  # - istio: enabled
-  # - mTLS: SCRICT
-  # - istio injection: enabled (for logging ns)
-  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
-  scheme: https
-  tlsConfig:
-    caFile: /etc/prom-certs/root-cert.pem
-    certFile: /etc/prom-certs/cert-chain.pem
-    keyFile: /etc/prom-certs/key.pem
-    insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-  {{- end }}
-
-dashboards:
-  enabled: true
-  labelKey: grafana_dashboard
-  namespace: monitoring
-{{- end }}
-
-{{- if $istioEnabled }}
-podAnnotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
-
 openshift: {{ .Values.openshift }}
 
-{{- if .Values.openshift }}
-podSecurityContext:
-  seLinuxOptions:
-    type: "spc_t"
-{{- end }}
+upstream:
+  imagePullSecrets:
+    - name: private-registry
 
-# Those are BB custom lua scripts so they are taken out from package values file and placed here.
-# https://docs.fluentbit.io/manual/pipeline/filters/lua
-luaScripts:
-  add_labels.lua: |
-    function add_labels(tag, timestamp, record)
-      record["kubernetes"]["labels"]["cluster"] = "{{ $clusterName }}"
-      return 1, timestamp, record
-    end
-  remove_labels.lua: |
-    function remove_labels(tag, timestamp, record)
-    
-      local patterns = {
-        "service.istio.-",
-        "security.istio.-",
-        "helm.-",
-        "istio.-",
-        "statefulset.kubernetes.io/pod%-name",
-        "prometheus",
-        "operator.prometheus.io/name",
-        "app.kubernetes.io/managed%-by",
-        "app.kubernetes.io/part%-of",
-        "apps.kuberentes.io/version",
-        "apps.kubernetes.io/pod%-index",
-        "heritage",
-        "release",
-        "elasticsearch.k8s.elastic.co.node.-",
-        "vault_active",
-        "vault_initialized",
-        "vault_perf_standby"
-      }
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
 
-      if record["kubernetes"] ~= nil then
-        if record["kubernetes"]["labels"] ~= nil then
-    
-          for key, value in pairs(record["kubernetes"]["labels"]) do
-            -- Uncomment for debugging
-            -- print("Checking - Label " .. key .. "=" .. value)
+  openShift:
+    enabled: {{ .Values.openshift }}
 
-            local remove_key = false
-            local i = 1
-            while not remove_key and i <= #patterns do
-              if string.match(key, patterns[i]) then
-                remove_key = true
-              end
-              i = i + 1
-            end
+  {{- if .Values.monitoring.enabled }}
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 10s
+    scrapeTimeout: 10s
+    selector:
+      prometheus: monitoring-monitoring-kube-prometheus
+    # conditional passes only if all conditionals are true:
+    # - istio: enabled
+    # - mTLS: SCRICT
+    # - istio injection: enabled (for logging ns)
+    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
 
-            -- Key matched a pattern, remove it
-            if remove_key then
-              -- Uncomment for debugging
-              -- print("Removing - Label " .. key .. "=" .. value)
-              record["kubernetes"]["labels"][key] = nil 
-            end
-          end
-        
-        end
+  dashboards:
+    enabled: true
+    labelKey: grafana_dashboard
+    namespace: monitoring
+  {{- end }}
+
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.openshift }}
+  podSecurityContext:
+    seLinuxOptions:
+      type: "spc_t"
+  {{- end }}
+
+  # Those are BB custom lua scripts so they are taken out from package values file and placed here.
+  # https://docs.fluentbit.io/manual/pipeline/filters/lua
+  luaScripts:
+    add_labels.lua: |
+      function add_labels(tag, timestamp, record)
+        record["kubernetes"]["labels"]["cluster"] = "{{ $clusterName }}"
+        return 1, timestamp, record
       end
-      
-      return 1, timestamp, record
-    end
+    remove_labels.lua: |
+      function remove_labels(tag, timestamp, record)
+
+        local patterns = {
+          "service.istio.-",
+          "security.istio.-",
+          "helm.-",
+          "istio.-",
+          "statefulset.kubernetes.io/pod%-name",
+          "prometheus",
+          "operator.prometheus.io/name",
+          "app.kubernetes.io/managed%-by",
+          "app.kubernetes.io/part%-of",
+          "apps.kuberentes.io/version",
+          "apps.kubernetes.io/pod%-index",
+          "heritage",
+          "release",
+          "elasticsearch.k8s.elastic.co.node.-",
+          "vault_active",
+          "vault_initialized",
+          "vault_perf_standby"
+        }
+
+        if record["kubernetes"] ~= nil then
+          if record["kubernetes"]["labels"] ~= nil then
+
+            for key, value in pairs(record["kubernetes"]["labels"]) do
+              -- Uncomment for debugging
+              -- print("Checking - Label " .. key .. "=" .. value)
+
+              local remove_key = false
+              local i = 1
+              while not remove_key and i <= #patterns do
+                if string.match(key, patterns[i]) then
+                  remove_key = true
+                end
+                i = i + 1
+              end
+
+              -- Key matched a pattern, remove it
+              if remove_key then
+                -- Uncomment for debugging
+                -- print("Removing - Label " .. key .. "=" .. value)
+                record["kubernetes"]["labels"][key] = nil
+              end
+            end
+
+          end
+        end
+
+        return 1, timestamp, record
+      end
+
+{{- if (not $disableDefault) }}
+  {{- if .Values.elasticsearchKibana.enabled }}
+  env:
+    - name: FLUENT_ELASTICSEARCH_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: logging-ek-es-elastic-user
+          key: elastic
+
+  extraVolumes:
+    - hostPath:
+        path: /var/log/flb-storage/
+        type: DirectoryOrCreate
+      name: flb-storage
+    - secret:
+        secretName: logging-ek-es-http-certs-public
+      name: elasticsearch-certs
+
+  extraVolumeMounts:
+    - mountPath: /var/log/flb-storage/
+      name: flb-storage
+      readOnly: false
+    - mountPath: /etc/elasticsearch/certs/
+      name: elasticsearch-certs
+  {{- end }}
+  {{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled }}
+  config:
+    outputs: |
+      {{- if .Values.elasticsearchKibana.enabled }}
+      [OUTPUT]
+          Name                     es
+          Match                    kube.*
+          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+          HTTP_User                elastic
+          HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
+          Logstash_Format          On
+          Suppress_Type_Name       On
+          Retry_Limit              False
+          Replace_Dots             On
+          {{- if and $istioEnabled (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
+          tls                      Off
+          {{- else }}
+          tls                      On
+          tls.verify               On
+          tls.ca_file              /etc/elasticsearch/certs/ca.crt
+          {{- end }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+      [OUTPUT]
+          Name                     es
+          Match                    host.*
+          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+          HTTP_User                elastic
+          HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
+          Logstash_Format          On
+          Suppress_Type_Name       On
+          Logstash_Prefix          node
+          Retry_Limit              False
+          tls                      On
+          tls.verify               On
+          tls.ca_file              /etc/elasticsearch/certs/ca.crt
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+      {{- end }}
+
+      {{- if .Values.loki.enabled }}
+      [OUTPUT]
+          name                   loki
+          match                  kube.*
+          labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
+          {{- if eq .Values.loki.strategy "monolith" }}
+          host                   logging-loki.logging
+          {{- else }}
+          host                   logging-loki-write.logging
+          {{- end }}
+          port                   3100
+          auto_kubernetes_labels on
+          Retry_Limit            False
+          tls                    Off
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+      [OUTPUT]
+          name                   loki
+          match                  host.*
+          labels                 job=fluentbit, container=$kubernetes['container_name'], pod=$kubernetes['pod_name'], namespace=$kubernetes['namespace_name'], node_name=$kubernetes['host']
+          {{- if eq .Values.loki.strategy "monolith" }}
+          host                   logging-loki.logging
+          {{- else }}
+          host                   logging-loki-write.logging
+          {{- end }}
+          port                   3100
+          auto_kubernetes_labels on
+          Retry_Limit            False
+          tls                    Off
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+      {{- end }}
+
+    filters: |
+      {{- if .Values.loki.enabled }}
+      [FILTER]
+          Name kubernetes
+          Match kube.*
+          Kube_CA_File /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          Kube_Token_File /var/run/secrets/kubernetes.io/serviceaccount/token
+          Merge_Log On
+          Merge_Log_Key log_processed
+          K8S-Logging.Parser On
+          K8S-Logging.Exclude Off
+          Buffer_Size 1M
+      [FILTER]
+          Name          lua
+          Match         kube.*
+          script        /fluent-bit/scripts/remove_labels.lua
+          call          remove_labels
+      [FILTER]
+          Alias         lua.add
+          Name          lua
+          Match         kube.*
+          script        /fluent-bit/scripts/add_labels.lua
+          call          add_labels
+      {{- end }}
+  {{- end }}
+
+loki:
+  enabled: {{ .Values.loki.enabled }}
+
+elasticsearchKibana:
+  enabled: {{ .Values.elasticsearchKibana.enabled }}
+{{- end }}
 {{- end -}}
