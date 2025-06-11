@@ -112,37 +112,46 @@ flowchart BT
   subgraph AddOns
   direction BT
 
-    subgraph DT[DevSecOps Tools]
+    subgraph Row2[ ]
+      style Row2 fill:transparent,stroke:transparent
+      direction LR
 
-      subgraph Repo[Repository Storage]
+      subgraph DT[DevSecOps Tools]
+      style DT stroke-dasharray: 10 10
+        subgraph UI[Dashboards and UIs]
+        direction BT
+          Backstage
+        end
+        subgraph Scan[Vulnerability Scanning]
+        direction BT
+          Anchore
+          Fortify
+          Sonarqube
+        end
+        subgraph ContDeploy[CI/CD]
+        direction BT
+          GLRunners[GitLab Runners]
+          GitLab
+          ArgoCD
+        end
+      end
+
+      subgraph Storage[Storage & Backup]
       direction BT
-        Nexus[Nexus Repository]
+        MinIO
+        Velero
+      end
+      
+      subgraph Repo[Repositories]
+      direction BT
         Harbor
+        Nexus[Nexus Repository]
       end
-
-      subgraph UI[Dashboards and UIs]
-      direction BT
-        Backstage
-      end
-
-      subgraph Scan[Vulnerability Scanning]
-      direction BT
-        Anchore
-        Fortify
-        Sonarqube
-      end
-
-      subgraph ContDeploy[CI/CD]
-      direction BT
-        GLRunners[GitLab Runners]
-        GitLab
-        ArgoCD
-      end
-
+    
     end
 
-    subgraph Row2
-      style Row2 fill:transparent,stroke:transparent,color:transparent
+    subgraph Row1[ ]
+      style Row1 fill:transparent,stroke:transparent
       direction BT
 
         subgraph Obs[Observability]
@@ -151,17 +160,6 @@ flowchart BT
           Thanos
           Headlamp
         end
-
-        subgraph AppUtils[Storage & Backup Utilities]
-          MinIO
-          Velero
-        end
-
-    end
-
-    subgraph Row1
-      style Row1 fill:transparent,stroke:transparent,color:transparent
-      direction BT
 
         subgraph Collab[Collaboration]
           Mattermost
@@ -183,13 +181,19 @@ flowchart BT
     
     end
       
-
+    %% Dependencies
     Authservice --> Istio
     GLRunners --> GitLab
+
+    %% Row 1 Formatters
     Vault ~~~ formattingNode
     Mattermost ~~~ formattingNode
+    Metrics ~~~ formattingNode
+
+    %%Row 2 Formatters
     Row2 ~~~ Row1
-    DT ~~~ Row2
+    Storage ~~~ DT
+    Repo ~~~ DT
 
   end
 
