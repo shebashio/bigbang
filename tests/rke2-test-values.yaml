@@ -3,28 +3,6 @@
 networkPolicies:
   controlPlaneCidr: 10.0.0.0/8
 
-istio:
-  values:
-    values:
-      global: 
-        proxy:
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits: null
-
-clusterAuditor:
-  values:
-    bbtests:
-      cypress:
-        artifacts: false
-    resources:
-      requests:
-        cpu: 300m
-        memory: 300Mi
-      limits: null
-    
 gatekeeper:
   values:
     bbtests:
@@ -163,12 +141,6 @@ twistlock:
     console:
       persistence:
         size: 5Gi
-
-jaeger:
-  values:
-    bbtests:
-      cypress:
-        artifacts: false
 
 kiali:
   values:

@@ -10,10 +10,12 @@ An SRE with a reasonable amount of experience operating in a command line enviro
 
 When you come out the other side of this process, you will have a k3d kubernetes cluster, running 3 virtualized kubernetes nodes on a single compute instance, with a fully functioning Big Bang installation, consisting of the following components:
 
-* [Istio](https://docs-bigbang.dso.mil/latest/packages/istio-operator/) service mesh
+* [Istio-CRDs](https://docs-bigbang.dso.mil/latest/packages/istio-crds/) Istio custom resources
+* [Istiod](https://docs-bigbang.dso.mil/latest/packages/istiod/) Istio service mesh
+* [Istio-Gateway](https://docs-bigbang.dso.mil/latest/packages/istio-gateway/) Istio ingress/egress gateways
 * [Kiali](https://docs-bigbang.dso.mil/latest/packages/kiali/) service mesh observability tool 
 * [Kyverno](https://docs-bigbang.dso.mil/latest/packages/kyverno/) policy engine
-* [Loki](https://docs-bigbang.dso.mil/latest/packages/loki/) log aggregation via [Promtail](https://docs-bigbang.dso.mil/latest/packages/promtail/)
+* [Loki](https://docs-bigbang.dso.mil/latest/packages/loki/) log aggregation via [alloy](https://docs-bigbang.dso.mil/latest/packages/alloy/)
 * [metrics-server](https://docs-bigbang.dso.mil/latest/packages/metrics-server/) metrics collector
 * [Tempo](https://docs-bigbang.dso.mil/latest/packages/tempo/) trace collector for Grafana
 * [Grafana](https://docs-bigbang.dso.mil/latest/packages/grafana/) dashboards

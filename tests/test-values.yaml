@@ -55,46 +55,19 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
-istio:
+
+# This will be removed when we remove the workaround
+disableAutomaticPassthroughValues: true
+
+istiod:
   enabled: true
-  ingressGateways:
-    passthrough-ingressgateway:
-      type: "LoadBalancer"
-  gateways:
-    passthrough:
-      ingressGateway: "passthrough-ingressgateway"
-      hosts:
-      - "*.{{ .Values.domain }}"
-      tls:
-        mode: "PASSTHROUGH"
-    public:
-      tls:
-        key: "" # Gets added via chart/ingress-certs.yaml
-        cert: "" # Gets added via chart/ingress-certs.yaml
   values:
     hardened:
       enabled: true
-    kiali:
-      dashboard:
-        auth:
-          strategy: "anonymous"
+istioCRDs:
+  enabled: true
 istioGateway:
-  enabled: false
-jaeger:
-  enabled: false
-  sso:
-    enabled: false
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_jaeger
-  values:
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_url: "https://tracing.dev.bigbang.mil"
-          # uncomment following variables for sso keycloak testing in bb
-          # cypress_tnr_username: "cypress"
-          # cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-          # cypress_keycloak_test_enable: "true"
+  enabled: true
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
@@ -116,40 +89,6 @@ kiali:
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
           #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
-clusterAuditor:
-  enabled: false
-  values:
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits: {}
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_url: 'https://grafana.dev.bigbang.mil/d/YBgRZG6Mz/opa-violations?orgId=1'
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-cluster-auditor"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'prometheus.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
 
 gatekeeper:
   enabled: false
@@ -182,12 +121,14 @@ gatekeeper:
           - default/c.?
           - default/i.?
           - gitlab/.*
+          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-cypress-test
           - fortify/fortify-ssc-cypress-test
@@ -195,7 +136,6 @@ gatekeeper:
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
           - kyverno-reporter/kyverno-reporter-cypress-test
@@ -333,13 +273,13 @@ gatekeeper:
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
+          - bbctl/bbctl-cypress-test
           - cluster-auditor/cluster-auditor-cypress-test
           - fortify/fortify-ssc-cypress-test
           - gitlab/gitlab-cypress-test
           - gitlab/gitlab-runner-cypress-test
           - gitlab-runner/gitlab-runner-cypress-test
           - harbor/harbor-cypress-test
-          - jaeger/jaeger-cypress-test
           - keycloak/keycloak-cypress-test
           - kiali/kiali-cypress-test
           - kyverno-reporter/kyverno-reporter-cypress-test
@@ -366,25 +306,26 @@ gatekeeper:
 
 kyverno:
   values:
-    networkPolicies:
-      externalRegistries:
-        allowEgress: true
-    admissionController:
-      container:
-        extraArgs:
-          webhookTimeout: 30
-        resources:
-          limits:
-            cpu: 1
-            memory: 768Mi
-          requests:
-            cpu: 1
-            memory: 768Mi
-    features:
-      policyexceptions:
-        enabled: true
-        # -- Restrict policy exceptions to a single namespace
-        namespace: 'kyverno'
+    kyverno:
+      networkPolicies:
+        externalRegistries:
+          allowEgress: true
+      admissionController:
+        container:
+          extraArgs:
+            webhookTimeout: 30
+          resources:
+            limits:
+              cpu: 1
+              memory: 768Mi
+            requests:
+              cpu: 1
+              memory: 768Mi
+      features:
+        policyexceptions:
+          enabled: true
+          # -- Restrict policy exceptions to a single namespace
+          namespace: 'kyverno'
     bbtests:
       enabled: true
 
@@ -560,6 +501,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -567,7 +509,6 @@ kyvernoPolicies:
               - mattermost
               - nexus-repository-manager
               - keycloak
-              - jaeger
               - kyverno-reporter
               - mimir
               - monitoring
@@ -603,6 +544,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -611,7 +553,6 @@ kyvernoPolicies:
               - nexus-repository-manager
               - keycloak
               - kyverno-reporter
-              - jaeger
               - mimir
               - monitoring
               - vault
@@ -653,6 +594,7 @@ kyvernoPolicies:
               namespaces:
               - anchore
               - backstage
+              - bbctl
               - gitlab
               - gitlab-runner
               - kiali
@@ -661,7 +603,6 @@ kyvernoPolicies:
               - nexus-repository-manager
               - keycloak
               - kyverno-reporter
-              - jaeger
               - mimir
               - monitoring
               - vault
@@ -855,7 +796,7 @@ eckOperator:
                 protocol: TLS
                 name: https
             resolution: DNS
-            
+
 elasticsearchKibana:
   enabled: false
   sso:
@@ -1080,7 +1021,7 @@ tempo:
           memory: 128Mi
 
 promtail:
-  enabled: true
+  enabled: false
 
 monitoring:
   flux:
@@ -1121,9 +1062,11 @@ monitoring:
     kube-state-metrics:
       resources:
         requests:
-          cpu: 10m
-          memory: 32Mi
-        limits: {}
+          cpu: 40m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
     prometheus-node-exporter:
       resources:
         requests:
@@ -1297,12 +1240,29 @@ bbctl:
     bbtests:
       enabled: true
       cypress:
+        artifacts: true
         envs:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           cypress_grafana_username: 'admin'
           cypress_grafana_password: 'prom-operator'
 alloy:
-  enabled: false
+  enabled: true
+  alloyLogs:
+    enabled: true
+  values:
+    k8s-monitoring:
+      destinations:
+        - name: loki
+          type: loki
+          url: http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push
+      alloy-logs:
+        enabled: true
+      podLogs:
+        enabled: true
+        destinations:
+          - loki
+        collector: alloy-logs
+
 # Addons are toggled based on labels in CI
 addons:
   argocd:
@@ -1320,7 +1280,7 @@ addons:
       controller:
         resources:
           requests:
-            memory: 2Gi      
+            memory: 2Gi
       redis-bb:
         master:
           persistence:
@@ -1334,12 +1294,12 @@ addons:
       redis:
         resources:
           requests:
-            memory: 256Mi 
+            memory: 256Mi
       repoServer:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi          
+            memory: 128Mi
       configs:
         secret:
           argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
@@ -1698,90 +1658,90 @@ addons:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       sso:
         resources:
           requests:
-            memory: 200Mi          
+            memory: 200Mi
       postgresql:
         persistence:
           size: 256Mi
         resources:
           requests:
-            memory: 1024Mi          
+            memory: 1024Mi
         metrics:
           resources:
             requests:
-              memory: 200Mi            
+              memory: 200Mi
       analyzer:
         replicaCount: 1
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       api:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       catalog:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       policyEngine:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       simpleQueue:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       upgradeJob:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       feeds:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
         feeds-db:
           resources:
             requests:
-              memory: 200Mi            
+              memory: 200Mi
           metrics:
             resources:
               requests:
-                memory: 200Mi              
+                memory: 200Mi
         feedsUpgradeJob:
           resources:
             requests:
               cpu: 100m
-              memory: 200Mi            
+              memory: 200Mi
       rbacManager:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       reports:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       notifications:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       ui:
         resources:
           requests:
             cpu: 100m
-            memory: 200Mi          
+            memory: 200Mi
       ui-redis:
         replica:
           replicaCount: 0
@@ -1839,12 +1799,12 @@ addons:
       resources:
         requests:
           cpu: 100m
-          memory: 200Mi        
+          memory: 200Mi
       persistence:
         size: 5Gi
       postgresql:
         persistence:
-          size: 256Mi      
+          size: 256Mi
       bbtests:
         enabled: true
         cypress:
@@ -2291,6 +2251,21 @@ addons:
     values:
       istio:
         hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-keycloak"
+              enabled: true
+              spec:
+                hosts:
+                  - 'keycloak.dev.bigbang.mil'
+                  - 'repo1.dso.mil'
+                exportTo:
+                  - "."
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
@@ -2401,7 +2376,7 @@ addons:
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
       networkPolicies:
-        enabled: true    
+        enabled: true
 
   vault:
     enabled: false
@@ -2524,7 +2499,6 @@ addons:
   harbor:
     # -- Toggle deployment of harbor
     enabled: false
-
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
@@ -2703,7 +2677,7 @@ addons:
     values:
       bbtests:
         enabled: true
-        
+
   # ----------------------------------------------------------------------------------------------------------------------
   # Headlamp
   #

@@ -3,23 +3,6 @@
 networkPolicies:
   controlPlaneCidr: 10.0.0.0/8
 
-istio:
-  values:
-    global: 
-      proxy:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits: null
-    defaultConfig:
-      proxyMetadata:
-        ISTIO_META_DNS_CAPTURE: "true"
-        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-    bbtests:
-      cypress:
-        artifacts: false
-
 neuvector:
   values:
     k3s:
@@ -30,17 +13,6 @@ neuvector:
       cypress:
         artifacts: false
 
-clusterAuditor:
-  values:
-    resources:
-      requests:
-        cpu: 300m
-        memory: 300Mi
-      limits: null
-    bbtests:
-      cypress:
-        artifacts: false
-    
 gatekeeper:
   values:
     replicas: 1
@@ -179,12 +151,6 @@ twistlock:
     console:
       persistence:
         size: 5Gi
-
-jaeger:
-  values:
-    bbtests:
-      cypress:
-        artifacts: false
 
 kiali:
   values:

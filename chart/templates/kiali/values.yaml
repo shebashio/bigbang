@@ -19,10 +19,7 @@ image:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.kiali.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-    }}
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
     monitoring:
       enabled: {{ .Values.monitoring.enabled }}
   kiali:
@@ -93,10 +90,7 @@ upstream:
         {{- if or .Values.istiod.enabled .Values.tempo.enabled }}
         tracing:
           enabled: true
-          {{- if .Values.jaeger.enabled }}
-          {{- $tracingUrl := first (dig "istio" "jaeger" "hosts" list .Values.jaeger.values) }}
-          url: https://{{ tpl ($tracingUrl | default (printf "%s.%s" "tracing" $domainName )) . }}
-          {{- else if .Values.tempo.enabled }}
+          {{- if .Values.tempo.enabled }}
           internal_url: http://tempo-tempo.tempo.svc.cluster.local:3100
           provider: tempo
           {{- end}}
@@ -108,14 +102,14 @@ upstream:
                 is_core: true
                 is_proxy: false
               {{- if $istioEnabled }}
-              {{- range $name, $values := .Values.istio.ingressGateways }}
+              {{- range $name, $values := .Values.istioGateway.values.gateways }}
               {{ if ne $values.enabled false }}
               - app_label: {{ $name }}
                 is_core: true
                 is_proxy: true
               {{- end }}
               {{- end }}
-              {{- range $name, $values := .Values.istio.values.ingressGateways }}
+              {{- range $name, $values := .Values.istioGateway.values.gateways }}
               {{ if ne $values.enabled false }}
               - app_label: {{ $name }}
                 is_core: true

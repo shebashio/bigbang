@@ -13,12 +13,27 @@ helmRepositories:
         R8XrntaedsdEhPPchOQuFzqTyyAPGifV1SaEu8medVRi6mVICWbVwOteNg==
         -----END PUBLIC KEY-----
 
-istio:
+istioCRDs:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
 
-istioOperator:
+istiod:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+istioGateway:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+alloy:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+bbctl:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
@@ -83,22 +98,12 @@ fluentbit:
   helmRepo:
     cosignVerify: false
 
-jaeger:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
-
 eckOperator:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
 
 elasticsearchKibana:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
-
-clusterAuditor:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false

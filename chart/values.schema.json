@@ -14,14 +14,11 @@
     "flux",
     "networkPolicies",
     "imagePullPolicy",
+    "disableAutomaticPassthroughValues",
     "istioCRDs",
     "istioGateway",
     "istiod",
-    "istio",
-    "istioOperator",
-    "jaeger",
     "kiali",
-    "clusterAuditor",
     "gatekeeper",
     "kyverno",
     "kyvernoPolicies",
@@ -241,6 +238,11 @@
         "IfNotPresent"
       ]
     },
+    "disableAutomaticPassthroughValues": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, disables the automatic passthrough of values to upstream packages."
+    },
     "istioCRDs": {
       "properties": {
         "enabled": true,
@@ -256,7 +258,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istiod": {
       "properties": {
@@ -273,7 +275,7 @@
           "$ref": "#/$defs/basePackage"
         }
       ],
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "istioGateway": {
       "properties": {
@@ -284,82 +286,6 @@
         "flux": true,
         "values": true,
         "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": true
-    },
-    "istio": {
-      "properties": {
-        "enabled": true,
-        "mtls": {
-          "type": "object"
-        },
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "enterprise": {
-          "type": "boolean"
-        },
-        "ingressGateways": {
-          "type": "object"
-        },
-        "gateways": {
-          "type": "object"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "istioOperator": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "jaeger": {
-      "required": [
-        "sso",
-        "ingress"
-      ],
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
-        },
-        "sso": {
-          "$ref": "#/$defs/sso"
-        },
-        "ingress": {
-          "$ref": "#/$defs/ingress"
-        }
       },
       "allOf": [
         {
@@ -389,27 +315,8 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
-      },
-      "allOf": [
-        {
-          "$ref": "#/$defs/basePackage"
-        }
-      ],
-      "additionalProperties": false
-    },
-    "clusterAuditor": {
-      "properties": {
-        "enabled": true,
-        "sourceType": true,
-        "git": true,
-        "helmRepo": true,
-        "flux": true,
-        "values": true,
-        "postRenderers": true,
-        "istio": {
-          "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -426,7 +333,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -443,7 +351,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -460,7 +369,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -480,7 +390,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -527,7 +438,8 @@
             "elasticsearch": true,
             "kibana": true
           }
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -547,7 +459,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -567,7 +480,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -587,7 +501,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "allOf": [
         {
@@ -654,7 +569,8 @@
               "type": "object"
             }
           }
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -720,7 +636,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -777,7 +694,8 @@
               "type": "boolean"
             }
           }
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -878,7 +796,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -912,7 +831,8 @@
               "type": "string"
             }
           }
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -989,7 +909,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -1050,7 +971,8 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -1071,7 +993,8 @@
         },
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -1365,7 +1288,8 @@
         },
         "helmRepo": {
           "$ref": "#/$defs/helmRepo"
-        }
+        },
+        "disableAutomaticPassthroughValues": true
       },
       "additionalProperties": false
     },
@@ -1539,6 +1463,11 @@
         },
         "postRenderers": {
           "$ref": "#/$defs/postRenderers"
+        },
+        "disableAutomaticPassthroughValues": {
+          "description": "DisableAutomaticPassthroughValues disables the automatic passthrough of values from the parent chart to the child chart. This is useful when you want to have full control over the values passed to the child chart.",
+          "type": "boolean",
+          "default": false
         }
       }
     },

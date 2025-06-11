@@ -63,16 +63,8 @@ networkPolicies:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.tempo.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
-    }}
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
   tempoQuery:
-    # Set TempoQuery UI to "tempo." if Jaeger is enabled
-    {{- if .Values.jaeger.enabled }}
-    hosts:
-      - "tempo.{{ .Values.domain }}"
-    {{- end }}
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.tempo.ingress.gateway "root" .)}}
 

@@ -123,6 +123,12 @@ flux:
   interval: 2m
   test:
     enable: false
+  driftDetection:
+    mode: enabled # Valid Modes disabled | enabled | warn
+    ignore: 
+      - paths: [""] # ignore all jobs, as jobs with ttlSecondsAfterFinished are not handled
+        target:
+          kind: Job
   install:
     remediation:
       retries: -1
@@ -157,43 +163,59 @@ networkPolicies:
 # Permitted values are: None, Always, IfNotPresent
 imagePullPolicy: IfNotPresent
 
+# -- Flag for temporary workaround for passthrough chart migrations
+# This is the global flag to disable automatic passthrough values for all packages.
+# Alternatively, you can set this flag to `true` in the individual package values to disable passthrough for that package.
+# This will be removed in a future release.
+disableAutomaticPassthroughValues: false
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
 
 istioCRDs:
   # -- Toggle deployment of Istio CRDs
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-crds.git
     path: "./chart"
-    tag: 1.25.2-bb.0
+    tag: 1.25.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.25.2-bb.0
+    tag: 1.25.3-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
-  flux: {}
+  flux:
+    driftDetection:
+      mode: warn
+      ignore:
+      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istiod-default-validator
+      - paths: [""]
+        target:
+          kind: Job
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
 istiod:
   # -- Toggle deployment of istiod
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/apps/sandbox/istiod.git
     path: "./chart"
-    tag: 1.25.2-bb.4
+    tag: 1.25.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.25.2-bb.4
+    tag: 1.25.3-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -202,23 +224,33 @@ istiod:
   #       hub: registry1.dso.mil/ironbank/tetrate/istio
 
   # -- Flux reconciliation overrides specifically for the Istio Core Package
-  flux: {}
+  flux:
+    driftDetection:
+      mode: warn
+      ignore:
+      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+        target:
+          kind: ValidatingWebhookConfiguration
+          name: istio-validator-istio-system
+      - paths: [""]
+        target:
+          kind: Job
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
 istioGateway:
-  # -- Toggle deployment of Istio Gateway(s)  
-  enabled: false
+  # -- Toggle deployment of Istio Gateway(s)
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.25.2-bb.1
+    tag: 1.25.3-bb.2
   helmRepo:
     repoName: "registry1"
     chartName: "istio-gateway"
-    tag: 1.25.2-bb.1
+    tag: 1.25.3-bb.2
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -286,7 +318,21 @@ istioGateway:
   #           mode: ISTIO_MUTUAL
 
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: PeerAuthentication
+            namespace: "istio-gateway"
+        - paths: [""]
+          target:
+            kind: AuthorizationPolicy
+            namespace: "istio-gateway"
+        - paths: [""]
+          target:
+            kind: NetworkPolicy
+            namespace: "istio-gateway"
   # -- Post Renderers.  See docs/postrenders.md
   # The istioGateway package supports advanced postRenderer definitions. If an array of postRenderers is provided, the
   # postRenderers will be applied to all gateways. If a map of postRenderers is provided, the postRenderers
@@ -315,220 +361,6 @@ istioGateway:
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
 
-istio:
-  # -- Toggle deployment of Istio.
-  enabled: true
-  mtls:
-    # -- STRICT = Allow only mutual TLS traffic,
-    # PERMISSIVE = Allow both plain text and mutual TLS traffic
-    mode: STRICT
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
-    path: "./chart"
-    tag: "1.23.6-bb.1"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istio"
-    tag: "1.23.6-bb.1"
-    # -- If the HelmRelease should verify the cosign signature of the HelmRepo (only relevant if Repo is OCI).  Set to 'false' to disable verification.
-    # cosignVerify:
-
-  # -- Tetrate Istio Distribution - Tetrate provides FIPs verified Istio and Envoy software and support,
-  # validated through the FIPs Boring Crypto module. Find out more from Tetrate - https://www.tetrate.io/tetrate-istio-subscription
-  enterprise: false
-
-  # Ingress gateways are created based on the key name.  Adding more keys will add ingress gateways.
-  # Ingress gateways are setup in a Horizontal Pod Autoscaler with 1 to 5 replicas
-  # Besides some ports needed by Istio, only ports 80 and 443 are opened
-  # Ingress gateways that require more configuration can be completed using `istio.values`
-  ingressGateways:
-    public-ingressgateway:
-      type: "LoadBalancer" # or "NodePort"
-      kubernetesResourceSpec: {} # https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#KubernetesResourcesSpec
-
-    # private-ingressgateway:
-    #   type: "LoadBalancer" # or "NodePort"
-    #   kubernetesResourceSpec: # https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#KubernetesResourcesSpec
-    #     serviceAnnotations: # Example for AWS internal load balancer
-    #       service.beta.kubernetes.io/aws-load-balancer-type: nlb
-    #       service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-
-    # passthrough-ingressgateway:
-    #   type: "NodePort" # or "LoadBalancer"
-    #   # Node ports are assigned starting from nodePortBase.  The nodePortBase specifies the start of a range of 4 unused node ports.
-    #   # Node port will be assigned as follows: Port 15021 (Status) = nodePortBase, Port 80 = nodePortBase+1, Port 443 = nodePortBase+2, Port 15443 (SNI) = nodePortBase+3
-    #   # Node port base should be in the range from 30000 to 32764
-    #   nodePortBase: 32000  # Alternatively, the kubernetesResourceSpec can be used to configure all port parameters
-
-  gateways:
-    public:
-      ingressGateway: "public-ingressgateway"
-      hosts:
-        - "*.{{ .Values.domain }}"
-      # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-      autoHttpRedirect:
-        enabled: true
-      tls:
-        key: ""
-        cert: ""
-        minProtocolVersion: ""
-    # private:
-    #   ingressGateway: "private-ingressgateway"
-    #   hosts:
-    #   - "example.bigbang.dev"
-    #   ports:
-    #     - name: tls-2
-    #       number: 1234
-    #       protocol: TCP
-    #     - name: tls
-    #       number: 5678
-    #       protocol: TCP
-    #   # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-    #   autoHttpRedirect:
-    #     enabled: false
-    #   tls:
-    #     key: ""
-    #     cert: ""
-    #     minProtocolVersion: ""
-    # passthrough:
-    #   ingressGateway: "passthrough-ingressgateway"
-    #   hosts:
-
-    ####
-    # Alternate multi-server configuration method
-    ####
-    # private:
-    #   ingressGateway: "private-ingressgateway"
-    #   servers:
-    #   - hosts:
-    #     - "example.bigbang.dev"
-    #     port:
-    #       name: tls-1
-    #       number: 1234
-    #       protocol: TCP
-    #   # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-    #     autoHttpRedirect:
-    #       enabled: false
-    #     tls:
-    #       key: ""
-    #       cert: ""
-    #       minProtocolVersion: ""
-    #   - hosts:
-    #     - "example.bigbang.dev"
-    #     port:
-    #       name: tls-2
-    #       number: 5678
-    #       protocol: TCP
-    #   # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-    #     autoHttpRedirect:
-    #       enabled: false
-    #     tls:
-    #       key: ""
-    #       cert: ""
-    #       minProtocolVersion: ""
-    # passthrough:
-    #   ingressGateway: "passthrough-ingressgateway"
-    #   hosts:
-    #   - "*.{{ .Values.domain }}"
-    #   # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-    #   autoHttpRedirect:
-    #     enabled: true
-    #   tls:
-    #     mode: "PASSTHROUGH"
-    # mutual:
-    #   ingressGateway: "mutual-ingressgateway"
-    #   hosts:
-    #   - "*.{{ .Values.domain }}"
-    #   # -- Controls default HTTP/8080 server entry with HTTP to HTTPS Redirect.
-    #   autoHttpRedirect:
-    #     enabled: true
-    #   tls:
-    #     mode: MUTUAL
-    #     cert: ""
-    #     key: ""
-    #     ca: ""
-
-  # -- Flux reconciliation overrides specifically for the Istio Package
-  flux: {}
-
-  # -- Values to passthrough to the istio-controlplane chart: https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-istioOperator:
-  # -- Toggle deployment of Istio Operator.
-  enabled: true
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
-    path: "./chart"
-    tag: "1.23.6-bb.0"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istio-operator"
-    tag: "1.23.6-bb.0"
-
-  # -- Flux reconciliation overrides specifically for the Istio Operator Package
-  flux: {}
-
-  # -- Values to passthrough to the istio-operator chart: https://repo1.dso.mil/big-bang/product/packages/istio-operator.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-jaeger:
-  # -- Toggle deployment of Jaeger.
-  enabled: false
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-    path: "./chart"
-    tag: "2.57.0-bb.8"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "jaeger"
-    tag: "2.57.0-bb.8"
-
-  # -- Flux reconciliation overrides specifically for the Jaeger Package
-  flux:
-    install:
-      crds: CreateReplace
-    upgrade:
-      crds: CreateReplace
-
-  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-  ingress:
-    gateway: ""
-
-  sso:
-    # -- Toggle SSO for Jaeger on and off
-    enabled: false
-
-    # -- OIDC Client ID to use for Jaeger
-    client_id: ""
-
-    # -- OIDC Client Secret to use for Jaeger
-    client_secret: ""
-
-  # -- Values to pass through to Jaeger chart: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
 kiali:
   # -- Toggle deployment of Kiali.
   enabled: true
@@ -546,7 +378,12 @@ kiali:
     tag: "2.9.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""] # The Kiali kind is updated during runtime
+          target:
+            kind: Kiali
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -567,37 +404,6 @@ kiali:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Cluster Auditor
-#
-clusterAuditor:
-  # -- Toggle deployment of Cluster Auditor.
-  enabled: false
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
-    path: "./chart"
-    tag: "1.5.0-bb.25"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "cluster-auditor"
-    tag: "1.5.0-bb.25"
-
-  # -- Flux reconciliation overrides specifically for the Cluster Auditor Package
-  flux: {}
-
-  # -- Values to passthrough to the cluster auditor chart: https://repo1.dso.mil/big-bang/product/packages/cluster-auditor.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-# ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
 # OPA Gatekeeper
@@ -645,14 +451,22 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.3.6-bb.2"
+    tag: "3.3.6-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.3.6-bb.2"
+    tag: "3.3.6-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: CustomResourceDefinition
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Values to passthrough to the kyverno chart: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
   values: {}
@@ -670,14 +484,22 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.9"
+    tag: "3.3.4-bb.10"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.9"
+    tag: "3.3.4-bb.10"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: ClusterPolicy
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Values to passthrough to the kyverno policies chart: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
   values: {}
@@ -695,11 +517,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.0.3-bb.1"
+    tag: "3.1.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.0.3-bb.1"
+    tag: "3.1.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -725,15 +547,26 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.28.0-bb.6"
+    tag: "1.30.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.28.0-bb.6"
+    tag: "1.30.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
     timeout: 20m
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: Kibana
+        - paths: [""]
+          target:
+            kind: Elasticsearch
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -803,11 +636,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.48.10-bb.0"
+    tag: "0.49.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -823,7 +656,7 @@ fluentbit:
 #
 promtail:
   # -- Toggle deployment of Promtail.
-  enabled: true
+  enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -831,11 +664,11 @@ promtail:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
     path: "./chart"
-    tag: "6.16.6-bb.4"
+    tag: "6.16.6-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "promtail"
-    tag: "6.16.6-bb.4"
+    tag: "6.16.6-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Promtail Package
   flux: {}
@@ -856,14 +689,25 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.29.0-bb.1"
+    tag: "6.30.1-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.29.0-bb.1"
+    tag: "6.30.1-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: Tenant
+        - paths: [""]
+          target:
+           kind: Sidecar
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Loki architecture.  Options are monolith and scalable
   strategy: monolith
@@ -943,7 +787,21 @@ neuvector:
     group_mapped_roles: []
 
   # -- Flux reconciliation overrides specifically for the Neuvector Package
-  flux: {}
+  flux:
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: CronJob
+        - paths: [""]
+          target:
+            kind: Lease
+        - paths: [""]
+          target:
+            kind: Secret
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Values to passthrough to the Neuvector chart: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
   values: {}
@@ -1033,11 +891,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "72.2.0-bb.0"
+    tag: "72.2.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "72.2.0-bb.0"
+    tag: "72.2.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1045,6 +903,20 @@ monitoring:
       crds: CreateReplace
     upgrade:
       crds: CreateReplace
+    driftDetection:
+      ignore:
+        - paths: [""]
+          target:
+            kind: Alertmanager
+        - paths: [""]
+          target:
+            kind: Prometheus
+        - paths: [""]
+          target:
+            kind: PrometheusRule
+        - paths: [""]
+          target:
+            kind: Job
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1088,11 +960,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "8.14.0-bb.0"
+    tag: "9.2.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "8.14.0-bb.0"
+    tag: "9.2.2-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1139,11 +1011,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.20.1-bb.0"
+    tag: "0.20.1-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.20.1-bb.0"
+    tag: "0.20.1-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1185,12 +1057,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "1.0.0-bb.9"
+    tag: "2.0.0-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "1.0.0-bb.9"
+    tag: "2.0.0-bb.1"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1210,7 +1082,7 @@ bbctl:
 #
 alloy:
   # -- Toggle deployment of grafana alloy
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1224,7 +1096,7 @@ alloy:
     chartName: "k8s-monitoring"
     tag: "2.0.27-bb.0"
 
-  # -- Toggle Alloy to collect logs 
+  # -- Toggle Alloy to collect logs
   alloyLogs:
     enabled: true
 
@@ -1303,11 +1175,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
       path: "./chart"
-      tag: "2.5.2-bb.1"
+      tag: "2.5.2-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "backstage"
-      tag: "2.5.2-bb.1"
+      tag: "2.5.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Backstage Package
     flux: { }
@@ -1409,11 +1281,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1449,11 +1321,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "8.11.2-bb.3"
+      tag: "9.0.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "8.11.2-bb.3"
+      tag: "9.0.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1590,11 +1462,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "79.0.0-bb.0"
+      tag: "79.0.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "79.0.0-bb.0"
+      tag: "79.0.0-bb.2"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1909,14 +1781,22 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.7.2-bb.0"
+      tag: "10.8.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.7.2-bb.0"
+      tag: "10.8.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
-    flux: {}
+    flux:
+      driftDetection:
+        ignore:
+          - paths: [""]
+            target:
+              kind: Mattermost
+          - paths: [""]
+            target:
+              kind: Job
 
     # -- Mattermost Enterprise functionality.
     enterprise:
@@ -2096,14 +1976,22 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.3"
+      tag: "0.30.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
-    flux: {}
+    flux:
+      driftDetection:
+        ignore:
+          - paths: [""]
+            target:
+              kind: MutatingWebhookConfiguration
+          - paths: [""]
+            target:
+              kind: Job
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
@@ -2164,14 +2052,14 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/platform-one/big-bang/apps/sandbox/harbor.git
-      tag: "1.16.2-bb.4"
+      tag: "1.17.1-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.16.2-bb.4"
+      tag: "1.17.1-bb.0"
 
-    # -- Flux reconciliation overrides specifically for the Jaeger Package
+    # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
@@ -2238,7 +2126,15 @@ addons:
       tag: "16.0.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
-    flux: {}
+    flux:
+      driftDetection:
+        ignore:
+          - paths: [""]
+            target:
+              kind: Tenant
+          - paths: [""]
+            target:
+              kind: Job
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
@@ -2306,7 +2202,7 @@ addons:
       defaultUserCredentials:
         username: "mimir-user"
         password: "supersecret"
-    
+
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
       enabled: false
@@ -2326,14 +2222,14 @@ addons:
 
       # -- Bucket name for the Mimir bucket as YAML
       bucketName: ""
-      
+
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
 
-    # -- Mimir Service Account Annotations 
+    # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}
       ## Example IRSA Service Account Annotation
-      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>" 
+      # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
 
     values: {}
 
@@ -2354,12 +2250,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.30.1-bb.1"
+      tag: "0.30.1-bb.8"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.30.1-bb.1"
+      tag: "0.30.1-bb.8"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2497,4 +2393,4 @@ packages:
     # -- Values to pass through to package Helm chart
     values: {}
 
-    
+
