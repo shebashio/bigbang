@@ -39,9 +39,13 @@ flowchart BT
         end
         subgraph KyvernoStack[Default]
           direction BT
-          KyvernoReporter[Kyverno Reporter] --> Kyverno[Kyverno]
+          KyvernoReporter[Kyverno Reporter]
+          Kyverno[Kyverno]
         end
       end
+
+      %% PE Dependencies
+      KyvernoReporter --> Kyverno
 
     end
 
@@ -106,31 +110,52 @@ flowchart BT
 ```mermaid
 flowchart BT
   subgraph AddOns
-    direction LR
+  direction BT
 
-    subgraph r2
-      style r2 fill:transparent,stroke:transparent,color:transparent
+    subgraph DT[DevSecOps Tools]
+
+      subgraph Repo[Repository Storage]
       direction BT
-
-      subgraph DT[Developer Tools]
-        direction BT
-        GLRunners[GitLab Runners] --> GitLab
         Nexus[Nexus Repository]
         Harbor
-        Sonarqube
-        Fortify
+      end
+
+      subgraph UI[Dashboards and UIs]
+      direction BT
         Backstage
-        Headlamp
       end
 
-      subgraph "Collaboration"
-        Mattermost
+      subgraph Scan[Vulnerability Scanning]
+      direction BT
+        Anchore
+        Fortify
+        Sonarqube
       end
 
-      subgraph AppUtils[Storage Utilities]
-        MinIO
+      subgraph ContDeploy[CI/CD]
+      direction BT
+        GLRunners[GitLab Runners]
+        GitLab
+        ArgoCD
       end
 
+    end
+
+    subgraph Row2
+      style Row2 fill:transparent,stroke:transparent,color:transparent
+      direction BT
+
+        subgraph Obs[Observability]
+          Metrics[Metrics Server]
+          Mimir
+          Thanos
+          Headlamp
+        end
+
+        subgraph AppUtils[Storage & Backup Utilities]
+          MinIO
+          Velero
+        end
 
     end
 
@@ -138,32 +163,33 @@ flowchart BT
       style Row1 fill:transparent,stroke:transparent,color:transparent
       direction BT
 
-      Istio
-      formattingNode[ ]:::invisible
-
-      subgraph Row1Grouper
-        style Row1Grouper fill:transparent,stroke:transparent,color:transparent
-
-        subgraph CUtil[Cluster Utilities]
-          ArgoCD
-          Velero
-          Metrics[Metrics Server]
-          Mimir
+        subgraph Collab[Collaboration]
+          Mattermost
         end
 
-        subgraph Sec[Security]
-          Anchore
-          Authservice
-          Keycloak
+        subgraph SM[Secrets Management]
           Vault[Vault*]
           ESO[External Secrets]
         end
-      end
 
-      Authservice --> Istio
-      ArgoCD ~~~ formattingNode
+        subgraph Sec[SSO]
+        direction LR
+          Authservice
+          Keycloak
+        end
 
+    Istio
+    formattingNode[ ]:::invisible
+    
     end
+      
+
+    Authservice --> Istio
+    GLRunners --> GitLab
+    Vault ~~~ formattingNode
+    Mattermost ~~~ formattingNode
+    Row2 ~~~ Row1
+    DT ~~~ Row2
 
   end
 
