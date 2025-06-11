@@ -129,6 +129,9 @@ flux:
       - paths: [""] # ignore all jobs, as jobs with ttlSecondsAfterFinished are not handled
         target:
           kind: Job
+      - paths: [""] # ignore all stateful sets, as stateful sets seem to have issues with drift detection around finding cluster state when calculating diffs
+        target:
+          kind: StatefulSet
   install:
     remediation:
       retries: -1
