@@ -126,12 +126,21 @@ flowchart BT
           ArgoCD
         end
         subgraph DT-1[ ]
-          style DT-1 fill:transparent,stroke:transparent
-          direction LR
+        style DT-1 fill:transparent,stroke:transparent
+        direction LR
+
+          subgraph Scan[Vulnerability Scanning]
+          direction BT
+            Anchore
+            Fortify
+            Sonarqube
+          end
+
           subgraph DT-2[ ]
-            style DT-2 fill:transparent,stroke:transparent
-            direction BT
+          style DT-2 fill:transparent,stroke:transparent
+          direction BT
             subgraph Repo[Repositories]
+            direction LR
               Harbor
               Nexus[Nexus Repository]
             end
@@ -139,12 +148,7 @@ flowchart BT
               Backstage
             end
           end
-          subgraph Scan[Vulnerability Scanning]
-          direction BT
-            Anchore
-            Fortify
-            Sonarqube
-          end
+
         end
       end
 
