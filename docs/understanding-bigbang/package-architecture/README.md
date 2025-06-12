@@ -119,22 +119,37 @@ flowchart BT
 
       subgraph DT[DevSecOps Tools]
       style DT stroke-dasharray: 10 10
-        subgraph UI[Dashboards and UIs]
-        direction BT
-          Backstage
-        end
-        subgraph Scan[Vulnerability Scanning]
-        direction BT
-          Anchore
-          Fortify
-          Sonarqube
-        end
         subgraph ContDeploy[CI/CD]
         direction BT
           GLRunners[GitLab Runners]
           GitLab
           ArgoCD
         end
+        subgraph DT-1[ ]
+          style DT-1 fill:transparent,stroke:transparent
+          direction LR
+          subgraph DT-2[ ]
+            style DT-2 fill:transparent,stroke:transparent
+            direction BT
+            subgraph Repo[Repositories]
+              Harbor
+              Nexus[Nexus Repository]
+            end
+            subgraph UI[Dashboards and UIs]
+              Backstage
+            end
+          end
+          subgraph Scan[Vulnerability Scanning]
+          direction BT
+            Anchore
+            Fortify
+            Sonarqube
+          end
+        end
+      end
+
+      subgraph Collab[Collaboration]
+        Mattermost
       end
 
       subgraph Storage[Storage & Backup]
@@ -143,11 +158,6 @@ flowchart BT
         Velero
       end
       
-      subgraph Repo[Repositories]
-      direction BT
-        Harbor
-        Nexus[Nexus Repository]
-      end
     
     end
 
@@ -160,10 +170,6 @@ flowchart BT
           Mimir
           Thanos
           Headlamp
-        end
-
-        subgraph Collab[Collaboration]
-          Mattermost
         end
 
         subgraph SM[Secrets Management]
@@ -188,13 +194,13 @@ flowchart BT
 
     %% Row 1 Formatters
     Vault ~~~ formattingNode
-    Mattermost ~~~ formattingNode
+    %%Mattermost ~~~ formattingNode
     Metrics ~~~ formattingNode
 
     %%Row 2 Formatters
     Row2 ~~~ Row1
+    Collab ~~~ DT
     Storage ~~~ DT
-    Repo ~~~ DT
 
   end
 
@@ -278,6 +284,18 @@ Runtime security is the active protection of containers running in the cluster. 
 
 End users can extend Big Bang services beyond the core packages by enabling any of the many team-supported addon packages. Addons are supported by the Big Bang team and integrated with the core platform (Istio, Kyverno, Prometheus etc..) There are additional community-supported Big Bang packages that are not listed as addons.
 
+### Security
+
+Security packages add additional security features for protecting services or data from unauthorized access or exploitation.  This includes things like identity providers (IdP), identity brokers, authentication (AuthN), authorization (AuthZ), single sign-on (SSO), security scanning, intrusion detection/prevention, and sensitive data protection.
+
+|Package|Function|Repository|
+|--|--|--|
+|[Anchore](./anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
+|[Authservice](./authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
+|[Keycloak](./keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
+|[Vault](./vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
+|[External Secrets](./external-secrets-operator.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
+
 ### Storage Utilities
 
 For non-critical or on-prem deployments where data loss is an acceptable risk, these utilities offer a simple and low-cost solution for in-cluster data persistence (databases, object / blob storage, and caches). However, if scalability, availability, and resiliency (e.g. backup and restore) are requirements, it is generally advantageous to instead use a managed, cloud based offering.
@@ -297,18 +315,6 @@ Cluster utilities add functionality to Kubernetes clusters rather than applicati
 |[Metrics Server](./metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
 |[Velero](./velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
 |[Mimir](./mimir.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
-
-### Security
-
-Security packages add additional security features for protecting services or data from unauthorized access or exploitation.  This includes things like identity providers (IdP), identity brokers, authentication (AuthN), authorization (AuthZ), single sign-on (SSO), security scanning, intrusion detection/prevention, and sensitive data protection.
-
-|Package|Function|Repository|
-|--|--|--|
-|[Anchore](./anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
-|[Authservice](./authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
-|[Keycloak](./keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
-|[Vault](./vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
-|[External Secrets](./external-secrets-operator.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
 
 ### Collaboration
 
