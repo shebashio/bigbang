@@ -22,26 +22,24 @@ flowchart LR
       direction LR
 
       subgraph RS[Runtime Security]
+        subgraph NV[Default]
+          Neuvector[Neuvector]
+        end
         subgraph CC[Alternative]
           style CC stroke-dasharray: 10 10
           Twistlock[Prisma Cloud Compute]
         end
-        subgraph NV[Default]
-          Neuvector[Neuvector]
-        end
       end
 
       subgraph PE[Policy Enforcement]
-        direction BT
-        subgraph CA[Alternative]
-          style CA stroke-dasharray: 10 10
-          direction BT
-          OPA[OPA Gatekeeper]
-        end
         subgraph KyvernoStack[Default]
-          direction BT
+        direction BT
           KyvernoReporter[Kyverno Reporter]
           Kyverno[Kyverno]
+        end
+        subgraph CA[Alternative]
+          style CA stroke-dasharray: 10 10
+          OPA[OPA Gatekeeper]
         end
       end
 
@@ -54,9 +52,13 @@ flowchart LR
       style Group1 fill:transparent,stroke:transparent,color:transparent
       direction BT
 
-      subgraph M[Monitoring]
-        Grafana[Grafana]
-        Prometheus[Prometheus]
+      subgraph SM[Service Mesh]
+        Kiali[Kiali]
+        Istio[Istio]
+      end
+
+      subgraph DT[Distributed Tracing]
+        Tempo[Tempo]
       end
 
       subgraph L[Logging]
@@ -73,13 +75,9 @@ flowchart LR
         end
       end
 
-      subgraph DT[Distributed Tracing]
-        Tempo[Tempo]
-      end
-
-      subgraph SM[Service Mesh]
-        Kiali[Kiali]
-        Istio[Istio]
+      subgraph M[Monitoring]
+        Grafana[Grafana]
+        Prometheus[Prometheus]
       end
 
       %% Forces DT subgraph under SM subgraph
