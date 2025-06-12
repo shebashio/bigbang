@@ -12,5 +12,6 @@ spec:
     name: kyverno
   path: "./chart/crds"
   prune: true
+  force: true
   timeout: 1m
 {{- end }}
