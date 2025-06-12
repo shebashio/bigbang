@@ -288,37 +288,34 @@ Runtime security is the active protection of containers running in the cluster. 
 
 End users can extend Big Bang services beyond the core packages by enabling any of the many team-supported addon packages. Addons are supported by the Big Bang team and integrated with the core platform (Istio, Kyverno, Prometheus etc..) There are additional community-supported Big Bang packages that are not listed as addons.
 
-### Security
+### Single Sign-On
 
-Security packages add additional security features for protecting services or data from unauthorized access or exploitation.  This includes things like identity providers (IdP), identity brokers, authentication (AuthN), authorization (AuthZ), single sign-on (SSO), security scanning, intrusion detection/prevention, and sensitive data protection.
+Single sign-on tools include packages that provide centralized authentication and authorization. This includes identity providers, authentication proxies, and session management.
 
 |Package|Function|Repository|
 |--|--|--|
-|[Anchore](./anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
 |[Authservice](./authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
 |[Keycloak](./keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
+
+### Secrets Management
+
+Secrets management tools include packages that securely store, distribute, and rotate sensitive data such as passwords, API keys, and certificates. This includes encrypted storage, dynamic secrets generation, and access policies.
+
+|Package|Function|Repository|
+|--|--|--|
 |[Vault](./vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
 |[External Secrets](./external-secrets-operator.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
 
-### Storage Utilities
+### Observability
 
-For non-critical or on-prem deployments where data loss is an acceptable risk, these utilities offer a simple and low-cost solution for in-cluster data persistence (databases, object / blob storage, and caches). However, if scalability, availability, and resiliency (e.g. backup and restore) are requirements, it is generally advantageous to instead use a managed, cloud based offering.
-
-|Stack|Package|Function|Repository|
-|--|--|--|--|
-|MinIO|MinIO Operator|Operator|[minio-operator](https://repo1.dso.mil/big-bang/product/packages/minio-operator)|
-|MinIO|[MinIO](./minio.md)|S3 Object Storage|[minio](https://repo1.dso.mil/big-bang/product/packages/minio)|
-
-### Cluster Utilities
-
-Cluster utilities add functionality to Kubernetes clusters rather than applications.  Examples include resource utilization, cluster backup and restore, continuos deployment, or load balancers.
+Observability tools include packages for collecting, storing, and visualizing system telemetry. This includes metrics collection, long-term storage, dashboards, and monitoring interfaces for logs, metrics, and traces.
 
 |Package|Function|Repository|
 |--|--|--|
-|[ArgoCD](./argocd.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
 |[Metrics Server](./metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
-|[Velero](./velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
 |[Mimir](./mimir.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
+|Headlamp|Cluster management dashboard|[headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)|
+|[Thanos](./thanos.md)|Multi-cluster Prometheus setup|[thanos](https://repo1.dso.mil/big-bang/product/packages/thanos)|
 
 ### Collaboration
 
@@ -329,20 +326,31 @@ Collaboration tools provide environments to help teams work together online.  Ch
 |Mattermost|Mattermost Operator|Operator|[mattermost-operator](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator)|
 |Mattermost|[Mattermost](./mattermost.md)|Chat|[mattermost](https://repo1.dso.mil/big-bang/product/packages/mattermost)|
 
-### Developer Tools
+### Storage & Backup Utilities
 
-Developer tools include packages that a programmer would use to plan, author, test, debug, or control code.  This includes repositories, bug / feature tracking, pipelines, code analysis, automated tests, and development environments.
+For non-critical or on-prem deployments where data loss is an acceptable risk, these utilities offer a simple and low-cost solution for in-cluster data persistence (databases, object / blob storage, and caches). However, if scalability, availability, and resiliency (e.g. backup and restore) are requirements, it is generally advantageous to instead use a managed, cloud based offering.
+
+|Stack|Package|Function|Repository|
+|--|--|--|--|
+|MinIO|MinIO Operator|Operator|[minio-operator](https://repo1.dso.mil/big-bang/product/packages/minio-operator)|
+|MinIO|[MinIO](./minio.md)|S3 Object Storage|[minio](https://repo1.dso.mil/big-bang/product/packages/minio)|
+|Velero|[Velero](./velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
+
+### DevSecOps Tools
+
+DevSecOps tools include packages that programmers and security teams use to plan, author, test, debug, secure, deploy, and control code. This includes repositories, bug / feature tracking, pipelines, code analysis, security scanning, vulnerability assessment, automated tests, container registries, deployment orchestration, developer portals, and development environments.
 
 |Stack|Package|Function|Repository|
 |--|--|--|--|
 |GitLab|[GitLab](./gitlab.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
 |GitLab|GitLab Runner|Executor for GitLab pipelines|[gitlab-runner](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner)|
+|ArgoCD|[ArgoCD](./argocd.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
+|Anchore|[Anchore](./anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
+|Fortify|[Fortify](./fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
+|Sonarqube|[Sonarqube](./sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
 |Nexus|[Nexus Repository Manager](./nexusRepositoryManager.md)|Artifact repository|[nexus](https://repo1.dso.mil/big-bang/product/packages/nexus)|
 |Harbor|[Harbor](./harbor.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
-|Sonarqube|[Sonarqube](./sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
-|Fortify|[Fortify](./fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
 |Backstage|[Backstage](./backstage.md)|Developer portal platform|[backstage](https://repo1.dso.mil/big-bang/product/packages/backstage)|
-|Headlamp|Headlamp|Cluster management dashboard|[headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)|
 
 ## Further Information
 
