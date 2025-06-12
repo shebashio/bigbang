@@ -15,10 +15,11 @@ Several of Big Bang's packages have dependencies on other packages.  A Dependenc
 ```mermaid
 flowchart LR
   subgraph Core
+  direction LR
 
     subgraph Group2
       style Group2 fill:transparent,stroke:transparent,color:transparent
-      direction RL
+      direction LR
 
       subgraph RS[Runtime Security]
         subgraph CC[Alternative]
@@ -84,6 +85,7 @@ flowchart LR
       %% Forces DT subgraph under SM subgraph
       DT ~~~ SM
 
+
       %% SM Dependencies
       Kiali --> Istio
       Kiali --> Prometheus
@@ -104,6 +106,7 @@ flowchart LR
       Fluentbit --> Elastic
 
     end
+      Group1 ~~~ Group2
   end
 ```
 
