@@ -119,29 +119,37 @@ flowchart BT
 
       subgraph DT[DevSecOps Tools]
       style DT stroke-dasharray: 10 10
-      direction LR
         subgraph ContDeploy[CI/CD]
         direction BT
           GLRunners[GitLab Runners]
           GitLab
           ArgoCD
         end
+        subgraph DT-1[ ]
+        style DT-1 fill:transparent,stroke:transparent
+        direction LR
 
-        subgraph Scan[Vulnerability Scanning]
-        direction BT
-          Anchore
-          Fortify
-          Sonarqube
-        end
-        subgraph Repo[Repositories]
-        direction BT
-          Harbor
-          Nexus[Nexus Repository]
-        end
-        subgraph UI[Dashboards and UIs]
-          Backstage
-        end
+          subgraph Scan[Vulnerability Scanning]
+          direction BT
+            Anchore
+            Fortify
+            Sonarqube
+          end
 
+          subgraph DT-2[ ]
+          style DT-2 fill:transparent,stroke:transparent
+          direction BT
+            subgraph Repo[Repositories]
+            direction BT
+              Harbor
+              Nexus[Nexus Repository]
+            end
+            subgraph UI[Dashboards and UIs]
+              Backstage
+            end
+          end
+
+        end
       end
 
       subgraph Collab[Collaboration]
@@ -197,10 +205,6 @@ flowchart BT
     Row2 ~~~ Row1
     Collab ~~~ DT
     Storage ~~~ DT
-
-    ContDeploy ~~~ Scan
-    ContDeploy ~~~ Repo
-    Repo ~~~ UI
 
   end
 
