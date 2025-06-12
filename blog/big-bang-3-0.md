@@ -50,7 +50,9 @@ You may have already seen this pattern in a few packages, like Kiali, Backstage,
 
 ### Anchore Enterprise rename
 
-We are making a breaking change to the Anchore Enterprise package name in Big Bang 3.0. The package will now be declared as `anchoreEnterprise` instead of `anchore` in the Big Bang umbrella `values.yaml` file. 
+We are making a **breaking** change to the Anchore Enterprise package name in Big Bang 3.0. The package will now be declared as `anchoreEnterprise` instead of `anchore` in the Big Bang umbrella `values.yaml` file.
+If teams deploy Anchore enterprise with a statefulset postgres db you should confirm data retention policy with your in cluster storage.
+Teams using external cluster storage like RDS should be unaffected.
 
 This change aligns with the upstream Anchore project's removal of their open-source Anchore Engine package, which was deprecated in favor of the enterprise version. This package will also be moving towards community support in the future, so please be aware that it will not receive the same level of support as other Big Bang packages.
 
