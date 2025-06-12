@@ -140,7 +140,7 @@ flowchart BT
           style DT-2 fill:transparent,stroke:transparent
           direction BT
             subgraph Repo[Repositories]
-            direction LR
+            direction BT
               Harbor
               Nexus[Nexus Repository]
             end
