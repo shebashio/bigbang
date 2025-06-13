@@ -15,6 +15,9 @@ global:
 {{- if $istioEnabled }}
 istio:
   enabled: true
+  kyvernoReporter:
+    gateways:
+      - {{ include "getGatewayName" (dict "gateway" .Values.kyvernoReporter.ingress.gateway "root" .)}}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
