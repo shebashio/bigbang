@@ -5,7 +5,9 @@
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno-reporter" -}}
+{{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+domain: {{ $domainName }}
 
 global:
   fullnameOverride: kyverno-reporter
