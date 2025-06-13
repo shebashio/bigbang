@@ -226,6 +226,46 @@ upstream:
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
       {{- end }}
 
+      {{- $bucket := dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values }}
+      {{- $region := dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values }}
+      {{- $additionalConfig := dig "additionalOutputs" "s3" "additionalConfig" false .Values.fluentbit.values }}
+      {{- if and $bucket $region }}
+      [OUTPUT]
+          Name          s3
+          Match         kube.*
+          bucket        {{ $bucket }}
+          region        {{ $region }}
+          Retry_Limit   False
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          {{- if $additionalConfig }}
+          {{- range $key, $value := $additionalConfig }}
+          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit") }}
+          {{- if has $key $preset }}
+          {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
+          {{- else }}
+          {{ $key }}     {{ $value }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      [OUTPUT]
+          Name          s3
+          Match         host.*
+          bucket        {{ $bucket }}
+          region        {{ $region }}
+          Retry_Limit   False
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          {{- if $additionalConfig }}
+          {{- range $key, $value := $additionalConfig }}
+          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit") }}
+          {{- if has $key $preset }}
+          {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
+          {{- else }}
+          {{ $key }}     {{ $value }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      {{- end }}
+
     filters: |
       {{- if .Values.loki.enabled }}
       [FILTER]
