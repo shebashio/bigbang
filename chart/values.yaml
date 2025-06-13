@@ -544,6 +544,10 @@ kyvernoReporter:
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
 
+  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+  ingress:
+    gateway: ""
+
   # -- Values to passthrough to the kyverno reporter chart: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
   values: {}
 
