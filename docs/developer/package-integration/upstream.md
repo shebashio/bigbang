@@ -35,8 +35,16 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
     > * Does not bundle several packages together (unless they can be individually disabled); and
     > * Provides advanced features like high availability, scaling, affinity, taints/tolerations, and security context.
 
-1. With the release of Big Bang 3.0, we have begun transitioning our packages to what we call the passthrough pattern.  This should help streamline the process of both  bringing in new packages and updating them via Renovate.  We need to pull in very little from the upstream chart for this. First thing to do is copy the upstream  `Chart.yaml` file into your repo under the `/chart` directory. In order 
-to do this, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
+1. With the release of Big Bang 3.0, we are transitioning our package charts to a passthrough pattern. Rather than forking upstream charts with the kpt.dev tool, we now pull in charts and wrap them with a package chart. Passing the upstream chart through without modifications greatly reduces the update workload. When updating with custom modifications there are challenging merge conflicts to resolve. Passthrough pattern avoids this problem and should streamline the process of bringing in new packages and updating them via Renovate updater. 
+
+Helm can be used to pull down the chart initially: 
+```shell
+helm pull podinfo/podinfo
+```
+This will pull a number of superfluous files that we will not need for our repo. 
+
+After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Now, in order to wrap the upstream chart, we 
+ simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
    ```yaml
    apiVersion: v1
