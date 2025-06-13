@@ -133,6 +133,56 @@ upstream:
       end
 
 {{- if (not $disableDefault) }}
+  {{- $additionalFluentd := (and
+    (dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values)
+    (or
+      (and
+        (dig "additionalOutputs" "fluentd" "user" false .Values.fluentbit.values)
+        (dig "additionalOutputs" "fluentd" "password" false .Values.fluentbit.values))
+      (dig "additionalOutputs" "fluentd" "sharedKey" false .Values.fluentbit.values)))
+  }}
+  {{- $additionalS3 := (and
+    (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values)
+    (or
+      (and
+        (dig "additionalOutputs" "s3" "aws_secret_access_key" false .Values.fluentbit.values)
+        (dig "additionalOutputs" "s3" "aws_access_key_id" false .Values.fluentbit.values))
+        (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values)))
+  }}
+  {{- $envFrom := (dig "upstream" "envFrom" false .Values.fluentbit.values) }}
+  {{- if or
+    .Values.elasticsearchKibana.enabled
+    .Values.loki.enabled
+    $envFrom
+    $additionalFluentd
+    $additionalS3
+  }}
+  envFrom:
+    {{- if $envFrom }}
+    {{- toYaml $envFrom | nindent 4 }}
+    {{- end }}
+    {{- if .Values.elasticsearchKibana.enabled }}
+    - secretRef:
+        name: external-es-config
+    {{- end }}
+    {{- if .Values.loki.enabled }}
+    - secretRef:
+        name: external-loki-config
+    {{- end }}
+    {{- if $additionalFluentd }}
+    - secretRef:
+        name: external-fluentd-config
+    {{- end }}
+    {{- if and $additionalS3 (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values) }}
+    - secretRef:
+        name: {{ (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values) }}
+    {{- else if $additionalS3 }}
+    - secretRef:
+        name: external-s3-config
+    {{- end }}
+  {{- end }}
   {{- if .Values.elasticsearchKibana.enabled }}
   env:
     - name: FLUENT_ELASTICSEARCH_PASSWORD
@@ -157,7 +207,11 @@ upstream:
     - mountPath: /etc/elasticsearch/certs/
       name: elasticsearch-certs
   {{- end }}
-  {{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled }}
+  {{- if or
+    .Values.elasticsearchKibana.enabled
+    .Values.loki.enabled
+    (and (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values) (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values))
+  }}
   config:
     outputs: |
       {{- if .Values.elasticsearchKibana.enabled }}
