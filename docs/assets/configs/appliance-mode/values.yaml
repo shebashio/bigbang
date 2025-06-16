@@ -1,8 +1,8 @@
 ---
 # Enables and configures packages for [Appliance Mode](../../../guides/deployment-scenarios/appliance-mode.md):
-istio:
+istiod:
   values:
-    istiod:
+    upstream:
       resources:
         requests:
           cpu: 100m
@@ -10,7 +10,6 @@ istio:
         limits:
           cpu: null
           memory: 256Mi
-    values:
       global:
         proxy:
           resources:
@@ -28,17 +27,6 @@ istio:
             limits:
               cpu: null
               memory: 128Mi
-
-istioOperator:
-  values:
-    operator:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 128Mi
-        limits:
-          cpu: null
-          memory: 128Mi
 
 kiali:
   enabled: false

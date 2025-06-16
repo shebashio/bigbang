@@ -55,14 +55,17 @@ flux:
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
+
+# This will be removed when we remove the workaround
+disableAutomaticPassthroughValues: true
+
 istiod:
   enabled: true
+  values:
+    hardened:
+      enabled: true
 istioCRDs:
   enabled: true
-istioOperator:
-  enabled: false
-istio:
-  enabled: false
 istioGateway:
   enabled: true
 kiali:
@@ -120,7 +123,6 @@ gatekeeper:
           - default/c.?
           - default/i.?
           - gitlab/.*
-          - kyverno/.*
       allowedHostFilesystem:
         parameters:
           excludedResources:
@@ -305,7 +307,7 @@ gatekeeper:
 
 kyverno:
   values:
-    kyverno:
+    upstream:
       networkPolicies:
         externalRegistries:
           allowEgress: true
@@ -1684,7 +1686,7 @@ addons:
             cypress_gitlab_username: "gitlabrunner_user"
             cypress_gitlab_password: "Runner_PaSsw0rd123"
 
-  anchore:
+  anchoreEnterprise:
     enabled: false
     sso:
       enabled: false
@@ -2414,7 +2416,7 @@ addons:
                   - number: 443
                     protocol: TLS
                     name: https
-                resolution: DNS        
+                resolution: DNS
           customAuthorizationPolicies:
             - name: "allow-intranamespace-keycloak"
               enabled: true
@@ -2527,7 +2529,7 @@ addons:
           mountPath: /opt/keycloak/conf/quarkus.properties
           subPath: quarkus.properties
       networkPolicies:
-        enabled: true    
+        enabled: true
 
   vault:
     enabled: false
@@ -2650,7 +2652,6 @@ addons:
   harbor:
     # -- Toggle deployment of harbor
     enabled: false
-
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       istio:
@@ -2829,7 +2830,7 @@ addons:
     values:
       bbtests:
         enabled: true
-        
+
   # ----------------------------------------------------------------------------------------------------------------------
   # Headlamp
   #

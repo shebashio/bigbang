@@ -17,21 +17,13 @@ istioCRDs:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
+
 istiod:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
+
 istioGateway:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
-
-istio:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
-
-istioOperator:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
@@ -167,7 +159,7 @@ addons:
     helmRepo:
       cosignVerify: false
 
-  anchore:
+  anchoreEnterprise:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false

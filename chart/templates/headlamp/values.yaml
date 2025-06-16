@@ -4,6 +4,9 @@
 
 {{- define "bigbang.defaults.headlamp" -}}
 
+{{- $domainName := default .Values.domain .Values.hostname }}
+domain: {{ $domainName }}
+
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
@@ -36,7 +39,7 @@ istio:
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.headlamp.values)
-      (dig "hardened" "enabled" false .Values.istio.values)
+      (dig "hardened" "enabled" false .Values.istiod.values)
     }}
   headlamp:
     gateways:
@@ -44,12 +47,12 @@ istio:
 
 openshift: {{ .Values.openshift }}
 
-{{- with .Values.addons.headlamp.sso }}
+{{- if .Values.addons.headlamp.sso.enabled }}
 config:
   oidc:
-    enabled: {{ .enabled }}
-    clientId: {{ .client_id }}
-    clientSecret: {{ .client_secret | default "no-secret" }}
-    issuerURL: {{ default (include "sso.oidc.auth" $) .auth_endpoint }}
+    clientID: {{ .Values.addons.headlamp.sso.client_id }}
+    clientSecret: {{ .Values.addons.headlamp.sso.client_secret }}
+    issuerURL: {{ .Values.sso.url }}
+    scopes: "email,profile"
 {{- end }}
 {{- end -}}
