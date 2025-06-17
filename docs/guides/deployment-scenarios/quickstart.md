@@ -35,8 +35,8 @@ Ensure your workstation has a functional GNU environment with Git. Mac OS and Li
 1. **Install the [Flux CLI](https://fluxcd.io/flux/installation/)** on your workstation.
 1. Ensure you have **bash version 4** installed on your workstation. Linux and Windows with WSL users probably don't need to worry about this. For Mac OS users, install bash4 with homebrew or a similar package manager, as the bash that ships with Mac OS is hopelessly old. Mac OS users will use `/opt/homebrew/bin/bash` whenever `bash` is mentioned in this guide.
 1. Ensure you have an account on **[PlatformOne RegistryOne](https://registry1.dso.mil)**. You will need your username and access token ("CLI Secret") for this process. (To retrieve your token, login to registry1, click your name in the top right, and copy the "CLI Secret" field.)
-1. If you do not plan to deploy the bigbang quickstart cluster onto your own VM, and want the quickstart script to provision an AWS VM for you, you need to **install and configure the [AWS CLI](https://aws.amazon.com/cli/)** on your workstation for your AWS account.
-1. Select a location on your workstation for the quickstart script to check out the bigbang code from repo1. The quickstart will check out [a copy of the big-bang code](https://repo1.dso.mil/big-bang/bigbang) and some helper scripts into a location you provide on your workstation.
+1. If you do not plan to deploy the Big Bang Quick Start cluster onto your own VM, and want the Quick Start script to provision an AWS VM for you, you need to **install and configure the [AWS CLI](https://aws.amazon.com/cli/)** on your workstation for your AWS account.
+1. Select a location on your workstation for the Quick Start script to check out the Big Bang code from repo1. The Quick Start will check out [a copy of the Big Bang code](https://repo1.dso.mil/big-bang/bigbang) and some helper scripts into a location you provide on your workstation.
 
 ### Download the Quickstart Script
 
@@ -54,8 +54,9 @@ curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/
 
 #### Using a VM or other hardware you built yourself
 
-1. Spin up an Ubuntu VM with 8 CPUs and 32gB of RAM. Ensure you can SSH to it. The cloud provider doesn't matter, it can even be on your local system if it has sufficient resources.
-1. Run the following command in your workstation's terminal:
+Spin up an Ubuntu VM with 8 CPUs and 32gB of RAM. Ensure you can SSH to it. The cloud provider doesn't matter, it can even be on your local system if it has sufficient resources.
+
+Run the following command in your workstation's terminal:
 
 ```
 bash quickstart.sh
