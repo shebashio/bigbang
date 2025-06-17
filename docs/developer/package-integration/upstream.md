@@ -21,7 +21,7 @@ Big Bang requires a Helm chart to deploy your package. This Helm chart must be e
 
 ### Cloning Upstream
 
-To minimize maintenance, it is preferable to reuse existing Helm charts available in the community (upstream). Changes to the upstream Helm chart should be made with new files when possible, and always clearly marked as Big Bang additions.
+To minimize maintenance, it is preferable to reuse existing Helm charts available in the community (upstream). Changes to the upstream Helm chart should be avoided when possible, additional templates can be added to the chart in a /bigbang templates folder. Leverage mutating webhooks with Kyverno or postRenderers to overlay changes to an upstream chart.
 
 > Sometimes, it is not possible to find an upstream Helm chart and you must develop your own. This is beyond the scope of this document.
 
@@ -43,7 +43,9 @@ helm pull podinfo/podinfo
 ```
 This will pull a number of superfluous files that we will not need for our repo. 
 
-After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Now, in order to wrap the upstream chart, we 
+After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. 
+Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
+ Now, in order to wrap the upstream chart, we 
  simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
    ```yaml
@@ -65,6 +67,7 @@ After that, copy the upstream `Chart.yaml` file into your repo under the `/chart
        repository: https://stefanprodan.github.io/podinfo
    kubeVersion: ">=1.23.0-0"
    annotations:
+     bigbang.dev/maintenanceTrack: bb_integrated
      helm.sh/images: |
        - name: podinfo
          image: registry1.dso.mil/ironbank/opensource/podinfo:6.9.0 
