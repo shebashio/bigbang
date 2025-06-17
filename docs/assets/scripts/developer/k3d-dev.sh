@@ -686,7 +686,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 172.20.1.240-172.20.1.243
+  - 172.20.1.242-172.20.1.249
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
@@ -696,6 +696,40 @@ metadata:
 spec:
   ipAddressPools:
   - default
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: primary
+  namespace: metallb-system
+spec:
+  addresses:
+  - "172.20.1.241/32"
+  serviceAllocation:
+    priority: 100
+    namespaces:
+      - istio-system
+      - istio-gateway
+    serviceSelectors:
+      - matchExpressions:
+          - {key: app, operator: In, values: [public-ingressgateway]}
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: secondary
+  namespace: metallb-system
+spec:
+  addresses:
+  - "172.20.1.240/32"
+  serviceAllocation:
+    priority: 100
+    namespaces:
+      - istio-system
+      - istio-gateway
+    serviceSelectors:
+      - matchExpressions:
+          - {key: app, operator: In, values: [passthrough-ingressgateway]}
 EOF
     elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
       echo "Building MetalLB configuration for -a mode."
