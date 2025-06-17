@@ -37,34 +37,33 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
 
 1. With the release of Big Bang 3.0, we are transitioning our package charts to a passthrough pattern. Rather than forking upstream charts with the kpt.dev tool, we now pull in charts and wrap them with a package chart. Passing the upstream chart through without modifications greatly reduces the update workload. When updating with custom modifications there are challenging merge conflicts to resolve. Passthrough pattern avoids this problem and should streamline the process of bringing in new packages and updating them via Renovate updater. 
 
-Helm can be used to pull down the chart initially: 
-```shell
-helm pull podinfo/podinfo
-```
-This will pull a number of superfluous files that we will not need for our repo. 
+ Helm can be used to pull down the chart initially: 
+    
+   ```shell
+    helm pull podinfo/podinfo
+   ```
+ This will pull a number of superfluous files that we will not need for our repo. 
 
-After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. 
-Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
+ After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. |Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
    ```yaml
-   apiVersion: v1
-   version: 6.9.0-bb.0
-   appVersion: 6.9.0
-   name: podinfo
-   engine: gotpl
-   description: Podinfo Helm chart for Kubernetes
-   dependencies:
-     - name: podinfo 
-       version: 6.9.0
-       repository: https://stefanprodan.github.io/podinfo
-   kubeVersion: ">=1.23.0-0"
-   annotations:
-     bigbang.dev/maintenanceTrack: bb_integrated
-     helm.sh/images: |
-       - name: podinfo
-         image: registry1.dso.mil/ironbank/opensource/podinfo:6.9.0 
+    apiVersion: v1
+    version: 6.9.0-bb.0
+    appVersion: 6.9.0
+    name: podinfo
+    engine: gotpl
+    description: Podinfo Helm chart for Kubernetes
+    dependencies:
+      - name: podinfo 
+        version: 6.9.0
+        repository: https://stefanprodan.github.io/podinfo
+    kubeVersion: ">=1.23.0-0"
+    annotations:
+      bigbang.dev/maintenanceTrack: bb_integrated
+      helm.sh/images: |
+        - name: podinfo
+          image: registry1.dso.mil/ironbank/opensource/podinfo:6.9.0 
    ```
-   Additionally, as shown above, make sure to add any images under the `annotations/helm.sh/images` section of `Chart.yaml` as well. 
 
 1. Add `-bb.0` suffix on `chart/Chart.yaml`, `version`.  For example:
 
