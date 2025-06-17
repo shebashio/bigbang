@@ -53,12 +53,6 @@ Next, in order to wrap the upstream chart, we simply add the package chart itsel
    name: podinfo
    engine: gotpl
    description: Podinfo Helm chart for Kubernetes
-   home: https://github.com/stefanprodan/podinfo
-   maintainers:
-     - email: stefanprodan@users.noreply.github.com
-       name: stefanprodan
-   sources:
-     - https://github.com/stefanprodan/podinfo
    dependencies:
      - name: podinfo 
        version: 6.9.0
