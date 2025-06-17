@@ -38,7 +38,7 @@ Ensure your workstation has a functional GNU environment with Git. Mac OS and Li
 1. If you do not plan to deploy the Big Bang Quick Start cluster onto your own VM, and want the Quick Start script to provision an AWS VM for you, you need to **install and configure the [AWS CLI](https://aws.amazon.com/cli/)** on your workstation for your AWS account.
 1. Select a location on your workstation for the Quick Start script to check out the Big Bang code from repo1. The Quick Start will check out [a copy of the Big Bang code](https://repo1.dso.mil/big-bang/bigbang) and some helper scripts into a location you provide on your workstation.
 
-### Download the Quickstart Script
+### Download the Quick Start Script
 
 Run the following commands in your workstation's terminal to download the quickstart script, which you will use in the next step:
 
