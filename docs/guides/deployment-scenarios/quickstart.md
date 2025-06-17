@@ -4,7 +4,7 @@
 
 ## Big Bang in 1 hour
 
-A seasoned SRE, proficient in command line operations, equipped with a high-speed internet connection and a workstation capable of software installations, should be able to set up and have a fully operational Big Bang development environment within an hour.
+A seasoned SRE, proficient in command line operations, equipped with a high-speed internet connection and a workstation capable of software installations, should be able to set up and have a fully operational [Big Bang](https://repo1.dso.mil/big-bang/bigbang) development environment within an hour.
 
 ### What You Will Get
 
