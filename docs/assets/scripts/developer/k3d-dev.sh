@@ -730,6 +730,24 @@ spec:
     serviceSelectors:
       - matchExpressions:
           - {key: app, operator: In, values: [passthrough-ingressgateway]}
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: primary
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - primary
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: secondary
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - secondary
 EOF
     elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
       echo "Building MetalLB configuration for -a mode."
