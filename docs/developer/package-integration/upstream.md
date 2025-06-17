@@ -241,7 +241,7 @@ If a new version of the upstream Helm chart is released, the passthrough pattern
         alias: upstream
    ```
 1. Run `helm dependency update ./chart`. This will pull the new version of the chart into the `chart/charts` 
-
+ 1. Document changes in `CHANGELOG.md` and update the `README.md` using the [gluon library script](https://repo1.dso.mil/big-bang/apps/library-charts/gluon/-/blob/master/docs/bb-package-readme.md)
 
 
 ## Validation
