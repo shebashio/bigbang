@@ -229,7 +229,7 @@ If a new version of the upstream Helm chart is released, the passthrough pattern
 
    ```yaml
     apiVersion: v1
-    version: X.X.X-bb.X
+    version: X.X.X-bb.0
     appVersion: 6.9.0
     name: podinfo
     engine: gotpl
