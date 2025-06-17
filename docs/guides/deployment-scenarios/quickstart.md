@@ -40,7 +40,7 @@ Ensure your workstation has a functional GNU environment with Git. Mac OS and Li
 
 ### Download the Quick Start Script
 
-Run the following commands in your workstation's terminal to download the quickstart script, which you will use in the next step:
+Run the following commands in your workstation's terminal to download the Quick Start script, which you will use in the next step:
 
 ```
 export REGISTRY1_USERNAME=YOUR_REGISTRY1_USERNAME
@@ -67,7 +67,7 @@ bash quickstart.sh
 
 #### Using Amazon Web Services
 
-1. If your system is already configured to use AWS via the aws-cli and you prefer not to build your own VM, you can run the quickstart without any arguments. The quickstart will attempt to create an AWS EC2 instance for you. Pay close attention to the script output; the IP addresses of the created AWS EC2 instance will be displayed after the cluster is built and before Big Bang is deployed. You may need these IP addresses later.
+1. If your system is already configured to use AWS via the aws-cli and you prefer not to build your own VM, you can run the Quick Start without any arguments. The Quick Start will attempt to create an AWS EC2 instance for you. Pay close attention to the script output; the IP addresses of the created AWS EC2 instance will be displayed after the cluster is built and before Big Bang is deployed. You may need these IP addresses later.
 1. Please note that Quick Start has its limitations, and AWS environments can vary significantly. If Quick Start is unable to build an EC2 instance in AWS for you, you will need to manually create an EC2 instance that suits your requirements. Once done, follow the instructions under "Using a VM or other hardware you built yourself."
 1. Run the following commands in your workstation's terminal:
 
@@ -79,9 +79,9 @@ bash quickstart.sh
 
 The process takes about 45 minutes. Make a sandwich, go for a walk, play with the dog. Check on it every 10 minutes or so. Once the command finishes, your cluster should be ready to use. Proceed to fix your DNS and access your big bang installation.
 
-If it seems like it's taking too long, the script will tell you what it's currently waiting on. The most frequent cause of long delays is slow connection between your cluster and registry1. All container images are fetched from registry1, so if your cluster is running on a slow internet uplink, this process can take a long time the first time bigbang is deployed. If your helmreleases say `PodInitializing` or `ContainerInitializing` or `Init:2/3` for a long time, this is usually the cause. There's not much cure for this but patience. Try contemplating the nature of the universe, marvel at the fact that object oriented COBOL exists in `current year`, or peruse the Commander's reading list.
+If it seems like it's taking too long, the script will tell you what it's currently waiting on. The most frequent cause of long delays is slow connection between your cluster and registry1. All container images are fetched from registry1, so if your cluster is running on a slow internet uplink, this process can take a long time the first time Big Bang is deployed. If your helmreleases say `PodInitializing` or `ContainerInitializing` or `Init:2/3` for a long time, this is usually the cause. There's not much cure for this but patience. Try contemplating the nature of the universe, marvel at the fact that object oriented COBOL exists in `current year`, or peruse the Commander's reading list.
 
-Eventually the bigbang release process will finish, and you'll see output like this:
+Eventually the Big Bang release process will finish, and you'll see output like this:
 
 ```
 ==================================================================================
@@ -141,9 +141,9 @@ The quickstart.sh script performs several actions:
 
 ### Fix DNS to access the services in your browser
 
-You can now access your bigbang kubernetes cluster from your workstation's command line using `kubectl`, but you will need to perform one extra step to easily access bigbang services in your web browser (or from the command line using utilities like `curl`). You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was included in the final message of the quickstart, but here are the instructions again.
+You can now access your Big Bang kubernetes cluster from your workstation's command line using `kubectl`, but you will need to perform one extra step to easily access Big Bang services in your web browser (or from the command line using utilities like `curl`). You will need to manually override some DNS settings to send specific website requests to your kubernetes cluster. This was included in the final message of the Quick Start, but here are the instructions again.
 
-**Remember to un-do this step when you are done experimenting with the bigbang quickstart.**
+**Remember to un-do this step when you are done experimenting with the Big Bang Quick Start.**
 
 You need to edit your system hosts file to add the LOADBALANCER EXTERNAL-IPs from the istio-system services with application hostnames. Your cluster is configured with two different gateways for different methods of TLS termination, and each gateway has its own IP.
 
@@ -169,7 +169,7 @@ sshuttle --dns -vr ${SSHUSER}@${PublicIP} 172.20.1.0/24 --ssh-cmd 'ssh -i ${SSHK
 
 You will need to leave this command running for as long as you want to access your cluster.
 
-### Access a BigBang Service
+### Access a Big Bang Service
 
 In a browser, visit one of the sites that you just added to your hosts file.
 
@@ -177,7 +177,7 @@ Note, default credentials for Big Bang packages can be found [here](../using-big
 
 ### Tinker With It
 
-You can use the quickstart script to update your bigbang quickstart deployment with your own modifications. Here's an example of post deployment customization of Big Bang.  After looking at <https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml>, you can see that this will enable the ArgoCD addon, which is not enabled by default.
+You can use the Quick Start script to update your Big Bang Quick Start deployment with your own modifications. Here's an example of post deployment customization of Big Bang.  After looking at <https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml>, you can see that this will enable the ArgoCD addon, which is not enabled by default.
 
 ```shell
 # [ubuntu@Ubuntu_VM:~]
@@ -219,11 +219,11 @@ kubectl get po -n=argocd
 
 ... And you can update your hosts file from the previous step to include the ArgoCD address from the virtualservice, and view it in your browser.
 
-### Implementing Mission Applications within your bigbang environment
+### Implementing Mission Applications within your Big Bang environment
 
-Big Bang by itself serves as a jumping off point, but many users will want to implement their own mission specific applications in to the cluster. BigBang has implemented a `packages:` and `wrapper:`  section to enable and support this in a way that ensures connectivity between your mission specific requirements and existing BigBang utilities, such as istio, the monitoring stack, and network policy management. [Here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/guides/deployment-scenarios/extra-package-deployment.md) is the documentation for the `packages` utility.
+Big Bang by itself serves as a jumping off point, but many users will want to implement their own mission specific applications in to the cluster. Big Bang has implemented a `packages:` and `wrapper:`  section to enable and support this in a way that ensures connectivity between your mission specific requirements and existing Big Bang utilities, such as istio, the monitoring stack, and network policy management. [Here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/guides/deployment-scenarios/extra-package-deployment.md) is the documentation for the `packages` utility.
 
-We will implement a simple additional utility as a proof of concept, starting with a basic podinfo client. This will use the `wrapper` key to provide integration between bigbang and the Mission Application, without requiring the full Istio configuration to be placed inside BigBang specific keys of the dependent chart.
+We will implement a simple additional utility as a proof of concept, starting with a basic podinfo client. This will use the `wrapper` key to provide integration between Big Bang and the Mission Application, without requiring the full Istio configuration to be placed inside Big Bang specific keys of the dependent chart.
 
 
 ```shell
@@ -395,7 +395,7 @@ This section will provide guidance for troubleshooting problems that may occur d
 
 ### Rebuilding your kubernetes cluster on your instance
 
-If you encounter an error during the creation of your kubernetes cluster, it may be beneficial to restart the process from scratch, completely rebuilding the cluster. This is not always necessary, but if necessary, you can do so with the `--recreate-k3d` option to the quickstart:
+If you encounter an error during the creation of your kubernetes cluster, it may be beneficial to restart the process from scratch, completely rebuilding the cluster. This is not always necessary, but if necessary, you can do so with the `--recreate-k3d` option to the Quick Start:
 
 ```
 bash quickstart.sh --recreate-k3d
