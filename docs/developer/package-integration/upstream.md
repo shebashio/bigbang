@@ -45,8 +45,6 @@ This will pull a number of superfluous files that we will not need for our repo.
 
 After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. 
 Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
- Now, in order to wrap the upstream chart, we 
- simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
    ```yaml
    apiVersion: v1
