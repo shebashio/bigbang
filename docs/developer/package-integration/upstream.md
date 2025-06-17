@@ -44,7 +44,7 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
    ```
    This will pull a number of superfluous files that we will not need for our repo. 
 
-   After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. |Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
+   After that, copy the upstream `Chart.yaml` file into your repo under the `/chart` directory. Since this Chart.yaml will serve as a wrapper chart for the package, remove things like annotations from artifacthub.io and upstream maintainers. Leave version and description. As part of our integration, we want a helm.sh/images annotation with a list of deployable images from the package, as well as a number of bigbang.dev annotations. Next, in order to wrap the upstream chart, we simply add the package chart itself as a dependency in the Big Bang chart, like so: 
 
    ```yaml
     apiVersion: v1
@@ -57,6 +57,7 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
       - name: podinfo 
         version: 6.9.0
         repository: https://stefanprodan.github.io/podinfo
+        alias: upstream
     kubeVersion: ">=1.23.0-0"
     annotations:
       bigbang.dev/maintenanceTrack: bb_integrated
@@ -72,6 +73,8 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
     ```
 
     > The `bb.#` will increment for each change we merge into our `main` branch.  It will also become our release label.
+   
+   Please note, `version` and `appVersion` are not [necessarily the same](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/main/chart/Chart.yaml?ref_type=heads), especially if the chart is not maintained by the creator of the application. 
 
 1. Add the following files to the Git repository at the root:
 
@@ -221,36 +224,25 @@ To minimize maintenance, it is preferable to reuse existing Helm charts availabl
 
 ### Updating Upstream
 
-If a new version of the upstream Helm chart is released, this is how to sync it and retain the Big Bang enhancements.
+If a new version of the upstream Helm chart is released, the passthrough pattern makes updating very simple.
+1. Update the `chart.yaml` to the new chart version:
 
-```shell
-export GITTAG=6.0.0
+   ```yaml
+    apiVersion: v1
+    version: X.X.X-bb.X
+    appVersion: 6.9.0
+    name: podinfo
+    engine: gotpl
+    description: Podinfo Helm chart for Kubernetes
+    dependencies:
+      - name: podinfo 
+        version: X.X.X
+        repository: https://stefanprodan.github.io/podinfo
+        alias: upstream
+   ```
+1. Run `helm dependency update ./chart`. This will pull the new version of the chart into the `chart/charts` 
 
-# Before upgrading, identify changes made to upstream chart
-kpt pkg diff chart > bb-mods-pre.txt
 
-# Sync with new Helm chart release
-kpt pkg update chart@$GITTAG --strategy alpha-git-patch
-
-# Resolve merge conflicts, if any, by
-# - Manually merging conflicts identified
-# - Add changes to git using `git add`
-# - Continuing the patch with `git am --continue`
-
-# After upgrading, identify deltas to upstream chart
-kpt pkg diff chart > bb-mods-post.txt
-
-# Look at the differences between the pre and post changes to make sure nothing was missed.  Add any missing items back into the chart
-diff bb-mods-pre.txt bb-mods-post.txt
-
-# Commit and push changes
-rm bb-mods-*.txt
-git add -A
-git commit -m "chore: update helm chart to $GITTAG"
-git push
-```
-
-> In Kpt 1.0, `alpha-git-patch` was renamed to `resource-merge`.
 
 ## Validation
 
