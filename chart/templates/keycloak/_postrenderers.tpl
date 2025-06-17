@@ -13,3 +13,25 @@
           kind: ServiceMonitor
           name: .* # all ServiceMonitors
 {{- end }}
+{{- define "keycloak.istioHAPostRenderers" -}}
+- kustomize:
+    patches:
+    - patch: |
+        - op: add
+          path: /spec/ports/-
+          value:
+            name: jgroups
+            port: 7800
+            protocol: TCP
+            targetPort: 7800
+        - op: add
+          path: /spec/ports/-
+          value:
+            name: jgroups-fd
+            port: 57800
+            protocol: TCP
+            targetPort: 57800
+      target:
+        kind: Service
+        name: keycloak.*headless
+{{- end -}}
