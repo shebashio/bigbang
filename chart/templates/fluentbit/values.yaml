@@ -133,6 +133,12 @@ upstream:
       end
 
 {{- if (not $disableDefault) }}
+  {{- $additionalElasticsearch := (and
+    (dig "additionalOutputs" "elasticsearch" "host" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "port" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "user" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "password" false .Values.fluentbit.values))
+  }}
   {{- $additionalFluentd := (and
     (dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values)
     (dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values)
@@ -141,6 +147,10 @@ upstream:
         (dig "additionalOutputs" "fluentd" "user" false .Values.fluentbit.values)
         (dig "additionalOutputs" "fluentd" "password" false .Values.fluentbit.values))
       (dig "additionalOutputs" "fluentd" "sharedKey" false .Values.fluentbit.values)))
+  }}
+  {{- $additionalLoki := (and
+    (dig "additionalOutputs" "loki" "host" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "loki" "port" false .Values.fluentbit.values))
   }}
   {{- $additionalS3 := (and
     (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
@@ -153,8 +163,8 @@ upstream:
   }}
   {{- $envFrom := (dig "upstream" "envFrom" false .Values.fluentbit.values) }}
   {{- if or
-    .Values.elasticsearchKibana.enabled
-    .Values.loki.enabled
+    $additionalElasticsearch
+    $additionalLoki
     $envFrom
     $additionalFluentd
     $additionalS3
@@ -163,11 +173,11 @@ upstream:
     {{- if $envFrom }}
     {{- toYaml $envFrom | nindent 4 }}
     {{- end }}
-    {{- if .Values.elasticsearchKibana.enabled }}
+    {{- if $additionalElasticsearch }}
     - secretRef:
         name: external-es-config
     {{- end }}
-    {{- if .Values.loki.enabled }}
+    {{- if $additionalLoki }}
     - secretRef:
         name: external-loki-config
     {{- end }}
