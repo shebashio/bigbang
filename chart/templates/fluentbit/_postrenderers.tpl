@@ -7,7 +7,8 @@
             value: fluent-bit
         target:
           kind: DaemonSet
-          name: fluentbit-*
+          name: fluentbit-fluent-bit
+          namespace: fluentbit
         options:
           allowNameChange: true
 {{- end }}
