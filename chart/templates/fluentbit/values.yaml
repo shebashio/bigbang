@@ -274,6 +274,7 @@ upstream:
   {{- if or
     .Values.elasticsearchKibana.enabled
     .Values.loki.enabled
+    $additionalFluentd
     (and
       (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
       (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values))
@@ -344,6 +345,72 @@ upstream:
           Retry_Limit            False
           tls                    Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+      {{- end }}
+
+      {{- if $additionalFluentd }}
+      {{- $fluentdUser := dig "additionalOutputs" "fluentd" "user" false .Values.fluentbit.values }}
+      {{- $fluentdPassword := dig "additionalOutputs" "fluentd" "password" false .Values.fluentbit.values }}
+      {{- $fluentdSharedKey := dig "additionalOutputs" "fluentd" "sharedKey" false .Values.fluentbit.values }}
+      {{- $fluentdTls := dig "additionalOutputs" "fluentd" "tls" false .Values.fluentbit.values }}
+      {{- $fluentdTlsVerify := dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.fluentbit.values }}
+      {{- $fluentdCaCert := dig "additionalOutputs" "fluentd" "caCert" false .Values.fluentbit.values }}
+      {{- $fluentdAdditionalConfig := dig "additionalOutputs" "fluentd" "additionalConfig" false .Values.fluentbit.values }}
+      [OUTPUT]
+          Name          forward
+          Match         kube.*
+          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values }}
+          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values }}
+          {{- if and $fluentdUser $fluentdPassword }}
+          Username      {{ $fluentdUser }}
+          Password      {{ $fluentdPassword }}
+          {{- else }}
+          Shared_Key    {{ $fluentdSharedKey }}
+          {{- end }}
+          Retry_Limit   False
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
+          tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
+          {{- if and $fluentdTlsVerify $fluentdCaCert }}
+          tls.ca_file   /etc/external-fluentd/certs/ca.crt
+          {{- end }}
+          {{- if $fluentdAdditionalConfig }}
+          {{- range $key, $value := $fluentdAdditionalConfig }}
+          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "tls" "tls.verify" "tls.ca_file") }}
+          {{- if has $key $preset }}
+          {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
+          {{- else }}
+          {{ $key }} {{ $value }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      [OUTPUT]
+          Name          forward
+          Match         host.*
+          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values }}
+          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values }}
+          {{- if and $fluentdUser $fluentdPassword }}
+          Username      {{ $fluentdUser }}
+          Password      {{ $fluentdPassword }}
+          {{- else }}
+          Shared_Key    {{ $fluentdSharedKey }}
+          {{- end }}
+          Retry_Limit   False
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
+          tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
+          {{- if and $fluentdTlsVerify $fluentdCaCert }}
+          tls.ca_file   /etc/external-fluentd/certs/ca.crt
+          {{- end }}
+          {{- if $fluentdAdditionalConfig }}
+          {{- range $key, $value := $fluentdAdditionalConfig }}
+          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "tls" "tls.verify" "tls.ca_file") }}
+          {{- if has $key $preset }}
+          {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
+          {{- else }}
+          {{ $key }} {{ $value }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
       {{- end }}
 
       {{- $bucket := dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values }}
