@@ -239,6 +239,7 @@ upstream:
     - name: fluentbit-temp
       emptyDir: {}
     {{- end }}
+  {{- end }}
   {{-  if or
     .Values.elasticsearchKibana.enabled
     $additionalElasticsearchCerts
