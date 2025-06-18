@@ -6,24 +6,25 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
-
-sso:
-  enabled: {{ .Values.kiali.sso.enabled }}
-
-openshift: {{ .Values.openshift}}
-
-istio:
-  enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-  kiali:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
-
-{{- if and .Values.kiali.enabled .Values.kiali.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
-oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
-{{- end }}
+bigbang:
+  domain: {{ $domainName }}
+  
+  sso:
+    enabled: {{ .Values.kiali.bigbang.sso.enabled }}
+  
+  openshift: {{ .Values.openshift}}
+  
+  istio:
+    enabled: {{ $istioEnabled }}
+    hardened:
+      enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+    kiali:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+  
+  {{- if and .Values.kiali.enabled .Values.kiali.bigbang.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
+  oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
+  {{- end }}
 
 upstream:
   {{- if $istioEnabled }}

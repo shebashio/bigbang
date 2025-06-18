@@ -69,8 +69,6 @@ istioCRDs:
 istioGateway:
   enabled: true
 kiali:
-  sso:
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
   values:
     upstream:
       cr:
@@ -79,16 +77,19 @@ kiali:
             # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
             # strategy defaults to "openid"
             strategy: "anonymous"
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_url: 'https://kiali.dev.bigbang.mil'
-          cypress_check_data: 'true'
-          # uncomment these next 3 lines if enabling the keycloak SSO integration test
-          #cypress_keycloak_test_enable: "true"
-          #cypress_keycloak_username: "cypress"
-          #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
+    bigbang:
+      sso:
+        client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
+      tests:
+        enabled: true
+        cypress:
+          envs:
+            cypress_url: 'https://kiali.dev.bigbang.mil'
+            cypress_check_data: 'true'
+            # uncomment these next 3 lines if enabling the keycloak SSO integration test
+            #cypress_keycloak_test_enable: "true"
+            #cypress_keycloak_username: "cypress"
+            #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
 
 gatekeeper:
   enabled: false
