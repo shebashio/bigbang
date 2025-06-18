@@ -8,4 +8,6 @@
         target:
           kind: DaemonSet
           name: fluentbit-*
+        options:
+          allowNameChange: true
 {{- end }}
