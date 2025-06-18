@@ -44,6 +44,7 @@ spec:
 
   {{- if .Values.fluentbit.postRenderers }}
   postRenderers:
+  {{ include "fluentbit.podPostRenderers" . | nindent 4 }}
   {{ toYaml .Values.fluentbit.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
