@@ -190,8 +190,28 @@ upstream:
         secretKeyRef:
           name: logging-ek-es-elastic-user
           key: elastic
-
+  {{- end }}
+  {{- $additionalElasticsearchCerts := and
+    (dig "additionalOutputs" "elasticsearch" "tlsVerify" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "caCert" false .Values.fluentbit.values)
+  }}
+  {{- $additionalFluentdCerts := and
+    (dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "caCert" false .Values.fluentbit.values)
+  }}
+  {{- $additionalLokiCerts := and
+    (dig "additionalOutputs" "loki" "tlsVerify" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "loki" "caCert" false .Values.fluentbit.values)
+  }}
+  {{- if or
+    .Values.elasticsearchKibana.enabled
+    $additionalElasticsearchCerts
+    $additionalFluentdCerts
+    $additionalLokiCerts
+    $additionalS3
+  }}
   extraVolumes:
+    {{- if .Values.elasticsearchKibana.enabled }}
     - hostPath:
         path: /var/log/flb-storage/
         type: DirectoryOrCreate
@@ -199,18 +219,64 @@ upstream:
     - secret:
         secretName: logging-ek-es-http-certs-public
       name: elasticsearch-certs
-
+    {{- end }}
+    {{- if $additionalElasticsearchCerts }}
+    - name: external-es-ca-cert
+      secret:
+        secretName: external-es-ca-cert
+    {{- end }}
+    {{- if $additionalFluentdCerts }}
+    - name: external-fluentd-ca-cert
+      secret:
+        secretName: external-fluentd-ca-cert
+    {{- end }}
+    {{- if $additionalLokiCerts }}
+    - name: external-loki-ca-cert
+      secret:
+        secretName: external-loki-ca-cert
+    {{- end }}
+    {{- if $additionalS3 }}
+    - name: fluentbit-temp
+      emptyDir: {}
+    {{- end }}
+  {{-  if or
+    .Values.elasticsearchKibana.enabled
+    $additionalElasticsearchCerts
+    $additionalFluentdCerts
+    $additionalLokiCerts
+    $additionalS3
+  }}
   extraVolumeMounts:
+    {{- if .Values.elasticsearchKibana.enabled }}
     - mountPath: /var/log/flb-storage/
       name: flb-storage
       readOnly: false
     - mountPath: /etc/elasticsearch/certs/
       name: elasticsearch-certs
-  {{- end }}
+    {{- end }}
+    {{- if $additionalElasticsearchCerts }}
+    - name: external-es-ca-cert
+      mountPath: /etc/external-es/certs/
+    {{- end }}
+    {{- if $additionalFluentdCerts }}
+    - name: external-fluentd-ca-cert
+      mountPath: /etc/external-fluentd/certs/
+    {{- end }}
+    {{- if $additionalLokiCerts }}
+    - name: external-loki-ca-cert
+      mountPath: /etc/external-loki/certs/
+    {{- end }}
+    {{- if $additionalS3 }}
+    - name: fluentbit-temp
+      mountPath: /tmp/fluent-bit/
+    {{- end }}
+  {{- end}}
   {{- if or
     .Values.elasticsearchKibana.enabled
     .Values.loki.enabled
-    (and (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values) (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values))
+    (and
+      (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
+      (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values))
   }}
   config:
     outputs: |
