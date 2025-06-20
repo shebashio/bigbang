@@ -34,8 +34,10 @@ bigbang:
     ingressLabels:
       {{- include "getGatewaySelector" (dict "pkg" .Values.kiali "root" .) | nindent 6 }}
     package:
-      allow-grafana-egress:
+      allow-grafana-mesh-egress:
         enabled: {{ .Values.grafana.enabled }}
+      allow-tempo-mesh-egress:
+        enabled: {{ .Values.tempo.enabled }}
 
 upstream:
   {{- if $istioEnabled }}
