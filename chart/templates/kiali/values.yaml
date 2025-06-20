@@ -10,7 +10,7 @@ bigbang:
   domain: {{ $domainName }}
   
   sso:
-    enabled: {{ .Values.kiali.bigbang.sso.enabled }}
+    enabled: {{ .Values.kiali.sso.enabled }}
   
   openshift: {{ .Values.openshift}}
   
@@ -25,11 +25,14 @@ bigbang:
   tracing:
     enabled: {{ .Values.tempo.enabled }}
 
-  {{- if and .Values.kiali.enabled .Values.kiali.bigbang.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
+  {{- if and .Values.kiali.enabled .Values.kiali.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
   oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
   {{- end }}
 
   networkPolicies:
+    enabled: {{ .Values.networkPolicies.enabled }}
+    ingressLabels:
+      {{- include "getGatewaySelector" (dict "pkg" .Values.kiali "root" .) | nindent 6 }}
     package:
       allow-grafana-egress:
         enabled: {{ .Values.grafana.enabled }}
@@ -134,11 +137,4 @@ upstream:
           ingress_gateway_namespace: istio-gateway
           egress_gateway_namespace: istio-gateway
           {{- end }}
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.kiali "root" .) | nindent 4 }}
 {{- end -}}
