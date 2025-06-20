@@ -22,9 +22,17 @@ bigbang:
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
   
+  tracing:
+    enabled: {{ .Values.tempo.enabled }}
+
   {{- if and .Values.kiali.enabled .Values.kiali.bigbang.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
   oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}
   {{- end }}
+
+  networkPolicies:
+    package:
+      allow-grafana-egress:
+        enabled: {{ .Values.grafana.enabled }}
 
 upstream:
   {{- if $istioEnabled }}
