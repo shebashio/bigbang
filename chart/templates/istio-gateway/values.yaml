@@ -17,9 +17,6 @@ gateways:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
 
-    monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
-
     gateway:
       servers:
       - hosts:
@@ -56,9 +53,6 @@ gateways:
   passthrough:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
-
-    monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
 
     gateway:
       servers:

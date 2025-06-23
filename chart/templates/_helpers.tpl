@@ -217,7 +217,7 @@ stringData:
       
       {{- $gwOverlays := dig "gateways" $name dict $.Values.istioGateway.values -}}
       {{- if $gwOverlays }}
-        {{- $gwRecord = set $gwRecord "overlays" (merge $gwOverlays $defaultImagePullConfig) -}}
+        {{- $gwRecord = set $gwRecord "overlays" (merge $gwOverlays (dict "upstream" $defaultImagePullConfig)) -}}
       {{ end -}}
       
       {{- $enabledGateways = set $enabledGateways $name $gwRecord -}}
@@ -229,6 +229,7 @@ stringData:
       {{- if eq (len $gw) 0 }}
         {{- $enabledGateways = unset $enabledGateways $name -}}
       {{ end -}}
+      {{ $_ := unset $gw "gatewayCerts" }}
     {{- else -}}
       {{- $enabledGateways = unset $enabledGateways $name -}}
     {{ end -}}
