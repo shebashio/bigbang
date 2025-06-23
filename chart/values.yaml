@@ -1193,7 +1193,13 @@ addons:
         g, Impact Level 2 Authorized, role:admin
 
     # -- Values to passthrough to the argocd chart: https://repo1.dso.mil/big-bang/product/packages/argocd.git
-    values: {}
+    values:
+      dex:
+        image:
+          # -- Dex image repository
+          repository: registry1.dso.mil/ironbank-staging/opensource/dexidp/dex
+          # -- Dex image tag
+          tag: ibci-4300169-amd64
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
