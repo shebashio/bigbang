@@ -1401,6 +1401,9 @@ addons:
     sso:
       enabled: false
     values:
+      resources:
+        requests:
+          memory: 7Gi
       istio:
         hardened:
           customServiceEntries:
