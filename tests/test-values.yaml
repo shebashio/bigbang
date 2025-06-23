@@ -958,6 +958,10 @@ loki:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
 
 tempo:
+  enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -967,6 +971,7 @@ tempo:
         hosts:
           - "tempo.{{ .Values.domain }}"
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
             enabled: true
@@ -997,7 +1002,7 @@ tempo:
       cypress:
         envs:
           cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
+          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
           cypress_check_datasource: 'true'
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           # uncomment following variables for sso keycloak testing in bb
@@ -1007,7 +1012,7 @@ tempo:
       scripts:
         enabled: false
         envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
+          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
     persistence:
       size: 5Gi
