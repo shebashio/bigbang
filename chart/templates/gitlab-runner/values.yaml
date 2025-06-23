@@ -17,6 +17,13 @@ upstream:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
 
+  # When istio injected, add an annotation with the istio version to the manager pods only
+  {{- if and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
+
+
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
@@ -34,12 +41,6 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-
-# When istio injected, add an annotation with the istio version to the manager pods only
-{{- if and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") $istioEnabled }}
-podAnnotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
