@@ -47,7 +47,8 @@ Sample post-renderer config:
 
 Big Bang internally created template files(e.g. `NetworkPolicy`s, `AuthorizationPolicy`s, etc.) will still be created under the `chart/templates/bigbang/` directory, with the aim being that commonly utilized template files will be consolidated into a repository within repo1.dso.mil for all packages to pull from in the future.
 
-When creating the new package values. The team will add Big Bang specific values to the top of the file, upstream package values can be added below. The team will only include Big Bang overrides or values that we deem essential for users in the packages values.yaml file. Users can view all potential values from the charts/<chartBundle.tgz> within the package.
+When creating the new package wrapper values.yaml, the bb team will add Big Bang specific values to the top of the file, upstream package overrides can be added below. The team will only include Big Bang overrides or values that we deem essential for users in the packages values.yaml file. 
+We will no longer maintain a modified clone of the upstream package values file, just a package wrapper values file for overrides and bb values. Users can view all potential values from the charts/<chartBundle.tgz> within the package. Example can be found [here](https://repo1.dso.mil/big-bang/product/packages/kiali/-/blob/main/chart/values.yaml?ref_type=heads) for Kiali
 
 ## Consequences 
 
