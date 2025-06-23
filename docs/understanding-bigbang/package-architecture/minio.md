@@ -63,7 +63,6 @@ addons:
               cpu: 250m
               memory: 2Gi
             limits:
-              cpu: null
               memory: 2Gi
           securityContext:
             runAsUser: 1001
