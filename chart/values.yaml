@@ -921,11 +921,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "72.2.0-bb.3"
+    tag: "73.2.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "72.2.0-bb.3"
+    tag: "73.2.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -993,11 +993,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "9.2.2-bb.0"
+    tag: "9.2.2-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "9.2.2-bb.0"
+    tag: "9.2.2-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1090,12 +1090,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "2.0.0-bb.1"
+    tag: "2.0.0-bb.2"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "2.0.0-bb.1"
+    tag: "2.0.0-bb.2"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1631,11 +1631,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.27"
+      tag: "1.1.2320154-bb.28"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.27"
+      tag: "1.1.2320154-bb.28"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
