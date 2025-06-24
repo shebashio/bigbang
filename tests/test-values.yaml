@@ -1758,6 +1758,10 @@ addons:
 
   sonarqube:
     enabled: false
+    sourceType: "git"
+    git:
+      tag: null
+      branch: "afarasoteemo-SonarQube-upgrade-168"
     values:
       sso:
         enabled: false
