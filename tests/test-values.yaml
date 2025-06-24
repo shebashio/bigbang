@@ -1757,7 +1757,11 @@ addons:
 
 
   sonarqube:
-    enabled: false
+    enabled: true
+    sourceType: "git"
+    git:
+      tag: null
+      branch: "password-change"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
@@ -1811,7 +1815,7 @@ addons:
             cypress_url: "https://sonarqube.dev.bigbang.mil"
             cypress_url_setup: "https://sonarqube.dev.bigbang.mil/setup"
       account:
-        adminPassword: new_admin_password
+        adminPassword: New_admin_password!2
         currentAdminPassword: admin
       curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
