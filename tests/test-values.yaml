@@ -1246,9 +1246,15 @@ bbctl:
           cypress_grafana_password: 'prom-operator'
 alloy:
   enabled: true
+  git:
+    tag: null
+    branch: "renovate/ironbank"
   alloyLogs:
     enabled: true
   values:
+    istio:
+      hardened:
+        enabled: true
     k8s-monitoring:
       destinations:
         - name: loki
