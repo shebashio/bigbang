@@ -1,0 +1,54 @@
+version: '3'
+
+vars:
+  BIGBANG_DIR: .
+  BIGBANG_K3D_CHART: oci://ghcr.io/rjferguson21/bb-k3d:0.1.1
+  TEST_VALUES: tests/test-values.yaml
+
+tasks:
+  default:
+    desc: Create a k3d cluster, deploy BigBang, and run tests
+    cmds:
+      - task: cluster-setup
+      - task: deploy
+        vars:
+          PACKAGE_BRANCH:
+            sh: git rev-parse --abbrev-ref HEAD
+
+  cluster-setup:
+    desc: Create a k3d cluster for testing with flux and MetalLB
+    cmds:
+      - mkdir -p dev/cypress
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}" --set=registry1.username=$REGISTRY1_USERNAME --set=registry1.password=$REGISTRY1_PASSWORD > dev/bootstrap.yaml
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}"
+        --set=k3d.serverIP=127.0.0.1
+        --set=k3d.volumeBaseDir=$(pwd)/dev
+        --set=registry1.username=$REGISTRY1_USERNAME
+        --set=registry1.password=$REGISTRY1_PASSWORD
+        --show-only=templates/k3d-config.yaml > dev/k3d.yaml
+      - k3d cluster delete --config dev/k3d.yaml && k3d cluster create --config dev/k3d.yaml
+      - i=0; until kubectl get deployment helm-controller >/dev/null 2>&1 || [ $i -ge 3 ]; do sleep 1; i=$((i+1)); done
+
+  deploy:
+    desc: Deploy a BigBang instance to the k3d cluster
+    cmds:
+      - helm upgrade --install bigbang {{.BIGBANG_DIR}}/chart
+        --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
+        --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
+        --set=registryCredentials.username=$REGISTRY1_USERNAME
+        --set=istioGateway.values.gateways.public.upstream.service.loadBalancerIP=172.28.0.2
+        --set=istioGateway.values.gateways.passthrough.upstream.service.loadBalancerIP=172.28.0.3
+        --set=flux.interval=5s
+      - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=600s
+
+  test:upgrade:
+    desc: Tests an upgrade the package from main to the current branch
+    cmds:
+      - task: cluster-setup
+      - task: deploy
+        vars:
+          PACKAGE_BRANCH: 'main'
+      - task: deploy
+        vars:
+          PACKAGE_BRANCH:
+            sh: git rev-parse --abbrev-ref HEAD
