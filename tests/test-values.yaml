@@ -883,12 +883,17 @@ fluentbit:
 
 
 loki:
+  enabled: true
+  git:
+    tag: null
+    branch: "alloy-selector-updates"
   strategy: scalable
   values:
     istio:
       loki:
         enabled: true
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-loki"
             enabled: true
@@ -958,6 +963,10 @@ loki:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
 
 tempo:
+  enabled: true
+  git:
+    tag: null
+    branch: "alloy-selector-updates"
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -967,6 +976,7 @@ tempo:
         hosts:
           - "tempo.{{ .Values.domain }}"
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
             enabled: true
@@ -1023,6 +1033,10 @@ promtail:
   enabled: false
 
 monitoring:
+  enabled: true
+  git:
+    tag: null
+    branch: "alloy-selector-updates"
   flux:
     timeout: 20m
     install:
@@ -1039,6 +1053,7 @@ monitoring:
   values:
     istio:
       hardened:
+        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-monitoring"
             enabled: true
@@ -1938,10 +1953,14 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: "alloy-selector-updates"
     values:
       istio:
         hardened:
+          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-mimir"
               enabled: true
