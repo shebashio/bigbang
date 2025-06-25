@@ -1417,7 +1417,7 @@ addons:
       endpoint: ""
 
       # -- S3 compatible service endpoint for use with Minio or aws S3.  See: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage
-      # This setting is to be used if you want to specify storage-specific forms.  This differentiates for rails and registry. See: https://docs.gitlab.com/administration/object_storage/
+      # If `objectStorage.regionendpoint` is set, the registry will use `objectStorage.regionendpoint` instead of the default `objectStorage.endpoint` above.  `objectStorage.endpoint` must be set in order for this registry override endpoint to be used.  See: https://docs.gitlab.com/administration/object_storage/
       # Also note rails.s3.yaml and registry.s3.yaml here for implementation parallel: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage
       # examples:  "https://s3.us-gov-west-1.amazonaws.com" "https://minio.example.com:9000"
       regionendpoint: ""
