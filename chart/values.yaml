@@ -196,16 +196,16 @@ istioCRDs:
     driftDetection:
       mode: warn
       ignore:
-      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
-        target:
-          kind: ValidatingWebhookConfiguration
-          name: istiod-default-validator
-      - paths: [""]
-        target:
-          kind: Job
-      - paths: [""]
-        target:
-          kind: StatefulSet
+        - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+          target:
+            kind: ValidatingWebhookConfiguration
+            name: istiod-default-validator
+        - paths: [""]
+          target:
+            kind: Job
+        - paths: [""]
+          target:
+            kind: StatefulSet
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -234,16 +234,16 @@ istiod:
     driftDetection:
       mode: warn
       ignore:
-      - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
-        target:
-          kind: ValidatingWebhookConfiguration
-          name: istio-validator-istio-system
-      - paths: [""]
-        target:
-          kind: Job
-      - paths: [""]
-        target:
-          kind: StatefulSet
+        - paths: ["/webhooks/0/failurePolicy"] # this field is managed by istiod directly
+          target:
+            kind: ValidatingWebhookConfiguration
+            name: istio-validator-istio-system
+        - paths: [""]
+          target:
+            kind: Job
+        - paths: [""]
+          target:
+            kind: StatefulSet
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -1954,8 +1954,7 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: null
-      branch: 243-convert-chart-to-passthrough
+      tag: "7.0.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
@@ -2269,7 +2268,8 @@ addons:
       insecure: false
 
     # -- Mimir Service Account Annotations
-    serviceAccountAnnotations: {}
+    serviceAccountAnnotations:
+      {}
       ## Example IRSA Service Account Annotation
       # eks.amazonaws.com/role-arn: "<S3_ROLE_ARN>"
 
