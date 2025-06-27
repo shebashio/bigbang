@@ -1,32 +1,43 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
 vars:
   BIGBANG_DIR: .
-  BIGBANG_K3D_CHART: oci://ghcr.io/rjferguson21/bb-k3d:0.1.1
-  TEST_VALUES: tests/test-values.yaml
+  BIGBANG_K3D_CHART: oci://ghcr.io/rjferguson21/bb-k3d:0.1.2
+  TMP: dev
+  PASSTHROUGH_IP: 172.28.0.3
+  PUBLIC_IP: 172.28.0.2
+  BASE_MOUNT_DIR: /home/ubuntu
+  AWS_USERNAME: 
+    sh: aws sts get-caller-identity --query 'Arn' --output text | cut -d'/' -f2
+  EC2_PUBLIC_IP:
+    sh: aws ec2 describe-instances --filters "Name=tag:Name,Values={{.AWS_USERNAME}}-dev" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output json | jq -r '.[0][0][0]'
+  COMMAND_PREFIX: ssh ubuntu@{{.EC2_PUBLIC_IP}}
+
+env:
+  DOCKER_HOST: ssh://ubuntu@{{.EC2_PUBLIC_IP}}
 
 tasks:
   default:
     desc: Create a k3d cluster, deploy BigBang, and run tests
     cmds:
+      - task: setuphost
       - task: cluster-setup
       - task: deploy
-        vars:
-          PACKAGE_BRANCH:
-            sh: git rev-parse --abbrev-ref HEAD
+      - task: test
 
   cluster-setup:
     desc: Create a k3d cluster for testing with flux and MetalLB
     cmds:
-      - mkdir -p dev/cypress
-      - helm template k3d "{{.BIGBANG_K3D_CHART}}" --set=registry1.username=$REGISTRY1_USERNAME --set=registry1.password=$REGISTRY1_PASSWORD > dev/bootstrap.yaml
+      - mkdir -p {{.TMP}}
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}" --set=registry1.username=$REGISTRY1_USERNAME --set=registry1.password=$REGISTRY1_PASSWORD > {{.TMP}}/bootstrap.yaml
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
-        --set=k3d.serverIP=127.0.0.1
-        --set=k3d.volumeBaseDir=$(pwd)/dev
+        --set=k3d.serverIP="0.0.0.0"
+        --set=k3d.volumeBaseDir="{{.BASE_MOUNT_DIR}}"
         --set=registry1.username=$REGISTRY1_USERNAME
         --set=registry1.password=$REGISTRY1_PASSWORD
-        --show-only=templates/k3d-config.yaml > dev/k3d.yaml
-      - k3d cluster delete --config dev/k3d.yaml && k3d cluster create --config dev/k3d.yaml
+        --show-only=templates/k3d-config.yaml > {{.TMP}}/k3d.yaml
+      - k3d cluster delete -a && k3d cluster create --config {{.TMP}}/k3d.yaml
       - i=0; until kubectl get deployment helm-controller >/dev/null 2>&1 || [ $i -ge 3 ]; do sleep 1; i=$((i+1)); done
 
   deploy:
@@ -36,19 +47,21 @@ tasks:
         --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
         --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
         --set=registryCredentials.username=$REGISTRY1_USERNAME
-        --set=istioGateway.values.gateways.public.upstream.service.loadBalancerIP=172.28.0.2
-        --set=istioGateway.values.gateways.passthrough.upstream.service.loadBalancerIP=172.28.0.3
+        --set=istioGateway.values.gateways.public.upstream.service.loadBalancerIP={{.PUBLIC_IP}}
+        --set=istioGateway.values.gateways.passthrough.upstream.service.loadBalancerIP={{.PASSTHROUGH_IP}}
         --set=flux.interval=5s
-      - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=600s
+      - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=800s
 
-  test:upgrade:
-    desc: Tests an upgrade the package from main to the current branch
+  test:
+    desc: Run Gluon test
     cmds:
-      - task: cluster-setup
-      - task: deploy
-        vars:
-          PACKAGE_BRANCH: 'main'
-      - task: deploy
-        vars:
-          PACKAGE_BRANCH:
-            sh: git rev-parse --abbrev-ref HEAD
+      - for: ['kiali-kiali', 'alloy']
+        cmd: helm test {{ .ITEM }} -n bigbang
+
+  setuphost:
+    desc: Updates etc hosts to match local service ip
+    cmds:
+      - "{{ .COMMAND_PREFIX }} mkdir -p \"{{.BASE_MOUNT_DIR}}/cypress\""
+      - "{{ .COMMAND_PREFIX }} sudo sed -i '/dev.bigbang.mil/d' /etc/hosts"
+      - "{{ .COMMAND_PREFIX }} \"echo {{.PASSTHROUGH_IP}} keycloak.dev.bigbang.mil vault.dev.bigbang.mil | sudo tee -a /etc/hosts\""
+      - "{{ .COMMAND_PREFIX }} \"echo {{.PUBLIC_IP}} anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil neuvector.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil | sudo tee -a /etc/hosts\""
