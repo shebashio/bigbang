@@ -636,7 +636,8 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "3.0.0-bb.0"
+    tag: null
+    branch: 130-convert-eck-operator-to-passthrough
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
