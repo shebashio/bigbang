@@ -60,8 +60,23 @@ k8s-monitoring:
         certFile: /etc/prom-certs/cert-chain.pem
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-    alloy:
-      listenScheme: HTTPS
+    # alloy:
+    #   listenScheme: HTTPS
+    #   extraArgs:
+    #     - --cluster.enable-tls=true
+    #     - --cluster.tls-ca-path=/etc/prom-certs/root-cert.pem
+    #     - --cluster.tls-cert-path=/etc/prom-certs/cert-chain.pem
+    #     - --cluster.tls-key-path=/etc/prom-certs/key.pem
+    #   mounts:
+    #     extra:
+    #       - name: istio-certs
+    #         mountPath: /etc/prom-certs/
+    # controller:
+    #   volumes:
+    #     extra:
+    #       - name: istio-certs
+    #         emptyDir:
+    #           medium: Memory
       {{- end }}
   podLogs:
     enabled: true
