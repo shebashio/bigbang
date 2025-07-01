@@ -6743,18 +6743,6 @@ addons:
               disable_hostname = true
             }
             service_registration "kubernetes" {}
-      istio:
-        hardened:
-          customAuthorizationPolicies:
-            - name: allow-egress-instance-metadata
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      ipBlocks:
-                        - 169.254.169.254/32
       bbtests:
         enabled: true
         cypress:
