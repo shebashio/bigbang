@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  BIGBANG_DIR: .
+
+tasks:
+  ec2:
+    desc: Create an EC2 instance for BigBang development using k3d-dev script
+    vars:
+      DEV_VALUES_RAW:
+        sh: "cat dev.yaml"
+      DEV_VALUES:
+        ref: "fromYaml .DEV_VALUES_RAW"
+    cmds:
+      - "{{.BIGBANG_DIR}}/docs/assets/scripts/developer/k3d-dev.sh"
+      - task: ec2:post
+    status:
+      - "DOCKER_HOST={{ .DEV_VALUES.DOCKER_HOST }} docker ps"
+
+  ec2:post:
+    desc: Output basic metadata about instance
+    vars:
+      AWS_USERNAME: 
+        sh: aws sts get-caller-identity --query 'Arn' --output text | cut -d'/' -f3 | tr -d '@'
+      EC2_PUBLIC_IP:
+        sh: aws ec2 describe-instances --filters "Name=tag:Name,Values={{.AWS_USERNAME}}-dev" "Name=instance-state-name,Values=pending,running,stopping,stopped"  --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output json | jq -r '.[0][0][0]'
+      COMMAND_PREFIX: ssh ubuntu@{{.EC2_PUBLIC_IP}}
+      INST_ID:
+        sh: aws ec2 describe-instances --output text --query "Reservations[].Instances[].InstanceId" --filters "Name=tag:Name,Values={{.AWS_USERNAME}}-dev" "Name=instance-state-name,Values=running"
+      BASE_MOUNT_DIR:
+        sh: "{{ .COMMAND_PREFIX }} \"pwd\""
+      METADATA: 
+        map: 
+          COMMAND_PREFIX: ssh ubuntu@{{.EC2_PUBLIC_IP}}
+          DOCKER_HOST: ssh://ubuntu@{{.EC2_PUBLIC_IP}}
+          BASE_MOUNT_DIR: "{{.BASE_MOUNT_DIR}}"
+          INST_ID: "{{.INST_ID}}"
+    cmds:
+      - "echo \"{{ .METADATA | toYaml }}\" > dev.yaml" 
