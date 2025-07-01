@@ -26,6 +26,20 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.sonarqube.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.addons.sonarqube }}
 
+# Used for istio SSO serviceEntry
+sso:
+  enabled: {{ .Values.addons.sonarqube.sso.enabled }}
+  serverBaseURL: {{ .Values.addons.sonarqube.sso.severBaseURL | default (printf "https://sonarqube.%s" $domainName) }} 
+  provider_name: {{ .Values.addons.sonarqube.sso.provider_name | default .Values.addons.sonarqube.sso.label | default .Values.sso.name }}
+  applicationid: {{ .Values.addons.sonarqube.sso.applicationid }}
+  providerid: {{ .Values.addons.sonarqube.sso.providerid }}
+  loginUrl: {{ .Values.addons.sonarqube.sso.loginUrl }}
+  idpmetadataurl: {{ .Values.addons.sonarqube.sso.idpmetadataurl }}
+  secured: {{ .Values.addons.sonarqube.sso.secured }}
+  login: {{ .Values.addons.sonarqube.sso.login }}
+  name: {{ .Values.addons.sonarqube.sso.name }}
+  email: {{ .Values.addons.sonarqube.sso.email }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
