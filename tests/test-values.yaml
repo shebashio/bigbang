@@ -1759,12 +1759,6 @@ addons:
   sonarqube:
     enabled: false
     values:
-      sso:
-        enabled: false
-        client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
-        login: login
-        name: name
-        email: email
       istio:
         hardened:
           customAuthorizationPolicies:
@@ -1810,9 +1804,9 @@ addons:
           envs:
             cypress_url: "https://sonarqube.dev.bigbang.mil"
             cypress_url_setup: "https://sonarqube.dev.bigbang.mil/setup"
-      setAdminPassword:
-        newPassword: New_admin_password!2
-        currentPassword: admin
+      account:
+        adminPassword: New_admin_password!2
+        currentAdminPassword: admin
       curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
   minioOperator:
