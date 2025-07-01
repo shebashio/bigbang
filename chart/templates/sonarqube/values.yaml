@@ -26,20 +26,6 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.sonarqube.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.addons.sonarqube }}
 
-# Used for istio SSO serviceEntry
-sso:
-  enabled: {{ .Values.addons.sonarqube.sso.enabled }}
-  serverBaseURL: {{ .Values.addons.sonarqube.sso.severBaseURL | default (printf "https://sonarqube.%s" $domainName) }} 
-  provider_name: {{ .Values.addons.sonarqube.sso.provider_name | default .Values.addons.sonarqube.sso.label | default .Values.sso.name }}
-  applicationid: {{ .Values.addons.sonarqube.sso.applicationid }}
-  providerid: {{ .Values.addons.sonarqube.sso.providerid }}
-  loginUrl: {{ .Values.addons.sonarqube.sso.loginUrl }}
-  idpmetadataurl: {{ .Values.addons.sonarqube.sso.idpmetadataurl }}
-  secured: {{ .Values.addons.sonarqube.sso.secured }}
-  login: {{ .Values.addons.sonarqube.sso.login }}
-  name: {{ .Values.addons.sonarqube.sso.name }}
-  email: {{ .Values.addons.sonarqube.sso.email }}
-
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -60,21 +46,22 @@ annotations:
 {{- end }}
 
 {{- if .Values.addons.sonarqube.sso.enabled }}
-sonarProperties:
-  sonar.auth.saml.enabled: {{ .Values.addons.sonarqube.sso.enabled }}
-  sonar.core.serverBaseURL: https://sonarqube.{{ $domainName }}
-  sonar.auth.saml.applicationId: {{ .Values.addons.sonarqube.sso.client_id }}
-  sonar.auth.saml.providerName: {{ coalesce .Values.addons.sonarqube.sso.provider_name .Values.addons.sonarqube.sso.label .Values.sso.name }}
-  sonar.auth.saml.providerId: {{ include "sso.url" . }}
-  sonar.auth.saml.loginUrl: {{ include "sso.saml.service" . }}
-  sonar.auth.saml.certificate.secured: {{ default (include "sso.saml.cert" .) .Values.addons.sonarqube.sso.certificate }}
-  sonar.auth.saml.user.login: {{ .Values.addons.sonarqube.sso.login | default "login" }}
-  sonar.auth.saml.user.name: {{ .Values.addons.sonarqube.sso.name | default "name" }}
-  sonar.auth.saml.user.email: {{ .Values.addons.sonarqube.sso.email | default "email" }}
-  {{- if .Values.addons.sonarqube.sso.group }}
-  sonar.auth.saml.group.name: {{ .Values.addons.sonarqube.sso.group }}
+upstream:
+  sonarProperties:
+    sonar.auth.saml.enabled: {{ .Values.addons.sonarqube.sso.enabled }}
+    sonar.core.serverBaseURL: https://sonarqube.{{ $domainName }}
+    sonar.auth.saml.applicationId: {{ .Values.addons.sonarqube.sso.client_id }}
+    sonar.auth.saml.providerName: {{ coalesce .Values.addons.sonarqube.sso.provider_name .Values.addons.sonarqube.sso.label .Values.sso.name }}
+    sonar.auth.saml.providerId: {{ include "sso.url" . }}
+    sonar.auth.saml.loginUrl: {{ include "sso.saml.service" . }}
+    sonar.auth.saml.certificate.secured: {{ default (include "sso.saml.cert" .) .Values.addons.sonarqube.sso.certificate }}
+    sonar.auth.saml.user.login: {{ .Values.addons.sonarqube.sso.login | default "login" }}
+    sonar.auth.saml.user.name: {{ .Values.addons.sonarqube.sso.name | default "name" }}
+    sonar.auth.saml.user.email: {{ .Values.addons.sonarqube.sso.email | default "email" }}
+    {{- if .Values.addons.sonarqube.sso.group }}
+    sonar.auth.saml.group.name: {{ .Values.addons.sonarqube.sso.group }}
+    {{- end }}
   {{- end }}
-{{- end }}
 
 {{- with .Values.addons.sonarqube.database }}
   {{- if and .host .username .password .database .port }}
