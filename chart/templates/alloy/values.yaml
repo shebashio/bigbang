@@ -74,7 +74,7 @@ serviceMonitors:
       app.kubernetes.io/instance: alloy
       app.kubernetes.io/name: alloy-logs
     selectorLabels:
-      app.kubernetes.io/instance: alloy
+      app.kubernetes.io/instance: alloy-alloy-logs
       app.kubernetes.io/name: alloy-logs
     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
     scheme: https
