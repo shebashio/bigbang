@@ -304,7 +304,7 @@ extraSecretMounts:
 {{- if .Values.monitoring.enabled }}
 serviceMonitor:
   enabled: true
-{{- if $istioInjection }}
+{{- if and $istioInjection (not .Values.istioZtunnel.enabled)}}
   scheme: https
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
