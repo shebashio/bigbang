@@ -329,7 +329,7 @@ serviceMonitor:
 
 {{- if $enterpriseEnabled }}
 enterprise:
-  createSecret: true
+  createSecret: {{ .Values.grafana.enterprise.createSecret | default true }}
   license: {{ .Values.grafana.enterprise.license | quote }}
 {{- end }}
 {{- end }}
