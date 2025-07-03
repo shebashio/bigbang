@@ -290,7 +290,7 @@ grafana.ini:
     license_path: /etc/grafana/license/license.jwt
   {{- end }}
 
-{{- if or (or .Values.grafana.sso.grafana.client_id (dig "grafana" "client_id" false .Values.monitoring.sso)) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) .Values.grafana.enterprise.enabled }}
+{{- if or (or .Values.grafana.sso.grafana.client_id (dig "grafana" "client_id" false .Values.monitoring.sso)) (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) $enterpriseEnabled }}
 extraSecretMounts:
   {{- if or (and .Values.grafana.sso.enabled .Values.grafana.sso.grafana.client_id) (and (dig "grafana" "client_id" false .Values.monitoring.sso) .Values.monitoring.sso.enabled) }}
   - name: auth-generic-oauth-secret
