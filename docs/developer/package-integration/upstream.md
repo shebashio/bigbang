@@ -21,7 +21,7 @@ Big Bang requires a Helm chart to deploy your package. This Helm chart must be e
 
 ### Cloning Upstream
 
-To minimize maintenance, it is preferable to reuse existing Helm charts available in the community (upstream). Changes to the upstream Helm chart should be avoided when possible, additional templates can be added to the chart in a /bigbang templates folder. Leverage mutating webhooks with Kyverno or postRenderers to overlay changes to an upstream chart.
+To minimize maintenance, we reuse existing Helm charts available in the community (upstream). _We do not fork upstream charts._ Changes to the upstream Helm chart should be avoided when possible, additional templates can be added to the chart in a /bigbang templates folder. Leverage mutating webhooks with Kyverno or postRenderers to overlay changes to an upstream chart.
 
 > Sometimes, it is not possible to find an upstream Helm chart and you must develop your own. This is beyond the scope of this document.
 
