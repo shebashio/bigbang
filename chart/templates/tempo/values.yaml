@@ -33,6 +33,7 @@ tempo:
 {{- end }}
 {{- if and .Values.tempo.metricsGenerator.enabled .Values.monitoring.enabled }}
   metricsGenerator:
+    enabled: true
     remoteWriteUrl: "http://monitoring-monitoring-kube-prometheus.monitoring.svc:9090/api/v1/write"
   per_tenant_overrides:
     'single-tenant':
