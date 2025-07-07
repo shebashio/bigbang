@@ -31,6 +31,26 @@ tempo:
         forcepathstyle: true
 {{- end }}
 {{- end }}
+{{- if .Values.tempo.metricsGenerator.enabled }}
+  metricsGenerator:
+    remoteWriteUrl: {{ .Values.monitoring.url }}
+
+  per_tenant_overrides:
+    'single-tenant':
+      ingestion_rate_strategy: local
+      ingestion_rate_limit_bytes: 10485760         # 10MB/sec
+      ingestion_burst_size_bytes: 20971520         # 20MB burst
+      metrics_generator_processors:
+        - local-blocks
+        - service-graphs
+        - span-metrics
+      metrics_generator_processor_span_metrics_filter_policies:
+        - include:
+            match_type: strict
+            attributes:
+              - key: kind
+                value: SPAN_KIND_SERVER
+{{- end }}
 
 {{- if .Values.monitoring.enabled }}
   metricsGenerator:
