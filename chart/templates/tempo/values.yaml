@@ -31,10 +31,9 @@ tempo:
         forcepathstyle: true
 {{- end }}
 {{- end }}
-{{- if .Values.tempo.metricsGenerator.enabled }}
+{{- if and .Values.tempo.metricsGenerator.enabled .Values.monitoring.enabled }}
   metricsGenerator:
-    remoteWriteUrl: {{ .Values.monitoring.url }}
-
+    remoteWriteUrl: "http://monitoring-monitoring-kube-prometheus.monitoring.svc:9090/api/v1/write"
   per_tenant_overrides:
     'single-tenant':
       ingestion_rate_strategy: local
@@ -50,12 +49,6 @@ tempo:
             attributes:
               - key: kind
                 value: SPAN_KIND_SERVER
-{{- end }}
-
-{{- if .Values.monitoring.enabled }}
-  metricsGenerator:
-    enabled: true
-    remoteWriteUrl: "http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
 {{- end }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
