@@ -90,6 +90,10 @@ image:
   pullPolicy: {{ .Values.imagePullPolicy }}
   pullSecrets:
   - private-registry
+  {{- if $enterpriseEnabled }}
+  repository: ironbank/grafana/grafana-enterprise
+  {{- end }}
+
 sidecar:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
