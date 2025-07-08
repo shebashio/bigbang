@@ -886,7 +886,7 @@ loki:
   enabled: true
   git:
     tag: null
-    branch: "alloy-selector-updates"
+    branch: "main"
   strategy: scalable
   values:
     istio:
@@ -966,7 +966,7 @@ tempo:
   enabled: true
   git:
     tag: null
-    branch: "alloy-selector-updates"
+    branch: "main"
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -1036,7 +1036,7 @@ monitoring:
   enabled: true
   git:
     tag: null
-    branch: "alloy-selector-updates"
+    branch: "main"
   flux:
     timeout: 20m
     install:
@@ -1956,7 +1956,7 @@ addons:
     enabled: true
     git:
       tag: null
-      branch: "alloy-selector-updates"
+      branch: "main"
     values:
       istio:
         hardened:
