@@ -884,9 +884,6 @@ fluentbit:
 
 loki:
   enabled: true
-  git:
-    tag: null
-    branch: "main"
   strategy: scalable
   values:
     istio:
@@ -964,9 +961,6 @@ loki:
 
 tempo:
   enabled: true
-  git:
-    tag: null
-    branch: "main"
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -1034,9 +1028,6 @@ promtail:
 
 monitoring:
   enabled: true
-  git:
-    tag: null
-    branch: "main"
   flux:
     timeout: 20m
     install:
@@ -1954,9 +1945,6 @@ addons:
 
   mimir:
     enabled: true
-    git:
-      tag: null
-      branch: "main"
     values:
       istio:
         hardened:
