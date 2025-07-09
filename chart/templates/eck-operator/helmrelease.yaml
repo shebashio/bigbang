@@ -42,6 +42,7 @@ spec:
   {{- toYaml $fluxSettingsEckOperator | nindent 2 }}
 
   {{- if .Values.eckOperator.postRenderers }}
+  postRenderers:
   {{ toYaml .Values.eckOperator.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
