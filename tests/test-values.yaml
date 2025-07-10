@@ -1277,6 +1277,9 @@ addons:
         rbac:
           policy.default: role:admin
       upstream:
+        global:
+          redis-bb:
+            password: "ci-testing"
         controller:
           resources:
             requests:
