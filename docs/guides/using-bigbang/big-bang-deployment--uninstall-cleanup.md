@@ -1,7 +1,15 @@
-# Big Bang Deployment: Complete Uninstall & Cleanup Guide
+# Big Bang Deployment: Uninstall & Cleanup Guide
 
-This guide explains how to fully remove your Big Bang deployment—including all Helm releases, namespaces, persistent data, and custom resources—from your Kubernetes cluster.
+This guide explains how to remove your Big Bang deployment—including all Helm releases, namespaces, persistent data, and custom resources—from your Kubernetes cluster.
 
+  Note: There may be potential items that will need to be removed manually if the helm commands failes to delete them. Please check the namespacee for any of these items.
+  * services
+  * configmap
+  * secret
+  * serviceaccount
+  * lease
+  * clusterrolebinding
+  * clusterrole
 ---
 
 ## 1. Uninstall the Big Bang Helm Release
@@ -15,7 +23,7 @@ kubectl delete namespace bigbang
 
 ## 3. Remove FluxCD Resources 
 
-kubectl delete -f ./scripts/deploy/flux.yaml
+kubectl delete -f bigbang/scripts/deploy/flux.yaml
 kubectl delete namespace flux-system
 
 ## 4. Delete Other Namespaces Created by Big Bang Packages
@@ -35,7 +43,7 @@ kubectl get namespace <namespace-name> -o json | \
 
 Or use the helper script if available:
 
-./scripts/remove-ns-finalizer.sh <namespace-name>
+bigbang/scripts/remove-ns-finalizer.sh <namespace-name>
 
 ## 6. Delete Persistent Volume Claims and Persistent Volumes
 
