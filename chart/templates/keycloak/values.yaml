@@ -22,10 +22,15 @@ domain: {{ $domainName }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
     {{- include "getGatewaySelector" (dict "default" "passthrough" "pkg" .Values.addons.keycloak "root" .) | nindent 4 }}
+
+monitoring:
+  enabled: {{ $monioringEnabled }}
+
 
 istio:
   enabled: {{ $istioEnabled }}
