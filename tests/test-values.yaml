@@ -98,10 +98,10 @@ gatekeeper:
       resources:
         limits:
           cpu: null
-          memory: 256Mi
+          memory: 512Mi
         requests:
           cpu: 100m
-          memory: 256Mi
+          memory: 512Mi
 
     violations:
       allowedCapabilities:
@@ -319,6 +319,7 @@ kyverno:
             limits:
               memory: 768Mi
             requests:
+              cpu: 1
               memory: 768Mi
       features:
         policyexceptions:
@@ -796,8 +797,6 @@ eckOperator:
             resolution: DNS
 
 elasticsearchKibana:
-  git:
-    tag: 1.28.0-bb.6
   enabled: false
   sso:
     enabled: false
