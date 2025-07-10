@@ -64,10 +64,19 @@ istiod:
   values:
     hardened:
       enabled: true
+  git:
+    branch: "renovate/istiod-1.x"
+    tag: null
 istioCRDs:
   enabled: true
+  git:
+    branch: "renovate/base-1.x"
+    tag: null
 istioGateway:
   enabled: true
+  git:
+    branch: "renovate/all"
+    tag: null
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
