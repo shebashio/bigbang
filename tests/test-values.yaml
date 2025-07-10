@@ -1276,10 +1276,9 @@ addons:
       sso:
         rbac:
           policy.default: role:admin
-      upstream:
-        global:
-          redis:
-            password: "ci-testing"
+      global:
+        redis:
+          password: "ci-testing"
         controller:
           resources:
             requests:
