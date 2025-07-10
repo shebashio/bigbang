@@ -1276,9 +1276,10 @@ addons:
       sso:
         rbac:
           policy.default: role:admin
-      global:
-        redis:
-          password: "ci-testing"
+      upstream:
+        global:
+          redis:
+            password: "ci-testing"
         controller:
           resources:
             requests:
@@ -1288,15 +1289,15 @@ addons:
             persistence:
               size: 512Mi
           replica:
-            replicaCount: 1
+            replicaCount: 0
             autoscaling:
               enabled: false
             persistence:
               size: 512Mi
-        #redis:
-        #  resources:
-        #    requests:
-        #      memory: 256Mi
+        redis:
+          resources:
+            requests:
+              memory: 256Mi
         repoServer:
           resources:
             requests:
