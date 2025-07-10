@@ -1505,11 +1505,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "81.1.0-bb.0"
+      tag: "81.1.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "81.1.0-bb.0"
+      tag: "81.1.0-bb.1"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1707,11 +1707,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.7.0-bb.0"
+      tag: "3.7.0-bb.2"
     helmRepo:
       repoName: "registry1"
-      chartName: "anchore"
-      tag: "3.7.0-bb.0"
+      chartName: "anchore-enterprise"
+      tag: "3.7.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
