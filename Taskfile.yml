@@ -15,16 +15,17 @@ tasks:
     desc: Create EC2 instance, create k3d cluster, deploy BigBang, and run tests
     vars:
       DEV_VALUES_RAW:
-        sh: "cat dev.yaml"
+        sh: "cat dev.yaml || echo '{}' | yq e -"
       DEV_VALUES:
         ref: "fromYaml .DEV_VALUES_RAW"
     cmds:
       - task: aws:ec2
       - task: setuphost
-        vars: 
+        vars:
           COMMAND_PREFIX: "{{ .DEV_VALUES.COMMAND_PREFIX }}"
           BASE_MOUNT_DIR: "{{ .DEV_VALUES.BASE_MOUNT_DIR }}"
-      - task: cluster-bootstrap
+          EC2_PUBLIC_IP: "{{ .DEV_VALUES.EC2_PUBLIC_IP }}"
+      - task: k3d:create
         vars: 
           BASE_MOUNT_DIR: "{{ .DEV_VALUES.BASE_MOUNT_DIR }}"
           DOCKER_HOST: "{{ .DEV_VALUES.DOCKER_HOST }}"
@@ -37,11 +38,11 @@ tasks:
       - task: setuphost
         vars:
           BASE_MOUNT_DIR: "{{ .LOCAL_TMP }}"
-      - task: cluster-bootstrap
+      - task: k3d:create
       - task: deploy
       - task: test
 
-  cluster-bootstrap:
+  k3d:create:
     desc: Create a k3d cluster for testing with flux and MetalLB
     vars:
       TEMPLATE_VARS: --set=k3d.serverIP="0.0.0.0" --set=k3d.volumeBaseDir="{{.BASE_MOUNT_DIR}}" --set=registry1.username=$REGISTRY1_USERNAME --set=registry1.password=$REGISTRY1_PASSWORD
@@ -66,7 +67,6 @@ tasks:
     cmds:
       - helm upgrade --install bigbang {{.BIGBANG_DIR}}/chart
         --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
-        --values {{.BIGBANG_DIR}}/tests/disable-core-values.yaml
         --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
         --values {{.LOCAL_TMP}}/dev-values.yaml
         --set=registryCredentials.username=$REGISTRY1_USERNAME
@@ -77,5 +77,13 @@ tasks:
   test:
     desc: Run Big Bang gluon tests
     cmds:
-      - for: ['kiali-kiali', 'alloy']
+      - for: ['kyverno-kyverno', 'kyverno-kyverno-policies']
         cmd: helm test {{ .ITEM }} -n bigbang
+  
+  schema-validate:
+    desc: Run Big Bang schema valid
+    cmds:
+      - for: ['kiali', 'loki']
+        cmd: helm template chart -f tests/test-values.yaml | yq e 'select(.kind == "Secret" and .metadata.name == "release-name-{{.ITEM}}-values")' | yq -oy '.stringData.defaults as $defaults | .stringData.overlays as $overlays | ($defaults | from_yaml) * ($overlays | from_yaml)' - | helm template oci://registry1.dso.mil/bigbang/{{.ITEM}}:$(yq '.{{.ITEM}}.git.tag' chart/values.yaml) -f -
+      - for: ['keycloak']
+        cmd: helm template chart -f tests/test-values.yaml | yq e 'select(.kind == "Secret" and .metadata.name == "release-name-{{.ITEM}}-values")' | yq -oy '.stringData.defaults as $defaults | .stringData.overlays as $overlays | ($defaults | from_yaml) * ($overlays | from_yaml)' - | helm template oci://registry1.dso.mil/bigbang/{{.ITEM}}:$(yq '.addons.{{.ITEM}}.git.tag' chart/values.yaml) -f -

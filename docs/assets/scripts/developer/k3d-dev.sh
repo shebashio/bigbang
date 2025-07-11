@@ -545,6 +545,15 @@ function install_docker {
 function install_k3d {
   # install k3d on instance
   echo "Installing k3d on instance"
+  run_batch_new
+  run_batch_add "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
+  run_batch_add "k3d version"
+  run_batch_execute
+}
+
+function create_k3d {
+  # install k3d on instance
+  echo "Creating k3d cluster on instance"
   # Shared k3d settings across all options
   # 1 server, 3 agents
   k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
@@ -608,8 +617,6 @@ function install_k3d {
     run_batch_add "docker network remove k3d-network || true"
     run_batch_add "sudo systemctl restart docker"
   fi
-  run_batch_add "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v${K3D_VERSION} bash"
-  run_batch_add "k3d version"
   run_batch_add "sudo mkdir -p /cypress && sudo chown 1000:1000 /cypress"
   run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
   run_batch_add "${k3d_command}"
@@ -1311,9 +1318,10 @@ function create_instances {
   fi
   initialize_instance
   install_k3d
-  install_kubectl
-  install_metallb
-  fix_etc_hosts
+  # create_k3d
+  # install_kubectl
+  # install_metallb
+  # fix_etc_hosts
   if [[ "${QUIET}" == "false" ]]; then
     echo
     echo "================================================================================"
