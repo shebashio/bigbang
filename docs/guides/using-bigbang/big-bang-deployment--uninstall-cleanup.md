@@ -43,7 +43,7 @@ kubectl get namespace <namespace-name> -o json | \
 
 Or use the helper script if available:
 
-bigbang/scripts/remove-ns-finalizer.sh <namespace-name>
+https://repo1.dso.mil/big-bang/bigbang/-/blob/master/scripts/remove-ns-finalizer.sh <namespace-name>
 
 ## 6. Delete Persistent Volume Claims and Persistent Volumes
 
