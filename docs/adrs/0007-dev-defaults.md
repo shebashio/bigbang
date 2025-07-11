@@ -25,7 +25,7 @@ Big Bang will adopt a "development-friendly by default, production-ready by conf
 
 This means:
 
-1. **Default values prioritize initial deployment success** over production hardening. The out-of-the-box experience should result in a functional, if not production-appropriate, deployment.
+1. **Default values prioritize initial deployment success** over production hardening. The out-of-the-box experience should result in a functional, near production-ready, deployment.
 
 2. **Production readiness is achieved through explicit configuration**, not defaults. Users deploying to production environments are expected to override defaults with appropriate values for their security and operational requirements.
 
@@ -62,4 +62,6 @@ This philosophy applies to both Big Bang's core configuration and the defaults u
 To mitigate these risks, Big Bang will:
 - Provide clear warnings in documentation about development versus production configurations
 - Call out production considerations in package documentation
-- Include comments in values files indicating which defaults are development-only
+- Include comments in values overlays where development defaults have been chosen in lieu of a more production-like configuration
+  - Reasoning for the choice should be documented
+  - Comments should include links to documentation when possible
