@@ -63,6 +63,29 @@ upstream:
     enabled: {{ .Values.openshift }}
   
   createNamespace: false
+
+  {{- if .Values.addons.argocd.sso.enabled }}
+  secret:
+    extra:
+      oidc.keycloak.clientSecret: {{ .Values.addons.argocd.sso.client_secret }}
+  configs:
+    cm:
+      oidc.config: |
+        name: {{ default .Values.sso.name .Values.addons.argocd.sso.provider_name }}
+        issuer: {{ include "sso.url" . }}
+        clientID: {{ .Values.addons.argocd.sso.client_id }}
+        clientSecret: $oidc.keycloak.clientSecret
+        requestedScopes: ["openid","ArgoCD"]
+        {{- if (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+        rootCA: |
+          {{- default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | nindent 8 }}
+        {{- end }}
+    rbac:
+      policy.csv: |
+        {{- .Values.addons.argocd.sso.groups | nindent 6 }}
+        g, Impact Level 2 Authorized, role:admin
+      keycloakClientSecret: {{ .Values.addons.argocd.sso.client_secret }}
+  {{- end }}
   
   global:
     {{- $argocdHosts := (dig "istio" "argocd" "hosts" dict .Values.addons.argocd.values) }}
@@ -170,8 +193,6 @@ networkPolicies:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.argocd "root" .) | nindent 4 }}
 
 {{- if .Values.addons.argocd.sso.enabled }}
-sso:
-  enabled: {{ .Values.addons.argocd.sso.enabled }}
   rbac:
     policy.csv: |
       {{- .Values.addons.argocd.sso.groups | nindent 6 }}
