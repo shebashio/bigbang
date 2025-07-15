@@ -1276,24 +1276,21 @@ addons:
       #global:
       #  redis:
       #    password: "ci-testing"
-      sso:
-        rbac:
-          policy.default: role:admin
+      redis-bb:
+        master:
+          persistence:
+            size: 512Mi
+        replica:
+          replicaCount: 1
+          autoscaling:
+            enabled: false
+          persistence:
+            size: 512Mi
       upstream:
         controller:
           resources:
             requests:
               memory: 2Gi
-        redis-bb:
-          master:
-            persistence:
-              size: 512Mi
-          replica:
-            replicaCount: 1
-            autoscaling:
-              enabled: false
-            persistence:
-              size: 512Mi
         redis:
           resources:
             requests:
@@ -1304,6 +1301,8 @@ addons:
               cpu: 50m
               memory: 128Mi
         configs:
+          rbac:
+            policy.default: role:admin
           secret:
             argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
       bbtests:
