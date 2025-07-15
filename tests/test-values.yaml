@@ -319,7 +319,7 @@ kyverno:
             limits:
               memory: 768Mi
             requests:
-              cpu: 1
+              cpu: 500m
               memory: 768Mi
       features:
         policyexceptions:
@@ -1345,7 +1345,7 @@ addons:
                 requests: 100m
                 limits: null
               memory:
-                requests: 512Mi
+                requests: 512Mi/kyverno-kyverno
                 limits: 512Mi
       istio:
         hardened:
@@ -1651,8 +1651,9 @@ addons:
         limits:
           memory: 64Mi
           cpu: null
-      runners:
-        protected: false
+      upstream:
+        runners:
+          protected: false
       networkPolicies:
         additionalPolicies:
         - name: egress-runner-jobs
