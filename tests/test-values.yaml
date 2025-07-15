@@ -1273,9 +1273,9 @@ addons:
       groups: |
         g, Impact Level 2 Authorized, role:admin
     values:
-      #global:
-      #  redis:
-      #    password: "ci-testing"
+      global:
+        redis:
+          password: "ci-testing"
       redis-bb:
         master:
           persistence:
