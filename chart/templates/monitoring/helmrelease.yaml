@@ -41,10 +41,13 @@ spec:
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
 
-  {{- if .Values.monitoring.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
-  {{- end }}
+  {{ include "monitoring.automountServiceAccountTokenPostRenderers" . | nindent 2 }}
+  # {{- if .Values.monitoring.postRenderers }}
+  # {{ with .Values.monitoring.postRenderers }}
+  # {{ toYaml . | nindent 2 }}
+  # {{- end }}
+  # {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-monitoring-values
       kind: Secret
