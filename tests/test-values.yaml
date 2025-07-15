@@ -1024,6 +1024,11 @@ promtail:
 
 prometheusOperatorCRDs:
   enabled: true
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/prometheus-operator-crds.git
+    tag: null
+    branch: 13-initial-build-out
+
 
 monitoring:
   flux:
@@ -1040,6 +1045,8 @@ monitoring:
     alertmanager:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_alertmanager
   values:
+    crds:
+      enabled: false
     istio:
       hardened:
         customServiceEntries:
