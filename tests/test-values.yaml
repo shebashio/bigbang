@@ -883,14 +883,12 @@ fluentbit:
 
 
 loki:
-  enabled: true
   strategy: scalable
   values:
     istio:
       loki:
         enabled: true
       hardened:
-        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-loki"
             enabled: true
@@ -960,7 +958,6 @@ loki:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
 
 tempo:
-  enabled: true
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -970,7 +967,6 @@ tempo:
         hosts:
           - "tempo.{{ .Values.domain }}"
       hardened:
-        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-tempo"
             enabled: true
@@ -1027,7 +1023,6 @@ promtail:
   enabled: false
 
 monitoring:
-  enabled: true
   flux:
     timeout: 20m
     install:
@@ -1044,7 +1039,6 @@ monitoring:
   values:
     istio:
       hardened:
-        enabled: true
         customServiceEntries:
           - name: "cypress-service-entries-monitoring"
             enabled: true
@@ -1252,15 +1246,9 @@ bbctl:
           cypress_grafana_password: 'prom-operator'
 alloy:
   enabled: true
-  git:
-    tag: null
-    branch: main
   alloyLogs:
     enabled: true
   values:
-    istio:
-      hardened:
-        enabled: true
     k8s-monitoring:
       destinations:
         - name: loki
@@ -1945,11 +1933,10 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: true
+    enabled: false
     values:
       istio:
         hardened:
-          enabled: true
           customServiceEntries:
             - name: "cypress-service-entries-mimir"
               enabled: true
