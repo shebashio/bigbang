@@ -49,26 +49,25 @@ istio:
           resolution: DNS
      {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
-  upstream:
-    domain: {{ $domainName }}
-    prometheus:
-      enabled: true
-      {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
-      service: authservice-haproxy-sso
-      port: 8080
-      namespace: authservice
-      {{- end }}
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
-    alertmanager:
-      enabled: true
-      {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
-      service: authservice-haproxy-sso
-      port: 8080
-      namespace: authservice
-      {{- end }}
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+  domain: {{ $domainName }}
+  prometheus:
+    enabled: true
+    {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+    service: authservice-haproxy-sso
+    port: 8080
+    namespace: authservice
+    {{- end }}
+    gateways:
+      - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+  alertmanager:
+    enabled: true
+    {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+    service: authservice-haproxy-sso
+    port: 8080
+    namespace: authservice
+    {{- end }}
+    gateways:
+      - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.monitoring }}
 
 ## Non-upstream
