@@ -107,13 +107,12 @@ upstream:
         name: {{ default .Values.sso.name .Values.addons.argocd.sso.provider_name }}
         issuer: {{ include "sso.url" . }}
         clientID: {{ .Values.addons.argocd.sso.client_id }}
-        clientSecret: $oidc.keycloak.clientSecret
+        clientSecret: {{ .Values.addons.argocd.sso.client_secret }}
         requestedScopes: ["openid","ArgoCD"]
         {{- if (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
         rootCA: |
           {{- default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | nindent 10 }}
         {{- end }}
-  {{- end }}
     {{- if .Values.addons.argocd.sso.groups }}
     rbac:
       policy.csv: |
@@ -124,7 +123,7 @@ upstream:
       extra:
         keycloakClientSecret: {{ .Values.addons.argocd.sso.client_secret }}
     {{- end }} 
-
+  {{- end }}
   openshift:
     enabled: {{ .Values.openshift }}
 
