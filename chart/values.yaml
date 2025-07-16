@@ -784,7 +784,8 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.6-bb.0"
+    tag: null
+    branch: "187-refactor-neuvector-with-pass-through-pattern"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
