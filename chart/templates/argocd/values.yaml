@@ -182,7 +182,7 @@ upstream:
       enabled: true
     # conditional that will attach the argocd-iam-secret environment variables containing AWS credentials from argocd values for SOPS on
     # the repo-server deployment.
-    {{- if and .Values.addons.argocd.values.awsCredentials.awsAccessKeyId .Values.addons.argocd.values.awsCredentials.awsSecretAccessKey }}
+    {{- if and (hasKey .Values.addons.argocd.values.awsCredentials "awsAccessKeyId") (hasKey.Values.addons.argocd.values.awsCredentials "awsSecretAccessKey") }}
     envFrom:
     - secretRef:
         name: argocd-iam-secret
