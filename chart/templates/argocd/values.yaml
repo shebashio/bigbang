@@ -100,6 +100,11 @@ networkPolicies:
 
 
 upstream:
+  {{- if .Values.addons.argocd.redis.host }}
+  externalRedis: 
+    host: {{ default "argocd-argocd-redis-bb-headless.argocd.svc.cluster.local" .Values.addons.argocd.redis.host }}
+    port: {{ default 6379 .Values.addons.argocd.redis.port }}
+  {{- end }}
   {{- if .Values.addons.argocd.sso.enabled }}
   configs:
     cm:
@@ -150,12 +155,6 @@ upstream:
     imagePullSecrets:
       - name: private-registry
   
-  {{- if and .Values.addons.argocd.redis.host .Values.addons.argocd.redis.port }}
-  redis:
-    externalEndpoint: {{ .Values.addons.argocd.redis.host }}:{{ .Values.addons.argocd.redis.port }}
-    enabled: false
-  {{- end }}
-  
   server:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -181,6 +180,13 @@ upstream:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
     autoscaling:
       enabled: true
+    # conditional that will attach the argocd-iam-secret environment variables containing AWS credentials from argocd values for SOPS on
+    # the repo-server deployment.
+    {{- if and .Values.addons.argocd.values.awsCredentials.awsAccessKeyId .Values.addons.argocd.values.awsCredentials.awsSecretAccessKey }}
+    envFrom:
+    - secretRef:
+        name: argocd-iam-secret
+    {{- end }}     
     # conditional passes only for default istio: enabled, mTLS: SCRICT, istio injection: enabled
     {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.argocd.values) "STRICT") }}
     metrics:
