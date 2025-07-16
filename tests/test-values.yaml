@@ -1719,7 +1719,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       sso:
         resources:
           requests:
@@ -1727,7 +1726,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       postgresql:
         persistence:
           size: 256Mi
@@ -1737,7 +1735,6 @@ addons:
             memory: 1024Mi
           limits:
             cpu: null
-            memory: 1024Mi
         metrics:
           resources:
             requests:
@@ -1745,7 +1742,6 @@ addons:
               memory: 200Mi
             limits:
               cpu: null
-              memory: 200Mi
       analyzer:
         replicaCount: 1
         resources:
@@ -1754,7 +1750,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       api:
         resources:
           requests:
@@ -1762,7 +1757,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       catalog:
         resources:
           requests:
@@ -1770,7 +1764,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       policyEngine:
         resources:
           requests:
@@ -1778,14 +1771,12 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       simpleQueue:
         resources:
           requests:
             cpu: 100m
             memory: 200Mi
           limits:
-            memory: 200Mi
       upgradeJob:
         resources:
           requests:
@@ -1793,7 +1784,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       feeds:
         resources:
           requests:
@@ -1801,7 +1791,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
         feeds-db:
           resources:
             requests:
@@ -1809,7 +1798,6 @@ addons:
               memory: 200Mi
             limits:
               cpu: null
-              memory: 200Mi
           metrics:
             resources:
               requests:
@@ -1817,7 +1805,6 @@ addons:
                 memory: 200Mi
               limits:
                 cpu: null
-                memory: 200Mi
         feedsUpgradeJob:
           resources:
             requests:
@@ -1825,7 +1812,6 @@ addons:
               memory: 200Mi
             limits:
               cpu: null
-              memory: 200Mi
       rbacManager:
         resources:
           requests:
@@ -1833,14 +1819,12 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       reports:
         resources:
           requests:
             cpu: 100m
             memory: 200Mi
           limits:
-            memory: 200Mi
       notifications:
         resources:
           requests:
@@ -1848,7 +1832,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       ui:
         resources:
           requests:
@@ -1856,7 +1839,6 @@ addons:
             memory: 200Mi
           limits:
             cpu: null
-            memory: 200Mi
       ui-redis:
         replica:
           replicaCount: 0
