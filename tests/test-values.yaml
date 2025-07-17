@@ -1287,8 +1287,6 @@ addons:
           persistence:
             size: 512Mi
       upstream:
-        externalRedis:
-          host: "argocd-argocd-redis-bb-headless.argocd.svc.cluster.local"
         controller:
           resources:
             requests:
