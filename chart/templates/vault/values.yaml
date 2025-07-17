@@ -18,7 +18,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 upstream:
-  fullnameOverride: "vault-vault"
+  fullnameOverride: "vault"
   global:
     imagePullSecrets:
     - name: private-registry
