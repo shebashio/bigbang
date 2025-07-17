@@ -875,11 +875,11 @@ fluentbit:
                 - number: 443
                   protocol: TLS
                   name: https
-
-    securityContext:
-      privileged: true
     bbtests:
       enabled: true
+    upstream:
+      securityContext:
+        privileged: true
 
 
 loki:
@@ -1593,8 +1593,9 @@ addons:
           memory: 64Mi
           cpu: 50m
         limits: {}
-      runners:
-        protected: false
+      upstream:
+        runners:
+          protected: false
       networkPolicies:
         additionalPolicies:
         - name: egress-runner-jobs
@@ -1765,6 +1766,23 @@ addons:
       name: name
       email: email
     values:
+      upstream:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        persistence:
+          size: 5Gi
+        postgresql:
+          persistence:
+            size: 256Mi
+        account:
+          adminPassword: New_admin_password!2
+          currentAdminPassword: admin
+        setAdminPassword:
+          newPassword: New_admin_password!2
+          currentPassword: admin
+        curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
       istio:
         hardened:
           customAuthorizationPolicies:
@@ -1793,27 +1811,13 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      plugins:
-        install: []
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-      persistence:
-        size: 5Gi
-      postgresql:
-        persistence:
-          size: 256Mi
       bbtests:
         enabled: true
         cypress:
           envs:
             cypress_url: "https://sonarqube.dev.bigbang.mil"
             cypress_url_setup: "https://sonarqube.dev.bigbang.mil/setup"
-      account:
-        adminPassword: New_admin_password!2
-        currentAdminPassword: admin
-      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
+
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
@@ -2119,7 +2123,7 @@ addons:
       # https://help.sonatype.com/repomanager3/installation/system-requirements#SystemRequirements-JVMDirectMemory
         env:
           - name: INSTALL4J_ADD_VM_PARAMS
-            value: "-Dcom.redhat.fips=false -Xms1024M -Xmx1024M -XX:MaxDirectMemorySize=1024M -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.util.prefs.userRoot=/nexus-data/javaprefs"
+            value: "-Dcom.redhat.fips=false -Xms1024M -Xmx1024M -XX:MaxDirectMemorySize=1024M -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -Djava.util.prefs.userRoot=/nexus-data/javaprefs -Dkaraf.data=/nexus-data"
           - name: NEXUS_SECURITY_RANDOMPASSWORD
             value: "true"
         resources:
