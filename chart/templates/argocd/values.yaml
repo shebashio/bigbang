@@ -180,8 +180,7 @@ upstream:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
     autoscaling:
       enabled: true
-    # conditional that will attach the argocd-iam-secret environment variables containing AWS credentials from argocd values for SOPS on
-    # the repo-server deployment.
+    # conditional that will attach the argocd-iam-secret environment variables containing AWS credentials from argocd values for SOPS on the repo-server deployment.
     {{- $awskeyid := dig "addons" "argocd" "values" "awsCredentials" "awsAccessKeyId" false (.Values | merge (dict)) }}
     {{- $awssecret := dig "addons" "argocd" "values" "awsCredentials" "awsSecretAccessKey" false (.Values | merge (dict)) }}
     {{- if and $awskeyid $awssecret }}
