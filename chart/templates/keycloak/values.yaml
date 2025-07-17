@@ -2,6 +2,10 @@
 {{- include "values-secret" (dict "root" $ "package" .Values.addons.keycloak "name" "keycloak" "defaults" (include "bigbang.defaults.keycloak" .)) }}
 {{- end }}
 
+{{- define "keycloak.default-db-password" }}
+{{- randAlphaNum 16 }}
+{{- end }}
+
 {{- define "bigbang.defaults.keycloak" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $tlsEnabled := and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key -}}
@@ -34,11 +38,22 @@ istio:
       - {{ include "getGatewayName" (dict "default" "passthrough" "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
 
 upstream:
-  replicas: 2
+  replicas: 1
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   imagePullSecrets:
   - name: private-registry
+  {{- with .Values.addons.keycloak.database }}
+  database:
+    existingSecret: ""
+    existingSecretKey: ""
+    vendor: {{ .type | default "postgres"}} 
+    hostname: {{ .host | default .hostname | default "keycloak-postgresql" }}
+    port: {{ .port | default 5432 }}
+    database: {{ .database | default "keycloak" }}
+    username: {{ .username | default "keycloak" }}
+    password: {{ .password | default (include "keycloak.default-db-password" .) }}
+  {{- end }}
 
   {{- if $istioInjection }}
   podAnnotations:
@@ -90,26 +105,6 @@ upstream:
         tls.key: {{ .Values.addons.keycloak.ingress.key  | quote }}
     {{- end }}
 
-    {{- with .Values.addons.keycloak.database }}
-    {{- if .host }}
-    env:
-      stringData:
-        # keep legacy ENVs for backwards compatibility
-        DB_USER: {{ .username | quote }}
-        DB_PASSWORD: {{ .password | quote }}
-        DB_VENDOR: {{ default "postgres" .type }}
-        DB_ADDR: {{ .host }}
-        DB_PORT: {{ .port | quote }}
-        DB_DATABASE: {{ .database }}
-        # Quarkus ENVs
-        KC_DB_USERNAME: {{ .username | quote }}
-        KC_DB_PASSWORD: {{ .password | quote }}
-        KC_DB: {{ default "postgres" .type }}
-        KC_DB_URL_HOST: {{ .host }}
-        KC_DB_URL_PORT: {{ .port | quote }}
-        KC_DB_URL_DATABASE: {{ .database }}
-    {{- end }}
-    {{- end }}
   {{- end }}
   {{- if $tlsEnabled }}
   extraVolumes: |
@@ -142,12 +137,21 @@ upstream:
   {{- end }}
 
 postgresql:
+  {{- if or .Values.addons.keycloak.database.host (dig "upstream" "database" "hostname" false .Values.addons.keycloak.values)  }}
+  enabled: false
+  {{- else }}
+  enabled: true
   global:
     imagePullSecrets:
     - private-registry
-{{- if .Values.addons.keycloak.database.host }}
-  enabled: false
-{{- else if or $istioInjection .Values.kiali.enabled }}
+    postgresql:
+      auth:
+        username: keycloak
+        password: {{ include "keycloak.default-db-password" . }}
+        database: keycloak
+        {{- end }}
+
+  {{- if or $istioInjection }}
   primary:
     {{- if $istioInjection }}
     annotations:
@@ -158,5 +162,5 @@ postgresql:
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}
-{{- end }}
-{{- end }}
+  {{- end }}
+  {{- end }}
