@@ -2010,11 +2010,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.6"
+      #tag: "0.30.0-bb.6"
+      tag: ""
+      branch: "mgm-test"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.6"
+      #tag: "0.30.0-bb.6"
+      tag: ""
+      branch: "mgm-test"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
