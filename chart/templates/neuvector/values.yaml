@@ -33,7 +33,7 @@ monitoring:
 upstream:
   # Setting this to false since Istio handles TLS
   manager:
-    envs: 
+    env: 
       ssl: false
   openshift: {{ .Values.openshift }}
   {{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled }}
