@@ -86,15 +86,6 @@ upstream:
       {{- end }}
       serviceMonitor:
         enabled: {{ .Values.monitoring.enabled }}
-        # conditional passes only for default istio: enabled, mTLS: SCRICT
-        {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
-        scheme: https
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-        {{- end }}
       svc:
         enabled: {{ .Values.monitoring.enabled }}
         type: ClusterIP

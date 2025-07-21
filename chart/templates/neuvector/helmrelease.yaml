@@ -43,9 +43,7 @@ spec:
 
   {{- if or .Values.neuvector.postRenderers $istioEnabled }}
   postRenderers:
-  {{- if $istioEnabled }}
   {{ include "neuvector.ServiceMonitorPostRenderer" . | nindent 4 }}
-  {{- end }}
   {{- with .Values.neuvector.postRenderers }}
   {{ toYaml .Values.neuvector.postRenderers | nindent 4 }}
   {{- end }}
