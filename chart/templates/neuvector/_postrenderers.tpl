@@ -3,8 +3,8 @@
         patches:
           - target:
               kind: ServiceMonitor
-              name: policy-reporter-monitoring
-              namespace: kyverno-reporter
+              name: neuvector-prometheus-exporter
+              namespace: neuvector
             patch: |-
               - op: add
                 path: /spec/endpoints/0/scheme
