@@ -2194,7 +2194,12 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    enabled: false
+    git:
+    branch: velero-passthrough
+    tag: null
+    enabled: true
+    plugins:
+      - aws
     values:
       istio:
         hardened:
@@ -2215,10 +2220,10 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+      serviceAccount:
+        server:
+          name: velero
       upstream:
-        serviceAccount:
-          server:
-            name: velero
         configuration:
           backupStorageLocation:
             - bucket: velero
@@ -2239,24 +2244,6 @@ addons:
               [default]
               aws_access_key_id = minio
               aws_secret_access_key = minio123
-        initContainers:
-          - name: velero-plugin-for-aws
-            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
-            imagePullPolicy: IfNotPresent
-            volumeMounts:
-              - mountPath: /target
-                name: plugins
-            resources:
-              requests:
-                memory: 512Mi
-                cpu: 100m
-              limits:
-                memory: 512Mi
-                cpu: 100m
-            securityContext:
-              capabilities:
-                drop:
-                  - ALL
       cleanUpCRDs: true
       bbtests:
         enabled: true
