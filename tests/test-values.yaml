@@ -2198,7 +2198,10 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    enabled: false
+    git:
+    branch: velero-passthrough
+    tag: null
+    enabled: true
     plugins:
     - aws
     values:
@@ -2224,26 +2227,27 @@ addons:
       serviceAccount:
         server:
           name: velero
-      configuration:
-        backupStorageLocation:
-        - bucket: velero
-          provider: aws
-          default: true
-          config:
-            region: velero
-            s3ForcePathStyle: "true"
-            s3Url: https://minio-api.dev.bigbang.mil
-        volumeSnapshotLocation:
-        - name: default
-          provider: aws
-          config:
-            region: velero
-      credentials:
-        secretContents:
-          cloud: |
-            [default]
-            aws_access_key_id = minio
-            aws_secret_access_key = minio123
+      upstream:
+        configuration:
+          backupStorageLocation:
+          - bucket: velero
+            provider: aws
+            default: true
+            config:
+              region: velero
+              s3ForcePathStyle: "true"
+              s3Url: https://minio-api.dev.bigbang.mil
+          volumeSnapshotLocation:
+          - name: default
+            provider: aws
+            config:
+              region: velero
+        credentials:
+          secretContents:
+            cloud: |
+              [default]
+              aws_access_key_id = minio
+              aws_secret_access_key = minio123
       cleanUpCRDs: true
       bbtests:
         enabled: true
