@@ -21,6 +21,8 @@ flux:
   enabled: true
 
 bbc:
+  domain: {{ $domainName }}
+
   routes:
     prometheus:
       {{- if .Values.monitoring.sso.enabled }}
