@@ -1273,13 +1273,9 @@ addons:
       groups: |
         g, Impact Level 2 Authorized, role:admin
     values:
-      sso:
-        rbac:
-          policy.default: role:admin
-      controller:
-        resources:
-          requests:
-            memory: 2Gi
+      global:
+        redis:
+          password: "ci-testing"
       redis-bb:
         master:
           persistence:
@@ -1290,18 +1286,25 @@ addons:
             enabled: false
           persistence:
             size: 512Mi
-      redis:
-        resources:
-          requests:
-            memory: 256Mi
-      repoServer:
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-      configs:
-        secret:
-          argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
+      upstream:
+        controller:
+          resources:
+            requests:
+              memory: 2Gi
+        redis:
+          resources:
+            requests:
+              memory: 256Mi
+        repoServer:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+        configs:
+          rbac:
+            policy.default: role:admin
+          secret:
+            argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
       bbtests:
         enabled: true
         cypress:
@@ -1766,6 +1769,23 @@ addons:
       name: name
       email: email
     values:
+      upstream:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        persistence:
+          size: 5Gi
+        postgresql:
+          persistence:
+            size: 256Mi
+        account:
+          adminPassword: New_admin_password!2
+          currentAdminPassword: admin
+        setAdminPassword:
+          newPassword: New_admin_password!2
+          currentPassword: admin
+        curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
       istio:
         hardened:
           customAuthorizationPolicies:
@@ -1794,27 +1814,13 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      plugins:
-        install: []
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-      persistence:
-        size: 5Gi
-      postgresql:
-        persistence:
-          size: 256Mi
       bbtests:
         enabled: true
         cypress:
           envs:
             cypress_url: "https://sonarqube.dev.bigbang.mil"
             cypress_url_setup: "https://sonarqube.dev.bigbang.mil/setup"
-      account:
-        adminPassword: New_admin_password!2
-        currentAdminPassword: admin
-      curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
+
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
