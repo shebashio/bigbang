@@ -949,7 +949,8 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "75.6.1-bb.2"
+    tag: null
+    branch: bb-common-28-netpol-poc
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
