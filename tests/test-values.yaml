@@ -2194,7 +2194,12 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    enabled: false
+    git:
+    branch: velero-passthrough
+    tag: null
+    enabled: true
+    plugins:
+      - aws
     values:
       istio:
         hardened:
@@ -2215,10 +2220,10 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
+      serviceAccount:
+        server:
+          name: velero
       upstream:
-        serviceAccount:
-          server:
-            name: velero
         configuration:
           backupStorageLocation:
             - bucket: velero
