@@ -20,53 +20,54 @@ domain: {{ $domainName }}
 flux:
   enabled: true
 
-routes:
-  prometheus:
-    {{- if .Values.monitoring.sso.enabled }}
-    service: authservice-haproxy-sso
-    port: 8080
-    namespace: authservice
-    {{- end }}
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
-  alertmanager:
-    enabled: true
-    {{- if .Values.monitoring.sso.enabled }}
-    service: authservice-haproxy-sso
-    port: 8080
-    namespace: authservice
-    {{- end }}
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+bbc:
+  routes:
+    prometheus:
+      {{- if .Values.monitoring.sso.enabled }}
+      service: authservice-haproxy-sso
+      port: 8080
+      namespace: authservice
+      {{- end }}
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+    alertmanager:
+      enabled: true
+      {{- if .Values.monitoring.sso.enabled }}
+      service: authservice-haproxy-sso
+      port: 8080
+      namespace: authservice
+      {{- end }}
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
 
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  config:
-    peers:
-      gateway:
-        podSelector:
-          {{- include "getGatewaySelector" (dict "pkg" .Values.monitoring "root" .) | nindent 10 }}
-    controlPlane:
-      ipBlock:
-        cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  networkPolicies:
+    enabled: {{ .Values.networkPolicies.enabled }}
+    config:
+      peers:
+        gateway:
+          podSelector:
+            {{- include "getGatewaySelector" (dict "pkg" .Values.monitoring "root" .) | nindent 10 }}
+      controlPlane:
+        ipBlock:
+          cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-  package:
-    allow-loki-prometheus-ingress:
-      enabled: {{ $lokiEnabled }}
-    allow-loki-alertmanager-ingress:
-      enabled: {{ $lokiEnabled }}
-    allow-tempo-egress:
-      enabled: {{ .Values.tempo.enabled }}
-    allow-tempo-ingress-writes:
-      enabled: {{ .Values.tempo.enabled }}
-    allow-from-thanos:
-      enabled: {{ $thanosEnabled }}
-    allow-from-authservice-alertmanager:
-      enabled: {{ .Values.monitoring.sso.enabled }}
-    allow-from-authservice-prometheus:
-      enabled: {{ .Values.monitoring.sso.enabled }}
-    allow-egress-authservice-alertmanager:
-      enabled: {{ .Values.monitoring.sso.enabled }}
+    package:
+      allow-loki-prometheus-ingress:
+        enabled: {{ $lokiEnabled }}
+      allow-loki-alertmanager-ingress:
+        enabled: {{ $lokiEnabled }}
+      allow-tempo-egress:
+        enabled: {{ .Values.tempo.enabled }}
+      allow-tempo-ingress-writes:
+        enabled: {{ .Values.tempo.enabled }}
+      allow-from-thanos:
+        enabled: {{ $thanosEnabled }}
+      allow-from-authservice-alertmanager:
+        enabled: {{ .Values.monitoring.sso.enabled }}
+      allow-from-authservice-prometheus:
+        enabled: {{ .Values.monitoring.sso.enabled }}
+      allow-egress-authservice-alertmanager:
+        enabled: {{ .Values.monitoring.sso.enabled }}
 
 openshift: {{ .Values.openshift }}
 
