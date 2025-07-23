@@ -2224,6 +2224,9 @@ addons:
         server:
           name: velero
       upstream:
+        serviceAccount:
+          server:
+            name: velero
         configuration:
           backupStorageLocation:
             - bucket: velero
