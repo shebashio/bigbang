@@ -42,10 +42,6 @@ upstream:
     scrapeTimeout: 10s
     selector:
       prometheus: monitoring-monitoring-kube-prometheus
-    # conditional passes only if all conditionals are true:
-    # - istio: enabled
-    # - mTLS: SCRICT
-    # - istio injection: enabled (for logging ns)
     {{- if $istioInjection }}
     scheme: https
     tlsConfig:
