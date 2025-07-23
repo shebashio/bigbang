@@ -132,7 +132,7 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
-     {{- end }}
+    {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
     enabled: true

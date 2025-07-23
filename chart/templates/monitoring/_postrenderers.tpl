@@ -2,7 +2,7 @@
 - kustomize:
     patches:
       - patch: |
-          - op: add
+          - op: replace
             path: /automountServiceAccountToken
             value: true
         target:

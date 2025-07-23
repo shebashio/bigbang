@@ -1148,10 +1148,10 @@ policies:
         pods:
           allow:
           - monitoring-grafana*
-          - monitoring-monitoring-kube-admission-create-*
-          - monitoring-monitoring-kube-admission-patch-*
-          - monitoring-monitoring-kube-state-metrics*
-          - monitoring-monitoring-kube-operator*
+          - kube-prometheus-stack-admission-create-*
+          - kube-prometheus-stack-admission-patch-*
+          - kube-state-metrics*
+          - kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
       - namespace: alloy
         pods:
