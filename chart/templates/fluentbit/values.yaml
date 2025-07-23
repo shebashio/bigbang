@@ -6,6 +6,7 @@
 {{- $disableDefault := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.fluentbit) "enabled")) }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -45,7 +46,7 @@ upstream:
     # - istio: enabled
     # - mTLS: SCRICT
     # - istio injection: enabled (for logging ns)
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.fluentbit.values) "STRICT") (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana.values) "enabled") }}
+    {{- if $istioInjection }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
