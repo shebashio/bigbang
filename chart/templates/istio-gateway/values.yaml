@@ -20,7 +20,7 @@ gateways:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
       istioNamespaceSelector:
-      {{ include "istioNamespaceSelector" . | nindent 4 }}  
+      {{ include "istioNamespaceSelector" . | nindent 8 }}  
 
     gateway:
       servers:
@@ -59,7 +59,7 @@ gateways:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
       istioNamespaceSelector:
-      {{ include "istioNamespaceSelector" . | nindent 4 }}
+      {{ include "istioNamespaceSelector" . | nindent 8 }}
 
     gateway:
       servers:
