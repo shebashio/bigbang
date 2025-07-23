@@ -2194,10 +2194,10 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    git:
-    branch: velero-passthrough
-    tag: null
     enabled: true
+    git:
+      branch: velero-passthrough
+      tag: null
     plugins:
       - aws
     values:
