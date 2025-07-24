@@ -1022,14 +1022,6 @@ tempo:
 promtail:
   enabled: false
 
-prometheusOperatorCRDs:
-  enabled: true
-  git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/prometheus-operator-crds.git
-    tag: null
-    branch: 13-initial-build-out
-
-
 monitoring:
   flux:
     timeout: 20m
@@ -1045,6 +1037,7 @@ monitoring:
     alertmanager:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_alertmanager
   values:
+    # Monitoring CRDs are handled in prometheus-operator-crds chart
     crds:
       enabled: false
     istio:
