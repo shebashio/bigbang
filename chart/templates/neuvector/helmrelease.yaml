@@ -41,12 +41,9 @@ spec:
 
   {{- toYaml $fluxSettingsNeuvector | nindent 2 }}
 
-  {{- if or .Values.neuvector.postRenderers $istioEnabled }}
+  {{- if .Values.neuvector.postRenderers }}
   postRenderers:
-  {{ include "neuvector.ServiceMonitorPostRenderer" . | nindent 4 }}
-  {{- with .Values.neuvector.postRenderers }}
   {{ toYaml .Values.neuvector.postRenderers | nindent 4 }}
-  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-neuvector-values

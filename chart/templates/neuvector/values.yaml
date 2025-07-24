@@ -71,26 +71,35 @@ upstream:
     {{- end }}
   {{- end }}
 
-  monitor:
-    install: {{ .Values.monitoring.enabled }}
-    exporter:
-      enabled: {{ .Values.monitoring.enabled }}
-      {{- if or .Values.monitoring.enabled $istioInjection }}
-      podAnnotations:
-        {{- if .Values.monitoring.enabled }}
-        checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
-        {{- end }}
-        {{- if $istioInjection }}
-        {{ include "istioAnnotation" . }}
-        {{- end }}
+monitor:
+  install: {{ .Values.monitoring.enabled }}
+  exporter:
+    enabled: {{ .Values.monitoring.enabled }}
+    {{- if or .Values.monitoring.enabled $istioInjection }}
+    podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
       {{- end }}
-      serviceMonitor:
-        enabled: {{ .Values.monitoring.enabled }}
-      svc:
-        enabled: {{ .Values.monitoring.enabled }}
-        type: ClusterIP
-      CTRL_USERNAME: metrics
-      CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
+      {{- if $istioInjection }}
+      {{ include "istioAnnotation" . }}
+      {{- end }}
+    {{- end }}
+    serviceMonitor:
+      enabled: {{ .Values.monitoring.enabled }}
+      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      {{- end }}
+
+    svc:
+      enabled: {{ .Values.monitoring.enabled }}
+      type: ClusterIP
+    CTRL_USERNAME: metrics
+    CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
 
 
   {{- if $istioInjection }}
