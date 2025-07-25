@@ -19,6 +19,9 @@ gateways:
   public:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
+      istioNamespaceSelector:
+      {{ include "istioNamespaceSelector" . | nindent 8 }}  
+
 
     gateway:
       servers:
@@ -56,6 +59,9 @@ gateways:
   passthrough:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
+      istioNamespaceSelector:
+      {{ include "istioNamespaceSelector" . | nindent 8 }}  
+
 
     gateway:
       servers:
