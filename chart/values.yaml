@@ -569,11 +569,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.30.0-bb.2"
+    tag: "1.30.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.30.0-bb.2"
+    tag: "1.30.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -661,11 +661,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.49.1-bb.0"
+    tag: "0.50.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.49.1-bb.0"
+    tag: "0.50.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1479,12 +1479,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.77.2-bb.5"
+      tag: "0.79.0-bb.0"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.77.2-bb.5"
+      tag: "0.79.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
     flux: {}
@@ -2022,11 +2022,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.10"
+      tag: "0.30.0-bb.11"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.10"
+      tag: "0.30.0-bb.11"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
@@ -2205,12 +2205,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.18.2-bb.0"
+      tag: "0.18.2-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.18.2-bb.0"
+      tag: "0.18.2-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
