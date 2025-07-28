@@ -933,16 +933,7 @@ prometheusOperatorCRDs:
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
-  flux:
-    driftDetection:
-      mode: warn
-      ignore:
-      - paths: [""]
-        target:
-          kind: Job
-      - paths: [""]
-        target:
-          kind: StatefulSet
+  flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
