@@ -1,6 +1,13 @@
-{{- define "sonarqube.istioPrometheusPostRenderers" }}
 - kustomize:
     patches:
+      - patch: |
+          - op: replace
+            path: /annotations/"helm.sh/hook"
+            value: post-install
+        target:
+          kind: Job
+          name: sonarqube-sonarqube-change-admin-password-hook
+{{- define "sonarqube.istioPrometheusPostRenderers" }}
       - patch: |
           - op: add
             path: /spec/ports/-
