@@ -2,7 +2,7 @@
     patches:
       - patch: |
           - op: replace
-            path: /annotations/"helm.sh/hook"
+            path: /metadata/annotations/"helm.sh/hook"
             value: post-install
         target:
           kind: Job
