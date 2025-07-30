@@ -68,9 +68,6 @@ istioCRDs:
   enabled: true
 istioGateway:
   enabled: true
-  git:
-    tag: null
-    branch: 58-fix-istio-gateway-netpol ## Schema update to support the "istioNamespaceSelector" named template ingress values.
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
