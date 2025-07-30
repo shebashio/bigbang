@@ -56,9 +56,4 @@ spec:
     - name: {{ .Release.Name }}-gatekeeper-values
       kind: Secret
       valuesKey: "overlays"
-  {{- if .Values.prometheusOperatorCRDs.enabled }}
-  dependsOn:
-    - name: prometheus-operator-crds
-      namespace: {{ .Release.Namespace }}
-  {{- end }}
 {{- end }}
