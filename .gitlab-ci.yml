@@ -1,0 +1,8 @@
+include:
+- file: /pipelines/bigbang.yaml
+  project: big-bang/pipeline-templates/pipeline-templates
+  ref: feature/default-helmrepo-install
+variables:
+  CI_DEFAULT_BRANCH: feature/default-helmrepo-install
+  DEBUG_ENABLED: 'false'
+  PIPELINE_REPO_BRANCH: feature/default-helmrepo-install
