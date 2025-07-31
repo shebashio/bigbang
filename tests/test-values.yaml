@@ -6794,13 +6794,14 @@ addons:
           #controller:
         #chartmuseum:
         trivy:
-          resources:
-            requests:
-              cpu: 160m
-              memory: 300Mi
-            limits:
-              cpu: 300m
-              memory: 500Mi
+          replicas: 2
+          # resources:
+          #   requests:
+          #     cpu: 160m
+          #     memory: 300Mi
+          #   limits:
+          #     cpu: 300m
+          #     memory: 500Mi
         #notary:
           #server:
           #signer:
@@ -6809,7 +6810,7 @@ addons:
         #postgresql:
         #redis:
         exporter:
-          replicas: 2
+          replicas: 1
       istio:
         hardened:
           customServiceEntries:
