@@ -19,8 +19,19 @@ gateways:
   public:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
-      istioNamespaceSelector:
-      {{ include "istioNamespaceSelector" . | nindent 8 }}   
+      prependReleaseName: true
+      ingress:
+        to:
+          public-ingressgateway:[8080,8443]:
+            from:
+              cidr:
+                0.0.0.0/0: true
+      egress:
+        from:
+          public-ingressgateway:
+            to:
+              k8s:
+                '*': true
 
     gateway:
       servers:
@@ -58,8 +69,20 @@ gateways:
   passthrough:
     networkPolicies:
       enabled: {{ .Values.networkPolicies.enabled }}
-      istioNamespaceSelector:
-      {{ include "istioNamespaceSelector" . | nindent 8 }} 
+      prependReleaseName: true
+      ingress:
+        to:
+          passthrough-ingressgateway:[8080,8443]:
+            from:
+              cidr:
+                0.0.0.0/0: true
+
+      egress:
+        from:
+          passthrough-ingressgateway:
+            to:
+              k8s:
+                '*': true
 
     gateway:
       servers:
