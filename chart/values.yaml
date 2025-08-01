@@ -1964,7 +1964,27 @@ addons:
     flux: {}
 
     # -- Values to passthrough to the Velero chart: https://repo1.dso.mil/big-bang/product/packages/values.yaml
-    values: {}
+    values:
+      # -- Plugin provider for Velero - requires at least one plugin installed. Current supported values: aws, azure, csi
+      initContainers: []
+      # Example:
+      # - name: velero-plugin-for-aws
+      #   image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+      #   imagePullPolicy: IfNotPresent
+      #   volumeMounts:
+      #     - mountPath: /target
+      #       name: plugins
+      #   resources:
+      #     requests:
+      #       memory: 512Mi
+      #       cpu: 100m
+      #     limits:
+      #       memory: 512Mi
+      #       cpu: 100m
+      #   securityContext:
+      #     capabilities:
+      #       drop:
+      #         - ALL
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
