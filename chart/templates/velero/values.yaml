@@ -62,7 +62,6 @@ upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
-  {{- if not (hasKey .Values.addons.velero.values "initContainers") }}{{- fail "Field '.Values.addons.velero.values.initContainers' is required" }}{{- end }}
   {{- if eq (len .Values.addons.velero.values.initContainers) 0 }}{{- fail "At least one plugin in '.Values.addons.velero.values.initContainers' required. Supported values: aws, azure, csi" }}{{- end }}
 
 {{- end -}}
