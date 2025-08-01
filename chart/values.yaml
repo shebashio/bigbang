@@ -1954,11 +1954,12 @@ addons:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
       branch: "145-implement-pass-through-pattern"
-      tag: ""
+      tag: null
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: ""
+      branch: "145-implement-pass-through-pattern"
+      tag: null
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
