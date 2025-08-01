@@ -2194,12 +2194,7 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    git:
-      branch: 145-implement-pass-through-pattern
-      tag: ""
-    helmRepo:
-      branch: 145-implement-pass-through-pattern
-      tag: ""
+    enabled: false
     values:
       istio:
         hardened:
