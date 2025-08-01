@@ -2201,8 +2201,6 @@ addons:
     helmRepo:
       branch: 145-implement-pass-through-pattern
       tag: ""
-    plugins:
-      - aws
     values:
       istio:
         hardened:
@@ -2247,6 +2245,24 @@ addons:
               [default]
               aws_access_key_id = minio
               aws_secret_access_key = minio123
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+            resources:
+              requests:
+                memory: 512Mi
+                cpu: 100m
+              limits:
+                memory: 512Mi
+                cpu: 100m
+            securityContext:
+              capabilities:
+                drop:
+                  - ALL
       cleanUpCRDs: true
       bbtests:
         enabled: true
