@@ -1,6 +1,5 @@
 - kustomize:
     patches:
-      {{- define "tempo.promPortsPostRenderers" }}
       - patch: |
           - op: replace
             path: /spec/ports/2/port
@@ -18,8 +17,7 @@
 #    port: 3100
 #    protocol: TCP
 #    targetPort: 3100
-#    appProtocol: http
-      {{- end }}
+#    appProtocol: http}
       {{- define "tempo.serviceMonitorPostRenderers" }}
       - patch: |
           - op: add
