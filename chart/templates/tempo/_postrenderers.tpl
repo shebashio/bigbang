@@ -13,7 +13,7 @@
             value: http
       target:
         kind: Service
-        name: {{Release.Name}}
+        name: {{.Release.Name}}
 #  - name: tempo-prom-metrics
 #    port: 3100
 #    protocol: TCP
@@ -30,7 +30,7 @@
             value: http
       target:
         kind: ServiceMonitor
-        name: {{Release.Name}}
+        name: {{.Release.Name}}
 #  endpoints:
 #   - scheme:
 #   - tlsConfig:
