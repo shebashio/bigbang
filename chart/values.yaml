@@ -187,7 +187,7 @@ istioCRDs:
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -258,7 +258,7 @@ istioGateway:
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.26.2-bb.1
+    tag: 1.26.3-bb.0
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
