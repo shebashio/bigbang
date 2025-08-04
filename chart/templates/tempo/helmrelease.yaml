@@ -41,9 +41,22 @@ spec:
 
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
 
-  {{- if .Values.tempo.postRenderers }}
+  {{- if or .Values.tempo.postRenderers .Values.promtail.enabled .Values.monitoring.enabled }}
   postRenderers:
-  {{ toYaml .Values.tempo.postRenderers | nindent 4 }}
+  {{- if .Values.tempo.postRenderers }}
+  {{- with .Values.addons.mimir.postRenderers }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
+  {{- if .Values.promtail.enabled }}
+  {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- if .Values.monitoring.enabled }}
+  {{ include "tempo.serviceMonitorPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- if and .Values.objectStorage.accessKey .Values.objectStorage.accessSecret }}
+  {{ include "tempo.objectStoragePostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-tempo-values
