@@ -6794,14 +6794,13 @@ addons:
           #controller:
         #chartmuseum:
         trivy:
-          replicas: 2
-          # resources:
-          #   requests:
-          #     cpu: 160m
-          #     memory: 300Mi
-          #   limits:
-          #     cpu: 300m
-          #     memory: 500Mi
+          resources:
+            requests:
+              cpu: 160m
+              memory: 300Mi
+            limits:
+              cpu: 300m
+              memory: 500Mi
         #notary:
           #server:
           #signer:
