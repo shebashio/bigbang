@@ -38,6 +38,8 @@
           - op: add
             path: /spec/endpoints/2/tlsConfig/keyFile
             value: /etc/prom-certs/key.pem
+          - op: remove
+            path: /spec/endpoints/1
         target:
           kind: ServiceMonitor
           name: {{.Release.Name}}

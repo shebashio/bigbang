@@ -40,12 +40,13 @@ spec:
       interval: 5m
 
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
-
+  
   {{- if or .Values.tempo.postRenderers .Values.promtail.enabled .Values.monitoring.enabled }}
   postRenderers:
   {{- if .Values.tempo.postRenderers }}
   {{- with .Values.addons.mimir.postRenderers }}
   {{ toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
   {{- if .Values.promtail.enabled }}
   {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
@@ -53,9 +54,8 @@ spec:
   {{- if .Values.monitoring.enabled }}
   {{ include "tempo.serviceMonitorPostRenderers" . | nindent 2 }}
   {{- end }}
-  {{- if and .Values.objectStorage.accessKey .Values.objectStorage.accessSecret }}
+  {{- if and .Values.tempo.objectStorage.accessKey .Values.tempo.objectStorage.accessSecret }}
   {{ include "tempo.objectStoragePostRenderers" . | nindent 2 }}
-  {{- end }}
   {{- end }}
   {{- end }}
   valuesFrom:
