@@ -117,18 +117,17 @@ upstream:
           {{- end }}
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.kiali "root" .) | nindent 4 }}
-  bundled:
-    kubeApiAccess:
-      controlPlaneCidrs:
-      - {{ .Values.networkPolicies.controlPlaneCidr }}
-  package:
-    allow-grafana-mesh-egress:
-      enabled: {{ .Values.grafana.enabled }}
-    allow-tempo-mesh-egress:
-      enabled: {{ .Values.tempo.enabled }}
+
+  egress:
+    definitions:
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+    kiali:
+      to:
+        k8s:
+          monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+          monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+          tempo/tempo:3100: {{ .Values.tempo.enabled }}
 {{- end -}}
