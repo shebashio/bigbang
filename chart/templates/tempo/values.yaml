@@ -5,23 +5,6 @@
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
-### Maybe not needed
-# objectStorage: 
-#   access_key_id: {{ .Values.tempo.objectStorage.accessKey }}
-#   secret_access_key: {{ .Values.tempo.objectStorage.accessSecret }}
-
-#     # conditional passes only if all conditionals are true:
-#     # - istio: enabled
-#     # - mTLS: SCRICT
-#     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
-#     scheme: https
-#     tlsConfig:
-#       caFile: /etc/prom-certs/root-cert.pem
-#       certFile: /etc/prom-certs/cert-chain.pem
-#       keyFile: /etc/prom-certs/key.pem
-#       insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-#     {{- end }}
-
 upstream:
   {{- if $istioEnabled }}
   podAnnotations:
