@@ -13,14 +13,14 @@
             value: http
         target:
           kind: Service
-          name: {{.Release.Name}}
+          name: .*tempo.*
       - patch: |
           - op: replace
-            path: /spec/ports/0/containerPort
+            path: /spec/template/spec/containers/0/ports/0/containerPort
             value: 3100
         target:
           kind: StatefulSet
-          name: {{.Release.Name}}
+          name: .*tempo.*
 {{- end }}
 {{- define "tempo.serviceMonitorPostRenderers" }}
 - kustomize:
@@ -42,7 +42,7 @@
             path: /spec/endpoints/1
         target:
           kind: ServiceMonitor
-          name: {{.Release.Name}}
+          name: .*tempo.*
 {{- end }}
 {{- define "tempo.objectStoragePostRenderers" }}
 - kustomize:
@@ -53,5 +53,5 @@
             value: tempo-object-storage
         target:
           kind: StatefulSet
-          name: {{.Release.Name}}
+          name: .*tempo.*
 {{- end }}
