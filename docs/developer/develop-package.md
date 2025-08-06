@@ -272,3 +272,11 @@ In some cases, you may need to convert a Package that was initially developed us
 5. **Remove upstream templates and files**: Remove any templates that were part of the upstream chart and are now handled by the passthrough chart. Remove any unnecessary files that were part of the `kpt` structure.
 5. **Test the new passthrough chart** by templating and deploying with Helm to ensure all overrides and dependencies work as expected.
 6. **Update documentation** to reflect the new chart structure and usage.
+7. **Update the Umbrella Chart**: If this Package is part of the Big Bang umbrella chart, update the umbrella chart's `values.yaml`. Ensure that the umbrella chart's values file reflects any necessary overrides for the new passthrough chart. Specifically consider adding a commented out section for the `upstream` block under the values for the passthrough chart to show some common configuration options.
+    ```yaml
+        values: {}
+        # EXAMPLE: Use Tetrate's Enterprise FIPS compatible Istio image
+        # upstream:
+        #   global:
+        #     hub: registry1.dso.mil/ironbank/tetrate/istio
+    ```
