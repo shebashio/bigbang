@@ -124,10 +124,17 @@ networkPolicies:
         to:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-    kiali:
-      to:
-        k8s:
-          monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
-          monitoring/grafana:3000: {{ .Values.grafana.enabled }}
-          tempo/tempo:3100: {{ .Values.tempo.enabled }}
+      sso:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.ssoCidr | default "0.0.0.0/0" }} 
+    from:
+      kiali:
+        to:
+          k8s:
+            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+            tempo/tempo:3100: {{ .Values.tempo.enabled }}
+          definition:
+            sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}
