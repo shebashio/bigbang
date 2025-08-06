@@ -267,7 +267,7 @@ In some cases, you may need to convert a Package that was initially developed us
         alias: upstream
     ```
 2. **Run `helm dependency update`** to fetch the upstream chart and commit the resulting `.tgz` files in `chart/charts/`.
-3. **Move customizations** from your Helm values overrides for the upstream chart in `chart/values.yaml` under the `upstream` key.
+3. **Transfer customizations**: Move any custom values you previously used to override the upstream chart into the `upstream` key in `chart/values.yaml`. Only include new default overrides under the `upstream` key. Do not copy default values from the upstream chart.
 4. **Update templates**: Move any custom Kubernetes manifests (e.g., network policies, VirtualService) into `chart/templates/bigbang/` as needed.
 5. **Remove upstream templates and files**: Remove any templates that were part of the upstream chart and are now handled by the passthrough chart. Remove any unnecessary files that were part of the `kpt` structure.
 5. **Test the new passthrough chart** by templating and deploying with Helm to ensure all overrides and dependencies work as expected.
