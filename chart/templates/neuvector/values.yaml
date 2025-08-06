@@ -60,8 +60,12 @@ upstream:
           client_secret: {{ .Values.neuvector.sso.client_secret | default "no-secret" }}
           default_role: {{ .Values.neuvector.sso.default_role }}
           group_claim: {{ .Values.neuvector.sso.group_claim }}
+          {{- if .Values.neuvector.sso.group_mapped_roles }}
           group_mapped_roles: 
-            {{ toYaml .Values.neuvector.sso.group_mapped_roles | nindent 10 }}
+            {{- toYaml .Values.neuvector.sso.group_mapped_roles | nindent 10 }}
+          {{- else }}
+          group_mapped_roles: []
+          {{- end }}
         {{- end }}
     {{- end }}
     {{- if and .Values.neuvector.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
