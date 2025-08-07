@@ -41,9 +41,9 @@ spec:
 
   {{- toYaml $fluxSettingsVelero | nindent 2 }}
   
-  {{- if or .Values.addons.velero.postRenderers .Values.addons.velero.upstream.upgradeCRDs }}
+  {{- if or .Values.addons.velero.postRenderers .Values.addons.velero.values.upstream.upgradeCRDs }}
   postRenderers:
-  {{- if .Values.addons.velero.upstream.upgradeCRDs }}
+  {{- if .Values.addons.velero.values.upstream.upgradeCRDs }}
   {{ include "velero.upgradeCRDsPostrenderers" . | nindent 2 }}
   {{- end }}
   {{- if .Values.addons.velero.postRenderers }}
