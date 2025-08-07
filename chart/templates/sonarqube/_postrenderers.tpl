@@ -1,13 +1,17 @@
+{{- define "sonarqube.upstreamModificationPostRenders" }}
 - kustomize:
     patches:
       - patch: |
           - op: replace
-            path: /metadata/annotations/"helm.sh/hook"
+            path: /metadata/annotations/helm.sh~1hook  # ~1 to escape the / in helm.sh/hook object
             value: post-install
         target:
           kind: Job
           name: sonarqube-sonarqube-change-admin-password-hook
+{{- end }}
 {{- define "sonarqube.istioPrometheusPostRenderers" }}
+- kustomize:
+    patches:
       - patch: |
           - op: add
             path: /spec/ports/-
