@@ -43,6 +43,9 @@ spec:
   
   {{- if .Values.addons.velero.postRenderers }}
   postRenderers:
+  {{- if .Values.addons.velero.upgradeCRDs }}
+  {{ include "velero.upgradeCRDsPostrenderers" . | nindent 2 }}
+  {{- end}}
   {{ toYaml .Values.addons.velero.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
