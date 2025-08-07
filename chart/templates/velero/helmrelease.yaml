@@ -41,13 +41,16 @@ spec:
 
   {{- toYaml $fluxSettingsVelero | nindent 2 }}
   
-  {{- if .Values.addons.velero.postRenderers }}
+  {{- if or .Values.addons.velero.postRenderers .Values.addons.velero.upgradeCRDs }}
   postRenderers:
   {{- if .Values.addons.velero.upgradeCRDs }}
   {{ include "velero.upgradeCRDsPostrenderers" . | nindent 2 }}
-  {{- end}}
+  {{- end }}
+  {{- if .Values.addons.velero.postRenderers }}
   {{ toYaml .Values.addons.velero.postRenderers | nindent 4 }}
   {{- end }}
+  {{- end }}
+  
   valuesFrom:
     - name: {{ .Release.Name }}-velero-values
       kind: Secret
