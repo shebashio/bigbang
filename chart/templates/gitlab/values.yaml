@@ -132,6 +132,9 @@ gitlab:
   {{- end }}
   gitlab-exporter:
     enabled: {{ .Values.monitoring.enabled }}
+    {{- if .Values.monitoring.enabled }}
+    listenAddr: "0.0.0.0"
+    {{- end }}
     {{- if $istioInjection }}
     metrics:
       annotations:
