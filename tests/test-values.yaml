@@ -2198,7 +2198,7 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    enabled: false
+    enabled: true
     plugins:
     - aws
     values:
@@ -2222,6 +2222,7 @@ addons:
                     name: https
                 resolution: DNS
       upstream:
+        upgradeCRDs: true
         serviceAccount:
           server:
             name: velero
