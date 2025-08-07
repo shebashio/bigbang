@@ -7,5 +7,5 @@
           value: "cp /bin/sh /tmp && cp /usr/local/bin/kubectl /tmp"
         target:
           kind: Job
-          name: upgrade-crds
+          name: .*upgrade-crds.*
 {{- end }}
