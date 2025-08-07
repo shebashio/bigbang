@@ -135,6 +135,7 @@ networkPolicies:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
             tempo/tempo:3100: {{ .Values.tempo.enabled }}
+            istio-system/istiod:15014: {{ .Values.istiod.enabled }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}
