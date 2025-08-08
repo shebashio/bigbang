@@ -2235,6 +2235,9 @@ addons:
                 region: velero
                 s3ForcePathStyle: "true"
                 s3Url: https://minio-api.dev.bigbang.mil
+              annotations:
+                "helm.sh/hook": post-install,post-upgrade,post-rollback
+                "helm.sh/hook-delete-policy": before-hook-creation
           volumeSnapshotLocation:
             - name: default
               provider: aws
