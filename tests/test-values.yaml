@@ -1022,13 +1022,23 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
+    upstream:
+      tempo:
+        resources:
+          limits: null
+          requests:
+            cpu: 200m
+            memory: 128Mi
+      persistence:
+        size: 5Gi
 
-    tempo:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
+      tempoQuery:
+        resources:
+          limits: null
+          requests:
+            cpu: 200m
+            memory: 128Mi
+
     bbtests:
       enabled: true
       cypress:
@@ -1045,17 +1055,7 @@ tempo:
         enabled: false
         envs:
           TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
-
-    persistence:
-      size: 5Gi
-
-    tempoQuery:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
-
+          
 monitoring:
   flux:
     timeout: 20m
