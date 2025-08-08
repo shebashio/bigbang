@@ -4,8 +4,8 @@
     - patch: |
         - op: replace
           path: /spec/template/spec/initContainers/0/args/1
-          value: "cp /bin/sh /tmp && cp /usr/local/bin/kubectl /tmp"
+          value: cp /bin/sh /tmp && cp /usr/local/bin/kubectl /tmp
         target:
           kind: Job
-          name: .*upgrade-crds.*
+          name: .*-upgrade-crds
 {{- end }}
