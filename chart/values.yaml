@@ -379,11 +379,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.12.0-bb.1"
+    tag: "2.12.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.12.0-bb.1"
+    tag: "2.12.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -1381,11 +1381,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.2.1-bb.1"
+      tag: "9.2.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.2.1-bb.1"
+      tag: "9.2.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1730,11 +1730,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.10.0-bb.1"
+      tag: "3.10.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.10.0-bb.1"
+      tag: "3.10.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
