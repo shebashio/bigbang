@@ -35,9 +35,9 @@ This pipeline is triggered by the following for individual bigbang packages:
 * Manual tag events
 * Commits to default branch
 
-![Package Pipeline](../assets/imgs/developer/package-pipeline.png)
+![Package Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/developer/package-pipeline.png)
 
-[Link to draw.io diagram file](../assets/diagrams/developer/bb-gitlab-ci-diagram.drawio). This diagram file should be modified on draw.io and exported into this repository when the developer/CI workflow changes. It is provided here for ease of use.
+[Link to draw.io diagram file](../../reference/diagrams/developer/bb-gitlab-ci-diagram.drawio). This diagram file should be modified on draw.io and exported into this repository when the developer/CI workflow changes. It is provided here for ease of use.
 
 ### Chart Update Check
 
@@ -93,7 +93,7 @@ This pipeline is triggered by the following for bigbang:
 
 The pipeline is split into several stages:
 
-![BB Pipeline](../assets/imgs/developer/bb-pipelines.png)
+![BB Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/developer/bb-pipelines.png)
 
 [Link to draw.io diagram file](../assets/diagrams/developer/bb-gitlab-ci-diagram.drawio). This diagram file should be modified on draw.io and exported into this repository when the developer/ci workflow changes. It is provided here for ease of use.
 
@@ -155,9 +155,9 @@ The infrastructure pipeline is designed to have _no_ human interaction, and is s
 
 More information on the full set of infrastructure tests are provided in the following:
 
-![Infra Pipeline](../assets/imgs/developer/infra-test-pipelines.png)
+![Infra Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/developer/infra-test-pipelines.png)
 
-[Link to draw.io diagram file](../assets/diagrams/developer/bb-gitlab-ci-diagram.drawio). This diagram file should be modified on draw.io and exported into this repository when the developer / ci workflow changes. It is provided here for ease of use.
+[Link to draw.io diagram file](../../reference/diagrams/developer/bb-gitlab-ci-diagram.drawio). This diagram file should be modified on draw.io and exported into this repository when the developer / ci workflow changes. It is provided here for ease of use.
 
 ### Network Creation
 
@@ -177,7 +177,7 @@ It is a hard requirement at this stage that every cluster outputs an admin scope
 
 Given the kubeconfig created in the previous stage, BigBang is installed on the cluster using the same installation process used in the smoke tests.
 
-Like any BigBang installation, several cluster requirements (see [Pre-requisites](../prerequisites/kubernetes-preconfiguration.md)) must be met before BigBang is installed, and it is up to the vendor to ensure those requirements are met.
+Like any BigBang installation, several cluster requirements (see [Pre-requisites](../../getting-started/prerequisites.md#kubernetes-cluster)) must be met before BigBang is installed, and it is up to the vendor to ensure those requirements are met.
 
 ### Big Bang Tests
 
