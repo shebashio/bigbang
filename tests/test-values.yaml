@@ -1865,6 +1865,9 @@ addons:
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
+    git:
+      tag: null
+      branch: "124_Implement-pass-through-pattern"
     values:
       console:
         enabled: true
