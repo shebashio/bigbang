@@ -4,7 +4,7 @@
 
 ## Preface
 
-Please read through the documentation linked here and in the [understanding Big Bang folder](https://repo1.dso.mil/big-bang/bigbang/-/tree/master/docs/understanding_bigbang) to understand Big Bang concepts and development standards. Study all the documents carefully before you start developing.  
+Please read through the documentation linked here and in the [Getting Started](../../getting-started/), [Concepts](../../concepts/), [Configuration](../../configuration/), and [Packages](../../packages/) to understand Big Bang concepts and development standards. Study all the documents carefully before you start developing.
 
 ## Communications
 
@@ -19,7 +19,7 @@ Join MatterMost channels to ask questions and communicate with the team. Here is
 
 ## Package Requirements
 
-[Big Bang Package Integration Guide](./package-integration/README.md) and [BBTOC Graduated Requirements](https://repo1.dso.mil/platform-one/bbtoc/-/tree/master/process#graduated-project-requirements)
+[Big Bang Package Integration Guide](./package-integration/index.md) and [BBTOC Graduated Requirements](https://repo1.dso.mil/platform-one/bbtoc/-/tree/master/process#graduated-project-requirements)
 
 ## Package Development
 
@@ -27,7 +27,7 @@ Join MatterMost channels to ask questions and communicate with the team. Here is
 
 ## Add Package to Big Bang
 
-[Integrate Package with Big Bang](./package-integration/README.md).
+[Integrate Package with Big Bang](./package-integration/index.md).
 
 ## Package Owner Overview
 

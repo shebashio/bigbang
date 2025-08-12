@@ -19,6 +19,7 @@ Each package will have a default branch of `main.` Immutable tags will be used t
 
 Pipelines provide rapid feedback to changes in our Helm chart as we develop and should be put in place as early as possible. Big Bang has a few different pipelines that can be used for packages.
 
+TODO: update these with our new standards
 * [bigbang-package](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/bigbang-package.yaml)
 * [sandbox](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/sandbox.yaml)
 * [third-party](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/third-party.yaml)
@@ -96,7 +97,7 @@ docker push $IMGDST_REPO/$IMGDST_PROJ/$IMGNAME:$IMGTAG
 
 ## Big Bang Integration for Third-Party and Sandbox Packages
 
-Big Bang uses a continuous deployment tool, [Flux](https://fluxcd.io) to deploy packages using Helm charts sourced from Git ([GitOps](https://www.weave.works/technologies/gitops/)).
+Big Bang uses a continuous deployment tool, [Flux](https://fluxcd.io) to deploy packages using Helm charts sourced from Git ([GitOps](https://fluxcd.io/flux/concepts/#gitops)).
 
 Third-party and sandbox pipelines both have an `integration` stage that will deploy and test a package as a Big Bang compatible package. 
 

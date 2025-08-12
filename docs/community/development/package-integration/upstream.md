@@ -94,7 +94,7 @@ To minimize maintenance, we reuse existing Helm charts available in the communit
 
    - CODEOWNERS
 
-      Code owners are required approvals on merge requests in the Big Bang repository. This file should be setup based on [GitLab's Code Owners guidance](https://docs.gitlab.com/ee/user/project/code_owners.html). An example is provided in the following:
+      Code owners are required approvals on merge requests in the Big Bang repository. This file should be setup based on [GitLab's Code Owners guidance](https://docs.gitlab.com/user/project/codeowners/). An example is provided in the following:
 
       ```plaintext
       * @gitlabuser

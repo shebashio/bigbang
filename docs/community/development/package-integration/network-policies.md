@@ -65,7 +65,7 @@ spec:
 ### Was Something Important Blocked?
 
 There are a few ways to determine if a network policy is blocking egress or ingress to or from a pod.
-* Test things from the pod's perspective using ssh/exec. See [this portion](../../guides/deployment-scenarios/sso-quickstart.md#step-18-update-inner-cluster-dns-on-the-workload-cluster) of the keycloak quickstart for an example of how do to that.
+* Test things from the pod's perspective using ssh/exec. See [this portion](../../../installation/environments/sso-quickstart.md) of the keycloak quickstart for an example of how do to that.
 * Curl a pod's IP from another pod to see if network polices are blocking that traffic. Use `kubectl pod -o wide -n <podNamespace>` to see pod IP addresses.
 * Check the pod logs (or curl from one container to the service) for a `context deadline exceeded` or `connection refused` message.
 
@@ -208,7 +208,7 @@ spec:
 
 ### Supporting Additional Network Policies through values.yaml
 
-All Big Bang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the user guide](../../guides/using-bigbang/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
+All Big Bang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the tutorial](../../../tutorials/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
 
 * Where a package will only be deployed into its own namespace (i.e., the majority of bigbang packages).
 * Where a package may be used in inside another package's namespace or deployed into its own namespace (e.g., the gitlab-runner).

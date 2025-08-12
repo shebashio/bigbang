@@ -77,7 +77,7 @@ If the upstream chart does **not** provide a `ServiceMonitor` and `Service` for 
 
 ### RBAC
 
-If the application is using Role Based Access Control (RBAC), you may need to create rules for Prometheus to access the metrics.  Check the upstream Helm chart to make sure this is already done for you, or implement a new `ClusterRole` and `ClusterRoleBinding` into the chart following the [Prometheus RBAC documentation](https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#enable-rbac-rules-for-prometheus-pods)
+If the application is using Role Based Access Control (RBAC), you may need to create rules for Prometheus to access the metrics.  Check the upstream Helm chart to make sure this is already done for you, or implement a new `ClusterRole` and `ClusterRoleBinding` into the chart following the [Prometheus RBAC documentation](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/rbac.md)
 
 ### Alerts
 
@@ -98,7 +98,7 @@ You will need to decide what aspects of the application should be monitored and 
 
 All of these rules must be based on [PromQL queries](https://prometheus.io/docs/prometheus/latest/querying/basics/) using the application's metrics.
 
-Once you have identified what you want to monitor, create [Prometheus Alerting Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and add them to a [PrometheusRule](https://prometheus-operator.dev/docs/operator/api/#prometheusrule) resource.  The rule should reside in the `chart/templates/bigbang` folder and only be deployed if monitoring is enabled.
+Once you have identified what you want to monitor, create [Prometheus Alerting Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and add them to a [PrometheusRule](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.PrometheusRule) resource.  The rule should reside in the `chart/templates/bigbang` folder and only be deployed if monitoring is enabled.
 
 Some examples of rules can be found in the [Big Bang monitoring chart](https://repo1.dso.mil/big-bang/product/packages/monitoring/-/tree/main/chart/templates/prometheus/rules).
 
@@ -108,7 +108,7 @@ Dashboards are important for administrators to understand what is happening in y
 
 1. Create a dashboard:
 
-    Some packages or maintainers provide Grafana dashboards upstream, otherwise you can search [Grafana's Dashboard Repository](https://grafana.com/grafana/dashboards/) for a relevant Dashboard. If there is already a ready-made Grafana dashboard for your package provided upstream, you should use [Kpt](https://googlecontainertools.github.io/kpt/installation/) to sync it into monitoring package (for example flux provides the JSON dashboards in their upstream repo):
+    Some packages or maintainers provide Grafana dashboards upstream, otherwise you can search [Grafana's Dashboard Repository](https://grafana.com/grafana/dashboards/) for a relevant Dashboard. If there is already a ready-made Grafana dashboard for your package provided upstream, you should use [Kpt](https://kpt.dev/installation/) to sync it into monitoring package (for example flux provides the JSON dashboards in their upstream repo):
 
     ```shell
     # There isn't a dashboard for podinfo, so we use flux as an example here

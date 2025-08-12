@@ -3,7 +3,7 @@
 Package owners will be responsible for the following:
 
 * Cutting releases for the packages and getting into Big Bang.
-* Implementing package requirements outlined by the [package integration guide](../README.md).
+* Implementing package requirements outlined by the [package integration guide](../index.md).
 * Reviewing Merge Requests (MRs) into the package repository.
 * Reviewing MR CI/CD pipeline execution results to ensure that there are no regressions in conformance tests nor package cypress tests.  
 * Tracking upstream changes to packages including new features, architectures, dependencies.
@@ -16,7 +16,7 @@ Package owners will be responsible for the following:
   * Testing new IronBank images.
   * [Long term] Providing CI processes for hardening images.
 
-Package Owners will be identified by the use of [CODEOWNERS](https://docs.gitlab.com/ee/user/project/code_owners.html) files in the repository.
+Package Owners will be identified by the use of [CODEOWNERS](https://docs.gitlab.com/user/project/codeowners/) files in the repository.
 
 There must be at least three package owners for each application and they shall be from different companies. Inactive package owners from different value streams or external vendors shall be removed.
 
