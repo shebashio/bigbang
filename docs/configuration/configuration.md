@@ -26,7 +26,7 @@ Before configuring Big Bang, it is expected that you have already setup:
 - A [SOPS key pair](../concepts/encryption.md)
 - A Git repository to hold your configuration
   - Pull credentials for the Git repository (if not public)
-- An Iron Bank robot account for production, or a non-robot account for testing. Reference [Iron Bank authentication](../concepts/troubleshooting.md#iron-bank-authentication) for additional details.
+- An Iron Bank robot account for production, or a non-robot account for testing. Reference [Iron Bank authentication](../operations/troubleshooting/index.md#iron-bank-authentication) for additional details.
 - Certificates specific to your environment (if needed)
 
 ## Minimum Viable Configuration
@@ -92,9 +92,11 @@ Each package (e.g. `istio`) has configuration to control how Big Bang deploys th
 | `database.*` | External database connection configuration (if supported) | | |
 | `objectStorage.*` | Object storage configuration (if supported) | | |
 | `values` | Package specific values to configure | List of key/values pairs | {} |
-| `postRenderers` | See [docs/postrenderers.md](./postrenderers.md) | list | [] |
+| `postRenderers` | See [docs/configuration/postrenderers.md](./postrenderers.md) | list | [] |
 
 ## Flux Resources
+
+<!-- TODO: these patches don't exist anymore -->
 
 Big Bang deploys four flux resources that can be customized:
 
@@ -102,12 +104,12 @@ Big Bang deploys four flux resources that can be customized:
 | ------------- | ----------- | ------------------------------------------------- |
 | GitRepository | Environment | Top-level manifest (e.g. `dev.yaml`, `prod.yaml`) |
 | Kustomization | Environment | Top-level manifest (e.g. `dev.yaml`, `prod.yaml`) |
-| GitRepository | Big Bang    | [Link](../../../base/gitrepository.yaml)                |
-| HelmRelease   | Big Bang    | [Link](../../../base/helmrelease.yaml)                  |
+| GitRepository | Big Bang    | [Link](../../base/gitrepository.yaml)                |
+| HelmRelease   | Big Bang    | [Link](../../base/helmrelease.yaml)                  |
 
-In addition, each package contains its own GitRepository and HelmRelease resource that can be customized.  Look in the [Helm chart templates](../../../chart/templates) for the these resources.
+In addition, each package contains its own GitRepository and HelmRelease resource that can be customized.  Look in the [Helm chart templates](../../chart/templates) for the these resources.
 
-Settings for any of these resources can be overridden by [patching](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) the resource in your environment's kustomization files.  Use Flux's documentation for [GitRepository](https://toolkit.fluxcd.io/components/source/gitrepositories/), [HelmRelease](https://toolkit.fluxcd.io/components/helm/helmreleases/), and [Kustomization](https://toolkit.fluxcd.io/components/kustomize/kustomization/) to find settings for these resources. The following are examples of commonly requested custom patches covered in the [bigbang template repo]<https://repo1.dso.mil/big-bang/customers/template/-/tree/main#flux-components>):
+Settings for any of these resources can be overridden by [patching](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) the resource in your environment's kustomization files.  Use Flux's documentation for [GitRepository](https://toolkit.fluxcd.io/components/source/gitrepositories/), [HelmRelease](https://toolkit.fluxcd.io/components/helm/helmreleases/), and [Kustomization](https://toolkit.fluxcd.io/components/kustomize/kustomization/) to find settings for these resources. The following are examples of commonly requested custom patches covered in the [bigbang template repo](https://repo1.dso.mil/big-bang/customers/template/-/tree/main#getting-started):
 
 - Updating flux-system component resource usage
   - [Example `kustomization.yaml`](https://repo1.dso.mil/big-bang/customers/template/-/tree/main#adjust-resource-allocation-for-a-flux-system-component)
@@ -205,7 +207,7 @@ patchesStrategicMerge:
 
 ## Package settings
 
-Besides the [global settings](#big-bang-globals), package settings are defined by the individual packet's helm charts.  You can find these by reviewing the `git.registry` setting for the package in Big Bang's [default values.yaml](../../../chart/values.yaml).
+Besides the [global settings](#big-bang-globals), package settings are defined by the individual packet's helm charts.  You can find these by reviewing the `git.registry` setting for the package in Big Bang's [default values.yaml](../../chart/values.yaml).
 
 To modify a non-sensitive package setting, add it to your `configmap.yaml`.  For sensitive information, follow the pattern for setting [registry pull credentials](#registry-pull-credentials).  Here we disable `twistlock` and set `gatekeeper`'s replicas to `1`:
 

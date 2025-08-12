@@ -287,8 +287,9 @@ addons:
 ```
 
 ## Keycloak
+<!-- TODO: this config doesn't exist anymore -->
 See the [production configuration example](../../../docs/assets/configs/example/keycloak-prod-values.yaml).
 
 ## High Availability (HA)
 
-Each package in Big Bang includes documentation of its own High Availability configuration independently in [Package Architecture](../package-architecture).  
+Each package in Big Bang includes documentation of its own High Availability configuration independently in [Package Documentation](../packages/).
