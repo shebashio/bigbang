@@ -4,7 +4,7 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
 
 [[_TOC_]]
 
-## Airgap
+## Airgap Deployment
 
 Currently this is in proof of concept mode, so play around with this to get an idea of it.
 
@@ -193,7 +193,7 @@ docker load -i registry2.tar #on your registry server
 docker load -i k3s.tar
 ```
 
-* Use the script [registry.sh](../../assets/scripts/airgap-dev/registry.sh) to create registry.
+* Use the script [registry.sh](../../reference/scripts/airgap-dev/registry.sh) to create registry.
 
 ```shell
 $ chmod +x registry.sh && sudo ./registry.sh
@@ -257,7 +257,7 @@ If you need to handle mirroring manually, there is an example Ansible script pro
 
 ##### Konvoy Cluster
 
-Modify the `cluster.yaml` file and apply. More details can be found on the [D2iQ Konvoy documentation](https://docs.d2iq.com/dkp/konvoy/1.8/install/install-airgapped/).
+Modify the `cluster.yaml` file and apply. More details can be found on the [D2iQ Konvoy documentation](https://d2iq.com/air-gapped-environments).
 
 ```yaml
 kind: ClusterConfiguration
@@ -343,7 +343,7 @@ kubectl create ns bigbang
 
 Installing Big Bang in an air gap environment currently uses the Helm charts from the **[Big Bang Repo](https://repo1.dso.mil/big-bang/bigbang)**.
 
-All changes are modified in the custom [values.yaml](../../assets/scripts/airgap-dev/values.yaml) file. Modify as needed and replace IP.
+All changes are modified in the custom [values.yaml](../../reference/scripts/airgap-dev/values.yaml) file. Modify as needed and replace IP.
 
 Change the hostname for the installation. It is currently set to the development domain:
 
@@ -623,7 +623,7 @@ To test Airgap BigBang on k3d, complete the following steps:
   sudo apt install -y net-tools
   ```
 
-- Follow [Airgap Documentation](./README.md) to install Git server and Registry.
+- Follow [Airgap Documentation](#airgap-deployment) to install Git server and Registry.
 
 - Once Git Server and Registry is up, setup k3d mirroring configuration  `registries.yaml`
 
@@ -680,7 +680,7 @@ kubectl describe po test # Should fail
 kubectl delete po test
 ```
 
-- Proceed to [bigbang deployment process](./README.md#installing-big-bang).
+- Proceed to [bigbang deployment process](#installing-big-bang).
 
 ## Current Pipeline Outline and Notes
 

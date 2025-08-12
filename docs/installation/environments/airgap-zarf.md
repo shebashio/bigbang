@@ -1,6 +1,10 @@
 # Airgap w/Zarf
 
 > ⚠️ This is a work in-progress.
+<!-- TODO most of this was removed from zarf. It should either be recreated here or removed entirely. See
+- https://github.com/defenseunicorns-partnerships/generate-big-bang-zarf-package
+- https://docs.zarf.dev/ref/components/#extensions-removed
+ -->
 
 ### Requires Big Bang 1.54.0 and greater.
 
@@ -25,7 +29,7 @@ Now you can execute the following, which will automatically detect your SSH key 
 docs/assets/scripts/airgap-zarf/zarf-dev.sh
 ```
 
-The above will clone the latest `main` branch of the [defenseunicorns/zarf](https://github.com/defenseunicorns/zarf) repository and execute the stock `examples/big-bang/zarf.yaml`.  If you want to use a different `zarf.yaml`, you can override this by setting any of these variables ahead of time, either by exporting them or setting them as part of the command.
+The above will clone the latest `main` branch of the [zarf-dev/zarf](https://github.com/zarf-dev/zarf) repository and execute the stock `examples/big-bang/zarf.yaml`.  If you want to use a different `zarf.yaml`, you can override this by setting any of these variables ahead of time, either by exporting them or setting them as part of the command.
 
 * `ZARF_TEST_REPO`: sets the repository to clone from.
 * `ZARF_TEST_REPO_BRANCH`: sets the branch to switch to from the cloned repo.
