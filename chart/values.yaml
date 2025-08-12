@@ -160,6 +160,12 @@ networkPolicies:
   # Please review https://docs.aws.amazon.com/kms/latest/developerguide/kms-vpc-endpoint.html to setup routing to AWS services that never leave the AWS network.
   # Once created update `networkPolicies.vpcCidr` to match the CIDR of your VPC so Vault will be able to reach your VPCs DNS and new KMS endpoint.
   vpcCidr: 0.0.0.0/0
+  egress:
+    definitions:
+      sso:
+        to:
+          - ipBlock:
+              cidr: "0.0.0.0/0"
 
 # -- Global ImagePullPolicy value for all packages
 # Permitted values are: None, Always, IfNotPresent
