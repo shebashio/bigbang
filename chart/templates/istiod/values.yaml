@@ -11,6 +11,9 @@ networkPolicies:
   controlPlaneCIDRs:
     - {{ .Values.networkPolicies.controlPlaneCidr }}
   egress:
+    definitions:
+      sso:
+        {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
     from:
       istiod:
         to:
