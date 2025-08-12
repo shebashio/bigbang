@@ -14,7 +14,7 @@ Big Bang is a declarative, continuous delivery tool for core DoD hardened and ap
 
 ### Big Bang Components
 
-Big Bang is made of several components that operate together. These include a [base Kustomize](../../base/), a [Helm chart](../../chart), [packages](../../chart/templates), and an [environment](https://repo1.dso.mil/big-bang/customers/bigbang). The environment and base Kustomize are used together to deploy the Big Bang configuration and Helm chart. The Helm chart is then used to facilitate deployment of the packages.
+Big Bang is made of several components that operate together. These include a [base Kustomize](../../base/), a [Helm chart](../../chart), [packages](../../chart/templates), and an [environment](https://repo1.dso.mil/big-bang/customers/template). The environment and base Kustomize are used together to deploy the Big Bang configuration and Helm chart. The Helm chart is then used to facilitate deployment of the packages.
 
 ### Flux v2
 
