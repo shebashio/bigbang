@@ -19,7 +19,7 @@ TODO: rewrite this document.
 
 ### BigBang Kubernetes API Server Webhooks Diagram
 
-![kube-apiserver_webhooks_diagram.app.diagrams.net.png](../../assets/imgs/understanding-bigbang/kube-apiserver-webhooks-diagram.app.diagrams.net.png)
+![kube-apiserver_webhooks_diagram.app.diagrams.net.png](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/understanding-bigbang/kube-apiserver-webhooks-diagram.app.diagrams.net.png)
 
 #### Notes
 
@@ -36,7 +36,7 @@ TODO: rewrite this document.
 
 ##### 3. Validating Admission Controllers
 
-* As of BigBang >= 2.0.0 Kyerno is used instead of Gatekeeper. See [Kyverno overview](../package-architecture/kyverno.md)
+* As of BigBang >= 2.0.0 Kyerno is used instead of Gatekeeper. See [Kyverno overview](../packages/core/kyverno.md)
 * As of BigBang 1.7.0 OPA GK defaults to dry-run/warn and not blocking/enforcing mode, [there are plans to change the default behavior to blocking/enforcing mode.](https://repo1.dso.mil/big-bang/bigbang/-/issues/468)
 * OPA GK can enforce security policy such as only allowing whitelisted container registries, PodSecurityPolicies equivalent functionality, and more.
 
@@ -46,12 +46,12 @@ TODO: rewrite this document.
 
 ### Kubernetes Pod Logs Data Flow Diagram
 
-![logs_data_flow_diagram.app.diagrams.net.png](../../assets/imgs/understanding-bigbang/logs-data-flow-diagram.app.diagrams.net.png)
+![logs_data_flow_diagram.app.diagrams.net.png](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/understanding-bigbang/logs-data-flow-diagram.app.diagrams.net.png)
 
 | Line Number | Protocol | Port | Description |
 | --- |  --- | --- | --- |
 | N1 | Volume Mount | NA | Fluent Bit reads pod logs from a host node volume mount |
-| N2 | HTTPS | TCP:9200 | Fluent Bit sends logs to Elastic Search over the URL: <https://logging-ek-es-http:9200> (This URL is only exposed over the Kubernetes Inner Cluster Network, and because Fluent Bit and ElasticSearch have Istio Envoy Proxy sidecar containers the network traffic is protected by the service mesh.) |
+| N2 | HTTPS | TCP:9200 | Fluent Bit sends logs to Elastic Search over the URL: `https://logging-ek-es-http:9200` (This URL is only exposed over the Kubernetes Inner Cluster Network, and because Fluent Bit and ElasticSearch have Istio Envoy Proxy sidecar containers the network traffic is protected by the service mesh.) |
 
 ### Notes
 
@@ -64,7 +64,7 @@ TODO: rewrite this document.
 
 ### Prometheus Metrics Data Flow Diagram
 
-![metrics_data_flow_diagram.app.diagrams.net.png](../../assets/imgs/understanding-bigbang/metrics-data-flow-diagram.app.diagrams.net.png)
+![metrics_data_flow_diagram.app.diagrams.net.png](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/understanding-bigbang/metrics-data-flow-diagram.app.diagrams.net.png)
 
 | Line Number | Protocol | Port | Description |
 | --- |  --- | --- | --- |
@@ -80,7 +80,7 @@ TODO: rewrite this document.
 
 ### Big Bang Network Ingress Diagram
 
-![network_encryption_and_ingress_diagram.app.diagrams.net.png](../../assets/imgs/understanding-bigbang/network-encryption-and-ingress-diagram.app.diagrams.net.png)
+![network_encryption_and_ingress_diagram.app.diagrams.net.png](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/understanding-bigbang/network-encryption-and-ingress-diagram.app.diagrams.net.png)
 
 #### Notes
 
@@ -88,7 +88,7 @@ TODO: rewrite this document.
 
 * CNAP is a P1 service offering separate from Big Bang, that bundles several technologies together: Palo Alto Firewall, AppGate Software Defined Perimeter, and P1's Keycloak Implementation which has a plugin baked in that allows SSO using Common Access Cards, by leveraging the x509 certs/PKI associated with the cards and DoD CAs as an federated identity provider.
 * CNAP is basically an advanced edge firewall that can do many things. In terms of Network Encryption it can act as a trusted MITM (Terminating HTTPS, inspecting the decrypted traffic for WAF (Web Application Firewall) protection purposes, and then re-encrypting traffic before forwarding to it's intended destination (usually a private IP Address of an Ingress LB of a Big Bang Cluster.)
-* More details on CNAP can be found on the [Ask Me Anything Slides located here](https://software.af.mil/dsop/documents/).
+* More details on CNAP can be found on the [CNAP Transition to Cloud One](https://repo1.dso.mil/platform-one/bullhorn-delivery-static-assets/-/raw/master/p1/Cloud%20Native%20Access%20Point%20(CNAP)%20Transition%20to%20Cloud%20One%20-%2006_03_2025.pdf).
 * If your DoD command is interested in leveraging CNAP to protect a Big Bang Cluster [this page has instructions on how to ask for more details.](https://p1.dso.mil/#/services)
 * `There is no hard requirement that consumers of Big Bang must leverage CNAP`.
   * P1 uses CNAP to add defense in depth security for many of it's public internet facing services.

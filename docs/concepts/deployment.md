@@ -6,7 +6,7 @@ TODO: reorganize this page.
 
 ## GitOps
 
-Big Bang follows a [GitOps](https://www.weave.works/blog/what-is-gitops-really) approach to deployment. All configuration changes will be pulled and reconciled with what is stored in the Git repository. The only exception to this is the initial manifests (e.g., `dev.yaml`) which points to the Git repository and path.
+Big Bang follows a [GitOps](https://fluxcd.io/flux/concepts/#gitops) approach to deployment. All configuration changes will be pulled and reconciled with what is stored in the Git repository. The only exception to this is the initial manifests (e.g., `dev.yaml`) which points to the Git repository and path.
 
 ## Installation
 
@@ -42,13 +42,13 @@ Big Bang follows a [GitOps](https://www.weave.works/blog/what-is-gitops-really) 
 
 All changes to the Big Bang cluster should be made through Git. After changes are pushed, Big Bang will automatically reconcile the difference with the cluster.
 
-> It may take Big Bang up to 10 minutes to recognize your changes and start to deploy them. This is based on the `interval` value set for polling. You can force Big Bang to immediately check for changes by running the [sync.sh](../../..//scripts/sync.sh) script.
+> It may take Big Bang up to 10 minutes to recognize your changes and start to deploy them. This is based on the `interval` value set for polling. You can force Big Bang to immediately check for changes by running the [sync.sh](../../scripts/sync.sh) script.
 
 Changes to values can be tested in each environment using the named folders to override values and/or point to specific repo branches or tags. After testing, the changes can be placed into the `./base` folder if the change is shared between all environments.
 
 ## Monitor
 
-The commands detailed in this section will help you monitor the progress of the Big Bang deployment. Review the [flowchart](./glossary.md#Diagram), if needed, to understand the progression. Use the [Troubleshooting Guide](./troubleshooting.md) if you have failures.
+The commands detailed in this section will help you monitor the progress of the Big Bang deployment. Review the [flowchart](./glossary.md#Diagram), if needed, to understand the progression. Use the [Troubleshooting Guide](../operations/troubleshooting/) if you have failures.
 
 1. Verify Flux is running.
 

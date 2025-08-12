@@ -4,7 +4,7 @@ TODO: reorganize this page.
 
 [[_TOC_]]
 
-Big Bang follows a [GitOps](https://www.weave.works/technologies/gitops/) approach to managing the Big Bang Kubernetes cluster configuration. Using GitOps, we must securely store secrets in Git using encryption. The private key, which is stored in key storage, is used by the continuous deployment tool to decrypt and deploy the secrets for use in the cluster.
+Big Bang follows a [GitOps](https://fluxcd.io/flux/concepts/#gitops) approach to managing the Big Bang Kubernetes cluster configuration. Using GitOps, we must securely store secrets in Git using encryption. The private key, which is stored in key storage, is used by the continuous deployment tool to decrypt and deploy the secrets for use in the cluster.
 
 ## SOPS
 
@@ -121,11 +121,11 @@ SOPS uses `.sops.yaml` as a configuration file for which keys to use for newly c
 
 ### Azure KeyVault
 
-TBD - [This article](https://blog.doit-intl.com/injecting-secrets-from-aws-gcp-or-vault-into-a-kubernetes-pod-d5a0e84ba892) may help to automate secret consumption in Kubernetes.
+TBD - [This article](https://www.doit.com/blog/injecting-secrets-from-aws-gcp-or-vault-into-a-kubernetes-pod/) may help to automate secret consumption in Kubernetes.
 
 ### HashiCorp Vault
 
-TBD - [This article](https://blog.doit-intl.com/injecting-secrets-from-aws-gcp-or-vault-into-a-kubernetes-pod-d5a0e84ba892) may help to automate secret consumption in Kubernetes.
+TBD - [This article](https://www.doit.com/blog/injecting-secrets-from-aws-gcp-or-vault-into-a-kubernetes-pod/) may help to automate secret consumption in Kubernetes.
 
 ## Configure Big Bang
 

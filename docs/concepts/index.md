@@ -1,10 +1,10 @@
 # Useful Background Contextual Information
 
-Start with the [Documentation README](../README.md), which includes the following sections:
+Start with the [Getting Started Overview](../getting-started/overview.md), which includes the following sections:
 
-* [What is Big Bang?](../README.md#what-is-big-bang)
-* [What *isn't* Big Bang?](../README.md#what-big-bang-isnt)
-* [Benefits of Big Bang](../README.md#benefits-of-using-big-bang)
+* [What is Big Bang?](../getting-started/overview.md#what-is-big-bang)
+* [What *isn't* Big Bang?](../getting-started/overview.md#what-isnt-big-bang)
+* [Benefits of Big Bang](../getting-started/overview.md#what-are-the-benefits-of-using-big-bang)
 
 ## Acronyms
 
@@ -22,7 +22,7 @@ Start with the [Documentation README](../README.md), which includes the followin
 
 ## Prerequisites
 
-* Prerequisites vary depending on deployment scenario. [Prerequisites can be found here.](../prerequisites/)
+* Prerequisites vary depending on deployment scenario. [Prerequisites can be found here.](../getting-started/prerequisites.md)
 
 ## Additional Useful Background Contextual Information
 

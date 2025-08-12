@@ -14,7 +14,7 @@ Big Bang is a declarative, continuous delivery tool for core DoD hardened and ap
 
 ### Big Bang Components
 
-Big Bang is made of several components that operate together.  These include a [base Kustomize](../../../base/), a [Helm chart](../../../chart), [packages](../../../chart/templates), and an [environment](https://repo1.dso.mil/big-bang/customers/bigbang).  The environment and base Kustomize are used together to deploy the Big Bang configuration and Helm chart.  The Helm chart is then used to facilitate deployment of the packages.
+Big Bang is made of several components that operate together. These include a [base Kustomize](../../base/), a [Helm chart](../../chart), [packages](../../chart/templates), and an [environment](https://repo1.dso.mil/big-bang/customers/bigbang). The environment and base Kustomize are used together to deploy the Big Bang configuration and Helm chart. The Helm chart is then used to facilitate deployment of the packages.
 
 ### Flux v2
 
@@ -22,7 +22,7 @@ Big Bang is made of several components that operate together.  These include a [
 
 ### GitOps
 
-[GitOps](https://www.weave.works/technologies/gitops/) is a way to declaratively manage a Kubernetes cluster using a single source of truth in Git. All Kubernetes configuration is stored in Git. A tool (e.g. [Flux](#flux-v2) is used to automatically monitor and reconcile the configuration with the running Kubernetes cluster. This allows all changes to the cluster to be version controlled and pipelined.
+[GitOps](https://fluxcd.io/flux/concepts/#gitops) is a way to declaratively manage a Kubernetes cluster using a single source of truth in Git. All Kubernetes configuration is stored in Git. A tool (e.g. [Flux](#flux-v2) is used to automatically monitor and reconcile the configuration with the running Kubernetes cluster. This allows all changes to the cluster to be version controlled and pipelined.
 
 ### SOPS
 
