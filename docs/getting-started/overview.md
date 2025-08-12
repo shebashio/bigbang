@@ -10,10 +10,10 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
     * Defines which DevSecOps Platform packages/helm charts will be deployed.
     * Defines what input parameters will be passed through to the chosen helm charts.
 * You can see what applications are part of the platform by checking the following resources:
-    * [packages.md](./packages.md) lists the packages and organizes them in categories.
+    * [packages.md](../packages/index.md) lists the packages and organizes them in categories.
     * [Release Notes](https://repo1.dso.mil/big-bang/bigbang/-/releases) lists the packages and their versions.
-    * For a code based source of truth, you can check [Big Bang's default values.yaml](../chart/values.yaml), and `[CTRL] + [F]`, `"repo:"`, to quickly iterate through the list of applications supported by the Big Bang team.
-    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../README.md#usage--scope)
+    * For a code based source of truth, you can check [Big Bang's default values.yaml](../../chart/values.yaml), and `[CTRL] + [F]`, `"repo:"`, to quickly iterate through the list of applications supported by the Big Bang team.
+    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../index.md#usage--scope)
 
 ### What *isn't* Big Bang?
 
@@ -48,23 +48,23 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
     * When the end user edits the version of one `kustomization.yaml` file, that triggers a chain reaction that updates 100 container images in the cluster.
     * These upgrades are pre-tested. The Big Bang team "eats our own dogfood." Our CI jobs for developing the Big Bang product, run against a Big Bang Dogfood Cluster, and as part of our release process we upgrade our Big Bang Dogfood Cluster, before publishing each release.
     > **Note:** We ONLY support and recommend successive upgrades. We do not test upgrades that skip multiple minor versions.
-    * Auto updates are also possible by setting kustomization.yaml to 1.x.x, because Big Bang follows semantic versioning per the [Big Bang README](../README.md#release-schedule), and flux is smart enough to read x as the most recent version number.
-* SSO support is included in the Big Bang platform offering. Operations teams can leverage Big Bang's free Single Sign On capability by deploying the [Keycloak project](https://www.keycloak.org/). Using Keycloak, an ops team configures the platform SSO settings so that SSO can be leveraged by all apps hosted on the platform. For details, see the [SSO Readme](docs/developer/package-integration/sso.md). Once Authservice is configured, to enable SSO for an individual app, developers need only ensure the presence of the two following labels:
+    * Auto updates are also possible by setting kustomization.yaml to 1.x.x, because Big Bang follows semantic versioning per the [Big Bang README](../index.md#release-schedule), and flux is smart enough to read x as the most recent version number.
+* SSO support is included in the Big Bang platform offering. Operations teams can leverage Big Bang's free Single Sign On capability by deploying the [Keycloak project](https://www.keycloak.org/). Using Keycloak, an ops team configures the platform SSO settings so that SSO can be leveraged by all apps hosted on the platform. For details, see the [SSO Readme](../community/development/package-integration/sso.md). Once Authservice is configured, to enable SSO for an individual app, developers need only ensure the presence of the two following labels:
     - __Namespace__ `istio-injection=enabled`: transparently injects mTLS service mesh protection into their application's Kubernetes YAML manifest
     - __Pod__ `protect=keycloak`: declares an EnvoyFilter CustomResource to auto inject an SSO Authentication Proxy in front of the data path to get to their application
 
 ## How do I deploy Big Bang?
 
-**Note:** The Deployment Process and Pre-Requisites will vary depending on the deployment scenario. The [Quick Start Demo Deployment](./guides/deployment-scenarios/quickstart.md) for example, allows some steps to be skipped due to a mixture of automation and generically reusable demonstration configuration that satisfies pre-requisites. The following is a general overview of the process, reference the [deployment guides](./guides/#deployment-scenarios) for more detail.
+**Note:** The Deployment Process and Pre-Requisites will vary depending on the deployment scenario. The [Quick Start Demo Deployment](../installation/environments/quick-start.md) for example, allows some steps to be skipped due to a mixture of automation and generically reusable demonstration configuration that satisfies pre-requisites. The following is a general overview of the process, reference the [deployment guides](../installation/index.md) for more detail.
 
 1. Satisfy Pre-Requisites:
-    * Provision a Kubernetes Cluster according to [best practices](./prerequisites/kubernetes-preconfiguration.md#best-practices).
+    * Provision a Kubernetes Cluster according to [best practices](./prerequisites.md#kubernetes-cluster).
     * Ensure the cluster has network connectivity to a Git Repo you control.
     * Install Flux GitOps Operator on the cluster.
     * Configure Flux, the cluster, and the Git Repo for GitOps Deployments that support deploying encrypted values.
     * Commit to the Git Repo Big Bang's `values.yaml` and encrypted secrets that have been configured to match the desired state of the cluster (including HTTPS Certs and DNS names).  
 1. `kubectl apply --filename bigbang.yaml`
-    * [bigbang.yaml](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/umbrella-strategy/bigbang.yaml) will trigger a chain reaction of GitOps Custom Resources that will deploy other GitOps Custom Resources that will eventually deploy an instance of a DevSecOps Platform that's declaratively defined in your Git Repo.
+    * [bigbang.yaml](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml) will trigger a chain reaction of GitOps Custom Resources that will deploy other GitOps Custom Resources that will eventually deploy an instance of a DevSecOps Platform that's declaratively defined in your Git Repo.
     * To be specific, the chain reaction pattern we consider best practice is to have:
         * `bigbang.yaml` deploys a git repository and kustomization Custom Resource.
         * Flux reads the declarative configuration stored in the kustomization Custom Resource to do a GitOps equivalent of `kustomize build . | kubectl apply  --filename -`, to deploy a helmrelease Custom Resource of the Big Bang Helm Chart, that references input `values.yaml` files defined in the Git Repo.
@@ -72,10 +72,10 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
   
 ## New User Orientation
 
-New users are encouraged to read through the useful background information present in the [Understanding Big Bang Section](./understanding-bigbang).
+New users are encouraged to read through the useful background information present in the [Getting Started](../../getting-started/), [Concepts](../../concepts/), [Configuration](../../configuration/), and [Packages](../../packages/) sections.
 
 ## Frequently Asked Questions
 
-You can view answers to a number of [frequently asked questions](FAQ.md).
+You can view answers to a number of [frequently asked questions](./faq.md).
 
  Please direct all code changes, issues, and comments to [https://repo1.dso.mil/big-bang/bigbang](https://repo1.dso.mil/big-bang/bigbang).

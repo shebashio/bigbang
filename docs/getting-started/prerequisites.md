@@ -240,7 +240,7 @@ It is important to note that while Big Bang does not require/mandate usage of a 
 #### RKE2
 
 * RKE2 turns PSPs on by default (see above for tips on disabling).
-* RKE2 sets selinux to enforcing by default ([see os-preconfiguration.md for selinux config](os-preconfiguration.md)).
+* RKE2 sets selinux to enforcing by default ([see os configuration section](#os-configuration) for selinux config).
 
 Since BigBang makes several assumptions about volume and load balancing provisioning by default, it's vital that the rke2 cluster must be properly configured. The easiest way to do this is through the in tree cloud providers, which can be configured through the `rke2` configuration file such as:
 
