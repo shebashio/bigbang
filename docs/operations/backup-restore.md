@@ -8,7 +8,7 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
 
 ### Gitlab Helm Chart Configuration
 
-1. Follow the `Backup and rename gitlab-rails-secret` task within the [Production document](../../understanding-bigbang/configuration/sample-prod-config.md).
+1. Follow the `Backup and rename gitlab-rails-secret` task within the [Production document](../configuration/sample-prod-config.md).
 1. Fill in our externalStorage values, specifically `addons.gitlab.objectStorage.iamProfile` or both `.Values.addons.gitlab.objectStorage.accessKey` & `.Values.addons.gitlab.objectStorage.accessSecret` along with `.Values.addons.gitlab.objectStorage.bucketPrefix` or you can override in the name for your own bucket eg:
 ```yaml
 addons:
@@ -197,7 +197,7 @@ backups/nexus-ns-backup/velero-backup.json
 ```
 
 Also ensure an EBS volume snapshot has been created and the Snapshot status is `Completed`.  
-![volume-snapshot](../../assets/imgs/guides/volume-snapshot.png)
+![volume-snapshot](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/guides/volume-snapshot.png)
 
 ### Restoring From Backup
 
@@ -240,7 +240,7 @@ Also ensure an EBS volume snapshot has been created and the Snapshot status is `
     docker run -p 8000:8000 nexus-docker.bigbang.dev/repository/nexus-docker/doom-dos:latest
     ```
 
-    ![doom](../../assets/imgs/guides/doom.png "doom")
+    ![doom](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/guides/doom.png "doom")
 
 ### Appendix
 

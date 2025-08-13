@@ -6,7 +6,7 @@ TODO: reorganize everything in this folder
 
 ## Deployment of Renovate
 
-Follow the [Extra Package Deployment Guide](../deployment-scenarios/extra-package-deployment.md)
+Follow the [Extra Package Deployment Guide](../../installation/environments/extra-package-deployment.md)
 
 ### Example Deployment Values
 ``` yaml
@@ -48,10 +48,10 @@ The repositories key in this self-hosted renovate configuration specifies which 
 See [Self Hosted Configuration](https://docs.renovatebot.com/self-hosted-configuration/#self-hosted-configuration-options) for more details
 
 ### Cron Job
-Refer to the [Scheduling Renovate Guide](./scheduling.md).
+Refer to the [Scheduling Renovate Guide](#handling-scheduling-in-the-chart).
 
 ### Individual Package Configuration
-The configuration file for Renovate is called `renovate.json` and is located in each project's root directory. See [Package Configuration](./package-configuration.md)
+The configuration file for Renovate is called `renovate.json` and is located in each project's root directory. See [Package Configuration](#package-configuration)
 
 ## Handling Scheduling in the Chart
 
