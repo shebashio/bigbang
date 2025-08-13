@@ -19,9 +19,9 @@ Upon completing this process, you will have a k3d Kubernetes cluster running thr
 * [metrics-server](https://docs-bigbang.dso.mil/latest/packages/metrics-server/) metrics collector
 * [Tempo](https://docs-bigbang.dso.mil/latest/packages/tempo/) trace collector for Grafana
 * [Grafana](https://docs-bigbang.dso.mil/latest/packages/grafana/) dashboards
-* [Neuvector](https://docs-bigbang.dso.mil/latest/packages/grafana/) container lifecycle security management
+* [Neuvector](https://docs-bigbang.dso.mil/latest/packages/neuvector/) container lifecycle security management
 
-Big Bang can deploy [numerous other packages](https://docs-bigbang.dso.mil/latest/packages/), each requiring additional user configuration. In its default state, Big Bang serves as a cohesive platform for deploying these packages. Quick Start aims to rapidly set up this platform. Procedures for deploying specific packages (e.g., Mattermost) or modeling specific use cases (e.g., Party Bus) are beyond the scope of the Quick Start. For more information, refer to the individual package documentation
+Big Bang can deploy [numerous other packages](../../packages/index.md), each requiring additional user configuration. In its default state, Big Bang serves as a cohesive platform for deploying these packages. Quick Start aims to rapidly set up this platform. Procedures for deploying specific packages (e.g., Mattermost) or modeling specific use cases (e.g., Party Bus) are beyond the scope of the Quick Start. For more information, refer to the individual package documentation
 
 ### Satisfy the Prerequisites
 
@@ -47,7 +47,7 @@ export REGISTRY1_USERNAME=YOUR_REGISTRY1_USERNAME
 export REGISTRY1_TOKEN=YOUR_REGISTRY1_TOKEN
 export REPO1_LOCATION=LOCATION_ON_FILESYSTEM_TO_CHECK_OUT_BIGBANG_CODE
 
-curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/docs/assets/scripts/quickstart.sh?ref_type=heads
+curl --output quickstart.sh https://repo1.dso.mil/big-bang/bigbang/-/raw/master/docs/reference/scripts/quickstart.sh?ref_type=heads
 ```
 
 ### Build the Cluster
@@ -173,11 +173,11 @@ You will need to leave this command running for as long as you want to access yo
 
 In a browser, visit one of the sites that you just added to your hosts file.
 
-Note, default credentials for Big Bang packages can be found [here](../using-bigbang/default-credentials.md).
+Note, default credentials for Big Bang packages can be found [here](../../tutorials/default-credentials.md).
 
 ### Tinker With It
 
-You can use the Quick Start script to update your Big Bang Quick Start deployment with your own modifications. Here's an example of post deployment customization of Big Bang.  After looking at <https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/values.yaml>, you can see that this will enable the ArgoCD addon, which is not enabled by default.
+You can use the Quick Start script to update your Big Bang Quick Start deployment with your own modifications. Here's an example of post deployment customization of Big Bang.  After looking at [chart/values.yaml](../../../chart/values.yaml), you can see that this will enable the ArgoCD addon, which is not enabled by default.
 
 ```shell
 # [ubuntu@Ubuntu_VM:~]
@@ -221,7 +221,7 @@ kubectl get po -n=argocd
 
 ### Implementing Mission Applications within your Big Bang environment
 
-Big Bang by itself serves as a jumping off point, but many users will want to implement their own mission specific applications in to the cluster. Big Bang has implemented a `packages:` and `wrapper:`  section to enable and support this in a way that ensures connectivity between your mission specific requirements and existing Big Bang utilities, such as istio, the monitoring stack, and network policy management. [Here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/guides/deployment-scenarios/extra-package-deployment.md) is the documentation for the `packages` utility.
+Big Bang by itself serves as a jumping off point, but many users will want to implement their own mission specific applications in to the cluster. Big Bang has implemented a `packages:` and `wrapper:`  section to enable and support this in a way that ensures connectivity between your mission specific requirements and existing Big Bang utilities, such as istio, the monitoring stack, and network policy management. [Here](./extra-package-deployment.md) is the documentation for the `packages` utility.
 
 We will implement a simple additional utility as a proof of concept, starting with a basic podinfo client. This will use the `wrapper` key to provide integration between Big Bang and the Mission Application, without requiring the full Istio configuration to be placed inside Big Bang specific keys of the dependent chart.
 
@@ -236,7 +236,7 @@ packages:
     # @default -- true
     enabled: true
 
-    # -- Toggle wrapper functionality. See https://docs-bigbang.dso.mil/latest/docs/guides/deployment-scenarios/extra-package-deployment/#Wrapper-Deployment for more details.
+    # -- Toggle wrapper functionality. See https://docs-bigbang.dso.mil/latest/docs/installation/environments/extra-package-deployment/#Wrapper-Deployment for more details.
     # @default -- false
     wrapper:
       enabled: true

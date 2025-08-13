@@ -49,7 +49,7 @@ In this example, we are doing three things:
 * Adding a dependency on the `monitoring` HelmRelease in the `bigbang` namespace to ensure `podinfo` doesn't deploy until after `monitoring.`
 * Passing a value directly to the Podinfo chart to create three replicas.
 
-We could also specify a `postRenderers` value here, which is documented well in [this document](../../understanding-bigbang/configuration/postrenderers.md).
+We could also specify a `postRenderers` value here, which is documented well in [this document](../../configuration/postrenderers.md).
 
 If you would like to have values for your extra package deployment adapt based on your Big Bang configuration, you could do something like what is listed in the following:
 
