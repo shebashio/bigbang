@@ -182,11 +182,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
     cosignVerify: false
 
   # -- Values to passthrough to the Istio CRDs chart
@@ -217,11 +217,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
     cosignVerify: false
 
   # -- Values to passthrough to the istiod chart
@@ -257,11 +257,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.26.2-bb.0
+    tag: 1.26.3-bb.0
     cosignVerify: false
 
   # -- Values to passthrough to the gateway chart(s)
@@ -384,11 +384,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.12.0-bb.0"
+    tag: "2.12.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.12.0-bb.0"
+    tag: "2.12.0-bb.2"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
@@ -466,11 +466,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.4.4-bb.0"
+    tag: "3.4.4-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.4.4-bb.0"
+    tag: "3.4.4-bb.2"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
@@ -544,11 +544,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.1.4-bb.0"
+    tag: "3.3.2-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.1.4-bb.0"
+    tag: "3.3.2-bb.1"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
@@ -673,11 +673,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.50.0-bb.0"
+    tag: "0.50.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.50.0-bb.0"
+    tag: "0.50.0-bb.1"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
@@ -690,33 +690,38 @@ fluentbit:
   postRenderers: []
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Promtail / Loki Logging stack
+# Alloy / Loki Logging stack
 #
-promtail:
-  # -- Toggle deployment of Promtail.
-  enabled: false
+alloy:
+  # -- Toggle deployment of grafana alloy
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "helmRepo"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/promtail.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
+    tag: "3.2.1-bb.1"
     path: "./chart"
-    tag: "6.16.6-bb.5"
   helmRepo:
     repoName: "registry1"
-    chartName: "promtail"
-    tag: "6.16.6-bb.5"
+    chartName: "k8s-monitoring"
+    tag: "3.2.1-bb.1"
     cosignVerify: false
 
-  # -- Flux reconciliation overrides specifically for the Promtail Package
-  flux: {}
+  # -- Toggle Alloy to collect logs
+  alloyLogs:
+    enabled: true
 
-  # -- Values to passthrough to the promtail chart: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
+  # -- Additional Alloy destinations not included in Big Bang
+  additionalDestinations: []
+
   values: {}
 
-  # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+
+  # -- Flux reconciliation overrides specifically for the alloy package
+  flux: {}
 
 loki:
   # -- Toggle deployment of Loki.
@@ -728,11 +733,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.30.1-bb.3"
+    tag: "6.30.1-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.30.1-bb.3"
+    tag: "6.30.1-bb.4"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Loki Package
@@ -755,7 +760,7 @@ loki:
   # -- Loki architecture.  Options are monolith and scalable
   strategy: monolith
 
-  # -- Loki clusterName identifier for Promtail and Dashboards
+  # -- Loki clusterName identifier
   clusterName: ""
 
   objectStorage:
@@ -799,11 +804,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.6-bb.0"
+    tag: "2.8.6-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.6-bb.0"
+    tag: "2.8.6-bb.2"
     cosignVerify: false
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
@@ -942,15 +947,17 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 21.0.0-bb.0
+    tag: 22.0.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
-    tag: 21.0.0-bb.0
+    tag: 22.0.1-bb.0
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
-  flux: {}
+  flux:
+    driftDetection:
+      mode: warn
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
@@ -964,11 +971,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "75.6.1-bb.1"
+    tag: "75.6.1-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "75.6.1-bb.1"
+    tag: "75.6.1-bb.2"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
@@ -1037,11 +1044,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "9.2.10-bb.0"
+    tag: "9.3.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "9.2.10-bb.0"
+    tag: "9.3.1-bb.0"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
@@ -1089,11 +1096,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.21.0-bb.1"
+    tag: "0.21.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.21.0-bb.1"
+    tag: "0.21.0-bb.2"
     cosignVerify: false
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
@@ -1127,7 +1134,7 @@ twistlock:
 # ----------------------------------------------------------------------------------------------------------------------
 # BBCTL Dashboards
 #
-# Requires monitoring, grafana, loki, and promtail to be deployed
+# Requires monitoring, grafana, alloy, and loki to be deployed
 bbctl:
   # -- Toggle deployment of the bbctl dashboards
   enabled: true
@@ -1157,43 +1164,6 @@ bbctl:
   postRenderers: []
 # ----------------------------------------------------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Alloy
-#
-alloy:
-  # -- Toggle deployment of grafana alloy
-  enabled: true
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "helmRepo"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.0.2-bb.0"
-    path: "./chart"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "k8s-monitoring"
-    tag: "3.0.2-bb.0"
-    cosignVerify: false
-
-  # -- Toggle Alloy to collect logs
-  alloyLogs:
-    enabled: true
-
-  # -- Additional Alloy destinations not included in Big Bang
-  additionalDestinations: []
-
-  values: {}
-
-  postRenderers: []
-
-  # -- Flux reconciliation overrides specifically for the alloy package
-  flux: {}
-# ----------------------------------------------------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------------------------------------------------
-#
 addons:
   argocd:
     # -- Toggle deployment of ArgoCD.
@@ -1205,12 +1175,13 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "8.2.0-bb.0"
+      tag: "8.2.5-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "8.2.0-bb.0"
+      tag: "8.2.5-bb.0"
       cosignVerify: false
+
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1365,11 +1336,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.5"
+      tag: "7.1.1-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.5"
+      tag: "7.1.1-bb.6"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Minio Package
@@ -1406,11 +1377,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.2.1-bb.0"
+      tag: "9.2.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.2.1-bb.0"
+      tag: "9.2.1-bb.2"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
@@ -1528,12 +1499,12 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
       path: "./chart"
-      tag: "0.79.0-bb.0"
+      tag: "0.79.1-bb.0"
 
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab-runner"
-      tag: "0.79.0-bb.0"
+      tag: "0.79.1-bb.0"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Gitlab Runner Package
@@ -1761,11 +1732,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.10.0-bb.1"
+      tag: "3.10.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.10.0-bb.1"
+      tag: "3.10.0-bb.2"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
@@ -1854,11 +1825,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.23.0-bb.0"
+      tag: "1.25.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.23.0-bb.0"
+      tag: "1.25.0-bb.0"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
@@ -2023,11 +1994,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.0.1-bb.3"
+      tag: "7.0.1-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.0.1-bb.3"
+      tag: "7.0.1-bb.5"
       cosignVerify: false
 
     database:
@@ -2081,11 +2052,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.0-bb.11"
+      tag: "0.30.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.0-bb.11"
+      tag: "0.30.1-bb.2"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Vault Package
@@ -2162,12 +2133,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.17.1-bb.3"
+      tag: "1.17.1-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.17.1-bb.3"
+      tag: "1.17.1-bb.4"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
@@ -2229,12 +2200,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "16.0.2-bb.1"
+      tag: "17.2.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "16.0.2-bb.1"
+      tag: "17.2.2-bb.0"
       cosignVerify: false
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
@@ -2268,12 +2239,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.18.2-bb.1"
+      tag: "0.19.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.18.2-bb.1"
+      tag: "0.19.0-bb.0"
       cosignVerify: false
 
     # -- Override flux settings for this package
@@ -2367,12 +2338,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.32.1-bb.2"
+      tag: "0.34.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.32.1-bb.2"
+      tag: "0.34.0-bb.0"
       cosignVerify: false
 
     # -- Override flux settings for this package

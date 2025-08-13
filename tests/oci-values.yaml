@@ -58,11 +58,6 @@ kyvernoReporter:
   helmRepo:
     cosignVerify: false
 
-promtail:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
-
 loki:
   sourceType: "helmRepo"
   helmRepo:
@@ -74,6 +69,11 @@ neuvector:
     cosignVerify: false
 
 tempo:
+  sourceType: "helmRepo"
+  helmRepo:
+    cosignVerify: false
+
+prometheusOperatorCRDs:
   sourceType: "helmRepo"
   helmRepo:
     cosignVerify: false
@@ -118,12 +118,12 @@ addons:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-  
+
   authservice:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-  
+
   minioOperator:
     sourceType: "helmRepo"
     helmRepo:
@@ -148,7 +148,7 @@ addons:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-  
+
   sonarqube:
     sourceType: "helmRepo"
     helmRepo:
@@ -178,7 +178,7 @@ addons:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-    
+
   keycloak:
     sourceType: "helmRepo"
     helmRepo:
@@ -193,12 +193,12 @@ addons:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-  
+
   harbor:
     sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
-  
+
   thanos:
     sourceType: "helmRepo"
     helmRepo:
