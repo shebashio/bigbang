@@ -90,7 +90,7 @@ addons:
 
 ### Single Sign On
 
-Anchore Enterprise 2.1+ can be configured to support user login to the UI using identities from external identity providers that support SAML 2.0. In such a configuration, Anchore never stores any credentials for the users, only their usernames and Anchore permissions, and all UI access is gated through a user’s valid login into the identity provider. Anchore uses the external provider to verify username identity and initialize a username, account, and roles on first login for a new user. Once a user’s identity is initialized in Anchore, the Anchore administrator may manage user permissions by managing the roles associated with the user’s identity in Anchore itself. For more information, see [Anchore Enterprise SSO Support](https://docs.anchore.com/current/docs/configuration/sso/).
+Anchore Enterprise 2.1+ can be configured to support user login to the UI using identities from external identity providers that support SAML 2.0. In such a configuration, Anchore never stores any credentials for the users, only their usernames and Anchore permissions, and all UI access is gated through a user’s valid login into the identity provider. Anchore uses the external provider to verify username identity and initialize a username, account, and roles on first login for a new user. Once a user’s identity is initialized in Anchore, the Anchore administrator may manage user permissions by managing the roles associated with the user’s identity in Anchore itself. For more information, see [Anchore Enterprise SSO Support](https://docs.anchore.com/current/docs/configuration/user_authentication/sso/).
 
 See below for an example of the values to provide to Anchore Enterprise for SSO setup:
 
@@ -125,7 +125,7 @@ As of the anchore-engine Chart version 0.9.0, all services can be scaled-out, so
 
 ### UI
 
-Anchore Enterprise includes a UI, which can be used to scan repositories and images, edit policy bundles, manage users accounts and roles via RBAC, and view and generate security vulnerability and policy evaluation reports. For more information, see [Using the Anchore Enterprise UI](https://docs.anchore.com/current/docs/using/ui_usage/).
+Anchore Enterprise includes a UI, which can be used to scan repositories and images, edit policy bundles, manage users accounts and roles via RBAC, and view and generate security vulnerability and policy evaluation reports. For more information, see [Using the Anchore Enterprise UI](https://docs.anchore.com/current/docs/configuration/ui/dashboard/).
 
 ### Logging
 
@@ -135,7 +135,7 @@ _Note:_ within Big Bang, logs are captured by fluentbit and shipped to elastic b
 
 ### Monitoring
 
-Anchore Engine and Enterprise expose prometheus metrics in the API of each service if the config.yaml used by that service has the metrics.enabled key set to true. Each service exports its own metrics and is typically scraped by a Prometheus installation to gather the metrics. Anchore does not aggregate or distribute metrics between services. You should configure your Prometheus deployment or integration to check each Anchore service’s api (using the same port it exports), for the /metrics route. For more information, see [Anchore Enterprise Monitoring](https://docs.anchore.com/current/docs/configuration/monitoring/#monitoring-in-kubernetes-andor-helm-chart).
+Anchore Engine and Enterprise expose prometheus metrics in the API of each service if the config.yaml used by that service has the metrics.enabled key set to true. Each service exports its own metrics and is typically scraped by a Prometheus installation to gather the metrics. Anchore does not aggregate or distribute metrics between services. You should configure your Prometheus deployment or integration to check each Anchore service’s api (using the same port it exports), for the /metrics route. For more information, see [Anchore Enterprise Monitoring](https://docs.anchore.com/current/docs/monitoring/prometheus/).
 
 The Big Bang Anchore Helm chart has been modified to use your `monitoring:` values in Big Bang to automatically toggle metrics on/off.
 
@@ -147,7 +147,7 @@ Liveness and readiness probes are included in the Anchore Helm chart for all dep
 kubectl -n anchore exec -it <ANCHORE_ENGINE_API_POD> -- anchore-cli --u <USERNAME> --p <PASSWORD> system status
 ```
 
-For more information, see [Anchore Enterprise System Health](https://docs.anchore.com/current/docs/using/ui_usage/system_health/).
+For more information, see [Anchore Enterprise System Health](https://docs.anchore.com/current/docs/monitoring/system_health/).
 
 ### Dependent Packages
 

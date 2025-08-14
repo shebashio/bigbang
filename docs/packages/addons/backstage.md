@@ -56,8 +56,9 @@ monitoring:
 ### Health Checks
 
 Backstage has liveness and readiness checks available at the following paths:
-<https://backstage.com>/.backstage/health/v1/readiness
-<https://backstage.com>/.backstage/health/v1/liveness
+- `backstage-baseurl.com/.backstage/health/v1/readiness`
+- `backstage-baseurl.com/.backstage/health/v1/liveness`
+
 These endpoints return 200 OKs, and a JSON {"status": "ok"} response.
 
 ## Single Sign On (SSO)
