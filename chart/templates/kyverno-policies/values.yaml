@@ -1148,8 +1148,8 @@ policies:
         pods:
           allow:
           - monitoring-grafana*
-          - kube-prometheus-stack-admission-create-*
-          - kube-prometheus-stack-admission-patch-*
+          - monitoring-admission-create-*
+          - monitoring-admission-patch-*
           - kube-state-metrics*
           - kube-operator*
           - prometheus-monitoring-monitoring-kube-prometheus*
