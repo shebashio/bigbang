@@ -1313,11 +1313,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.6"
+      tag: "7.1.1-bb.7"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.6"
+      tag: "7.1.1-bb.7"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1634,11 +1634,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.32"
+      tag: "1.1.2320154-bb.33"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.32"
+      tag: "1.1.2320154-bb.33"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1960,11 +1960,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.0.1-bb.5"
+      tag: "7.0.1-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.0.1-bb.5"
+      tag: "7.0.1-bb.6"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2096,12 +2096,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.17.1-bb.4"
+      tag: "1.17.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.17.1-bb.4"
+      tag: "1.17.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
