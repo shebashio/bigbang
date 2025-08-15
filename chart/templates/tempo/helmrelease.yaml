@@ -41,15 +41,12 @@ spec:
 
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
 
-  {{- if or .Values.tempo.postRenderers .Values.promtail.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.tempo.postRenderers .Values.monitoring.enabled }}
   postRenderers:
   {{- if .Values.tempo.postRenderers }}
   {{- with .Values.addons.mimir.postRenderers }}
   {{ toYaml . | nindent 2 }}
   {{- end }}
-  {{- end }}
-  {{- if .Values.promtail.enabled }}
-  {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
   {{- end }}
   {{- if and .Values.monitoring.enabled $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
   {{ include "tempo.serviceMonitorPostRenderers" . | nindent 2 }}
