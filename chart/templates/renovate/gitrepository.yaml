@@ -1,0 +1,20 @@
+{{- if and (eq .Values.addons.renovate.sourceType "git") (not .Values.offline) .Values.addons.renovate.enabled }}
+{{- $gitCredsDict := dict
+  "name" "renovate"
+  "packageGitScope" .Values.addons.renovate.git
+  "rootScope" .
+  "releaseName" .Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: renovate
+  namespace: {{ .Release.Namespace }}
+spec:
+  interval: {{ .Values.flux.interval }}
+  url: {{ .Values.addons.renovate.git.repo }}
+  ref:
+    {{- include "validRef" .Values.addons.renovate.git | nindent 4 }}
+  {{ include "gitIgnore" . }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end }}

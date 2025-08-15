@@ -1,0 +1,25 @@
+{{- if .Values.addons.renovate.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.addons.renovate "name" "renovate" "defaults" (include "bigbang.defaults.renovate" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.renovate" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $domainName := default .Values.domain }}
+domain: {{ $domainName }}
+
+istio:
+  enabled: {{ $istioEnabled }}
+  hardened:
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+  renovate:
+    gateways:
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.renovate.ingress.gateway "root" .)}}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+
+upstream:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
+
+{{- end }}

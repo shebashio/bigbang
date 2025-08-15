@@ -1,0 +1,86 @@
+{{- $fluxSettingsrenovate := merge .Values.addons.renovate.flux .Values.flux -}}
+{{- if .Values.addons.renovate.enabled }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: renovate
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: renovate
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/renovate/values.yaml") . | sha256sum }}
+spec:
+  releaseName: renovate
+  targetNamespace: renovate
+  chart:
+    spec:
+      {{- if eq .Values.addons.renovate.sourceType "git" }}
+      chart: {{ .Values.addons.renovate.git.path }}
+      sourceRef:
+        kind: GitRepository
+        name: renovate
+        namespace: {{ .Release.Namespace }}
+      {{- else }}
+      chart: {{ .Values.addons.renovate.helmRepo.chartName }}
+      version: {{ .Values.addons.renovate.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.addons.renovate.helmRepo.repoName }}
+        namespace: {{ .Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.addons.renovate.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.addons.renovate.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" .Values.addons.renovate.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsrenovate | nindent 2 }}
+  
+  {{- if or .Values.addons.renovate.postRenderers (and $istioEnabled .Values.monitoring.enabled) }}
+  postRenderers:
+  {{- if and $istioEnabled .Values.monitoring.enabled }}
+  {{ include "renovate.istioPrometheusPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.addons.renovate.postRenderers }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  valuesFrom:
+    - name: {{ .Release.Name }}-renovate-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-renovate-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-renovate-values
+      kind: Secret
+      valuesKey: "overlays"
+
+  values:
+
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $istioEnabled }}
+  dependsOn:
+  {{- if .Values.gatekeeper.enabled }}
+    - name: gatekeeper
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- if $istioEnabled }}
+    - name: {{ include "istioHelmRelease" . }}
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- if .Values.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- if .Values.monitoring.enabled }}
+    - name: monitoring
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- end }}
+{{- end }}

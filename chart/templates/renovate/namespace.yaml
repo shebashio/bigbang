@@ -1,0 +1,12 @@
+{{- if .Values.addons.renovate.enabled }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: renovate
+  labels:
+    app.kubernetes.io/name: renovate
+    app.kubernetes.io/component: "developer-tools"
+    {{- include "commonLabels" . | nindent 4}}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.renovate) "enabled")) }}
+{{- end }}
