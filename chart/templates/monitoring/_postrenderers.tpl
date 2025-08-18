@@ -7,5 +7,5 @@
             value: true
         target:
           kind: ServiceAccount
-          name: kube-prometheus-stack-admission
+          name: monitoring-admission
 {{- end }}
