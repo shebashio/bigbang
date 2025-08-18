@@ -21,7 +21,8 @@ flux:
   enabled: true
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  # enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: true
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
