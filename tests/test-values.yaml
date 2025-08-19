@@ -995,6 +995,10 @@ loki:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
 
 tempo:
+  enabled: true
+  git:
+    tag: null
+    branch: "test-121bb3"
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
@@ -1029,15 +1033,6 @@ tempo:
         requests:
           cpu: 200m
           memory: 128Mi
-    persistence:
-      size: 5Gi
-    
-    tempoQuery:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
 
     bbtests:
       enabled: true
@@ -1055,6 +1050,16 @@ tempo:
         enabled: false
         envs:
           TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
+
+    persistence:
+      size: 5Gi
+    
+    tempoQuery:
+      resources:
+        limits: null
+        requests:
+          cpu: 200m
+          memory: 128Mi
 
 monitoring:
   flux:
