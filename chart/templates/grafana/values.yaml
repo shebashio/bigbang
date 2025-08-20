@@ -53,26 +53,14 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.grafana.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.grafana }}
 
-# anchoreEnterprise:
-#   enabled: {{ .Values.addons.anchoreEnterprise.enabled }}
+kiali:
+  enabled: {{ .Values.kiali.enabled }}
 
-# kiali:
-#   enabled: {{ .Values.kiali.enabled }}
+loki:
+  enabled: {{ .Values.loki.enabled }}
 
-# loki:
-#   enabled: {{ .Values.loki.enabled }}
-
-# tempo:
-#   enabled: {{ .Values.tempo.enabled }}
-
-# {{- if or $gitlabRedis $authserviceRedisEnabled $redisDatasource }}
-# redis:
-#   enabled: true
-# {{- end }}
-
-# vault:
-#   enabled: {{ .Values.addons.vault.enabled }}
-#   tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
+tempo:
+  enabled: {{ .Values.tempo.enabled }}
 
 {{- if $enterpriseEnabled }}
 enterprise:
