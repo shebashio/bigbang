@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/tempo/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: tempo
+  releaseName: tempo
   chart:
     spec:
       {{- if eq .Values.tempo.sourceType "git" }}

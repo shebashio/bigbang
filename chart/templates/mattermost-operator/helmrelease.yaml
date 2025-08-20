@@ -16,6 +16,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/mattermost-operator/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: mattermost-operator
+  releaseName: mattermost-operator
   chart:
     spec:
       {{- if (eq $mmOpValues.sourceType "git") }}

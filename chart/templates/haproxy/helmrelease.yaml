@@ -15,6 +15,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/haproxy/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: authservice
+  releaseName: haproxy
   chart:
     spec:
       {{- if eq .Values.addons.haproxy.sourceType "git" }}

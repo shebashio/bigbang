@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/neuvector/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: neuvector
+  releaseName: neuvector
   chart:
     spec:
       {{- if eq .Values.neuvector.sourceType "git" }}

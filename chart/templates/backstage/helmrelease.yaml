@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/backstage/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: backstage
+  releaseName: backstage
   chart:
     spec:
       {{- if eq .Values.addons.backstage.sourceType "git" }}

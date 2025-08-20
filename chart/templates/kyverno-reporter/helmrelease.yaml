@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno-reporter/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: kyverno-reporter
+  releaseName: kyverno-reporter
   chart:
     spec:
       {{- if (eq (get .Values $pkg).sourceType "git") }}

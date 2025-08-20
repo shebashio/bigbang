@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/eck-operator/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: eck-operator
+  releaseName: eck-operator
   chart:
     spec:
       {{- if eq .Values.eckOperator.sourceType "git" }}

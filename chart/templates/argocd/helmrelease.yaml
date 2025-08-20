@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/argocd/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: argocd
+  releaseName: argocd
   chart:
     spec:
       {{- if eq .Values.addons.argocd.sourceType "git" }}

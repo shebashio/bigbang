@@ -15,6 +15,7 @@ spec:
   # Use a non-persistent client to allow for Gatekeeper CRD *magic*
   persistentClient: false
   targetNamespace: gatekeeper-system
+  releaseName: gatekeeper
   chart:
     spec:
       {{- if eq .Values.gatekeeper.sourceType "git" }}

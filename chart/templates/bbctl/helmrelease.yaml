@@ -12,6 +12,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/bbctl/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: bbctl
+  releaseName: bbctl
   chart:
     spec:
       {{- if eq .Values.bbctl.sourceType "git" }}

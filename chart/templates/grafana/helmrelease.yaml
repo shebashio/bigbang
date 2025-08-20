@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/grafana/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: monitoring
+  releaseName: grafana
   chart:
     spec:
       {{- if eq .Values.grafana.sourceType "git" }}

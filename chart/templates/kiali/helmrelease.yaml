@@ -14,6 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kiali/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: kiali
+  releaseName: kiali
   chart:
     spec:
       {{- if eq .Values.kiali.sourceType "git" }}
