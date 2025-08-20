@@ -13,7 +13,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/elasticsearch-kibana/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: logging
-  releaseName: elasticsearch-kibana
+  releaseName: ek
   chart:
     spec:
       {{- if eq .Values.elasticsearchKibana.sourceType "git" }}
