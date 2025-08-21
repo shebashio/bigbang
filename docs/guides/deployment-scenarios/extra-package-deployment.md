@@ -134,7 +134,7 @@ packages:
 
 In this example, we are deploying the istio-cni package to the kube-system namepace where it will need to create the secret required to pull the image.  We are also deploying the ztunnel package which is reliant on the istio-cni package.  It deploys to another existing namespace (istio-system in this case) where that secret already exists so we have set the `createRegistrySecret` value to false to prevent duplication and errors.
 
-It is also possible to have the package automatically deploy a secret containing the SSO certificate authority based on the global key for `sso` in the umbrella template by setting the `<package>.sso.enabled` to true.
+Another available feature is to have the package automatically deploy a secret containing the SSO certificate authority based on the global key for `sso` in the umbrella template by setting the `<package>.sso.enabled` to true.
 
 ```yaml
 packages:
