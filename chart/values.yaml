@@ -1829,11 +1829,15 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.11.1-bb.0"
+      # tag: "10.11.1-bb.0"
+      tag: null
+      branch: mm-minio-testing
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.11.1-bb.0"
+      # tag: "10.11.1-bb.0"
+      tag: null
+      branch: mm-minio-testing
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
