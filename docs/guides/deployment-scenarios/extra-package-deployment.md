@@ -86,7 +86,7 @@ packages:
       tag: 1.27.0-bb.0
 ```
 
-This deploys the `istio-cni` with tag of `1.27.0-bb.0` to the `kube-system` namespace which already exists within the cluster.
+This deploys the istio-cni package with tag of `1.27.0-bb.0` to the kube-system namespace which already exists within the cluster.
 
 It is also possible to disable the creation of the `imagePullSecret` by setting the `<package>.namespace.createRegistrySecret` to false:
 
@@ -132,7 +132,7 @@ packages:
       branch: "main"
 ```
 
-In this example, we are deploying the istio-cni package to the kube-system namepace where it will need to create the secret required to pull the image.  We are also deploying the ztunnel package which relies on istio-cni and deploys to another existing namespace (istio-system in this case) where that secret already exists.  In order to prevent it from trying to create the secret which already exists we have set that key to false.
+In this example, we are deploying the istio-cni package to the kube-system namepace where it will need to create the secret required to pull the image.  We are also deploying the ztunnel package which is reliant on the istio-cni package.  It deploys to another existing namespace (istio-system in this case) where that secret already exists so we have set the `createRegistrySecret` value to false to prevent duplication and errors.
 
 It is also possible to have the package automatically deploy a secret containing the SSO certificate authority based on the global key for `sso` in the umbrella template by setting the `<package>.sso.enabled` to true.
 
@@ -153,9 +153,9 @@ packages:
         namespace: bigbang
 ```
 
-The above example is just to illustrate what it would look like to enable the sso behavior and is not a functional example.
+> **Note**: The above example is just to illustrate what it would look like to enable the sso behavior and is not a functional example.
 
-It is worth noting that the default behavior when leaving off these keys are to create the namepace, create the image pull secret in that namespace, and not to create the secret for sso in that namespace.
+> **Note**: The default behavior when leaving off these keys are to create the namepace, create the image pull secret in that namespace, and not to create the secret for sso in that namespace.
 
 ## Wrapper Deployment
 
