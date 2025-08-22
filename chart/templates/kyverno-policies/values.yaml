@@ -1197,6 +1197,7 @@ policies:
         pods:
           allow:
           - default-minio-bucket-creation-*
+          - myminio-pool-0-*
           - mattermost-minio-*
           - mattermost-wait-job-*
       - namespace: mattermost-operator
