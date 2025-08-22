@@ -12,10 +12,15 @@ components:
         files:
           - flux/bb-flux.yaml
     images:
-      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.3.0
-      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.3.0
-      - registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.0.1
-      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.3.0
+      - registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.3.0
+# sha256:acdc35db
+#      - registry1.dso.mil/ironbank/fluxcd/image-automation-controller:v1.3.0
+# sha256:16d4d7de
+#      - registry1.dso.mil/ironbank/fluxcd/image-reflector-controller:v1.3.0
+      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.6.1
+# no longer used
+#      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.3.0
+      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.6.2
   - name: bigbang
     required: true
     manifests:
