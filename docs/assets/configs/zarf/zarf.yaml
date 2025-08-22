@@ -1,36 +1,144 @@
+apiVersion: zarf.dev/v1alpha1
 kind: ZarfPackageConfig
 metadata:
-  name: big-bang
-  description: "Deploy Big Bang Core"
-  version: BIGBANG_VERSION
-  url: https://p1.dso.mil/products/big-bang
+  name: bigbang
   architecture: amd64
-
-variables:
-  - name: DOMAIN
-    default: "bigbang.dev"
-    prompt: false
-
 components:
-  - name: metallb
-    required: false
-    import:
-      path: metallb
+  - name: flux
+    required: true
+    manifests:
+      - name: flux-system
+        namespace: flux-system
+        files:
+          - flux/bb-flux.yaml
+    images:
+      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.3.0
+      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.3.0
+      - registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.0.1
+      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.3.0
   - name: bigbang
     required: true
-    extensions:
-      bigbang:
-        version: BIGBANG_VERSION
-        valuesFiles:
-          - ../../../../chart/ingress-certs.yaml
-          - config/kyverno.yaml
-          - config/custom.yaml
-  - name: gitea-virtual-service
-    description: >
-      Expose the internal Zarf Gitea server through the Big Bang Istio deployment via a virtual service.
-      (only applies if you are using the Zarf-provided Gitea deployment - not an externally configured git host)
     manifests:
-      - name: gitea
-        namespace: zarf
+      - name: bigbang
+        namespace: bigbang
         files:
-          - virtualservices/gitea.yaml
+          - manifests/bb-gitrepository.yaml
+          - manifests/bb-zarf-credentials.yaml
+          - values-files/kyverno.yaml
+          - values-files/loki.yaml
+          - values-files/neuvector.yaml
+          - manifests/bb-helmrelease.yaml
+    images:
+      - registry1.dso.mil/ironbank/big-bang/base:3.5.0
+      - registry1.dso.mil/ironbank/big-bang/grafana/grafana-plugins:12.1.0
+      - registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:1.30.9
+      - registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.4.5
+      - registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.4.5
+      - registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.4.5
+      - registry1.dso.mil/ironbank/neuvector/neuvector/prometheus-exporter:1-1.0.0
+      - registry1.dso.mil/ironbank/neuvector/neuvector/scanner:6
+      - registry1.dso.mil/ironbank/opensource/grafana/loki:3.5.3
+      - registry1.dso.mil/ironbank/opensource/grafana/promtail:v3.5.3
+      - registry1.dso.mil/ironbank/opensource/grafana/tempo-query:2.8.2
+      - registry1.dso.mil/ironbank/opensource/grafana/tempo:2.8.2
+      - registry1.dso.mil/ironbank/opensource/ingress-nginx/kube-webhook-certgen:v1.6.1
+      - registry1.dso.mil/ironbank/opensource/istio/operator:1.23.6
+# this is not supported, last sha256:5d89712e
+#      - registry1.dso.mil/ironbank/opensource/istio/pilot:1.25.2
+# this is not supported, last sha256:906217ea
+#      - registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.22.3
+      - registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.14.0
+      - registry1.dso.mil/ironbank/opensource/kiali/kiali:v2.14.0
+      - registry1.dso.mil/ironbank/opensource/kubernetes-sigs/metrics-server:v0.8.0
+      - registry1.dso.mil/ironbank/opensource/kubernetes/kube-state-metrics:v2.16.0
+# this is not supported, last sha256:d7870f85
+#      - registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.29.6
+# this was in list twice???
+#      - registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.29.7
+      - registry1.dso.mil/ironbank/opensource/kyverno:v1.12.5
+      - registry1.dso.mil/ironbank/opensource/kyverno/kyverno/background-controller:v1.12.5
+      - registry1.dso.mil/ironbank/opensource/kyverno/kyverno/cleanup-controller:v1.12.5
+      - registry1.dso.mil/ironbank/opensource/kyverno/kyverno/reports-controller:v1.12.5
+      - registry1.dso.mil/ironbank/opensource/kyverno/kyvernocli:v1.12.5
+      - registry1.dso.mil/ironbank/opensource/kyverno/kyvernopre:v1.12.5
+# this changed to a plugin?
+#      - registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter:2.20.1
+      - regsitry1.dso.mil/ironbank/opensource/kyverno/policy-reporter/kyverno-plugin:0.5.0
+      - registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.85.0
+      - registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-operator:v0.85.0
+      - registry1.dso.mil/ironbank/opensource/prometheus/alertmanager:v0.28.1
+      - registry1.dso.mil/ironbank/opensource/prometheus/node-exporter:v1.9.1
+      - registry1.dso.mil/ironbank/opensource/prometheus/prometheus:v3.5.0
+      - registry1.dso.mil/ironbank/opensource/thanos/thanos:v0.39.2
+      - registry1.dso.mil/ironbank/redhat/ubi/ubi9-minimal:9.6
+    repos:
+      - https://repo1.dso.mil/big-bang/bigbang@3.5.0
+      - https://repo1.dso.mil/big-bang/product/packages/grafana.git@9.3.1-bb.1
+# this does not exist anymore
+#      - https://repo1.dso.mil/big-bang/product/packages/istio-controlplane.git@1.23.6-bb.0
+      - https://repo1.dso.mil/big-bang/product/packages/istio-operator.git@1.23.6-bb.0
+      - https://repo1.dso.mil/big-bang/product/packages/kiali.git@2.14.0-bb.0
+      - https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git@3.3.4-bb.11
+      - https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git@3.3.2-bb.3
+      - https://repo1.dso.mil/big-bang/product/packages/kyverno.git@3.4.4-bb.3
+      - https://repo1.dso.mil/big-bang/product/packages/loki.git@6.30.1-bb.4
+      - https://repo1.dso.mil/big-bang/product/packages/metrics-server.git@3.12.2-bb.5
+      - https://repo1.dso.mil/big-bang/product/packages/monitoring.git@75.6.1-bb.3
+      - https://repo1.dso.mil/big-bang/product/packages/neuvector.git@2.8.7-bb.0
+# this does not exist anymore
+#      - https://repo1.dso.mil/big-bang/product/packages/promtail.git@6.16.6-bb.5
+      - https://repo1.dso.mil/big-bang/product/packages/tempo.git@1.21.1-bb.2
+    actions:
+      onRemove:
+        before:
+          - cmd: ./zarf tools kubectl patch helmrelease -n bigbang bigbang --type=merge -p '{"spec":{"suspend":true}}'
+            description: Suspend Big Bang HelmReleases to prevent reconciliation during removal.
+    healthChecks:
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: grafana
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: istio
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: istio-operator
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: kiali
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: kyverno
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: kyverno-policies
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: kyverno-reporter
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: loki
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: monitoring
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: neuvector
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: promtail
+      - apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        namespace: bigbang
+        name: tempo
