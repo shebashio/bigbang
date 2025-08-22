@@ -144,9 +144,10 @@ minio:
   secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
   imagePullSecrets:
     - name: private-registry
-  tenants:
-    metrics:
-      enabled: {{ $.Values.monitoring.enabled }}
+  upstream:
+    tenants:
+      metrics:
+        enabled: {{ $.Values.monitoring.enabled }}
   {{- if $istioInjection }}
   annotations:
     {{ include "istioAnnotation" $ }}
