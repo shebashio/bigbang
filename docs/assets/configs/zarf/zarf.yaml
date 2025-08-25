@@ -4,34 +4,36 @@ metadata:
   name: bigbang
   architecture: amd64
 components:
-  - name: flux
-    required: true
-    manifests:
-      - name: flux-system
-        namespace: flux-system
-        files:
-          - flux/bb-flux.yaml #missing!
-    images:
-      - registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.3.0
-      - registry1.dso.mil/ironbank/fluxcd/image-automation-controller:v0.38.0
-      - registry1.dso.mil/ironbank/fluxcd/image-reflector-controller:v0.35.2
-      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.6.1
-      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.6.0
-      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.6.2
+#  - name: flux
+#    required: true
+#    manifests:
+#      - name: flux-system
+#        namespace: flux-system
+## ignore missing manifest files
+##        files:
+##          - flux/bb-flux.yaml #missing!
+#    images:
+#      - registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.3.0
+#      - registry1.dso.mil/ironbank/fluxcd/image-automation-controller:v0.38.0
+#      - registry1.dso.mil/ironbank/fluxcd/image-reflector-controller:v0.35.2
+#      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.6.1
+#      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.6.0
+#      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.6.2
   - name: bigbang
     required: true
     manifests:
       - name: bigbang
         namespace: bigbang
-        files: #most of these are missing!
-          - manifests/bb-gitrepository.yaml
-          - manifests/bb-zarf-credentials.yaml
-          - values-files/kyverno.yaml #exists
-          - values-files/loki.yaml
-          - values-files/neuvector.yaml
-          - manifests/bb-helmrelease.yaml
+        files:
+# ignore missing manifest files
+#          - manifests/bb-gitrepository.yaml #missing!
+#          - manifests/bb-zarf-credentials.yaml #missing!
+          - config/kyverno.yaml #exists
+#          - values-files/loki.yaml #missing!
+#          - values-files/neuvector.yaml #missing!
+#          - manifests/bb-helmrelease.yaml #missing!
     images:
-      - registry1.dso.mil/ironbank/big-bang/base:3.5.0
+      - registry1.dso.mil/ironbank/big-bang/base:2.1.0
       - registry1.dso.mil/ironbank/big-bang/grafana/grafana-plugins:12.1.0
       - registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:1.30.9
       - registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.4.5
@@ -59,7 +61,7 @@ components:
       - registry1.dso.mil/ironbank/opensource/kyverno/kyvernocli:v1.12.5
       - registry1.dso.mil/ironbank/opensource/kyverno/kyvernopre:v1.12.5
       - registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter:3.4.1
-      - regsitry1.dso.mil/ironbank/opensource/kyverno/policy-reporter/kyverno-plugin:0.5.0
+      - registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter/kyverno-plugin:0.5.0
       - registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.85.0
       - registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-operator:v0.85.0
       - registry1.dso.mil/ironbank/opensource/prometheus/alertmanager:v0.28.1
