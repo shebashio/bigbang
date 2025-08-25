@@ -174,18 +174,9 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{ $defaults = $origDefaults | toYaml }}
 {{- end -}}
 {{/* This is the end of the workaround */}}
-{{- $keysToExclude := list "addons" "packages" "wrapper" -}}
-{{- range $key, $val := .root.Values }}
-  {{- if kindIs "map" $val }}
-    {{- if and (ne $key "networkPolicies") (hasKey $val "enabled") }}
-      {{- $keysToExclude = append $keysToExclude $key }}
-    {{- end }}
-  {{- end }}
-{{- end }}
-{{- $commonValues := .root.Values -}}
-{{- range $key := $keysToExclude }}
-  {{- $commonValues = omit $commonValues $key -}}
-{{- end }}
+{{- $commonKeys := list "bbtests" "istio" "networkPolicies" "sso" -}}
+{{- $packageValues := default dict .package.values -}}
+{{- $commonValues := mustMergeOverwrite $packageValues ($defaults | fromYaml) | toYaml -}}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -194,7 +185,7 @@ metadata:
 type: generic
 stringData:
   common: |
-    {{- toYaml $commonValues | nindent 4 }}
+    {{- toYaml (pick ($commonValues | fromYaml) "bbtests" "istio" "networkPolicies" "sso") | nindent 4 }}
   defaults: {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
