@@ -5,8 +5,7 @@
           - op: add
             path: /spec/jobTemplate/spec/template/spec/containers[0]
             value:
-              name: {{ .Chart.Name }}
-              {{ if .Values.istio.enabled }}
+              name: renovate
               command: ["/bin/sh"]
               args:
                 - -c
@@ -15,8 +14,8 @@
                   x=$(echo $?);
                   curl -fsI -X POST http://localhost:15020/quitquitquit;
                   exit $x;
-              {{ end }}
+
     target:
       kind: Cronjob
       name: renovate
-{{- end }}
+{{- end }} 

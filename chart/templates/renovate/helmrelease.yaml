@@ -44,23 +44,24 @@ spec:
   
   {{- if or .Values.addons.renovate.postRenderers (and $istioEnabled .Values.monitoring.enabled) }}
   postRenderers:
-  {{- if and $istioEnabled .Values.monitoring.enabled }}
-  {{ include "renovate.istioPrometheusPostRenderers" . | nindent 2 }}
+  {{- if and $istioEnabled}}
+  {{ include "renovate.fixCronjobPostRender" . | nindent 2 }}
   {{- end }}
   {{- with .Values.addons.renovate.postRenderers }}
   {{ toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
   valuesFrom:
-    - name: {{ .Release.Name }}-renovate-values
+  #TODO: Review this
+    - name: {{ .Release.Name }}-values
       kind: Secret
       valuesKey: "common"
-    - name: {{ .Release.Name }}-renovate-values
-      kind: Secret
-      valuesKey: "defaults"
-    - name: {{ .Release.Name }}-renovate-values
-      kind: Secret
-      valuesKey: "overlays"
+    # - name: {{ .Release.Name }}-renovate-values
+    #   kind: Secret
+    #   valuesKey: "defaults"
+    # - name: {{ .Release.Name }}-renovate-values
+    #   kind: Secret
+    #   valuesKey: "overlays"
 
   values:
 

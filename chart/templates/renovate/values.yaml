@@ -8,18 +8,26 @@
 domain: {{ $domainName }}
 
 istio:
-  enabled: {{ $istioEnabled }}
+  # enabled: {{ $istioEnabled }}
+  enabled: true
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) (dig "hardened" "enabled" false .Values.istio.values) }}
+    enabled: {{ or 
+      (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) 
+      (dig "hardened" "enabled" false .Values.istio.values) 
+    }}
   renovate:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.renovate.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  ingressLabels:
+    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.renovate "root" .) | nindent 4 }}
 
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
+  imagePullSecrets:
+    - name: private-registry
 
 {{- end }}
