@@ -7,5 +7,5 @@
             value: true
         target:
           kind: ServiceAccount
-          name: monitoring-admission
+          name: monitoring-monitoring-kube-admission
 {{- end }}
