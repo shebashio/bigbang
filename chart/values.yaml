@@ -193,7 +193,7 @@ istioCNI:
     tag: 1.27.0-bb.0
   helmRepo:
     repoName: "registry1"
-    chartName: "istio-cni"
+    chartName: "maintained/istio-cni"
     tag: 1.27.0-bb.0
   # -- Values to passthrough to the Istio CNI chart
   values: {}
@@ -210,6 +210,10 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
+    tag: 1.27.0-bb.0
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-crds"
     tag: 1.27.0-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
