@@ -5,15 +5,18 @@
 # - creating the zst file,
 # - and inspecting the file to make sure it worked correctly
 
+# assumed to run in the ~/airgap directory on EC2
+# `chmod u+wx airgap` to have user rights to create files
+
 ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
 ZARF_PULL="zarf_pull password from zarf credentials"
 ZARF_GIT_USER="zarf_git_user password from zarf credentials"
 
 function make_sure_can_write_local_file() {
-  touch .test_writable_file 2>/dev/null
+  sudo touch .test_writable_file 2>/dev/null
   if [ $? -eq 0 ]; then
     # File can be created in the current directory
-    rm .test_writable_file # Clean up the temporary file
+    sudo rm .test_writable_file # Clean up the temporary file
   else
     echo "File cannot be created in the current directory (permission denied or other issue)."
     exit 1
@@ -25,8 +28,11 @@ function start_docker() {
   if command -v docker &> /dev/null; then
       echo "Docker is installed."
   else
-      #echo "Docker is NOT installed."
-      exit 1
+      # for amazon linux
+      sudo yum update -y
+      sudo yum install -y docker
+      sudo service docker start
+      sudo docker run hello-world
   fi
 
   if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -63,16 +69,36 @@ function start_docker() {
   exit 1
 }
 
+function install_kubernetes() {
+  if command -v kubectl &> /dev/null; then
+      # "kubectl is installed."
+      return
+  fi
+  # download
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubestl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  kubectl version --client --output=yaml
+  # we need a kubeconfig set up
+  sudo mkdir ~/.kube
+  sudo kubectl config view > ~/.kube/config
+}
+
 function create_cluster() {
-  if k3d cluster list | grep -q "mycluster"; then
+  if command -v k3d &> /dev/null; then
+      echo "k3d is installed."
+  else
+      curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+  fi
+  sudo k3d version
+  if sudo k3d cluster list | grep -q "mycluster"; then
      # "k3d cluster '${CLUSTER_NAME}' exists."
-     k3d cluster delete mycluster
-     while k3d cluster list | grep -q "mycluster"; do
+     sudo k3d cluster delete mycluster
+     while sudo k3d cluster list | grep -q "mycluster"; do
        sleep 5
      done
   fi
 
-  k3d cluster create mycluster
+  sudo k3d cluster create mycluster
   if [ $? -ne 0 ]; then
       echo "k3d cluster create failed."
       exit 1
@@ -80,10 +106,19 @@ function create_cluster() {
 }
 
 function zarf_init() {
-  zarf init --components=git-server --confirm
+  if [ ! -f "zarf" ]; then
+    ZARF_VERSION=$(curl -sIX HEAD https://github.com/zarf-dev/zarf/releases/latest | grep -i ^location: | grep -Eo 'v[0-9]+.[0-9]+.[0-9]+')
+    curl -sL "https://github.com/zarf-dev/zarf/releases/download/${ZARF_VERSION}/zarf_${ZARF_VERSION}_Linux_amd64" -o zarf
+    chmod +x zarf
+  fi
+  ./zarf init --components=git-server --confirm
   if [ $? -ne 0 ]; then
-      echo "zarf init failed."
-      exit 1
+      echo "zarf init failed.  Re-running zarf init"
+      ./zarf init --components=git-server
+      if [ $? -ne 0 ]; then
+        echo "Re-running zarf init failed."
+        exit 1
+      fi
   fi
 }
 
@@ -101,7 +136,7 @@ function get_zarf_credentials() {
 
 # remove escape characters in the output for font coloring
   ZARF_CREDS_TEMP_FILE=$(mktemp)
-  zarf tools get-creds | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' > "$ZARF_CREDS_TEMP_FILE"
+  ./zarf tools get-creds | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' > "$ZARF_CREDS_TEMP_FILE"
   if [ $? -ne 0 ]; then
       echo "zarf tools get-creds failed."
       exit 1
@@ -133,7 +168,7 @@ function build_zarf_credentials() {
 function create_zarf_package() {
   # create the zst file, zarf-package-bigbang-amd64.tar.zst
   # the filename is built from aspects of the credentials file
-  zarf package create . --confirm
+  ./zarf package create . --confirm
   if [ $? -ne 0 ]; then
       echo "zarf package create failed."
       exit 1
@@ -142,7 +177,7 @@ function create_zarf_package() {
 
 function inspect_zarf_package() {
   # make sure it worked - inspect the definition portion of the file
-  zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
+  ./zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
   if [ $? -ne 0 ]; then
       echo "zarf package inspection failed."
       exit 1
@@ -154,7 +189,7 @@ function deploy_zarf_package() {
     echo "amd64 package cannot be deployed on arm64"
     exit 1
   fi
-  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm
+  ./zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm
   if [ $? -ne 0 ]; then
       echo "zarf package deploy failed."
       exit 1
@@ -167,23 +202,23 @@ function close_down() {
   if [ -n "$1" ]; then
     temp_file=$1
   fi
-  rm -f $temp_file
+  sudo rm -f $temp_file
 
   # credentials file we create to invoke zarf
-  rm -f bb-zarf-credentials.yaml
+  sudo rm -f bb-zarf-credentials.yaml
 
   # the zarf package we create with bigbang
-  rm -f zarf-package-bigbang-amd64.tar.zst
+  sudo rm -f zarf-package-bigbang-amd64.tar.zst
 
   # if docker is running
   if command -v docker &> /dev/null; then
     # if we created a cluster
-    if k3d cluster list | grep -q "mycluster"; then
-      k3d cluster delete mycluster
+    if sudo k3d cluster list | grep -q "mycluster"; then
+      sudo k3d cluster delete mycluster
     fi
   fi
 
-  zarf destroy --confirm
+  ./zarf destroy --confirm
 }
 
 function main() {
@@ -192,6 +227,7 @@ function main() {
   else
     make_sure_can_write_local_file
     start_docker
+    install_kubernetes
     create_cluster
     zarf_init
     get_zarf_credentials
@@ -206,3 +242,4 @@ function main() {
 }
 
 main "$@"
+
