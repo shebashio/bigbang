@@ -67,20 +67,8 @@ spec:
 
   {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $istioEnabled }}
   dependsOn:
-  {{- if .Values.gatekeeper.enabled }}
-    - name: gatekeeper
-      namespace: {{ .Release.Namespace }}
-  {{- end }}
   {{- if $istioEnabled }}
     - name: {{ include "istioHelmRelease" . }}
-      namespace: {{ .Release.Namespace }}
-  {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
-    - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
-  {{- end }}
-  {{- if .Values.monitoring.enabled }}
-    - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}

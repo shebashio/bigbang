@@ -8,16 +8,17 @@
 domain: {{ $domainName }}
 
 istio:
-  # enabled: {{ $istioEnabled }}
-  enabled: true
+  enabled: {{ $istioEnabled }}
+  # enabled: true
   hardened:
     enabled: {{ or 
       (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) 
       (dig "hardened" "enabled" false .Values.istio.values) 
     }}
+    # TODO: use actual values here
   renovate:
     gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.renovate.ingress.gateway "root" .)}}
+      - {{- include "getGatewayName" (dict "gateway" .Values.addons.renovate.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
