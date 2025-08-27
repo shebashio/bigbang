@@ -46,6 +46,7 @@ podAnnotations:
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
 upstream:
   tenant:
+    name: minio-minio-minio-instance
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecret:
