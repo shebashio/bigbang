@@ -2,11 +2,49 @@
 
 # this script creates a zarf export of bigbang by:
 # - parsing the results from zarf tools get-creds and substitutes values in the envsubst file,
-# - creating the zst file,
-# - and inspecting the file to make sure it worked correctly
+# - creating the zst file and inspecting the file to make sure it worked correctly
+# - pushing the zst to k3d network
+# - optionally - shut down everything
 
-# assumed to run in the ~/airgap directory on EC2
+# allocate ubuntu 24 EC2 instance
+
+# mkdir ~/airgap directory on EC2
 # `chmod u+wx airgap` to have user rights to create files
+# mkdir airgap/config
+
+# given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over:
+#ssh -i "airgap-bigbang.pem" ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com
+#scp -i ~/Downloads/airgap-bigbang.pem  airgap-zarf.sh ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
+#scp -i ~/Downloads/airgap-bigbang.pem  bb-zarf-credentials.template.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
+#scp -i ~/Downloads/airgap-bigbang.pem  zarf.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
+#scp -i ~/Downloads/airgap-bigbang.pem  config/kyverno.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap/config
+
+# for testing,
+# Install k8s
+#	sudo snap install k8s --classic
+#	sudo k8s bootstrap
+#	sudo k8s status
+#	# wait for ready
+#	sudo k8s kubectl get all --all-namespaces
+#
+# Install docker
+#	sudo apt update
+#	sudo apt install apt-transport-https ca-certificates curl software-properties-common
+#	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+#	sudo apt install docker-ce
+#	sudo systemctl status docker # see it’s there
+#
+# Install k3d
+#	wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+#
+# Install kubectl
+#	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"  	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256”
+#	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+#	sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+#	kubectl version --client
+#
+# run sudo -s to enable all of the dependencies needed
 
 ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
 ZARF_PULL="zarf_pull password from zarf credentials"
@@ -28,41 +66,22 @@ function start_docker() {
   if command -v docker &> /dev/null; then
       echo "Docker is installed."
   else
-      # for amazon linux
-      sudo yum update -y
-      sudo yum install -y docker
-      sudo service docker start
-      sudo docker run hello-world
+      echo "Docker is missing."
+      exit 1
   fi
 
-  if [[ "$(uname -s)" == "Darwin" ]]; then
-    if docker info &> /dev/null; then
-      # "Docker daemon is running."
-      return
-    else
-      # "Docker daemon is not running."
-      open -a Docker
-      until docker version > /dev/null 2>&1; do
-        # "Waiting for Docker daemon to start..."
-        sleep 5
-      done
-      sleep 10
-      return
-    fi
-  else
-    if sudo systemctl is-active --quiet docker; then
-      # "Docker daemon is running."
-      return
-    fi
+  if sudo systemctl is-active --quiet docker; then
+    echo "Docker daemon is running."
+    return
+  fi
 
-    # "Docker daemon is not running. Attempting to start Docker..."
-    sudo systemctl start docker
+  # "Docker daemon is not running. Attempting to start Docker..."
+  sudo systemctl start docker
 
-    # Optional: Verify if Docker started successfully
-    if sudo systemctl is-active --quiet docker; then
-      # "Docker daemon started successfully."
-      return
-    fi
+  # Optional: Verify if Docker started successfully
+  if sudo systemctl is-active --quiet docker; then
+    echo "Docker daemon started successfully."
+    return
   fi
 
   echo "Failed to start Docker daemon. Please check logs for errors."
@@ -71,38 +90,40 @@ function start_docker() {
 
 function install_kubernetes() {
   if command -v kubectl &> /dev/null; then
-      # "kubectl is installed."
+      echo "kubectl is installed."
+# does k3d set things up correctly for the new cluster?
+#      local kubeconfig_file="$PWD/kube.config"
+#      if [ ! -f "$kubeconfig_file" ]; then
+#        echo "./kube-config missing - creating same"
+#        sudo kubectl config view > "$kubeconfig_file"
+#        export KUBECONFIG=$kubeconfig_file
+#      fi
       return
   fi
-  # download
-  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubestl"
-  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-  kubectl version --client --output=yaml
-  # we need a kubeconfig set up
-  sudo mkdir ~/.kube
-  sudo kubectl config view > ~/.kube/config
+  echo "Kubectl is not installed"
+  exit 1
 }
 
 function create_cluster() {
   if command -v k3d &> /dev/null; then
-      echo "k3d is installed."
-  else
-      curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-  fi
-  sudo k3d version
-  if sudo k3d cluster list | grep -q "mycluster"; then
-     # "k3d cluster '${CLUSTER_NAME}' exists."
-     sudo k3d cluster delete mycluster
-     while sudo k3d cluster list | grep -q "mycluster"; do
-       sleep 5
-     done
-  fi
+      # "k3d is installed."
+      if sudo k3d cluster list | grep -q "mycluster"; then
+         # "k3d cluster '${CLUSTER_NAME}' exists."
+         sudo k3d cluster delete mycluster
+         while sudo k3d cluster list | grep -q "mycluster"; do
+           sleep 5
+         done
+      fi
 
-  sudo k3d cluster create mycluster
-  if [ $? -ne 0 ]; then
-      echo "k3d cluster create failed."
-      exit 1
+      sudo k3d cluster create mycluster
+      if [ $? -ne 0 ]; then
+          echo "k3d cluster create failed."
+          exit 1
+      fi
+      return
   fi
+  echo "k3d is not installed"
+  exit 1
 }
 
 function zarf_init() {
