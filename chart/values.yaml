@@ -185,11 +185,10 @@ disableAutomaticPassthroughValues: false
 istioCNI:
   # -- Toggle deployment of Istio CNI
   enabled: false
-  status: "alpha"
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-cni.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni
     path: "./chart"
     tag: 1.27.0-bb.0
   helmRepo:
