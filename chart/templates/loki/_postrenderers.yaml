@@ -7,5 +7,5 @@
             value: tcp
         target:
           kind: Service
-          name: ^.+-(distributor|ingester(-zone.*)?|querier|query-frontend)$
+          name: ^.+-(distributor|ingester(-zone.*)?|querier|query-frontend|query-scheduler)$
 {{- end }}
