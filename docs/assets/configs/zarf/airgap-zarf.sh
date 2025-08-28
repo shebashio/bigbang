@@ -6,8 +6,10 @@
 # - pushing the zst to k3d network
 # - optionally - shut down everything
 
-# allocate ubuntu 24 EC2 instance
+# run k3d-dev.sh -b -p -m -a
+# to setup an ec2 instance with standard tools available
 
+# ssh to the instance
 # mkdir ~/airgap directory on EC2
 # `chmod u+wx airgap` to have user rights to create files
 # mkdir airgap/config
@@ -18,33 +20,6 @@
 #scp -i ~/Downloads/airgap-bigbang.pem  bb-zarf-credentials.template.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
 #scp -i ~/Downloads/airgap-bigbang.pem  zarf.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
 #scp -i ~/Downloads/airgap-bigbang.pem  config/kyverno.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap/config
-
-# for testing,
-# Install k8s
-#	sudo snap install k8s --classic
-#	sudo k8s bootstrap
-#	sudo k8s status
-#	# wait for ready
-#	sudo k8s kubectl get all --all-namespaces
-#
-# Install docker
-#	sudo apt update
-#	sudo apt install apt-transport-https ca-certificates curl software-properties-common
-#	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-#	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-#	sudo apt install docker-ce
-#	sudo systemctl status docker # see it’s there
-#
-# Install k3d
-#	wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-#
-# Install kubectl
-#	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"  	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256”
-#	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-#	sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-#	kubectl version --client
-#
-# run sudo -s to enable all of the dependencies needed
 
 ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
 ZARF_PULL="zarf_pull password from zarf credentials"
