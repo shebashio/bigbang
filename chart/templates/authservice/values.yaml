@@ -39,10 +39,7 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled | default false }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.haproxy "root" .) | nindent 4 }}
+
 
 {{- if or (dig "redis" "enabled" false .Values.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.addons.authservice.values) }}
 autoscaling:
