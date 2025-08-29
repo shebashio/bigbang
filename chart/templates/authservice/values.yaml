@@ -39,6 +39,20 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled | default false }}
+  ingress:
+    to:
+      redis-bb:6379:
+        from:
+          k8s:
+            monitoring/grafana: {{ .Values.monitoring.enabled }} # covers allow-redis-client 
+      haproxy:8080:
+        from:
+          k8s:
+            "istio-gateway/*": {{ .Values.addons.haproxy.enabled }} # covers allow-from-istio-ingressgateway 
+      redis-bb:9121:
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.monitoring.enabled }} # covers allow-scraping          
 
 
 {{- if or (dig "redis" "enabled" false .Values.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.addons.authservice.values) }}
