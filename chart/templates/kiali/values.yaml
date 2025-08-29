@@ -101,6 +101,7 @@ upstream:
               - app_label: istiod
                 is_core: true
                 is_proxy: false
+                namespace: istio-system
               {{- if .Values.istioGateway.enabled }}
               {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
               {{- if eq $gw.type "ingressgateway" }}
