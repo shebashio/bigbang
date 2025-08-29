@@ -14,7 +14,7 @@
     "distributed" "logging-loki-distributor"
 }}
 {{- $lokiServiceName := index $lokiServiceMap .Values.loki.strategy }}
-{{- $lokiWriteDestUrl := printf "http://%s.logging.svc.cluster.local:3100/loki/api/v1/push" $lokiServiceName }}
+{{- $lokiWriteDestUrl := printf "%s.logging" $lokiServiceName }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
