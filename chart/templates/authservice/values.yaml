@@ -40,7 +40,18 @@ monitoring:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled | default false }}
   ingress:
+    definitions:
+      protect-keycloak:
+        from:
+          - namespaceSelector: {}
+            podSelector:
+              matchLabels:
+                protect: keycloak
     to:
+      authservice:10003:
+        from:
+          definition:
+            protect-keycloak: true
       redis-bb:6379:
         from:
           k8s:
@@ -53,7 +64,7 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }} # covers allow-scraping          
-
+      
 
 {{- if or (dig "redis" "enabled" false .Values.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.addons.authservice.values) }}
 autoscaling:
