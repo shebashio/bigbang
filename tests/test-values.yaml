@@ -1673,7 +1673,13 @@ addons:
             cypress_gitlab_password: "Runner_PaSsw0rd123"
 
   anchoreEnterprise:
-    enabled: false
+    enabled: true
+    git:
+      tag: ""
+      branch: "Refactor_Anchore-Enteprise_with_pass-through_pattern"
+    helmRepo:
+      tag: "3.13.0-bb.0"
+      branch: "Refactor_Anchore-Enteprise_with_pass-through_pattern"
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_anchore
