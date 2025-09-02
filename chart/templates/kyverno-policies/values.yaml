@@ -1069,6 +1069,7 @@ policies:
           # More details in role named minio-minio-minio-instance-role
           - minio-minio-minio-instance-*
           - minio-minio-wait-job-*
+          - minio-minio-script-test
       - namespace: kyverno
         pods:
           allow:
