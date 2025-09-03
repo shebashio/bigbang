@@ -186,7 +186,7 @@ istioCNI:
   # -- Toggle deployment of Istio CNI
   enabled: false
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni
     path: "./chart"
@@ -206,7 +206,7 @@ istioCRDs:
   # -- Toggle deployment of Istio CRDs
   enabled: true
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
@@ -239,7 +239,7 @@ istiod:
   # -- Toggle deployment of istiod
   enabled: true
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
@@ -277,7 +277,7 @@ istioGateway:
   # -- Toggle deployment of Istio Gateway(s)
   enabled: true
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
@@ -401,7 +401,7 @@ kiali:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
@@ -448,7 +448,7 @@ gatekeeper:
   enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
@@ -481,7 +481,7 @@ kyverno:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
@@ -521,7 +521,7 @@ kyvernoPolicies:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
@@ -557,7 +557,7 @@ kyvernoReporter:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
@@ -591,7 +591,7 @@ elasticsearchKibana:
   enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
@@ -658,7 +658,7 @@ eckOperator:
   enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
@@ -683,7 +683,7 @@ fluentbit:
   enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
@@ -711,7 +711,7 @@ alloy:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
@@ -741,7 +741,7 @@ loki:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
@@ -811,7 +811,7 @@ neuvector:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
@@ -880,7 +880,7 @@ tempo:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
@@ -953,7 +953,7 @@ prometheusOperatorCRDs:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
@@ -976,7 +976,7 @@ monitoring:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
@@ -1048,7 +1048,7 @@ grafana:
   enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
@@ -1099,7 +1099,7 @@ twistlock:
   enabled: false
 
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
@@ -1146,7 +1146,7 @@ bbctl:
   # -- Toggle deployment of the bbctl dashboards
   enabled: true
 
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
@@ -1178,7 +1178,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
@@ -1229,7 +1229,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
@@ -1274,7 +1274,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
@@ -1305,7 +1305,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
@@ -1334,7 +1334,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
@@ -1374,7 +1374,7 @@ addons:
       registry: registry
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
@@ -1495,7 +1495,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
@@ -1521,7 +1521,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
@@ -1590,7 +1590,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
@@ -1655,7 +1655,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
@@ -1694,7 +1694,7 @@ addons:
   #
   haproxy:
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/haproxy.git
@@ -1723,7 +1723,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
@@ -1815,7 +1815,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
@@ -1840,7 +1840,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
@@ -1945,7 +1945,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
@@ -1981,7 +1981,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
@@ -2038,7 +2038,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
@@ -2087,7 +2087,7 @@ addons:
     enabled: auto
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
@@ -2118,7 +2118,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
@@ -2184,7 +2184,7 @@ addons:
       insecure: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
@@ -2222,7 +2222,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
@@ -2249,7 +2249,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
@@ -2319,7 +2319,7 @@ addons:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
@@ -2355,7 +2355,7 @@ addons:
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:
   # -- Choose source type of "git" or "helmRepo"
-  sourcetype: "helmRepo"
+  sourceType: "helmRepo"
 
   helmRepo:
     # -- Repository holding OCI chart, corresponding to `helmRepositories` name
@@ -2383,7 +2383,7 @@ packages:
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
-    sourcetype: "helmRepo"
+    sourceType: "helmRepo"
 
     # -- Toggle wrapper functionality. See https://docs-bigbang.dso.mil/latest/docs/guides/deployment-scenarios/extra-package-deployment/#Wrapper-Deployment for more details.
     # @default -- false
