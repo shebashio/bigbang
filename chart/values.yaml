@@ -816,11 +816,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.6-bb.2"
+    tag: "2.8.7-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.6-bb.2"
+    tag: "2.8.7-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1379,11 +1379,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.2.2-bb.0"
+      tag: "9.3.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.2.2-bb.0"
+      tag: "9.3.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1845,11 +1845,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.11.1-bb.0"
+      tag: "10.11.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.11.1-bb.0"
+      tag: "10.11.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2092,11 +2092,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.12.2-bb.5"
+      tag: "3.13.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.12.2-bb.5"
+      tag: "3.13.0-bb.0"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
@@ -2253,12 +2253,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.7.0-bb.3"
+      tag: "5.7.0-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.7.0-bb.3"
+      tag: "5.7.0-bb.4"
 
     # -- Enable Mimir Enterprise
     enterprise:
