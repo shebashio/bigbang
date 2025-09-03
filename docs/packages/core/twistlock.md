@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Twistlock Administration Guide](https://docs.paloaltonetworks.com/prisma/prisma-cloud/20-04/prisma-cloud-compute-edition-admin/welcome/getting_started.html)
+[Twistlock Administration Guide](https://docs.prismacloud.io/en/compute-edition/22-12/admin-guide/install/getting-started)
 
 ## Big Bang Touch Points
 
@@ -72,7 +72,7 @@ NOTE: In  BigBang twistlock istio.enabled : true only exposes twistlock console 
 ## Monitoring
 
 Twistlock Prometheus metrics collection is implemented following the documentation:
-[Twistlock Prometheus Integration]<https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/audit/prometheus.html>\
+[Twistlock Prometheus Integration](https://docs.prismacloud.io/en/compute-edition/22-12/admin-guide/audit/prometheus)
 
 Monitoring is disabled in the twistlock chart by default and can be enabled by setting the following values in the bigbang chart:
 

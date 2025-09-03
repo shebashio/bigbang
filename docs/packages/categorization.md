@@ -6,7 +6,7 @@ Big Bang includes many different packages that provide services to the ecosystem
 
 ## Technical Oversight Committee (TOC)
 
-The Big Bang TOC supports users and contributors of the Big Bang ecosystem.  If you would like to add, modify, or remove packages in Big Bang, we encourage you to attend the TOC to discuss your ideas.  You can find details in [the BBTOC repository](https://repo1.dso.mil/big-bang/product/bbtoc), specifically in the [Package Maintenance Tracks](https://repo1.dso.mil/big-bang/product/bbtoc/-/blob/main/process/Package%20Maintenance%20Tracks.md) document.
+The Big Bang TOC supports users and contributors of the Big Bang ecosystem.  If you would like to add, modify, or remove packages in Big Bang, we encourage you to attend the TOC to discuss your ideas.  You can find details in [the BBTOC repository](https://repo1.dso.mil/big-bang/product/bbtoc), specifically in the [Package Maintenance Tracks](https://repo1.dso.mil/big-bang/product/bbtoc/-/blob/master/process/Package%20Maintenance%20Tracks.md) document.
 
 ## Dependency Tree
 
@@ -228,11 +228,11 @@ A service mesh is a dedicated infrastructure layer for making service-to-service
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|Istio|Istio CRDs |CRDs|[istio-crds](https://repo1.dso.mil/big-bang/product/packages/istio-crds)|
-|X|Istio|Istiod |Control Plane|[istiod](https://repo1.dso.mil/big-bang/product/packages/istiod)|
-|X|Istio|Istio Gateway | Ingress Gateway |[istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway)|
-| |Istio|Istio CNI | Traffic Interception |[istio-cni](https://repo1.dso.mil/big-bang/product/packages/istio-cni)|
-|X|Istio|[Kiali](./kiali.md)|Management Console|[kiali](https://repo1.dso.mil/big-bang/product/packages/kiali)|
+|X|Istio|[Istio CRDs](./core/istio.md) |CRDs|[istio-crds](https://repo1.dso.mil/big-bang/product/packages/istio-crds)|
+|X|Istio|[Istiod](./core/istio.md) |Control Plane|[istiod](https://repo1.dso.mil/big-bang/product/packages/istiod)|
+|X|Istio|[Istio Gateway](./core/istio.md) | Ingress Gateway |[istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway)|
+| |Istio|[Istio CNI](./core/istio.md) | Traffic Interception |[istio-cni](https://repo1.dso.mil/big-bang/product/packages/istio-cni)|
+|X|Istio|[Kiali](./core/kiali.md)|Management Console|[kiali](https://repo1.dso.mil/big-bang/product/packages/kiali)|
 
 ### Logging
 
@@ -240,11 +240,11 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|ALG|[Alloy](./alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
-|X|ALG|[Loki](./loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
-| |EFK|Elastic Cloud on Kubernetes (ECK) Operator|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)|
-| |EFK|[Elasticsearch / Kibana](./elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
-| |EFK|[Fluentbit](./fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
+|X|ALG|[Alloy](./core/alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
+|X|ALG|[Loki](./core/loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
+| |EFK|[Elastic Cloud on Kubernetes (ECK) Operator](./core/elasticsearch-kibana.md)|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)|
+| |EFK|[Elasticsearch / Kibana](./core/elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
+| |EFK|[Fluentbit](./core/fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
 
 > ALG stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
 
@@ -254,10 +254,10 @@ Policy Enforcement is the ability to validate Kubernetes resources against compl
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-| |Gatekeeper|[OPA Gatekeeper](./opa-gatekeeper.md)|Engine & Policies|[policy](https://repo1.dso.mil/big-bang/product/packages/policy)|
-|X|Kyverno|[Kyverno](./kyverno.md)|Engine|[kyverno](https://repo1.dso.mil/big-bang/product/packages/kyverno)|
-|X|Kyverno|Kyverno Policies|Policies|[kyverno-policies](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies)|
-|X|Kyverno|Kyverno Reporter|Reporting|[kyverno-reporter](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter)|
+| |Gatekeeper|[OPA Gatekeeper](./core/opa-gatekeeper.md)|Engine & Policies|[policy](https://repo1.dso.mil/big-bang/product/packages/policy)|
+|X|Kyverno|[Kyverno](./core/kyverno.md)|Engine|[kyverno](https://repo1.dso.mil/big-bang/product/packages/kyverno)|
+|X|Kyverno|[Kyverno Policies](./core/kyverno.md)|Policies|[kyverno-policies](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies)|
+|X|Kyverno|[Kyverno Reporter](./core/kyverno.md)|Reporting|[kyverno-reporter](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter)|
 
 ### Monitoring
 
@@ -265,8 +265,8 @@ A monitoring stack is used to collect, visualize, and alert on time-series metri
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|Monitoring|[Prometheus](./monitoring.md)|Collection & Alerting|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
-|X|Monitoring|[Grafana](./monitoring.md)|Visualization|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
+|X|Monitoring|[Prometheus](./core/monitoring.md)|Collection & Alerting|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
+|X|Monitoring|[Grafana](./core/monitoring.md)|Visualization|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
 
 ### Distributed Tracing
 
@@ -274,7 +274,7 @@ Distributed tracing is a method of tracking application transactions as they flo
 
 |Default|Package|Repositories|
 |--|--|--|
-|X|[Tempo](./tempo.md)|[tempo](https://repo1.dso.mil/big-bang/product/packages/tempo)|
+|X|[Tempo](./core/tempo.md)|[tempo](https://repo1.dso.mil/big-bang/product/packages/tempo)|
 
 ### Runtime Security
 
@@ -282,8 +282,8 @@ Runtime security is the active protection of containers running in the cluster. 
 
 |Default|Package|Repositories|
 |--|--|--|
-|X|[Neuvector](./neuvector.md)|[neuvector](https://repo1.dso.mil/big-bang/product/packages/neuvector)|
-| |[Prisma Cloud Compute](./twistlock.md) (AKA Twistlock) ![License Required](https://img.shields.io/badge/License_Required-orange)|[twistlock](https://repo1.dso.mil/big-bang/product/packages/twistlock)|
+|X|[Neuvector](./core/neuvector.md)|[neuvector](https://repo1.dso.mil/big-bang/product/packages/neuvector)|
+| |[Prisma Cloud Compute](./core/twistlock.md) (AKA Twistlock) ![License Required](https://img.shields.io/badge/License_Required-orange)|[twistlock](https://repo1.dso.mil/big-bang/product/packages/twistlock)|
 
 ## Addons
 
@@ -295,8 +295,8 @@ Single sign-on tools include packages that provide centralized authentication an
 
 |Package|Function|Repository|
 |--|--|--|
-|[Authservice](./authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
-|[Keycloak](./keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
+|[Authservice](./addons/authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
+|[Keycloak](./addons/keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
 
 ### Secrets Management
 
@@ -304,8 +304,8 @@ Secrets management tools include packages that securely store, distribute, and r
 
 |Package|Function|Repository|
 |--|--|--|
-|[Vault](./vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
-|[External Secrets](./external-secrets-operator.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
+|[Vault](./addons/vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
+|[External Secrets](./addons/external-secrets-operator.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
 
 ### Observability
 
@@ -313,8 +313,8 @@ Observability tools include packages for collecting, storing, and visualizing sy
 
 |Package|Function|Repository|
 |--|--|--|
-|[Metrics Server](./metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
-|[Mimir](./mimir.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
+|[Metrics Server](./addons/metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
+|[Mimir](./addons/mimir.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
 |Headlamp|Cluster management dashboard|[headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)|
 |Thanos|Multi-cluster Prometheus setup|[thanos](https://repo1.dso.mil/big-bang/product/packages/thanos)|
 
@@ -325,7 +325,7 @@ Collaboration tools provide environments to help teams work together online.  Ch
 |Stack|Package|Function|Repository|
 |--|--|--|--|
 |Mattermost|Mattermost Operator|Operator|[mattermost-operator](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator)|
-|Mattermost|[Mattermost](./mattermost.md)|Chat|[mattermost](https://repo1.dso.mil/big-bang/product/packages/mattermost)|
+|Mattermost|[Mattermost](./addons/mattermost.md)|Chat|[mattermost](https://repo1.dso.mil/big-bang/product/packages/mattermost)|
 
 ### Storage & Backup Utilities
 
@@ -334,8 +334,8 @@ For non-critical or on-prem deployments where data loss is an acceptable risk, t
 |Stack|Package|Function|Repository|
 |--|--|--|--|
 |MinIO|MinIO Operator|Operator|[minio-operator](https://repo1.dso.mil/big-bang/product/packages/minio-operator)|
-|MinIO|[MinIO](./minio.md)|S3 Object Storage|[minio](https://repo1.dso.mil/big-bang/product/packages/minio)|
-|Velero|[Velero](./velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
+|MinIO|[MinIO](./addons/minio.md)|S3 Object Storage|[minio](https://repo1.dso.mil/big-bang/product/packages/minio)|
+|Velero|[Velero](./addons/velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
 
 ### DevSecOps Tools
 
@@ -343,16 +343,16 @@ DevSecOps tools include packages that programmers and security teams use to plan
 
 |Stack|Package|Function|Repository|
 |--|--|--|--|
-|GitLab|[GitLab](./gitlab.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
+|GitLab|[GitLab](./addons/gitlab.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
 |GitLab|GitLab Runner|Executor for GitLab pipelines|[gitlab-runner](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner)|
-|ArgoCD|[ArgoCD](./argocd.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
-|Anchore|[Anchore](./anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
-|Fortify|[Fortify](./fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
-|Sonarqube|[Sonarqube](./sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
-|Nexus|[Nexus Repository Manager](./nexusRepositoryManager.md)|Artifact repository|[nexus](https://repo1.dso.mil/big-bang/product/packages/nexus)|
-|Harbor|[Harbor](./harbor.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
-|Backstage|[Backstage](./backstage.md)|Developer portal platform|[backstage](https://repo1.dso.mil/big-bang/product/packages/backstage)|
+|ArgoCD|[ArgoCD](./addons/argocd.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
+|Anchore|[Anchore](./addons/anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
+|Fortify|[Fortify](./addons/fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
+|Sonarqube|[Sonarqube](./addons/sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
+|Nexus|[Nexus Repository Manager](./addons/nexusRepositoryManager.md)|Artifact repository|[nexus](https://repo1.dso.mil/big-bang/product/packages/nexus)|
+|Harbor|[Harbor](./addons/harbor.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
+|Backstage|[Backstage](./addons/backstage.md)|Developer portal platform|[backstage](https://repo1.dso.mil/big-bang/product/packages/backstage)|
 
 ## Further Information
 
-You can find some additional details about features supported by each package by visiting [this document](../../packages.md).
+You can find some additional details about features supported by each package by visiting [this document](./index.md).

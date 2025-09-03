@@ -123,7 +123,7 @@ elasticsearchKibana:
 
 ## Health Checks
 
-Licensed ECK comes with [built in Health monitoring for Kibana and Elasticsearch](https://www.elastic.co/guide/en/kibana/current/monitoring-kibana.html). This is called self-monitoring within the Kibana UI available at the Stack Monitoring settings <https://KIBANA_URL/app/monitoring>#.
+Licensed ECK comes with [built in Health monitoring for Kibana and Elasticsearch](https://www.elastic.co/guide/en/kibana/current/monitoring-kibana.html). This is called self-monitoring within the Kibana UI available at the Stack Monitoring settings `https://KIBANA_URL/app/monitoring`#.
 
 Outside of the UI it is possible to check the health of Elasticsearch cluster via port-forward via doing the following:
 

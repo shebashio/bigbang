@@ -230,7 +230,7 @@ Package is the term we use for an application that has been prepared to be deplo
 17. Then, create a merge request to branch "main."
 18. After the merge create a git tag following the charter convention of {UpstreamChartVersion}-bb.{BigBangVersion}. The tag should exactly match the chart version in the Chart.yaml.
 example: `1.2.3-bb.0`
-19. Integrate the package using the [Package Integration Documents](package-integration/README.md).
+19. Integrate the package using the [Package Integration Documents](../../community/development/package-integration/index.md).
 
 ## Private registry secret creation
 
@@ -257,7 +257,7 @@ In some instances you may wish to manually create a private-registry secret in t
 
 ## Converting a Package from `kpt` to "passthrough"
 
-In some cases, you may need to convert a Package that was initially developed using `kpt` to the "passthrough" chart pattern. This involves creating a new `Chart.yaml` file and restructuring the Package to use the upstream chart as a dependency. See the [upstream package integration documentation](package-integration/upstream.md) for more details. Follow these steps:
+In some cases, you may need to convert a Package that was initially developed using `kpt` to the "passthrough" chart pattern. This involves creating a new `Chart.yaml` file and restructuring the Package to use the upstream chart as a dependency. See the [upstream package integration documentation](../../community/development/package-integration/upstream.md) for more details. Follow these steps:
 1. **Edit `Chart.yaml`** to define the upstream chart as a dependency. Remove unnecessary default templates and add the upstream chart under the `dependencies` section:
     ```yaml
     dependencies:

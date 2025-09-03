@@ -53,8 +53,8 @@ in the Big Bang Keycloak Helm chart repo for help configuring the following:
 
 ### GUI
 
-Keycloak has two main end point URLs: <https://keycloak.yourdomain.com> for
-authentication. <https://keycloak.yourdomain.com/auth/admin> for administration.
+Keycloak has two main end point URLs: `https://keycloak.yourdomain.com` for
+authentication. `https://keycloak.yourdomain.com/auth/admin` for administration.
 
 The `yourdomain.com` domain name can be customized by setting the value `domain`
 in Big Bang's `values.yaml`
