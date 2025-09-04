@@ -160,21 +160,27 @@ function build_zarf_credentials() {
   export ZARF_GIT_USER
   envsubst < bb-zarf-credentials.template.yaml > bb-zarf-credentials.yaml
 
-  DOCKER_USERNAME="${REGISTRY1_USERNAME}"
-  DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
-  DOCKER_REGISTRY="login registry1.dso.mil"
-
-  # Perform the Docker login using --password-stdin
-  echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY"
-
-  # Check if the login was successful
+  zarf tools registry login registry1.dso.mil --username $REGISTRY1_USERNAME --password $REGISTRY1_TOKEN
   if [ $? -eq 0 ]; then
-    echo "Docker login successful."
+    echo "zarf registry login successful."
   else
-    echo "Docker login failed."
+    echo "zarf registry login failed."
     exit 1
   fi
-  #docker login registry1.dso.mil -u ${REGISTRY1_USERNAME} -p ${REGISTRY1_TOKEN}
+
+# with the zarf login above this may not be necessary?
+#  DOCKER_USERNAME="${REGISTRY1_USERNAME}"
+#  DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
+#  DOCKER_REGISTRY="registry1.dso.mil"
+#
+#  # Perform the Docker login using --password-stdin
+#  echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY"
+#  if [ $? -eq 0 ]; then
+#    echo "Docker login successful."
+#  else
+#    echo "Docker login failed."
+#    exit 1
+#  fi
 
   ./zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME}
 }
