@@ -51,5 +51,5 @@ addons:
 
 Applications configured correctly will be scraped by Prometheus under the `target->` `kubernetes-service-endpoints` in the Prometheus User Interface (UI). Refer to the image below. If you do not know the correct port and path for your application, you may use `Service Discovery` in the Prometheus UI to find the correct port and path for your application.
 
-![Prometheus GUI](../../assets/imgs/developer/metrics-server-scraping.png)
+![Prometheus GUI](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/docs/assets/imgs/developer/metrics-server-scraping.png?ref_type=heads)
 
