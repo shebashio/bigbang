@@ -106,5 +106,5 @@ If you used additional override files or installed extra components, ensure you 
 
 ## References
 
-- [Big Bang Troubleshooting Guide](docs/understanding-bigbang/concepts/troubleshooting.md)
-- [Supported Package Integration](docs/developer/package-integration/supported.md)
+- [Big Bang Troubleshooting Guide](../operations/troubleshooting/index.md)
+- [Supported Package Integration](../community/development/package-integration/supported.md)

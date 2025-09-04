@@ -199,7 +199,7 @@ Removal of the operator and the enablement of the new gateway package
 reinstantiates cluster gateways.
 
 When migrating gateway configurations, see
-[the examples here](../../../chart/values.yaml#L227-282) as a reference to
+[the examples here](../../chart/values.yaml#L227-282) as a reference to
 format values and configure postRenderers.
 
 ```yaml
