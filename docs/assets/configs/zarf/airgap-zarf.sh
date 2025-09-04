@@ -6,8 +6,8 @@
 # - pushing the zst to k3d network
 # - optionally - shut down everything
 
-# run k3d-dev.sh -b -p -m -a
-# to setup an ec2 instance with standard tools available
+# run k3d-dev.sh -b
+# to setup an ec2 instance with standard tools/packages available
 
 # ssh to the instance
 # mkdir ~/airgap directory on EC2
@@ -24,6 +24,8 @@
 ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
 ZARF_PULL="zarf_pull password from zarf credentials"
 ZARF_GIT_USER="zarf_git_user password from zarf credentials"
+
+ZARF_LOG_LEVEL=${ZARF_LOG_LEVEL:=debug}
 
 function make_sure_can_write_local_file() {
   sudo touch .test_writable_file 2>/dev/null
@@ -108,7 +110,7 @@ function zarf_init() {
     chmod +x zarf
     sudo mv zarf /usr/local/bin/zarf
   fi
-  zarf init --components=git-server --confirm
+  zarf init --components=git-server --confirm --log-level=${ZARF_LOG_LEVEL}
   if [ $? -ne 0 ]; then
       echo "zarf init failed.  Re-running zarf init"
       zarf init --components=git-server
@@ -161,8 +163,7 @@ function build_zarf_credentials() {
   export ZARF_GIT_USER
   envsubst < bb-zarf-credentials.template.yaml > bb-zarf-credentials.yaml
 
-  set +o history && echo ${REGISTRY1_PASSWORD} | zarf tools registry login registry1.dso.mil --username ${REGISTRY1_USERNAME} --password-stdin || set -o history
-#  zarf tools registry login registry1.dso.mil --username $REGISTRY1_USERNAME --password $REGISTRY1_TOKEN
+  set +o history && echo ${REGISTRY1_PASSWORD} | zarf tools registry login registry1.dso.mil --username ${REGISTRY1_USERNAME} --password-stdin --log-level=${ZARF_LOG_LEVEL} || set -o history
   if [ $? -eq 0 ]; then
     echo "zarf registry login successful."
   else
@@ -171,38 +172,48 @@ function build_zarf_credentials() {
   fi
 
 # with the zarf login above this may not be necessary?
-#  DOCKER_USERNAME="${REGISTRY1_USERNAME}"
-#  DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
-#  DOCKER_REGISTRY="registry1.dso.mil"
-#
-#  # Perform the Docker login using --password-stdin
-#  echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY"
-#  if [ $? -eq 0 ]; then
-#    echo "Docker login successful."
-#  else
-#    echo "Docker login failed."
-#    exit 1
-#  fi
+  DOCKER_USERNAME="${REGISTRY1_USERNAME}"
+  DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
+  DOCKER_REGISTRY="registry1.dso.mil"
 
-  zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME}
+  # Perform the Docker login using --password-stdin
+  echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY"
+  if [ $? -eq 0 ]; then
+    echo "Docker login successful."
+  else
+    echo "Docker login failed."
+    exit 1
+  fi
+
+  zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME} --log-level=${ZARF_LOG_LEVEL}
+    if [ $? -eq 0 ]; then
+      echo "zarf update-creds succeeded."
+    else
+        echo "zarf update-creds failed."
+        exit 1
+    fi
 }
 
 function create_zarf_package() {
   # create the zst file, zarf-package-bigbang-amd64.tar.zst
   # the filename is built from aspects of the credentials file
-  zarf package create . --confirm
-  if [ $? -ne 0 ]; then
-      echo "zarf package create failed."
-      exit 1
+  zarf package create . --confirm --log-level=${ZARF_LOG_LEVEL}
+  if [ $? -eq 0 ]; then
+    echo "zarf package create succeeded."
+  else
+    echo "zarf package create failed."
+    exit 1
   fi
 }
 
 function inspect_zarf_package() {
   # make sure it worked - inspect the definition portion of the file
   zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
-  if [ $? -ne 0 ]; then
-      echo "zarf package inspection failed."
-      exit 1
+  if [ $? -eq 0 ]; then
+    echo "zarf package inspection succeeded."
+  else
+    echo "zarf package inspection failed."
+    exit 1
   fi
 }
 
@@ -211,8 +222,10 @@ function deploy_zarf_package() {
     echo "amd64 package cannot be deployed on arm64"
     exit 1
   fi
-  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm --components=gitea-virtual-service
-  if [ $? -ne 0 ]; then
+  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm
+  if [ $? -eq 0 ]; then
+    echo "zarf package deploy succeeded."
+  else
       echo "zarf package deploy failed."
       exit 1
   fi
