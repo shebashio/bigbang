@@ -106,11 +106,12 @@ function zarf_init() {
     ZARF_VERSION=$(curl -sIX HEAD https://github.com/zarf-dev/zarf/releases/latest | grep -i ^location: | grep -Eo 'v[0-9]+.[0-9]+.[0-9]+')
     curl -sL "https://github.com/zarf-dev/zarf/releases/download/${ZARF_VERSION}/zarf_${ZARF_VERSION}_Linux_amd64" -o zarf
     chmod +x zarf
+    sudo mv zarf /usr/local/bin/zarf
   fi
-  ./zarf init --components=git-server --confirm
+  zarf init --components=git-server --confirm
   if [ $? -ne 0 ]; then
       echo "zarf init failed.  Re-running zarf init"
-      ./zarf init --components=git-server
+      zarf init --components=git-server
       if [ $? -ne 0 ]; then
         echo "Re-running zarf init failed."
         exit 1
@@ -132,7 +133,7 @@ function get_zarf_credentials() {
 
 # remove escape characters in the output for font coloring
   ZARF_CREDS_TEMP_FILE=$(mktemp)
-  ./zarf tools get-creds | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' > "$ZARF_CREDS_TEMP_FILE"
+  zarf tools get-creds | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' > "$ZARF_CREDS_TEMP_FILE"
   if [ $? -ne 0 ]; then
       echo "zarf tools get-creds failed."
       exit 1
@@ -160,7 +161,8 @@ function build_zarf_credentials() {
   export ZARF_GIT_USER
   envsubst < bb-zarf-credentials.template.yaml > bb-zarf-credentials.yaml
 
-  zarf tools registry login registry1.dso.mil --username $REGISTRY1_USERNAME --password $REGISTRY1_TOKEN
+  set +o history && echo ${REGISTRY1_PASSWORD} | zarf tools registry login registry1.dso.mil --username ${REGISTRY1_USERNAME} --password-stdin || set -o history
+#  zarf tools registry login registry1.dso.mil --username $REGISTRY1_USERNAME --password $REGISTRY1_TOKEN
   if [ $? -eq 0 ]; then
     echo "zarf registry login successful."
   else
@@ -182,13 +184,13 @@ function build_zarf_credentials() {
 #    exit 1
 #  fi
 
-  ./zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME}
+  zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME}
 }
 
 function create_zarf_package() {
   # create the zst file, zarf-package-bigbang-amd64.tar.zst
   # the filename is built from aspects of the credentials file
-  ./zarf package create . --confirm
+  zarf package create . --confirm
   if [ $? -ne 0 ]; then
       echo "zarf package create failed."
       exit 1
@@ -197,7 +199,7 @@ function create_zarf_package() {
 
 function inspect_zarf_package() {
   # make sure it worked - inspect the definition portion of the file
-  ./zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
+  zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
   if [ $? -ne 0 ]; then
       echo "zarf package inspection failed."
       exit 1
@@ -209,7 +211,7 @@ function deploy_zarf_package() {
     echo "amd64 package cannot be deployed on arm64"
     exit 1
   fi
-  ./zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm
+  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm --components=gitea-virtual-service
   if [ $? -ne 0 ]; then
       echo "zarf package deploy failed."
       exit 1
@@ -238,7 +240,7 @@ function close_down() {
     fi
   fi
 
-  ./zarf destroy --confirm
+  zarf destroy --confirm
 }
 
 function main() {
