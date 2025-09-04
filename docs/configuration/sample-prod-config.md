@@ -288,7 +288,7 @@ addons:
 
 ## Keycloak
 <!-- TODO: this config doesn't exist anymore -->
-See the [production configuration example](../../../docs/assets/configs/example/keycloak-prod-values.yaml).
+See the [production configuration example](../reference/configs/example/keycloak-prod-values.yaml).
 
 ## High Availability (HA)
 

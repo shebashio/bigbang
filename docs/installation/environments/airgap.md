@@ -651,7 +651,7 @@ To test Airgap BigBang on k3d, complete the following steps:
   $ k3d cluster create --image "rancher/k3s:v1.20.5-rc1-k3s1" --api-port "33989" -s 1 -a 2 -v "${HOME}/registries.yaml:/etc/rancher/k3s/registries.yaml" -v /etc/machine-id:/etc/machine-id -v "${HOME}/certs/host.k3d.internal.public.pem:/etc/ssl/certs/registry1.pem" --k3s-server-arg "--disable=traefik" --k3s-server-arg "--disable=metrics-server" --k3s-server-arg "--tls-san=$PRIVATEIP"  -p 80:80@loadbalancer -p 443:443@loadbalancer
   ```
 
-- Block all egress with `iptables` except those going to instance IP before deploying bigbang  by running [airgap.sh](../../assets/scripts/airgap-dev/airgap.sh).
+- Block all egress with `iptables` except those going to instance IP before deploying bigbang  by running [airgap.sh](../../reference/scripts/airgap-dev/airgap.sh).
 
 ```shell
 sudo ./k3d_airgap.sh

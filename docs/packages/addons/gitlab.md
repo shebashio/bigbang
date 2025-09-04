@@ -68,7 +68,7 @@ Example request
 curl "https://gitlab.example.com/-/liveness"
 ```
 
-More information can be found in the gitlab documentation [here](https://docs.gitlab.com/ee/user/admin_area/monitoring/health_check.html).
+More information can be found in the gitlab documentation [here](https://docs.gitlab.com/administration/monitoring/health_check/).
 
 ## High Availability
 

@@ -72,7 +72,7 @@ TODO: rewrite and reorganize this page to better reflect the current state of Bi
   
 ## New User Orientation
 
-New users are encouraged to read through the useful background information present in the [Getting Started](../../getting-started/), [Concepts](../../concepts/), [Configuration](../../configuration/), and [Packages](../../packages/) sections.
+New users are encouraged to read through the useful background information present in the [Getting Started](../getting-started/), [Concepts](../concepts/), [Configuration](../configuration/), and [Packages](../packages/) sections.
 
 ## Frequently Asked Questions
 

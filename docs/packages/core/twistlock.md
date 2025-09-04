@@ -93,7 +93,7 @@ SSO can be configured for twistlock  manually using the documentation provided. 
 ## Licensing
 
 Twistlock deployment requires license to operate. Enter your license key in the twistlock console. \
-[TwistLock License Documentation](https://docs.paloaltonetworks.com/prisma/prisma-cloud/20-04/prisma-cloud-compute-edition-admin/welcome/licensing.html)
+[TwistLock License Documentation](https://docs.prismacloud.io/en/enterprise-edition/content-collections/runtime-security/runtime-security-components/licensing/licensing)
 
 ### Health Checks
 

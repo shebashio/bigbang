@@ -110,7 +110,7 @@ additionalPolicies:
 
 * [Kubernetes Network Policies Documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 * [Kubernetes Labels and Selectors Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
-* [Big Bang Developer Guide for Package Implementation](../../developer/develop-package.md)
+* [Big Bang Developer Guide for Package Implementation](../community/development/develop-package.md)
 * [Big Bang Developer Guide for Package Integration regarding Network Policies](../community/development/package-integration/network-policies.md)
 
 For more information regarding the behavior of a specific core, supported addon or community supported package, you should always reference the documentation for the specific package in question. Information specific to any given package is outside the scope of this documentation.
