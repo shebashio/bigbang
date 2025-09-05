@@ -1418,6 +1418,9 @@ addons:
 
   authservice:
     enabled: false
+    git:
+      tag: null
+      branch: draft-bb-common
     chains:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
