@@ -101,6 +101,12 @@ istiod:
   values:
     hardened:
       enabled: true
+istioCNI:
+  enabled: false
+  values:
+    upstream:
+      global:
+        platform: k3s
 istioCRDs:
   enabled: true
 istioGateway:
@@ -1422,15 +1428,16 @@ addons:
       redis:
         enabled: true
       redis-bb:
-        master:
-          persistence:
-            size: 256Mi
-        replica:
-          replicaCount: 0
-          autoscaling:
-            enabled: false
-          persistence:
-            size: 256Mi
+        upstream: 
+          master:
+            persistence:
+              size: 256Mi
+          replica:
+            replicaCount: 0
+            autoscaling:
+              enabled: false
+            persistence:
+              size: 256Mi
 
   fortify:
     enabled: false
