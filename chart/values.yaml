@@ -486,11 +486,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.4.4-bb.3"
+    tag: "3.5.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.4.4-bb.3"
+    tag: "3.5.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -663,11 +663,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "3.0.0-bb.2"
+    tag: "3.1.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "3.0.0-bb.2"
+    tag: "3.1.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -1183,11 +1183,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "8.2.5-bb.1"
+      tag: "8.3.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "8.2.5-bb.1"
+      tag: "8.3.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1526,11 +1526,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "82.0.0-bb.0"
+      tag: "83.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "82.0.0-bb.0"
+      tag: "83.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -2323,12 +2323,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.34.0-bb.1"
+      tag: "0.34.0-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.34.0-bb.1"
+      tag: "0.34.0-bb.3"
 
     # -- Override flux settings for this package
     flux: {}
