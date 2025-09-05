@@ -15,17 +15,32 @@
 # mkdir airgap/config
 
 # given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over:
-#ssh -i "airgap-bigbang.pem" ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com
-#scp -i ~/Downloads/airgap-bigbang.pem  airgap-zarf.sh ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
-#scp -i ~/Downloads/airgap-bigbang.pem  bb-zarf-credentials.template.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
-#scp -i ~/Downloads/airgap-bigbang.pem  zarf.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap
-#scp -i ~/Downloads/airgap-bigbang.pem  config/kyverno.yaml ubuntu@ec2-182-30-21-151.us-gov-east-1.compute.amazonaws.com:~/airgap/config
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.254.180.110:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem bb-zarf-credentials.template.yaml ubuntu@18.254.180.110:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.254.180.110:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@18.254.180.110:~/airgap/config
+
+# chmod +x airgap-zarf.sh
+
+#export REGISTRY1_TOKEN=eNjN8fBCh
+#export REGISTRY1_USERNAME=Daniel_Toomey
 
 ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
 ZARF_PULL="zarf_pull password from zarf credentials"
 ZARF_GIT_USER="zarf_git_user password from zarf credentials"
 
 ZARF_LOG_LEVEL=${ZARF_LOG_LEVEL:=debug}
+
+function make_sure_registry1_creds() {
+    if [[ -z "${REGISTRY1_USERNAME}" ]]; then
+      echo "REGISTRY1_USERNAME is either unset or empty."
+      exit 1
+    fi
+  if [[ -z "${REGISTRY1_TOKEN}" ]]; then
+    echo "REGISTRY1_TOKEN is either unset or empty."
+    exit 1
+  fi
+}
 
 function make_sure_can_write_local_file() {
   sudo touch .test_writable_file 2>/dev/null
@@ -171,13 +186,11 @@ function build_zarf_credentials() {
     exit 1
   fi
 
-# with the zarf login above this may not be necessary?
   DOCKER_USERNAME="${REGISTRY1_USERNAME}"
   DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
   DOCKER_REGISTRY="registry1.dso.mil"
-
   # Perform the Docker login using --password-stdin
-  echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY"
+  set +o history && echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY" || set -o history
   if [ $? -eq 0 ]; then
     echo "Docker login successful."
   else
@@ -185,13 +198,14 @@ function build_zarf_credentials() {
     exit 1
   fi
 
-  zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME} --log-level=${ZARF_LOG_LEVEL}
-    if [ $? -eq 0 ]; then
-      echo "zarf update-creds succeeded."
-    else
-        echo "zarf update-creds failed."
-        exit 1
-    fi
+# we should not update the creds for registry1
+#  set +o history && zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME} --log-level=${ZARF_LOG_LEVEL} --confirm || set -o history
+#  if [ $? -eq 0 ]; then
+#    echo "zarf update-creds succeeded."
+#  else
+#      echo "zarf update-creds failed."
+#      exit 1
+#  fi
 }
 
 function create_zarf_package() {
@@ -222,7 +236,7 @@ function deploy_zarf_package() {
     echo "amd64 package cannot be deployed on arm64"
     exit 1
   fi
-  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm
+  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm --log-level=${ZARF_LOG_LEVEL}
   if [ $? -eq 0 ]; then
     echo "zarf package deploy succeeded."
   else
@@ -260,6 +274,7 @@ function main() {
   if [ "$#" -ne 0 ]; then
     "$1" $2
   else
+    make_sure_registry1_creds
     make_sure_can_write_local_file
     start_docker
     install_kubernetes
