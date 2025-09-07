@@ -25,10 +25,6 @@
 #export REGISTRY1_TOKEN=eNjN8fBCh
 #export REGISTRY1_USERNAME=Daniel_Toomey
 
-ZARF_CREDS_TEMP_FILE="temp file used to store zarf credentials"
-ZARF_PULL="zarf_pull password from zarf credentials"
-ZARF_GIT_USER="zarf_git_user password from zarf credentials"
-
 ZARF_LOG_LEVEL=${ZARF_LOG_LEVEL:=debug}
 
 function make_sure_registry1_creds() {
@@ -83,13 +79,6 @@ function start_docker() {
 function install_kubernetes() {
   if command -v kubectl &> /dev/null; then
       echo "kubectl is installed."
-# does k3d set things up correctly for the new cluster?
-#      local kubeconfig_file="$PWD/kube.config"
-#      if [ ! -f "$kubeconfig_file" ]; then
-#        echo "./kube-config missing - creating same"
-#        sudo kubectl config view > "$kubeconfig_file"
-#        export KUBECONFIG=$kubeconfig_file
-#      fi
       return
   fi
   echo "Kubectl is not installed"
@@ -136,56 +125,7 @@ function zarf_init() {
   fi
 }
 
-function get_zarf_credentials() {
-#% zarf tools get-creds
-#
-#2025-08-25 14:17:26 INF waiting for cluster connection
-#
-#     Application          | Username           | Password                                 | Connect               | Get-Creds Key
-#     Registry             | zarf-push          | OypipimHt~e0L0TDFcMpUSMb                 | zarf connect registry | registry
-#     Registry (read-only) | zarf-pull          | MBd1sg8GIMICq8QlbDLOmKPd                 | zarf connect registry | registry-readonly
-#     Git                  | zarf-git-user      | !jO196159n1-YPk3WQnob50L                 | zarf connect git      | git
-#     Git (read-only)      | zarf-git-read-user | xPwtiKAw9hreRTdQTgHNGqSd                 | zarf connect git      | git-readonly
-#     Artifact Token       | zarf-git-user      | 97b5254e39c1eec884944b18940929ac22494cee | zarf connect git      | artifact
-
-# remove escape characters in the output for font coloring
-  ZARF_CREDS_TEMP_FILE=$(mktemp)
-  zarf tools get-creds | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' > "$ZARF_CREDS_TEMP_FILE"
-  if [ $? -ne 0 ]; then
-      echo "zarf tools get-creds failed."
-      exit 1
-  fi
-}
-
-function extract_passwords() {
-  # using pipe delimiter, pull the 3rd column(Password) from the row with the
-  # Username we are looking for
-  local temp_file="$ZARF_CREDS_TEMP_FILE"
-  if [ -n "$1" ]; then
-    temp_file=$1
-  fi
-  local zarf_pull_plus=$(grep "zarf-pull" "$temp_file" | cut -d'|' -f3)
-  # trim spaces before and after
-  ZARF_PULL=$(echo "$zarf_pull_plus" | xargs )
-
-  local zarf_git_user_plus=$(grep -m 1 "zarf-git-user" "$temp_file" | cut -d'|' -f3)
-  ZARF_GIT_USER=$(echo "$zarf_git_user_plus" | xargs )
-}
-
-function build_zarf_credentials() {
-  # substitute the credentials through the template
-  export ZARF_PULL
-  export ZARF_GIT_USER
-  envsubst < bb-zarf-credentials.template.yaml > bb-zarf-credentials.yaml
-
-  set +o history && echo ${REGISTRY1_PASSWORD} | zarf tools registry login registry1.dso.mil --username ${REGISTRY1_USERNAME} --password-stdin --log-level=${ZARF_LOG_LEVEL} || set -o history
-  if [ $? -eq 0 ]; then
-    echo "zarf registry login successful."
-  else
-    echo "zarf registry login failed."
-    exit 1
-  fi
-
+function docker_login() {
   DOCKER_USERNAME="${REGISTRY1_USERNAME}"
   DOCKER_PASSWORD="${REGISTRY1_TOKEN}"
   DOCKER_REGISTRY="registry1.dso.mil"
@@ -197,15 +137,6 @@ function build_zarf_credentials() {
     echo "Docker login failed."
     exit 1
   fi
-
-# we should not update the creds for registry1
-#  set +o history && zarf tools update-creds registry --registry-url https://registry1.dso.mil --registry-pull-password ${REGISTRY1_TOKEN} --registry-pull-username ${REGISTRY1_USERNAME} --log-level=${ZARF_LOG_LEVEL} --confirm || set -o history
-#  if [ $? -eq 0 ]; then
-#    echo "zarf update-creds succeeded."
-#  else
-#      echo "zarf update-creds failed."
-#      exit 1
-#  fi
 }
 
 function create_zarf_package() {
@@ -246,13 +177,6 @@ function deploy_zarf_package() {
 }
 
 function close_down() {
-  # temp file created on each zarf init
-  local temp_file="$ZARF_CREDS_TEMP_FILE"
-  if [ -n "$1" ]; then
-    temp_file=$1
-  fi
-  sudo rm -f $temp_file
-
   # credentials file we create to invoke zarf
   sudo rm -f bb-zarf-credentials.yaml
 
@@ -280,9 +204,7 @@ function main() {
     install_kubernetes
     create_cluster
     zarf_init
-    get_zarf_credentials
-    extract_passwords
-    build_zarf_credentials
+    docker_login
     create_zarf_package
     inspect_zarf_package
     deploy_zarf_package
