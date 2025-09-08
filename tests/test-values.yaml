@@ -98,6 +98,9 @@ disableAutomaticPassthroughValues: true
 
 istiod:
   enabled: true
+  git:
+    tag: null
+    branch: "renovate/istiod-1.x"
   values:
     hardened:
       enabled: true
@@ -109,8 +112,14 @@ istioCNI:
         platform: k3s
 istioCRDs:
   enabled: true
+  git:
+    tag: null
+    branch: "renovate/base-1.x"
 istioGateway:
   enabled: true
+  git:
+    tag: null
+    branch: "renovate/all"
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
