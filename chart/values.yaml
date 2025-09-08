@@ -406,11 +406,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.14.0-bb.0"
+    tag: "2.15.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.14.0-bb.0"
+    tag: "2.15.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -486,11 +486,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.4.4-bb.3"
+    tag: "3.5.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.4.4-bb.3"
+    tag: "3.5.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -663,11 +663,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "3.0.0-bb.2"
+    tag: "3.1.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "3.0.0-bb.2"
+    tag: "3.1.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -816,11 +816,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.6-bb.2"
+    tag: "2.8.7-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.6-bb.2"
+    tag: "2.8.7-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1183,11 +1183,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "8.2.5-bb.1"
+      tag: "8.3.4-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "8.2.5-bb.1"
+      tag: "8.3.4-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1383,11 +1383,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.2.2-bb.0"
+      tag: "9.3.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.2.2-bb.0"
+      tag: "9.3.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1530,11 +1530,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "82.0.0-bb.0"
+      tag: "83.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "82.0.0-bb.0"
+      tag: "83.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1849,11 +1849,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.11.1-bb.0"
+      tag: "10.11.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.11.1-bb.0"
+      tag: "10.11.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2096,11 +2096,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.12.2-bb.5"
+      tag: "3.13.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.12.2-bb.5"
+      tag: "3.13.0-bb.0"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
@@ -2257,12 +2257,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.7.0-bb.3"
+      tag: "5.7.0-bb.4"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.7.0-bb.3"
+      tag: "5.7.0-bb.4"
 
     # -- Enable Mimir Enterprise
     enterprise:
@@ -2327,12 +2327,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.34.0-bb.1"
+      tag: "0.34.0-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.34.0-bb.1"
+      tag: "0.34.0-bb.3"
 
     # -- Override flux settings for this package
     flux: {}
