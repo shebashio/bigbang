@@ -14,11 +14,12 @@
 # `chmod u+wx airgap` to have user rights to create files
 # mkdir airgap/config
 
+# cd /Users/dantoomey/workspace/bigbang/docs/assets/scripts/developer/
+
 # given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over:
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.254.180.110:~/airgap
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem bb-zarf-credentials.template.yaml ubuntu@18.254.180.110:~/airgap
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.254.180.110:~/airgap
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@18.254.180.110:~/airgap/config
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.253.144.201:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.253.144.201:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@18.253.144.201:~/airgap/config
 
 # chmod +x airgap-zarf.sh
 
@@ -82,28 +83,6 @@ function install_kubernetes() {
       return
   fi
   echo "Kubectl is not installed"
-  exit 1
-}
-
-function create_cluster() {
-  if command -v k3d &> /dev/null; then
-      # "k3d is installed."
-      if sudo k3d cluster list | grep -q "mycluster"; then
-         # "k3d cluster '${CLUSTER_NAME}' exists."
-         sudo k3d cluster delete mycluster
-         while sudo k3d cluster list | grep -q "mycluster"; do
-           sleep 5
-         done
-      fi
-
-      sudo k3d cluster create mycluster
-      if [ $? -ne 0 ]; then
-          echo "k3d cluster create failed."
-          exit 1
-      fi
-      return
-  fi
-  echo "k3d is not installed"
   exit 1
 }
 
@@ -183,14 +162,6 @@ function close_down() {
   # the zarf package we create with bigbang
   sudo rm -f zarf-package-bigbang-amd64.tar.zst
 
-  # if docker is running
-  if command -v docker &> /dev/null; then
-    # if we created a cluster
-    if sudo k3d cluster list | grep -q "mycluster"; then
-      sudo k3d cluster delete mycluster
-    fi
-  fi
-
   zarf destroy --confirm
 }
 
@@ -202,7 +173,6 @@ function main() {
     make_sure_can_write_local_file
     start_docker
     install_kubernetes
-    create_cluster
     zarf_init
     docker_login
     create_zarf_package
