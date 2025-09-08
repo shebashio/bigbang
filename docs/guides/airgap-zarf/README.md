@@ -68,20 +68,9 @@ Your solution should make sure these are available:
 - Kubernetes
 - Any additional requirements for your implementation
 
-### 2. Create a k3d cluster to house your applications
-
-If you intend to re-use the k3d cluster, such as for updates to packages in the future, you want to create and name your cluster.
-
-Otherwise, if you do not intend to re-use the k3d cluster, such as testing out this system, you can have zarf create it's own k3d cluster
-
-In this example we are assuming re-use, long-term then we provide a name for the cluster `mycluster` (and other options you may desire for your needs).
-```aiignore
-sudo k3d cluster create mycluster
-```
-
 In your final script you may want to determine if the cluster has already been created and running.
 
-### 3. Initialize Zarf
+### 2. Initialize Zarf
 
 We initialize zarf to set to use the k3d cluster.  The parameters passed are:
 - `--components=git-server` - to install a git server in the cluster for use by zarf
@@ -91,7 +80,7 @@ We initialize zarf to set to use the k3d cluster.  The parameters passed are:
 zarf init --components=git-server --confirm
 ```
 
-### 4. Login to Docker
+### 3. Login to Docker
 
 Zarf will be using Docker (running in your k3d cluster) to store the images pulled from repo1.  This step allows everything to proceed.
 
@@ -101,7 +90,7 @@ We are using the same method as above to avoid logging credentials.
 set +o history && echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_REGISTRY" || set -o history
 ```
 
-### 5. Create our package
+### 4. Create our package
 
 Now that all the preliminaries are complete we can create a package.
 
@@ -116,7 +105,7 @@ The package file will be named zarf-package-bigbang-amd64.tar.zst:
 - `bigbang` is determined from the yaml file.
 - `amd64` is the targeted EC2 instance CPU type
 
-### 6. Inspect (Optional)
+### 5. Inspect (Optional)
 
 This step displays the definition of a Zarf package.
 
@@ -124,7 +113,7 @@ This step displays the definition of a Zarf package.
 zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
 ```
 
-### 7. Deploy
+### 6. Deploy
 
 Deploys a Zarf package from the local file Unpacks resources and dependencies from a Zarf package archive and deploys them onto the target system. 
 
@@ -136,7 +125,7 @@ Kubernetes would have been installed with the earlier k3d-dev.sh step.
 zarf package inspect definition zarf-package-bigbang-amd64.tar.zst
 ```
 
-### 8. Cleanup
+### 7. Cleanup
 
 If this was a test run then the whole EC2 instance will be destroyed within hours so no cleanup is necessary.
 
