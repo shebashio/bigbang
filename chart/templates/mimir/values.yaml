@@ -94,7 +94,7 @@ mimir-distributed:
           s3:
             {{- if $minioEnabled }}
             access_key_id: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
-            endint: minio.mimir.svc.cluster.local
+            endpoint: minio.mimir.svc.cluster.local
             insecure: true
             secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
             bucket_name: mimir
