@@ -1220,6 +1220,10 @@ policies:
         pods:
           allow:
           - headlamp-*
+      - namespace: external-secrets
+        pods:
+          allow:
+          - external-secrets-*
 
 istio:
   enabled: {{ $istioEnabled }}
