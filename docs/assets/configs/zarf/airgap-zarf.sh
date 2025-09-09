@@ -17,9 +17,10 @@
 # cd /Users/dantoomey/workspace/bigbang/docs/assets/scripts/developer/
 
 # given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over:
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.253.144.201:~/airgap
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.253.144.201:~/airgap
-#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@18.253.144.201:~/airgap/config
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.252.198.178:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.252.198.178:~/airgap
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@118.252.198.178:~/airgap/config
+#scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem virtualservices/gitea.yaml ubuntu@118.252.198.178:~/airgap/virtualservices
 
 # chmod +x airgap-zarf.sh
 
@@ -86,6 +87,23 @@ function install_kubernetes() {
   exit 1
 }
 
+function check_istioctl() {
+  curl -sL https://istio.io/downloadIstioctl | sh -
+  if [ $? -ne 0 ]; then
+    echo "istioctl install failed"
+    exit 1
+  fi
+
+  export PATH=$HOME/.istioctl/bin:$PATH
+
+  kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || \
+    { kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl apply -f -; }
+  if [ $? -ne 0 ]; then
+    echo "istioctl CRD install failed"
+    exit 1
+  fi
+}
+
 function zarf_init() {
   if [ ! -f "zarf" ]; then
     ZARF_VERSION=$(curl -sIX HEAD https://github.com/zarf-dev/zarf/releases/latest | grep -i ^location: | grep -Eo 'v[0-9]+.[0-9]+.[0-9]+')
@@ -146,7 +164,7 @@ function deploy_zarf_package() {
     echo "amd64 package cannot be deployed on arm64"
     exit 1
   fi
-  zarf package deploy zarf-package-bigbang-amd64.tar.zst --confirm --log-level=${ZARF_LOG_LEVEL}
+  zarf package deploy zarf-package-bigbang-amd64.tar.zst --components=gitea-virtual-service --confirm --log-level=${ZARF_LOG_LEVEL}
   if [ $? -eq 0 ]; then
     echo "zarf package deploy succeeded."
   else
@@ -173,6 +191,7 @@ function main() {
     make_sure_can_write_local_file
     start_docker
     install_kubernetes
+    check_istioctl
     zarf_init
     docker_login
     create_zarf_package

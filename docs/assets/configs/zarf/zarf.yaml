@@ -19,6 +19,15 @@ components:
 #      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.6.1
 #      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.6.0
 #      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.6.2
+  - name: gitea-virtual-service
+    description: >
+      Expose the internal Zarf Gitea server through the Big Bang Istio deployment via a virtual service.
+      (only applies if you are using the Zarf-provided Gitea deployment - not an externally configured git host)
+    manifests:
+      - name: gitea
+        namespace: zarf
+        files:
+          - virtualservices/gitea.yaml
   - name: bigbang
     required: true
     manifests:
