@@ -24,8 +24,8 @@
 
 # chmod +x airgap-zarf.sh
 
-#export REGISTRY1_TOKEN=eNjN8fBCh
-#export REGISTRY1_USERNAME=Daniel_Toomey
+#export REGISTRY1_TOKEN=xxxx
+#export REGISTRY1_USERNAME=yyyyy
 
 ZARF_LOG_LEVEL=${ZARF_LOG_LEVEL:=debug}
 
