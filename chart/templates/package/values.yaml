@@ -19,15 +19,27 @@ metadata:
     {{- include "commonLabels" $ | nindent 4 }}
 type: Opaque
 stringData:
-  {{ if and (dig "enabled" true $vals) (not $vals.kustomize) -}}
-  values.yaml: |
+  {{- if or ($vals.values) (dig "passBigBangValues" true $vals) }}
+  {{- if (not $vals.kustomize) }}
+  values.yaml: |-
+    {{ if (dig "passBigBangValues" true $vals) -}}
     bigbang:
       {{- include "values-bigbang" $.Values | nindent 6 }}
+    {{- end }}
     {{- if $vals.values -}}
     {{- tpl (toYaml $vals.values) $ | nindent 4 }}
     {{- end }}
   {{ else }}
+  {{- if (dig "passBigBangValues" true $vals) }}
+  bigbang:
+    {{- include "values-bigbang" $.Values | nindent 6 }}
+  {{- end }}
+  {{- if $vals.values -}}
   {{- tpl (toYaml $vals.values) $ | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  {{- else }}
+  {}
   {{ end }}
   
 ---
