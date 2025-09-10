@@ -97,15 +97,15 @@ components:
         before:
           - cmd: ./zarf tools kubectl patch helmrelease -n bigbang bigbang --type=merge -p '{"spec":{"suspend":true}}'
             description: Suspend Big Bang HelmReleases to prevent reconciliation during removal.
-      onDeploy:
-        before:
-          - description: "Wait for zarf-gitea-http to be available"
-            maxTotalSeconds: 300 # Optional: Customize the timeout
-            wait:
-              network:
-                protocol: http
-                address: http://zarf-gitea-http.zarf.svc.cluster.local:3000
-                code: 200 # Wait for a successful HTTP 200 response
+#      onDeploy:
+#        before:
+#          - description: "Wait for zarf-gitea-http to be available"
+#            maxTotalSeconds: 300 # Optional: Customize the timeout
+#            wait:
+#              network:
+#                protocol: http
+#                address: http://zarf-gitea-http.zarf.svc.cluster.local:3000
+#                code: 200 # Wait for a successful HTTP 200 response
     healthChecks: #need to walk through all of these
       - apiVersion: helm.toolkit.fluxcd.io/v2
         kind: HelmRelease

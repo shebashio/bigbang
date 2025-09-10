@@ -6,6 +6,7 @@
 # - pushing the zst to k3d network
 # - optionally - shut down everything
 
+# cd /Users/dantoomey/workspace/bigbang/docs/assets/scripts/developer/
 # run k3d-dev.sh -b
 # to setup an ec2 instance with standard tools/packages available
 
@@ -13,19 +14,23 @@
 # mkdir ~/airgap directory on EC2
 # `chmod u+wx airgap` to have user rights to create files
 # mkdir airgap/config
+# mkdir airgap/virtualservices
 
-# cd /Users/dantoomey/workspace/bigbang/docs/assets/scripts/developer/
-
-# given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over:
+# back on local
+# cd /Users/dantoomey/workspace/bigbang/docs/assets/configs/zarf/
+# given an ssh command to connect to EC2 adjust the scp commands and copy the 4 files over (ref your pem, only need to change ip address)
 #scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem airgap-zarf.sh ubuntu@18.252.198.178:~/airgap
 #scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem zarf.yaml ubuntu@18.252.198.178:~/airgap
 #scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem config/kyverno.yaml ubuntu@118.252.198.178:~/airgap/config
 #scp -i /Users/dantoomey/.ssh/dan.toomeyomnifederal.com-dev-default.pem virtualservices/gitea.yaml ubuntu@118.252.198.178:~/airgap/virtualservices
 
+# back on EC2
 # chmod +x airgap-zarf.sh
 
 #export REGISTRY1_TOKEN=xxxx
 #export REGISTRY1_USERNAME=yyyyy
+
+# can now run this script ./airgrep-zarf.sh
 
 ZARF_LOG_LEVEL=${ZARF_LOG_LEVEL:=debug}
 
