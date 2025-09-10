@@ -49,7 +49,7 @@ istio:
     {{- end }}
 
 {{- if $minioEnabled }}
-minio-tenant: 
+minio-tenant:
   enabled: true
   tenant:
     configSecret:
@@ -59,7 +59,8 @@ minio-tenant:
         username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
         password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
 {{- end }}
-mimir-distributed:
+
+upstream:
   query_scheduler:
     enabled: {{ not $istioEnabled }}
   {{- if or $minioEnabled $s3Enabled }}
