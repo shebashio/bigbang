@@ -319,6 +319,7 @@ prometheus:
         vault.hashicorp.com/agent-run-as-user : "1000"
         vault.hashicorp.com/agent-run-as-group : "2000"
         vault.hashicorp.com/tls-skip-verify: "true"
+        vault.hashicorp.com/tls-server-name: "vault.dev.bigbang.mil"
         {{- end }}
       {{- end }}
     {{- if .Values.addons.vault.enabled }}
