@@ -37,7 +37,8 @@ tests:
     asserts:
       - equal:
           path: stringData
-          value: {}
+          value:
+            values.yaml: "{}"
   - it: must create values.yaml with at least the domain when passBigBangValues is set
     documentSelector:
       path: metadata.name
