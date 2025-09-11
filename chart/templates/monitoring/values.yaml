@@ -320,6 +320,8 @@ prometheus:
         vault.hashicorp.com/agent-run-as-group : "2000"
         vault.hashicorp.com/tls-skip-verify: "true"
         vault.hashicorp.com/tls-server-name: "vault.dev.bigbang.mil"
+        vault.hasicorp.com/log-level: debug
+        vault.hasicorp.com/agent-inject-secret-config: "secret/data/monitoring/prometheus"
         vault.hashicorp.com/ca-cert: "/var/run/secrets/kubernetes.io/serviceAccount/ca.crt"
         {{- end }}
       {{- end }}
