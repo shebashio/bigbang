@@ -108,6 +108,14 @@ function check_istioctl() {
   fi
 }
 
+function install_crds() {
+  kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
+  if [ $? -ne 0 ]; then
+    echo "install helmrelease CRDs install failed"
+    exit 1
+  fi
+}
+
 function zarf_init() {
   if [ ! -f "zarf" ]; then
     ZARF_VERSION=$(curl -sIX HEAD https://github.com/zarf-dev/zarf/releases/latest | grep -i ^location: | grep -Eo 'v[0-9]+.[0-9]+.[0-9]+')
@@ -196,6 +204,7 @@ function main() {
     start_docker
     install_kubernetes
     check_istioctl
+    install_crds
     zarf_init
     docker_login
     create_zarf_package
