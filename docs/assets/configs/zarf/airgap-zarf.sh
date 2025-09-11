@@ -12,7 +12,6 @@
 
 # ssh to the instance
 # mkdir ~/airgap directory on EC2
-# `chmod u+wx airgap` to have user rights to create files
 # mkdir airgap/config
 # mkdir airgap/virtualservices
 

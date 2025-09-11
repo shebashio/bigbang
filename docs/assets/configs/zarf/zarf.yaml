@@ -19,15 +19,6 @@ components:
 #      - registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.6.1
 #      - registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.6.0
 #      - registry1.dso.mil/ironbank/fluxcd/source-controller:v1.6.2
-  - name: gitea-virtual-service
-    description: >
-      Expose the internal Zarf Gitea server through the Big Bang Istio deployment via a virtual service.
-      (only applies if you are using the Zarf-provided Gitea deployment - not an externally configured git host)
-    manifests:
-      - name: gitea
-        namespace: zarf
-        files:
-          - virtualservices/gitea.yaml
   - name: bigbang
     required: true
     manifests:
@@ -37,10 +28,22 @@ components:
 # ignore missing manifest files
 #          - manifests/bb-gitrepository.yaml #missing!
 #          - manifests/bb-zarf-credentials.yaml #missing!
-          - config/kyverno.yaml #exists
+#          - config/kyverno.yaml #exists
 #          - values-files/loki.yaml #missing!
 #          - values-files/neuvector.yaml #missing!
 #          - manifests/bb-helmrelease.yaml #missing!
+          - helmrelease.yaml
+
+  - name: gitea-virtual-service
+    description: >
+      Expose the internal Zarf Gitea server through the Big Bang Istio deployment via a virtual service.
+      (only applies if you are using the Zarf-provided Gitea deployment - not an externally configured git host)
+    manifests:
+      - name: gitea
+        namespace: zarf
+        files:
+          - virtualservices/gitea.yaml
+
     images:
       - registry1.dso.mil/ironbank/big-bang/base:2.1.0
       - registry1.dso.mil/ironbank/big-bang/grafana/grafana-plugins:12.1.0
@@ -78,6 +81,7 @@ components:
       - registry1.dso.mil/ironbank/opensource/prometheus/prometheus:v3.5.0
       - registry1.dso.mil/ironbank/opensource/thanos/thanos:v0.39.2
       - registry1.dso.mil/ironbank/redhat/ubi/ubi9-minimal:9.6
+
     repos:
       - https://repo1.dso.mil/big-bang/bigbang@3.5.0
       - https://repo1.dso.mil/big-bang/product/packages/grafana.git@9.3.1-bb.1
@@ -92,6 +96,7 @@ components:
       - https://repo1.dso.mil/big-bang/product/packages/monitoring.git@75.6.1-bb.3
       - https://repo1.dso.mil/big-bang/product/packages/neuvector.git@2.8.7-bb.0
       - https://repo1.dso.mil/big-bang/product/packages/tempo.git@1.21.1-bb.2
+
     actions:
       onRemove:
         before:
@@ -106,6 +111,7 @@ components:
 #                protocol: http
 #                address: http://zarf-gitea-http.zarf.svc.cluster.local:3000
 #                code: 200 # Wait for a successful HTTP 200 response
+
     healthChecks: #need to walk through all of these
       - apiVersion: helm.toolkit.fluxcd.io/v2
         kind: HelmRelease
