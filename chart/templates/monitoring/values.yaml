@@ -319,12 +319,9 @@ prometheus:
         vault.hashicorp.com/agent-run-as-user : "1000"
         vault.hashicorp.com/agent-run-as-group : "2000"
         #vault.hashicorp.com/tls-skip-verify: "true"
-        #vault.hashicorp.com/tls-server-name: "vault.dev.bigbang.mil"
+        vault.hashicorp.com/tls-server-name: "vault.dev.bigbang.mil"
         vault.hasicorp.com/log-level: debug
-        vault.hasicorp.com/agent-inject-secret-config: "secret/data/monitoring/prometheus"
         vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
-        vault.hashicorp.com/volume-ca: "sa-ca"
-        vault.hashicorp.com/volume-mount-ca: "/vault/tls"
         {{- end }}
       {{- end }}
     {{- if .Values.addons.vault.enabled }}
