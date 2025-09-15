@@ -822,6 +822,13 @@ neuvector:
     chartName: "neuvector"
     tag: "2.8.7-bb.1"
 
+  #Upstream NeuVector Helm Chart values from core subchart
+  # From https://github.com/neuvector/neuvector-helm/blob/master/charts/core/values.yaml
+  upstream:
+    nameOverride: neuvector
+    fullnameOverride: neuvector-neuvector
+    bootstrapPassword: changeme$! # neuvector enforces a mandatory password change on first login
+
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
     gateway: ""
