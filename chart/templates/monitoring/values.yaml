@@ -329,10 +329,8 @@ prometheus:
         vault.hashicorp.com/role: "prometheus"
         vault.hashicorp.com/agent-run-as-user : "1000"
         vault.hashicorp.com/agent-run-as-group : "2000"
-        {{- if .Values.sso.enabled }}
-        vault.hashicorp.com/tls-secret: {{ default (dig "certificateAuthority" "secretName" "" .Values.sso) .Values.sso.secretName }}
-        {{- else }}
-        vault.hashicorp.com/tls-skip-verify: "true"
+        vault.hashicorp.com/tls-server-name: {{ .Values.domain }} 
+        vault.hashicorp.com/tls-skip-verify: "false"
         {{- end }}
         {{- end }}
       {{- end }}
