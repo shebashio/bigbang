@@ -6864,6 +6864,13 @@ addons:
         scripts:
           envs:
             HARBOR_REGISTRY: "harbor.dev.bigbang.mil"
+      policies:
+      update-automountserviceaccounttokens:
+        namespaces:
+          - namespace: harbor
+            pods:
+              allow:
+              - harbor-script-test
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Thanos
