@@ -38,6 +38,8 @@ authservice:
   enabled: {{ .Values.addons.authservice.enabled }}
 
 upstream:
+  env:
+    ISTIO_META_ENABLE_HBONE: "true"
   cni:
     enabled: {{ .Values.istioCNI.enabled }}
   global:
