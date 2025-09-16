@@ -12,6 +12,8 @@ domain: {{ $domainName }}
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
+
+{{- $authserviceEnabled := and $istioEnabled (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
 {{- $thanosEnabled := (.Values.addons.thanos.enabled) }}
 {{- $lokiEnabled := (.Values.loki.enabled) }}
@@ -29,6 +31,18 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
+      # TODO: Remove this once bb-common creates default policies in `pre-install` and `post-delete` hook phases
+      admission-create-job:
+        to:
+          k8s:
+            udp://kube-system/coredns:53:
+              enabled: true
+              metadata:
+                annotations:
+                  helm.sh/hook: pre-install,pre-upgrade
+              podSelector:
+                matchLabels:
+                  k8s-app: kube-dns
       "*":
         to:
           k8s:
@@ -41,6 +55,14 @@ networkPolicies:
         to:
           cidr:
             0.0.0.0/0: true
+      prometheus:
+        to:
+          k8s:
+            authservice/authservice:10003: {{ $authserviceEnabled }}
+      alertmanager:
+        to:
+          k8s:
+            authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
       prometheus:10901:
@@ -55,10 +77,6 @@ networkPolicies:
             logging/logging-loki: {{ .Values.loki.enabled }}
           definition:
             gateway: {{ .Values.istioGateway.enabled }}
-      alertmanager:10003:
-        from:
-          k8s:
-            authservice/authservice: {{ .Values.addons.authservice.enabled }}
       grafana:3000:
         from:
           k8s:
@@ -182,11 +200,11 @@ prometheus:
   {{- if $thanosEnabled }}
   thanosService:
     enabled: true
-    
+
     # Note: We need to change the portName in order for istio to correctly detect TCP is being used
     #       for the headless service
     {{- if $istioInjection }}
-    portName: "tcp-grpc"       
+    portName: "tcp-grpc"
     {{- end }}
 
   thanosServiceMonitor:
@@ -236,7 +254,6 @@ prometheus:
 
     {{- if $thanosEnabled }}
     thanos:
-    
       {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
       objectStorageConfig:
         secret:
@@ -254,12 +271,12 @@ prometheus:
                 key_file: /etc/prom-certs/key.pem
                 ca_file: /etc/prom-certs/root-cert.pem
                 cert_file: /etc/prom-certs/cert-chain.pem
-              insecure_skip_verify: true  
+              insecure_skip_verify: true
 
       # by default, the object stores only sync every 2 hours
-      # increase the frequency so the tests will pass 
+      # increase the frequency so the tests will pass
       blockSize: 1m
-      
+
       {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
       objectStorageConfig:
         existingSecret:
@@ -268,7 +285,7 @@ prometheus:
 
       {{- end }}
 
-      {{- if $istioInjection }}    
+      {{- if $istioInjection }}
       # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
       volumes:
         - emptyDir:
@@ -337,7 +354,7 @@ prometheus:
       static_configs:
       - targets: [vault.{{ .Values.domain }}]
       {{- end }}
-    {{- end }}           
+    {{- end }}
     # Scrape config for service endpoints.
     #
     # The relabeling allows the actual service scrape endpoint to be configured
@@ -357,7 +374,7 @@ prometheus:
       tls_config:
         insecure_skip_verify: true
       follow_redirects: true
-      enable_http2: true 
+      enable_http2: true
       relabel_configs:
         - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
           action: keep
@@ -407,7 +424,7 @@ prometheus:
 
       kubernetes_sd_configs:
         - role: pod
-    
+
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           action: keep
@@ -430,7 +447,7 @@ prometheus:
           action: replace
           target_label: kubernetes_pod_name
     {{- end }}
-    {{- if $istioInjection }}    
+    {{- if $istioInjection }}
     # Add volume/mount for Istio certs for mTLS scraping
     volumes:
       - emptyDir:
@@ -556,7 +573,7 @@ kube-state-metrics:
     {{ include "istioAnnotation" . }}
   {{- end }}
   {{- end }}
-  
+
   # Add in the custom resource states, so the grafana flux charts work
   # See Documentation for flux -- https://fluxcd.io/flux/monitoring/metrics/
   # These overrides are found in https://github.com/fluxcd/flux2-monitoring-example/blob/main/monitoring/controllers/kube-prometheus-stack/kube-state-metrics-config.yaml
@@ -565,7 +582,7 @@ kube-state-metrics:
   # custom collectors, commenting out the collectors and extraArgs below will
   # retain any existing kube-state-metrics configuration.
   #collectors: [ ]
-  #extraArgs:  
+  #extraArgs:
   #  - --custom-resource-state-only=true
   rbac:
     extraRules:
@@ -871,7 +888,7 @@ prometheusOperator:
       {{- if and (dig "additionalScrapeConfigs"  list $default) (dig "additionalScrapeConfigs"  list $overlay) }}
          {{ $_ := set $overlay "additionalScrapeConfigs" (concat $default.additionalScrapeConfigs $overlay.additionalScrapeConfigs) }}
       {{- end }}
-      
+
     {{- end }}
   {{- end }}
 {{ toYaml $overlays }}
