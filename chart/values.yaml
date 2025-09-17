@@ -1161,6 +1161,15 @@ bbctl:
     repo: "repo1.dso.mil"
     username: ""
     password: ""
+    email: ""
+
+  # List of docker image registry hostnames to use in commands that deploy images
+  # Defaults to ["registry1.dso.mil"] if empty
+  registryOverrides: []
+  # Image name including tag to use for the preflight check pod
+  # Defaults to "registry1.dso.mil/ironbank/redhat/ubi/ubi9-minimal:9.6" if empty
+  preflightCheck:
+    image: ""
 
   # -- Override flux settings for this package
   flux: {}
