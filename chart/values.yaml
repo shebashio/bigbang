@@ -190,11 +190,11 @@ istioCNI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni
     path: "./chart"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-cni"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   # -- Values to passthrough to the Istio CNI chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -210,11 +210,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -243,11 +243,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -281,11 +281,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.27.0-bb.0
+    tag: 1.27.1-bb.0
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -1183,11 +1183,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "8.3.4-bb.1"
+      tag: "8.3.5-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "8.3.4-bb.1"
+      tag: "8.3.5-bb.0"
 
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
@@ -1279,11 +1279,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.0.4-bb.4"
+      tag: "1.0.4-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.0.4-bb.4"
+      tag: "1.0.4-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1310,11 +1310,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.1.1-bb.0"
+      tag: "7.1.1-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1530,11 +1530,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
       path: "./chart"
-      tag: "83.0.0-bb.0"
+      tag: "84.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "83.0.0-bb.0"
+      tag: "84.0.0-bb.0"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1599,11 +1599,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2025.1.0-bb.1"
+      tag: "2025.3.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2025.1.0-bb.1"
+      tag: "2025.3.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1824,11 +1824,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.0-bb.0"
+      tag: "1.25.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.0-bb.0"
+      tag: "1.25.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2257,12 +2257,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "5.7.0-bb.4"
+      tag: "5.8.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "5.7.0-bb.4"
+      tag: "5.8.0-bb.0"
 
     # -- Enable Mimir Enterprise
     enterprise:
@@ -2327,12 +2327,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.34.0-bb.3"
+      tag: "0.35.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.34.0-bb.3"
+      tag: "0.35.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
