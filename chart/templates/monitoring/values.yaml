@@ -243,6 +243,10 @@ prometheus:
       {{- else }}
       - url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
       {{- end }}
+        writeRelabelConfigs:
+          - sourceLabels: [__name__]
+            regex: '.*\..*'
+            action: drop
         {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
