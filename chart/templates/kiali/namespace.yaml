@@ -6,6 +6,7 @@ metadata:
   name: kiali
   labels:
     istio.io/dataplane-mode: ambient
+    istio.io/use-waypoint: kiali-waypoint
     app.kubernetes.io/name: kiali
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
