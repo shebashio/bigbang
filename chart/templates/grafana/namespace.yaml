@@ -5,9 +5,9 @@ kind: Namespace
 metadata:
   name: monitoring
   labels:
+    istio.io/dataplane-mode: ambient
+    istio.io/use-waypoint: monitoring-waypoint
     app.kubernetes.io/name: monitoring
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    istio.io/dataplane-mode: ambient
-    istio.io/use-waypoint: monitoring-waypoint
 {{- end }}
