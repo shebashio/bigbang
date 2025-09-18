@@ -32,7 +32,7 @@ baseConfig:
   skip-update-check: true
   registry-override: {{ .Values.bbctl.registryOverrides }}
   preflight-check:
-    image: {{ .Values.bbctl.preflightCheckImage }}
+    image: {{ .Values.bbctl.preflightCheck.image }}
 
 istio:
   enabled: {{ $istioEnabled }}
