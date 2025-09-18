@@ -787,6 +787,12 @@ kyvernoPolicies:
             - resources:
                 namespaces:
                   - gitlab
+      update-automountserviceaccounttokens:
+          namespaces:
+            - namespace: harbor
+              pods:
+                allow:
+                - harbor-script-test
     additionalPolicyExceptions:
       testpolicyexception:
         enabled: true
@@ -6864,14 +6870,6 @@ addons:
         scripts:
           envs:
             HARBOR_REGISTRY: "harbor.dev.bigbang.mil"
-      policies:
-        update-automountserviceaccounttokens:
-          namespaces:
-            - namespace: harbor
-              pods:
-                allow:
-                - harbor-script-test
-
   # ----------------------------------------------------------------------------------------------------------------------
   # Thanos
   #
