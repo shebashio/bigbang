@@ -1940,7 +1940,7 @@ addons:
           pools:
           - name: pool-0
             labels:
-              app.kubernetes.io/name: minio
+              app.kubernetes.io/name: minio-instance
             servers: 3
             volumesPerServer: 4
             size: 256Mi
