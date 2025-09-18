@@ -1940,7 +1940,6 @@ addons:
           pools:
           - name: pool-0
             labels:
-              app: minio
               app.kubernetes.io/name: minio
             servers: 3
             volumesPerServer: 4
