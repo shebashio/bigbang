@@ -146,7 +146,7 @@ Period.
 
 And the test results.
 
-![pytest Results](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/pytest-results.png){width=50%}
+![pytest Results](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/pytest-results.png){width=60%}
 
 Code Coverage Results
 
