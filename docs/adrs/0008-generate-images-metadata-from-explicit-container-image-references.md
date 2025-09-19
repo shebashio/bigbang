@@ -22,21 +22,23 @@ locations that can be easily parsed to come up with an authoritative and accurat
 
 ## Consequences
 
-The `smoke tests` stage and its jobs (`clean install all-packages` and `clean install oci all-packages`) have been
-eliminated from the Big Bang release pipeline since each package is tested individually as part of the package pipeline.
+1. The `smoke tests` stage and its jobs (`clean install all-packages` and `clean install oci all-packages`) have been \
+   eliminated from the Big Bang release pipeline since each package is tested individually as part of the package \
+   pipeline.
+2. Images that are deployed to the cluster but are not explicitly defined 
 
 ### Comparing Old and New Pipelines
 
 [Old Release Pipeline Run for `3.3.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4389354) (1:09:44)
 
-![Old Pipeline](assets/images/images-v2-metadata-files/old-pipeline.png)
+![Old Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/old-pipeline.png)
 
 And, because the `clean install all-packages` job failed regularly, this pipeline would typically need to be run 3–5
 times for every release, bringing the total pipeline time (not including fixing) to approximately 4:39:56 on average.
 
 [New Release Pipeline Run for `3.6.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4495018) (0:19:11):
 
-![New Pipeline](assets/images/images-v2-metadata-files/new-pipeline.png)
+![New Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/new-pipeline.png)
 
 | Pipeline                  | Time            |            |
 |---------------------------|-----------------|------------|
@@ -143,7 +145,7 @@ Period.
 
 And the test results.
 
-![img.png](assets/images/images-v2-metadata-files/pytest-results.png)
+![img.png](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/pytest-results.png)
 
 Code Coverage Results
 
