@@ -178,15 +178,6 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
-  serviceMonitor:
-    scheme: https
-    tlsConfig:
-      caFile: /etc/prom-certs/root-cert.pem
-      certFile: /etc/prom-certs/cert-chain.pem
-      keyFile: /etc/prom-certs/key.pem
-      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-  {{- end }}
 
 prometheus:
   {{- if $lokiEnabled }}
@@ -209,15 +200,6 @@ prometheus:
 
   thanosServiceMonitor:
     enabled: true
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
-    serviceMonitor:
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-    {{- end }}
   {{- end }}
   prometheusSpec:
     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
@@ -227,12 +209,6 @@ prometheus:
       apiVersion: v2
       port: http-web
       pathPrefix: /
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
 
     {{- if .Values.addons.mimir.enabled }}
@@ -243,13 +219,6 @@ prometheus:
       {{- else }}
       - url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
       {{- end }}
-        {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true
-        {{- end }}
     {{- end }}
 
     {{- if $thanosEnabled }}
@@ -266,12 +235,6 @@ prometheus:
             insecure: false
             trace:
               enable: true
-            http_config:
-              tls_config:
-                key_file: /etc/prom-certs/key.pem
-                ca_file: /etc/prom-certs/root-cert.pem
-                cert_file: /etc/prom-certs/cert-chain.pem
-              insecure_skip_verify: true
 
       # by default, the object stores only sync every 2 hours
       # increase the frequency so the tests will pass
@@ -285,16 +248,6 @@ prometheus:
 
       {{- end }}
 
-      {{- if $istioInjection }}
-      # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
-      volumes:
-        - emptyDir:
-            medium: Memory
-          name: istio-certs
-      volumeMounts:
-        - mountPath: /etc/prom-certs/
-          name: istio-certs
-      {{- end }}
     {{- end }}
 
     # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
@@ -320,14 +273,6 @@ prometheus:
         {{- end }}
       {{- if or $istioInjection .Values.addons.vault.enabled }}
       annotations:
-        {{- if $istioInjection }}
-        {{ include "istioAnnotation" . }}
-        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
-        proxy.istio.io/config: |
-          proxyMetadata:
-            OUTPUT_CERTS: /etc/istio-output-certs
-        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-        {{- end }}
         {{- if .Values.addons.vault.enabled }}
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-init-first: "true"
@@ -447,16 +392,6 @@ prometheus:
           action: replace
           target_label: kubernetes_pod_name
     {{- end }}
-    {{- if $istioInjection }}
-    # Add volume/mount for Istio certs for mTLS scraping
-    volumes:
-      - emptyDir:
-          medium: Memory
-        name: istio-certs
-    volumeMounts:
-      - mountPath: /etc/prom-certs/
-        name: istio-certs
-    {{- end }}
 
 
 anchoreEnterprise:
@@ -504,18 +439,6 @@ prometheus-node-exporter:
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
     {{- end }}
-    {{- if $istioInjection }}
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-    {{- end }}
-  {{- if $istioInjection }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end }}
   {{- end }}
 
   {{- if .Values.openshift }}
@@ -560,18 +483,6 @@ kube-state-metrics:
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
       {{- end }}
-      {{- if $istioInjection }}
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-      {{- end }}
-  {{- if $istioInjection }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end }}
   {{- end }}
 
   # Add in the custom resource states, so the grafana flux charts work
