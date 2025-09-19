@@ -25,7 +25,8 @@ locations that can be easily parsed to come up with an authoritative and accurat
 1. The `smoke tests` stage and its jobs (`clean install all-packages` and `clean install oci all-packages`) have been \
    eliminated from the Big Bang release pipeline since each package is tested individually as part of the package \
    pipeline.
-2. Images that are deployed to the cluster but are not explicitly defined 
+2. Images that are deployed to the cluster but are not explicitly defined in the proper locations will not be present \
+   in the images metadata files even if they would have previously been found through scraping the cluster.
 
 ### Comparing Old and New Pipelines
 
