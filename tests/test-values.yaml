@@ -6611,26 +6611,6 @@ addons:
                 quarkus.kc-routing.path-recursive-block./metrics=8443
                 quarkus.kc-routing.path-recursive-block./health=8443
 
-        # Modify the image key below to deploy a custom image
-        # i.e image: registry.dso.mil/big-bang/apps/product-tools/keycloak-p1-auth-plugin/init-container:test-X.X.X
-        extraInitContainers: |
-          - name: plugin
-            image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.7
-            imagePullPolicy: Always
-            command:
-            - sh
-            - -c
-            - |
-              cp /app/p1-keycloak-plugin.jar /init
-              ls -l /init
-            volumeMounts:
-            - name: plugin
-              mountPath: "/init"
-            securityContext:
-              capabilities:
-                drop:
-                - ALL
-
         extraVolumes: |-
           - name: customreg
             secret:
@@ -6675,9 +6655,6 @@ addons:
           - name: realm
             mountPath: /opt/keycloak/data/import/realm.json
             subPath: realm.json
-          - name: plugin
-            mountPath: /opt/keycloak/providers/p1-keycloak-plugin.jar
-            subPath: p1-keycloak-plugin.jar
           - name: quarkusproperties
             mountPath: /opt/keycloak/conf/quarkus.properties
             subPath: quarkus.properties
