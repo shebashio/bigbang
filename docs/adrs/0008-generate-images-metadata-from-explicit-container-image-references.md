@@ -40,16 +40,18 @@ locations that can be easily parsed to come up with an authoritative and accurat
 
 ### Comparing Old and New Pipelines
 
-[Old Release Pipeline Run for `3.3.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4389354) (1:09:44)
+#### [Old Release Pipeline Run for `3.3.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4389354) (1:09:44)
 
 ![Old Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/old-pipeline.png)
 
 And, because the `clean install all-packages` job failed regularly, this pipeline would typically need to be run 3–5
 times for every release, bringing the total pipeline time (not including fixing) to approximately 4:39:56 on average.
 
-[New Release Pipeline Run for `3.6.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4495018) (0:19:11):
+#### [New Release Pipeline Run for `3.6.0`](https://repo1.dso.mil/big-bang/bigbang/-/pipelines/4495018) (0:19:11):
 
 ![New Pipeline](https://repo1.dso.mil/big-bang/product/bb-static/-/raw/main/blog/assets/imgs/images-v2-metadata-files/new-pipeline.png)
+
+#### Time Saved
 
 | Pipeline                  | Time            |            |
 |---------------------------|-----------------|------------|
