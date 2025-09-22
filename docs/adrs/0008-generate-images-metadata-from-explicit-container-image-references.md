@@ -15,6 +15,8 @@ package being deployed.
 For example, when deploying ArgoCD, the `images.txt` file would also contain image references for Istio, Kyverno, and
 Flux CD.
 
+See [the blog post](../../blog/images-v2-metadata-files.md) about these changes.
+
 ## Decision
 
 Switch from an implicit approach (using cluster scraping) to an explicit approach which defines all images in specific
