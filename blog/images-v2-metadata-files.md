@@ -6,7 +6,7 @@
 2. New `images-v2-*` artifacts show the dependency graph so you can pre-pull or allowlist exactly what you need—no Istio/Kyverno/Flux noise unless they are actual dependencies.
 3. `images.txt` is now a copy of `images-v2-with-dependencies.txt` (which uses the explicit declarations)
 4. The `smoke tests` stage and its jobs (`clean install all-packages` and `clean install oci all-packages`) have been eliminated from the Big Bang release pipeline since each package is tested individually as part of the individual package pipeline.
-5. The Big Bang release pipeline now completes in around 20 minutes rather than multiple hours, saving the release engineers considerable time on every release.
+5. The Big Bang release pipeline now [completes in around 20 minutes rather than multiple hours](../docs/adrs/0008-generate-images-metadata-from-explicit-container-image-references.md#comparing-old-and-new-pipelines), saving the release engineers considerable time on every release.
 
 ## Terms / Glossary
 
