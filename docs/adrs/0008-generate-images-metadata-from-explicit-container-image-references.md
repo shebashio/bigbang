@@ -6,6 +6,10 @@ Date: 2025-09-19
 
 Accepted
 
+## Terms / Glossary
+
+Throughout this article, the terms core, umbrella, and Big Bang chart are all used interchangeably.
+
 ## Context
 
 Previously, images metadata files such as `images.txt` were derived by scraping the cluster of running images in the
