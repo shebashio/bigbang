@@ -20,6 +20,14 @@ Flux CD.
 Switch from an implicit approach (using cluster scraping) to an explicit approach which defines all images in specific
 locations that can be easily parsed to come up with an authoritative and accurate list of only the images needed.
 
+| Source / Location                                                          | Key Path                       | Scope                 | Example                                                                                                                |
+|----------------------------------------------------------------------------|--------------------------------|-----------------------|------------------------------------------------------------------------------------------------------------------------|
+| Package's `chart/Chart.yaml`                                               | `annotations."helm.sh/images"` | `package`, `umbrella` | [Example](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/8.3.4-bb.0/chart/Chart.yaml?ref_type=tags#L42) |
+| Subcharts listed in `chart/Chart.yaml` that contain their own `Chart.yaml` | `annotations."helm.sh/images"` | `package`, `umbrella` |                                                                                                                        |
+| Flux kustomization in `base/flux/kustomization.yaml`                       | `images`                       | `umbrella`            | [Example](https://repo1.dso.mil/big-bang/bigbang/-/blob/3.6.0/base/flux/kustomization.yaml?ref_type=tags#L6)           |
+| Test images in `tests/images.txt`                                          | N/A                            | `umbrella`            | [Example](https://repo1.dso.mil/big-bang/bigbang/-/blob/3.6.0/tests/images.txt?ref_type=tags)                          |
+
+
 ## Consequences
 
 1. The `smoke tests` stage and its jobs (`clean install all-packages` and `clean install oci all-packages`) have been \
