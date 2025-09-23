@@ -6713,7 +6713,6 @@ addons:
                     topologyKey: kubernetes.io/hostname
         server:
           extraEnvironmentVars:
-            VAULT_SKIP_VERIFY: "true"
             VAULT_LOG_FORMAT: "json"
           dataStorage:
             size: 256Mi
