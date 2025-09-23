@@ -12,7 +12,6 @@ domain: {{ $domainName }}
 {{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled")) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
-{{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
 {{- $enterpriseEnabled := (dig "enterprise" "enabled" false .Values.grafana) }}
 
 flux:
@@ -27,12 +26,6 @@ networkPolicies:
     {{- include "getGatewaySelector" (dict "pkg" .Values.grafana "root" .) | nindent 4 }}
 
 openshift: {{ .Values.openshift }}
-
-minioOperator:
-  enabled: {{ .Values.addons.minioOperator.enabled }}
-
-gitlabRunner:
-  enabled: {{ .Values.addons.gitlabRunner.enabled }}
 
 istio:
   {{- $grafanaInjection := dig "istio" "injection" "enabled" .Values.grafana }}
@@ -52,15 +45,6 @@ istio:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.grafana.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.grafana }}
-
-kiali:
-  enabled: {{ .Values.kiali.enabled }}
-
-loki:
-  enabled: {{ .Values.loki.enabled }}
-
-tempo:
-  enabled: {{ .Values.tempo.enabled }}
 
 {{- if $enterpriseEnabled }}
 enterprise:
