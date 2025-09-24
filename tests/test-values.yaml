@@ -787,12 +787,6 @@ kyvernoPolicies:
             - resources:
                 namespaces:
                   - gitlab
-      update-automountserviceaccounttokens:
-          namespaces:
-            - namespace: harbor
-              pods:
-                allow:
-                - harbor-script-test
     additionalPolicyExceptions:
       testpolicyexception:
         enabled: true
