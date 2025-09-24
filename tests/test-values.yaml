@@ -1408,7 +1408,6 @@ addons:
     sso:
       enabled: false
     values:
-      # BigBang-specific values
       istio:
         hardened:
           customServiceEntries:
@@ -1427,23 +1426,17 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      
-      # Keystore job resources  
       keystoreJob:
         resources:
           limits:
             cpu: 1
             memory: 500Mi
-      
-      # Upstream chart values
       upstream:
         persistentVolumeClaim:
           size: 5Gi
         jvmMaxRAMPercentage: 85
         databaseSecret:
           useRoot: true
-      
-      # MySQL subchart configuration
       mysql:
         primary:
           resources:
@@ -1466,8 +1459,6 @@ addons:
             limits:
               cpu: 100m
               memory: 500Mi
-      
-      # Fortify autoconfig - at root level
       fortify_autoconfig: |
         appProperties:
           host.validation: false
@@ -1479,8 +1470,6 @@ addons:
           migration.enabled: true
           migration.username: root
           migration.password: password
-      
-      # BigBang tests
       bbtests:
         enabled: true
         cypress: # note `cypress:*`` is different than in the fortify chart test-values.yaml
