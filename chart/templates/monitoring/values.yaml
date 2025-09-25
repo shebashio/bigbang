@@ -96,6 +96,22 @@ networkPolicies:
 
 openshift: {{ .Values.openshift }}
 
+{{- if .Values.addons.headlamp.enabled }}
+blackboxExporter:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    defaults:
+      module: http_2xx
+      interval: 30s
+      labels: { release: monitoring }
+    targets:
+      - name: headlamp
+        url: "http://headlamp.headlamp.svc.cluster.local:4466/health"
+        module: http_2xx
+        path: /probe
+{{- end }}  
+
 minioOperator:
   enabled: {{ .Values.addons.minioOperator.enabled }}
 
