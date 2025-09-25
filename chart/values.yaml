@@ -174,9 +174,9 @@ imagePullPolicy: IfNotPresent
 
 # -- Flag for temporary workaround for passthrough chart migrations
 # This is the global flag to disable automatic passthrough values for all packages.
-# Alternatively, you can set this flag to `true` in the individual package values to disable passthrough for that package.
-# This will be removed in a future release.
-disableAutomaticPassthroughValues: false
+# Alternatively, you can set this flag to `false` (enabling automatic passthrough globally), and then per package set `disableAutomaticPassthroughValues` to `true` to disable automatic passthrough for that package.
+# This will be removed in a future release (as will all references to `disableAutomaticPassthroughValues`).
+disableAutomaticPassthroughValues: true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
@@ -1150,17 +1150,26 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "2.1.0-bb.1"
+    tag: "3.0.0-bb.0"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "2.1.0-bb.1"
+    tag: "3.0.0-bb.0"
 
   repoCredentials:
     repo: "repo1.dso.mil"
     username: ""
     password: ""
+    email: ""
+
+  # List of docker image registry hostnames to use in commands that deploy images
+  # Defaults to ["registry1.dso.mil"] if empty
+  registryOverrides: []
+  # Image name including tag to use for the preflight check pod
+  # Defaults to "registry1.dso.mil/ironbank/redhat/ubi/ubi9-minimal:9.6" if empty
+  preflightCheck:
+    image: ""
 
   # -- Override flux settings for this package
   flux: {}
@@ -2043,11 +2052,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.30.1-bb.6"
+      tag: "0.30.1-bb.7"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.30.1-bb.6"
+      tag: "0.30.1-bb.7"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
@@ -2122,12 +2131,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.17.2-bb.2"
+      tag: "1.17.2-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.17.2-bb.2"
+      tag: "1.17.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
