@@ -1027,7 +1027,11 @@ tempo:
             TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
 
       persistence:
+        enabled: true
+        # -- Enable StatefulSetAutoDeletePVC feature
+        enableStatefulSetAutoDeletePVC: true
         size: 5Gi
+
 
       tempoQuery:
         resources:
