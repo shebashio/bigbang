@@ -926,7 +926,8 @@ fluentbit:
 
 
 loki:
-  strategy: scalable
+  # Test SingleBinary at Umbrella, and Scalable at package level
+  strategy: monolith
   values:
     istio:
       loki:
@@ -956,40 +957,13 @@ loki:
               resolution: DNS
 
     minio:
-      enabled: true
+      enabled: false
     write:
-      replicas: 3
-      persistence:
-        size: 2Gi
-      resources:
-        limits:
-          cpu: 1
-          memory: 1G
-        requests:
-          cpu: 1
-          memory: 1G
+      replicas: 0
     backend:
-      replicas: 3
-      persistence:
-        size: 2Gi
-      resources:
-        limits:
-          cpu: 500m
-          memory: 1G
-        requests:
-          cpu: 500m
-          memory: 1G
+      replicas: 0
     read:
-      replicas: 3
-      persistence:
-        size: 2Gi
-      resources:
-        limits:
-          cpu: 400m
-          memory: 500Mi
-        requests:
-          cpu: 400m
-          memory: 500Mi
+      replicas: 0
     bbtests:
       enabled: true
       cypress:
@@ -1291,19 +1265,6 @@ alloy:
   enabled: true
   alloyLogs:
     enabled: true
-  values:
-    k8s-monitoring:
-      destinations:
-        - name: loki
-          type: loki
-          url: http://logging-loki-write.logging.svc.cluster.local:3100/loki/api/v1/push
-      alloy-logs:
-        enabled: true
-      podLogs:
-        enabled: true
-        destinations:
-          - loki
-        collector: alloy-logs
 
 # Addons are toggled based on labels in CI
 addons:
@@ -1428,7 +1389,7 @@ addons:
       redis:
         enabled: true
       redis-bb:
-        upstream: 
+        upstream:
           master:
             persistence:
               size: 256Mi
@@ -1935,34 +1896,34 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      tenant:
-        pools:
-        - name: pool-0
-          labels:
-            app: minio
-            app.kubernetes.io/name: minio
-          servers: 3
-          volumesPerServer: 4
-          size: 256Mi
-          resources:
-            requests:
-              cpu: 250m
-              memory: 2Gi
-            limits:
-              cpu: 250m
-              memory: 2Gi
-          securityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            fsGroup: 1001
-            runAsNonRoot: true
-          containerSecurityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            runAsNonRoot: true
-            capabilities:
-              drop:
-              - ALL
+      upstream:
+        tenant:
+          pools:
+          - name: pool-0
+            labels:
+              app.kubernetes.io/name: minio-instance
+            servers: 3
+            volumesPerServer: 4
+            size: 256Mi
+            resources:
+              requests:
+                cpu: 250m
+                memory: 2Gi
+              limits:
+                cpu: 250m
+                memory: 2Gi
+            securityContext:
+              runAsUser: 1001
+              runAsGroup: 1001
+              fsGroup: 1001
+              runAsNonRoot: true
+            containerSecurityContext:
+              runAsUser: 1001
+              runAsGroup: 1001
+              runAsNonRoot: true
+              capabilities:
+                drop:
+                - ALL
       bbtests:
         # There have been intermittent failures of the tests in the past.   The issue is tracked in the below issue.
         # https://repo1.dso.mil/big-bang/product/packages/minio/-/issues/7
@@ -2012,7 +1973,7 @@ addons:
         scripts:
           envs:
             MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
-      mimir-distributed:
+      upstream:
         mimir:
           structuredConfig:
             limits:
@@ -6737,6 +6698,7 @@ addons:
         global:
           tlsDisable: false
         injector:
+          enabled: true
           affinity: |
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
@@ -6761,6 +6723,8 @@ addons:
             replicas: 1
             apiAddr: "https://vault.dev.bigbang.mil"
             raft:
+              enabled: true
+              setNodeId: true
               config: |
                 ui = true
 
@@ -6791,7 +6755,7 @@ addons:
                   kms_key_id = "mrk-ff723da024254ea2b7f490c68fbc9b9b"
                   endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
                 }
-  
+
                 telemetry {
                   prometheus_retention_time = "24h"
                   disable_hostname = true
@@ -6901,7 +6865,6 @@ addons:
         scripts:
           envs:
             HARBOR_REGISTRY: "harbor.dev.bigbang.mil"
-
   # ----------------------------------------------------------------------------------------------------------------------
   # Thanos
   #
