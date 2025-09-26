@@ -42,7 +42,7 @@ spec:
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
 
     postRenderers:
-  {{ include "tempo.serviceMonitorPostRenderers" . | nindent 2 }}
+  {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
   {{- if or .Values.tempo.postRenderers .Values.monitoring.enabled }}
   {{- if .Values.tempo.postRenderers }}
   {{- with .Values.addons.mimir.postRenderers }}
