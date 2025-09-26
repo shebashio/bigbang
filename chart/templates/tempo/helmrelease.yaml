@@ -44,7 +44,7 @@ spec:
     postRenderers:
   {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
   {{- if .Values.tempo.postRenderers }}
-  {{- with .Values.addons.mimir.postRenderers }}
+  {{- with .Values.tempo.postRenderers }}
   {{ toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
