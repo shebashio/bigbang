@@ -43,7 +43,6 @@ spec:
 
     postRenderers:
   {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
-  {{- if or .Values.tempo.postRenderers .Values.monitoring.enabled }}
   {{- if .Values.tempo.postRenderers }}
   {{- with .Values.addons.mimir.postRenderers }}
   {{ toYaml . | nindent 2 }}
@@ -54,7 +53,6 @@ spec:
   {{- end }}
   {{- if and .Values.tempo.objectStorage.accessKey .Values.tempo.objectStorage.accessSecret }}
   {{ include "tempo.objectStoragePostRenderers" . | nindent 2 }}
-  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-tempo-values
