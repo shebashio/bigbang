@@ -41,7 +41,7 @@ spec:
 
   {{- toYaml $fluxSettingsTempo | nindent 2 }}
 
-    postRenderers:
+  postRenderers:
   {{ include "tempo.promPortsPostRenderers" . | nindent 2 }}
   {{- if .Values.tempo.postRenderers }}
   {{- with .Values.tempo.postRenderers }}
