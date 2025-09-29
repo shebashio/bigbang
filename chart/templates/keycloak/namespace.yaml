@@ -6,7 +6,8 @@ kind: Namespace
 metadata:
   name: {{ $name }}
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled")) }}
+    istio.io/dataplane-mode: ambient
+    istio.io/use-waypoint: keycloak-waypoint
     app.kubernetes.io/name: {{ $name }}
     app.kubernetes.io/component: "security-tools"
     {{- include "commonLabels" . | nindent 4 }}
