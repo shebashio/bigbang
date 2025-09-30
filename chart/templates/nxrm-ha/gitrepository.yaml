@@ -1,8 +1,8 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
 {{- if and (eq $nexusValues.sourceType "git") $nexusValues.enabled  }}
 {{- $gitCredsDict := dict
-  "name" "nexusRepositoryManager"
+  "name" "nxrm-ha"
   "packageGitScope" $nexusValues.git
   "rootScope" .
   "releaseName" .Release.Name
