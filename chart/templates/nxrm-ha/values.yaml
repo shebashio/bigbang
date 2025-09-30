@@ -1,12 +1,12 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
 {{- if $nexusValues.enabled  }}
-{{- include "values-secret" (dict "root" $ "package" $nexusValues "name" "nexus-repository-manager" "defaults" (include "bigbang.defaults.nexus-repository-manager" .)) }}
+{{- include "values-secret" (dict "root" $ "package" $nexusValues "name" "nexus-repository-manager" "defaults" (include "bigbang.defaults.nxrm-ha" .)) }}
 {{- end }}
 
-{{- define "bigbang.defaults.nexus-repository-manager" -}}
+{{- define "bigbang.defaults.nxrm-ha" -}}
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 domain: {{ $domainName }}
@@ -51,23 +51,25 @@ networkPolicies:
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" $nexusValues "root" .) | nindent 4 }}
 
-nexus:
-  imagePullSecrets:
-    - name: private-registry
-  {{- if $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end }}
-  {{- if $nexusValues.license_key }}
-  properties:
-    override: true
-    data: 
-      nexus.licenseFile: /nexus-data/sonatype-license.lic
-  {{- end }}
-
 license_key: "{{ $nexusValues.license_key }}"
 realms:
   - "NexusAuthenticatingRealm"
+
+# Upstream chart values
+upstream:
+  nexus:
+    imagePullSecrets:
+      - name: private-registry
+    {{- if $istioEnabled }}
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+    {{- end }}
+    {{- if $nexusValues.license_key }}
+    properties:
+      override: true
+      data: 
+        nexus.licenseFile: /nexus-data/sonatype-license.lic
+    {{- end }}
 
 {{- if $nexusValues.sso.enabled }}
 sso:

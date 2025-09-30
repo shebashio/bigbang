@@ -1,5 +1,5 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
-{{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
 {{- $fluxSettingsNexus := merge $nexusValues.flux .Values.flux -}}
 {{- if $nexusValues.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
@@ -13,7 +13,7 @@ metadata:
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
   annotations:
-    checksum/bigbang-values: {{ include (print $.Template.BasePath "/nexus-repository-manager/values.yaml") . | sha256sum }}
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/nxrm-ha/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: nexus-repository-manager
   releaseName: nexus-repository-manager
@@ -44,9 +44,14 @@ spec:
 
   {{- toYaml $fluxSettingsNexus | nindent 2 }}
 
-  {{- if $nexusValues.postRenderers }}
+  {{- if or $nexusValues.postRenderers .Values.monitoring.enabled }}
   postRenderers:
-  {{ toYaml $nexusValues.postRenderers | nindent 4 }}
+  {{- if .Values.monitoring.enabled }}
+  {{ include "nxrm-ha.prometheusPostRenderers" . | nindent 2 }}
+  {{- end }}
+  {{- with $nexusValues.postRenderers }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-nexus-repository-manager-values

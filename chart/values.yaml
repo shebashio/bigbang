@@ -1544,21 +1544,21 @@ addons:
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
 
-  nexusRepositoryManager:
-    # -- Toggle deployment of Nexus Repository Manager.
+  nxrm-ha:
+    # -- Toggle deployment of Nexus Repository Manager High Availability.
     enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/nexus.git
+      repo: https://repo1.dso.mil/big-bang/apps/sandbox/nxrm-ha.git
       path: "./chart"
-      tag: "84.0.0-bb.1"
+      tag: "84.0.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "nexus-repository-manager"
-      tag: "84.0.0-bb.1"
+      tag: "84.0.0-bb.2"
 
     # -- Base64 encoded license file.
     license_key: ""
@@ -1607,7 +1607,7 @@ addons:
     # -- Flux reconciliation overrides specifically for the Nexus Repository Manager Package
     flux: {}
 
-    # -- Values to passthrough to the nxrm chart: https://repo1.dso.mil/big-bang/product/packages/nexus.git
+    # -- Values to passthrough to the nxrm-ha chart: https://repo1.dso.mil/big-bang/apps/sandbox/nxrm-ha.git
     values: {}
 
     # -- Post Renderers.  See docs/postrenders.md
