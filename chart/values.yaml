@@ -816,11 +816,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.8-bb.0"
+    tag: "2.8.8-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.8-bb.0"
+    tag: "2.8.8-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1854,11 +1854,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.11.2-bb.1"
+      tag: "10.12.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.11.2-bb.1"
+      tag: "10.12.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2332,14 +2332,14 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.35.0-bb.0"
+      tag: "0.35.0-bb.1"
       tag: ""
       branch: "55-remove-blackbox-exporter"      
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.35.0-bb.0"
+      tag: "0.35.0-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
