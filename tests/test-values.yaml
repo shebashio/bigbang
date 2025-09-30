@@ -1981,8 +1981,6 @@ addons:
 
     minioObjectStorage:
       enabled: true
-    networkPolicies:
-      enabled: true
     imagePullSecrets:
       - name: private-registry
     console:
@@ -6978,11 +6976,6 @@ addons:
   #
   headlamp:
     values:
-      istio:
-        hardened:
-          enabled: true
-      networkPolicies:
-        enabled: true
       bbtests:
         enabled: true
         cypress:
