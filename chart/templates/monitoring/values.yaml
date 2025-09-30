@@ -100,30 +100,24 @@ openshift: {{ .Values.openshift }}
 blackboxExporter:
   enabled: true
   serviceMonitor:
-    enabled: true
-    endpoints:
-      port: http
-      path: /probe
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true
+    enabled: {{ .Values.monitoring.enabled }}
+    {{- if $istioInjection }}
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true
+    {{- end }}
     defaults:         
       intervals: 30s
       labels: { release: monitoring }
     targets:
       - name: headlamp
-        url: "http://headlamp-headlamp.svc.cluster.local:4466/healthz"
+        url: "http://headlamp-headlamp.headlamp.svc.cluster.local:4466/healthz"
         module: http_2xx
         path: /probe
         scheme: https
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true         
 {{- end }}  
 
 minioOperator:
