@@ -110,7 +110,6 @@ blackboxExporter:
       insecureSkipVerify: true
     {{- end }}
     defaults:         
-      intervals: 30s
       labels: { release: monitoring }
     targets:
       - name: headlamp
