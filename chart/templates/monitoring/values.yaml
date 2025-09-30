@@ -118,9 +118,7 @@ blackboxExporter:
       labels: { release: monitoring }
     targets:
       - name: headlamp
-        url: "http://headlamp-headlamp.headlamp.svc.cluster.local:4466/healthz"
-        module: http_2xx
-        path: /probe
+        url: "http://headlamp-headlamp.headlamp.svc.cluster.local:4466"
         scheme: https
 {{- end }}  
 
