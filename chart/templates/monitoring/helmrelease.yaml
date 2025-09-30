@@ -41,8 +41,9 @@ spec:
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
 
-  {{- if .Values.monitoring.postRenderers }}
   postRenderers:
+  {{ include "monitoring.automountServiceAccountTokenPostRenderers" . | nindent 2 }}
+  {{- if .Values.monitoring.postRenderers }}
   {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
