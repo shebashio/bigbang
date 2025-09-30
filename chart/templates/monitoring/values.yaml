@@ -15,6 +15,7 @@ domain: {{ $domainName }}
 
 {{- $authserviceEnabled := and $istioEnabled (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
+{{- $headlampEnabled := (.Values.addons.headlamp.enabled) }}
 {{- $thanosEnabled := (.Values.addons.thanos.enabled) }}
 {{- $lokiEnabled := (.Values.loki.enabled) }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
@@ -59,6 +60,10 @@ networkPolicies:
         to:
           k8s:
             authservice/authservice:10003: {{ $authserviceEnabled }}
+      prometheus-blackbox-exporter:
+        to:
+          k8s:
+            headlamp/headlamp:4466: {{ $headlampEnabled }}
       alertmanager:
         to:
           k8s:
