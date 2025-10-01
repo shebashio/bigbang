@@ -1,6 +1,7 @@
 {{- $pkg := "kyvernoReporter" }}
 {{- if (get .Values $pkg).enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.kyvernoReporter) "enabled")) }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -8,6 +9,10 @@ metadata:
     app.kubernetes.io/name: {{ $pkg | kebabcase }}
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (get .Values $pkg)) "enabled")) }}
+    {{- if $istioInjection }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.alloy) "enabled")) }}
+    {{- else }}
+    istio.io/dataplane-mode: ambient
+    {{- end }}
   name: kyverno-reporter
 {{- end }}

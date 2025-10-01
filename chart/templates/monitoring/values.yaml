@@ -178,7 +178,7 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
@@ -209,7 +209,7 @@ prometheus:
 
   thanosServiceMonitor:
     enabled: true
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     serviceMonitor:
       scheme: https
       tlsConfig:
@@ -220,7 +220,7 @@ prometheus:
     {{- end }}
   {{- end }}
   prometheusSpec:
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
     alertingEndpoints:
     - name: monitoring-monitoring-kube-alertmanager
       namespace: monitoring
@@ -255,7 +255,7 @@ prometheus:
           - action: labeldrop
             regex: '.*\..*'
       {{- end }}
-        {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+        {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
           certFile: /etc/prom-certs/cert-chain.pem

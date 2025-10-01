@@ -1,5 +1,6 @@
 {{- if .Values.prometheusOperatorCRDs.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled")) }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -8,5 +9,9 @@ metadata:
     app.kubernetes.io/name: monitoring
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.prometheusOperatorCRDs) "enabled")) }}
+    {{- if $istioInjection }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.alloy) "enabled")) }}
+    {{- else }}
+    istio.io/dataplane-mode: ambient
+    {{- end }}
 {{- end }}

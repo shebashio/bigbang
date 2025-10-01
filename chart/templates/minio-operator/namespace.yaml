@@ -1,11 +1,16 @@
 {{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: minio-operator
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
+    {{- if $istioInjection }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.alloy) "enabled")) }}
+    {{- else }}
+    istio.io/dataplane-mode: ambient
+    {{- end }}
     app.kubernetes.io/name: minioOperator
     app.kubernetes.io/component: "application-utilities"
     {{- include "commonLabels" . | nindent 4}}
