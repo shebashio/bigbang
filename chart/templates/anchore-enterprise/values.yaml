@@ -64,48 +64,35 @@ global:
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-postgresql:
-  {{- if $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end}}
-  imagePullSecrets: private-registry
-  {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
-  enabled: false
-  postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
-  postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
-  postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.database }}
-  externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
-  postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
+upstream:
+  {{- if .Values.addons.anchoreEnterprise.adminPassword }}
+  anchoreConfig:
+    default_admin_password: {{ .Values.addons.anchoreEnterprise.adminPassword }}
   {{- end }}
-{{- if .Values.addons.anchoreEnterprise.adminPassword }}
-anchoreConfig:
-  default_admin_password: {{ .Values.addons.anchoreEnterprise.adminPassword }}
-{{- end }}
 
-feeds:
-  istio:
-    enabled: {{ $istioEnabled }}
-    injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled")) }}
+  feeds:
+    istio:
+      enabled: {{ $istioEnabled }}
+      injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled")) }}
 
-  feeds-db:
-    {{- if $istioEnabled }}
-    podAnnotations:
-      {{ include "istioAnnotation" . }}
-    {{- end }}
-    imagePullSecrets: private-registry
-    {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.feeds_database }}
-    enabled: false
-    postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
-    postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
-    postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.feeds_database }}
-    externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
-    postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
-    {{- end }}
+    feeds-db:
+      {{- if $istioEnabled }}
+      podAnnotations:
+        {{ include "istioAnnotation" . }}
+      {{- end }}
+      imagePullSecrets: private-registry
+      {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.feeds_database }}
+      enabled: false
+      postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
+      postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
+      postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.feeds_database }}
+      externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
+      postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
+      {{- end }}
 
-ui:
-  imagePullPolicy: {{ .Values.imagePullPolicy }}
-  imagePullSecretName: private-registry
+  ui:
+    imagePullPolicy: {{ .Values.imagePullPolicy }}
+    imagePullSecretName: private-registry
 
 ui-redis:
   {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
@@ -150,6 +137,21 @@ ui-redis:
     prometheusRule:
       enabled: true
       namespace: monitoring
+  {{- end }}
+
+postgresql:
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end}}
+  imagePullSecrets: private-registry
+  {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
+  enabled: false
+  postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
+  postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
+  postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.database }}
+  externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
+  postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
   {{- end }}
 
 {{- end }}
