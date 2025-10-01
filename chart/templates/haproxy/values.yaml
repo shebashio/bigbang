@@ -98,8 +98,6 @@ config: |
     option forwardfor
     http-request replace-header Host .* monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local
     server prometheus monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090
-image:
-  repository: registry1.dso.mil/ironbank/opensource/haproxy/haproxy22
 containerPorts:
   http: 8080
 istio:

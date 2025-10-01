@@ -178,7 +178,7 @@ alertmanager:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
   serviceMonitor:
     scheme: https
     tlsConfig:
