@@ -7,5 +7,5 @@
             value: false
         target:
           kind: ServiceMonitor
-          name:  monitoring-grafana
+          name: monitoring-grafana
 {{- end }}
