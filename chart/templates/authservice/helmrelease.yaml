@@ -14,8 +14,6 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/authservice/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: authservice
-  upgrade:
-    force: true
   chart:
     spec:
       {{- if eq .Values.addons.authservice.sourceType "git" }}
