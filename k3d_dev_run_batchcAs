@@ -1,0 +1,13 @@
+#!/bin/bash
+set -xue
+k3d cluster delete --all
+docker ps -aq | xargs docker stop || true
+docker ps -aq | xargs docker rm -f || true
+docker system prune -a -f --volumes
+docker network remove k3d-network || true
+sudo systemctl restart docker
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.8.3 bash
+k3d version
+sudo mkdir -p /cypress && sudo chown 1000:1000 /cypress
+docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1
+export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:* --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=metrics-server@server:0" --image docker.io/rancher/k3s:v1.33.3-k3s1 --network k3d-network --k3s-arg "--disable=servicelb@server:0" --k3s-arg "--tls-san=3.30.157.221@server:0"
