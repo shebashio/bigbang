@@ -8,7 +8,7 @@ tags:
  
 ## Introduction
  
-The intent of this post is to build off the existing Cypress Testing documentation [here](../docs/guides/using-bigbang/testing-deployments.md) and go a bit deeper into how it can be leveraged in a real-world environment.  We will also go a bit deeper into Cypress specific configuration settings, running/debugging tests, and cover some of the basics of Cypress.
+The intent of this post is to build off the existing Cypress Testing documentation [here](../docs/tutorials/testing-deployments.md) and go a bit deeper into how it can be leveraged in a real-world environment.  We will also go a bit deeper into Cypress specific configuration settings, running/debugging tests, and cover some of the basics of Cypress.
  
 ## Environment Overview
  
