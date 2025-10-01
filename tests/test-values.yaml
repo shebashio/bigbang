@@ -2761,3 +2761,18 @@ addons:
           artifacts: true
           envs:
             cypress_url: https://headlamp.dev.bigbang.mil
+  # ----------------------------------------------------------------------------------------------------------------------
+  # Renovate
+  #
+  renovate:
+    values:
+      istio:
+        hardened:
+          enabled: true
+      networkPolicies:
+        enabled: true
+      upstream:
+        config: | 
+          {
+            "platform": "gitlab"
+          }
