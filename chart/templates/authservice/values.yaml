@@ -161,7 +161,7 @@ global:
   {{- $redisValues := $authserviceValues.redis | default dict }}
   {{- if hasKey $redisValues "enabled" }}
   {{- if $redisValues.enabled }}
-  redis_server_uri: "tcp://authservice-authservice-redis-bb-master:6379"
+  redis_server_uri: "tcp://redis-bb-master:6379"
   {{- end }}
   {{- end }}
 
