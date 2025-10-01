@@ -406,11 +406,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.15.0-bb.0"
+    tag: "2.16.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.15.0-bb.0"
+    tag: "2.16.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -816,11 +816,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.8-bb.1"
+    tag: "2.8.8-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.8-bb.1"
+    tag: "2.8.8-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2235,12 +2235,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "0.19.2-bb.2"
+      tag: "0.20.1-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "0.19.2-bb.2"
+      tag: "0.20.1-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
