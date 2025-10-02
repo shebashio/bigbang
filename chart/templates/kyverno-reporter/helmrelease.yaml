@@ -73,5 +73,7 @@ spec:
     {{- if $istioEnabled }}
     - name: {{ include "istioHelmRelease" . }}
       namespace: {{ .Release.Namespace }}
+    - name: ztunnel
+      namespace: {{ .Release.Namespace }}
     {{- end }}
 {{- end }}
