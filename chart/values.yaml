@@ -1179,37 +1179,6 @@ bbctl:
   postRenderers: []
 # ----------------------------------------------------------------------------------------------------------------------
 
-
-renovate:
-  # -- Toggle deployment of harbor
-  enabled: false
-
-  # -- Choose source type of "git" or "helmRepo"
-  sourceType: "git"
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/maintained/renovate.git
-    tag: "44.2.3-bb.0"
-    path: "./chart"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "renovate"
-    tag: "44.2.3-bb.0"
-
-  # -- Flux reconciliation overrides specifically for the Harbor Package
-  flux: {}
-
-  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-  ingress:
-    gateway: ""
-
-  # -- Values to pass through to Habor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-  values: {}
-
-  # -- Post Renderers.  See docs/postrenders.md
-  postRenderers: []
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 #
 addons:
@@ -2190,6 +2159,34 @@ addons:
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
 
+  renovate:
+    # -- Toggle deployment of harbor
+    enabled: false
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/renovate.git
+      tag: "44.2.3-bb.0"
+      path: "./chart"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "renovate"
+      tag: "44.2.3-bb.0"
+
+    # -- Flux reconciliation overrides specifically for the Harbor Package
+    flux: {}
+
+    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+    ingress:
+      gateway: ""
+
+    # -- Values to pass through to Habor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
+    values: {}
+
+    # -- Post Renderers.  See docs/postrenders.md
+    postRenderers: []
   # ----------------------------------------------------------------------------------------------------------------------
   # thanos
   #
