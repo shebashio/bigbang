@@ -45,7 +45,7 @@ annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if or .Values.addons.sonarqube.sso.enabled .Values.addons.sonarqube.database }}
+{{- if or .Values.addons.sonarqube.sso.enabled .Values.addons.sonarqube.database.port }}
 upstream:
 {{- if .Values.addons.sonarqube.sso.enabled }}
   sonarProperties:
