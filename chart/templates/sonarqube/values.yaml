@@ -45,8 +45,9 @@ annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-{{- if .Values.addons.sonarqube.sso.enabled }}
+{{- if or .Values.addons.sonarqube.sso.enabled .Values.addons.sonarqube.database }}
 upstream:
+{{- if .Values.addons.sonarqube.sso.enabled }}
   sonarProperties:
     # enabling saml authentication 
     sonar.auth.saml.enabled: {{ .Values.addons.sonarqube.sso.enabled }}   #false
@@ -72,7 +73,6 @@ upstream:
 {{- with .Values.addons.sonarqube.database }}
   {{- if and .host .username .password .database .port }}
 # External Postgres config
-upstream:
   jdbcOverwrite:
     enabled: true
     jdbcUrl: "jdbc:postgresql://{{ .host }}:{{ .port }}/{{ .database }}?socketTimeout=1500"
@@ -102,5 +102,6 @@ upstream:
       port: {{ .port }}
     {{- end }}
   {{- end }}
-{{- end -}}
+{{ end -}}
+{{- end }}
 
