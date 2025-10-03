@@ -64,7 +64,12 @@ networkPolicies:
           k8s:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
+    generateAuthorizationPolicies: true
     to:
+      kube-prometheus-stack-prometheus-operator:10250:
+        from:
+          k8s:
+            monitoring/prometheus: true
       prometheus:10901:
         from:
           k8s:
@@ -88,11 +93,11 @@ networkPolicies:
           definition:
             gateway: {{ .Values.istioGateway.enabled }}
           k8s:
-            tempo/tempo: {{ .Values.tempo.enabled }}
+            tempo-tempo@tempo/tempo: {{ .Values.tempo.enabled }}
             authservice/haproxy: {{ .Values.addons.haproxy.enabled }}
-            kiali/kiali: {{ .Values.kiali.enabled }}
-            alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            logging/logging-loki: {{ .Values.loki.enabled }}
+            kiali-service-account@kiali/kiali: {{ .Values.kiali.enabled }}
+            alloy-alloy-metrics@alloy/alloy-logs: {{ .Values.alloy.enabled }}
+            logging-loki@logging/logging-loki: {{ .Values.loki.enabled }}
 
 openshift: {{ .Values.openshift }}
 
