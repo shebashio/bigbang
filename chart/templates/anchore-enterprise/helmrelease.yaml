@@ -38,8 +38,10 @@ spec:
 
   {{- toYaml $fluxSettingsAnchore | nindent 2 }}
 
-  {{- if .Values.addons.anchoreEnterprise.postRenderers }}
+  
   postRenderers:
+  {{ include "nchoreEnterprise.licensePostRenderer" . | nindent 2 }}
+  {{- if .Values.addons.anchoreEnterprise.postRenderers }}
   {{ toYaml .Values.addons.anchoreEnterprise.postRenderers | nindent 4 }}
   {{- end }}
 
