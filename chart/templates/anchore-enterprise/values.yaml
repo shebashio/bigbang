@@ -46,10 +46,17 @@ networkPolicies:
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.anchoreEnterprise "root" .) | nindent 4 }}
 
-{{- if .Values.addons.anchoreEnterprise.enterprise.licenseYaml }}
+{{- if .Values.addons.anchoreEnterprise.upstream.license }}
 enterpriseLicenseYaml: |
-  {{ .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 2 }}
+  {{ .Values.addons.anchoreEnterprise.upstream.license | nindent 2 }}
 {{- end }}
+
+{{- if .Values.addons.anchoreEnterprise.upstream.license }}
+license: |
+  {{ .Values.addons.anchoreEnterprise.upstream.license | nindent 2 }}
+{{- end }}
+
+
 
 sso:
   enabled: {{ .Values.addons.anchoreEnterprise.sso.enabled }}
