@@ -46,11 +46,6 @@ networkPolicies:
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.anchoreEnterprise "root" .) | nindent 4 }}
 
-{{- if .Values.addons.anchoreEnterprise.enterprise.licenseYaml }}
-enterpriseLicenseYaml: |
-  {{ .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 2 }}
-{{- end }}
-
 sso:
   enabled: {{ .Values.addons.anchoreEnterprise.sso.enabled }}
   spEntityId: {{ .Values.addons.anchoreEnterprise.sso.client_id }}
@@ -68,6 +63,10 @@ upstream:
   {{- if .Values.addons.anchoreEnterprise.adminPassword }}
   anchoreConfig:
     default_admin_password: {{ .Values.addons.anchoreEnterprise.adminPassword }}
+  {{- end }}
+  {{- if .Values.addons.anchoreEnterprise.enterprise.licenseYaml }}
+  license: |
+    {{ .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 4 }}
   {{- end }}
 
   feeds:
