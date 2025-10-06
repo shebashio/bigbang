@@ -526,11 +526,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.13"
+    tag: "3.3.4-bb.14"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.13"
+    tag: "3.3.4-bb.14"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -562,11 +562,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.5.0-bb.0"
+    tag: "3.5.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.5.0-bb.0"
+    tag: "3.5.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -1348,11 +1348,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.9"
+      tag: "7.1.1-bb.10"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.9"
+      tag: "7.1.1-bb.10"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1388,11 +1388,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.3.2-bb.0"
+      tag: "9.4.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.3.2-bb.0"
+      tag: "9.4.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1854,11 +1854,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.12.0-bb.0"
+      tag: "10.12.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.12.0-bb.0"
+      tag: "10.12.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2033,7 +2033,15 @@ addons:
       key: ""
       cert: ""
 
-    # -- Values to passthrough to the keycloak chart: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
+    # -- Values to passthrough to the keycloak chart: https://repo1.dso.mil/big-bang/product/packages/keycloak.git;
+    # WARNING: The upstream keycloak chart has some limitations on certain keys
+    # due to its templating architecture. Some of the offending keys are
+    # `extraEnv`, `extraEnvFrom`, `extraVolumeMounts`, and `extraVolumes`.
+    # These keys are set as strings when installing the chart, so subsequent
+    # overrides aren't merged with existing values: they simply replace them.
+    # This means that if you set any of these keys in your overrides, you must
+    # include all the existing values you wish to keep from [Big Bang's overrides](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/templates/keycloak/values.yaml?ref_type=heads)
+    # in addition to your own.
     values: {}
 
     # -- Post Renderers.  See docs/postrenders.md
@@ -2332,14 +2340,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.35.0-bb.1"
-      tag: ""
-      branch: "55-remove-blackbox-exporter"      
+      tag: "0.35.0-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.35.0-bb.1"
+      tag: "0.35.0-bb.2"
 
     # -- Override flux settings for this package
     flux: {}
