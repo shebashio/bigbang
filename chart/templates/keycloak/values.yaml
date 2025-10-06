@@ -77,8 +77,25 @@ upstream:
       value: /opt/keycloak/conf/tls.key
     {{- end }}
 
+  {{- if $istioEnabled }}
+  serviceHeadless:
+    extraPorts:
+    - name: jgroups
+      port: 7800
+      protocol: TCP
+      targetPort: 7800
+    - name: jgroups-fd
+      port: 57800
+      protocol: TCP
+      targetPort: 57800
+  {{- end }}
+
   serviceMonitor:
     enabled: {{ $monioringEnabled }}
+    {{- if $monioringEnabled }}
+    tlsConfig:
+      insecureSkipVerify: true
+    {{- end }}
 
   {{- if or .Values.addons.keycloak.database.host (and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key) }}
   secrets:
