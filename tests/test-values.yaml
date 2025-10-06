@@ -928,7 +928,7 @@ fluentbit:
 
 loki:
   # Test SingleBinary at Umbrella, and Scalable at package level
-  strategy: monolith
+  # strategy: monolith
   values:
     istio:
       loki:
@@ -959,12 +959,12 @@ loki:
 
     minio:
       enabled: false
-    write:
-      replicas: 0
-    backend:
-      replicas: 0
-    read:
-      replicas: 0
+    # write:
+    #   replicas: 0
+    # backend:
+    #   replicas: 0
+    # read:
+    #   replicas: 0
     bbtests:
       enabled: true
       cypress:
