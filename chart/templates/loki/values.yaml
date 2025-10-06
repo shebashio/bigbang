@@ -79,6 +79,9 @@ loki:
   extraMemberlistConfig:
     bind_addr:
       - ${MY_POD_IP}
+  table_manager:
+    retention_deletes_enabled: true
+    retention_period: 336h
   storage:
     {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
     type: "filesystem"
@@ -115,6 +118,15 @@ loki:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
+compactor:
+  working_directory: /var/loki/compactor
+  {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+  shared_store: filesystem
+  {{- else }}
+  shared_store: s3
+  {{- end }}
+  compaction_interval: 1h
+
 {{- if (eq .Values.loki.strategy "monolith") }}
 deploymentMode: SingleBinary
 singleBinary:
@@ -130,8 +142,6 @@ singleBinary:
 
 {{- if (eq .Values.loki.strategy "scalable") }}
 deploymentMode: SimpleScalable
-singleBinary:
-  replicas: 0
 read:
   replicas: 3
   extraArgs:
