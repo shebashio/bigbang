@@ -1002,26 +1002,6 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
-    upstream:
-      tempo:
-        resources:
-          limits: null
-          requests:
-            cpu: 200m
-            memory: 128Mi
-
-      persistence:
-        enabled: true
-        # -- Enable StatefulSetAutoDeletePVC feature
-        enableStatefulSetAutoDeletePVC: true
-        size: 5Gi
-
-      tempoQuery:
-        resources:
-          limits: null
-          requests:
-            cpu: 200m
-            memory: 128Mi
 
     bbtests:
       enabled: true
