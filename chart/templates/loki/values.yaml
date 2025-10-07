@@ -79,9 +79,7 @@ loki:
   extraMemberlistConfig:
     bind_addr:
       - ${MY_POD_IP}
-  table_manager:
-    retention_deletes_enabled: true
-    retention_period: 336h
+
   storage:
     {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
     type: "filesystem"
@@ -95,37 +93,49 @@ loki:
       accessKeyId: {{ .Values.loki.objectStorage.accessKey }}
       secretAccessKey: {{ .Values.loki.objectStorage.accessSecret }}
     {{- end }}
-  {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
-  rulerConfig:
-    storage:
-      type: local
-  storage_config:
-    boltdb_shipper:
-      active_index_directory: /var/loki/boltdb-shipper-active
-      cache_location: /var/loki/boltdb-shipper-cache
-      cache_ttl: 24h
-    filesystem:
-      directory: /var/loki/chunks
-  {{- end }}
-  # The bbctl violations dashboard output can be larger than the default loki line limit of 256KB
-  # Setting max_line_size = 0 removes the limit so the data can be ingested properly
-  {{- if .Values.bbctl.enabled }}
-  limits_config:
-    max_line_size: 0
-  {{- end }}
+
+  lokiConfig:
+    schema_config:
+      configs:
+        - from: "2024-01-01"  # A date in the past ensures this schema is used immediately
+          {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+          store: boltdb-shipper
+          object_store: filesystem
+          {{- else }}
+          store: boltdb-shipper
+          object_store: s3
+          {{- end }}
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 336h
+    # The bbctl violations dashboard output can be larger than the default loki line limit of 256KB
+    # Setting max_line_size = 0 removes the limit so the data can be ingested properly
+    {{- if .Values.bbctl.enabled }}
+    limits_config:
+      max_line_size: 0
+    {{- end }}
+    {{- if $istioEnabled }}
+    {{- end }}
+    compactor:
+      working_directory: /var/loki/compactor
+      {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+      shared_store: filesystem
+      {{- else }}
+      shared_store: s3
+      {{- end }}
+      compaction_interval: 1h
+
+  config: |
+    {{- toYaml .lokiConfig | nindent 4 }}
+
   {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-
-compactor:
-  working_directory: /var/loki/compactor
-  {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
-  shared_store: filesystem
-  {{- else }}
-  shared_store: s3
-  {{- end }}
-  compaction_interval: 1h
 
 {{- if (eq .Values.loki.strategy "monolith") }}
 deploymentMode: SingleBinary
