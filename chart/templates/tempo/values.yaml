@@ -6,6 +6,10 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
 upstream:
+  # --- Add writable runtime volume ---
+  extraVolumes:
+    - name: tempo-runtime
+      emptyDir: {}  # ephemeral, backed by node disk or memor
   {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
@@ -21,6 +25,9 @@ upstream:
   {{- end }}
 
   tempo:
+    extraVolumeMounts:
+      - name: tempo-runtime
+        mountPath: /var/tempo
     pullPolicy: {{ .Values.imagePullPolicy }}
     global_overrides:
       ingestion_rate_limit_bytes: 30000000
