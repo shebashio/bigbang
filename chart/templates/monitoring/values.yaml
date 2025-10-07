@@ -22,6 +22,25 @@ domain: {{ $domainName }}
 flux:
   enabled: true
 
+authorizationPolicies:
+  enabled: true
+
+  additionalPolicies:
+    monitoring-authz:
+      spec:
+        action: ALLOW
+        rules:
+        - from:
+          - source:
+              namespaces:
+                - default
+              principals:
+                - cluster.local/ns/default/sa/monitoring-kube-prometheus
+                - cluster.local/ns/default/sa/monitoring-kube-alertmanager
+        selector:
+          matchLabels:
+            protect: "keycloak"
+
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   egress:
