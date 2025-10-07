@@ -6,6 +6,8 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
+{{- $replicas := (dig "values" "upstream" "prometheus" "prometheusSpec" "replicas" 1 .Values.monitoring) }}
+{{- $multiReplicaEnabled := gt (int $replicas) 1 }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
@@ -26,7 +28,10 @@ authorizationPolicies:
   enabled: true
 
   additionalPolicies:
+    multi-prometheus-authorization-policy:
+      enabled: {{ $replicas := (dig "values" "upstream" "prometheus" "prometheusSpec" "replicas" 1 .Values.monitoring) }}{{ gt (int $replicas) 1 }}
     monitoring-authz:
+      enabled: {{ .Values.monitoring.sso.enabled }}
       spec:
         action: ALLOW
         rules:
