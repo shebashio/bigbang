@@ -29,8 +29,14 @@ networkPolicies:
     definitions:
       kubeAPI:
         to:
+            {{- if .Values.networkPolicies.controlPlaneCidr }}
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- end }}
+            {{- if .Values.networkPolicies.vpcCidr }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+            {{- end }}
     from:
       # TODO: Remove this once bb-common creates default policies in `pre-install` and `post-delete` hook phases
       admission-create-job:
