@@ -1276,7 +1276,7 @@ istio:
       {{- if and (dig "match" "all" list $default) (dig "match" "all" list $overlay) -}}
         {{ $_ := set $overlay.match "all" (concat $default.match.all $overlay.match.all) -}}
       {{- end -}}
-
+      
       {{- /* Add parameters.allow fields */ -}}
       {{- if and (dig "parameters" "allow" list $default) (dig "parameters" "allow" list $overlay) -}}
         {{ $_ := set $overlay.parameters "allow" (concat $default.parameters.allow $overlay.parameters.allow) -}}
@@ -1291,6 +1291,40 @@ istio:
       {{- if and (dig "parameters" "require" list $default) (dig "parameters" "require" list $overlay) -}}
         {{ $_ := set $overlay.parameters "require" (concat $default.parameters.require $overlay.parameters.require) -}}
       {{- end -}}
+
+      {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
+        {{- $mergedNamespaces := dict -}}
+      
+        {{- /* Index default namespaces by name */ -}}
+        {{- range $ns := $default.namespaces -}}
+          {{- $_ := set $mergedNamespaces $ns.namespace (deepCopy $ns) -}}
+        {{- end -}}
+      
+        {{- /* Merge overlay namespaces into the indexed map */ -}}
+        {{- range $ons := $overlay.namespaces -}}
+          {{- $existing := index $mergedNamespaces $ons.namespace | default dict -}}
+      
+          {{- if $existing.namespace -}}
+            {{- /* Merge pods.allow */ -}}
+            {{- $allow := concat (dig "pods" "allow" list $existing) (dig "pods" "allow" list $ons) -}}
+            {{- $deny := concat (dig "pods" "deny" list $existing) (dig "pods" "deny" list $ons) -}}
+      
+            {{- $_ := set $existing "pods" (dict "allow" $allow "deny" $deny) -}}
+            {{- $_ := set $mergedNamespaces $ons.namespace $existing -}}
+          {{- else -}}
+            {{- $_ := set $mergedNamespaces $ons.namespace $ons -}}
+          {{- end -}}
+        {{- end -}}
+      
+        {{- /* Convert merged map back to list */ -}}
+        {{- $mergedList := list -}}
+        {{- range $k, $v := $mergedNamespaces -}}
+          {{- $mergedList = append $mergedList $v -}}
+        {{- end -}}
+      
+        {{- $_ := set $overlay "namespaces" $mergedList -}}
+      {{- end }}
+            
     {{- end -}}
   {{- end -}}
 {{ toYaml $overlays }}
