@@ -64,6 +64,7 @@ networkPolicies:
         to:
           k8s:
             authservice/authservice:10003: {{ $authserviceEnabled }}
+
   ingress:
     to:
       prometheus:10901:
@@ -93,6 +94,7 @@ networkPolicies:
             authservice/haproxy: {{ .Values.addons.haproxy.enabled }}
             kiali/kiali: {{ .Values.kiali.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
+            alloy/alloy-metrics: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
 
 openshift: {{ .Values.openshift }}
