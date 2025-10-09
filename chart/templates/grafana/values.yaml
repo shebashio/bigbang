@@ -181,7 +181,7 @@ upstream:
       - name: Loki
         type: loki
         {{- if eq .Values.loki.strategy "monolith" }}
-        url: http://logging-loki.logging.svc.cluster.local:3200
+        url: http://logging-loki.logging.svc.cluster.local:3100
         {{- else }}
         url: http://logging-loki-gateway.logging.svc.cluster.local
         {{- end }}
@@ -203,7 +203,7 @@ upstream:
         access: proxy
         orgId: 1
         uid: tempo
-        url: http://tempo-tempo.tempo.svc:3100
+        url: http://tempo-tempo.tempo.svc:3200
         isDefault: false
         editable: true
         jsonData:
