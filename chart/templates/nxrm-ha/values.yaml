@@ -51,7 +51,6 @@ networkPolicies:
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" $nexusValues "root" .) | nindent 4 }}
 
-license_key: "{{ $nexusValues.license_key }}"
 realms:
   - "NexusAuthenticatingRealm"
 
@@ -67,9 +66,16 @@ upstream:
     {{- if $nexusValues.license_key }}
     properties:
       override: true
-      data: 
+      data:
         nexus.licenseFile: /nexus-data/sonatype-license.lic
     {{- end }}
+  {{- if $nexusValues.license_key }}
+  secret:
+    license:
+      licenseSecret:
+        enabled: true
+        fileContentsBase64: {{ $nexusValues.license_key }}
+  {{- end }}
 
 {{- if $nexusValues.sso.enabled }}
 sso:
