@@ -795,6 +795,14 @@ policies:
           names:
           - node-agent*
       {{- end }}
+      {{- if .Values.elasticsearchKibana.enabled }}
+      - resources:
+          namespaces:
+          - logging
+          names:
+          ##testing secret mount failures to logging from kyverno policies
+          - logging-ek-kb*
+      {{- end }}
     {{- end }}
 
   # NOTE: This restricts the ability to have PVCs when using a local path provisioner storage class (i.e. k3d default).
