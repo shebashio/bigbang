@@ -115,6 +115,15 @@ upstream:
     enabled: true
   alloy-metrics:
     enabled: true
+    annotations:
+      {{- if $istioInjection }}
+      {{ include "istioAnnotation" . }}
+      traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+      proxy.istio.io/config: |
+        proxyMetadata:
+          OUTPUT_CERTS: /etc/istio-output-certs
+      sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+      {{- end }}
   {{- end }}
 
 {{- if $.Values.monitoring.enabled }}
