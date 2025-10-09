@@ -319,7 +319,7 @@ prometheus:
         imagePullPolicy: {{ .Values.imagePullPolicy }}
       - name: "config-reloader"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
-    {{- if .Values.tempo.enabled }}
+    {{- if or .Values.tempo.enabled (and .Values.alloy.enabled .Values.alloy.alloyMetrics.enabled)}}
     enableRemoteWriteReceiver: true
     {{- end }}
     podMetadata:
