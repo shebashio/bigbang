@@ -22,7 +22,23 @@ policies:
           - istio-system
           names:
           - ztunnel-*
+  require-readonly-hostpath:
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
   restrict-hostpath-dirs:
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
+  restrict-hostpath-write:
     exclude:
       any:
       - resources:
