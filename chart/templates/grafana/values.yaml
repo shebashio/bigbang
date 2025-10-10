@@ -30,8 +30,9 @@ networkPolicies:
       "*":
         to:
           k8s:
-          tempo/tempo:9411: {{ .Values.tempo.enabled }}
-          thanos:9090: {{ .Values.addons.thanos.enabled }}
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            thanos:9090: {{ .Values.addons.thanos.enabled }}
+
       grafana:
         to:
           k8s:
