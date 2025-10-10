@@ -27,17 +27,17 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
-       "*":
-         to:
-           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-            thanos:9090: {{ .Values.addons.thanos.enabled }}
-       grafana:
-         to:
-           k8s:
-             authservice/authservice:10003: {{ $authserviceRedisEnabled }}
-           definition:
-             kubeAPI: true
+      "*":
+        to:
+          k8s:
+          tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          thanos:9090: {{ .Values.addons.thanos.enabled }}
+      grafana:
+        to:
+          k8s:
+            authservice/authservice:10003: {{ $authserviceRedisEnabled }}
+          definition:
+            kubeAPI: true
 
   ingress:
     to:
