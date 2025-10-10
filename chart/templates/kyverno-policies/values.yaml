@@ -1292,6 +1292,7 @@ istio:
         {{ $_ := set $overlay.parameters "require" (concat $default.parameters.require $overlay.parameters.require) -}}
       {{- end -}}
 
+      {{- /* Merging namespaces from overlay and default lists */ -}}
       {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
         {{- $mergedNamespaces := dict -}}
       
