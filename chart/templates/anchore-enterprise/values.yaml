@@ -65,8 +65,8 @@ upstream:
     default_admin_password: {{ .Values.addons.anchoreEnterprise.upstream.anchoreConfig.default_admin_password }}
   {{- end }}
   {{- if .Values.addons.anchoreEnterprise.upstream.license }}
-  license: |
-    {{ .Values.addons.anchoreEnterprise.upstream.license | nindent 4 }}
+  license: 
+    {{ toYaml .Values.addons.anchoreEnterprise.upstream.license | nindent 4 }}
   {{- end }}
 
 feeds:
