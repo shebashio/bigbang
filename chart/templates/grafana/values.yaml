@@ -42,15 +42,15 @@ networkPolicies:
   ingress:
     to:
       grafana:3000:
-        definition:
-            gateway: {{ .Values.istioGateway.enabled }}
-            backstage/backstage: {{ .Values.addons.backstage.enabled }}
         from:
           k8s:
             tempo/tempo: {{ .Values.tempo.enabled }}
             kiali/kiali: {{ .Values.kiali.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
+            backstage/backstage: {{ .Values.addons.backstage.enabled }}
+          definition:
+            gateway: {{ .Values.istioGateway.enabled }}
 
 openshift: {{ .Values.openshift }}
 
