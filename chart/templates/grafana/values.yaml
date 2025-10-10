@@ -38,6 +38,9 @@ networkPolicies:
         from:
           k8s:
             backstage/backstage: {{ .Values.addons.backstage.enabled }}
+            kiali/kiali: {{ .Values.kiali.enabled }}
+          definition:
+            gateway: {{ .Values.istioGateway.enabled }}
 
 openshift: {{ .Values.openshift }}
 
