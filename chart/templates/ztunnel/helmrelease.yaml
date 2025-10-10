@@ -62,7 +62,7 @@ spec:
   dependsOn:
     - name: istiod
       namespace: {{ .Release.Namespace }}
-    - name: istioCNI
+    - name: istio-cni
       namespace: {{ .Release.Namespace }}
   {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
