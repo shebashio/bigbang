@@ -13,6 +13,24 @@ waitforready:
   - name: private-registry
 
 policies:
+  {{- if .Values.ztunnel.enabled }}
+  disallow-privilege-escalation:
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
+  restrict-hostpath-dirs:
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
+  {{- end }}
   add-default-capability-drop:
     enabled: true
     exclude:
@@ -640,6 +658,13 @@ policies:
           names:
           - alloy-alloy-logs*
       {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
+      {{- end }}
     {{- end }}
 
   {{- if .Values.twistlock.enabled }}
@@ -710,6 +735,13 @@ policies:
           - alloy-alloy-receiver*
           - alloy-alloy-logs*
           - alloy-alloy-singleton*
+      {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
       {{- end }}
     {{- end }}
   restrict-host-path-mount:
@@ -795,6 +827,13 @@ policies:
           names:
           - node-agent*
       {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
+      {{- end }}
     {{- end }}
 
   # NOTE: This restricts the ability to have PVCs when using a local path provisioner storage class (i.e. k3d default).
@@ -833,6 +872,13 @@ policies:
           names:
           - neuvector-controller-pod*
           - neuvector-enforcer-pod*
+      {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
       {{- end }}
     {{- end }}
     {{- if .Values.fluentbit.enabled }}
@@ -980,6 +1026,13 @@ policies:
           - velero
           names:
           - node-agent*
+      {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - resources:
+          namespaces:
+          - istio-system
+          names:
+          - ztunnel-*
       {{- end }}
   {{- end }}
 
