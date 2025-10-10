@@ -70,6 +70,10 @@ spec:
     - name: {{ include "istioHelmRelease" . }}
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- if .Values.ztunnel.enabled }}
+    - name: ztunnel
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
     {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}

@@ -1,11 +1,16 @@
 {{- if .Values.kiali.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: kiali
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.kiali) "enabled")) }}
+    {{- if $istioInjection }}
+    istio-injection: enabled
+    {{- else if and $istioEnabled .Values.ztunnel.enabled }}
+    istio.io/dataplane-mode: ambient
+    {{- end }}
     app.kubernetes.io/name: kiali
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}

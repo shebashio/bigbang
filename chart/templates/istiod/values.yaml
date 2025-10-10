@@ -44,7 +44,13 @@ upstream:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
       - private-registry
- 
+  
+  {{- if .Values.ztunnel.enabled }}
+  env:
+    # Enable ambient mode in pilot
+    PILOT_ENABLE_AMBIENT: "true"
+  {{- end }}
+
   {{- if or .Values.addons.authservice.enabled .Values.tempo.enabled }}
   meshConfig:
     {{- if .Values.tempo.enabled }}
@@ -56,6 +62,10 @@ upstream:
         sampling: 10
         zipkin:
           address: tempo-tempo.tempo.svc:9411
+      {{- if .Values.ztunnel.enabled }}
+      proxyMetadata:
+        ISTIO_META_ENABLE_HBONE: "true"
+      {{- end }}
     {{- end }}
     {{- if .Values.addons.authservice.enabled }}
     extensionProviders:

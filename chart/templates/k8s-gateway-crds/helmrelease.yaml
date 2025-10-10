@@ -1,0 +1,58 @@
+{{- $fluxSettingsK8sGateway := merge .Values.k8sGatewayCRDs.flux .Values.flux -}}
+{{- if and .Values.k8sGatewayCRDs.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: k8s-gateway-crds
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: k8s-gateway-crds
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/k8s-gateway-crds/values.yaml") . | sha256sum }}
+spec:
+  releaseName: k8s-gateway-crds
+  targetNamespace: kube-system
+  chart:
+    spec:
+      {{- if eq .Values.k8sGatewayCRDs.sourceType "git" }}
+      chart: {{ .Values.k8sGatewayCRDs.git.path }}
+      sourceRef:
+        kind: GitRepository
+        name: k8s-gateway-crds
+        namespace: {{ .Release.Namespace }}
+      {{- else }}
+      chart: {{ .Values.k8sGatewayCRDs.helmRepo.chartName }}
+      version: {{ .Values.k8sGatewayCRDs.helmRepo.tag }}
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.k8sGatewayCRDs.helmRepo.repoName }}
+        namespace: {{ .Release.Namespace }}
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.k8sGatewayCRDs.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.k8sGatewayCRDs.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      verify:
+        provider: cosign
+        secretRef:
+          name: {{ printf "%s-cosign-pub" .Values.k8sGatewayCRDs.helmRepo.repoName }}
+      {{- end }}
+      {{- end }}
+      interval: 5m
+
+  {{- toYaml $fluxSettingsK8sGateway | nindent 2 }}
+
+  {{- if .Values.k8sGatewayCRDs.postRenderers }}
+  postRenderers:
+  {{ toYaml .Values.k8sGatewayCRDs.postRenderers | nindent 4 }}
+  {{- end }}
+  valuesFrom:
+    - name: {{ .Release.Name }}-k8s-gateway-crds-values
+      kind: Secret
+      valuesKey: "common"
+    - name: {{ .Release.Name }}-k8s-gateway-crds-values
+      kind: Secret
+      valuesKey: "defaults"
+    - name: {{ .Release.Name }}-k8s-gateway-crds-values
+      kind: Secret
+      valuesKey: "overlays"
+{{- end }}

@@ -1,0 +1,9 @@
+{{- $pkg := "k8sGatewayCRDs" }}
+
+{{- /* Create secret */ -}}
+{{- if .Values.k8sGatewayCRDs.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "k8s-gateway-crds" "defaults" (include "bigbang.defaults.k8s-gateway-crds" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.k8s-gateway-crds" -}}
+{{- end }}

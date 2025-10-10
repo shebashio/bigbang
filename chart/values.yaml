@@ -202,9 +202,26 @@ disableAutomaticPassthroughValues: true
 # Istio
 #
 
+k8sGatewayCRDs:
+  # -- Toggle deployment of Istio CNI
+  enabled: true
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni
+    path: "./chart"
+    tag: null
+    branch: 
+  # -- Values to passthrough to the Istio CNI chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio CRDs Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istioCNI:
   # -- Toggle deployment of Istio CNI
-  enabled: false
+  enabled: true
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
@@ -416,6 +433,26 @@ istioGateway:
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
 
+ztunnel:
+  # -- Toggle deployment of Istio CNI
+  enabled: true
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/ztunnel.git
+    path: "./chart"
+    tag: 1.27.1-bb.0
+  helmRepo:
+    repoName: "registry1"
+    chartName: "ztunnel"
+    tag: 1.27.1-bb.0
+  # -- Values to passthrough to the Istio CNI chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio CRDs Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 kiali:
   # -- Toggle deployment of Kiali.
   enabled: true
@@ -431,6 +468,10 @@ kiali:
     repoName: "registry1"
     chartName: "kiali"
     tag: "2.16.0-bb.2"
+
+  # -- Disable istio injection to enable ambient
+  istio:
+    injection: disabled
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:

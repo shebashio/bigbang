@@ -19,6 +19,8 @@
     "istioCRDs",
     "istioGateway",
     "istiod",
+    "k8sGatewayCRDs",
+    "ztunnel",
     "kiali",
     "gatekeeper",
     "kyverno",
@@ -301,6 +303,40 @@
       "additionalProperties": false
     },
     "istioGateway": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "k8sGatewayCRDs": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "ztunnel": {
       "properties": {
         "enabled": true,
         "sourceType": true,
