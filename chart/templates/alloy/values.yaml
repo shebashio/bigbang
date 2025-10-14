@@ -125,6 +125,17 @@ upstream:
             OUTPUT_CERTS: /etc/istio-output-certs
         sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
         {{- end }}
+      volumes:
+        extra:
+        - emptyDir:
+            medium: Memory
+          name: istio-certs
+    alloy:
+      mounts:
+        extra:
+        - mountPath: /etc/prom-certs/
+          name: istio-certs
+
   {{- end }}
 
 {{- if $.Values.monitoring.enabled }}
