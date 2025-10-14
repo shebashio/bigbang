@@ -123,7 +123,6 @@ networkPolicies:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
     {{- if $ambientEnabled }}
-    to:
       kiali:20001:
         from:
           cidr: 
