@@ -1,6 +1,6 @@
 {{- if .Values.kiali.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.kiali) "enabled") }}
 apiVersion: v1
 kind: Namespace
 metadata:
