@@ -45,9 +45,9 @@ However, we always like to hear from our users, both to know how large an
 impact this effort is making, and to make sure we are addressing our users'
 most pressing needs.
 
-<!--
-TODO: reach out link
--->
+* Open issues here if you encounter any issues with the release
+* Check out the documentation for guidance on how to get started
+* Please submit all comments and concerns to our Feedback Form
 
 ## Security
 

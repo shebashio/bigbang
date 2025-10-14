@@ -1,7 +1,5 @@
 # Production Configuration
 
-<!-- TODO: rewrite everything in this folder. -->
-
 [[_TOC_]]
 
 ## Gitlab
@@ -287,8 +285,7 @@ addons:
 ```
 
 ## Keycloak
-<!-- TODO: this config doesn't exist anymore -->
-See the [production configuration example](../reference/configs/example/keycloak-prod-values.yaml).
+See the [configuration documentation](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/main/docs/CONFIGURATION.md).
 
 ## High Availability (HA)
 

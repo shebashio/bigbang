@@ -1,7 +1,5 @@
 # Glossary
 
-<!-- TODO: reorganize this page. -->
-
 [[_TOC_]]
 
 ---

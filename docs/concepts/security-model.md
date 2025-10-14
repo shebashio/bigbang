@@ -1,3 +1,3 @@
 # Security Model
 
-<!-- TODO: rewrite this document. -->
+<!-- TODO: write this document. -->

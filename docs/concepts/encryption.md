@@ -1,7 +1,5 @@
 # Encryption
 
-<!-- TODO: reorganize this page. -->
-
 [[_TOC_]]
 
 Big Bang follows a [GitOps](https://fluxcd.io/flux/concepts/#gitops) approach to managing the Big Bang Kubernetes cluster configuration. Using GitOps, we must securely store secrets in Git using encryption. The private key, which is stored in key storage, is used by the continuous deployment tool to decrypt and deploy the secrets for use in the cluster.

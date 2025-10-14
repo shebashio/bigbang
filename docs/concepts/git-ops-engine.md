@@ -1,7 +1,5 @@
 # GitOps Engines
 
-<!-- TODO: reorganize this page. -->
-
 ## Management of Big Bang
 
 Big Bang will be deployed and managed with [Flux 2](https://github.com/fluxcd/flux2) and provide [Argo](https://github.com/argoproj/argo-cd/) for application developers to use for managing custom applications built on a Big Bang cluster. Big Bang will **not** advocate for use of Flux by mission app owners.  

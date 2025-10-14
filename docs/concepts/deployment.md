@@ -1,7 +1,5 @@
 # Deployment
 
-<!-- TODO: reorganize this page. -->
-
 [[_TOC_]]
 
 ## GitOps

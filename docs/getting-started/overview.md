@@ -13,7 +13,7 @@
     * [packages.md](../packages/index.md) lists the packages and organizes them in categories.
     * [Release Notes](https://repo1.dso.mil/big-bang/bigbang/-/releases) lists the packages and their versions.
     * For a code based source of truth, you can check [Big Bang's default values.yaml](../../chart/values.yaml), and `[CTRL] + [F]`, `"repo:"`, to quickly iterate through the list of applications supported by the Big Bang team.
-    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../index.md#usage--scope)
+    * [Big Bang Universe](https://universe.bigbang.dso.mil) provides an interactive visual of all packages in Core, Addons, and Community as described in [Big Bang README](../../README.md#usage--scope)
 
 ### What *isn't* Big Bang?
 
@@ -48,7 +48,7 @@
     * When the end user edits the version of one `kustomization.yaml` file, that triggers a chain reaction that updates 100 container images in the cluster.
     * These upgrades are pre-tested. The Big Bang team "eats our own dogfood." Our CI jobs for developing the Big Bang product, run against a Big Bang Dogfood Cluster, and as part of our release process we upgrade our Big Bang Dogfood Cluster, before publishing each release.
     > **Note:** We ONLY support and recommend successive upgrades. We do not test upgrades that skip multiple minor versions.
-    * Auto updates are also possible by setting kustomization.yaml to 1.x.x, because Big Bang follows semantic versioning per the [Big Bang README](../index.md#release-schedule), and flux is smart enough to read x as the most recent version number.
+    * Auto updates are also possible by setting kustomization.yaml to 1.x.x, because Big Bang follows semantic versioning per the [Big Bang README](../../README.md#release-schedule), and flux is smart enough to read x as the most recent version number.
 * SSO support is included in the Big Bang platform offering. Operations teams can leverage Big Bang's free Single Sign On capability by deploying the [Keycloak project](https://www.keycloak.org/). Using Keycloak, an ops team configures the platform SSO settings so that SSO can be leveraged by all apps hosted on the platform. For details, see the [SSO Readme](../community/development/package-integration/sso.md). Once Authservice is configured, to enable SSO for an individual app, developers need only ensure the presence of the two following labels:
     - __Namespace__ `istio-injection=enabled`: transparently injects mTLS service mesh protection into their application's Kubernetes YAML manifest
     - __Pod__ `protect=keycloak`: declares an EnvoyFilter CustomResource to auto inject an SSO Authentication Proxy in front of the data path to get to their application

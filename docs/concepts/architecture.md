@@ -1,7 +1,5 @@
 # Architecture
 
-<!-- TODO: rewrite this document. -->
-
 ## Kube API Server Webhooks Diagram
 
 * Help new users understand how BigBang extends the kube-apiserver using webhooks to enable:
