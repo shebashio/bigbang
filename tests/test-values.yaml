@@ -579,6 +579,50 @@ kyvernoPolicies:
           allow:
           - /tmp/allowed
           - /var/lib/rancher/k3s/storage/pvc-*
+      restrict-host-path-write:
+        exclude:
+          any:
+          - resources:
+              namespaces:
+              - anchore
+              - backstage
+              - bbctl
+              - gitlab
+              - gitlab-runner
+              - kiali
+              - cluster-auditor
+              - mattermost
+              - nexus-repository-manager
+              - keycloak
+              - kyverno-reporter
+              - mimir
+              - monitoring
+              - vault
+              - logging
+              - twistlock
+              - sonarqube
+              - logging
+              - tempo
+              - argocd
+              - minio
+              - minio-operator
+              - neuvector
+              - harbor
+              - fortify
+              - thanos
+              - alloy
+              - headlamp
+              names:
+              - "*-cypress-test*"
+          - resources:
+              namespaces:
+              - neuvector
+              names:
+              - "neuvector-enforcer-*"
+              - "neuvector-manager-*"
+        parameters:
+          allow:
+          - /tmp/allowed
       restrict-host-ports:
         parameters:
           allow:
