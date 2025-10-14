@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.monitoring" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -32,6 +33,12 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
+      {{- if $ambientEnabled }}
+      prometheus:
+        to:
+          k8s:
+            "*/*:15008": true
+      {{- end }}
       # TODO: Remove this once bb-common creates default policies in `pre-install` and `post-delete` hook phases
       admission-create-job:
         to:
@@ -66,6 +73,50 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
+      {{-if $ambientEnabled }}
+      prometheus:15008:
+        from:
+          k8s:
+            kiali/kiali: true
+            istio-gateway/public-ingressgateway: true
+      grafana:15008:
+        from:
+          k8s:
+            kiali/kiali: true
+            istio-gateway/public-ingressgateway: true
+      alertmanager:15008:
+        from:
+          k8s:
+            istio-gateway/public-ingressgateway: true
+      alertmanager:9093:
+        from:
+          cidr: 
+            169.254.7.127/32: true
+      kube-state-metrics:8080:
+        from:
+          cidr: 
+            169.254.7.127/32: true
+      kube-state-metrics:8081:
+        from:
+          cidr: 
+            169.254.7.127/32: true    
+      prometheus-node-exporter:9100:
+        from:
+          cidr: 
+            169.254.7.127/32: true
+      prometheus:9090:
+        from:
+          cidr:
+            169.254.7.127/32: true
+      grafana:3000:
+        from:
+          cidr:
+            169.254.7.127/32: true
+      prometheus-node-exporter:9100:
+        from:
+          cidr:
+            169.254.7.127/32: true
+      {{- end }}
       prometheus:10901:
         from:
           k8s:
@@ -133,7 +184,46 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
-     {{- end }}
+    {{- end }}
+    {{- if $ambientEnabled }}
+    customAuthorizationPolicies:
+      - name: "allow-kiali-grafana"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-kiali-prometheus"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-kiali-script-test-prometheus"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+    {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
     enabled: true

@@ -4,7 +4,7 @@
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled (eq (dig "istio" "injection" "disabled" .Values.kiali) "true") }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -121,8 +121,13 @@ networkPolicies:
   ingress:
     defaults:
       allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}    
     {{- if $ambientEnabled }}
+    to:
+      kiali:15008:
+        from:
+          k8s:
+            istio-gateway/public-ingressgateway: true
       kiali:20001:
         from:
           cidr: 

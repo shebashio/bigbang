@@ -468,10 +468,6 @@ kiali:
     chartName: "kiali"
     tag: "2.16.0-bb.2"
 
-  # -- Disable istio injection to enable ambient
-  istio:
-    injection: disabled
-
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
     driftDetection:

@@ -35,12 +35,6 @@ networkPolicies:
         enabled: true
     {{- end }}
     to:
-      {{- if .Values.ztunnel.enabled }}
-      ztunnel:15008:
-        from:
-          k8s:
-            "*/*": true
-      {{- end }}
       istiod:15014:
         from:
           k8s:
