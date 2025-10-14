@@ -612,8 +612,10 @@ kyvernoPolicies:
               - thanos
               - alloy
               - headlamp
+              - istio-system
               names:
               - "*-cypress-test*"
+              - "ztunnel-*"
           - resources:
               namespaces:
               - neuvector

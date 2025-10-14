@@ -6,10 +6,10 @@ kind: Namespace
 metadata:
   name: kiali
   labels:
-    {{- if $istioInjection }}
-    istio-injection: enabled
-    {{- else if and $istioEnabled .Values.ztunnel.enabled }}
+    {{- if and $istioEnabled .Values.ztunnel.enabled }}
     istio.io/dataplane-mode: ambient
+    {{- else if $istioInjection }}
+    istio-injection: enabled
     {{- end }}
     app.kubernetes.io/name: kiali
     app.kubernetes.io/component: "core"

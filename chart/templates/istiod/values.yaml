@@ -11,6 +11,11 @@ networkPolicies:
   controlPlaneCIDRs:
     - {{ .Values.networkPolicies.controlPlaneCidr }}
   egress:
+    {{- if .Values.ztunnel.enabled }}
+    defaults:
+      allowInNamespace:
+        enabled: true
+    {{- end }}
     definitions:
       sso:
         {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
@@ -24,6 +29,11 @@ networkPolicies:
           definition:
             sso: {{ .Values.addons.authservice.enabled }}
   ingress:
+    {{- if .Values.ztunnel.enabled }}
+    defaults:
+      allowInNamespace:
+        enabled: true
+    {{- end }}
     to:
       istiod:15014:
         from:
