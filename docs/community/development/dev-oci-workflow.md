@@ -4,7 +4,7 @@
 
 <!-- TODO: the `example git values` link is broken -->
 
-If you want to test deployment of a package off of your dev branch, you have two options. This doc covers the OCI workflow. The Git workflow requires nothing more than the values specified in [example git values](../assets/configs/example/git-repo-values.yaml) pointed to your development branch.
+If you want to test deployment of a package off of your dev branch, you have two options. This doc covers the OCI workflow. The Git workflow requires nothing more than the values specified in [example git values](../../reference/configs/example/git-repo-values.yaml) pointed to your development branch.
 
 ## Package Chart for OCI
 
