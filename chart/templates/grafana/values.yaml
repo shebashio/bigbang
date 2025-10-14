@@ -37,8 +37,6 @@ networkPolicies:
         to:
           k8s:
             authservice/authservice:10003: {{ $authserviceRedisEnabled }}
-          definition:
-            kubeAPI: true
 
   ingress:
     to:
