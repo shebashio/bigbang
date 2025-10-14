@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 
 {{- if $istioEnabled }}
 podAnnotations:
@@ -75,11 +76,64 @@ networkPolicies:
     {{- if $istioEnabled }}
     {{- include "getGatewaySelector" (dict "pkg" .Values.tempo "root" .) | nindent 4 }}
     {{- end }}
+  {{- if $ambientEnabled }}
+  additionalPolicies:
+    - name: ingress-allow-all-ztunnel-traffic
+      spec:
+        ingress:
+          - ports:
+            - port: 15008
+              protocol: TCP
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: tempo
+        policyTypes:
+        - Ingress
+    - name: ingress-allow-tempo-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+          ports:
+          - port: 3100
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+    {{- if $ambientEnabled }}
+    customAuthorizationPolicies:
+      - name: "allow-loki"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: tempo
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/logging/sa/logging-loki
+      - name: "allow-kiali"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: tempo
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+    {{- end }}
   tempoQuery:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.tempo.ingress.gateway "root" .)}}

@@ -73,7 +73,7 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
-      {{-if $ambientEnabled }}
+      {{- if $ambientEnabled }}
       prometheus:15008:
         from:
           k8s:
