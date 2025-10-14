@@ -1,6 +1,6 @@
 # Big Bang Deployment: Uninstall & Cleanup Guide
 
-TODO: rewrite everything in this folder
+<!-- TODO: rewrite everything in this folder -->
 
 This guide explains how to remove your Big Bang deployment—including all helm releases, namespaces, persistent data, and custom resources from your Kubernetes cluster.
 

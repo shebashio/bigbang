@@ -1,6 +1,6 @@
 # GitOps Engines
 
-TODO: reorganize this page.
+<!-- TODO: reorganize this page. -->
 
 ## Management of Big Bang
 

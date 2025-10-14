@@ -2,4 +2,4 @@
 
 Copy from community/development/release-process.md
 
-TODO: add upgrade documentation.
+<!-- TODO: add upgrade documentation. -->

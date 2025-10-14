@@ -6,7 +6,7 @@
 
 Each package will include its own recommended minimum hardware requirements, typically specified as resource requests and limits in the `values.yaml` file. Deploying additional packages will increase the overall requirements. However, the following hardware specifications are recommended for a default Big Bang installation:
 
-- TODO: Review and update these values based on the latest testing and requirements.
+<!-- TODO: Review and update these values based on the latest testing and requirements. -->
 - **CPU:** 4 cores
 - **Memory:** 16 GB
 - **Disk:** 100 GB
@@ -24,7 +24,7 @@ It is also recommended to have a minimum of 3 nodes in the cluster to ensure hig
 
 ### ECK Specific Configuration (ECK Is a Core BB App)
 
-TODO: move this section to the package.
+<!-- TODO: move this section to the package. -->
 
 Elastic Cloud on Kubernetes (i.e., Elasticsearch Operator) deployed by Big Bang uses memory mapping by default. In most cases, the default address space is too low and must be configured.
 To ensure unnecessary privileged escalation containers are not used, these kernel settings should be applied before BigB ang is deployed:
@@ -69,7 +69,7 @@ modprobe xt_statistic
 
 ### Sonarqube Specific Configuration (Sonarqube Is a BB Addon App)
 
-TODO: move this section to the package.
+<!-- TODO: move this section to the package. -->
 
 Sonarqube requires the following kernel configurations set at the node level:
 
@@ -114,7 +114,7 @@ addons:
 ### Packages That Require Additional OS Configuration
 
 Big Bang packages may require additional OS configuration to function properly. The following packages have specific requirements, you can find more information in their respective documentation at `docs/prerequisites.md`:
-- TODO: Link to package specific prerequisites.
+<!-- TODO: Link to package specific prerequisites. -->
 - [ECK (Elasticsearch Operator)](https://repo1.dso.mil/big-bang/product/packages/eck-operator)
 - [Sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)
 
@@ -149,7 +149,7 @@ You can override bigbang's helm values so istio will provision a service of type
 
 ### Big Bang Doesn’t Support Pod Security Policies (PSPs)
 
-TODO: update this section to reflect the latest status of PSPs in Big Bang.
+<!-- TODO: update this section to reflect the latest status of PSPs in Big Bang. -->
 
 * [PSPs are being removed from Kubernetes and will be gone by version 1.25.x](https://repo1.dso.mil/big-bang/bigbang/-/issues/10)
 * [Open Policy Agent Gatekeeper can enforce the same security controls as PSPs](https://github.com/open-policy-agent/gatekeeper-library/tree/master/library/pod-security-policy#pod-security-policies), and is core component of BigBang, which operates as an elevated [validating admission controller](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) to audit and enforce various [constraints](https://github.com/open-policy-agent/frameworks/tree/master/constraint) on all requests sent to the kubernetes api server.
@@ -166,7 +166,7 @@ TODO: update this section to reflect the latest status of PSPs in Big Bang.
 
 ### Kubernetes Distribution Specific Notes
 
-TODO: this should probably be removed, none of these are maintained.
+<!-- TODO: this should probably be removed, none of these are maintained. -->
 
 * **NOTE:** P1 has forks of various [Kubernetes Distribution Vendor Repos](https://repo1.dso.mil/platform-one/distros), there's nothing special about the P1 forks.
 * We recommend you leverage the Vendors upstream docs in addition to any docs found in P1 Repos; in fact, the Vendor's upstream docs are far more likely to be up to date.
@@ -282,7 +282,7 @@ kubectl get storageclass
 
 ### AWS Specific Notes
 
-TODO: make sure this section is up to date with the latest AWS Storage Class and EBS/EFSS requirements.
+<!-- TODO: make sure this section is up to date with the latest AWS Storage Class and EBS/EFSS requirements. -->
 
 #### Example AWS Storage Class Configuration
 
@@ -322,7 +322,7 @@ allowVolumeExpansion: true
 
 #### Azure Disk Storage Class Notes
 
-TODO: make sure this section is up to date with the latest Azure Storage Class and Disk requirements.
+<!-- TODO: make sure this section is up to date with the latest Azure Storage Class and Disk requirements. -->
 
 * The Kubernetes Docs offer an example [Azure Disk Storage Class](https://kubernetes.io/docs/concepts/storage/storage-classes/#azure-disk)
 * An Azure disk can only be mounted with Access mode type ReadWriteOnce, which makes it available to one node in AKS.

@@ -19,7 +19,7 @@ Each package will have a default branch of `main.` Immutable tags will be used t
 
 Pipelines provide rapid feedback to changes in our Helm chart as we develop and should be put in place as early as possible. Big Bang has a few different pipelines that can be used for packages.
 
-TODO: update these with our new standards
+<!-- TODO: update these with our new standards -->
 * [bigbang-package](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/bigbang-package.yaml)
 * [sandbox](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/sandbox.yaml)
 * [third-party](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/third-party.yaml)

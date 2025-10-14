@@ -1,6 +1,6 @@
 # Appliance Mode
 
-TODO: rewrite everything in this folder
+<!-- TODO: rewrite everything in this folder -->
 
 Big Bang Core currently provides the ability for all packages to be enabled and running Highly Available while being able to fit within the following footprint:
 * 4 vCPU

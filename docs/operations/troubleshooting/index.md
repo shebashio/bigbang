@@ -1,6 +1,6 @@
 # Troubleshooting
 
-TODO: reorganize everything in this folder
+<!-- TODO: reorganize everything in this folder -->
 
 Big Bang can take a long time to run. After making changes, it could take 10-15 minutes to take effect. Use the [sync.sh](../../../scripts/sync.sh) script to speed this up.
 

@@ -1,6 +1,6 @@
 # Renovate
 
-TODO: reorganize everything in this folder
+<!-- TODO: reorganize everything in this folder -->
 
 [[_TOC_]]
 

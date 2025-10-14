@@ -1,3 +1,3 @@
 # Performance
 
-TODO: add performance documentation.
+<!-- TODO: add performance documentation. -->

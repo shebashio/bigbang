@@ -28,7 +28,7 @@ The preferred option for OCI storage is in your own personal registry. We can do
 
 You will want to spin up the registry on the same host as your cluster (i.e., your ec2 instance, if following the normal developer workflow).
 
-TODO: Make this all happen with a flag in the dev script, this should not be too challenging to automate.
+<!-- TODO: Make this all happen with a flag in the dev script, this should not be too challenging to automate. -->
 
 1. Grab the `*.bigbang.dev` cert to use for the registry. If you follow the commands below, using `curl` and `yq`, this is a simple process.
 

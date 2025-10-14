@@ -1,3 +1,3 @@
 # GitOps Workflow
 
-TODO: rewrite this document.
+<!-- TODO: rewrite this document. -->

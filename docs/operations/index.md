@@ -1,3 +1,3 @@
 # Operations
 
-TODO: rewrite and reorganize this page to better reflect the current state of Big Bang.
+<!-- TODO: rewrite and reorganize this page to better reflect the current state of Big Bang. -->

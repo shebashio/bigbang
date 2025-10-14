@@ -1,6 +1,6 @@
 # Architecture
 
-TODO: rewrite this document.
+<!-- TODO: rewrite this document. -->
 
 ## Kube API Server Webhooks Diagram
 
