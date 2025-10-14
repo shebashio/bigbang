@@ -1,18 +1,21 @@
 {{- define "tempo.promPortsPostRenderers" }}
 - kustomize:
     patches:
-      - patch: |
+      - target:
+          kind: Service
+          name: .*tempo.*
+        patch: |
           - op: add
             path: /spec/ports/2/appProtocol
             value: http
-        target:
-          kind: Service
-          name: .*tempo.*
 {{- end }}
 {{- define "tempo.serviceMonitorPostRenderers" }}
 - kustomize:
     patches:
-      - patch: |
+      - target:
+          kind: ServiceMonitor
+          name: .*tempo.*
+        patch: |
           - op: add
             path: /spec/endpoints/0/scheme
             value: https
@@ -25,9 +28,6 @@
               insecureSkipVerify: true
           - op: remove
             path: /spec/endpoints/1
-        target:
-          kind: ServiceMonitor
-          name: .*tempo.*
 {{- end }}
 {{- define "tempo.objectStoragePostRenderers" }}
 - kustomize:
