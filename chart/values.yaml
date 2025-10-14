@@ -1623,11 +1623,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2025.4.2-bb.1"
+      tag: "2025.4.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2025.4.2-bb.1"
+      tag: "2025.4.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1688,11 +1688,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.34"
+      tag: "1.1.2320154-bb.35"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.34"
+      tag: "1.1.2320154-bb.35"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1873,11 +1873,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "10.12.0-bb.1"
+      tag: "10.12.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "10.12.0-bb.1"
+      tag: "10.12.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
