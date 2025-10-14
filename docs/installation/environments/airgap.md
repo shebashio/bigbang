@@ -1,6 +1,7 @@
 # Airgap
 
 <!-- TODO: rewrite and reorganize this page to better reflect the current state of Big Bang. -->
+<!-- This will be removed in favor of zarf -->
 
 [[_TOC_]]
 

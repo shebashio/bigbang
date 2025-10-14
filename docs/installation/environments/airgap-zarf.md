@@ -4,6 +4,7 @@
 <!-- TODO most of this was removed from zarf. It should either be recreated here or removed entirely. See
 - https://github.com/defenseunicorns-partnerships/generate-big-bang-zarf-package
 - https://docs.zarf.dev/ref/components/#extensions-removed
+- Likely to recreate this based on this work https://repo1.dso.mil/big-bang/customers/airgap/-/issues/5
  -->
 
 ### Requires Big Bang 1.54.0 and greater.
