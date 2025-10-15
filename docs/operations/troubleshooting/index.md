@@ -1,7 +1,5 @@
 # Troubleshooting
 
-<!-- TODO: reorganize everything in this folder -->
-
 Big Bang can take a long time to run. After making changes, it could take 10-15 minutes to take effect. Use the [sync.sh](../../../scripts/sync.sh) script to speed this up.
 
 Big Bang is configured to retry failed package installations and upgrades. Before concluding you have a failure, make sure you allow Big Bang to attempt to resolve dependencies and retry.

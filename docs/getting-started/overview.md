@@ -1,7 +1,5 @@
 # Big Bang Documentation README
 
-<!-- TODO: rewrite and reorganize this page to better reflect the current state of Big Bang. -->
-
 ## What is Big Bang?
 
 * Big Bang is a Helm Chart that is used to deploy a DevSecOps Platform on a Kubernetes Cluster. The DevSecOps Platform is composed of application packages which are bundled as helm charts that leverage Iron Bank hardened container images.

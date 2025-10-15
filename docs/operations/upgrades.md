@@ -108,6 +108,5 @@ monitoring          alertmanager-monitoring-monitoring-kube-alertmanager-0      
    - It is important to validate those specific applications/features are functioning as expected post-upgrade.
 
 ## Upgrade Troubleshooting
-Usually, a good place to start with troubleshooting is to identify which package had issues upgrading. After identifying the package that had problems it can be helpful to re-review the release notes and changelog for that specific package to see if any changes were missed that may have caused the upgrade issue you ran into.
 
-Specific troubleshooting steps for common issues will be added here in the future.
+See the [Troubleshooting Upgrades](troubleshooting/upgrades.md) page for help with common upgrade issues.
