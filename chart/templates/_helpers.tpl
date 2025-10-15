@@ -611,8 +611,6 @@ networkPolicies:
   {{- $newGateways | toYaml }}
 {{- end }}
 
-{{/* bigbang/templates/_helpers.tpl */}}
-
 {{- define "bb._isTrue" -}}
   {{- $v := . -}}
   {{- if kindIs "bool" $v -}}
