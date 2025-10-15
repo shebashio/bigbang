@@ -8,9 +8,6 @@
           - op: add
             path: /spec/ports/2/appProtocol
             value: http
-          - op: add
-            path: /metadata/annotations/postrenderer-last-run
-            value: "1.23.3-bb.0"
 {{- end }}
 {{- define "tempo.serviceMonitorPostRenderers" }}
 - kustomize:
@@ -29,9 +26,6 @@
               certFile: /etc/prom-certs/cert-chain.pem
               keyFile: /etc/prom-certs/key.pem
               insecureSkipVerify: true
-          - op: add
-            path: /metadata/annotations/postrenderer-last-run
-            value: "1.23.3-bb.0"
           - op: remove
             path: /spec/endpoints/1
 {{- end }}
@@ -44,9 +38,6 @@
             value:
               - secretRef:
                   name: tempo-object-storage
-          - op: add
-            path: /metadata/annotations/postrenderer-last-run
-            value: "1.23.3-bb.0"
         target:
           group: apps
           version: v1

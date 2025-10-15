@@ -13,6 +13,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/tempo/values.yaml") . | sha256sum }}
 spec:
+  upgrade:
+    force: true
   targetNamespace: tempo
   chart:
     spec:
