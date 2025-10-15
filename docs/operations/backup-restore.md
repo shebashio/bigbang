@@ -1,7 +1,5 @@
 # Backup and Restore
 
-<!-- TODO: rewrite and reorganize this page to better reflect the current state of Big Bang. -->
-
 [[_TOC_]]
 
 ## Gitlab Backups and Restores
@@ -108,6 +106,7 @@ You can read more on the upstream documentation: https://docs.gitlab.com/charts/
      ```
 You can read more on the upstream documentation: https://docs.gitlab.com/charts/backup-restore/restore.html#restoring-the-backup-file.
 
+<!-- TODO: move this to migration -->
 ## Migrating a Nexus Repository Using Velero
 
 This guide demonstrates how to perform a migration of Nexus repositories and artifacts between Kubernetes clusters.
@@ -258,3 +257,5 @@ addons:
             - host: nexus-docker.bigbang.dev
               port: 5000
 ```
+
+<!-- TODO: link to or add velero restore docs -->

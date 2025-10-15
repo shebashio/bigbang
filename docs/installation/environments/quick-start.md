@@ -173,7 +173,7 @@ You will need to leave this command running for as long as you want to access yo
 
 In a browser, visit one of the sites that you just added to your hosts file.
 
-Note, default credentials for Big Bang packages can be found [here](../../tutorials/default-credentials.md).
+Note, default credentials for Big Bang packages can be found [here](../../configuration/default-credentials.md).
 
 ### Tinker With It
 

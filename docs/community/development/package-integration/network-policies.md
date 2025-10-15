@@ -208,7 +208,7 @@ spec:
 
 ### Supporting Additional Network Policies through values.yaml
 
-All Big Bang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the tutorial](../../../tutorials/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
+All Big Bang core and supported addon packages are expected to provide support for the deployment of additional network policies through the values yaml [as per the tutorial](../../../configuration/network-policies.md). There is a standard mechanism for the implementation of this pattern, with two use cases: 
 
 * Where a package will only be deployed into its own namespace (i.e., the majority of bigbang packages).
 * Where a package may be used in inside another package's namespace or deployed into its own namespace (e.g., the gitlab-runner).

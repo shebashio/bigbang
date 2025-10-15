@@ -1,7 +1,5 @@
 # Renovate
 
-<!-- TODO: reorganize everything in this folder -->
-
 [[_TOC_]]
 
 ## Deployment of Renovate
