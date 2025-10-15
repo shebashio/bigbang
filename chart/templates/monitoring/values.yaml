@@ -67,10 +67,6 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
-      kube-prometheus-stack-prometheus-operator:10250:
-        from:
-          k8s:
-            monitoring/prometheus: true
       prometheus:10901:
         from:
           k8s:
@@ -161,8 +157,6 @@ istio:
     generateFromNetpol: true
 
     additionalPolicies:
-      multi-prometheus-authorization-policy:
-        enabled: {{ $replicas := (dig "values" "upstream" "prometheus" "prometheusSpec" "replicas" 1 .Values.monitoring) }}{{ gt (int $replicas) 1 }}
       monitoring-authz:
         enabled: {{ .Values.monitoring.sso.enabled }}
         spec:
