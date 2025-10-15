@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.minio-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -43,6 +44,47 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.minio "root" .) | nindent 4 }}
+  {{- if $ambientEnabled }}
+  additionalPolicies:
+    - name: ingress-prometheus-ztunnel-traffic
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: monitoring
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: prometheus
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minioOperator
+        policyTypes:
+        - Ingress
+    - name: egress-minio-ztunnel-traffic
+      spec:
+        egress:
+        - ports:
+          - port: 15008
+            protocol: TCP
+          to:
+          - namespaceSelector: {}
+        podSelector: {}
+        policyTypes:
+        - Egress
+    - name: ingress-allow-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 
 istio:
   enabled: {{ $istioEnabled }}

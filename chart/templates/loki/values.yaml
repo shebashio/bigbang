@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -26,6 +27,21 @@ istio:
   }}
   hardened:
     enabled: true
+    {{- if $ambientEnabled }}
+    customAuthorizationPolicies:
+      - name: "allow-loki"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: logging-loki
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/logging/sa/logging-loki
+    {{- end }}
     monitoring:
       enabled: {{ .Values.monitoring.enabled }}
     fluentbit:
@@ -51,7 +67,68 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
-
+  {{- if $ambientEnabled }}
+  additionalPolicies:
+    - name: ingress-prometheus-ztunnel-traffic
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: monitoring
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: prometheus
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
+    - name: ingress-minio-operator-ztunnel-traffic
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: minioOperator
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: minio-operator
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: minio
+        policyTypes:
+        - Ingress
+    - name: egress-tempo-ztunnel-traffic
+      spec:
+        egress:
+        - ports:
+          - port: 15008
+            protocol: TCP
+          to:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: tempo
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: tempo
+        podSelector: {}
+        policyTypes:
+        - Egress
+    - name: ingress-allow-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:

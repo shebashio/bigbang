@@ -6,6 +6,7 @@
 {{- define "bigbang.defaults.alloy" -}}
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 
 {{- $lokiServiceMap := dict
     "monolith" "logging-loki"
@@ -25,6 +26,34 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
+  {{- if $ambientEnabled }}
+  additionalPolicies:
+    - name: ingress-prometheus-ztunnel-traffic
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: monitoring
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: prometheus
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
+    - name: ingress-allow-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 
 istio:
   enabled: {{ $istioEnabled }}
