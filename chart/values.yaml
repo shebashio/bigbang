@@ -1031,6 +1031,10 @@ monitoring:
   # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
   enabled: true
 
+  # Disable for Ambient
+  istio:
+    injection: "disabled"
+
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
 
