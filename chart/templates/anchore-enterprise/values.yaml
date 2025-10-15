@@ -63,9 +63,11 @@ upstream:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
   anchoreConfig:
     default_admin_password: {{ .Values.addons.anchoreEnterprise.adminPassword }}
+  {{- if .Values.addons.anchoreEnterprise.enterprise.licenseYaml }}
   license: 
     {{ toYaml .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 4 }}
-
+  {{- end }}
+  
   feeds:
     istio:
       enabled: {{ $istioEnabled }}
