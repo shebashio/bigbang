@@ -18,6 +18,9 @@ upstream:
     {{- if .Values.tempo.sso.enabled }}
     {{ $tempoAuthserviceKey }}: {{ $tempoAuthserviceValue }}
     {{- end }}
+    {{- else }}
+    {}
+    {{- end }}
   {{- end }}
 
   tempo:
