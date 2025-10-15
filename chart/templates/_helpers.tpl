@@ -610,3 +610,21 @@ networkPolicies:
 
   {{- $newGateways | toYaml }}
 {{- end }}
+
+{{/* helpers/_redis_enabled.tpl */}}
+{{- define "bb.anyRedisEnabled" -}}
+  {{- $n := . -}}
+  {{- if kindIs "map" $n -}}
+    {{- if or (toBool (dig $n "redis" "enabled" false)) (toBool (dig $n "redis-bb" "enabled" false)) -}}
+      true
+    {{- else -}}
+      {{- range $k, $v := $n -}}
+        {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}true{{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- else if kindIs "slice" $n -}}
+    {{- range $i, $v := $n -}}
+      {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}true{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
