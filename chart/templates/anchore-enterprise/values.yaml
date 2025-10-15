@@ -63,7 +63,7 @@ upstream:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
   {{- if .Values.addons.anchoreEnterprise.upstream.anchoreConfig.default_admin_password }}
   anchoreConfig:
-    default_admin_password: {{ .Values.addons.anchoreEnterprise.upstream.anchoreConfig.default_admin_password }}
+    default_admin_password: {{ .Values.addons.anchoreEnterprise.adminPassword }}
   {{- end }}
   {{- if and .Values.addons.anchoreEnterprise.enterprise.licenseYaml (ne ( toYaml .Values.addons.anchoreEnterprise.enterprise.licenseYaml | trim )  "FULL LICENSE")  }}
   license: 
