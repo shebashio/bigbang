@@ -119,7 +119,7 @@ upstream:
       podAnnotations:
         {{- if $istioInjection }}
         {{ include "istioAnnotation" . }}
-        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+        traffic.sidecar.istio.io/excludeOutboundIPRanges: "10.42.0.0/16"
         proxy.istio.io/config: |
           proxyMetadata:
             OUTPUT_CERTS: /etc/istio-output-certs
