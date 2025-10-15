@@ -1,92 +1,172 @@
-# Big Bang
+# promtail
 
-Big Bang is a declarative, continuous delivery tool for deploying Department of Defense (DoD) hardened and approved packages into a Kubernetes cluster.
+![Version: 6.15.5-bb.5](https://img.shields.io/badge/Version-6.15.5--bb.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.9.4](https://img.shields.io/badge/AppVersion-2.9.4-informational?style=flat-square)
 
-> If viewing this from Github, note that this is a mirror of a government repo hosted on [Repo1](https://repo1.dso.mil/) by [DoD Platform One](http://p1.dso.mil/).  Please direct all code changes, issues and comments to [https://repo1.dso.mil/big-bang/bigbang](https://repo1.dso.mil/big-bang/bigbang)
+Promtail is an agent which ships the contents of local logs to a Loki instance
 
-[Click here to view the Big Bang Quick Start Guide](docs/guides/deployment-scenarios/quickstart.md)
+## Upstream References
+* <https://grafana.com/loki>
 
-## Usage & Scope
+* <https://github.com/grafana/loki>
+* <https://grafana.com/oss/loki/>
+* <https://grafana.com/docs/loki/latest/>
 
-Big Bang's scope is to provide publicly available installation manifests for packages required to adhere to the DoD DevSecOps Reference Architecture and additional useful utilities. Big Bang packages are broken into three categories:
+## Learn More
+* [Application Overview](docs/overview.md)
+* [Other Documentation](docs/)
 
-- **Core:** [Core packages](./docs/understanding-bigbang/package-architecture/README.md#core) are a group of capabilities required by the DoD DevSecOps Reference Architecture, that are supported directly by the Big Bang development team. The specific capabilities that are considered core currently are Service Mesh, Policy Enforcement, Logging, Monitoring, and Runtime Security.
+## Pre-Requisites
 
-- **Add-ons:** [Addon packages](./docs/understanding-bigbang/package-architecture/README.md#addons) are any packages/capabilities that the Big Bang development team directly supports that do not fall under the above core definition. These serve to extend the functionality/features of Big Bang.
+* Kubernetes Cluster deployed
+* Kubernetes config installed in `~/.kube/config`
+* Helm installed
 
-- **Community:** [Community packages](https://repo1.dso.mil/big-bang/product/community) are any packages that are maintained by the broader Big Bang community (e.g., users and/or vendors). These packages could be alternatives to core or add-on packages, or even entirely new packages to help extend usage/functionality of Big Bang.
+Install Helm
 
-In order for an installation of Big Bang to be a valid installation/configuration, you must install/deploy a core package of each category. For additional details on categories and options, see [here](./docs/understanding-bigbang/package-architecture/README.md##Core).
+https://helm.sh/docs/intro/install/
 
-Big Bang also builds tooling around the testing and validation of Big Bang packages. These tools are provided as-is, without support.
+## Deployment
 
-Big Bang is intended to be used for deploying and maintaining a DoD hardened and approved set of packages into a Kubernetes cluster.  Deployment and configuration of ingress/egress, load balancing, policy auditing, logging, and/or monitoring are handled via Big Bang.  Additional packages (e.g., ArgoCD and GitLab) can also be enabled and customized to extend Big Bang's baseline.  Once deployed, the Kubernetes cluster can be used to add mission specific applications.
+* Clone down the repository
+* cd into directory
+```bash
+helm install promtail chart/
+```
 
-Additional information can be found in the [Big Bang Docs](./docs/README.md).
+## Values
 
-## Getting Started
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| nameOverride | string | `nil` | Overrides the chart's name |
+| fullnameOverride | string | `nil` | Overrides the chart's computed fullname |
+| vpa | object | `{"annotations":{},"controlledResources":[],"enabled":false,"kind":"DaemonSet","maxAllowed":{},"minAllowed":{},"updatePolicy":{"updateMode":"Auto"}}` | config for VerticalPodAutoscaler |
+| daemonset.enabled | bool | `true` | Deploys Promtail as a DaemonSet |
+| daemonset.autoscaling.enabled | bool | `false` | Creates a VerticalPodAutoscaler for the daemonset |
+| daemonset.autoscaling.controlledResources | list | `[]` | List of resources that the vertical pod autoscaler can control. Defaults to cpu and memory |
+| daemonset.autoscaling.maxAllowed | object | `{}` | Defines the max allowed resources for the pod |
+| daemonset.autoscaling.minAllowed | object | `{}` | Defines the min allowed resources for the pod |
+| deployment.enabled | bool | `false` | Deploys Promtail as a Deployment |
+| deployment.replicaCount | int | `1` |  |
+| deployment.autoscaling.enabled | bool | `false` | Creates a HorizontalPodAutoscaler for the deployment |
+| deployment.autoscaling.minReplicas | int | `1` |  |
+| deployment.autoscaling.maxReplicas | int | `10` |  |
+| deployment.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| deployment.autoscaling.targetMemoryUtilizationPercentage | string | `nil` |  |
+| deployment.autoscaling.strategy | object | `{"type":"RollingUpdate"}` | Set deployment object update strategy |
+| secret.labels | object | `{}` | Labels for the Secret |
+| secret.annotations | object | `{}` | Annotations for the Secret |
+| configmap.enabled | bool | `false` | If enabled, promtail config will be created as a ConfigMap instead of a secret |
+| initContainer | list | `[]` |  |
+| image.registry | string | `"registry1.dso.mil"` | The Docker registry |
+| image.repository | string | `"ironbank/opensource/grafana/promtail"` | Docker image repository |
+| image.tag | string | `"v2.9.4"` | Overrides the image tag whose default is the chart's appVersion |
+| image.pullPolicy | string | `"IfNotPresent"` | Docker image pull policy |
+| imagePullSecrets | list | `[{"name":"private-registry"}]` | Image pull secrets for Docker images |
+| hostAliases | list | `[]` | hostAliases to add |
+| hostNetwork | string | `nil` | Controls whether the pod has the `hostNetwork` flag set. |
+| annotations | object | `{}` | Annotations for the DaemonSet |
+| updateStrategy | object | `{}` | The update strategy for the DaemonSet |
+| podLabels | object | `{}` | Pod labels |
+| podAnnotations | object | `{}` | Pod annotations |
+| priorityClassName | string | `nil` | The name of the PriorityClass |
+| livenessProbe | object | `{}` | Liveness probe |
+| readinessProbe | object | See `values.yaml` | Readiness probe |
+| resources | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"200m","memory":"128Mi"}}` | Resource requests and limits |
+| podSecurityContext | object | `{"runAsGroup":0,"runAsUser":0}` | The security context for pods |
+| containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsUser":0,"seLinuxOptions":{"type":"spc_t"}}` | The security context for containers |
+| rbac.create | bool | `true` | Specifies whether RBAC resources are to be created |
+| rbac.pspEnabled | bool | `false` | Specifies whether a PodSecurityPolicy is to be created |
+| namespace | string | `nil` | The name of the Namespace to deploy If not set, `.Release.Namespace` is used |
+| serviceAccount.create | bool | `true` | Specifies whether a ServiceAccount should be created |
+| serviceAccount.name | string | `nil` | The name of the ServiceAccount to use. If not set and `create` is true, a name is generated using the fullname template |
+| serviceAccount.imagePullSecrets | list | `[]` | Image pull secrets for the service account |
+| serviceAccount.annotations | object | `{}` | Annotations for the service account |
+| nodeSelector | object | `{}` | Node selector for pods |
+| affinity | object | `{}` | Affinity configuration for pods |
+| tolerations | list | `[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"},{"effect":"NoSchedule","key":"node-role.kubernetes.io/control-plane","operator":"Exists"}]` | Tolerations for pods. By default, pods will be scheduled on master/control-plane nodes. |
+| defaultVolumes | list | See `values.yaml` | Default volumes that are mounted into pods. In most cases, these should not be changed. Use `extraVolumes`/`extraVolumeMounts` for additional custom volumes. |
+| defaultVolumeMounts | list | See `values.yaml` | Default volume mounts. Corresponds to `volumes`. |
+| extraVolumes[0].name | string | `"varlog"` |  |
+| extraVolumes[0].hostPath.path | string | `"/var/log"` |  |
+| extraVolumeMounts[0].name | string | `"varlog"` |  |
+| extraVolumeMounts[0].mountPath | string | `"/var/log"` |  |
+| extraVolumeMounts[0].readOnly | bool | `true` |  |
+| extraArgs | list | `["-config.expand-env=true"]` | - -client.external-labels=hostname=$(HOSTNAME) |
+| extraEnv | list | `[{"name":"NODE_HOSTNAME","valueFrom":{"fieldRef":{"fieldPath":"spec.nodeName"}}}]` | Extra environment variables |
+| extraEnvFrom | list | `[]` | Extra environment variables from secrets or configmaps |
+| enableServiceLinks | bool | `true` | Configure enableServiceLinks in pod |
+| serviceMonitor.enabled | bool | `false` | If enabled, ServiceMonitor resources for Prometheus Operator are created |
+| serviceMonitor.namespace | string | `nil` | Alternative namespace for ServiceMonitor resources |
+| serviceMonitor.namespaceSelector | object | `{}` | Namespace selector for ServiceMonitor resources |
+| serviceMonitor.annotations | object | `{}` | ServiceMonitor annotations |
+| serviceMonitor.labels | object | `{}` | Additional ServiceMonitor labels |
+| serviceMonitor.interval | string | `nil` | ServiceMonitor scrape interval |
+| serviceMonitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |
+| serviceMonitor.relabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig (defines `relabel_configs`) |
+| serviceMonitor.metricRelabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples as the last step before ingestion https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig (defines `metric_relabel_configs`) |
+| serviceMonitor.targetLabels | list | `[]` | ServiceMonitor will add labels from the service to the Prometheus metric https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitorspec |
+| serviceMonitor.scheme | string | `"http"` | ServiceMonitor will use http by default, but you can pick https as well |
+| serviceMonitor.tlsConfig | string | `nil` | ServiceMonitor will use these tlsConfig settings to make the health check requests |
+| serviceMonitor.prometheusRule | object | `{"additionalLabels":{},"enabled":false,"rules":[]}` | Prometheus rules will be deployed for alerting purposes |
+| extraContainers | object | `{}` |  |
+| extraPorts | object | `{}` | Configure additional ports and services. For each configured port, a corresponding service is created. See values.yaml for details |
+| podSecurityPolicy | object | See `values.yaml` | PodSecurityPolicy configuration. |
+| config | object | See `values.yaml` | Section for crafting Promtails config file. The only directly relevant value is `config.file` which is a templated string that references the other values and snippets below this key. |
+| config.enabled | bool | `true` | Enable Promtail config from Helm chart Set `configmap.enabled: true` and this to `false` to manage your own Promtail config See default config in `values.yaml` |
+| config.logLevel | string | `"info"` | The log level of the Promtail server Must be reference in `config.file` to configure `server.log_level` See default config in `values.yaml` |
+| config.logFormat | string | `"logfmt"` | The log format of the Promtail server Must be reference in `config.file` to configure `server.log_format` Valid formats: `logfmt, json` See default config in `values.yaml` |
+| config.serverPort | int | `3101` | The port of the Promtail server Must be reference in `config.file` to configure `server.http_listen_port` See default config in `values.yaml` |
+| config.clients | list | See `values.yaml` | The config of clients of the Promtail server Must be reference in `config.file` to configure `clients` |
+| config.positions | object | `{"filename":"/run/promtail/positions.yaml"}` | Configures where Promtail will save it's positions file, to resume reading after restarts. Must be referenced in `config.file` to configure `positions` |
+| config.enableTracing | bool | `false` | The config to enable tracing |
+| config.snippets | object | See `values.yaml` | A section of reusable snippets that can be reference in `config.file`. Custom snippets may be added in order to reduce redundancy. This is especially helpful when multiple `kubernetes_sd_configs` are use which usually have large parts in common. |
+| config.snippets.extraLimitsConfig | string | empty | You can put here any keys that will be directly added to the config file's 'limits_config' block. |
+| config.snippets.extraServerConfigs | string | empty | You can put here any keys that will be directly added to the config file's 'server' block. |
+| config.snippets.extraScrapeConfigs | string | empty | You can put here any additional scrape configs you want to add to the config file. |
+| config.snippets.extraRelabelConfigs | list | `[]` | You can put here any additional relabel_configs to "kubernetes-pods" job |
+| config.file | string | See `values.yaml` | Config file contents for Promtail. Must be configured as string. It is templated so it can be assembled from reusable snippets in order to avoid redundancy. |
+| networkPolicy.enabled | bool | `false` | Specifies whether Network Policies should be created |
+| networkPolicy.metrics.podSelector | object | `{}` | Specifies the Pods which are allowed to access the metrics port. As this is cross-namespace communication, you also neeed the namespaceSelector. |
+| networkPolicy.metrics.namespaceSelector | object | `{}` | Specifies the namespaces which are allowed to access the metrics port |
+| networkPolicy.metrics.cidrs | list | `[]` | Specifies specific network CIDRs which are allowed to access the metrics port. In case you use namespaceSelector, you also have to specify your kubelet networks here. The metrics ports are also used for probes. |
+| networkPolicy.k8sApi.port | int | `8443` | Specify the k8s API endpoint port |
+| networkPolicy.k8sApi.cidrs | list | `[]` | Specifies specific network CIDRs you want to limit access to |
+| httpPathPrefix | string | `""` | Base path to server all API routes fro |
+| sidecar.configReloader.enabled | bool | `false` |  |
+| sidecar.configReloader.image.registry | string | `"registry1.dso.mil"` | The Docker registry for sidecar config-reloader |
+| sidecar.configReloader.image.repository | string | `"ironbank/opensource/jimmidyson/configmap-reload"` | Docker image repository for sidecar config-reloader |
+| sidecar.configReloader.image.tag | string | `"v0.12.0"` | Docker image tag for sidecar config-reloader |
+| sidecar.configReloader.image.pullPolicy | string | `"IfNotPresent"` | Docker image pull policy for sidecar config-reloader |
+| sidecar.configReloader.extraArgs | list | `[]` |  |
+| sidecar.configReloader.extraEnv | list | `[]` | Extra environment variables for sidecar config-reloader |
+| sidecar.configReloader.extraEnvFrom | list | `[]` | Extra environment variables from secrets or configmaps for sidecar config-reloader |
+| sidecar.configReloader.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | The security context for containers for sidecar config-reloader |
+| sidecar.configReloader.readinessProbe | object | `{}` | Readiness probe for sidecar config-reloader |
+| sidecar.configReloader.livenessProbe | object | `{}` | Liveness probe for sidecar config-reloader |
+| sidecar.configReloader.resources | object | `{}` | Resource requests and limits for sidecar config-reloader |
+| sidecar.configReloader.config.serverPort | int | `9533` | The port of the config-reloader server |
+| sidecar.configReloader.serviceMonitor.enabled | bool | `true` |  |
+| extraObjects | list | `[]` | Extra K8s manifests to deploy |
+| istio.enabled | bool | `false` | Toggle interaction with Istio |
+| istio.hardened.enabled | bool | `false` |  |
+| istio.hardened.outboundTrafficPolicyMode | string | `"REGISTRY_ONLY"` |  |
+| istio.hardened.customServiceEntries | list | `[]` |  |
+| istio.hardened.customAuthorizationPolicies | list | `[]` |  |
+| istio.hardened.prometheus.enabled | bool | `true` |  |
+| istio.hardened.prometheus.namespaces[0] | string | `"monitoring"` |  |
+| istio.hardened.prometheus.principals[0] | string | `"cluster.local/ns/monitoring/sa/monitoring-grafana"` |  |
+| istio.hardened.prometheus.principals[1] | string | `"cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-alertmanager"` |  |
+| istio.hardened.prometheus.principals[2] | string | `"cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-operator"` |  |
+| istio.hardened.prometheus.principals[3] | string | `"cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus"` |  |
+| istio.hardened.prometheus.principals[4] | string | `"cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-state-metrics"` |  |
+| istio.hardened.prometheus.principals[5] | string | `"cluster.local/ns/monitoring/sa/monitoring-monitoring-prometheus-node-exporter"` |  |
+| istio.mtls.mode | string | `"STRICT"` | STRICT = Allow only mutual TLS traffic PERMISSIVE = Allow both plain text and mutual TLS traffic |
+| networkPolicies.enabled | bool | `false` | Toggle networkPolicies |
+| networkPolicies.controlPlaneCidr | string | `"0.0.0.0/0"` | Control Plane CIDR, defaults to 0.0.0.0/0, use `kubectl get endpoints -n default kubernetes` to get the CIDR range needed for your cluster Must be an IP CIDR range (x.x.x.x/x - ideally with /32 for the specific IP of a single endpoint, broader range for multiple masters/endpoints) Used by package NetworkPolicies to allow Kube API access |
+| networkPolicies.additionalPolicies | list | `[]` |  |
+| openshift | bool | `false` | Toggle or openshift specific config |
+| loki | object | `{"enabled":false}` | Toggle Loki network policy enabling |
 
-- You will need to instantiate a Big Bang environment tailored to your needs.  [The Big Bang customer template](https://repo1.dso.mil/big-bang/customers/template) is provided for you to copy into your own Git repository and begin modifications.
-- There is a [Quick Start guide](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/guides/deployment-scenarios/quickstart.md) to be used as an example deployment scenario.
+## Contributing
 
-## Contributing to Big Bang
-
-There are three primary ways to contribute to Big Bang. They are listed in the following:
-
-- [Contribute to the Big Bang Team's Backlog](https://repo1.dso.mil/big-bang/bigbang/-/issues).
-- [Contribute to open-source projects under the Big Bang Technical Oversight Committee (BBTOC)](https://repo1.dso.mil/big-bang/product/bbtoc/-/blob/master/CONTRIBUTING.md).
-- [Submit new package proposals](https://repo1.dso.mil/big-bang/product/bbtoc/-/issues/new?issue%5Bmilestone_id%5D=).
-  - Please review the [package integration guide](./docs/developer/package-integration/README.md) if you are interested in submitting a new package.
-  - A shepherd will be assigned to the project to create a repo in the [Big Bang Community Packages](https://repo1.dso.mil/big-bang/product/community).
-
-Additional information can be found in the [contributing guide](./CONTRIBUTING.md).
-
-## Release Schedule
-
-- Big Bang releases adopt a standardized versioning based on and loosely following the [Semantic Versioning 2.0.0 guidelines](https://semver.org/spec/v2.0.0.html) (major.minor.patch). These releases are not based on a fixed schedule and instead, follow the specifics in the scheme that is described in this section. 
-
-### Patch Version
-
-A patch version increment is performed when there is a change in the tag (i.e., version number) of a Big Bang core package or a bug fix for a Big Bang template or values files. A change in the patch version number should be backwards compatible with previous patch changes within a minor version. If there is a significant functionality change in the a core package that requires adjustments to Big Bang templates, this would require a change in the minor or major version depending on the impact to the values and secrets used to integrated the package with Big Bang.
-
-NOTE: Patch versions would not typically be created for addon package updates, rather customers would be expected to be updating those packages via `git.tag`/`helmRepo.tag` changes directly, or "inheriting" those updates through another version.
-
-### Minor Version
-
-A minor version increment is required when there is a change in the integration of Big Bang with core or addon packages. For example, the following changes warrant a Minor version change:
-
-- Change in the umbrella values.yaml (except for changes to package version keys)
-- Change in any Big Bang templates (non bug fix changes)
-
-Minor version changes should be backwards compatible.
-
-### Major Version
-
-A major version increment indicates a release that has significant changes, which could potentially break compatibility with previous versions. A major change is required when there are changes to the architecture of Big Bang or critical values file keys. For example removing a core package or changing significant values that propagate to all core and add-on packages are considered major version changes. Examples of major version changes are provided in the folowing:
-
-- Removal or renaming of Big Bang values.yaml top level keys (e.g., istio and/or git repository values).
-- Change to the structure of chart/templates files or key values.
-- Additional integration between core/add-on packages that require change to the charts of all packages.
-- Modification of Big Bang GitOps engine (i.e., switching from FluxCD -> ArgoCD).
-
-To see what is on the roadmap or included in a given release you can still review our [project milestones](https://repo1.dso.mil/groups/big-bang/-/milestones).
-
-## Community
-
-The Big Bang Universe Community Slack workspace is a great place to go to get involved, interact with the community, and ask for help. You can join the workspace with [this invite link](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-21zrvwacw-zoionTAz0UdzVbjnAFSnDw).
-
-## Provide Big Bang Feedback
-
-Your feedback is important to us. Please complete the [Big Bang Feedback Form](https://forms.osi.apps.mil/r/QjGsAfZLeV) to help us continually enhance future Big Bang experiences. At the conclusion of the form, you are welcome to schedule a session with our User Experience Research team to discuss your insights further.
-
-## Navigating our Documentation
-
-> All Big Bang documentation is also provided at [https://docs-bigbang.dso.mil](https://docs-bigbang.dso.mil) offering a better experience and improved searchability.
-
-Several useful starting points in the Big Bang documentation are listed in the following:
-
-- [Developer Contribution Documentation](./docs/developer/README.md)
-- [Key Big Bang Concept Overviews](./docs/understanding-bigbang/README.md)
-- [User Guides for Big Bang](./docs/guides/README.md)
-- [Big Bang Prerequisites](./docs/prerequisites/README.md)
-- [Big Bang Example Configurations](https://repo1.dso.mil/big-bang/bigbang/-/tree/master/docs/assets/configs/example)
+Please see the [contributing guide](./CONTRIBUTING.md) if you are interested in contributing.
