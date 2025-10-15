@@ -1002,19 +1002,13 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
-
-    tempo:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
+              
     bbtests:
       enabled: true
       cypress:
         envs:
           cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
+          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
           cypress_check_datasource: 'true'
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           # uncomment following variables for sso keycloak testing in bb
@@ -1024,17 +1018,7 @@ tempo:
       scripts:
         enabled: false
         envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
-
-    persistence:
-      size: 5Gi
-
-    tempoQuery:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
+          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
 monitoring:
   flux:
