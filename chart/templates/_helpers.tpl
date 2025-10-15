@@ -611,20 +611,44 @@ networkPolicies:
   {{- $newGateways | toYaml }}
 {{- end }}
 
-{{/* helpers/_redis_enabled.tpl */}}
+{{/* bigbang/templates/_helpers.tpl */}}
+
+{{- define "bb._isTrue" -}}
+  {{- $v := . -}}
+  {{- if kindIs "bool" $v -}}
+    {{- if $v }}true{{- end -}}
+  {{- else if kindIs "string" $v -}}
+    {{- if eq (lower $v) "true" }}true{{- end -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "bb.anyRedisEnabled" -}}
   {{- $n := . -}}
   {{- if kindIs "map" $n -}}
-    {{- if or (toBool (dig $n "redis" "enabled" false)) (toBool (dig $n "redis-bb" "enabled" false)) -}}
+    {{- $m := default dict $n -}}              {{/* ensure non-nil map */}}
+    {{- $r := default dict (get $m "redis") -}}
+    {{- $rb := default dict (get $m "redis-bb") -}}
+    {{- if or
+          (eq (include "bb._isTrue" (get $r  "enabled")) "true")
+          (eq (include "bb._isTrue" (get $rb "enabled")) "true")
+        -}}
       true
     {{- else -}}
-      {{- range $k, $v := $n -}}
-        {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}true{{- end -}}
+      {{- $found := "" -}}
+      {{- range $k, $v := $m -}}
+        {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}
+          {{- $found = "true" -}}
+        {{- end -}}
       {{- end -}}
+      {{- if eq $found "true" -}}true{{- end -}}
     {{- end -}}
   {{- else if kindIs "slice" $n -}}
+    {{- $found := "" -}}
     {{- range $i, $v := $n -}}
-      {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}true{{- end -}}
+      {{- if eq (include "bb.anyRedisEnabled" $v) "true" -}}
+        {{- $found = "true" -}}
+      {{- end -}}
     {{- end -}}
+    {{- if eq $found "true" -}}true{{- end -}}
   {{- end -}}
 {{- end -}}
