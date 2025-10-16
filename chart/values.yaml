@@ -745,7 +745,7 @@ alloy:
   # -- Toggle Alloy to collect logs
   alloyLogs:
     enabled: true
-  ## -- Toggle Alloy to scrape metrics
+  # -- Toggle Alloy to scrape metrics
   alloyMetrics:
     enabled: false
 
@@ -1013,6 +1013,10 @@ monitoring:
     repoName: "registry1"
     chartName: "monitoring"
     tag: "75.6.1-bb.8"
+
+  # -- Toggle Prometheus to scrape metrics
+  prometheusMetrics:
+    enabled: true
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
