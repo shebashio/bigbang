@@ -69,6 +69,18 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
+      "authservice:15008":
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.ztunnel.enabled }}
+      "redis-bb:15008":
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.ztunnel.enabled }}
+      "haproxy:15008":
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.ztunnel.enabled }}
   egress:
     definitions:
       sso:

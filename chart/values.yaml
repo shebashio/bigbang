@@ -1341,6 +1341,9 @@ addons:
     #       callback_uri: "https://somecallback"
     enabled: false
 
+    istio:
+      injection: "disabled"
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
@@ -2051,17 +2054,21 @@ addons:
     # istio.ingressGateways.passthrough-ingressgateway and istio.gateways.passthrough
     enabled: false
 
+    istio:
+      injection: "disabled"
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.0.1-bb.6"
+      tag: null
+      branch: "ambient-fix"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.0.1-bb.6"
+      tag: "7.1.4-bb.0"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
