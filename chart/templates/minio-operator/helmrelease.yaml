@@ -52,14 +52,6 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  values:
-    podAnnotations:
-      sidecar.istio.io/inject: "true"
-      traffic.sidecar.istio.io/includeInboundPorts: "*"
-      traffic.sidecar.istio.io/excludeInboundPorts: "9443"
-    imagePullSecrets:
-      - name: private-registry
-
   {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

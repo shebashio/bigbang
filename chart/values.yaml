@@ -1372,6 +1372,9 @@ addons:
     # -- Toggle deployment of minio operator and instance.
     enabled: false
 
+    istio:
+      injection: "disabled"
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 

@@ -13,7 +13,7 @@ domain: {{ $domainName }}
 
 {{- if $istioInjection }}
 podAnnotations:
-  sidecar.istio.io/inject: "true"
+  sidecar.istio.io/inject: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
   traffic.sidecar.istio.io/includeInboundPorts: "*"
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
 {{- end }}
@@ -22,23 +22,24 @@ console:
   imagePullSecrets:
     - name: private-registry
 
-operator:
-  image:
-    pullPolicy: {{ .Values.imagePullPolicy}}
-  imagePullSecrets:
-    - name: private-registry
-
-  {{- if .Values.monitoring.enabled }}
-  env:
-    - name: MINIO_OPERATOR_TLS_ENABLE
-      value: "on"
-    - name: CLUSTER_DOMAIN
-      value: "cluster.local"
-    - name: WATCHED_NAMESPACE
-      value: ""
-    - name: PROMETHEUS_NAMESPACE
-      value: "monitoring"
-  {{- end }}
+upstream:
+  operator:
+    image:
+      pullPolicy: {{ .Values.imagePullPolicy}}
+    imagePullSecrets:
+      - name: private-registry
+  
+    {{- if .Values.monitoring.enabled }}
+    env:
+      - name: MINIO_OPERATOR_TLS_ENABLE
+        value: "on"
+      - name: CLUSTER_DOMAIN
+        value: "cluster.local"
+      - name: WATCHED_NAMESPACE
+        value: ""
+      - name: PROMETHEUS_NAMESPACE
+        value: "monitoring"
+    {{- end }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -109,3 +110,4 @@ annotations:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 {{- end -}}
+
