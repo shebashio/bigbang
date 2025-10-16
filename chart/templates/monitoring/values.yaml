@@ -239,10 +239,13 @@ prometheus:
     {{- end }}
 
     {{- if not .Values.monitoring.prometheusMetrics.enabled }}
-    # Disable Prometheus scraping of serviceMonitors by selecting invalid labels
+    # Disable Prometheus scraping by selecting invalid labels
     serviceMonitorNamespaceSelector:
       matchLabels:
-        null: noscrape
+        invalid-key: invalid-value
+    podMonitorNamespaceSelector:
+      matchLabels:
+        invalid-key: invalid-value
     {{- end }}
 
     {{- if .Values.addons.mimir.enabled }}
