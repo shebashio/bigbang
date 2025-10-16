@@ -144,6 +144,15 @@ PLATFORM ONE LOGGING WARNING:
     - Alloy Enabled: {{ $alloyLogsEnabled }}
 {{- end }}
 
+{{- $prometheusMetricsEnabled := (and .Values.monitoring.enabled .Values.monitoring.prometheusMetrics.enabled) }}
+{{- $alloyMetricsEnabled := (and .Values.alloy.enabled (or (dig "upstream" "alloy-metrics" "enabled" false .Values.alloy.values) (dig "alloyMetrics" "enabled" false .Values.alloy))) }}
+{{- if and $prometheusMetricsEnabled $alloyMetricsEnabled }}
+PLATFORM ONE METRICS WARNING:
+  You have enabled multiple metric scrapers. This is not a supported configuration and you may see conflicts as a result of multiple applications attempting to ship metrics.
+  - Prometheus Metrics Enabled: {{ $prometheusMetricsEnabled }}
+  - Alloy Metrics Enabled: {{ $alloyMetricsEnabled }}
+{{- end }}
+
 {{- if and .Values.loki.enabled .Values.elasticsearchKibana.enabled }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled both Loki and Elastic (log storage). This is not a supported configuration and you may see issues as a result of running both applications.
