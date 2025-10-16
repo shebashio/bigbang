@@ -12,8 +12,6 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/tempo/values.yaml") . | sha256sum }}
-    reconcile.fluxcd.io/requestedAt: "1.23.3-bb.0"
-    reconcile.fluxcd.io/forceAt: "1.23.3-bb.0"
 spec:
   targetNamespace: tempo
   chart:
