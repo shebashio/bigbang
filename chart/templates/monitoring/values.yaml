@@ -238,6 +238,13 @@ prometheus:
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
 
+    {{- if not .Values.monitoring.prometheusMetrics.enabled }}
+    # Disable Prometheus scraping of serviceMonitors by selecting invalid labels
+    serviceMonitorNamespaceSelector:
+      matchLabels:
+        null: noscrape
+    {{- end }}
+
     {{- if .Values.addons.mimir.enabled }}
     remoteWrite:
       {{- if $istioEnabled }}
