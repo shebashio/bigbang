@@ -1642,6 +1642,14 @@ addons:
       licenseYaml: |
         "TBD"
     values:
+      bbtests:
+        enabled: true
+        scripts:
+          envs:
+            ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
+        cypress:
+          envs:
+            cypress_url: "https://anchore.dev.bigbang.mil"
       istio:
         hardened:
           customServiceEntries:
@@ -1662,11 +1670,6 @@ addons:
                     protocol: TLS
                     name: https
                 resolution: DNS
-      ensureDbJobs:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
       sso:
         resources:
           requests:
@@ -1681,71 +1684,7 @@ addons:
           resources:
             requests:
               memory: 200Mi
-      analyzer:
-        replicaCount: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      api:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      catalog:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      policyEngine:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      simpleQueue:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      upgradeJob:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      feeds:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-        feeds-db:
-          resources:
-            requests:
-              memory: 200Mi
-          metrics:
-            resources:
-              requests:
-                memory: 200Mi
-        feedsUpgradeJob:
-          resources:
-            requests:
-              cpu: 100m
-              memory: 200Mi
-      rbacManager:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      reports:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      notifications:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
-      ui:
+      ensureDbJobs:
         resources:
           requests:
             cpu: 100m
@@ -1755,15 +1694,76 @@ addons:
           replicaCount: 0
           autoscaling:
             enabled: false
-      bbtests:
-        enabled: true
-        scripts:
-          envs:
-            ANCHORE_CLI_URL: "https://anchore-api.dev.bigbang.mil/v1"
-        cypress:
-          envs:
-            cypress_url: "https://anchore.dev.bigbang.mil"
-
+      upstream:
+        analyzer:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        api:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        catalog:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        policyEngine:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        simpleQueue:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        upgradeJob:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        feeds:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          feeds-db:
+            resources:
+              requests:
+                memory: 200Mi
+            metrics:
+              resources:
+                requests:
+                  memory: 200Mi
+          feedsUpgradeJob:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 200Mi
+        rbacManager:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        reports:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        notifications:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        ui:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
 
   sonarqube:
     enabled: false
