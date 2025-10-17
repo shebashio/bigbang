@@ -75,7 +75,7 @@ upstream:
     primary:
       podAnnotations:
         {{ include "istioAnnotation" . }}
-    readreplicas:
+    readReplicas:
       podAnnotations:
         {{ include "istioAnnotation" . }}
     {{- end }}
