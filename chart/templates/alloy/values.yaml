@@ -154,6 +154,13 @@ upstream:
         extra:
         - mountPath: /etc/prom-certs/
           name: istio-certs
+  annotationAutodiscovery:
+    enabled: true
+    annotations:
+      # Annotation keys used by Alloy to discover scrape targets, metrics paths, and ports
+      scrape: prometheus.io/scrape
+      metricsPath: prometheus.io/path
+      metricsPortNumber: prometheus.io/port
     {{- end }}
   {{- end }}
 
