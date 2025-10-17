@@ -60,7 +60,7 @@ upstream:
     master:
       podAnnotations:
         {{ include "istioAnnotation" . }}
-    slave:
+    replica:
       podAnnotations:
         {{ include "istioAnnotation" . }}
     {{- end }}
@@ -72,10 +72,10 @@ upstream:
     install: false
     {{- end }}
     {{- if $istioInjection }}
-    master:
+    primary:
       podAnnotations:
         {{ include "istioAnnotation" . }}
-    slave:
+    readreplicas:
       podAnnotations:
         {{ include "istioAnnotation" . }}
     {{- end }}
