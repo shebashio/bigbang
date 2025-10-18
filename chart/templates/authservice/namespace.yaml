@@ -1,15 +1,14 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- if and $istioEnabled (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
-{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.kiali) "enabled") }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: authservice
   labels:
-    {{- if and $istioEnabled .Values.ztunnel.enabled }}
+    {{- if .Values.addons.authservice.istio.ambient }}
     istio.io/dataplane-mode: ambient
-    {{- else if $istioInjection }}
-    istio-injection: enabled
+    {{- else }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.authservice) "enabled")) }}
     {{- end }}
     app.kubernetes.io/name: authservice
     app.kubernetes.io/component: "core"

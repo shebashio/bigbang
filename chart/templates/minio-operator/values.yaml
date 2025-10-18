@@ -5,15 +5,15 @@
 {{- define "bigbang.defaults.minio-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled") }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.addons.minioOperator.istio "ambient") .Values.addons.minioOperator.istio.ambient) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
-{{- if $istioInjection }}
+{{- if and $istioInjection $sidecarEnabled }}
 podAnnotations:
-  sidecar.istio.io/inject: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.minioOperator) "enabled")) }}
+  sidecar.istio.io/inject: enabled
   traffic.sidecar.istio.io/includeInboundPorts: "*"
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
 {{- end }}
@@ -48,7 +48,7 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.minio "root" .) | nindent 4 }}
-  {{- if $ambientEnabled }}
+  {{- if .Values.ztunnel.enabled }}
   additionalPolicies:
     - name: ingress-prometheus-ztunnel-traffic
       spec:

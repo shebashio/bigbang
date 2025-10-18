@@ -37,6 +37,33 @@ networkPolicies:
         podSelector: {}
         policyTypes:
         - Ingress
+    {{- if .Values.addons.keycloak.istio.ambient }}
+    - name: ingress-passthrough-gateway
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                app.kubernetes.io/name: istio-gateway
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: passthrough-ingressgateway
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
+    - name: ingress-allow-all-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+    {{- end }}
   {{- end }}
 
 istio:
@@ -70,7 +97,7 @@ upstream:
     password: {{ coalesce .password "keycloak" | quote }}
   {{- end }}
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -158,14 +185,14 @@ postgresql:
         database: keycloak
   {{- end }}
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   primary:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}
   readReplicas:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}

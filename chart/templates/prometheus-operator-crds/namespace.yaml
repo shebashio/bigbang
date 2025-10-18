@@ -1,6 +1,6 @@
 {{- if .Values.prometheusOperatorCRDs.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
+{{- $ambientEnabled := .Values.monitoring.istio.ambient | default "false"}}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -9,9 +9,16 @@ metadata:
     app.kubernetes.io/name: monitoring
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    {{- if and $istioEnabled .Values.ztunnel.enabled }}
+    {{- if .Values.monitoring.istio.ambient }}
     istio.io/dataplane-mode: ambient
-    {{- else if $istioInjection }}
-    istio-injection: enabled
+    # Allow user to override waypoint automatic behavior
+    {{- if and (hasKey .Values.monitoring.istio "waypointEnabled") .Values.monitoring.istio.waypointEnabled }}
+    istio.io/use-waypoint: monitoring-waypoint
+    # Enable waypoint automatically by default
+    {{- else if and .Values.monitoring.sso.enabled .Values.addons.authservice.enabled }}
+    istio.io/use-waypoint: monitoring-waypoint
+    {{- end }}
+    {{- else }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled")) }}
     {{- end }}
 {{- end }}

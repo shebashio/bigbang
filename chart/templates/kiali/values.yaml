@@ -4,7 +4,6 @@
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -122,21 +121,19 @@ networkPolicies:
     defaults:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}    
-    {{- if $ambientEnabled }}
     to:
       kiali:15008:
         from:
           k8s:
-            istio-gateway/public-ingressgateway: true
+            istio-gateway/public-ingressgateway: {{ .Values.kiali.istio.ambient }}
       kiali:20001:
         from:
           cidr: 
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.kiali.istio.ambient }}
       kiali-operator:6789:
         from:
           cidr: 
-            169.254.7.127/32: true
-    {{- end }}
+            169.254.7.127/32: {{ .Values.kiali.istio.ambient }}
   egress:
     defaults:
       allowIstiod:
@@ -156,11 +153,9 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
             tempo/tempo:3100: {{ .Values.tempo.enabled }}
             istio-system/istiod:15014: {{ .Values.istiod.enabled }}
-            {{- if $ambientEnabled }}
-            monitoring/prometheus:15008: {{ .Values.monitoring.enabled }}
-            monitoring/grafana:15008: {{ .Values.grafana.enabled }}
-            tempo/tempo:15008: {{ .Values.tempo.enabled }}
-            {{- end }}
+            monitoring/prometheus:15008: {{ and .Values.monitoring.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
+            monitoring/grafana:15008: {{ and .Values.grafana.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
+            tempo/tempo:15008: {{ and .Values.tempo.enabled (or .Values.tempo.istio.ambient .Values.kiali.istio.ambient) }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}

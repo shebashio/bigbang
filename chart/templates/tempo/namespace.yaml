@@ -1,6 +1,5 @@
 {{- if .Values.tempo.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.tempo) "enabled") }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -9,9 +8,9 @@ metadata:
     app.kubernetes.io/name: tempo
     app.kubernetes.io/component: "core"
     {{- include "commonLabels" . | nindent 4}}
-    {{- if and $istioEnabled .Values.ztunnel.enabled }}
+    {{- if .Values.tempo.istio.ambient }}
     istio.io/dataplane-mode: ambient
-    {{- else if $istioInjection }}
-    istio-injection: enabled
+    {{- else }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled")) }}
     {{- end }}
 {{- end }}

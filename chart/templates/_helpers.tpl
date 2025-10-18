@@ -610,3 +610,19 @@ networkPolicies:
 
   {{- $newGateways | toYaml }}
 {{- end }}
+
+{{- define "bigbang.waypointProxy" -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  labels:
+    istio.io/waypoint-for: namespace
+  name: {{ .Release }}-waypoint
+  namespace: {{ .Release.namespace }}
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+  - name: mesh
+    port: 15008
+    protocol: HBONE
+{{- end -}}

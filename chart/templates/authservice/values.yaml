@@ -55,11 +55,15 @@ networkPolicies:
         from:
           definition:
             keycloak-protected-pods: true
+          cidr:
+            169.254.7.127/32: {{ .Values.addons.authservice.istio.ambient }}
       # Grafana redis client connection
       redis-bb:6379:
         from:
           k8s:
             monitoring/grafana: {{ .Values.monitoring.enabled }}
+          cidr:
+            169.254.7.127/32: {{ .Values.addons.authservice.istio.ambient }}
       haproxy:8080:
         from:
           k8s:
@@ -80,7 +84,8 @@ networkPolicies:
       "haproxy:15008":
         from:
           k8s:
-            monitoring/prometheus: {{ .Values.ztunnel.enabled }}
+            monitoring/prometheus: {{ or .Values.addons.authservice.istio.ambient .Values.monitoring.istio.ambient }}
+            istio-gateway/public-ingressgateway: {{ .Values.addons.authservice.istio.ambient }}
   egress:
     definitions:
       sso:

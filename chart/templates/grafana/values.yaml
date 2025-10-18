@@ -14,6 +14,8 @@ domain: {{ $domainName }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 {{- $enterpriseEnabled := (dig "enterprise" "enabled" false .Values.grafana) }}
 
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.monitoring.istio "ambient") .Values.monitoring.istio.ambient) }}
+
 flux:
   enabled: true
 
@@ -59,7 +61,7 @@ upstream:
   {{- if .Values.monitoring.enabled }}
   serviceMonitor:
     enabled: true
-  {{- if $istioInjection }}
+  {{- if and $istioInjection $sidecarEnabled }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -89,7 +91,7 @@ upstream:
   sidecar:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-  {{- if $istioInjection }}
+  {{- if or $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
     {{- if $gitlabRedis }}

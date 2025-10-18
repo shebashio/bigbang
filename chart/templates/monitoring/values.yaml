@@ -4,7 +4,7 @@
 
 {{- define "bigbang.defaults.monitoring" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.monitoring.istio "ambient") .Values.monitoring.istio.ambient) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -33,12 +33,10 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
-      {{- if $ambientEnabled }}
       prometheus:
         to:
           k8s:
-            "*/*:15008": true
-      {{- end }}
+            "*/*:15008": {{ .Values.ztunnel.enabled }}
       # TODO: Remove this once bb-common creates default policies in `pre-install` and `post-delete` hook phases
       admission-create-job:
         to:
@@ -73,50 +71,48 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
-      {{- if $ambientEnabled }}
       prometheus:15008:
         from:
           k8s:
-            kiali/kiali: true
-            istio-gateway/public-ingressgateway: true
+            kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
       grafana:15008:
         from:
           k8s:
-            kiali/kiali: true
-            istio-gateway/public-ingressgateway: true
+            kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
       alertmanager:15008:
         from:
           k8s:
-            istio-gateway/public-ingressgateway: true
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
       alertmanager:9093:
         from:
           cidr: 
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       kube-state-metrics:8080:
         from:
           cidr: 
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       kube-state-metrics:8081:
         from:
           cidr: 
-            169.254.7.127/32: true    
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}    
       prometheus-node-exporter:9100:
         from:
           cidr: 
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       prometheus:9090:
         from:
           cidr:
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       grafana:3000:
         from:
           cidr:
-            169.254.7.127/32: true
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       prometheus-node-exporter:9100:
         from:
           cidr:
-            169.254.7.127/32: true
-      {{- end }}
+            169.254.7.127/32: {{ .Values.monitoring.istio.ambient }}
       prometheus:10901:
         from:
           k8s:
@@ -185,7 +181,7 @@ istio:
               name: https
           resolution: DNS
     {{- end }}
-    {{- if $ambientEnabled }}
+    {{- if .Values.ztunnel.enabled }}
     customAuthorizationPolicies:
       - name: "allow-kiali-grafana"
         enabled: true
@@ -264,12 +260,12 @@ alertmanager:
         {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
         {{- end }}
       {{- end }}
-      {{- if $istioInjection }}
+      {{- if $istioEnabled }}
       annotations:
         {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-  {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+  {{- if and $istioEnabled (or $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT")) $sidecarEnabled }}
   serviceMonitor:
     scheme: https
     tlsConfig:
@@ -294,13 +290,13 @@ prometheus:
 
     # Note: We need to change the portName in order for istio to correctly detect TCP is being used
     #       for the headless service
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     portName: "tcp-grpc"
     {{- end }}
 
   thanosServiceMonitor:
     enabled: true
-    {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and $istioEnabled (or $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT")) $sidecarEnabled }}
     serviceMonitor:
       scheme: https
       tlsConfig:
@@ -311,7 +307,7 @@ prometheus:
     {{- end }}
   {{- end }}
   prometheusSpec:
-    {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and $istioEnabled (or $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT")) $sidecarEnabled }}
     alertingEndpoints:
     - name: monitoring-monitoring-kube-alertmanager
       namespace: monitoring
@@ -346,7 +342,7 @@ prometheus:
           - action: labeldrop
             regex: '.*\..*'
       {{- end }}
-        {{- if and $istioEnabled $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+        {{- if and $istioEnabled (or $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT")) $sidecarEnabled }}
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
           certFile: /etc/prom-certs/cert-chain.pem
@@ -388,7 +384,7 @@ prometheus:
 
       {{- end }}
 
-      {{- if $istioInjection }}
+      {{- if and $istioInjection $sidecarEnabled }}
       # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
       volumes:
         - emptyDir:
@@ -423,7 +419,7 @@ prometheus:
         {{- end }}
       {{- if or $istioInjection .Values.addons.vault.enabled }}
       annotations:
-        {{- if $istioInjection }}
+        {{- if and $istioInjection $sidecarEnabled }}
         {{ include "istioAnnotation" . }}
         traffic.sidecar.istio.io/includeOutboundIPRanges: ""
         proxy.istio.io/config: |
@@ -555,7 +551,7 @@ prometheus:
           action: replace
           target_label: kubernetes_pod_name
     {{- end }}
-    {{- if $istioInjection }}
+    {{- if and $istioInjection $sidecarEnabled }}
     # Add volume/mount for Istio certs for mTLS scraping
     volumes:
       - emptyDir:
@@ -612,7 +608,7 @@ prometheus-node-exporter:
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
     {{- end }}
-    {{- if $istioInjection }}
+    {{- if and $istioInjection $sidecarEnabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -620,7 +616,7 @@ prometheus-node-exporter:
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -668,7 +664,7 @@ kube-state-metrics:
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
       {{- end }}
-      {{- if $istioInjection }}
+      {{- if and $istioInjection $sidecarEnabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -676,7 +672,7 @@ kube-state-metrics:
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -973,7 +969,7 @@ prometheusOperator:
     patch:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}

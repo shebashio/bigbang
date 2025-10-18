@@ -4,7 +4,6 @@
 
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 
 {{- if $istioEnabled }}
 podAnnotations:
@@ -76,7 +75,7 @@ networkPolicies:
     {{- if $istioEnabled }}
     {{- include "getGatewaySelector" (dict "pkg" .Values.tempo "root" .) | nindent 4 }}
     {{- end }}
-  {{- if $ambientEnabled }}
+  {{- if .Values.ztunnel.enabled }}
   additionalPolicies:
     - name: ingress-allow-all-ztunnel-traffic
       spec:
@@ -107,7 +106,7 @@ istio:
   enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-    {{- if $ambientEnabled }}
+    {{- if .Values.ztunnel.enabled }}
     customAuthorizationPolicies:
       - name: "allow-loki"
         enabled: true

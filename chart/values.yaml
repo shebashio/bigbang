@@ -476,6 +476,9 @@ kiali:
           target:
             kind: Kiali
 
+  istio:
+    ambient: true
+
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
     gateway: ""
@@ -611,6 +614,9 @@ kyvernoPolicies:
 kyvernoReporter:
   # -- Toggle deployment of Kyverno Reporter
   enabled: true
+
+  istio:
+    ambient: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -766,6 +772,9 @@ alloy:
   # -- Toggle deployment of grafana alloy
   enabled: true
 
+  istio:
+    ambient: true
+
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
 
@@ -825,6 +834,9 @@ loki:
           target:
             kind: StatefulSet
 
+  istio:
+    ambient: true
+
   # -- Loki architecture.  Options are monolith and scalable
   strategy: monolith
 
@@ -865,6 +877,9 @@ loki:
 neuvector:
   # -- Toggle deployment of Neuvector.
   enabled: true
+
+  istio:
+    ambient: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -934,6 +949,9 @@ neuvector:
 tempo:
   # -- Toggle deployment of Tempo.
   enabled: true
+
+  istio:
+    ambient: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1033,7 +1051,7 @@ monitoring:
 
   # Disable for Ambient
   istio:
-    injection: "disabled"
+    ambient: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -1342,7 +1360,7 @@ addons:
     enabled: false
 
     istio:
-      injection: "disabled"
+      ambient: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -1376,7 +1394,7 @@ addons:
     enabled: false
 
     istio:
-      injection: "disabled"
+      ambient: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
@@ -2055,7 +2073,7 @@ addons:
     enabled: false
 
     istio:
-      injection: "disabled"
+      ambient: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"

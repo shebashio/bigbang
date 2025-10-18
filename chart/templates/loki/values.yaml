@@ -4,7 +4,6 @@
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -27,7 +26,7 @@ istio:
   }}
   hardened:
     enabled: true
-    {{- if $ambientEnabled }}
+    {{- if .Values.ztunnel.enabled }}
     customAuthorizationPolicies:
       - name: "allow-loki"
         enabled: true
@@ -67,7 +66,7 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
-  {{- if $ambientEnabled }}
+  {{- if .Values.ztunnel.enabled }}
   additionalPolicies:
     - name: ingress-prometheus-ztunnel-traffic
       spec:

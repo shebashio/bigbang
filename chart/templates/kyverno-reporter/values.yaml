@@ -7,7 +7,6 @@
 {{- define "bigbang.defaults.kyverno-reporter" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $ambientEnabled := and $istioEnabled .Values.ztunnel.enabled }}
 domain: {{ $domainName }}
 
 global:
@@ -28,7 +27,7 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  {{- if $ambientEnabled }}
+  {{- if .Values.ztunnel.enabled }}
   additionalPolicies:
     - name: ingress-prometheus-ztunnel-traffic
       spec:
