@@ -1031,7 +1031,8 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 23.0.0-bb.0
+    tag: null
+    branch: "remove-legacy-istio-code"
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
