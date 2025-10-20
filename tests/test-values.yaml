@@ -1753,8 +1753,6 @@ addons:
             memory: 200Mi
       ui-redis:
         upstream:
-          nameOverride: "ui-redis"
-          fullnameOverride: "ui-redis"
           replica:
             replicaCount: 0
             autoscaling:
