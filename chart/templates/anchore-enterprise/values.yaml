@@ -109,10 +109,12 @@ ui:
 
 ui-redis:
   {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
+  # We are using an external redis url
   externalEndpoint: "redis://{{ .Values.addons.anchoreEnterprise.redis.username | default "nouser" }}:{{ .Values.addons.anchoreEnterprise.redis.password }}@{{ .Values.addons.anchoreEnterprise.redis.host }}:{{ .Values.addons.anchoreEnterprise.redis.port }}"
   upstream:
     enabled: false
   {{- else }}
+  # We are using an internal,dev redis url
   upstream:
     {{- if $istioEnabled }}
     master:
@@ -125,7 +127,7 @@ ui-redis:
     image:
       pullSecrets:
         - private-registry
-    {{- if and .Values.monitoring.enabled (not (and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password)) }}
+    {{- if .Values.monitoring.enabled }}
     metrics:
       enabled: true
       image:
