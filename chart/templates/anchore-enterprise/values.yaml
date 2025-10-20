@@ -108,13 +108,12 @@ ui:
   imagePullSecretName: private-registry
 
 ui-redis:
+  {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
   externalEndpoint: "redis://{{ .Values.addons.anchoreEnterprise.redis.username | default "nouser" }}:{{ .Values.addons.anchoreEnterprise.redis.password }}@{{ .Values.addons.anchoreEnterprise.redis.host }}:{{ .Values.addons.anchoreEnterprise.redis.port }}"
   upstream:
-    {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
     enabled: false
-    auth:
-      password: {{ .Values.addons.anchoreEnterprise.redis.password }}
-    {{- end }}
+  {{- else }}
+  upstream:
     {{- if $istioEnabled }}
     master:
       podAnnotations:
@@ -152,5 +151,6 @@ ui-redis:
         enabled: true
         namespace: monitoring
     {{- end }}
+  {{- end }}
 
 {{- end }}
