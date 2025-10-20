@@ -34,6 +34,25 @@ networkPolicies:
   {{- if $istioEnabled }}
   {{- include "getGatewaySelector" (dict "pkg" .Values.neuvector "root" .) | nindent 4 }}
   {{- end }}
+  additionalPolicies:
+  {{- if .Values.neuvector.istio.ambient }}
+    - name: ingress-public-gateway
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: istio-gateway
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: public-ingressgateway
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

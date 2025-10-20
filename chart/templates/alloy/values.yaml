@@ -33,7 +33,7 @@ networkPolicies:
         - from:
           - namespaceSelector:
               matchLabels:
-                app.kubernetes.io/name: monitoring
+                akubernetes.io/metadata.name: monitoring
             podSelector:
               matchLabels:
                 app.kubernetes.io/name: prometheus
@@ -43,6 +43,22 @@ networkPolicies:
         podSelector: {}
         policyTypes:
         - Ingress
+    - name: egress-logging-loki
+      spec:
+        egress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: logging
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: logging-loki
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Egress
     - name: ingress-allow-kubelet-probe
       spec:
         ingress:
