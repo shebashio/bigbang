@@ -1,6 +1,7 @@
 {{- define "bigbang.defaults.neuvector" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled") -}}
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.neuvector.istio "ambient") .Values.neuvector.istio.ambient) }}
 
 # Check for existing NeuVector exporter secret, otherwise generate new random password
 {{- $existingSecret := lookup "v1" "Secret" "neuvector" "neuvector-prometheus-exporter-pod-secret" }}
@@ -41,7 +42,7 @@ upstream:
   openshift: {{ .Values.openshift }}
   {{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled }}
   controller:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -91,13 +92,13 @@ monitor:
       {{- if .Values.monitoring.enabled }}
       checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
       {{- end }}
-      {{- if $istioInjection }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
-      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
+      {{- if and $istioInjection $sidecarEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -113,7 +114,7 @@ monitor:
     CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
 
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   enforcer:
     podAnnotations:
       {{ include "istioAnnotation" . }}
