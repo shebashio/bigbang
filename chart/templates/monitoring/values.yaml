@@ -273,7 +273,6 @@ upstream:
               action: drop
             - action: labeldrop
               regex: '.*\..*'
-      {{- end }}
         {{- end }}
           {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
           tlsConfig:
@@ -514,7 +513,6 @@ upstream:
     {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
     {{- end }}
     {{- if .Values.openshift }}
     service:
