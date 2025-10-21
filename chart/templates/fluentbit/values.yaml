@@ -231,9 +231,9 @@ upstream:
         path: /var/log/flb-storage/
         type: DirectoryOrCreate
       name: flb-storage
-    - secret:
-        secretName: logging-ek-es-http-certs-public
-      name: elasticsearch-certs
+    - name: elasticsearch-certs
+      secret:
+        secretName: logging-ek-es-http-certs-public  
     {{- end }}
     {{- if $additionalElasticsearchCerts }}
     - name: external-es-ca-cert
