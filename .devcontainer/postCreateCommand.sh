@@ -19,6 +19,7 @@ fi
 echo 'alias k=kubectl' >> /root/.bashrc
 
 # add configuration variables from users $HOME/.config/bigbang/pipeline.conf to bashrc
+# see .devcontainer/examples/pipeline.conf for a minimal variable configuration
 while IFS= read -r line;
 do
 	if [[ "$line" != "" ]]; then
