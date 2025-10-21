@@ -68,6 +68,22 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   {{- if .Values.ztunnel.enabled }}
   additionalPolicies:
+    - name: ingress-alloy-ztunnel-traffic
+      spec:
+        ingress:
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: alloy
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: alloy
+          ports:
+          - port: 15008
+            protocol: TCP
+        podSelector: {}
+        policyTypes:
+        - Ingress
     - name: ingress-prometheus-ztunnel-traffic
       spec:
         ingress:

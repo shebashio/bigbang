@@ -33,7 +33,7 @@ networkPolicies:
         - from:
           - namespaceSelector:
               matchLabels:
-                akubernetes.io/metadata.name: monitoring
+                kubernetes.io/metadata.name: monitoring
             podSelector:
               matchLabels:
                 app.kubernetes.io/name: prometheus
@@ -46,7 +46,7 @@ networkPolicies:
     - name: egress-logging-loki
       spec:
         egress:
-        - from:
+        - to:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: logging
@@ -56,7 +56,13 @@ networkPolicies:
           ports:
           - port: 15008
             protocol: TCP
-        podSelector: {}
+        podSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/instance
+            operator: In
+            values:
+            - alloy
+            - alloy-alloy-logs
         policyTypes:
         - Egress
     - name: ingress-allow-kubelet-probe
