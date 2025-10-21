@@ -1,0 +1,22 @@
+{
+	"name": "bb-ci",
+	"image": "registry1.dso.mil/bigbang-ci/bb-ci:2.25.8",
+	"runArgs": ["--hostname=bb-ci"],
+	"mounts": [
+    	"source=${localEnv:HOME}${localEnv:USERPROFILE}/.kube,target=/root/.kube/,type=bind,readonly",
+		"source=/etc/hosts,target=/etc/hosts,type=bind,readonly",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/root/.aws,type=bind,readonly",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/bigbang/pipeline.conf,target=/root/.config/bigbang/pipeline.conf,type=bind,readonly"
+	],
+	"remoteUser": "root",
+	"postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  	"customizations": {
+    		"vscode": {
+      			"settings": {
+        			"workbench.colorTheme": "Default Dark+",
+					"files.autoSave": "afterDelay",
+					"files.autoSaveDelay": 1000
+      			}
+		}
+	}
+}
