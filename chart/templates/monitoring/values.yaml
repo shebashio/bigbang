@@ -218,25 +218,14 @@ upstream:
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
 
-  prometheus:
-    {{- if $lokiEnabled }}
-    monitor:
-      relabelings:
-        - action: replace
-          replacement: {{ $clusterName }}
-          targetLabel: cluster
-    {{- end }}
-
     {{- if $thanosEnabled }}
     thanosService:
       enabled: true
-      
       # Note: We need to change the portName in order for istio to correctly detect TCP is being used
       #       for the headless service
       {{- if $istioInjection }}
-      portName: "tcp-grpc"       
+      portName: "tcp-grpc"
       {{- end }}
-
     thanosServiceMonitor:
       enabled: true
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
@@ -249,6 +238,7 @@ upstream:
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
     {{- end }}
+
     prometheusSpec:
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
       alertingEndpoints:
@@ -264,14 +254,26 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
-
       {{- if .Values.addons.mimir.enabled }}
       remoteWrite:
         {{- if $istioEnabled }}
         # I promise it's not a typo; the port is 80 even though it's TLS
         - url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
+          writeRelabelConfigs:
+            - sourceLabels: [__name__]
+              regex: '.*\..*'
+              action: drop
+            - action: labeldrop
+              regex: '.*\..*'
         {{- else }}
         - url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
+          writeRelabelConfigs:
+            - sourceLabels: [__name__]
+              regex: '.*\..*'
+              action: drop
+            - action: labeldrop
+              regex: '.*\..*'
+      {{- end }}
         {{- end }}
           {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
           tlsConfig:
@@ -284,7 +286,6 @@ upstream:
 
       {{- if $thanosEnabled }}
       thanos:
-      
         {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
         objectStorageConfig:
           secret:
@@ -302,20 +303,16 @@ upstream:
                   key_file: /etc/prom-certs/key.pem
                   ca_file: /etc/prom-certs/root-cert.pem
                   cert_file: /etc/prom-certs/cert-chain.pem
-                insecure_skip_verify: true  
-
+                insecure_skip_verify: true
         # by default, the object stores only sync every 2 hours
         # increase the frequency so the tests will pass 
         blockSize: 1m
-        
         {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
         objectStorageConfig:
           existingSecret:
             key: objstore.yml
             name: monitoring-objstore-secret
-
         {{- end }}
-
         {{- if $istioInjection }}    
         # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
         volumes:
@@ -366,6 +363,11 @@ upstream:
           vault.hashicorp.com/role: "prometheus"
           vault.hashicorp.com/agent-run-as-user : "1000"
           vault.hashicorp.com/agent-run-as-group : "2000"
+          {{- if and $istioEnabled $vaultIstioHosts }} # the 1st istio vault host will be used for the tls server name
+          vault.hashicorp.com/tls-server-name: {{ tpl ($vaultIstioHosts | first) $ }}
+          {{- else }} # the vault certificate is expected to contain the CN or X509v3 Subject Alternative Name of vault.domain
+          vault.hashicorp.com/tls-server-name: vault.{{ .Values.domain }}
+          {{- end }}
           {{- end }}
         {{- end }}
       {{- if .Values.addons.vault.enabled }}
@@ -451,11 +453,8 @@ upstream:
       # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
       {{- if (dig "globalPodEndpointMetrics" "enabled" false .Values.monitoring) }}
       - job_name: 'kubernetes-pods'
-
-
         kubernetes_sd_configs:
-          - role: pod
-      
+          - role: pod     
         relabel_configs:
           - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
             action: keep
@@ -492,8 +491,6 @@ upstream:
   prometheus-node-exporter:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
-
-
     {{- if or (eq $lokiEnabled true) (eq $istioInjection true) }}
     prometheus:
       monitor:
@@ -519,7 +516,6 @@ upstream:
       {{ include "istioAnnotation" . }}
     {{- end }}
     {{- end }}
-
     {{- if .Values.openshift }}
     service:
       targetPort: 9102
@@ -538,9 +534,18 @@ upstream:
             - "__metrics_path__"
         - targetLabel: "instance"
           sourceLabels:
-            - "node"
+            - "__meta_kubernetes_pod_node_name"
+      {{- end }}
+      {{- if $istioInjection }}
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      {{- end }}
   {{- end }}
-
+  
   {{- if $lokiEnabled }}
   defaultRules:
     additionalRuleLabels:
@@ -575,7 +580,6 @@ upstream:
       {{ include "istioAnnotation" . }}
     {{- end }}
     {{- end }}
-    
     # Add in the custom resource states, so the grafana flux charts work
     # See Documentation for flux -- https://fluxcd.io/flux/monitoring/metrics/
     # These overrides are found in https://github.com/fluxcd/flux2-monitoring-example/blob/main/monitoring/controllers/kube-prometheus-stack/kube-state-metrics-config.yaml
@@ -877,20 +881,16 @@ upstream:
 {{- /* The end user will not have to replicate `prometheus.prometheusSpec.additionalScrapeConfigs` or `grafana.extraSecretMounts` from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to `prometheus.prometheusSpec` or `grafana` overlays to ignore the defaults */ -}}
 {{- define "bigbang.overlays.monitoring" }}
-
   {{- $defaults := fromYaml (include "bigbang.defaults.monitoring" .) }}
-
   {{- $overlays := dig "values" dict .Values.monitoring }}
   {{- range $prometheusConfig, $default := $defaults.prometheus }}
     {{- $overlay := (dig "prometheus" $prometheusConfig dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set
     {{- if and $overlay (kindIs "map" $overlay) (not $overlay.skipOverlayMerge) }}
-
       # Add any default additionalScrapeConfigs to overlay
       {{- if and (dig "additionalScrapeConfigs"  list $default) (dig "additionalScrapeConfigs"  list $overlay) }}
          {{ $_ := set $overlay "additionalScrapeConfigs" (concat $default.additionalScrapeConfigs $overlay.additionalScrapeConfigs) }}
       {{- end }}
-
     {{- end }}
   {{- end }}
 {{ toYaml $overlays }}
