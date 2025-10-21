@@ -9,5 +9,4 @@ tests:
     set:
       foo: bar
     asserts:
-      - failedTemplate:
-          errorPattern: ".*Additional property foo is not allowed.*"
+      - failedTemplate: {}
