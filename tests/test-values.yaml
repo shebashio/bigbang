@@ -1635,9 +1635,10 @@ addons:
             cypress_gitlab_password: "Runner_PaSsw0rd123"
 
   anchoreEnterprise:
+    enabled: true
     git:
       tag: null
-      branch: 132-redis-upgrade
+      branch: 132-redis-dep
     enabled: true
     sso:
       enabled: false
@@ -1755,6 +1756,8 @@ addons:
             cpu: 100m
             memory: 200Mi
       ui-redis:
+        cleanUpgrade:
+          enabled: true
         upstream:
           replica:
             replicaCount: 0
