@@ -165,8 +165,9 @@ upstream:
   {{- end }}
   {{- end }}
 
-{{- if $.Values.monitoring.enabled }}
+{{- if or $.Values.monitoring.enabled (and .Values.alloy.enabled .Values.alloy.alloyMetrics.enabled) }}
 serviceMonitors:
+  {{- if .Values.alloy.alloyLogs.enabled }}
   - name: alloy-alloy-logs
     additionalLabels:
       app.kubernetes.io/instance: alloy
@@ -182,6 +183,24 @@ serviceMonitors:
       keyFile: /etc/prom-certs/key.pem
       insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
+  {{- end }}
+  {{- if  .Values.alloy.alloyMetrics.enabled }}
+  - name: alloy-alloy-metrics
+    additionalLabels:
+      app.kubernetes.io/instance: alloy
+      app.kubernetes.io/name: alloy-metrics
+    selectorLabels:
+      app.kubernetes.io/instance: alloy-alloy-metrics
+      app.kubernetes.io/name: alloy-metrics
+    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
+      insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{- end }}
