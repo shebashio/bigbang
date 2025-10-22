@@ -243,11 +243,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 111.27.0-bb.0
+    tag: 1.27.0-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 111.27.0-bb.0
+    tag: 1.27.0-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -404,12 +404,12 @@ kiali:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kiali123.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
     tag: "2.15.0-bb.0"
   helmRepo:
     repoName: "registry1"
-    chartName: "kiali123"
+    chartName: "kiali"
     tag: "2.15.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
@@ -715,7 +715,7 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.2.1-bb.100"
+    tag: "3.2.1-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
