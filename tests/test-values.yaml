@@ -128,7 +128,7 @@ kiali:
         envs:
           cypress_url: 'https://kiali.dev.bigbang.mil'
           cypress_check_data: 'true'
-          podMonitorName: "monitoring-monitoring-istio-envoy"
+          pod_monitor_name: "monitoring-monitoring-istio-envoy"
           # uncomment these next 3 lines if enabling the keycloak SSO integration test
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
