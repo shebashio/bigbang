@@ -6,6 +6,7 @@
 
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and (eq (dig "istio" "injection" "enabled" .Values.addons.backstage) "enabled") $istioEnabled }}
+{{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -24,7 +25,7 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.backstage.ingress.gateway "root" .)}}
 
 {{- if .Values.grafana.enabled }}
-# protect from undeclared values error by nesting the child within parent helm templating check. 
+# protect from undeclared values error by nesting the child within parent helm templating check.
 grafana:
   url: &grafanaUrl {{ (((((.Values.addons).backstage).values).grafana).url) | default "monitoring-grafana.monitoring.svc.cluster.local" }}
   http: &grafanaHttp {{ (((((.Values.addons).backstage).values).grafana).http) | default "http" }}
@@ -94,7 +95,7 @@ backstage:
     {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ $metricScrapingEnabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

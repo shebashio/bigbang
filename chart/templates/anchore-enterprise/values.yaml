@@ -6,6 +6,8 @@
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
+
 domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
@@ -26,7 +28,7 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ $metricScrapingEnabled }}
   {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") }}
   {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchoreEnterprise) "STRICT") }}
   serviceMonitor:
@@ -125,7 +127,7 @@ ui-redis:
   image:
     pullSecrets:
       - private-registry
-  {{- if and .Values.monitoring.enabled (not (and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password)) }}
+  {{- if and $metricScrapingEnabled (not (and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password)) }}
   metrics:
     enabled: true
     image:

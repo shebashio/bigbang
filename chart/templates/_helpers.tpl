@@ -200,33 +200,33 @@ stringData:
   -}}
 
   {{- $enabledGateways := dict -}}
-  
+
   {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
     {{- if and $name $mergedGW }}
       {{- $gwType := dig "upstream" "labels" "istio" "" $mergedGW -}}
-      
+
       {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
         {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; upstream.labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
       {{ end -}}
-      
+
       {{- $gwRecord := dict -}}
       {{- $gwRecord = set $gwRecord "serviceName" (printf "%s-%s" $name $gwType) -}}
       {{- $gwRecord = set $gwRecord "type" $gwType -}}
-      
+
       {{- $gwDefaults := get $defaults.gateways $name | default dict -}}
       {{- if $gwDefaults }}
         {{- $gwRecord = set $gwRecord "defaults" $gwDefaults -}}
       {{ end -}}
-      
+
       {{- $gwOverlays := dig "gateways" $name dict $.Values.istioGateway.values -}}
       {{- if $gwOverlays }}
         {{- $gwRecord = set $gwRecord "overlays" (merge $gwOverlays (dict "upstream" $defaultImagePullConfig)) -}}
       {{ end -}}
-      
+
       {{- $enabledGateways = set $enabledGateways $name $gwRecord -}}
     {{ end -}}
   {{ end -}}
-  
+
   {{- range $name, $gw := $.Values.istioGateway.values.gateways }}
     {{- if kindIs "map" $gw }}
       {{- if eq (len $gw) 0 }}
@@ -236,7 +236,7 @@ stringData:
       {{- $enabledGateways = unset $enabledGateways $name -}}
     {{ end -}}
   {{ end -}}
-  
+
   {{ toYaml $enabledGateways }}
 {{- end -}}
 
@@ -586,7 +586,7 @@ networkPolicies:
 
 {{- /*
   This helper generates a bb-common compatible netpol spec from the configured
-  gateway servers of the individual gateways, then ensures that spec is applied 
+  gateway servers of the individual gateways, then ensures that spec is applied
   to the default values for each of the gateway releases.
 */}}
 {{- define "bigbang.istio-gateway.generate-ingress-netpols" }}
@@ -610,6 +610,11 @@ networkPolicies:
 
   {{- $newGateways | toYaml }}
 {{- end }}
+
+{{- /* Returns true if either Prometheus metrics scraping or Alloy metrics scraping is enabled */ -}}
+{{- define "metricScrapingEnabled" -}}
+{{ or (and .Values.monitoring.enabled .Values.monitoring.prometheusMetrics.enabled) (and .Values.alloy.enabled .Values.alloy.alloyMetrics.enabled) }}
+{{- end -}}
 
 #######################################################################################################################################
 # convert the bool to string if found

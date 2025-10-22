@@ -7,6 +7,7 @@
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.alloy) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
 
 {{- $lokiServiceMap := dict
     "monolith" "logging-loki"
@@ -165,7 +166,7 @@ upstream:
   {{- end }}
   {{- end }}
 
-{{- if or $.Values.monitoring.enabled (and .Values.alloy.enabled .Values.alloy.alloyMetrics.enabled) }}
+{{- if $metricScrapingEnabled }}
 serviceMonitors:
   {{- if .Values.alloy.alloyLogs.enabled }}
   - name: alloy-alloy-logs
