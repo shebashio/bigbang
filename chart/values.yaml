@@ -750,7 +750,7 @@ loki:
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.30.1-bb.4"
+    tag: "6.30.1-bb.4123"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux:
@@ -819,7 +819,7 @@ neuvector:
     tag: "2.8.7-bb.1"
   helmRepo:
     repoName: "registry1"
-    chartName: "neuvector"
+    chartName: "neuvector123"
     tag: "2.8.7-bb.1"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
@@ -883,13 +883,12 @@ tempo:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/tempo123.git
     path: "./chart"
     tag: "1.21.1-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.21.1-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
