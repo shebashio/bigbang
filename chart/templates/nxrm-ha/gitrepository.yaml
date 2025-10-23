@@ -10,10 +10,10 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: nexus-repository-manager
+  name: nxrm-ha
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: nexus-repository-manager
+    app.kubernetes.io/name: nxrm-ha
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
 spec:
