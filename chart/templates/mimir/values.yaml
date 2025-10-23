@@ -44,9 +44,15 @@ networkPolicies:
             monitoring/grafana: true
             alloy/alloy: true
             alloy/alloy-alloy-logs: true
-            minio-operator/minio-operator: true
           definition:
             gateway: {{ .Values.istioGateway.enabled }}
+      minio:[9000]:
+        podSelector:
+          matchExpressions:
+            - { key: app.kubernetes.io/name, operator: In, values: ["minio"] }
+        from:
+          k8s: 
+            minio-operator/minio-operator: true
 
 istio:
   enabled: {{ $istioEnabled }}
