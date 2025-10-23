@@ -4,6 +4,8 @@
 
 {{- define "bigbang.defaults.eck-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
+
 license:
   trial: {{ .Values.elasticsearchKibana.license.trial }}
   keyJSON: |
@@ -38,7 +40,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ $.Values.monitoring.enabled }}
+  enabled: {{ (include "metricScrapingEnabled" .) }}
   {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.eckOperator.values) "STRICT") }}
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem

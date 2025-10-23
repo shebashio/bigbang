@@ -55,7 +55,7 @@ networkPolicies:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
     scheme: https

@@ -23,7 +23,7 @@ redis-bb:
   upstream:
     auth:
       enabled: false
-    {{- if .Values.monitoring.enabled }}
+    {{- if (include "metricScrapingEnabled" .) }}
     metrics:
       enabled: true
       image:
@@ -44,7 +44,7 @@ redis-bb:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true
         {{- end }}
-  
+
       prometheusRule:
         enabled: true
         namespace: monitoring
@@ -102,7 +102,7 @@ networkPolicies:
 
 upstream:
   {{- if .Values.addons.argocd.redis.host }}
-  externalRedis: 
+  externalRedis:
     host: {{ default "argocd-argocd-redis-bb-headless.argocd.svc.cluster.local" .Values.addons.argocd.redis.host }}
     port: {{ default 6379 .Values.addons.argocd.redis.port }}
   {{- end }}
@@ -128,7 +128,7 @@ upstream:
     secret:
       extra:
         keycloakClientSecret: {{ .Values.addons.argocd.sso.client_secret }}
-    {{- end }} 
+    {{- end }}
   {{- end }}
   openshift:
     enabled: {{ .Values.openshift }}
@@ -149,13 +149,13 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true
     {{- end }}
-  
+
   dex:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
       - name: private-registry
-  
+
   server:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -175,7 +175,7 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true
     {{- end }}
-  
+
   repoServer:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -188,7 +188,7 @@ upstream:
     envFrom:
     - secretRef:
         name: argocd-iam-secret
-    {{- end }}     
+    {{- end }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT, istio injection: enabled
     {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.argocd.values) "STRICT") }}
     metrics:

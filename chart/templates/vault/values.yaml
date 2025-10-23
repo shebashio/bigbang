@@ -12,7 +12,7 @@ openshift: {{ .Values.openshift }}
 
 prometheus:
   servicemonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -59,12 +59,12 @@ upstream:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}  
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
     {{- include "getGatewaySelector" (dict "pkg" .Values.addons.vault "root" .) | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}  
+  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -83,5 +83,5 @@ istio:
 minio:
   annotations:
     {{ include "istioAnnotation" . }}
-{{- end }}        
+{{- end }}
 {{- end -}}

@@ -26,24 +26,24 @@ upstream:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
   grafana:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.grafana.enabled }}
     namespace: monitoring
 
   admissionController:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
 
   backgroundController:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
 
   cleanupController:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
 
   reportsController:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
 
 
 {{- end -}}

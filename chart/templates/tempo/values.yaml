@@ -10,7 +10,7 @@ podAnnotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
-objectStorage: 
+objectStorage:
   access_key_id: {{ .Values.tempo.objectStorage.accessKey }}
   secret_access_key: {{ .Values.tempo.objectStorage.accessSecret }}
 
@@ -20,7 +20,7 @@ tempo:
     ingestion_rate_limit_bytes: 30000000
 {{- with .Values.tempo.objectStorage }}
 {{- if and .endpoint .region .bucket }}
-  storage: 
+  storage:
     trace:
       backend: s3
       s3:
@@ -88,7 +88,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ (include "metricScrapingEnabled" .) }}
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT

@@ -165,7 +165,7 @@ upstream:
   {{- end }}
   {{- end }}
 
-{{- if or $.Values.monitoring.enabled (and .Values.alloy.enabled .Values.alloy.alloyMetrics.enabled) }}
+{{- if (include "metricScrapingEnabled" .) }}
 serviceMonitors:
   {{- if .Values.alloy.alloyLogs.enabled }}
   - name: alloy-alloy-logs

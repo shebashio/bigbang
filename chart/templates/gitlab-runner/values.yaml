@@ -12,9 +12,9 @@ upstream:
   - name: private-registry
 
   metrics:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
 
   # When istio injected, add an annotation with the istio version to the manager pods only
   {{- if and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") $istioEnabled }}
