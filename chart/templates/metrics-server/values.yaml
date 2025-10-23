@@ -22,7 +22,7 @@ upstream:
   fullnameOverride: "metrics-server"
 
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
     dashboards:
       namespace: monitoring
 

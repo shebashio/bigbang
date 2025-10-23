@@ -26,7 +26,7 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{- if (include "metricScrapingEnabled" .) }}
   {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") }}
   {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchoreEnterprise) "STRICT") }}
   serviceMonitor:
@@ -127,7 +127,7 @@ ui-redis:
     image:
       pullSecrets:
         - private-registry
-    {{- if .Values.monitoring.enabled }}
+    {{- if (include "metricScrapingEnabled" .) }}
     metrics:
       enabled: true
       image:

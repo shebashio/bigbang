@@ -45,7 +45,7 @@ upstream:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
-  
+
   plugin:
     kyverno:
       enabled: true
@@ -62,7 +62,7 @@ upstream:
   # monitoring contains configurations related to monitoring
   monitoring:
     # -- Enables the Prometheus Operator integration
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
     grafana:
       dashboards:
         enabled: {{ or .Values.monitoring.enabled .Values.grafana.enabled }}

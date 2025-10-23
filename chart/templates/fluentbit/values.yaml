@@ -42,7 +42,7 @@ upstream:
   openShift:
     enabled: {{ .Values.openshift }}
 
-  {{- if .Values.monitoring.enabled }}
+  {{- if (include "metricScrapingEnabled" .) }}
   serviceMonitor:
     enabled: true
     namespace: monitoring

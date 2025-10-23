@@ -20,7 +20,7 @@ podAnnotations:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
-{{- if .Values.monitoring.enabled }}
+{{- if (include "metricScrapingEnabled" .) }}
 metrics:
   enabled: true
   scrapeInterval: 30s

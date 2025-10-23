@@ -52,11 +52,11 @@ upstream:
     imagePullSecret:
       name: private-registry
     metrics:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
     configSecret:
       accessKey: {{ .Values.addons.minio.accesskey | default "minio" }}
-      secretKey: {{ .Values.addons.minio.secretkey | default "minio123" }}  
-    {{- if .Values.monitoring.enabled }}
+      secretKey: {{ .Values.addons.minio.secretkey | default "minio123" }}
+    {{- if (include "metricScrapingEnabled" .) }}
     env:
       - name: MINIO_PROMETHEUS_AUTH_TYPE
         value: "public"

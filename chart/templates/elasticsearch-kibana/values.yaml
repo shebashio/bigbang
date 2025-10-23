@@ -95,7 +95,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 metrics:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ (include "metricScrapingEnabled" .) }}
   {{- if and (eq (dig "istio" "mtls" "mode" "STRICT" .Values.elasticsearchKibana.values) "STRICT") $istioInjection }}
   serviceMonitor:
     scheme: https

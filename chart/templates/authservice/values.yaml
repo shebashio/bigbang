@@ -23,9 +23,9 @@ istio:
     enabled: {{ $authServiceHardened }}
   clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}
 
-image: 
+image:
   pullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
-  
+
 imagePullSecrets:
   - name: private-registry
 
@@ -97,16 +97,16 @@ autoscaling:
 
 {{- if and (dig "redis" "enabled" false .Values.addons.authservice.values) (or .Values.monitoring.enabled .Values.kiali.enabled) }}
 redis-bb:
-  {{- if .Values.monitoring.enabled }}
+  {{- if (include "metricScrapingEnabled" .) }}
   metrics:
-    enabled: true 
+    enabled: true
     image:
       pullSecrets:
         - private-registry
     serviceMonitor:
       enabled: true
       namespace: authservice
-      selector: 
+      selector:
         app.kubernetes.io/name: redis-bb
         app.kubernetes.io/instance: authservice-authservice
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.authservice.values) "STRICT") }}
@@ -115,10 +115,10 @@ redis-bb:
         caFile: /etc/prom-certs/root-cert.pem
         certFile: /etc/prom-certs/cert-chain.pem
         keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  
+        insecureSkipVerify: true
       {{- end }}
     prometheusRule:
-      enabled: true 
+      enabled: true
       namespace: monitoring
   {{- end }}
 {{- end }}

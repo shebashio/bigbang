@@ -48,7 +48,7 @@ upstream:
     {{- if or .Values.monitoring.enabled .Values.neuvector.sso.enabled }}
     secret:
       enabled: true
-      data: 
+      data:
         {{- if .Values.monitoring.enabled }}
         userinitcfg.yaml:
           always_reload: true
@@ -68,7 +68,7 @@ upstream:
           default_role: {{ .Values.neuvector.sso.default_role }}
           group_claim: {{ .Values.neuvector.sso.group_claim }}
           {{- if .Values.neuvector.sso.group_mapped_roles }}
-          group_mapped_roles: 
+          group_mapped_roles:
             {{- toYaml .Values.neuvector.sso.group_mapped_roles | nindent 10 }}
           {{- else }}
           group_mapped_roles: []
@@ -83,12 +83,12 @@ upstream:
   {{- end }}
 
 monitor:
-  install: {{ .Values.monitoring.enabled }}
+  install: {{ (include "metricScrapingEnabled" .) }}
   exporter:
-    enabled: {{ .Values.monitoring.enabled }}
-    {{- if or .Values.monitoring.enabled $istioInjection }}
+    enabled: {{ (include "metricScrapingEnabled" .) }}
+    {{- if or (include "metricScrapingEnabled" .) $istioInjection }}
     podAnnotations:
-      {{- if .Values.monitoring.enabled }}
+      {{- if (include "metricScrapingEnabled" .) }}
       checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
       {{- end }}
       {{- if $istioInjection }}
@@ -96,7 +96,7 @@ monitor:
       {{- end }}
     {{- end }}
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
       {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
       scheme: https
       tlsConfig:

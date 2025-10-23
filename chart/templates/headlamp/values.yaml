@@ -11,7 +11,7 @@ image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ (include "metricScrapingEnabled" .) }}
   serviceMonitor:
     # conditional passes only for default istio: enabled, mTLS: STRICT
     {{- if and (eq (include "istioEnabled" .) "true") (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.headlamp.values) "STRICT") }}

@@ -41,7 +41,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ (include "metricScrapingEnabled" .) }}
   # conditional passes only if all conditionals are true:
   # - istio: enabled
   # - mTLS: SCRICT

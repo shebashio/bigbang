@@ -50,7 +50,7 @@ networkPolicies:
 upstream:
   {{- if and (or $istioInjection .Values.monitoring.enabled) (dig "redis" "install" true .Values.addons.gitlab.values) }}
   redis:
-    {{- if .Values.monitoring.enabled }}
+    {{- if (include "metricScrapingEnabled" .) }}
     metrics:
       serviceMonitor:
         enabled: true
@@ -89,7 +89,7 @@ upstream:
       key: registry
     {{- end }}
     {{- if or $iamProfile $istioInjection }}
-    annotations: 
+    annotations:
       {{- if $iamProfile }}
       iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
       {{- end }}
@@ -173,7 +173,7 @@ upstream:
                 insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
     {{- if or $iamProfile $istioInjection }}
-      annotations: 
+      annotations:
         {{- if $iamProfile }}
         iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
         {{- end }}
@@ -181,7 +181,7 @@ upstream:
         {{ include "istioAnnotation" . }}
         {{- end }}
     sidekiq:
-      annotations: 
+      annotations:
         {{- if $iamProfile }}
         iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
         {{- end }}
@@ -279,7 +279,7 @@ global:
   # added to help with Gitlab sub-chart configuration
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-    
+
   istio:
     enabled: {{ $istioInjection }}
     injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlab }}
@@ -453,7 +453,7 @@ global:
   {{- end }}
 
   {{- if and (ne .Values.addons.gitlab.redis.password "") (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled) }}
-  redis:  
+  redis:
     password:
       secret: "gitlab-redis-secret-bb"
   {{- end }}

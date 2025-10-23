@@ -30,11 +30,11 @@ image:
 
 job_image:
   pullPolicy: {{ .Values.imagePullPolicy }}
-  
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:
-    createMetricsUser: {{ .Values.monitoring.enabled }}
+    createMetricsUser: {{ (include "metricScrapingEnabled" .) }}
   {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.velero.values) "STRICT") }}
     scheme: https
     tlsConfig:
@@ -61,7 +61,7 @@ nexus:
   {{- if $nexusValues.license_key }}
   properties:
     override: true
-    data: 
+    data:
       nexus.licenseFile: /nexus-data/sonatype-license.lic
   {{- end }}
 
@@ -92,12 +92,12 @@ sso:
     - id: {{ .id | quote }}
       name: {{ .name | quote }}
       description: {{ .description | quote }}
-      privileges: 
+      privileges:
         {{- range .privileges }}
         - {{ . | quote }}
         {{- else }} []
         {{- end }}
-      roles: 
+      roles:
         {{- range .roles }}
         - {{ . | quote }}
         {{- else }} []

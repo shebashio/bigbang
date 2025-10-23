@@ -79,7 +79,7 @@ sso:
   enabled: {{ or .Values.grafana.sso.enabled .Values.grafana.sso.enabled }}
 
 upstream:
-  {{- if .Values.monitoring.enabled }}
+  {{- if (include "metricScrapingEnabled" .) }}
   serviceMonitor:
     enabled: true
   {{- if $istioInjection }}

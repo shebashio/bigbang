@@ -165,8 +165,8 @@ upstream:
     {{- end }}
   metaMonitoring:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
-      {{- if and .Values.monitoring.enabled $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+      enabled: {{ (include "metricScrapingEnabled" .) }}
+      {{- if and (include "metricScrapingEnabled" .) $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
