@@ -38,7 +38,7 @@ networkPolicies:
       mimir:[8080,9095]:
         podSelector:
           matchExpressions:
-            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator", "minio"] }
         from:
           k8s:
             monitoring/prometheus: true
