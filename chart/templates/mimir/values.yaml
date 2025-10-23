@@ -32,6 +32,10 @@ networkPolicies:
         to:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+      minio:
+        to:
+          definition:
+            kubeAPI: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
   ingress:
     to:
       mimir:[8080,9095]:
