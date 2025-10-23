@@ -31,11 +31,6 @@ networkPolicies:
         to:
           k8s:
             monitoring/grafana:3000: true
-            minio/minio:9443: true #Why is this needed, if not recommended.
-      minio:
-        to:
-          k8s:
-            minio-operator/minio-operator:[4221-4223]: true #Does minioOperator exist?
 
   ingress:
     to:
