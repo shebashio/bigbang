@@ -32,8 +32,6 @@ networkPolicies:
           k8s:
             monitoring/grafana:3000: true
             minio/minio:9443: true
-          cidr:
-            0.0.0.0/0:443: true
 
   ingress:
     to:
@@ -44,6 +42,9 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: true
+            monitoring/grafana: true
+            alloy/alloy: true
+            alloy/alloy-alloy-logs: true
           definition:
             gateway: {{ .Values.istioGateway.enabled }}
 
