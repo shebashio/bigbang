@@ -216,8 +216,20 @@ upstream:
         certFile: /etc/prom-certs/cert-chain.pem
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+    {{- if $istioInjection }}
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+    {{- end }}
     {{- end }}
 
+  prometheus:
+    {{- if $lokiEnabled }}
+    monitor:
+      relabelings:
+        - action: replace
+          replacement: {{ $clusterName }}
+          targetLabel: cluster
+    {{- end }}
     {{- if $thanosEnabled }}
     thanosService:
       enabled: true
@@ -238,7 +250,6 @@ upstream:
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
     {{- end }}
-
     prometheusSpec:
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
       alertingEndpoints:
@@ -282,7 +293,6 @@ upstream:
             insecureSkipVerify: true
           {{- end }}
       {{- end }}
-
       {{- if $thanosEnabled }}
       thanos:
         {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
@@ -323,7 +333,6 @@ upstream:
             name: istio-certs
         {{- end }}
       {{- end }}
-
       # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
       # NOTE: This functionality is not actively maintained upstream and may not work in a future monitoring upgrade
       containers:
