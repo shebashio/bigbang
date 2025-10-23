@@ -106,7 +106,7 @@ For detailed instructions, see the [Quick Start Guide](getting-started/quick-sta
 
 ### Getting Help
 - **Documentation**: Start with the guides in this documentation
-- **Community Support**: Engage with the community on [Platform One](https://p1.dso.mil/)
+- **Community Support**: [Engage with the community](../README.md#community)
 - **Issues**: Report bugs and request features on [Repo1](https://repo1.dso.mil/big-bang/bigbang/-/issues)
 
 ### Contributing
