@@ -24,6 +24,8 @@ istio:
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
+  authorizationPolicies:
+    enabled: true
 routes:
   inbound:
     kiali:
