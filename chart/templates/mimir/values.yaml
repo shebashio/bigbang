@@ -27,7 +27,7 @@ networkPolicies:
       mimir:
         podSelector:
           matchExpressions:
-            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator", "minio"] }
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
         to:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
