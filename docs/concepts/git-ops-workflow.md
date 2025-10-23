@@ -190,7 +190,7 @@ git commit -m "promote: deploy validated config to staging"
 # After staging validation
 cp staging/values.yaml prod/values.yaml
 
-# Update production-specific values (domains, replicas, etc.)
+# Update production-specific values (domains, replicas, etc.) or have additional files per environment
 vim prod/values.yaml
 
 # Commit production deployment
