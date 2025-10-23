@@ -44,8 +44,6 @@ networkPolicies:
             monitoring/grafana: true
             alloy/alloy: true
             alloy/alloy-alloy-logs: true
-          definition:
-            gateway: {{ .Values.istioGateway.enabled }}
       minio:[9000]:
         podSelector:
           matchExpressions:
