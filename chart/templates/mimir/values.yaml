@@ -50,7 +50,7 @@ networkPolicies:
             - { key: app.kubernetes.io/name, operator: In, values: ["minio"] }
         from:
           k8s: 
-            minio-operator/minio-operator: {{ .Values.addons.mimir.values.minio-tenant.enabled }}
+            minio-operator/minio-operator: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
 
 istio:
   enabled: {{ $istioEnabled }}
