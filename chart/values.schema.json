@@ -1091,6 +1091,7 @@
     },
     "addons": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "argocd": {
           "allOf": [
@@ -1105,6 +1106,18 @@
           }
         },
         "authservice": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
+        },
+        "backstage": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
@@ -1329,6 +1342,18 @@
           }
         },
         "harbor": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
+        },
+        "headlamp": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
