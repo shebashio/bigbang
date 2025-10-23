@@ -1,7 +1,7 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
 {{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
 {{- if $nexusValues.enabled  }}
-{{- include "values-secret" (dict "root" $ "package" $nexusValues "name" "nexus-repository-manager" "defaults" (include "bigbang.defaults.nxrm-ha" .)) }}
+{{- include "values-secret" (dict "root" $ "package" $nexusValues "name" "nxrm-ha" "defaults" (include "bigbang.defaults.nxrm-ha" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.nxrm-ha" -}}
