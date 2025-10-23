@@ -30,7 +30,7 @@ networkPolicies:
             - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator", "minio"] }
         to:
           k8s:
-            monitoring/grafana:3000: true
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
 
   ingress:
     to:
@@ -40,17 +40,17 @@ networkPolicies:
             - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator", "minio"] }
         from:
           k8s:
-            monitoring/prometheus: true
-            monitoring/grafana: true
-            alloy/alloy: true
-            alloy/alloy-alloy-logs: true
+            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring/grafana: {{ .Values.grafana.enabled }}
+            alloy/alloy: {{ .Values.alloy.enabled }}
+            alloy/alloy-alloy-logs: {{ .Values.alloy.alloyLogs.enabled }}
       minio:[9000]:
         podSelector:
           matchExpressions:
             - { key: app.kubernetes.io/name, operator: In, values: ["minio"] }
         from:
           k8s: 
-            minio-operator/minio-operator: true
+            minio-operator/minio-operator: {{ .Values.addons.mimir.values.minio-tenant.enabled }}
 
 istio:
   enabled: {{ $istioEnabled }}
