@@ -156,6 +156,7 @@ networkPolicies:
             monitoring/prometheus:15008: {{ and .Values.monitoring.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
             monitoring/grafana:15008: {{ and .Values.grafana.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
             tempo/tempo:15008: {{ and .Values.tempo.enabled (or .Values.tempo.istio.ambient .Values.kiali.istio.ambient) }}
+            istio-gateway/authservice-waypoint:15008: {{ .Values.addons.authservice.enabled }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}

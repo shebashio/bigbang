@@ -283,6 +283,13 @@ prometheus:
         replacement: {{ $clusterName }}
         targetLabel: cluster
   {{- end }}
+  
+  {{- if and .Values.monitoring.istio.ambient $authserviceEnabled }}
+  service:
+    labels:
+      istio.io/use-waypoint: authservice-waypoint
+      istio.io/use-waypoint-namespace: istio-gateway
+  {{- end }}
 
   {{- if $thanosEnabled }}
   thanosService:
@@ -410,6 +417,8 @@ prometheus:
       labels:
         app: prometheus
         {{- if .Values.monitoring.sso.enabled }}
+        istio.io/use-waypoint: authservice-waypoint
+        istio.io/use-waypoint-namespace: istio-gateway
         {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
         {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         {{ $prometheusAuthserviceKey }}: {{ $prometheusAuthserviceValue }}

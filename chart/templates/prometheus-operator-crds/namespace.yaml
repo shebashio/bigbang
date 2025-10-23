@@ -11,13 +11,6 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
     {{- if .Values.monitoring.istio.ambient }}
     istio.io/dataplane-mode: ambient
-    # Allow user to override waypoint automatic behavior
-    {{- if and (hasKey .Values.monitoring.istio "waypointEnabled") .Values.monitoring.istio.waypointEnabled }}
-    istio.io/use-waypoint: monitoring-waypoint
-    # Enable waypoint automatically by default
-    {{- else if and .Values.monitoring.sso.enabled .Values.addons.authservice.enabled }}
-    istio.io/use-waypoint: monitoring-waypoint
-    {{- end }}
     {{- else }}
     istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled")) }}
     {{- end }}

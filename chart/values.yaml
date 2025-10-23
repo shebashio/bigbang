@@ -1059,8 +1059,9 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: null
-    branch: "remove-legacy-istio-code"
+    # tag: null
+    tag: 75.6.1-bb.5
+    # branch: "remove-legacy-istio-code"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
@@ -1369,7 +1370,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.1-bb.1"
+      tag: null
+      branch: "ambient"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
