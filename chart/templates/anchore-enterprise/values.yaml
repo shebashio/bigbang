@@ -67,7 +67,7 @@ upstream:
   {{- end }}
   {{- if .Values.addons.anchoreEnterprise.enterprise.licenseYaml }}
   license: 
-    {{ toYaml .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 4 }}
+    {{ .Values.addons.anchoreEnterprise.enterprise.licenseYaml | nindent 0 }}
   {{- end }}
 
   feeds:
