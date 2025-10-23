@@ -16,9 +16,36 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
+  prependReleaseName: false
+  egress:
+    definitions:
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+    from:
+      mimir:
+        podSelector:
+          matchExpressions:
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
+        to:
+          k8s:
+            monitoring/grafana:3000: true
+            minio/minio:9443: true
+          cidr:
+            0.0.0.0/0:443: true
+
+  ingress:
+    to:
+      mimir:[8080,9095]:
+        podSelector:
+          matchExpressions:
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
+        from:
+          k8s:
+            monitoring/prometheus: true
+          definition:
+            gateway: {{ .Values.istioGateway.enabled }}
 
 istio:
   enabled: {{ $istioEnabled }}
