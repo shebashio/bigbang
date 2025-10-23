@@ -7,7 +7,8 @@ include:
     # ref: '815-nest-spans-correctly'
     # ref: '815-1-set-default-value'
     # ref: '815-2-refactor'
-    ref: '815-3-instrument'
+    # ref: '815-3-instrument'
+    ref: '815-4-instrument-otel-2'
     file: '/pipelines/bigbang.yaml'
 variables:
   # PIPELINE_REPO_BRANCH: '801-add-dependency-of-pre'
@@ -17,7 +18,8 @@ variables:
   # PIPELINE_REPO_BRANCH: '815-nest-spans-correctly'
   # PIPELINE_REPO_BRANCH: '815-1-set-default-value'
   # PIPELINE_REPO_BRANCH: '815-2-refactor'
-  PIPELINE_REPO_BRANCH: '815-3-instrument'
+  # PIPELINE_REPO_BRANCH: '815-3-instrument'
+  PIPELINE_REPO_BRANCH: '815-4-instrument-otel-2'
   # CI_DEFAULT_BRANCH: '801-add-dependency-of-pre'
   # CI_DEFAULT_BRANCH: 'master'
   # CI_DEFAULT_BRANCH: 'jeremy-glover-test-bb-ci-2.25.2'
@@ -25,6 +27,7 @@ variables:
   # CI_DEFAULT_BRANCH: '815-nest-spans-correctly'
   # CI_DEFAULT_BRANCH: '815-1-set-default-value'
   # CI_DEFAULT_BRANCH: '815-2-refactor'
-  CI_DEFAULT_BRANCH: '815-3-instrument'
+  # CI_DEFAULT_BRANCH: '815-3-instrument'
+  CI_DEFAULT_BRANCH: '815-4-instrument-otel-2'
   # UTIL_IMAGE: 'registry1.dso.mil/bigbang-staging/bb-ci:2.25.2'
   DEBUG: true
