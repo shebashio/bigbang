@@ -37,7 +37,7 @@ networkPolicies:
       mimir:[8080,9095]:
         podSelector:
           matchExpressions:
-            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator", "minio"] }
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
         from:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
@@ -51,6 +51,7 @@ networkPolicies:
         from:
           k8s: 
             minio-operator/minio-operator: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
+            monitoring/prometheus: {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) .Values.monitoring.enabled }}
 
 istio:
   enabled: {{ $istioEnabled }}
