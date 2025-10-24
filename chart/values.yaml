@@ -746,6 +746,10 @@ alloy:
   alloyLogs:
     enabled: true
 
+  # -- Toggle Alloy metrics collection
+  alloyMetrics:
+    enabled: false
+
   # -- Additional Alloy destinations not included in Big Bang
   additionalDestinations: []
 
@@ -755,6 +759,10 @@ alloy:
 
   # -- Flux reconciliation overrides specifically for the alloy package
   flux: {}
+
+# -- Standalone Alloy metrics configuration (deprecated, use alloy.alloyMetrics instead)
+alloyMetrics:
+  enabled: false
 
 loki:
   # -- Toggle deployment of Loki.
