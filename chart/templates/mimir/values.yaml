@@ -27,7 +27,7 @@ networkPolicies:
       mimir:
         to:
           k8s:
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
       rollout-operator:
         to:
           k8s:
@@ -38,21 +38,29 @@ networkPolicies:
             kubeAPI: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
   ingress:
     to:
-      mimir:[8080,9095]:
+      mimir:[15021]: #prometheus sidecar scraping
+        podSelector:
+          matchExpressions:
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.monitoring.enabled }}     
+      mimir:[8080,9095]: #mimir service ports
+        podSelector:
+          matchExpressions:
+            - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
         from:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
             monitoring/grafana: {{ .Values.grafana.enabled }}
             alloy/alloy: {{ .Values.alloy.enabled }}
             alloy/alloy-alloy-logs: {{ .Values.alloy.alloyLogs.enabled }}
-      rollout-operator:[8080,9095]:
+            mimir:[15021]: #prometheus sidecar scraping
+      minio:[15021]: #minio sidecar scraping, conditional if minio-tenant and monitoring are enabled
         from:
           k8s:
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
-            monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy/alloy: {{ .Values.alloy.enabled }}
-            alloy/alloy-alloy-logs: {{ .Values.alloy.alloyLogs.enabled }}
-      minio:[9000]:
+            monitoring/prometheus: {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) .Values.monitoring.enabled }} 
+      minio:[9000]: #Minio-tenant, conditional if minio-tenant and monitoring are enabled
         from:
           k8s: 
             minio-operator/minio-operator: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
