@@ -22,12 +22,25 @@ openshift: {{ .Values.openshift}}
 
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
+
+  sidecar:
     enabled: {{ $istioHardenedEnabled }}
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
+
+    # map deprecated istio.hardened.customAuthorizationPolicies to istio.authorizationPolicies.custom
+    custom:
+      {{- $customAuthzPolicies := default (dig "authorizationPolicies" "custom" list .Values.kiali.values) (dig "hardened" "customAuthorizationPolicies" list .Values.kiali.values) }}
+      {{- toYaml $customAuthzPolicies | nindent 6 }}
+
+  serviceEntries:
+    # map deprecated istio.hardened.customServiceEntries to istio.serviceEntries.custom
+    custom:
+      {{- $customServiceEntries := default (dig "serviceEntries" "custom" list .Values.kiali.values) (dig "hardened" "customServiceEntries" list .Values.kiali.values) }}
+      {{- toYaml $customServiceEntries | nindent 6 }}
+
 routes:
   inbound:
     kiali:
