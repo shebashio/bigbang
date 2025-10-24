@@ -984,7 +984,7 @@ policies:
   {{- end }}
 
   update-automountserviceaccounttokens-default:
-    enabled: true
+    enabled: false
     namespaces:
       - istio-system
       - twistlock
@@ -1018,7 +1018,7 @@ policies:
       - headlamp
 
   update-automountserviceaccounttokens:
-    enabled: true
+    enabled: false
     namespaces:
       - namespace: istio-system
         pods:
