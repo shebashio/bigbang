@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -22,10 +23,11 @@ openshift: {{ .Values.openshift}}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+    enabled: {{ $istioHardenedEnabled }}
 
   authorizationPolicies:
-    enabled: true
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 routes:
   inbound:
     kiali:
