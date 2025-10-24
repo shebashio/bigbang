@@ -48,7 +48,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
             monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy/alloy-metrics: {{ .Values.alloyMetrics.enabled }}
+            alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
       rollout-operator:[8080,9095]:
         from:
           k8s:
