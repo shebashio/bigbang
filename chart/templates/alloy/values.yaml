@@ -6,6 +6,7 @@
 {{- define "bigbang.defaults.alloy" -}}
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.alloy.istio "ambient") .Values.alloy.istio.ambient) }}
 
 {{- $lokiServiceMap := dict
     "monolith" "logging-loki"
@@ -151,7 +152,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-logs
       app.kubernetes.io/name: alloy-logs
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $istioEnabled $sidecarEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem

@@ -289,6 +289,7 @@ prometheus:
     labels:
       istio.io/use-waypoint: authservice-waypoint
       istio.io/use-waypoint-namespace: istio-gateway
+      istio.io/ingress-use-waypoint: "true"
   {{- end }}
 
   {{- if $thanosEnabled }}
@@ -419,6 +420,7 @@ prometheus:
         {{- if .Values.monitoring.sso.enabled }}
         istio.io/use-waypoint: authservice-waypoint
         istio.io/use-waypoint-namespace: istio-gateway
+        istio.io/ingress-use-waypoint: "true"
         {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
         {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         {{ $prometheusAuthserviceKey }}: {{ $prometheusAuthserviceValue }}

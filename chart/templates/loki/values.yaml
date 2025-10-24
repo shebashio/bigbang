@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $sidecarEnabled := ternary false true (and (hasKey .Values.loki.istio "ambient") .Values.loki.istio.ambient) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -149,7 +150,7 @@ monitoring:
   serviceMonitor:
     enabled: {{ .Values.monitoring.enabled }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
+    {{- if and $istioEnabled $sidecarEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
