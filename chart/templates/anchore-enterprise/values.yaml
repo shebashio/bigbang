@@ -137,8 +137,8 @@ ui-redis:
         enabled: true
         namespace: anchore
         selector:
-          app.kubernetes.io/name: anchore-ui-redis
-          app.kubernetes.io/instance: anchore
+          app.kubernetes.io/name: ui-redis
+          app.kubernetes.io/instance: anchore-enterprise
         {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") }}
         {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchoreEnterprise) "STRICT") }}
         scheme: "https"
