@@ -38,7 +38,7 @@ networkPolicies:
             kubeAPI: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
   ingress:
     to:
-      mimir:[15021]: #prometheus sidecar scraping
+      mimir:[15020]: #prometheus sidecar scraping
         podSelector:
           matchExpressions:
             - { key: app.kubernetes.io/name, operator: In, values: ["mimir", "rollout-operator"] }
@@ -55,8 +55,7 @@ networkPolicies:
             monitoring/grafana: {{ .Values.grafana.enabled }}
             alloy/alloy: {{ .Values.alloy.enabled }}
             alloy/alloy-alloy-logs: {{ .Values.alloy.alloyLogs.enabled }}
-            mimir:[15021]: #prometheus sidecar scraping
-      minio:[15021]: #minio sidecar scraping, conditional if minio-tenant and monitoring are enabled
+      minio:[15020]: #minio sidecar scraping, conditional if minio-tenant and monitoring are enabled
         from:
           k8s:
             monitoring/prometheus: {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) .Values.monitoring.enabled }} 
