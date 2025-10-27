@@ -77,6 +77,7 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: {{ .Values.ztunnel.enabled }}
+            keycloak/authservice-waypoint: {{ .Values.addons.authservice.istio.ambient }}
       "redis-bb:15008":
         from:
           k8s:

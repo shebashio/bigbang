@@ -37,6 +37,54 @@ networkPolicies:
         podSelector: {}
         policyTypes:
         - Ingress
+  {{- if addons .Values.addons.authservice.enabled .Values.addons.authservice.istio.ambient }}
+    - name: allow-ingress-public-ingressgateway-authservice-waypoint-15008
+      spec:
+        ingress:
+        - ports:
+          - port: 15008
+            protocol: TCP
+        - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: istio-gateway
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: public-ingressgateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: authservice-waypoint
+        policyTypes:
+        - Ingress
+    - name: allow-all-egress-authservice-waypoint-15008
+      spec:
+        egress:
+        - ports:
+          - port: 15008
+            protocol: TCP
+        - to:
+          - namespaceSelector: {}
+            podSelector: {}
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: authservice-waypoint
+        policyTypes:
+        - Egress
+    - name: allow-all-ingress-authservice-waypoint-15008
+      spec:
+        ingress:
+        - ports:
+          - port: 15008
+            protocol: TCP
+        - from:
+          - namespaceSelector: {}
+            podSelector: {}
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: authservice-waypoint
+        policyTypes:
+        - Ingress
+  {{- end }}
     {{- if .Values.addons.keycloak.istio.ambient }}
     - name: ingress-passthrough-gateway
       spec:

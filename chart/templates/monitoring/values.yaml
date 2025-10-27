@@ -76,6 +76,7 @@ networkPolicies:
           k8s:
             kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
             istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
+            keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
       grafana:15008:
         from:
           k8s:
@@ -219,6 +220,18 @@ istio:
                 - source:
                     principals:
                       - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-authservice-waypoint"
+        enabled: {{ and .Values.monitoring.sso.enabled .Values.monitoring.istio.ambient .Values.addons.authservice.enabled }}
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: "prometheus"
+          action: ALLOW
+          rules:
+          - from:
+            - source:
+                principals:
+                - cluster.local/ns/keycloak/sa/authservice-waypoint
     {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
@@ -245,6 +258,13 @@ alertmanager:
   alertmanagerSpec:
     # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
     # NOTE: This functionality is not actively maintained upstream and may not work in a future monitoring upgrade
+    {{- if and .Values.monitoring.istio.ambient $authserviceEnabled }}
+    service:
+      labels:
+        istio.io/use-waypoint: authservice-waypoint
+        istio.io/use-waypoint-namespace: keycloak
+        istio.io/ingress-use-waypoint: "true"
+    {{- end }}
     containers:
       - name: "alertmanager"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -258,6 +278,11 @@ alertmanager:
       labels:
         {{- if .Values.monitoring.sso.enabled }}
         {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
+        {{- if and .Values.monitoring.istio.ambient $authserviceEnabled }}
+        istio.io/use-waypoint: authservice-waypoint
+        istio.io/use-waypoint-namespace: keycloak
+        istio.io/ingress-use-waypoint: "true"
+        {{- end }}
         {{- end }}
       {{- end }}
       {{- if $istioEnabled }}
@@ -288,7 +313,7 @@ prometheus:
   service:
     labels:
       istio.io/use-waypoint: authservice-waypoint
-      istio.io/use-waypoint-namespace: istio-gateway
+      istio.io/use-waypoint-namespace: keycloak
       istio.io/ingress-use-waypoint: "true"
   {{- end }}
 
@@ -419,7 +444,7 @@ prometheus:
         app: prometheus
         {{- if .Values.monitoring.sso.enabled }}
         istio.io/use-waypoint: authservice-waypoint
-        istio.io/use-waypoint-namespace: istio-gateway
+        istio.io/use-waypoint-namespace: keycloak
         istio.io/ingress-use-waypoint: "true"
         {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
         {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
