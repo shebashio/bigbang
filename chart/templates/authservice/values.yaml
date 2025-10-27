@@ -19,6 +19,7 @@
 
 istio:
   enabled: {{ $istioEnabled }}
+  ambient: {{ .Values.addons.authservice.istio.ambient | default false }}
   hardened:
     enabled: {{ $authServiceHardened }}
   clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}
