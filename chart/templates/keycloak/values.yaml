@@ -37,7 +37,7 @@ networkPolicies:
         podSelector: {}
         policyTypes:
         - Ingress
-  {{- if addons .Values.addons.authservice.enabled .Values.addons.authservice.istio.ambient }}
+  {{- if and .Values.addons.authservice.enabled .Values.addons.authservice.istio.ambient }}
     - name: allow-ingress-public-ingressgateway-authservice-waypoint-15008
       spec:
         ingress:
