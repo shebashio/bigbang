@@ -70,7 +70,7 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) .Values.monitoring.enabled }}
-            alloy/allow-metrics:   {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) (dig "allowMetrics" "enabled" false .Values.addons.alloy) }}
+            alloy/alloy-metrics: {{ and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) (dig "alloyMetrics" "enabled" false .Values.alloy) }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
