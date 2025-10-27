@@ -40,6 +40,10 @@ networkPolicies:
         podSelector:
           matchLabels:
             helm-test: enabled
+        to:
+          cidr:
+            0.0.0.0/0: true
+
   ingress:
     to:
       mimir:[15020]:
