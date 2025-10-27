@@ -86,6 +86,7 @@ networkPolicies:
         from:
           k8s:
             istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
+            keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
       alertmanager:9093:
         from:
           cidr: 
@@ -220,12 +221,24 @@ istio:
                 - source:
                     principals:
                       - cluster.local/ns/kiali/sa/kiali-service-account
-      - name: "allow-authservice-waypoint"
+      - name: "allow-authservice-prometheus-waypoint"
         enabled: {{ and .Values.monitoring.sso.enabled .Values.monitoring.istio.ambient .Values.addons.authservice.enabled }}
         spec:
           selector:
             matchLabels:
               app.kubernetes.io/name: "prometheus"
+          action: ALLOW
+          rules:
+          - from:
+            - source:
+                principals:
+                - cluster.local/ns/keycloak/sa/authservice-waypoint
+      - name: "allow-authservice-alertmanager-waypoint"
+        enabled: {{ and .Values.monitoring.sso.enabled .Values.monitoring.istio.ambient .Values.addons.authservice.enabled }}
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: "alertmanager"
           action: ALLOW
           rules:
           - from:
