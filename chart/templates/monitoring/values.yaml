@@ -255,16 +255,16 @@ istio:
   injection: {{ dig "istio" "injection" "enabled" .Values.monitoring }}
 
 alertmanager:
+  {{- if and .Values.monitoring.istio.ambient $authserviceEnabled }}
+  service:
+    labels:
+      istio.io/use-waypoint: authservice-waypoint
+      istio.io/use-waypoint-namespace: keycloak
+      istio.io/ingress-use-waypoint: "true"
+  {{- end }}
   alertmanagerSpec:
     # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
     # NOTE: This functionality is not actively maintained upstream and may not work in a future monitoring upgrade
-    {{- if and .Values.monitoring.istio.ambient $authserviceEnabled }}
-    service:
-      labels:
-        istio.io/use-waypoint: authservice-waypoint
-        istio.io/use-waypoint-namespace: keycloak
-        istio.io/ingress-use-waypoint: "true"
-    {{- end }}
     containers:
       - name: "alertmanager"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
