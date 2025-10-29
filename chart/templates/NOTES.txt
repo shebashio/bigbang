@@ -110,7 +110,7 @@ PLATFORM ONE ANCHORE WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- if and ($.Values.addons.anchoreEnterprise.enabled) (not $.Values.addons.anchoreEnterprise.licenseYaml) }}
+{{- if and ($.Values.addons.anchoreEnterprise.enabled) (not $.Values.addons.anchoreEnterprise.enterprise.licenseYaml) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an enterprise Anchore in the values configuration, but not provided a license.
   Your deployment will fail without a license, please review your configuration and supply a license
