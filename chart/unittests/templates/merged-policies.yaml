@@ -1,0 +1,8 @@
+{{- $defaults := dict "policies" (dict "update-automountserviceaccounttokens" (dict "namespaces" (list
+  (dict "namespace" "monitoring" "pods" (dict "allow" (list "grafana") "deny" (list "deny-monitoring")))
+  (dict "namespace" "logging" "pods" (dict "allow" (list "loki") "deny" (list "es-master")))
+))) }}
+
+{{- $overrides := .Values.kyvernoPolicies }}
+
+{{- include "bigbang.overlays.kyverno-policies" (dict "Values" (dict "kyvernoPolicies" $overrides) "Template" "test" "Release" (dict "Name" "test") "Chart" (dict "Name" "test") "Capabilities" (dict) "Files" (dict) "Values" (merge $defaults (dict "kyvernoPolicies" $overrides))) }}
