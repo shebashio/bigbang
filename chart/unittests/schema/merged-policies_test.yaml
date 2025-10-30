@@ -1,0 +1,56 @@
+suite: Test Kyverno Policy Merge Logic (With Deduplication)
+
+templates:
+  - templates/merged-policies.yaml  # This template renders the merged policy using the custom merge logic
+
+tests:
+  - it: should merge namespaces by name and deduplicate pod entries
+    set:
+      kyvernoPolicies:
+        policies:
+          update-automountserviceaccounttokens:
+            namespaces:
+              - namespace: monitoring
+                pods:
+                  allow:
+                    - test-monitoring
+                    - grafana  # duplicate of default to test deduplication
+                  deny:
+                    - deny-monitoring  # duplicate of default to test deduplication
+              - namespace: custom
+                pods:
+                  allow:
+                    - custom-pod
+                  deny:
+                    - custom-deny
+
+    asserts:
+      # Assert that the merged 'monitoring' namespace contains deduplicated 'allow' pods
+      # Default: grafana
+      # Override: test-monitoring, grafana
+      # Expected merged: grafana, test-monitoring (no duplicate grafana)
+      - equal:
+          path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.allow | [0]
+          value: [ "grafana", "test-monitoring" ]
+
+      # Assert that the merged 'monitoring' namespace contains deduplicated 'deny' pods
+      # Default: deny-monitoring
+      # Override: deny-monitoring
+      # Expected merged: deny-monitoring (only once)
+      - equal:
+          path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny | [0]
+          value: [ "deny-monitoring" ]
+
+      # Assert that the 'logging' namespace from defaults is preserved
+      - equal:
+          path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="logging")].pods.allow | [0]
+          value: [ "loki" ]
+
+      # Assert that the 'custom' namespace from overrides is added correctly
+      - equal:
+          path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.allow | [0]
+          value: [ "custom-pod" ]
+
+      - equal:
+          path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny | [0]
+          value: [ "custom-deny" ]
