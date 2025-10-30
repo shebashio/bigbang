@@ -7,22 +7,23 @@ tests:
   - it: should merge namespaces by name and deduplicate pod entries
     set:
       kyvernoPolicies:
-        policies:
-          update-automountserviceaccounttokens:
-            namespaces:
-              - namespace: monitoring
-                pods:
-                  allow:
-                    - test-monitoring
-                    - grafana  # duplicate of default to test deduplication
-                  deny:
-                    - deny-monitoring  # duplicate of default to test deduplication
-              - namespace: custom
-                pods:
-                  allow:
-                    - custom-pod
-                  deny:
-                    - custom-deny
+        values:
+          policies:
+            update-automountserviceaccounttokens:
+              namespaces:
+                - namespace: monitoring
+                  pods:
+                    allow:
+                      - test-monitoring
+                      - grafana  # duplicate of default to test deduplication
+                    deny:
+                      - deny-monitoring  # duplicate of default to test deduplication
+                - namespace: custom
+                  pods:
+                    allow:
+                      - custom-pod
+                    deny:
+                      - custom-deny
 
     asserts:
       # Assert that the merged 'monitoring' namespace contains deduplicated 'allow' pods
