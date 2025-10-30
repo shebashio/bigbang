@@ -35,7 +35,7 @@ networkPolicies:
       minio:
         to:
           definition:
-            kubeAPI: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
+            kubeAPI: true
 
   ingress:
     to:
