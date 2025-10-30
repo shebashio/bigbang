@@ -64,7 +64,7 @@ networkPolicies:
       minio:[9000]:
         from:
           k8s: 
-            minio-operator/minio-operator: {{ dig "minio-tenant" "enabled" false .Values.addons.mimir.values }}
+            minio-operator/minio-operator: {{ .Values.addons.minioOperator.enabled }}
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
       minio:[15020]:
         from:
