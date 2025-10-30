@@ -1292,56 +1292,63 @@ istio:
         {{ $_ := set $overlay.parameters "require" (concat $default.parameters.require $overlay.parameters.require) -}}
       {{- end -}}
 
-      {{- /* Merging namespaces from overlay and default lists */ -}}
+      {{- /* Merge 'namespaces' list by namespace name with deduplication of pods.allow and pods.deny */ -}}
       {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
 
-        {{- /* Step 1: Create an empty map to hold merged namespaces keyed by namespace name */ -}}
+        {{- /* Step 1: Create a map to hold merged namespaces keyed by namespace name */ -}}
         {{- $mergedNamespaces := dict -}}
 
-        {{- /* Step 2: Index all default namespaces by their 'namespace' field */ -}}
+        {{- /* Step 2: Index default namespaces by name */ -}}
         {{- range $ns := $default.namespaces -}}
-          {{- /* Store each default namespace object using its name as the key */ -}}
           {{- $_ := set $mergedNamespaces $ns.namespace (deepCopy $ns) -}}
         {{- end -}}
 
-        {{- /* Step 3: Iterate over overlay namespaces to merge or add them */ -}}
+        {{- /* Step 3: Merge overlay namespaces into the indexed map */ -}}
         {{- range $ons := $overlay.namespaces -}}
 
-          {{- /* Try to find a matching namespace in the merged map */ -}}
           {{- $existing := index $mergedNamespaces $ons.namespace | default dict -}}
 
           {{- if $existing.namespace -}}
-            {{- /* If the namespace exists in both default and overlay, merge their pod rules */ -}}
+            {{- /* Merge and deduplicate 'pods.allow' */ -}}
+            {{- $allowCombined := concat (dig "pods" "allow" list $existing) (dig "pods" "allow" list $ons) -}}
+            {{- $allowUnique := dict -}}
+            {{- range $item := $allowCombined -}}
+              {{- $_ := set $allowUnique $item true -}}
+            {{- end -}}
+            {{- $allow := keys $allowUnique | sortAlpha -}}
 
-            {{- /* Merge 'pods.allow' lists from both default and overlay */ -}}
-            {{- $allow := concat (dig "pods" "allow" list $existing) (dig "pods" "allow" list $ons) -}}
+            {{- /* Merge and deduplicate 'pods.deny' */ -}}
+            {{- $denyCombined := concat (dig "pods" "deny" list $existing) (dig "pods" "deny" list $ons) -}}
+            {{- $denyUnique := dict -}}
+            {{- range $item := $denyCombined -}}
+              {{- $_ := set $denyUnique $item true -}}
+            {{- end -}}
+            {{- $deny := keys $denyUnique | sortAlpha -}}
 
-            {{- /* Merge 'pods.deny' lists from both default and overlay */ -}}
-            {{- $deny := concat (dig "pods" "deny" list $existing) (dig "pods" "deny" list $ons) -}}
-
-            {{- /* Set the merged 'pods' object back into the existing namespace entry */ -}}
+            {{- /* Set merged pods back into the existing namespace entry */ -}}
             {{- $_ := set $existing "pods" (dict "allow" $allow "deny" $deny) -}}
 
-            {{- /* Update the mergedNamespaces map with the updated entry */ -}}
+            {{- /* Update the mergedNamespaces map */ -}}
             {{- $_ := set $mergedNamespaces $ons.namespace $existing -}}
 
           {{- else -}}
-            {{- /* If the namespace only exists in the overlay, add it directly */ -}}
+            {{- /* If namespace only exists in overlay, add it directly */ -}}
             {{- $_ := set $mergedNamespaces $ons.namespace $ons -}}
           {{- end -}}
 
         {{- end -}}
 
-        {{- /* Step 4: Convert the merged map back into a list for Helm rendering */ -}}
+        {{- /* Step 4: Convert the merged map back into a list */ -}}
         {{- $mergedList := list -}}
         {{- range $k, $v := $mergedNamespaces -}}
           {{- $mergedList = append $mergedList $v -}}
         {{- end -}}
 
-        {{- /* Step 5: Set the final merged list back into the overlay policy */ -}}
+        {{- /* Step 5: Set the final merged list back into the overlay */ -}}
         {{- $_ := set $overlay "namespaces" $mergedList -}}
 
-      {{- end }}            
+      {{- end -}}            
+
     {{- end -}}
   {{- end -}}
 {{ toYaml $overlays }}
