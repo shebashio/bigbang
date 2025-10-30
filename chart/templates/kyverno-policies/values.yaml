@@ -1294,38 +1294,54 @@ istio:
 
       {{- /* Merging namespaces from overlay and default lists */ -}}
       {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
+
+        {{- /* Step 1: Create an empty map to hold merged namespaces keyed by namespace name */ -}}
         {{- $mergedNamespaces := dict -}}
-      
-        {{- /* Index default namespaces by name */ -}}
+
+        {{- /* Step 2: Index all default namespaces by their 'namespace' field */ -}}
         {{- range $ns := $default.namespaces -}}
+          {{- /* Store each default namespace object using its name as the key */ -}}
           {{- $_ := set $mergedNamespaces $ns.namespace (deepCopy $ns) -}}
         {{- end -}}
-      
-        {{- /* Merge overlay namespaces into the indexed map */ -}}
+
+        {{- /* Step 3: Iterate over overlay namespaces to merge or add them */ -}}
         {{- range $ons := $overlay.namespaces -}}
+
+          {{- /* Try to find a matching namespace in the merged map */ -}}
           {{- $existing := index $mergedNamespaces $ons.namespace | default dict -}}
-      
+
           {{- if $existing.namespace -}}
-            {{- /* Merge pods.allow */ -}}
+            {{- /* If the namespace exists in both default and overlay, merge their pod rules */ -}}
+
+            {{- /* Merge 'pods.allow' lists from both default and overlay */ -}}
             {{- $allow := concat (dig "pods" "allow" list $existing) (dig "pods" "allow" list $ons) -}}
+
+            {{- /* Merge 'pods.deny' lists from both default and overlay */ -}}
             {{- $deny := concat (dig "pods" "deny" list $existing) (dig "pods" "deny" list $ons) -}}
-      
+
+            {{- /* Set the merged 'pods' object back into the existing namespace entry */ -}}
             {{- $_ := set $existing "pods" (dict "allow" $allow "deny" $deny) -}}
+
+            {{- /* Update the mergedNamespaces map with the updated entry */ -}}
             {{- $_ := set $mergedNamespaces $ons.namespace $existing -}}
+
           {{- else -}}
+            {{- /* If the namespace only exists in the overlay, add it directly */ -}}
             {{- $_ := set $mergedNamespaces $ons.namespace $ons -}}
           {{- end -}}
+
         {{- end -}}
-      
-        {{- /* Convert merged map back to list */ -}}
+
+        {{- /* Step 4: Convert the merged map back into a list for Helm rendering */ -}}
         {{- $mergedList := list -}}
         {{- range $k, $v := $mergedNamespaces -}}
           {{- $mergedList = append $mergedList $v -}}
         {{- end -}}
-      
+
+        {{- /* Step 5: Set the final merged list back into the overlay policy */ -}}
         {{- $_ := set $overlay "namespaces" $mergedList -}}
-      {{- end }}
-            
+
+      {{- end }}            
     {{- end -}}
   {{- end -}}
 {{ toYaml $overlays }}
