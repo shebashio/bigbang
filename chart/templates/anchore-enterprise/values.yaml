@@ -94,13 +94,15 @@ upstream:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecretName: private-registry
 
-  ui-redis:
-    {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
+ui-redis:
+  {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
+  # We are using an external redis url
+  externalEndpoint: "redis://{{ .Values.addons.anchoreEnterprise.redis.username | default "nouser" }}:{{ .Values.addons.anchoreEnterprise.redis.password }}@{{ .Values.addons.anchoreEnterprise.redis.host }}:{{ .Values.addons.anchoreEnterprise.redis.port }}"
+  upstream:
     enabled: false
-    externalEndpoint: "redis://{{ .Values.addons.anchoreEnterprise.redis.username | default "nouser" }}:{{ .Values.addons.anchoreEnterprise.redis.password }}@{{ .Values.addons.anchoreEnterprise.redis.host }}:{{ .Values.addons.anchoreEnterprise.redis.port }}"
-    auth:
-      password: {{ .Values.addons.anchoreEnterprise.redis.password }}
-    {{- end }}
+  {{- else }}
+  # We are using an internal,dev redis url
+  upstream:
     {{- if $istioEnabled }}
     master:
       podAnnotations:
@@ -112,7 +114,7 @@ upstream:
     image:
       pullSecrets:
         - private-registry
-    {{- if and .Values.monitoring.enabled (not (and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password)) }}
+    {{- if .Values.monitoring.enabled }}
     metrics:
       enabled: true
       image:
@@ -122,8 +124,8 @@ upstream:
         enabled: true
         namespace: anchore
         selector:
-          app.kubernetes.io/name: anchore-ui-redis
-          app.kubernetes.io/instance: anchore
+          app.kubernetes.io/name: ui-redis
+          app.kubernetes.io/instance: anchore-enterprise
         {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") }}
         {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchoreEnterprise) "STRICT") }}
         scheme: "https"
@@ -138,20 +140,6 @@ upstream:
         enabled: true
         namespace: monitoring
     {{- end }}
-
-postgresql:
-  {{- if $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end}}
-  imagePullSecrets: private-registry
-  {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
-  enabled: false
-  postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
-  postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
-  postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.database }}
-  externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
-  postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
   {{- end }}
 
 {{- end }}
