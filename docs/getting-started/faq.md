@@ -45,9 +45,9 @@ However, we always like to hear from our users, both to know how large an
 impact this effort is making, and to make sure we are addressing our users'
 most pressing needs.
 
-* Open issues here if you encounter any issues with the release
-* Check out the documentation for guidance on how to get started
-* Please submit all comments and concerns to our Feedback Form
+* [Open issues here](https://repo1.dso.mil/platform-one/big-bang/umbrella/-/issues/new) if you encounter any issues with Big Bang
+* Check out the [documentation](https://repo1.dso.mil/platform-one/big-bang/bigbang/-/tree/master/docs) for guidance on how to get started
+* Please submit all comments and concerns to our [Feedback Form](https://forms.osi.apps.mil/r/QjGsAfZLeV)
 
 ## Security
 

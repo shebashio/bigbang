@@ -65,7 +65,7 @@ spec:
 ### Was Something Important Blocked?
 
 There are a few ways to determine if a network policy is blocking egress or ingress to or from a pod.
-* Test things from the pod's perspective using ssh/exec. See [this portion](../../../installation/environments/sso-quickstart.md) of the keycloak quickstart for an example of how do to that.
+* Test things from the pod's perspective using ssh/exec. See [this portion](../../../operations/troubleshooting/networking.md#2-test-network-policy-rules) of the network troubleshooting guide for an example of how do to that.
 * Curl a pod's IP from another pod to see if network polices are blocking that traffic. Use `kubectl pod -o wide -n <podNamespace>` to see pod IP addresses.
 * Check the pod logs (or curl from one container to the service) for a `context deadline exceeded` or `connection refused` message.
 

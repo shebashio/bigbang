@@ -4,7 +4,7 @@
 
 ## Preface
 
-Please read through the documentation linked here and in the [Getting Started](../../getting-started/), [Concepts](../../concepts/), [Configuration](../../configuration/), and [Packages](../../packages/) to understand Big Bang concepts and development standards. Study all the documents carefully before you start developing.
+Please read through the documentation linked here and in the [Getting Started](../../getting-started/), [Concepts](../../concepts/), [Configuration](../../configuration/), and [Packages](../../packages/) sections to understand Big Bang concepts and development standards. Study all the documents carefully before you start developing.
 
 ## Communications
 

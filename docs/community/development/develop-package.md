@@ -17,6 +17,7 @@ Package is the term we use for an application that has been prepared to be deplo
         helm create name-of-your-application
         ```
 
+    <!-- TODO: Update this for the passthough pattern -->
     b. If there is an existing upstream chart, we will use it and modify it. Essentially we create a "fork" of the upstream code. Use kpt to import the helm chart code into your repository. Note that kpt is not used to keep the Package code in sync with the upstream chart. It is a one time pull just to document where the upstream chart code came from. Kpt will generate a Kptfile that has the details. Do not manually create the "chart" directory.  The kpt command will create it. Here is an example from when Gitlab Package was created. It is a good idea to push a commit "initial upstream chart with no changes" so you can refer back to the original code while you are developing.
 
         ```shell
