@@ -6,6 +6,15 @@ templates:
 tests:
   - it: should merge namespaces by name and deduplicate pod entries
     set:
+
+      # Required stub values to prevent nil pointer errors
+      istiod:
+        enabled: false
+      istioGateway:
+        enabled: false
+        values:
+          gateways: {}
+
       kyvernoPolicies:
         policies:
           update-automountserviceaccounttokens:
