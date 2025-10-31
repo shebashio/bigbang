@@ -698,3 +698,122 @@ networkPolicies:
     {{- if eq $found "true" -}}true{{- end -}}
   {{- end -}}
 {{- end -}}
+
+############################################################################################
+# Kyverno Policy merge function with deduplication
+############################################################################################
+
+{{- /* This function merges defaults in lists from above into overlays */ -}}
+{{- /* The end user will not have to replicate exclusions/repos from above when providing an overlay */ -}}
+{{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
+{{- define "bigbang.overlays.kyverno-policies" -}}
+  {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
+  {{- $overlays := dig "values" dict .Values.kyvernoPolicies -}}
+
+  {{- /* Global merge for exclude fields */ -}}
+  {{- if and (dig "exclude" "any" list $defaults) (dig "exclude" "any" list $overlays) -}}
+    {{ $_ := set $overlays.exclude "any" (concat $defaults.exclude.any $overlays.exclude.any) -}}
+  {{- end -}}
+  {{- if and (dig "exclude" "all" list $defaults) (dig "exclude" "all" list $overlays) -}}
+    {{ $_ := set $overlays.exclude "all" (concat $defaults.exclude.all $overlays.exclude.all) -}}
+  {{- end -}}
+
+  {{- /* Policy specific merges */ -}}
+  {{- range $policy, $default := $defaults.policies -}}
+    {{- $overlay := (dig "policies" $policy dict $overlays) -}}
+
+    {{- /* Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set */ -}}
+    {{- if and $overlay (not $overlay.skipOverlayMerge) -}}
+
+      {{- /* Add exclude fields */ -}}
+      {{- if and (dig "exclude" "any" list $default) (dig "exclude" "any" list $overlay) -}}
+        {{ $_ := set $overlay.exclude "any" (concat $default.exclude.any $overlay.exclude.any) -}}
+      {{- end -}}
+      {{- if and (dig "exclude" "all" list $default) (dig "exclude" "all" list $overlay) -}}
+        {{ $_ := set $overlay.exclude "all" (concat $default.exclude.all $overlay.exclude.all) -}}
+      {{- end -}}
+
+      {{- /* Add match fields */ -}}
+      {{- if and (dig "match" "any" list $default) (dig "match" "any" list $overlay) -}}
+        {{ $_ := set $overlay.match "any" (concat $default.match.any $overlay.match.any) -}}
+      {{- end -}}
+      {{- if and (dig "match" "all" list $default) (dig "match" "all" list $overlay) -}}
+        {{ $_ := set $overlay.match "all" (concat $default.match.all $overlay.match.all) -}}
+      {{- end -}}
+      
+      {{- /* Add parameters.allow fields */ -}}
+      {{- if and (dig "parameters" "allow" list $default) (dig "parameters" "allow" list $overlay) -}}
+        {{ $_ := set $overlay.parameters "allow" (concat $default.parameters.allow $overlay.parameters.allow) -}}
+      {{- end -}}
+
+      {{- /* Add parameters.disallow fields */ -}}
+      {{- if and (dig "parameters" "disallow" list $default) (dig "parameters" "disallow" list $overlay) -}}
+        {{ $_ := set $overlay.parameters "disallow" (concat $default.parameters.disallow $overlay.parameters.disallow) -}}
+      {{- end -}}
+
+      {{- /* Add parameters.require fields */ -}}
+      {{- if and (dig "parameters" "require" list $default) (dig "parameters" "require" list $overlay) -}}
+        {{ $_ := set $overlay.parameters "require" (concat $default.parameters.require $overlay.parameters.require) -}}
+      {{- end -}}
+
+      {{- /* Merge 'namespaces' list by namespace name with deduplication of pods.allow and pods.deny */ -}}
+      {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
+
+        {{- /* Step 1: Create a map to hold merged namespaces keyed by namespace name */ -}}
+        {{- $mergedNamespaces := dict -}}
+
+        {{- /* Step 2: Index default namespaces by name */ -}}
+        {{- range $ns := $default.namespaces -}}
+          {{- $_ := set $mergedNamespaces $ns.namespace (deepCopy $ns) -}}
+        {{- end -}}
+
+        {{- /* Step 3: Merge overlay namespaces into the indexed map */ -}}
+        {{- range $ons := $overlay.namespaces -}}
+
+          {{- $existing := index $mergedNamespaces $ons.namespace | default dict -}}
+
+          {{- if $existing.namespace -}}
+            {{- /* Merge and deduplicate 'pods.allow' */ -}}
+            {{- $allowCombined := concat (dig "pods" "allow" list $existing) (dig "pods" "allow" list $ons) -}}
+            {{- $allowUnique := dict -}}
+            {{- range $item := $allowCombined -}}
+              {{- $_ := set $allowUnique $item true -}}
+            {{- end -}}
+            {{- $allow := keys $allowUnique | sortAlpha -}}
+
+            {{- /* Merge and deduplicate 'pods.deny' */ -}}
+            {{- $denyCombined := concat (dig "pods" "deny" list $existing) (dig "pods" "deny" list $ons) -}}
+            {{- $denyUnique := dict -}}
+            {{- range $item := $denyCombined -}}
+              {{- $_ := set $denyUnique $item true -}}
+            {{- end -}}
+            {{- $deny := keys $denyUnique | sortAlpha -}}
+
+            {{- /* Set merged pods back into the existing namespace entry */ -}}
+            {{- $_ := set $existing "pods" (dict "allow" $allow "deny" $deny) -}}
+
+            {{- /* Update the mergedNamespaces map */ -}}
+            {{- $_ := set $mergedNamespaces $ons.namespace $existing -}}
+
+          {{- else -}}
+            {{- /* If namespace only exists in overlay, add it directly */ -}}
+            {{- $_ := set $mergedNamespaces $ons.namespace $ons -}}
+          {{- end -}}
+
+        {{- end -}}
+
+        {{- /* Step 4: Convert the merged map back into a list */ -}}
+        {{- $mergedList := list -}}
+        {{- range $k, $v := $mergedNamespaces -}}
+          {{- $mergedList = append $mergedList $v -}}
+        {{- end -}}
+
+        {{- /* Step 5: Set the final merged list back into the overlay */ -}}
+        {{- $_ := set $overlay "namespaces" $mergedList -}}
+
+      {{- end -}}            
+
+    {{- end -}}
+  {{- end -}}
+{{ toYaml $overlays }}
+{{- end }}
