@@ -1,7 +1,7 @@
 suite: Test Kyverno Policy Merge Logic (With Deduplication)
 
 templates:
-  - templates/unittests/templates/merged-policies.yaml  # This template renders the merged policy using the custom merge logic
+  - unittests/templates/merged-policies.yaml  # This template renders the merged policy using the custom merge logic
 
 tests:
   - it: should merge namespaces by name and deduplicate pod entries
