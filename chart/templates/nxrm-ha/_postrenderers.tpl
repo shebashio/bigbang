@@ -1,21 +1,24 @@
 {{- define "nxrm-ha.prometheusPostRenderers" }}
+{{- $nexusOldValues := default dict .Values.addons.nexus -}}
+{{- $nexusValues := mergeOverwrite $nexusOldValues (index .Values.addons "nxrm-ha") -}}
+{{- $serviceName := dig "values" "upstream" "fullnameOverride" "nxrm-ha" $nexusValues -}}
 - kustomize:
     patches:
       - patch: |
           - op: add
             path: /metadata/labels/app
-            value: nexus-repository-manager-nxrm-ha
+            value: {{ $serviceName }}
           - op: replace
             path: /spec/ports/0/name
             value: http-nexus-ui
         target:
           kind: Service
-          name: nexus-repository-manager
+          name: {{ $serviceName }}
       - patch: |
           - op: replace
             path: /spec/ports/0/name
             value: http-nexus-ui
         target:
           kind: Service
-          name: nexus-repository-manager-hl
+          name: {{ $serviceName }}-hl
 {{- end }}

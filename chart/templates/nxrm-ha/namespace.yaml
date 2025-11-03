@@ -5,15 +5,15 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nexus-repository-manager
+  name: nxrm-ha
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" 
-      (and 
-        $istioEnabled 
+    istio-injection: {{ ternary "enabled" "disabled"
+      (and
+        $istioEnabled
         (eq (dig "istio" "injection" "enabled" $nexusValues) "enabled")
-      ) 
+      )
     }}
-    app.kubernetes.io/name: "nexus-repository-manager"
+    app.kubernetes.io/name: "nxrm-ha"
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}
 {{- end }}

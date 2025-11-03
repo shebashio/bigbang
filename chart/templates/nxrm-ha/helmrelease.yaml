@@ -15,8 +15,8 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/nxrm-ha/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: nexus-repository-manager
-  releaseName: nexus-repository-manager
+  targetNamespace: nxrm-ha
+  releaseName: nxrm-ha
   chart:
     spec:
       {{- if (eq $nexusValues.sourceType "git") }}

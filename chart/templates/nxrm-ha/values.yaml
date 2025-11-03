@@ -56,6 +56,8 @@ realms:
 
 # Upstream chart values
 upstream:
+  nameOverride: nxrm-ha
+  fullnameOverride: nxrm-ha
   nexus:
     imagePullSecrets:
       - name: private-registry
