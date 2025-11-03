@@ -9,9 +9,9 @@ tests:
 
       # Required stub values to prevent nil pointer errors
       istiod:
-        enabled: false
+        enabled: true
       istioGateway:
-        enabled: false
+        enabled: true
         values:
           gateways: {}
 
