@@ -8,30 +8,31 @@ tests:
     set:
 
       # Required stub values to prevent nil pointer errors
-      istiod:
-        enabled: true
-      istioGateway:
-        enabled: true
-        values:
-          gateways: {}
+      #istioCRDs:
+      #  enabled: true
+      #istiod:
+      #  enabled: true
+      #istioGateway:
+      #  enabled: true
+      #  values:
+      #    gateways: {}
 
-      kyvernoPolicies:
-        policies:
-          update-automountserviceaccounttokens:
-            namespaces:
-              - namespace: monitoring
-                pods:
-                  allow:
-                    - test-monitoring
-                    - grafana  # duplicate to test deduplication
-                  deny:
-                    - deny-monitoring
-              - namespace: custom
-                pods:
-                  allow:
-                    - custom-pod
-                  deny:
-                    - custom-deny
+      policies:
+        update-automountserviceaccounttokens:
+          namespaces:
+            - namespace: monitoring
+              pods:
+                allow:
+                  - test-monitoring
+                  - grafana  # duplicate to test deduplication
+                deny:
+                  - deny-monitoring
+            - namespace: custom
+              pods:
+                allow:
+                  - custom-pod
+                deny:
+                  - custom-deny
 
     asserts:
       # Merged and deduplicated 'allow' list for monitoring
