@@ -364,7 +364,7 @@ kyverno:
               cpu: 1
               memory: 768Mi
       features:
-        policyexceptions:
+        policyExceptions:
           enabled: true
           # -- Restrict policy exceptions to a single namespace
           namespace: 'kyverno'
@@ -1754,10 +1754,11 @@ addons:
             cpu: 100m
             memory: 200Mi
       ui-redis:
-        replica:
-          replicaCount: 0
-          autoscaling:
-            enabled: false
+        upstream:
+          replica:
+            replicaCount: 0
+            autoscaling:
+              enabled: false
       bbtests:
         enabled: true
         scripts:
@@ -2397,7 +2398,7 @@ addons:
           # Modify the image key below to deploy a custom image
           # i.e image: registry.dso.mil/big-bang/apps/product-tools/keycloak-p1-auth-plugin/init-container:test-X.X.X
           - name: plugin
-            image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.7
+            image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.10
             imagePullPolicy: Always
             command:
             - sh
