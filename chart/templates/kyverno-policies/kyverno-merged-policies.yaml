@@ -1,14 +1,4 @@
-{{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .root) -}}
+{{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
 {{- $overrides := .Values.kyvernoPolicies -}}
-
-#{{- include "bigbang.overlays.kyverno-policies" (dict
-#  "Values" (dict "kyvernoPolicies" $overrides)
-#  "Template" "test"
-#  "Release" .Release
-#  "Chart" .Chart
-#  "Capabilities" .Capabilities
-#  "Files" .Files
-#  "Values" (merge $defaults (dict "kyvernoPolicies" $overrides))
-#) }}
 
 {{- include "bigbang.overlays.kyverno-policies" . }}
