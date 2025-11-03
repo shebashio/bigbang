@@ -9,11 +9,11 @@ tests:
 
       # Required stub values to prevent nil pointer errors
       istiod:
-        enabled: true
-      #istioGateway:
-      #  enabled: false
-      #  values:
-      #    gateways: {}
+        enabled: false
+      istioGateway:
+        enabled: false
+        values:
+          gateways: {}
 
       kyvernoPolicies:
         policies:
