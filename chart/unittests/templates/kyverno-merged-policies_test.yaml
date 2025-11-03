@@ -17,24 +17,24 @@ tests:
       #  values:
       #    gateways: {}
 
-    kyvernoPolicies:
-      values:
-        policies:
-          update-automountserviceaccounttokens:
-            namespaces:
-              - namespace: monitoring
-                pods:
-                  allow:
-                    - test-monitoring
-                    - grafana  # duplicate to test deduplication
-                  deny:
-                    - deny-monitoring
-              - namespace: custom
-                pods:
-                  allow:
-                    - custom-pod
-                  deny:
-                    - custom-deny
+    #kyvernoPolicies:
+    #  values:
+    #    policies:
+    update-automountserviceaccounttokens:
+      namespaces:
+        - namespace: monitoring
+          pods:
+            allow:
+              - test-monitoring
+              - grafana  # duplicate to test deduplication
+            deny:
+              - deny-monitoring
+        - namespace: custom
+          pods:
+            allow:
+              - custom-pod
+            deny:
+              - custom-deny
 
     asserts:
       # Merged and deduplicated 'allow' list for monitoring
