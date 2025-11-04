@@ -1128,11 +1128,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.23.0-bb.1"
+    tag: "0.23.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.23.0-bb.1"
+    tag: "0.23.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -2162,12 +2162,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.18.0-bb.4"
+      tag: "1.18.0-bb.5"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.18.0-bb.4"
+      tag: "1.18.0-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
@@ -2363,12 +2363,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.36.0-bb.4"
+      tag: "0.36.0-bb.5"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.36.0-bb.4"
+      tag: "0.36.0-bb.5"
 
     # -- Override flux settings for this package
     flux: {}
