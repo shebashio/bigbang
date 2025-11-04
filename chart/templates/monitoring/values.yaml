@@ -216,20 +216,9 @@ upstream:
         certFile: /etc/prom-certs/cert-chain.pem
         keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-    {{- if $istioInjection }}
-    podAnnotations:
-      {{ include "istioAnnotation" . }}
-    {{- end }}
     {{- end }}
 
   prometheus:
-    {{- if $lokiEnabled }}
-    monitor:
-      relabelings:
-        - action: replace
-          replacement: {{ $clusterName }}
-          targetLabel: cluster
-    {{- end }}
     {{- if $thanosEnabled }}
     thanosService:
       enabled: true
@@ -241,13 +230,12 @@ upstream:
     thanosServiceMonitor:
       enabled: true
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
-      serviceMonitor:
-        scheme: https
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
     {{- end }}
     prometheusSpec:
@@ -582,10 +570,6 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
         {{- end }}
-    {{- if $istioInjection }}
-    podAnnotations:
-      {{ include "istioAnnotation" . }}
-    {{- end }}
     {{- end }}
     # Add in the custom resource states, so the grafana flux charts work
     # See Documentation for flux -- https://fluxcd.io/flux/monitoring/metrics/
@@ -872,9 +856,6 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
     admissionWebhooks:
-      cleanupProxy:
-        image:
-          pullPolicy: {{ .Values.imagePullPolicy }}
       patch:
         image:
           pullPolicy: {{ .Values.imagePullPolicy }}

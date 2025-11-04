@@ -1054,8 +1054,6 @@ monitoring:
   values:
     # Monitoring CRDs are handled in prometheus-operator-crds chart
     upstream:
-      crds:
-        enabled: false
       kube-state-metrics:
         resources:
           requests:
