@@ -40,7 +40,7 @@ spec:
 
   
   postRenderers:
-  {{ include "KyvernoReporter.ServiceMonitorPostRenderer" . | nindent 2 }}
+  {{ include "anchoreEnterprise.redisPostRenderer" . | nindent 2 }}
   {{- if .Values.addons.anchoreEnterprise.postRenderers }}
   {{ toYaml .Values.addons.anchoreEnterprise.postRenderers | nindent 4 }}
   {{- end }}
