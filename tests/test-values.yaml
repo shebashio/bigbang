@@ -2207,11 +2207,11 @@ addons:
             name: velero
         configuration:
           backupStorageLocation:
-            - bucket: velero-backup-bucket
+            - bucket: velero
               provider: aws
               default: true
               config:
-                region: "us-gov-west-1"
+                region: velero
                 s3ForcePathStyle: "true"
                 s3Url: https://minio-api.dev.bigbang.mil
               annotations:
@@ -2221,7 +2221,7 @@ addons:
             - name: default
               provider: aws
               config:
-                region: "us-gov-west-1"
+                region: velero
         credentials:
           secretContents:
             cloud: |
