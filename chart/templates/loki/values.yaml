@@ -75,6 +75,10 @@ fluentbit:
   enabled: true
 {{- end }}
 
+tableManager:
+  retention_deletes_enabled: true
+  retention_period: 336h
+
 loki:
   extraMemberlistConfig:
     bind_addr:
@@ -94,43 +98,36 @@ loki:
       secretAccessKey: {{ .Values.loki.objectStorage.accessSecret }}
     {{- end }}
 
-  lokiConfig:
-    schema_config:
-      configs:
-        - from: "2024-01-01"  # A date in the past ensures this schema is used immediately
-          {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
-          store: boltdb-shipper
-          object_store: filesystem
-          {{- else }}
-          store: boltdb-shipper
-          object_store: s3
-          {{- end }}
-          schema: v13
-          index:
-            prefix: index_
-            period: 24h
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 336h
-    # The bbctl violations dashboard output can be larger than the default loki line limit of 256KB
-    # Setting max_line_size = 0 removes the limit so the data can be ingested properly
+  compactor:
+    working_directory: /var/loki/compactor
+    compaction_interval: 1h
+    {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+    delete_request_store: "filesystem"
+    {{- else }}
+    delete_request_store: "s3"
+    {{- end }}
+    retention_delete_delay: 2h
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"  # A date in the past ensures this schema is used immediately
+        {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+        store: tsdb
+        object_store: filesystem
+        {{- else }}
+        store: tsdb
+        object_store: s3
+        {{- end }}
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  limits_config:
+    allow_structured_metadata: true
+  # The bbctl violations dashboard output can be larger than the default loki line limit of 256KB
+  # Setting max_line_size = 0 removes the limit so the data can be ingested properly
     {{- if .Values.bbctl.enabled }}
-    limits_config:
       max_line_size: 0
     {{- end }}
-    {{- if $istioEnabled }}
-    {{- end }}
-    compactor:
-      working_directory: /var/loki/compactor
-      {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
-      shared_store: filesystem
-      {{- else }}
-      shared_store: s3
-      {{- end }}
-      compaction_interval: 1h
-
-  config: |
-    {{- toYaml .lokiConfig | nindent 4 }}
 
   {{- if $istioEnabled }}
   podAnnotations:
