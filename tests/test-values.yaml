@@ -364,7 +364,7 @@ kyverno:
               cpu: 1
               memory: 768Mi
       features:
-        policyexceptions:
+        policyExceptions:
           enabled: true
           # -- Restrict policy exceptions to a single namespace
           namespace: 'kyverno'
@@ -1511,61 +1511,62 @@ addons:
         rails:
           bootstrap:
             enabled: false
-      gitlab-runner:
-        resources:
-          requests:
-            cpu: 10m
-      gitlab:
-        webservice:
-          minReplicas: 1
-          maxReplicas: 1
-        sidekiq:
-          minReplicas: 1
-          maxReplicas: 1
-        gitlab-shell:
-          minReplicas: 1
-          maxReplicas: 1
-        gitaly:
-          persistence:
-            size: 256Mi
-        shared-secrets:
+      upstream:
+        gitlab-runner:
           resources:
             requests:
               cpu: 10m
-        migrations:
-          resources:
-            requests:
-              cpu: 10m
-        toolbox:
+        gitlab:
+          webservice:
+            minReplicas: 1
+            maxReplicas: 1
+          sidekiq:
+            minReplicas: 1
+            maxReplicas: 1
+          gitlab-shell:
+            minReplicas: 1
+            maxReplicas: 1
+          gitaly:
+            persistence:
+              size: 256Mi
+          shared-secrets:
+            resources:
+              requests:
+                cpu: 10m
+          migrations:
+            resources:
+              requests:
+                cpu: 10m
+          toolbox:
+            persistence:
+              size: 256Mi
+            resources:
+              requests:
+                cpu: 10m
+        registry:
+          hpa:
+            minReplicas: 1
+            maxReplicas: 1
+        postgresql:
+          persistence:
+            size: 256Mi
+          metrics:
+            resources:
+              requests:
+                cpu: 10m
+        minio:
           persistence:
             size: 256Mi
           resources:
             requests:
-              cpu: 10m
-      registry:
-        hpa:
-          minReplicas: 1
-          maxReplicas: 1
-      postgresql:
-        persistence:
-          size: 256Mi
-        metrics:
-          resources:
-            requests:
-              cpu: 10m
-      minio:
-        persistence:
-          size: 256Mi
-        resources:
-          requests:
-            cpu: 50m
-      redis:
-        master:
-          persistence:
-            size: 256Mi
-        slave:
-          persistence:
-            size: 256Mi
+              cpu: 50m
+        redis:
+          master:
+            persistence:
+              size: 256Mi
+          replica:
+            persistence:
+              size: 256Mi
       bbtests:
         enabled: true
         cypress:
@@ -1751,10 +1752,11 @@ addons:
             cpu: 100m
             memory: 200Mi
       ui-redis:
-        replica:
-          replicaCount: 0
-          autoscaling:
-            enabled: false
+        upstream:
+          replica:
+            replicaCount: 0
+            autoscaling:
+              enabled: false
       bbtests:
         enabled: true
         scripts:
@@ -2392,7 +2394,7 @@ addons:
           # Modify the image key below to deploy a custom image
           # i.e image: registry.dso.mil/big-bang/apps/product-tools/keycloak-p1-auth-plugin/init-container:test-X.X.X
           - name: plugin
-            image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.7
+            image: registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.6.10
             imagePullPolicy: Always
             command:
             - sh
