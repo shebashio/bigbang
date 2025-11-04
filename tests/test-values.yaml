@@ -2226,7 +2226,7 @@ addons:
             name: velero
         configuration:
           backupStorageLocation:
-            - bucket: velero
+            - bucket: velero-backup-bucket
               provider: aws
               default: true
               config:
