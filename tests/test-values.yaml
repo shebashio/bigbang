@@ -2211,7 +2211,7 @@ addons:
               provider: aws
               default: true
               config:
-                region: velero
+                region: "us-gov-west-1"
                 s3ForcePathStyle: "true"
                 s3Url: https://minio-api.dev.bigbang.mil
               annotations:
@@ -2221,7 +2221,7 @@ addons:
             - name: default
               provider: aws
               config:
-                region: velero
+                region: "us-gov-west-1"
         credentials:
           secretContents:
             cloud: |
