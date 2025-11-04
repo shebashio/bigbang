@@ -530,7 +530,6 @@ upstream:
         - targetLabel: "instance"
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
-      {{- end }}
       {{- if $istioInjection }}
       scheme: https
       tlsConfig:
