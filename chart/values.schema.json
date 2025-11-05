@@ -551,7 +551,6 @@
         "objectStorage": {
           "type": "object",
           "required": [
-            "endpoint",
             "region",
             "accessKey",
             "accessSecret",
@@ -1042,6 +1041,11 @@
         "postRenderers": true,
         "additionalDestinations": true,
         "alloyLogs": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "alloyMetrics": {
           "enabled": {
             "type": "boolean"
           }
