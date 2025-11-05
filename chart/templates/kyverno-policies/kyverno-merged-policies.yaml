@@ -1,4 +1,0 @@
-{{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
-{{- $overrides := .Values.kyvernoPolicies -}}
-
-{{- include "bigbang.overlays.kyverno-policies" . }}
