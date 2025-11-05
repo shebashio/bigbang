@@ -9,11 +9,11 @@ tests:
 
       # Required stub values to prevent nil pointer errors
       istioCRDs:
-        enabled: false
+        enabled: true
       istiod:
-        enabled: false
+        enabled: true
       istioGateway:
-        enabled: false
+        enabled: true
         values:
           gateways: {}
 
