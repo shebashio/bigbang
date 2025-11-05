@@ -2232,7 +2232,7 @@ addons:
               config:
                 region: velero
                 s3ForcePathStyle: "true"
-                s3Url: http://minio.minio.svc:9000
+                s3Url: http://minio.minio.svc
               annotations:
                 "helm.sh/hook": post-install,post-upgrade,post-rollback
                 "helm.sh/hook-delete-policy": before-hook-creation
