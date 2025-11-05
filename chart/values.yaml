@@ -208,9 +208,9 @@ k8sGatewayCRDs:
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
-    repo: https://repo1.dso.mil/big-bang/apps/sandbox/gateway-api
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/gateway-api.git
     path: "./chart"
-    branch: "main"
+    tag: 1.4.0-bb.0
   # -- Values to passthrough to the Istio CNI chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -224,7 +224,7 @@ istioCNI:
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
   git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni.git
     path: "./chart"
     tag: 1.27.3-bb.0
   helmRepo:
