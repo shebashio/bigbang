@@ -14,10 +14,6 @@ podAnnotations:
   traffic.sidecar.istio.io/includeInboundPorts: "*"
   traffic.sidecar.istio.io/excludeInboundPorts: "9443"
 
-console:
-  imagePullSecrets:
-    - name: private-registry
-
 upstream:
   operator:
     image:
