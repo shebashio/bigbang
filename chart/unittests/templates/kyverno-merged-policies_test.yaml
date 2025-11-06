@@ -85,14 +85,14 @@ tests:
 
     # Deduplicated 'deny' list for monitoring
     - equal:
-        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny | [0]
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny'
         value: [ "deny-monitoring" ]
 
     # Custom namespace from overlay
     - equal:
-        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.allow | [0]
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.allow'
         value: [ "custom-pod" ]
-        
+
     - equal:
-        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny | [0]
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny'
         value: [ "custom-deny" ]
