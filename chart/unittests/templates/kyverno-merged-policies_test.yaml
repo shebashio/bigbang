@@ -79,4 +79,4 @@ tests:
 
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.allow'
-        value: [ "grafana", "test-monitoring" ]
+        value: [ "grafana", "test-monitoring", "monitoring-grafana*", "monitoring-monitoring-kube-admission-create*", "monitoring-monitoring-kube-admission-patch*", "monitoring-monitoring-kube-state-metrics*", "monitoring-operator*", "prometheus-monitoring-prometheus*" ]
