@@ -21,6 +21,7 @@ openshift: {{ .Values.openshift}}
 
 istio:
   enabled: {{ $istioEnabled }}
+  ambientEnabled: {{ .Values.kiali.istio.ambient }}
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
@@ -120,24 +121,15 @@ networkPolicies:
   ingress:
     defaults:
       allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}    
-    to:
-      kiali:15008:
-        from:
-          k8s:
-            istio-gateway/public-ingressgateway: {{ .Values.kiali.istio.ambient }}
-      kiali:20001:
-        from:
-          cidr: 
-            169.254.7.127/32: {{ .Values.kiali.istio.ambient }}
-      kiali-operator:6789:
-        from:
-          cidr: 
-            169.254.7.127/32: {{ .Values.kiali.istio.ambient }}
+        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+      allowAmbient:
+        enabled: {{ .Values.ztunnel.enabled }}
   egress:
     defaults:
       allowIstiod:
         enabled: {{ .Values.istiod.enabled }}
+      allowAmbient:
+        enabled: {{ .Values.ztunnel.enabled }}
     definitions:
       kubeAPI:
         to:
@@ -153,10 +145,6 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
             tempo/tempo:3100: {{ .Values.tempo.enabled }}
             istio-system/istiod:15014: {{ .Values.istiod.enabled }}
-            monitoring/prometheus:15008: {{ and .Values.monitoring.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
-            monitoring/grafana:15008: {{ and .Values.grafana.enabled (or .Values.monitoring.istio.ambient .Values.kiali.istio.ambient) }}
-            tempo/tempo:15008: {{ and .Values.tempo.enabled (or .Values.tempo.istio.ambient .Values.kiali.istio.ambient) }}
-            istio-gateway/authservice-waypoint:15008: {{ .Values.addons.authservice.enabled }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}
