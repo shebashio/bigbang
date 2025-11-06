@@ -77,6 +77,22 @@ tests:
         path: kind
         value: TestResult
 
+    # Merged and deduplicated 'allow' list for monitoring
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.allow'
         value: [ "grafana", "monitoring-grafana*", "monitoring-monitoring-kube-admission-create*", "monitoring-monitoring-kube-admission-patch*", "monitoring-monitoring-kube-state-metrics*", "monitoring-operator*", "prometheus-monitoring-prometheus*", "test-monitoring" ]
+
+
+    # Deduplicated 'deny' list for monitoring
+    - equal:
+        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny | [0]
+        value: [ "deny-monitoring" ]
+
+    # Custom namespace from overlay
+    - equal:
+        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.allow | [0]
+        value: [ "custom-pod" ]
+        
+    - equal:
+        path: policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny | [0]
+        value: [ "custom-deny" ]
