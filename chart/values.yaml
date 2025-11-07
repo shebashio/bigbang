@@ -473,11 +473,11 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.20.0-bb.0"
+    tag: "3.20.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
-    tag: "3.20.0-bb.0"
+    tag: "3.20.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
@@ -909,11 +909,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.21.1-bb.2"
+    tag: "1.23.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.21.1-bb.2"
+    tag: "1.23.3-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -2162,12 +2162,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.18.0-bb.5"
+      tag: "1.18.0-bb.6"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.18.0-bb.5"
+      tag: "1.18.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
