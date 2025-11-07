@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Template - overlays.kyverno-policies
 tests:
-- it: must create the correct netpol config for a gateway
+- it: must correctly overlay on top of existing default values
   set:
     _selfTest:
       bigbang.overlays.kyverno-policies:
@@ -94,5 +94,5 @@ tests:
         value: [ "custom-pod" ]
 
     - equal:
-        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny'
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny' 
         value: [ "custom-deny" ]
