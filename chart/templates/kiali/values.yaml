@@ -24,6 +24,21 @@ istio:
   ambientEnabled: {{ .Values.kiali.istio.ambient }}
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+    {{- if .Values.kiali.istio.ambient }}
+    customAuthorizationPolicies:
+      - name: "allow-gateway-kiali"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: kiali
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/istio-gateway/sa/public-ingressgateway-ingressgateway-service-account
+    {{- end }}
 
 routes:
   inbound:
