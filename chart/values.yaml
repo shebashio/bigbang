@@ -735,12 +735,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.2.1-bb.4"
+    tag: "3.2.1-bb.5"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "3.2.1-bb.4"
+    tag: "3.2.1-bb.5"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -1342,11 +1342,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.1.1-bb.2"
+      tag: "7.1.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.1.1-bb.2"
+      tag: "7.1.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -2018,11 +2018,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.1.4-bb.1"
+      tag: "7.1.4-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.1.4-bb.1"
+      tag: "7.1.4-bb.2"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
