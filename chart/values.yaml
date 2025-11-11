@@ -2363,16 +2363,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      #tag: "0.36.0-bb.5"
-      tag: ""
-      branch: "55-remove-blackbox-exporter"
+      tag: "0.37.0-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      #tag: "0.36.0-bb.5"
-      tag: ""
-      branch: "55-remove-blackbox-exporter"
+      tag: "0.37.0-bb.1"
 
     # -- Override flux settings for this package
     flux: {}
