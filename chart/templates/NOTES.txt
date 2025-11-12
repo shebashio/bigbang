@@ -215,7 +215,7 @@ DEPRECATION NOTICE:
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
 {{- $nexusValues := merge $nexusOldValues .Values.addons.nexusRepositoryManager -}}
 
-{{- if .Values.addons.nexusRepositoryManager }}
+{{- if .Values.addons.nexusRepositoryManager.enabled }}
 DEPRECATION NOTICE:
   .Values.addons.nexusRepositoryManager has been deprecated and will be removed in a future Big Bang release.
   Please reconfigure your values overrides to use .Values.addons.nxrm-ha
