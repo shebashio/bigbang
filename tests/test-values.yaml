@@ -1964,8 +1964,6 @@ addons:
 
     minioObjectStorage:
       enabled: true
-    networkPolicies:
-      enabled: true
     imagePullSecrets:
       - name: private-registry
     console:
@@ -2230,7 +2228,7 @@ addons:
               aws_secret_access_key = minio123
         initContainers:
           - name: velero-plugin-for-aws
-            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.13.0
             imagePullPolicy: IfNotPresent
             volumeMounts:
               - mountPath: /target
@@ -2740,11 +2738,6 @@ addons:
   #
   headlamp:
     values:
-      istio:
-        hardened:
-          enabled: true
-      networkPolicies:
-        enabled: true
       bbtests:
         enabled: true
         cypress:
