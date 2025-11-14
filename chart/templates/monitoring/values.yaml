@@ -92,6 +92,10 @@ networkPolicies:
         to:
           k8s:
             authservice/authservice:10003: {{ $authserviceEnabled }}
+      prometheus:
+        to:
+          k8s:
+            "*/*:15008": {{ .Values.ztunnel.enabled }}
   ingress:
     to:
       {{ $kpsName }}:10250:
@@ -127,6 +131,34 @@ networkPolicies:
             kiali/kiali: {{ .Values.kiali.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
+      prometheus:15008:
+        from:
+          k8s:
+            kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
+            keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
+      grafana:15008:
+        from:
+          k8s:
+            kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
+      alertmanager:15008:
+        from:
+          k8s:
+            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
+            keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
+  {{- if .Values.monitoring.istio.ambient }}
+  additionalPolicies:
+    - name: ingress-allow-all-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 
 openshift: {{ .Values.openshift }}
 
@@ -135,7 +167,7 @@ blackboxExporter:
   enabled: true
   serviceMonitor:
     enabled: {{ .Values.monitoring.enabled }}
-    {{- if $istioInjection }}
+    {{- if and $istioInjection $sidecarEnabled }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -257,12 +289,12 @@ upstream:
           {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
           {{- end }}
         {{- end }}
-        {{- if $istioInjection }}
+        {{- if $istioEnabled }}
         annotations:
           {{ include "istioAnnotation" . }}
         {{- end }}
       {{- end }}
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") $sidecarEnabled }}
     serviceMonitor:
       scheme: https
       tlsConfig:
@@ -278,12 +310,12 @@ upstream:
       enabled: true
       # Note: We need to change the portName in order for istio to correctly detect TCP is being used
       #       for the headless service
-      {{- if $istioInjection }}
+      {{- if $istioEnabled }}
       portName: "tcp-grpc"
       {{- end }}
     thanosServiceMonitor:
       enabled: true
-      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") $sidecarEnabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -293,7 +325,7 @@ upstream:
       {{- end }}
     {{- end }}
     prometheusSpec:
-      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") $sidecarEnabled }}
       alertingEndpoints:
       - name: monitoring-monitoring-kube-alertmanager
         namespace: monitoring
@@ -327,7 +359,7 @@ upstream:
             - action: labeldrop
               regex: '.*\..*'
         {{- end }}
-          {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+          {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") $sidecarEnabled }}
           tlsConfig:
             caFile: /etc/prom-certs/root-cert.pem
             certFile: /etc/prom-certs/cert-chain.pem
@@ -364,7 +396,7 @@ upstream:
             key: objstore.yml
             name: monitoring-objstore-secret
         {{- end }}
-        {{- if $istioInjection }}    
+        {{- if and $istioInjection $sidecarEnabled }}    
         # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
         volumes:
           - emptyDir:
@@ -398,7 +430,7 @@ upstream:
           {{- end }}
         {{- if or $istioInjection .Values.addons.vault.enabled }}
         annotations:
-          {{- if $istioInjection }}
+          {{- if and $istioInjection $sidecarEnabled }}
           {{ include "istioAnnotation" . }}
           traffic.sidecar.istio.io/includeOutboundIPRanges: ""
           proxy.istio.io/config: |
@@ -527,7 +559,7 @@ upstream:
             action: replace
             target_label: kubernetes_pod_name
       {{- end }}
-      {{- if $istioInjection }}    
+      {{- if and $istioInjection $sidecarEnabled }}    
       # Add volume/mount for Istio certs for mTLS scraping
       volumes:
         - emptyDir:
@@ -553,7 +585,7 @@ upstream:
             sourceLabels:
               - "__meta_kubernetes_pod_node_name"
       {{- end }}
-      {{- if $istioInjection }}
+      {{- if and $istioInjection $sidecarEnabled }}
         scheme: https
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
@@ -561,7 +593,7 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
@@ -585,7 +617,7 @@ upstream:
         - targetLabel: "instance"
           sourceLabels:
             - "__meta_kubernetes_pod_node_name"
-      {{- if $istioInjection }}
+      {{- if and $istioInjection $sidecarEnabled }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -616,7 +648,7 @@ upstream:
             sourceLabels:
               - "__meta_kubernetes_pod_node_name"
         {{- end }}
-        {{- if $istioInjection }}
+        {{- if and $istioInjection $sidecarEnabled }}
         scheme: https
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
@@ -913,7 +945,7 @@ upstream:
       patch:
         image:
           pullPolicy: {{ .Values.imagePullPolicy }}
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
