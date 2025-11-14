@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Kiali - ServiceEntries
+tests:
+- it: should create ServiceEntry from kiali.values.istio.hardened.customServiceEntries
+  set:
+    istiod.enabled: true
+    kiali.enabled: true
+    kiali.values.istio.enabled: true
+    kiali.values.istio.hardened.customServiceEntries:
+      - name: "test-hardened-service-entry"
+        spec:
+          hosts:
+            - "example.com"
+          location: MESH_EXTERNAL
+          ports:
+            - number: 443
+              name: https
+              protocol: TLS
+          resolution: DNS
+  postRenderer:
+    cmd: sh
+    args:
+      - -c
+      - |
+        set -o pipefail && \
+        yq 'select(.metadata.name == "*kiali*")' \
+          | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
+          | yq 'select(.kind == "ServiceEntry" and .metadata.name == "*test-hardened-service-entry*")'
+  asserts:
+  - equal:
+      path: kind
+      value: ServiceEntry
+  - equal:
+      path: metadata.name
+      value: test-hardened-service-entry
+  - equal:
+      path: spec.hosts[0]
+      value: "example.com"
+  - equal:
+      path: spec.location
+      value: MESH_EXTERNAL
+  - equal:
+      path: spec.ports[0].number
+      value: 443
+  - equal:
+      path: spec.resolution
+      value: DNS
+- it: should create ServiceEntry from kiali.values.istio.serviceEntries.custom
+  set:
+    istiod.enabled: true
+    kiali.enabled: true
+    kiali.values.istio.enabled: true
+    kiali.values.istio.serviceEntries.custom:
+      - name: "test-istio-service-entry"
+        spec:
+          hosts:
+            - "api.external.com"
+          location: MESH_EXTERNAL
+          ports:
+            - number: 8443
+              name: https
+              protocol: HTTPS
+          resolution: DNS
+  postRenderer:
+    cmd: sh
+    args:
+      - -c
+      - |
+        set -o pipefail && \
+        yq 'select(.metadata.name == "*kiali*")' \
+          | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
+          | yq 'select(.kind == "ServiceEntry" and .metadata.name == "*test-istio-service-entry*")'
+  asserts:
+  - equal:
+      path: kind
+      value: ServiceEntry
+  - equal:
+      path: metadata.name
+      value: test-istio-service-entry
+  - equal:
+      path: spec.hosts[0]
+      value: "api.external.com"
+  - equal:
+      path: spec.location
+      value: MESH_EXTERNAL
+  - equal:
+      path: spec.ports[0].number
+      value: 8443
+  - equal:
+      path: spec.ports[0].protocol
+      value: HTTPS
+  - equal:
+      path: spec.resolution
+      value: DNS
+- it: should create multiple ServiceEntries from both hardened and istio configurations
+  set:
+    istiod.enabled: true
+    kiali.enabled: true
+    kiali.values.istio.enabled: true
+    kiali.values.istio.hardened.customServiceEntries:
+      - name: "hardened-entry-1"
+        spec:
+          hosts:
+            - "service1.example.com"
+          location: MESH_EXTERNAL
+          resolution: DNS
+      - name: "hardened-entry-2"
+        spec:
+          hosts:
+            - "service2.example.com"
+          location: MESH_EXTERNAL
+          resolution: DNS
+    kiali.values.istio.serviceEntries.custom:
+      - name: "istio-entry-1"
+        spec:
+          hosts:
+            - "service3.example.com"
+          location: MESH_EXTERNAL
+          resolution: DNS
+  postRenderer:
+    cmd: sh
+    args:
+      - -c
+      - |
+        set -o pipefail && \
+        yq 'select(.metadata.name == "*kiali*")' \
+          | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
+          | yq 'select(.kind == "ServiceEntry")'
+  asserts:
+  - isNotEmpty:
+      path: metadata.name
+  - equal:
+      path: kind
+      value: ServiceEntry

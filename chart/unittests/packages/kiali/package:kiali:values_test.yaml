@@ -26,7 +26,7 @@ tests:
           value: true
   - it: should map customServiceEntries to istio.serviceEntries.custom
     set:
-      kiali.values.hardened.customServiceEntries:
+      kiali.values.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
           hosts:
             - "example.com"
@@ -39,7 +39,7 @@ tests:
           value: "example.com"
   - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
     set:
-      kiali.values.hardened.customAuthorizationPolicies:
+      kiali.values.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
           labels:
             app: "kiali"
@@ -50,4 +50,29 @@ tests:
       - equal:
           path: istio.authorizationPolicies.custom[0].labels.app
           value: "kiali"
+  - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
+    set:
+      kiali.values.istio.hardened.customServiceEntries:
+        - name: "hardened-entry"
+          spec:
+            hosts:
+              - "hardened.example.com"
+      kiali.values.istio.serviceEntries.custom:
+        - name: "custom-entry"
+          spec:
+            hosts:
+              - "custom.example.com"
+    asserts:
+      - equal:
+          path: istio.serviceEntries.custom[0].name
+          value: "hardened-entry"
+      - equal:
+          path: istio.serviceEntries.custom[0].spec.hosts[0]
+          value: "hardened.example.com"
+      - equal:
+          path: istio.serviceEntries.custom[1].name
+          value: "custom-entry"
+      - equal:
+          path: istio.serviceEntries.custom[1].spec.hosts[0]
+          value: "custom.example.com"
 

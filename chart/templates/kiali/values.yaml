@@ -1,5 +1,18 @@
 {{- if .Values.kiali.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.kiali "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
+{{- /* Create a cleaned copy of kiali config without deprecated 'istio.hardened' key and istio.serviceEntries/authorizationPolicies */ -}}
+{{- $kialiPackage := deepCopy .Values.kiali -}}
+{{- if .Values.kiali.values -}}
+{{- $cleanedValues := deepCopy .Values.kiali.values -}}
+{{- if .Values.kiali.values.istio -}}
+{{- $cleanedIstio := deepCopy .Values.kiali.values.istio -}}
+{{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
+{{- $cleanedIstio = unset $cleanedIstio "serviceEntries" -}}
+{{- $cleanedIstio = unset $cleanedIstio "authorizationPolicies" -}}
+{{- $cleanedValues = set $cleanedValues "istio" $cleanedIstio -}}
+{{- end -}}
+{{- $kialiPackage = set $kialiPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $kialiPackage "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
@@ -30,16 +43,20 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
 
-    # map deprecated istio.hardened.customAuthorizationPolicies to istio.authorizationPolicies.custom
+    # merge deprecated istio.hardened.customAuthorizationPolicies with istio.authorizationPolicies.custom
     custom:
-      {{- $customAuthzPolicies := default (dig "authorizationPolicies" "custom" list .Values.kiali.values) (dig "hardened" "customAuthorizationPolicies" list .Values.kiali.values) }}
-      {{- toYaml $customAuthzPolicies | nindent 6 }}
+      {{- $hardenedAuthzPolicies := dig "istio" "hardened" "customAuthorizationPolicies" list .Values.kiali.values }}
+      {{- $customAuthzPolicies := dig "istio" "authorizationPolicies" "custom" list .Values.kiali.values }}
+      {{- $mergedAuthzPolicies := concat $hardenedAuthzPolicies $customAuthzPolicies }}
+      {{- toYaml $mergedAuthzPolicies | nindent 6 }}
 
   serviceEntries:
-    # map deprecated istio.hardened.customServiceEntries to istio.serviceEntries.custom
+    # merge deprecated istio.hardened.customServiceEntries with istio.serviceEntries.custom
     custom:
-      {{- $customServiceEntries := default (dig "serviceEntries" "custom" list .Values.kiali.values) (dig "hardened" "customServiceEntries" list .Values.kiali.values) }}
-      {{- toYaml $customServiceEntries | nindent 6 }}
+      {{- $hardenedServiceEntries := dig "istio" "hardened" "customServiceEntries" list .Values.kiali.values }}
+      {{- $customServiceEntries := dig "istio" "serviceEntries" "custom" list .Values.kiali.values }}
+      {{- $mergedServiceEntries := concat $hardenedServiceEntries $customServiceEntries }}
+      {{- toYaml $mergedServiceEntries | nindent 6 }}
 
 routes:
   inbound:
