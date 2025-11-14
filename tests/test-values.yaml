@@ -1809,8 +1809,6 @@ addons:
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
     values:
-      console:
-        enabled: true
       bbtests:
         enabled: true
       istio:
@@ -1965,8 +1963,6 @@ addons:
               max_global_series_per_user: 0
 
     minioObjectStorage:
-      enabled: true
-    networkPolicies:
       enabled: true
     imagePullSecrets:
       - name: private-registry
@@ -2232,7 +2228,7 @@ addons:
               aws_secret_access_key = minio123
         initContainers:
           - name: velero-plugin-for-aws
-            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.13.0
             imagePullPolicy: IfNotPresent
             volumeMounts:
               - mountPath: /target
@@ -2263,6 +2259,13 @@ addons:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
+      networkPolicies:
+        egress:
+          from:
+            keycloak:
+              to:
+                cidr: 
+                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container  
       istio:
         hardened:
           customServiceEntries:
@@ -2735,11 +2738,6 @@ addons:
   #
   headlamp:
     values:
-      istio:
-        hardened:
-          enabled: true
-      networkPolicies:
-        enabled: true
       bbtests:
         enabled: true
         cypress:
