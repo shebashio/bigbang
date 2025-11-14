@@ -33,6 +33,10 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
+      authservice-waypoint:
+        to:
+          k8s:
+            "*/*:15008": {{ and .Values.addons.authservice.enabled .Values.addons.authservice.istio.ambient }}
   ingress:
     defaults:
       allowPrometheusToIstioSidecar:
@@ -42,6 +46,27 @@ networkPolicies:
         from:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
+      keycloak:15008:
+        from:
+          k8s:
+            monitoring/prometheus: {{ or .Values.addons.keycloak.istio.ambient .Values.monitoring.istio.ambient }}
+            istio-gateway/passthrough-gateway: {{ .Values.addons.keycloak.istio.ambient }}
+      authservice-waypoint:15008:
+        from:
+          k8s:
+            "*/*": {{ and .Values.addons.authservice.enabled (or .Values.addons.keycloak.istio.ambient .Values.addons.authservice.istio.ambient) }}
+  {{- if .Values.addons.keycloak.istio.ambient }}
+  additionalPolicies:
+    - name: ingress-allow-all-kubelet-probe
+      spec:
+        ingress:
+        - from:
+          - ipBlock:
+              cidr: 169.254.7.127/32
+        podSelector: {}
+        policyTypes:
+        - Ingress
+  {{- end }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
