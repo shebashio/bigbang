@@ -1,13 +1,14 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Kiali - Values Tests
 templates:
   - templates/kiali/values.yaml
-postRenderer:
-  cmd: "sh"
-  args:
-    - "-c"
-    - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
   - it: make assertions on the default values for Kiali
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       istiod.values.hardened.enabled: true
     asserts:
@@ -18,6 +19,11 @@ tests:
           path: istio.enabled
           value: true
   - it: should enable istio sidecar when kiali hardened is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kiali.values.hardened.enabled: true
     asserts:
@@ -25,6 +31,11 @@ tests:
           path: istio.sidecar.enabled
           value: true
   - it: should map customServiceEntries to istio.serviceEntries.custom
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
       kiali.values.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
@@ -38,6 +49,11 @@ tests:
           path: istio.serviceEntries.custom[0].hosts[0]
           value: "example.com"
   - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
       kiali.values.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
@@ -51,6 +67,11 @@ tests:
           path: istio.authorizationPolicies.custom[0].labels.app
           value: "kiali"
   - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
       kiali.values.istio.hardened.customServiceEntries:
         - name: "hardened-entry"

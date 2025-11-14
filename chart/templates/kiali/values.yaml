@@ -1,15 +1,8 @@
 {{- if .Values.kiali.enabled }}
-{{- /* Create a cleaned copy of kiali config without deprecated 'istio.hardened' key and istio.serviceEntries/authorizationPolicies */ -}}
+{{- /* Create a cleaned copy of kiali config and merge deprecated paths into current paths */ -}}
 {{- $kialiPackage := deepCopy .Values.kiali -}}
 {{- if .Values.kiali.values -}}
-{{- $cleanedValues := deepCopy .Values.kiali.values -}}
-{{- if .Values.kiali.values.istio -}}
-{{- $cleanedIstio := deepCopy .Values.kiali.values.istio -}}
-{{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
-{{- $cleanedIstio = unset $cleanedIstio "serviceEntries" -}}
-{{- $cleanedIstio = unset $cleanedIstio "authorizationPolicies" -}}
-{{- $cleanedValues = set $cleanedValues "istio" $cleanedIstio -}}
-{{- end -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.kiali.values) | fromYaml -}}
 {{- $kialiPackage = set $kialiPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict "root" $ "package" $kialiPackage "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
@@ -42,21 +35,6 @@ istio:
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
-
-    # merge deprecated istio.hardened.customAuthorizationPolicies with istio.authorizationPolicies.custom
-    custom:
-      {{- $hardenedAuthzPolicies := dig "istio" "hardened" "customAuthorizationPolicies" list .Values.kiali.values }}
-      {{- $customAuthzPolicies := dig "istio" "authorizationPolicies" "custom" list .Values.kiali.values }}
-      {{- $mergedAuthzPolicies := concat $hardenedAuthzPolicies $customAuthzPolicies }}
-      {{- toYaml $mergedAuthzPolicies | nindent 6 }}
-
-  serviceEntries:
-    # merge deprecated istio.hardened.customServiceEntries with istio.serviceEntries.custom
-    custom:
-      {{- $hardenedServiceEntries := dig "istio" "hardened" "customServiceEntries" list .Values.kiali.values }}
-      {{- $customServiceEntries := dig "istio" "serviceEntries" "custom" list .Values.kiali.values }}
-      {{- $mergedServiceEntries := concat $hardenedServiceEntries $customServiceEntries }}
-      {{- toYaml $mergedServiceEntries | nindent 6 }}
 
 routes:
   inbound:
