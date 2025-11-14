@@ -128,6 +128,7 @@ kiali:
         envs:
           cypress_url: 'https://kiali.dev.bigbang.mil'
           cypress_check_data: 'true'
+          cypress_pod_monitor_name: 'monitoring-monitoring-istio-envoy'
           # uncomment these next 3 lines if enabling the keycloak SSO integration test
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
@@ -1005,18 +1006,12 @@ tempo:
                   name: https
               resolution: DNS
 
-    tempo:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
     bbtests:
       enabled: true
       cypress:
         envs:
           cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
+          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
           cypress_check_datasource: 'true'
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           # uncomment following variables for sso keycloak testing in bb
@@ -1026,17 +1021,7 @@ tempo:
       scripts:
         enabled: false
         envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
-
-    persistence:
-      size: 5Gi
-
-    tempoQuery:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
+          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
 monitoring:
   flux:
@@ -1054,8 +1039,33 @@ monitoring:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_alertmanager
   values:
     # Monitoring CRDs are handled in prometheus-operator-crds chart
-    crds:
-      enabled: false
+    upstream:
+      kube-state-metrics:
+        resources:
+          requests:
+            cpu: 40m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
+      prometheus-node-exporter:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 30Mi
+          limits: {}
+    bbtests:
+      enabled: true
+      cypress:
+        envs:
+          cypress_bigbang_integration: 'true'
+          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
+          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
+          cypress_check_istio_dashboards: 'true'
+          cypress_keycloak_test_enable: 'false'
+          cypress_tnr_username: "cypress"
+          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
     istio:
       hardened:
         customServiceEntries:
@@ -1076,33 +1086,6 @@ monitoring:
                   protocol: TLS
                   name: https
               resolution: DNS
-
-    kube-state-metrics:
-      resources:
-        requests:
-          cpu: 40m
-          memory: 128Mi
-        limits:
-          cpu: 200m
-          memory: 512Mi
-    prometheus-node-exporter:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 30Mi
-        limits: {}
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_bigbang_integration: 'true'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
-          cypress_check_istio_dashboards: 'true'
-          cypress_keycloak_test_enable: 'false'
-          cypress_tnr_username: "cypress"
-          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
 
 grafana:
   sso:
@@ -1828,8 +1811,6 @@ addons:
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
     values:
-      console:
-        enabled: true
       bbtests:
         enabled: true
       istio:
@@ -1984,8 +1965,6 @@ addons:
               max_global_series_per_user: 0
 
     minioObjectStorage:
-      enabled: true
-    networkPolicies:
       enabled: true
     imagePullSecrets:
       - name: private-registry
@@ -2251,7 +2230,7 @@ addons:
               aws_secret_access_key = minio123
         initContainers:
           - name: velero-plugin-for-aws
-            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.13.0
             imagePullPolicy: IfNotPresent
             volumeMounts:
               - mountPath: /target
@@ -2282,6 +2261,13 @@ addons:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
+      networkPolicies:
+        egress:
+          from:
+            keycloak:
+              to:
+                cidr: 
+                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container  
       istio:
         hardened:
           customServiceEntries:
@@ -2754,11 +2740,6 @@ addons:
   #
   headlamp:
     values:
-      istio:
-        hardened:
-          enabled: true
-      networkPolicies:
-        enabled: true
       bbtests:
         enabled: true
         cypress:

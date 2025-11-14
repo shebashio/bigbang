@@ -1166,7 +1166,6 @@ policies:
           - velero-velero-*
           - node-agent-*
           - velero-label-namespace-*
-          - velero-script-test
           - velero-backup-restore-test
       - namespace: neuvector
         pods:
@@ -1227,11 +1226,11 @@ policies:
         pods:
           allow:
           - monitoring-grafana*
-          - monitoring-monitoring-kube-admission-create-*
-          - monitoring-monitoring-kube-admission-patch-*
+          - monitoring-monitoring-kube-admission-patch*
+          - monitoring-monitoring-kube-admission-create*
           - monitoring-monitoring-kube-state-metrics*
-          - monitoring-monitoring-kube-operator*
-          - prometheus-monitoring-monitoring-kube-prometheus*
+          - monitoring-operator*
+          - prometheus-monitoring-prometheus*
       - namespace: alloy
         pods:
           allow:

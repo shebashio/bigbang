@@ -134,6 +134,9 @@ upstream:
         access: proxy
         url: http://mimir-mimir-gateway.mimir.svc.cluster.local/prometheus
         editable: true
+        jsonData:
+          # Should match mimir metamonitoring scrape_interval (default 60s)
+          timeInterval: "60s"
       {{- end }}
       {{- if .Values.monitoring.enabled }}
       {{- if .Values.addons.thanos.enabled }}
@@ -228,7 +231,7 @@ upstream:
         access: proxy
         orgId: 1
         uid: tempo
-        url: http://tempo-tempo.tempo.svc:3100
+        url: http://tempo-tempo.tempo.svc:3200
         isDefault: false
         editable: true
         jsonData:
@@ -352,11 +355,6 @@ upstream:
       # Add any default extraSecretMounts to overlay
       {{- if and (dig "extraSecretMounts" list $default) (dig "extraSecretMounts" list $overlay) }}
          {{ $_ := set $overlay "extraSecretMounts" (concat $default.extraSecretMounts $overlay.extraSecretMounts) }}
-      {{- end }}
-
-      # Add any default additionalDataSources to overlay
-      {{- if and (dig "additionalDataSources" list $default) (dig "additionalDataSources" list $overlay) }}
-         {{ $_ := set $overlay "additionalDataSources" (concat $default.additionalDataSources $overlay.additionalDataSources) }}
       {{- end }}
     {{- end }}
   {{- end }}
