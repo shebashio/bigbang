@@ -219,6 +219,7 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
+    {{- end }}
     {{- if .Values.monitoring.istio.ambient }}
     customAuthorizationPolicies:
       - name: "allow-kiali-grafana"
@@ -281,7 +282,6 @@ istio:
             - source:
                 principals:
                 - cluster.local/ns/keycloak/sa/authservice-waypoint
-    {{- end }}
     {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
