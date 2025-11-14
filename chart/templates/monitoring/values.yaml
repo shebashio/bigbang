@@ -219,6 +219,69 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
+    {{- if .Values.monitoring.istio.ambient }}
+    customAuthorizationPolicies:
+      - name: "allow-kiali-grafana"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-kiali-prometheus"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-kiali-script-test-prometheus"
+        enabled: true
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/kiali/sa/kiali-service-account
+      - name: "allow-authservice-prometheus-waypoint"
+        enabled: {{ and .Values.monitoring.sso.enabled .Values.monitoring.istio.ambient .Values.addons.authservice.enabled }}
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: "prometheus"
+          action: ALLOW
+          rules:
+          - from:
+            - source:
+                principals:
+                - cluster.local/ns/keycloak/sa/authservice-waypoint
+      - name: "allow-authservice-alertmanager-waypoint"
+        enabled: {{ and .Values.monitoring.sso.enabled .Values.monitoring.istio.ambient .Values.addons.authservice.enabled }}
+        spec:
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: "alertmanager"
+          action: ALLOW
+          rules:
+          - from:
+            - source:
+                principals:
+                - cluster.local/ns/keycloak/sa/authservice-waypoint
+    {{- end }}
     {{- end }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
