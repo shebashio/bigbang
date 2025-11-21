@@ -1276,7 +1276,7 @@ istio:
       {{- if and (dig "match" "all" list $default) (dig "match" "all" list $overlay) -}}
         {{ $_ := set $overlay.match "all" (concat $default.match.all $overlay.match.all) -}}
       {{- end -}}
-      
+
       {{- /* Add parameters.allow fields */ -}}
       {{- if and (dig "parameters" "allow" list $default) (dig "parameters" "allow" list $overlay) -}}
         {{ $_ := set $overlay.parameters "allow" (concat $default.parameters.allow $overlay.parameters.allow) -}}
