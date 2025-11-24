@@ -70,6 +70,10 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- if .Values.kyverno.enabled }}
+    - name: kyverno
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
     {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
