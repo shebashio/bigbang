@@ -136,6 +136,10 @@ networkPolicies:
     defaults:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+    to:
+      kiali:15008:
+        from:
+          istio-gateway/public-ingressgateway: true
   egress:
     defaults:
       allowIstiod:

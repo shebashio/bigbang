@@ -547,7 +547,7 @@ function install_k3d {
   echo "Installing k3d on instance"
   # Shared k3d settings across all options
   # 1 server, 3 agents
-  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --k3s-arg \"--disable-network-policy@server:*\" --verbose"
+  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
   # Volumes to support Twistlock defenders
   k3d_command+=" -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:*"
   # Disable traefik and metrics-server
