@@ -133,14 +133,10 @@ networkPolicies:
     defaults:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
-      allowAmbient:
-        enabled: {{ .Values.ztunnel.enabled }}
   egress:
     defaults:
       allowIstiod:
         enabled: {{ .Values.istiod.enabled }}
-      allowAmbient:
-        enabled: {{ .Values.ztunnel.enabled }}
     definitions:
       kubeAPI:
         to:
