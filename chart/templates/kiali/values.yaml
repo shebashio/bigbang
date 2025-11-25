@@ -29,6 +29,9 @@ openshift: {{ .Values.openshift}}
 istio:
   enabled: {{ $istioEnabled }}
 
+  ambient:
+    enabled: {{ .Values.monitoring.istio.ambient }}
+
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
 
