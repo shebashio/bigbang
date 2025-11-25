@@ -1266,11 +1266,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
       path: "./chart"
-      tag: "2.5.3-bb.1"
+      tag: "2.6.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "backstage"
-      tag: "2.5.3-bb.1"
+      tag: "2.6.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Backstage Package
     flux: {}
@@ -1411,11 +1411,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.5.1-bb.0"
+      tag: "9.5.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.5.1-bb.0"
+      tag: "9.5.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1692,11 +1692,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "1.1.2320154-bb.37"
+      tag: "1.1.2320154-bb.38"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "1.1.2320154-bb.37"
+      tag: "1.1.2320154-bb.38"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1852,11 +1852,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.2-bb.1"
+      tag: "1.25.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.2-bb.1"
+      tag: "1.25.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2083,11 +2083,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.31.0-bb.1"
+      tag: "0.31.0-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.31.0-bb.1"
+      tag: "0.31.0-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
