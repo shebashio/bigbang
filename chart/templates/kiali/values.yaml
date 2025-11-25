@@ -139,7 +139,8 @@ networkPolicies:
     to:
       kiali:15008:
         from:
-          istio-gateway/public-ingressgateway: true
+          k8s:
+            istio-gateway/public-ingressgateway: true
   egress:
     defaults:
       allowIstiod:
