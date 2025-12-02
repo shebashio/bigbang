@@ -219,6 +219,9 @@ DEPRECATION NOTICE:
 DEPRECATION NOTICE:
   .Values.addons.nexusRepositoryManager has been deprecated and will be removed in a future Big Bang release.
   Please reconfigure your values overrides to use .Values.addons.nxrm-ha
+  For migration guidance, see:
+    - OSS Migration: https://repo1.dso.mil/big-bang/product/packages/nxrm-ha/-/blob/main/docs/migration-oss.md
+    - Pro Migration: https://repo1.dso.mil/big-bang/product/packages/nxrm-ha/-/blob/main/docs/migration-pro.md
 {{- end }}
 
 {{- with .Values }}
