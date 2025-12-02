@@ -1,3 +1,5 @@
+helmRepositories: []
+
 istioCRDs:
   sourceType: "git"
 
@@ -5,9 +7,6 @@ istiod:
   sourceType: "git"
 
 istioGateway:
-  sourceType: "git"
-
-istioCNI:
   sourceType: "git"
 
 alloy:
@@ -73,7 +72,7 @@ addons:
 
   minio:
     sourceType: "git"
-    
+
   gitlab:
     sourceType: "git"
 
@@ -121,12 +120,12 @@ addons:
 
   backstage:
     sourceType: "git"
-  
+
   externalSecrets:
     sourceType: "git"
-  
+
   mimir:
     sourceType: "git"
-  
+
   headlamp:
     sourceType: "git"
