@@ -13,32 +13,10 @@ Nexus provides a wealth of documentation [here](https://help.sonatype.com/repoma
 
 ## Big Bang Touch Points
 
-```mermaid
-graph LR
-  subgraph "Workflow"
-    sourcecontrol("Source Control") --> build("Build") --> repository1("Repository") --> release("Release")
-  end
+### Licensing
 
-  subgraph "NXRM-HA"
-    nxrmha("Nexus Repository Manager") --> repository1("Repository")
-  end
-
-  subgraph "Environment"
-    release("Release") --> stage1(dev)
-    release("Release") --> stage2(staging)
-    release("Release") --> stage3(prod)
-  end
-
-  subgraph "Monitoring"
-    prometheus("Prometheus") --> servicemonitor("Service Monitor")
-    servicemonitor("Service Monitor") --> nxrmha("Nexus Repository Manager")
-  end
-
-  subgraph "Logging"
-    nxrmha("Nexus Repository Manager") --> fluent(Fluentbit) --> logging-ek-es-http
-    logging-ek-es-http{{Elastic Service<br />logging-ek-es-http}} --> elastic[(Elastic Storage)]
-  end
-```
+Nexus Repository Manager OSS is open-source,
+[licensed under EPL 1.0](https://github.com/sonatype/nexus-public/blob/main/LICENSE.txt).
 
 ### UI
 
@@ -149,7 +127,7 @@ addons:
 
 SSO can be configured for NXRM-HA by following the instructions from the package documentation [here](https://repo1.dso.mil/big-bang/product/packages/nxrm-ha/-/blob/main/docs/keycloak.md).
 
-## Licensing
+## Pro License Configuration
 
 By default, Big Bang will deploy the OSS (unlicensed) version of Nexus. If you need Pro features such as HA or advanced security, you can add your license via values:
 
