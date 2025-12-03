@@ -130,17 +130,10 @@ networkPolicies:
       prometheus:15008:
         from:
           k8s:
-            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
             keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
-      grafana:15008:
-        from:
-          k8s:
-            kiali/kiali: {{ and .Values.kiali.enabled (or .Values.kiali.istio.ambient .Values.monitoring.istio.ambient) }}
-            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
       alertmanager:15008:
         from:
           k8s:
-            istio-gateway/public-ingressgateway: {{ .Values.monitoring.istio.ambient }}
             keycloak/authservice-waypoint: {{ and .Values.addons.authservice.enabled .Values.monitoring.istio.ambient }}
 
 openshift: {{ .Values.openshift }}
