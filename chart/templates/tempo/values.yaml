@@ -5,6 +5,7 @@
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.tempo.values) }}
+{{- $usingLocalStorage := dig "upstream" "backend" "local" .Values.tempo.values }}
 
 upstream:
   # --- Add writable runtime volume ---
@@ -88,10 +89,6 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
-  ingressLabels:
-    {{- if $istioEnabled }}
-    {{- include "getGatewaySelector" (dict "pkg" .Values.tempo "root" .) | nindent 4 }}
-    {{- end }}
   ingress:
     to:
       tempo:3200:
@@ -102,11 +99,16 @@ networkPolicies:
         from:
           k8s:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
-            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.values.upstream.alloy-logs.enabled }}
+            alloy-alloy-logs@alloy/alloy-logs: {{ ".Values.alloy.values.upstream.alloy-logs.enabled" }}
   egress:
     definitions:
       storage-subnets:
-        {{ toYaml .Values.networkPolicies.egress.definitions.storage-subnets | nindent 8 }}
+        {{ toYaml ".Values.networkPolicies.egress.definitions.storage-subnets" | nindent 8 }}
+    from:
+      tempo:
+        to:
+          definition:
+            storage-subnets: {{ not $usingLocalStorage }}
 
 istio:
   enabled: {{ $istioEnabled }}
