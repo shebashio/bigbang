@@ -63,7 +63,12 @@ networkPolicies:
       haproxy:8080:
         from:
           k8s:
-            "istio-gateway/*": {{ .Values.packages.haproxy.enabled }}
+            "istio-gateway/*": {{
+              and
+                (hasKey .Values "packages")
+                (hasKey (index .Values "packages") "haproxy")
+                (default false (index (index .Values "packages") "haproxy" "enabled"))
+            }}
       # Redis exporter metrics
       redis-bb:9121:
         from:
