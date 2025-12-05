@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.tempo.values) }}
 
 upstream:
   # --- Add writable runtime volume ---
@@ -91,14 +92,33 @@ networkPolicies:
     {{- if $istioEnabled }}
     {{- include "getGatewaySelector" (dict "pkg" .Values.tempo "root" .) | nindent 4 }}
     {{- end }}
+  ingress:
+    to:
+      tempo:3200:
+        from:
+          k8s:
+            kiali-service-account@kiali/kiali: {{ .Values.kiali.enabled }}
+      tempo:4317:
+        from:
+          k8s:
+            alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
+            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.values.upstream.alloy-logs.enabled }}
+  egress:
+    definitions:
+      storage-subnets:
+        {{ toYaml .Values.networkPolicies.egress.definitions.storage-subnets | nindent 8 }}
 
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
     enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-  tempoQuery:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.tempo.ingress.gateway "root" .)}}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

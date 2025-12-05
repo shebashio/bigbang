@@ -173,6 +173,11 @@ networkPolicies:
         to:
           - ipBlock:
               cidr: "0.0.0.0/0"
+      # -- Egress definition for Storage subnets (i.e. S3, Azure blob storage, etc.)
+      storage-subnets:
+        to:
+          - ipBlock:
+              cidr: "0.0.0.0/0"
   ingress:
     # -- Ingress definitions; create definitions here that you want to re-use globally across
     # all packages
@@ -914,10 +919,6 @@ tempo:
     repoName: "registry1"
     chartName: "tempo"
     tag: "1.23.3-bb.0"
-
-  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-  ingress:
-    gateway: ""
 
   # -- Flux reconciliation overrides specifically for the Tempo Package
   flux: {}
