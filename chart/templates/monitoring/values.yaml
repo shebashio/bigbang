@@ -122,12 +122,7 @@ networkPolicies:
             gateway: {{ .Values.istioGateway.enabled }}
           k8s:
             tempo/tempo: {{ .Values.tempo.enabled }}
-            authservice/haproxy: {{
-              and
-                (hasKey .Values "packages")
-                (hasKey (index .Values "packages") "haproxy")
-                (default false (index (index .Values "packages") "haproxy" "enabled"))
-            }}
+            authservice/haproxy: {{ dig "haproxy" "enabled" false .Values.packages }}
             kiali/kiali: {{ .Values.kiali.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
