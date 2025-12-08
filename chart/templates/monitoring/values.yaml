@@ -105,12 +105,7 @@ networkPolicies:
       alertmanager:9093:
         from:
           k8s:
-            authservice/haproxy: {{
-              and
-                (hasKey .Values "packages")
-                (hasKey (index .Values "packages") "haproxy")
-                (default false (index (index .Values "packages") "haproxy" "enabled"))
-            }}
+            authservice/haproxy: {{ dig "haproxy" "enabled" false .Values.packages }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
           definition:
