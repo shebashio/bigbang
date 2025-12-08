@@ -616,11 +616,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.32.0-bb.0"
+    tag: "1.33.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.32.0-bb.0"
+    tag: "1.33.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -1005,11 +1005,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "75.6.1-bb.12"
+    tag: "79.11.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "75.6.1-bb.12"
+    tag: "79.11.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1311,11 +1311,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.1-bb.3"
+      tag: "1.1.1-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.1-bb.3"
+      tag: "1.1.1-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1612,75 +1612,6 @@ addons:
     flux: {}
 
     # -- Values to passthrough to the nxrm chart: https://repo1.dso.mil/big-bang/product/packages/nexus.git
-    values: {}
-
-    # -- Post Renderers.  See docs/postrenders.md
-    postRenderers: []
-
-  nxrm-ha:
-    # -- Toggle deployment of Nexus Repository Manager High Availability.
-    enabled: false
-
-    # -- Choose source type of "git" or "helmRepo"
-    sourceType: "git"
-
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/nxrm-ha.git
-      path: "./chart"
-      tag: "84.0.0-bb.4"
-    helmRepo:
-      repoName: "registry1"
-      chartName: "nexus-repository-manager"
-      tag: "84.0.0-bb.4"
-
-    # -- Base64 encoded license file.
-    license_key: ""
-
-    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
-    ingress:
-      gateway: ""
-
-    sso:
-      # -- Toggle SAML SSO for NXRM.
-      # -- handles SAML SSO, a Client must be configured in Keycloak or IdP
-      # -- to complete setup.
-      # -- https://support.sonatype.com/hc/en-us/articles/1500000976522-SAML-integration-for-Nexus-Repository-Manager-Pro-3-and-Nexus-IQ-Server-with-Keycloak#h_01EV7CWCYH3YKAPMAHG8XMQ599
-      enabled: false
-
-      # -- NXRM SAML SSO Integration data
-      idp_data:
-        # Nexus saml URL. example: "https://nexus.bigbang.dev/service/rest/v1/security/saml/metadata"
-        entityId: ""
-
-        # -- IdP Field Mappings
-        # -- NXRM username attribute
-        username: ""
-
-        # -- NXRM firstname attribute (optional)
-        firstName: ""
-
-        # -- NXRM lastname attribute (optional)
-        lastName: ""
-
-        # -- NXRM email attribute (optional)
-        email: ""
-
-        # -- NXRM groups attribute (optional)
-        groups: ""
-
-      # -- NXRM Role
-      role:
-        # the id must match the Keycloak group name (case sensitive)
-        - id: ""
-          name: ""
-          description: ""
-          privileges: []
-          roles: []
-
-    # -- Flux reconciliation overrides specifically for the Nexus Repository Manager Package
-    flux: {}
-
-    # -- Values to passthrough to the nxrm-ha chart: https://repo1.dso.mil/big-bang/apps/sandbox/nxrm-ha.git
     values: {}
 
     # -- Post Renderers.  See docs/postrenders.md
