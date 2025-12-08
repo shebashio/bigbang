@@ -63,12 +63,7 @@ networkPolicies:
       haproxy:8080:
         from:
           k8s:
-            "istio-gateway/*": {{
-              and
-                (hasKey .Values "packages")
-                (hasKey (index .Values "packages") "haproxy")
-                (default false (index (index .Values "packages") "haproxy" "enabled"))
-            }}
+            "istio-gateway/*": {{ dig "haproxy" "enabled" false .Values.packages }}
       # Redis exporter metrics
       redis-bb:9121:
         from:
@@ -90,18 +85,8 @@ networkPolicies:
       haproxy:
         to:
           k8s:
-            monitoring/alertmanager:9093: {{
-              and
-                (hasKey .Values "packages")
-                (hasKey (index .Values "packages") "haproxy")
-                (default false (index (index .Values "packages") "haproxy" "enabled"))
-            }}
-            monitoring/prometheus:9090: {{
-              and
-                (hasKey .Values "packages")
-                (hasKey (index .Values "packages") "haproxy")
-                (default false (index (index .Values "packages") "haproxy" "enabled"))
-            }}
+            monitoring/alertmanager:9093: {{ dig "haproxy" "enabled" false .Values.packages }}
+            monitoring/prometheus:9090: {{ dig "haproxy" "enabled" false .Values.packages }}
 
 {{- if or (dig "redis" "enabled" false .Values.addons.authservice.values) (dig "global" "redis_server_uri" "" .Values.addons.authservice.values) }}
 autoscaling:
