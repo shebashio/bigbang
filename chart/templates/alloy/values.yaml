@@ -28,7 +28,7 @@ networkPolicies:
       alloy-logs:12345:
         from:
           k8s:
-            monitoring/prometheus:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus:
               enabled: {{ .Values.monitoring.enabled }}
       # alloy-receiver ingress (is this used by default?)
       alloy-receiver:4317:
@@ -44,14 +44,8 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
-      alloy-operator:
-        to:
-          definition:
-            kubeAPI: true
       alloy-logs:
         to:
-          definition:
-            kubeAPI: true
           k8s:
             # Loki egress: namespace with app.kubernetes.io/name=logging, pod with app.kubernetes.io/name=logging-loki, port 3100
             "logging/logging-loki:3100":
