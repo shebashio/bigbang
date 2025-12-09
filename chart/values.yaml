@@ -174,7 +174,7 @@ networkPolicies:
           - ipBlock:
               cidr: "0.0.0.0/0"
       # -- Egress definition for Storage subnets (i.e. S3, Azure blob storage, etc.)
-      storage-subnets:
+      storageSubnets:
         to:
           - ipBlock:
               cidr: "0.0.0.0/0"
