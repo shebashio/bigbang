@@ -85,6 +85,8 @@ networkPolicies:
       tempo:3200:
         from:
           k8s:
+            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
             kiali-service-account@kiali/kiali: {{ .Values.kiali.enabled }}
       tempo:4317:
         from:
@@ -98,6 +100,8 @@ networkPolicies:
     from:
       tempo:
         to:
+          k8s:
+            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
             storageSubnets: {{ not $usingLocalStorage }}
 
