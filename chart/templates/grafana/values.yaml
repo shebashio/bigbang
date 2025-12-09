@@ -120,6 +120,13 @@ upstream:
     {{- end }}
   {{- end }}
 
+  {{- if .Values.kiali.enabled }}
+  # Set canonical name to match K8s service name for Kiali trace correlation
+  # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
+  podLabels:
+    service.istio.io/canonical-name: monitoring-grafana
+  {{- end }}
+
   {{- if or .Values.monitoring.enabled .Values.loki.enabled .Values.tempo.enabled $gitlabRedis $authserviceRedisEnabled .Values.addons.argocd.enabled }}
   datasources:
     datasourcesbb.yaml:

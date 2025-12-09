@@ -64,6 +64,10 @@ upstream:
         pod_annotations:
           {{ include "istioAnnotation" . }}
         {{- end }}
+        # Set canonical name to match K8s service name for Kiali trace correlation
+        # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
+        pod_labels:
+          service.istio.io/canonical-name: kiali
         hpa:
           spec:
             maxReplicas: 2

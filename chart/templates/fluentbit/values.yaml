@@ -71,6 +71,13 @@ upstream:
     {{ include "istioAnnotation" . | nindent 2 }}
   {{- end }}
 
+  {{- if .Values.kiali.enabled }}
+  # Set canonical name to match K8s service name for Kiali trace correlation
+  # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
+  podLabels:
+    service.istio.io/canonical-name: logging-fluent-bit
+  {{- end }}
+
   {{- if .Values.openshift }}
   podSecurityContext:
     seLinuxOptions:
