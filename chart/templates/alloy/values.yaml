@@ -50,6 +50,8 @@ networkPolicies:
             kubeAPI: true
       alloy-logs:
         to:
+          definition:
+            kubeAPI: true
           k8s:
             # Loki egress: namespace with app.kubernetes.io/name=logging, pod with app.kubernetes.io/name=logging-loki, port 3100
             "logging/logging-loki:3100":
