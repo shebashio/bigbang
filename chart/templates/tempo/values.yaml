@@ -5,7 +5,7 @@
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.tempo.values) }}
-{{- $usingLocalStorage := dig "upstream" "backend" "local" .Values.tempo.values }}
+{{- $usingLocalStorage := dig "upstream" "backend" "local" .Values.tempo.values.upstream.tempo.storage }}
 
 upstream:
   # --- Add writable runtime volume ---
