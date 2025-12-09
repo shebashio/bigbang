@@ -10,6 +10,12 @@ ignorePatterns:
   - pattern: "https://medium.com/the-telegraph-engineering/binding-gcp-accounts-to-gke-service-accounts-with-terraform-dfca4e81d2a0"
   # ignore sdelements links that are known to be unreliable
   - pattern: "https://www.securitycompass.com/sdelements/"
+  # ignore well-known big-bang issue links
+  - pattern: "https://repo1.dso.mil/big-bang/bigbang/-/issues/1204"
+  # ignore well-known anchor references
+  - pattern: "#package-configuration"
+  - pattern: "#Troubleshooting"
+  - pattern: "#extending-cypress-tests"
 # replacementPatterns:
 #   - pattern: ^.attachments
 #     replacement: file://some/conventional/folder/.attachments
