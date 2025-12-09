@@ -252,6 +252,11 @@ upstream:
         {{- $alertmanagerAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
         {{- $alertmanagerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         labels:
+          {{- if .Values.kiali.enabled }}
+          # Set canonical name to match K8s service name for Kiali trace correlation
+          # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
+          service.istio.io/canonical-name: monitoring-monitoring-kube-alertmanager
+          {{- end }}
           {{- if .Values.monitoring.sso.enabled }}
           {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
           {{- end }}
@@ -379,6 +384,11 @@ upstream:
       podMetadata:
         labels:
           app: prometheus
+          {{- if .Values.kiali.enabled }}
+          # Set canonical name to match K8s service name for Kiali trace correlation
+          # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
+          service.istio.io/canonical-name: monitoring-monitoring-kube-prometheus
+          {{- end }}
           {{- if .Values.monitoring.sso.enabled }}
           {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
           {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
