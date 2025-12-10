@@ -95,15 +95,15 @@ networkPolicies:
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
   egress:
     definitions:
-      storageSubnets:
-        {{ toYaml .Values.networkPolicies.egress.definitions.storageSubnets | nindent 8 }}
+      storage-subnets:
+        {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
     from:
       tempo:
         to:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            storageSubnets: {{ ne $storageMode "local" }}
+            storage-subnets: {{ ne $storageMode "local" }}
 
 istio:
   enabled: {{ $istioEnabled }}
