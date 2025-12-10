@@ -1,7 +1,7 @@
 include:
   - project: "big-bang/pipeline-templates/pipeline-templates"
     ref: "bigbang-3068-find-all-markdown-link-check-configs"
-    file: "/pipelines/dogfood.yaml"
+    file: "/pipelines/bigbang.yaml"
 variables:
   DEBUG: "true"
   JOB_TYPE: "check_gitlab_access_tokens"
