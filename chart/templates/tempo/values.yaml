@@ -5,7 +5,7 @@
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.tempo.values) }}
-{{- $usingLocalStorage := dig "upstream" "backend" "local" .Values.tempo.values.upstream.tempo.storage }}
+{{- $storageMode := dig "upstream" "tempo" "storage" "trace" "backend" "local" .Values.tempo.values }}
 
 upstream:
   # --- Add writable runtime volume ---
@@ -103,7 +103,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            storageSubnets: {{ ne .Values.tempo.values.upstream.tempo.storage.trace.backend "local" }}
+            storageSubnets: {{ ne $storageMode "local" }}
 
 istio:
   enabled: {{ $istioEnabled }}
