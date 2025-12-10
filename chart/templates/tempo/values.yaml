@@ -1,5 +1,11 @@
 {{- if .Values.tempo.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.tempo "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
+{{- /* Create a cleaned copy of kiali config and merge deprecated paths into current paths */ -}}
+{{- $tempoPackage := deepCopy .Values.tempo -}}
+{{- if .Values.tempo.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.tempo.values) | fromYaml -}}
+{{- $tempoPackage = set $tempoPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $tempoPackage "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.tempo" -}}
