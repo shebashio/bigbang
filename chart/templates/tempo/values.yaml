@@ -103,7 +103,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            storageSubnets: {{ not $usingLocalStorage }}
+            storageSubnets: {{ ne .Values.tempo.values.upstream.tempo.storage.trace.backend "local" }}
 
 istio:
   enabled: {{ $istioEnabled }}
