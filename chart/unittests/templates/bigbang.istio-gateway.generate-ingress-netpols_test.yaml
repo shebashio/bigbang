@@ -28,6 +28,10 @@ tests:
               to:
                 - ipBlock:
                     cidr: 0.0.0.0/0
+            storage-subnets:
+              to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
           from:
             custom-ingressgateway:
               to:
@@ -81,6 +85,10 @@ tests:
               to:
                 - ipBlock:
                     cidr: 0.0.0.0/0
+            storage-subnets:
+              to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
           from:
             custom-ingressgateway:
               to:
@@ -127,6 +135,10 @@ tests:
         egress:
           definitions:
             sso:
+              to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
+            storage-subnets:
               to:
                 - ipBlock:
                     cidr: 0.0.0.0/0
@@ -188,6 +200,10 @@ tests:
         egress:
           definitions:
             sso:
+              to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
+            storage-subnets:
               to:
                 - ipBlock:
                     cidr: 0.0.0.0/0
