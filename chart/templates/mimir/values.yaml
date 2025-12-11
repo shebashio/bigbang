@@ -102,13 +102,14 @@ istio:
 {{- if $minioEnabled }}
 minio-tenant:
   enabled: true
-  tenant:
-    configSecret:
-      accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
-      secretKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
-    defaultUserCredentials:
-        username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
-        password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
+  upstream:
+    tenant:
+      configSecret:
+        accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
+        secretKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
+      defaultUserCredentials:
+          username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
+          password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
 {{- end }}
 
 upstream:

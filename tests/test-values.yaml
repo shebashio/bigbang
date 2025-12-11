@@ -1922,7 +1922,10 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: true
+    git:
+      tag: null
+      branch: 95-mimir-minio
     values:
       istio:
         hardened:
