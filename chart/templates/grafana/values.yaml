@@ -292,20 +292,11 @@ upstream:
       allow_sign_up: {{ .Values.grafana.sso.grafana.allow_sign_up | default "True" }}
       role_attribute_path: {{ .Values.grafana.sso.grafana.role_attribute_path | default "Viewer" }}
       {{- end }}
-    {{- with .Values.grafana.sso.grafana }}
-      {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_cert" .tls_client_cert | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
-    {{- end }}
-    {{- with .Values.monitoring.sso.grafana }}
-      {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_cert" .tls_client_cert | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
-    {{- end }}
+      {{- range $key := list "allowed_domains" "tls_client_ca" "tls_skip_verify_insecure" "tls_client_cert" "tls_client_key" }}
+        {{- with (index $ $key) }}
+      {{ $key }} = {{ . }}
+        {{- end }}
+      {{- end }}
 
     {{- if $enterpriseEnabled }}
     enterprise:

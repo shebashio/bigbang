@@ -307,7 +307,15 @@
         "git": true,
         "helmRepo": true,
         "flux": true,
-        "values": true,
+        "values": {
+          "type": "object",
+          "properties": {
+            "gateways": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
         "postRenderers": true
       },
       "allOf": [
@@ -1176,28 +1184,6 @@
             }
           ],
           "properties": {
-            "istio": {
-              "$ref": "#/$defs/istio"
-            }
-          }
-        },
-        "haproxy": {
-          "type": "object",
-          "required": [
-            "git",
-            "flux",
-            "values"
-          ],
-          "properties": {
-            "git": {
-              "$ref": "#/$defs/git"
-            },
-            "flux": {
-              "ref": "#/$defs/flux"
-            },
-            "values": {
-              "$ref": "#/$defs/values"
-            },
             "istio": {
               "$ref": "#/$defs/istio"
             }

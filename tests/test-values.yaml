@@ -914,6 +914,7 @@ fluentbit:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -2051,6 +2052,13 @@ addons:
         cypress:
           envs:
             cypress_url: https://chat.dev.bigbang.mil
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"            
 
   nexusRepositoryManager:
     enabled: false
@@ -2311,6 +2319,8 @@ addons:
               -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
           - name: KC_HTTPS_CERTIFICATE_FILE
             value: /opt/keycloak/conf/tls.crt
+          - name: KC_HTTP_MANAGEMENT_SCHEME
+            value: http
           - name: KC_HTTPS_CERTIFICATE_KEY_FILE
             value: /opt/keycloak/conf/tls.key
           - name: KC_HTTPS_CLIENT_AUTH
@@ -2362,10 +2372,20 @@ addons:
                 https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/51cd6066cc4585fede3383ce4905425fc0a83d99/docs/test-data/quarkus.properties \
                 -o /opt/keycloak/conf/quarkus.properties
 
-              # Download the test realm config
+              # Download the test realm config and remove the Conditional OTP execution
               curl -fsSL \
                 https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/51cd6066cc4585fede3383ce4905425fc0a83d99/docs/test-data/realm.json \
-                -o /opt/keycloak/data/import/realm.json
+                | jq '
+                .authenticationFlows |= map(
+                  if .id == "cdf1be21-4140-4652-9d68-3b60742cc8ad" then
+                    .authenticationExecutions |= map(
+                      select(.flowAlias != "Conditional OTP")
+                    )
+                  else
+                    .
+                  end
+                )
+              ' > /opt/keycloak/data/import/realm.json
 
               ls -l /opt/keycloak/{conf,data/import}
 
@@ -2441,8 +2461,6 @@ addons:
           - name: plugin
             mountPath: /opt/keycloak/providers/p1-keycloak-plugin.jar
             subPath: p1-keycloak-plugin.jar
-        http:
-          internalScheme: HTTPS
 
   vault:
     enabled: false
@@ -2453,6 +2471,9 @@ addons:
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
+    kms_key_id: mrk-ff723da024254ea2b7f490c68fbc9b9b
+    kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
+    kms_secret_key: "" # gets added via CI VAULT_KMS_SECRET_KEY and 01_deploy_bigbang.sh
     values:
       upstream:
         global:
@@ -2485,42 +2506,6 @@ addons:
             raft:
               enabled: true
               setNodeId: true
-              config: |
-                ui = true
-
-                listener "tcp" {
-                  tls_disable = false
-                  address = "[::]:8200"
-                  cluster_address = "[::]:8201"
-                  tls_cert_file = "/vault/tls/tls.crt"
-                  tls_key_file  = "/vault/tls/tls.key"
-                  telemetry {
-                    unauthenticated_metrics_access = true
-                  }
-                }
-
-                storage "raft" {
-                  path = "/vault/data"
-
-                  retry_join {
-                    leader_api_addr = "https://vault-vault-0.vault-vault-internal:8200"
-                    leader_client_cert_file = "/vault/tls/tls.crt"
-                    leader_client_key_file = "/vault/tls/tls.key"
-                    leader_tls_servername = "vault.dev.bigbang.mil"
-                  }
-                }
-
-                seal "awskms" {
-                  region     = "us-gov-west-1"
-                  kms_key_id = "mrk-ff723da024254ea2b7f490c68fbc9b9b"
-                  endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
-                }
-
-                telemetry {
-                  prometheus_retention_time = "24h"
-                  disable_hostname = true
-                }
-                service_registration "kubernetes" {}
 
       istio:
         hardened:
@@ -2667,34 +2652,35 @@ addons:
                       - monitoring
       minio:
         enabled: true
-        tenant:
-          pools:
-          - name: pool-0
-            labels:
-              app: minio
-              app.kubernetes.io/name: minio
-            servers: 1
-            volumesPerServer: 4
-            size: 256Mi
-            resources:
-              requests:
-                cpu: 250m
-                memory: 2Gi
-              limits:
-                cpu: 250m
-                memory: 2Gi
-            securityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              fsGroup: 1001
-              runAsNonRoot: true
-            containerSecurityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              runAsNonRoot: true
-              capabilities:
-                drop:
-                  - ALL
+        upstream:
+          tenant:
+            pools:
+            - name: pool-0
+              labels:
+                app: minio
+                app.kubernetes.io/name: minio
+              servers: 1
+              volumesPerServer: 4
+              size: 256Mi
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 2Gi
+                limits:
+                  cpu: 250m
+                  memory: 2Gi
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                fsGroup: 1001
+                runAsNonRoot: true
+              containerSecurityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
       storegateway:
         enabled: true
       compactor:

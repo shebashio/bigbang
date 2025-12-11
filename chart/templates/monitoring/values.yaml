@@ -105,7 +105,7 @@ networkPolicies:
       alertmanager:9093:
         from:
           k8s:
-            authservice/haproxy: {{ .Values.addons.haproxy.enabled }}
+            authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
           definition:
@@ -122,7 +122,7 @@ networkPolicies:
             gateway: {{ .Values.istioGateway.enabled }}
           k8s:
             tempo/tempo: {{ .Values.tempo.enabled }}
-            authservice/haproxy: {{ .Values.addons.haproxy.enabled }}
+            authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
             kiali/kiali: {{ .Values.kiali.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
@@ -282,14 +282,6 @@ upstream:
       {{- end }}
     thanosServiceMonitor:
       enabled: true
-      {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-      {{- end }}
     {{- end }}
     prometheusSpec:
       {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
