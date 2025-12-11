@@ -65,11 +65,11 @@ istio:
 
 upstream:
   {{- if .Values.kiali.enabled }}
-  # Set canonical name to match K8s service name for Kiali trace correlation
+  # Set canonical name to match Tempo service name for Kiali trace correlation
   # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
   alloy:
     extraLabels:
-      service.istio.io/canonical-name: alloy-alloy
+      service.istio.io/canonical-name: alloy-alloy-logs
   {{- end }}
   destinations:
     {{- if and $alloyLogsEnabled .Values.loki.enabled }}

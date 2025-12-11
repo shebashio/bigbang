@@ -31,7 +31,7 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
     {{- if .Values.kiali.enabled }}
-    # Set canonical name to match K8s service name for Kiali trace correlation
+    # Set canonical name to match Tempo service name for Kiali trace correlation
     # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
     extraLabels:
       service.istio.io/canonical-name: vault-vault-agent-injector
@@ -45,7 +45,7 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
     {{- if .Values.kiali.enabled }}
-    # Set canonical name to match K8s service name for Kiali trace correlation
+    # Set canonical name to match Tempo service name for Kiali trace correlation
     # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
     extraLabels:
       service.istio.io/canonical-name: vault-vault
