@@ -29,21 +29,18 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-
   ingress:
     to:
       alloy-logs:12345:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus:
-              enabled: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       # alloy-receiver ingress (is this used by default?)
       alloy-receiver:4317:
         from:
           k8s:
             "*/*":
               enabled: false
-
   egress:
     definitions:
       kubeAPI:
@@ -55,18 +52,10 @@ networkPolicies:
         to:
           k8s:
             # Loki egress: namespace with app.kubernetes.io/name=logging, pod with app.kubernetes.io/name=logging-loki, port 3100
-            "logging/logging-loki:3100":
-              enabled: {{ .Values.loki.enabled }}
-              namespaceSelector:
-                matchLabels:
-                  app.kubernetes.io/name: logging
-              podSelector:
-                matchLabels:
-                  app.kubernetes.io/name: logging-loki
+            logging/logging-loki:3100: {{ .Values.loki.enabled }}
       alloy:
         to:
-          tempo/tempo:4317:
-            enabled: {{ .Values.tempo.enabled }}
+          tempo/tempo:4317: {{ .Values.tempo.enabled }}
 istio:
   enabled: {{ $istioEnabled }}
 
