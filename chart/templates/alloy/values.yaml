@@ -29,6 +29,9 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "ztunnel" "enabled" false .Values }}
   ingress:
     to:
       alloy-logs:12345:
