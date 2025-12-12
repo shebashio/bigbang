@@ -35,12 +35,6 @@ networkPolicies:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-      # alloy-receiver ingress (is this used by default?)
-      alloy-receiver:4317:
-        from:
-          k8s:
-            "*/*":
-              enabled: false
   egress:
     definitions:
       kubeAPI:
