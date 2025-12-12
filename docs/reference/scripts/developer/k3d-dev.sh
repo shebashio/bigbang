@@ -863,6 +863,11 @@ function print_instructions {
   fi
   echo
 
+  echo "Access Virtual Services over SSM Forwarding:"
+  echo
+  echo "sudo -E aws ssm start-session --target $InstId --profile $AWS_PROFILE --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{\"host\":[\"172.20.1.241\"],\"portNumber\":[\"443\"],\"localPortNumber\":[\"443\"]}'"
+  echo
+  
   if [[ "$METAL_LB" == true ]] ; then     # using MetalLB
     if [[ "$PRIVATE_IP" == true ]]; then # using MetalLB and private IP
       echo "Start sshuttle in a separate terminal window:"
@@ -1096,6 +1101,7 @@ EOF
     --instance-initiated-shutdown-behavior "terminate" \
     --block-device-mappings file://${TMPDIR}/device_mappings.json \
     --instance-market-options file://${TMPDIR}/spot_options.json \
+    --iam-instance-profile "Name=AmazonSSMRoleForInstancesQuickSetup" \
     ${additional_create_instance_options} |
     jq -r '.Instances[0].InstanceId')
 
