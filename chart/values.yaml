@@ -2393,6 +2393,23 @@ packages:
     # @default -- true
     enabled: false
 
+    # -- Enable BigBang maintained package integration. When true, automatically injects:
+    # - domain: from global BigBang domain
+    # - istio.enabled: from istiod.enabled
+    # - istio.hardened.enabled: from global or package-level setting
+    # - istio.injection: auto-enabled when istiod is enabled
+    # - istio.<package>.gateways: from ingress.gateway setting
+    # - monitoring.enabled: from global monitoring.enabled
+    # - monitoring.serviceMonitor: TLS config when istio+monitoring enabled
+    # - networkPolicies.enabled: from global networkPolicies.enabled
+    # - networkPolicies.ingressLabels: from gateway selector
+    # - openshift: from global openshift setting
+    # - podAnnotations: istio proxy annotations when istio enabled
+    # This flag should be used for packages from the BigBang maintained track that have
+    # BigBang integration templates (istio, network policies, monitoring, etc.)
+    # @default -- false
+    bb_maintained: false
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 

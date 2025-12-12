@@ -4,6 +4,12 @@
 {{- range $pkg, $vals := .Values.packages -}}
 {{- if and (dig "enabled" true $vals) (dig "namespace" "create" true $vals) -}}
 {{- $pkg = include "resourceName" $pkg -}}
+{{- /* BB Maintained: Auto-enable istio injection when flag is true and istiod is enabled */ -}}
+{{- $bbMaintained := dig "bb_maintained" false $vals -}}
+{{- $istioInjection := dig "istio" "injection" "enabled" $vals -}}
+{{- if and $bbMaintained $istioEnabled (not (dig "istio" "injection" nil $vals)) -}}
+{{- $istioInjection = "enabled" -}}
+{{- end -}}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -12,7 +18,7 @@ metadata:
     app.kubernetes.io/name: {{ $pkg }}
     {{- include "commonLabels" $ | nindent 4 }}
     {{- if $istioEnabled }}
-    istio-injection: {{ tpl ((dig "istio" "injection" "enabled" $vals)) $ }}
+    istio-injection: {{ tpl $istioInjection $ }}
     {{- end }}
     {{- if (dig "namespace" "labels" nil $vals) -}}
     {{- toYaml $vals.namespace.labels | nindent 4 -}}

@@ -59,9 +59,18 @@ spec:
       interval: {{ default "5m" $fluxSettings.interval }}
       reconcileStrategy: Revision
   {{- toYaml $fluxSettings | nindent 2 }}
-  {{- if $vals.postRenderers }}
+  {{- /* BB Maintained: Extract postRenderers from package values.bb.postRenderers */ -}}
+  {{- $bbMaintained := dig "bb_maintained" false $vals -}}
+  {{- $bbPostRenderers := list -}}
+  {{- if $bbMaintained -}}
+  {{- $bbPostRenderers = dig "values" "bb" "postRenderers" list $vals -}}
+  {{- end -}}
+  {{- /* User-provided postRenderers override/append */ -}}
+  {{- $userPostRenderers := dig "postRenderers" list $vals -}}
+  {{- $allPostRenderers := concat $bbPostRenderers $userPostRenderers -}}
+  {{- if $allPostRenderers }}
   postRenderers:
-  {{- toYaml $vals.postRenderers | nindent 4 }}
+  {{- toYaml $allPostRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ $pkg }}-values
@@ -70,9 +79,14 @@ spec:
   {{- /* Always wait on policy enforcement */ -}}
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
   {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
-  {{- /* Wait on istio if sidecar is enabled */ -}}
-  {{- $istioDep := (and $istioEnabled (eq "enabled" (dig "istio" "injection" "enabled" $vals))) -}}
-  {{- if or $gatekeeperDep $kyvernoDep $istioDep $vals.dependsOn }}
+  {{- /* BB Maintained: Auto-enable istio dependency when flag is true */ -}}
+  {{- $bbMaintained := dig "bb_maintained" false $vals -}}
+  {{- /* Wait on istio if sidecar is enabled or bb_maintained is true */ -}}
+  {{- $istioInjectionEnabled := eq "enabled" (dig "istio" "injection" "enabled" $vals) -}}
+  {{- $istioDep := and $istioEnabled (or $istioInjectionEnabled $bbMaintained) -}}
+  {{- /* BB Maintained: Add monitoring dependency when enabled */ -}}
+  {{- $monitoringDep := and $bbMaintained $.Values.monitoring.enabled -}}
+  {{- if or $gatekeeperDep $kyvernoDep $istioDep $monitoringDep $vals.dependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}
     - name: gatekeeper
@@ -84,6 +98,10 @@ spec:
     {{- end }}
     {{- if $istioDep }}
     - name: {{ include "istioHelmRelease" $ }}
+      namespace: {{ default "bigbang" $.Release.namespace }}
+    {{- end }}
+    {{- if $monitoringDep }}
+    - name: monitoring
       namespace: {{ default "bigbang" $.Release.namespace }}
     {{- end }}
     {{- if $vals.dependsOn }}
