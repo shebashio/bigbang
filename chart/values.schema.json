@@ -1372,6 +1372,11 @@
             "type": "boolean",
             "default": true
           },
+          "bb_maintained": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable BigBang maintained package integration. When true, automatically injects istio, monitoring, networkPolicies values and extracts postRenderers from values.bb.postRenderers."
+          },
           "kustomize": {
             "type": "boolean",
             "default": false
