@@ -1,0 +1,30 @@
+# Default configuration for nxrm-ha package
+# __PKG__ is replaced with the actual package name at template time
+
+# Package values (merged into package config)
+package: {}
+
+# PostRenderers (only applied when bb_maintained: true)
+# Separate from package so values.yaml doesn't pick them up
+postRenderers:
+  - kustomize:
+      patches:
+        # Add app label for Prometheus ServiceMonitor compatibility
+        - patch: |
+            - op: add
+              path: /metadata/labels/app
+              value: __PKG__
+            - op: replace
+              path: /spec/ports/0/name
+              value: http-nexus-ui
+          target:
+            kind: Service
+            name: __PKG__
+        # Patch headless service port name
+        - patch: |
+            - op: replace
+              path: /spec/ports/0/name
+              value: http-nexus-ui
+          target:
+            kind: Service
+            name: __PKG__-hl
