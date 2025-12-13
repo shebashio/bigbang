@@ -2,9 +2,28 @@
 {{- range $pkg, $vals := .Values.packages -}}
 {{- if and (dig "enabled" true $vals) (not $vals.kustomize) -}}
 {{- $pkg := include "resourceName" $pkg -}}
-{{- $defaults := $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
+{{- /* BB Maintained: Load defaults by git repo name when bb_maintained is true */ -}}
+{{- $bbMaintained := dig "bb_maintained" false $vals -}}
+{{- $defaultPostRenderers := list -}}
+{{- if $bbMaintained -}}
+{{- $repoName := "" -}}
+{{- if $vals.git -}}
+{{- $repoName = regexReplaceAll ".*/([^/]+)\\.git$" (dig "git" "repo" "" $vals) "${1}" -}}
+{{- end -}}
+{{- $defaults := "" -}}
+{{- if $repoName -}}
+{{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $repoName) -}}
+{{- end -}}
+{{- if not $defaults -}}
+{{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
+{{- end -}}
 {{- if $defaults -}}
-{{- $vals := mergeOverwrite $vals ($defaults | fromYaml).package -}}
+{{- /* Replace __PKG__ placeholder with actual package name for dynamic targeting */ -}}
+{{- $defaults = replace "__PKG__" $pkg $defaults -}}
+{{- $parsedDefaults := $defaults | fromYaml -}}
+{{- $vals = mergeOverwrite $vals (dig "package" dict $parsedDefaults) -}}
+{{- $defaultPostRenderers = dig "postRenderers" list $parsedDefaults -}}
+{{- end -}}
 {{- end -}}
 
 {{- $fluxSettings := merge (default $vals.flux (dict)) $.Values.flux -}}
@@ -59,15 +78,9 @@ spec:
       interval: {{ default "5m" $fluxSettings.interval }}
       reconcileStrategy: Revision
   {{- toYaml $fluxSettings | nindent 2 }}
-  {{- /* BB Maintained: Extract postRenderers from package values.bb.postRenderers */ -}}
-  {{- $bbMaintained := dig "bb_maintained" false $vals -}}
-  {{- $bbPostRenderers := list -}}
-  {{- if $bbMaintained -}}
-  {{- $bbPostRenderers = dig "values" "bb" "postRenderers" list $vals -}}
-  {{- end -}}
-  {{- /* User-provided postRenderers override/append */ -}}
+  {{- /* PostRenderers: defaults (from defaults file) + user-provided */ -}}
   {{- $userPostRenderers := dig "postRenderers" list $vals -}}
-  {{- $allPostRenderers := concat $bbPostRenderers $userPostRenderers -}}
+  {{- $allPostRenderers := concat $defaultPostRenderers $userPostRenderers -}}
   {{- if $allPostRenderers }}
   postRenderers:
   {{- toYaml $allPostRenderers | nindent 4 }}
