@@ -32,44 +32,37 @@ stringData:
     bigbang:
       {{- include "values-bigbang" $.Values | nindent 6 }}
     {{- end }}
-    {{- /* BB Maintained: Inject addon-like values when flag is true */ -}}
+    {{- /* BB Maintained: Merge package values with injected values, bb_maintained takes precedence */ -}}
     {{- if $bbMaintained }}
-    # Auto-injected by BigBang for bb_maintained packages
-    domain: {{ $domainName }}
-    openshift: {{ $.Values.openshift }}
-    istio:
-      enabled: {{ $istioEnabled }}
-      hardened:
-        enabled: {{ $hardenedEnabled }}
-      injection: {{ dig "istio" "injection" "enabled" $vals }}
-      {{ $pkg }}:
-        gateways:
-          - {{ include "getGatewayName" (dict "gateway" (dig "ingress" "gateway" "" $vals) "root" $) }}
-    monitoring:
-      enabled: {{ $.Values.monitoring.enabled }}
-      {{- if and $istioEnabled $.Values.monitoring.enabled }}
-      serviceMonitor:
-        scheme: https
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true
-      {{- end }}
-    networkPolicies:
-      enabled: {{ $.Values.networkPolicies.enabled }}
-      ingressLabels:
-        {{- $pkgIngress := dict "ingress" (dict "gateway" (dig "ingress" "gateway" "" $vals)) -}}
-        {{- include "getGatewaySelector" (dict "pkg" $pkgIngress "root" $) | nindent 8 }}
-      istioNamespaceSelector:
-        {{- include "istioNamespaceSelector" $ | nindent 8 }}
-    {{- if $istioEnabled }}
-    podAnnotations:
-      {{ include "istioAnnotation" $ }}
-    {{- end }}
-    {{- end }}
+    {{- /* Start with package values as base */ -}}
+    {{- $mergedValues := $vals.values | default dict -}}
+    {{- /* Build bb_maintained injected values */ -}}
+    {{- $bbIstio := dict "enabled" $istioEnabled "hardened" (dict "enabled" $hardenedEnabled) "injection" (dig "istio" "injection" "enabled" $vals) $pkg (dict "gateways" (list (include "getGatewayName" (dict "gateway" (dig "ingress" "gateway" "" $vals) "root" $)))) -}}
+    {{- $bbMonitoring := dict "enabled" $.Values.monitoring.enabled -}}
+    {{- if and $istioEnabled $.Values.monitoring.enabled -}}
+    {{- $bbMonitoring = merge $bbMonitoring (dict "serviceMonitor" (dict "scheme" "https" "tlsConfig" (dict "caFile" "/etc/prom-certs/root-cert.pem" "certFile" "/etc/prom-certs/cert-chain.pem" "keyFile" "/etc/prom-certs/key.pem" "insecureSkipVerify" true))) -}}
+    {{- end -}}
+    {{- $pkgIngress := dict "ingress" (dict "gateway" (dig "ingress" "gateway" "" $vals)) -}}
+    {{- $bbNetPol := dict "enabled" $.Values.networkPolicies.enabled "ingressLabels" (include "getGatewaySelector" (dict "pkg" $pkgIngress "root" $) | fromYaml) "istioNamespaceSelector" (include "istioNamespaceSelector" $ | fromYaml) -}}
+    {{- $bbValues := dict "domain" $domainName "openshift" $.Values.openshift "istio" $bbIstio "monitoring" $bbMonitoring "networkPolicies" $bbNetPol -}}
+    {{- if $istioEnabled -}}
+    {{- $bbValues = merge $bbValues (dict "podAnnotations" (include "istioAnnotation" $ | fromYaml)) -}}
+    {{- end -}}
+    {{- /* Merge: package values first, then bb_maintained on top (bb_maintained wins for conflicts) */ -}}
+    {{- $mergedValues = mergeOverwrite (deepCopy $mergedValues) $bbValues -}}
+    {{- /* Deep merge istio.hardened to preserve customServiceEntries while ensuring enabled is set */ -}}
+    {{- if and (hasKey $vals.values "istio") (hasKey (index $vals.values "istio") "hardened") -}}
+    {{- $pkgHardened := index (index $vals.values "istio") "hardened" -}}
+    {{- $mergedHardened := mergeOverwrite (deepCopy $pkgHardened) (dict "enabled" $hardenedEnabled) -}}
+    {{- $_ := set (index $mergedValues "istio") "hardened" $mergedHardened -}}
+    {{- end -}}
+    # Auto-injected by BigBang for bb_maintained packages (merged with package values)
+    {{- tpl (toYaml $mergedValues) $ | nindent 4 }}
+    {{- else }}
+    {{- /* Non-bb_maintained: just output package values */ -}}
     {{- if $vals.values -}}
     {{- tpl (toYaml $vals.values) $ | nindent 4 }}
+    {{- end }}
     {{- end }}
   {{ else }}
   values.yaml: "{}"
@@ -82,44 +75,37 @@ stringData:
   bigbang:
     {{- include "values-bigbang" $.Values | nindent 6 }}
   {{- end }}
-  {{- /* BB Maintained: Inject addon-like values when flag is true (kustomize path) */ -}}
+  {{- /* BB Maintained: Merge package values with injected values (kustomize path) */ -}}
   {{- if $bbMaintained }}
-  # Auto-injected by BigBang for bb_maintained packages
-  domain: {{ $domainName }}
-  openshift: {{ $.Values.openshift }}
-  istio:
-    enabled: {{ $istioEnabled }}
-    hardened:
-      enabled: {{ $hardenedEnabled }}
-    injection: {{ dig "istio" "injection" "enabled" $vals }}
-    {{ $pkg }}:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" (dig "ingress" "gateway" "" $vals) "root" $) }}
-  monitoring:
-    enabled: {{ $.Values.monitoring.enabled }}
-    {{- if and $istioEnabled $.Values.monitoring.enabled }}
-    serviceMonitor:
-      scheme: https
-      tlsConfig:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true
-    {{- end }}
-  networkPolicies:
-    enabled: {{ $.Values.networkPolicies.enabled }}
-    ingressLabels:
-      {{- $pkgIngress := dict "ingress" (dict "gateway" (dig "ingress" "gateway" "" $vals)) -}}
-      {{- include "getGatewaySelector" (dict "pkg" $pkgIngress "root" $) | nindent 6 }}
-    istioNamespaceSelector:
-      {{- include "istioNamespaceSelector" $ | nindent 6 }}
-  {{- if $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" $ }}
-  {{- end }}
-  {{- end }}
+  {{- /* Start with package values as base */ -}}
+  {{- $mergedValues := $vals.values | default dict -}}
+  {{- /* Build bb_maintained injected values */ -}}
+  {{- $bbIstio := dict "enabled" $istioEnabled "hardened" (dict "enabled" $hardenedEnabled) "injection" (dig "istio" "injection" "enabled" $vals) $pkg (dict "gateways" (list (include "getGatewayName" (dict "gateway" (dig "ingress" "gateway" "" $vals) "root" $)))) -}}
+  {{- $bbMonitoring := dict "enabled" $.Values.monitoring.enabled -}}
+  {{- if and $istioEnabled $.Values.monitoring.enabled -}}
+  {{- $bbMonitoring = merge $bbMonitoring (dict "serviceMonitor" (dict "scheme" "https" "tlsConfig" (dict "caFile" "/etc/prom-certs/root-cert.pem" "certFile" "/etc/prom-certs/cert-chain.pem" "keyFile" "/etc/prom-certs/key.pem" "insecureSkipVerify" true))) -}}
+  {{- end -}}
+  {{- $pkgIngress := dict "ingress" (dict "gateway" (dig "ingress" "gateway" "" $vals)) -}}
+  {{- $bbNetPol := dict "enabled" $.Values.networkPolicies.enabled "ingressLabels" (include "getGatewaySelector" (dict "pkg" $pkgIngress "root" $) | fromYaml) "istioNamespaceSelector" (include "istioNamespaceSelector" $ | fromYaml) -}}
+  {{- $bbValues := dict "domain" $domainName "openshift" $.Values.openshift "istio" $bbIstio "monitoring" $bbMonitoring "networkPolicies" $bbNetPol -}}
+  {{- if $istioEnabled -}}
+  {{- $bbValues = merge $bbValues (dict "podAnnotations" (include "istioAnnotation" $ | fromYaml)) -}}
+  {{- end -}}
+  {{- /* Merge: package values first, then bb_maintained on top (bb_maintained wins for conflicts) */ -}}
+  {{- $mergedValues = mergeOverwrite (deepCopy $mergedValues) $bbValues -}}
+  {{- /* Deep merge istio.hardened to preserve customServiceEntries while ensuring enabled is set */ -}}
+  {{- if and (hasKey $vals.values "istio") (hasKey (index $vals.values "istio") "hardened") -}}
+  {{- $pkgHardened := index (index $vals.values "istio") "hardened" -}}
+  {{- $mergedHardened := mergeOverwrite (deepCopy $pkgHardened) (dict "enabled" $hardenedEnabled) -}}
+  {{- $_ := set (index $mergedValues "istio") "hardened" $mergedHardened -}}
+  {{- end -}}
+  # Auto-injected by BigBang for bb_maintained packages (merged with package values)
+  {{- tpl (toYaml $mergedValues) $ | nindent 2 }}
+  {{- else }}
+  {{- /* Non-bb_maintained: just output package values */ -}}
   {{- if $vals.values -}}
   {{- tpl (toYaml $vals.values) $ | nindent 2 }}
+  {{- end }}
   {{- end }}
   {{- else }}
   {}
