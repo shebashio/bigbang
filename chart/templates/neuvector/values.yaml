@@ -37,7 +37,14 @@ routes:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  
+
+  egress:
+    definitions:
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
