@@ -12,7 +12,7 @@
 {{- define "bigbang.defaults.alloy" -}}
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.alloy.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.alloy.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.alloy.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
 {{- $lokiServiceMap := dict
     "monolith" "logging-loki"
