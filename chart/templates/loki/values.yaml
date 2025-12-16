@@ -4,6 +4,7 @@
 {{- if .Values.loki.values -}}
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.loki.values) | fromYaml -}}
 {{- $lokiPackage = set $lokiPackage "values" $cleanedValues -}}
+{{- end -}}
 {{- include "values-secret" (dict "root" $ "package" $lokiPackage "name" "loki" "defaults" (include "bigbang.defaults.loki" .)) }}
 {{- end }}
 
@@ -55,6 +56,10 @@ networkPolicies:
     definitions:
       storage-subnets:
         {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     from:
       logging-loki:
         to:
@@ -68,7 +73,7 @@ networkPolicies:
             minio-operator/minio-operator:4222: {{ $minioEnabled }}
           definition:
             storage-subnets: {{ $minioEnabled }}
-
+            kubeAPI: {{ $minioEnabled }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
   serviceMonitor:
