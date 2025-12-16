@@ -54,10 +54,14 @@ networkPolicies:
             fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.fluentbit.enabled }}
             monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-      logging-loki:80:
+      logging-loki:8080:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/component: gateway
         from:
           k8s:
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
+            monitoring-grafana@monitoring/grafana: 
+              enabled: {{ .Values.grafana.enabled }}
       minio:9000:
         from:
           k8s:
