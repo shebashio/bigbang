@@ -30,6 +30,12 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
 
+routes:
+  inbound:
+    loki:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+
 imagePullSecrets:
   - name: private-registry
 
