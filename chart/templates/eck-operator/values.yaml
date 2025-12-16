@@ -1,16 +1,18 @@
 {{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
 
-{{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
-{{- $eckOperatorPackage := deepCopy .Values.eckOperator -}}
-{{- if .Values.eckOperator.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.eckOperator.values) | fromYaml -}}
-{{- $eckOperatorPackage = set $eckOperatorPackage "values" $cleanedValues -}}
+  {{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
+  {{- $eckOperatorPackage := deepCopy .Values.eckOperator -}}
+  {{- if .Values.eckOperator.values -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.eckOperator.values) | fromYaml -}}
+    {{- $eckOperatorPackage = set $eckOperatorPackage "values" $cleanedValues -}}
+  {{- end }}
 
 {{- include "values-secret" (dict "root" $ "package" $eckOperatorPackage "name" "eck-operator" "defaults" (include "bigbang.defaults.eck-operator" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.eck-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.eckOperator.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 license:
   trial: {{ .Values.elasticsearchKibana.license.trial }}
   keyJSON: |
