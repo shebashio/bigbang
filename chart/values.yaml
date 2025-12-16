@@ -625,11 +625,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.34.0-bb.0"
+    tag: "1.34.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.34.0-bb.0"
+    tag: "1.34.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -1010,11 +1010,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "79.11.0-bb.0"
+    tag: "80.4.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "79.11.0-bb.0"
+    tag: "80.4.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -2103,11 +2103,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.13.0-bb.3"
+      tag: "3.13.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.13.0-bb.3"
+      tag: "3.13.0-bb.4"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
