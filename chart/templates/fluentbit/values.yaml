@@ -72,8 +72,6 @@ upstream:
   {{- end }}
 
   {{- if .Values.kiali.enabled }}
-  # Set canonical name to match Tempo service name for Kiali trace correlation
-  # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
   podLabels:
     service.istio.io/canonical-name: fluentbit-fluent-bit
   {{- end }}

@@ -253,8 +253,6 @@ upstream:
         {{- $alertmanagerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
         labels:
           {{- if .Values.kiali.enabled }}
-          # Set canonical name to match Tempo service name for Kiali trace correlation
-          # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
           service.istio.io/canonical-name: alertmanager
           {{- end }}
           {{- if .Values.monitoring.sso.enabled }}
@@ -385,8 +383,6 @@ upstream:
         labels:
           app: prometheus
           {{- if .Values.kiali.enabled }}
-          # Set canonical name to match Tempo service name for Kiali trace correlation
-          # See: https://repo1.dso.mil/big-bang/bigbang/-/issues/2762
           service.istio.io/canonical-name: prometheus
           {{- end }}
           {{- if .Values.monitoring.sso.enabled }}
