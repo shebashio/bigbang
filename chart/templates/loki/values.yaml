@@ -35,6 +35,21 @@ routes:
     loki:
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+      hosts:
+        - loki.{{ .Values.domain }}
+      {{- if ne .Values.loki.strategy "monolith" }}
+      service: logging-loki-gateway.logging.svc.cluster.local
+      port: {{ dig "gateway" "service" "port" 80 .Values.loki.values }}
+      {{- else }}
+      service: logging-loki.logging.svc.cluster.local
+      port: {{ dig "loki" "server" "http_listen_port" 3100 .Values.loki.values }}
+      {{- end }}
+      selector:
+        app.kubernetes.io/name: logging-loki
+        # Be more specific when using a distributed so simple scalable deployment mode
+        {{- if ne .Values.loki.strategy "monolith" }}
+        app.kubernetes.io/component: gateway
+        {{- end }}
 
 imagePullSecrets:
   - name: private-registry
@@ -55,7 +70,7 @@ networkPolicies:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
             fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.fluentbit.enabled }}
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (eq .Values.loki.strategy "monolith") }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       logging-loki:8080:
         podSelector:
@@ -65,7 +80,7 @@ networkPolicies:
         from:
           k8s:
             monitoring-grafana@monitoring/grafana: 
-              enabled: {{ .Values.grafana.enabled }}
+              enabled: {{ and .Values.grafana.enabled (ne .Values.loki.strategy "monolith") }}
       minio:9000:
         from:
           k8s:
