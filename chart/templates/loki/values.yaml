@@ -44,6 +44,9 @@ image:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
     to:
       logging-loki:3100:
@@ -57,6 +60,7 @@ networkPolicies:
       logging-loki:8080:
         podSelector:
           matchLabels:
+            app.kubernetes.io/name: logging-loki
             app.kubernetes.io/component: gateway
         from:
           k8s:
