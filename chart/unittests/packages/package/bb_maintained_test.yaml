@@ -19,7 +19,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - hasDocuments:
           count: 1
@@ -46,7 +46,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].patch
@@ -70,7 +70,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - notExists:
           path: spec.postRenderers
@@ -89,7 +89,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - notExists:
           path: spec.postRenderers
@@ -109,7 +109,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
           postRenderers:
             - kustomize:
                 patches:
@@ -150,7 +150,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       # Should find defaults/nxrm-ha.yaml even though package name is my-custom-name
       - exists:
@@ -175,7 +175,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/packages/nonexistent.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       # No defaults file for 'nonexistent' or 'sample', so no postRenderers
       - notExists:
@@ -196,7 +196,7 @@ tests:
           helmRepo:
             repoName: registry1
             chartName: nxrm-ha
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       # Should find defaults/nxrm-ha.yaml via helmRepo.chartName
       - exists:
@@ -224,7 +224,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - contains:
           path: spec.dependsOn
@@ -247,7 +247,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - contains:
           path: spec.dependsOn
@@ -270,7 +270,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - notContains:
           path: spec.dependsOn
@@ -299,7 +299,7 @@ tests:
           git:
             repo: https://repo1.dso.mil/some/repo.git
             path: "./chart"
-            tag: "1.0.0"
+            tag: "87.1.0-bb.0"
     asserts:
       - notExists:
           path: spec.dependsOn
