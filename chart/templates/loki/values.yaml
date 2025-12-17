@@ -72,15 +72,14 @@ networkPolicies:
             fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.fluentbit.enabled }}
             monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (eq .Values.loki.strategy "monolith") }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-      logging-loki:8080:
+      loki:8080:
         podSelector:
           matchLabels:
             app.kubernetes.io/name: logging-loki
             app.kubernetes.io/component: gateway
         from:
           k8s:
-            monitoring-grafana@monitoring/grafana: 
-              enabled: {{ and .Values.grafana.enabled (ne .Values.loki.strategy "monolith") }}
+            monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (ne .Values.loki.strategy "monolith") }}
       minio:9000:
         from:
           k8s:
