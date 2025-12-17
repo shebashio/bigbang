@@ -177,7 +177,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
       path: "./chart"
-      tag: "1.0.0"
+      tag: "87.1.0-bb.0"
     ingress:
       gateway: "public"
     values:
