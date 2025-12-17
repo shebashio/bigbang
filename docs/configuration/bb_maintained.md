@@ -39,10 +39,21 @@ When `bb_maintained: true`, the following values are automatically injected into
 | `istio.injection` | Package config | Sidecar injection setting |
 | `istio.<pkg>.gateways` | Computed | Gateway configuration |
 | `monitoring.enabled` | `$.Values.monitoring.enabled` | Monitoring enabled state |
-| `monitoring.serviceMonitor` | Computed | mTLS config when istio+monitoring enabled |
+| `monitoring.serviceMonitor.createMetricsUser` | `true` when monitoring enabled | Enables Prometheus authentication for metrics scraping |
+| `monitoring.serviceMonitor.scheme` | `https` when istio+monitoring enabled | mTLS scheme for ServiceMonitor |
+| `monitoring.serviceMonitor.tlsConfig` | Computed | mTLS certificates config when istio+monitoring enabled |
 | `networkPolicies.enabled` | `$.Values.networkPolicies.enabled` | Network policies state |
 | `networkPolicies.ingressLabels` | Computed | Gateway selector labels |
 | `podAnnotations` | Computed | Istio proxy annotations |
+
+### Monitoring Integration
+
+When `monitoring.enabled: true`, BigBang automatically configures packages for Prometheus scraping:
+
+- **`createMetricsUser: true`** - For packages like Nexus that require authentication, this creates a dedicated metrics user allowing Prometheus to authenticate and scrape metrics without 403 errors
+- **mTLS configuration** - When istio is also enabled, the ServiceMonitor is configured with proper mTLS settings (scheme: https, tlsConfig with certificates)
+
+This provides **addon parity** - bb_maintained packages receive the same automatic monitoring configuration as built-in BigBang addons.
 
 ### Value Precedence
 
