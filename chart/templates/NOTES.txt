@@ -209,7 +209,19 @@ DEPRECATION NOTICE:
 {{- if .Values.addons.nexus }}
 DEPRECATION NOTICE:
   .Values.addons.nexus has been deprecated and will be removed in a future Big Bang release.
-  Please reconfigure your values overrides to use .Values.addons.nexusRepositoryManager
+  Please reconfigure your values overrides to use .Values.packages.nxrm-ha with bb_maintained: true
+  For migration guidance, see:
+    - OSS Migration: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha/-/blob/main/docs/migration-oss.md
+    - Pro Migration: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha/-/blob/main/docs/migration-pro.md
+{{- end }}
+
+{{- if .Values.addons.nexusRepositoryManager.enabled }}
+DEPRECATION NOTICE:
+  .Values.addons.nexusRepositoryManager has been deprecated and will be removed in a future Big Bang release.
+  Please reconfigure your values overrides to use .Values.packages.nxrm-ha with bb_maintained: true
+  For migration guidance, see:
+    - OSS Migration: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha/-/blob/main/docs/migration-oss.md
+    - Pro Migration: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha/-/blob/main/docs/migration-pro.md
 {{- end }}
 
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
