@@ -2,18 +2,27 @@
 {{- range $pkg, $vals := .Values.packages -}}
 {{- if and (dig "enabled" true $vals) (not $vals.kustomize) -}}
 {{- $pkg := include "resourceName" $pkg -}}
-{{- /* BB Maintained: Load defaults by git repo name when bb_maintained is true */ -}}
+{{- /* BB Maintained: Load defaults by repo name when bb_maintained is true */ -}}
+{{- /* Fallback order: git repo name -> helmRepo chartName -> package key */ -}}
 {{- $bbMaintained := dig "bb_maintained" false $vals -}}
 {{- $defaultPostRenderers := list -}}
 {{- if $bbMaintained -}}
-{{- $repoName := "" -}}
-{{- if $vals.git -}}
-{{- $repoName = regexReplaceAll ".*/([^/]+)\\.git$" (dig "git" "repo" "" $vals) "${1}" -}}
-{{- end -}}
 {{- $defaults := "" -}}
+{{- /* Try git repo name first */ -}}
+{{- if and (not $defaults) $vals.git -}}
+{{- $repoName := regexReplaceAll ".*/([^/]+)\\.git$" (dig "git" "repo" "" $vals) "${1}" -}}
 {{- if $repoName -}}
 {{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $repoName) -}}
 {{- end -}}
+{{- end -}}
+{{- /* Try helmRepo chartName second */ -}}
+{{- if and (not $defaults) $vals.helmRepo -}}
+{{- $chartName := dig "helmRepo" "chartName" "" $vals -}}
+{{- if $chartName -}}
+{{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $chartName) -}}
+{{- end -}}
+{{- end -}}
+{{- /* Fallback to package key name */ -}}
 {{- if not $defaults -}}
 {{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
 {{- end -}}

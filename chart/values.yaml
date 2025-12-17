@@ -2393,20 +2393,10 @@ packages:
     # @default -- true
     enabled: false
 
-    # -- Enable BigBang team maintained package integration. For packages that are maintained by the team and hosted on repo1 under https://repo1.dso.mil/big-bang/product/maintained. When true, automatically injects:
-    # - domain: from global BigBang domain
-    # - istio.enabled: from istiod.enabled
-    # - istio.hardened.enabled: from global or package-level setting
-    # - istio.injection: auto-enabled when istiod is enabled
-    # - istio.<package>.gateways: from ingress.gateway setting
-    # - monitoring.enabled: from global monitoring.enabled
-    # - monitoring.serviceMonitor: TLS config when istio+monitoring enabled
-    # - networkPolicies.enabled: from global networkPolicies.enabled
-    # - networkPolicies.ingressLabels: from gateway selector
-    # - openshift: from global openshift setting
-    # - podAnnotations: istio proxy annotations when istio enabled
-    # This flag should be used for packages from the BigBang maintained track that have
-    # BigBang integration templates (istio, network policies, monitoring, etc.)
+    # -- Enable BigBang maintained package integration. Automatically injects infrastructure values
+    # (domain, istio, monitoring, networkPolicies) and applies package-specific postRenderers.
+    # Use for packages from https://repo1.dso.mil/big-bang/product/maintained
+    # See docs/configuration/bb_maintained.md for full documentation.
     # @default -- false
     bb_maintained: false
 

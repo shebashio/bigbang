@@ -1,0 +1,305 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - BB Maintained Tests
+tests:
+  # ===========================================
+  # PostRenderers from defaults file
+  # ===========================================
+  - it: should load postRenderers from defaults file when bb_maintained is true
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HelmRelease
+      - exists:
+          path: spec.postRenderers
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "nxrm-ha"
+
+  - it: should replace __PKG__ placeholder with package name in postRenderers
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: "value: nxrm-ha"
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "^nxrm-ha$"
+
+  - it: should NOT load postRenderers when bb_maintained is false
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: false
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - notExists:
+          path: spec.postRenderers
+
+  - it: should NOT load postRenderers when bb_maintained is not set
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - notExists:
+          path: spec.postRenderers
+
+  - it: should combine default postRenderers with user postRenderers
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+          postRenderers:
+            - kustomize:
+                patches:
+                  - patch: |
+                      - op: add
+                        path: /metadata/labels/custom
+                        value: user-value
+                    target:
+                      kind: ConfigMap
+                      name: user-configmap
+    asserts:
+      - exists:
+          path: spec.postRenderers
+      # Default postRenderers should be first
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "nxrm-ha"
+      # User postRenderers should be appended
+      - equal:
+          path: spec.postRenderers[1].kustomize.patches[0].target.name
+          value: user-configmap
+
+  # ===========================================
+  # Defaults file lookup by git repo name
+  # ===========================================
+  - it: should lookup defaults by git repo name extracted from URL
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        my-custom-name:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      # Should find defaults/nxrm-ha.yaml even though package name is my-custom-name
+      - exists:
+          path: spec.postRenderers
+      # __PKG__ should be replaced with the actual package name (my-custom-name)
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "my-custom-name"
+
+  - it: should fallback to package name when git repo name defaults file not found
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        sample:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/nonexistent.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      # No defaults file for 'nonexistent' or 'sample', so no postRenderers
+      - notExists:
+          path: spec.postRenderers
+
+  - it: should lookup defaults by helmRepo chartName for OCI sources
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        my-oci-package:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          helmRepo:
+            repoName: registry1
+            chartName: nxrm-ha
+            tag: "1.0.0"
+    asserts:
+      # Should find defaults/nxrm-ha.yaml via helmRepo.chartName
+      - exists:
+          path: spec.postRenderers
+      # __PKG__ should be replaced with the actual package name (my-oci-package)
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "my-oci-package"
+
+  # ===========================================
+  # Dependencies auto-injection
+  # ===========================================
+  - it: should add istio dependency when bb_maintained is true and istio enabled
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: istiod
+            namespace: bigbang
+
+  - it: should add monitoring dependency when bb_maintained is true and monitoring enabled
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: monitoring
+            namespace: bigbang
+
+  - it: should NOT add monitoring dependency when monitoring is disabled
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: false
+      packages:
+        nxrm-ha:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - notContains:
+          path: spec.dependsOn
+          content:
+            name: monitoring
+            namespace: bigbang
+
+  - it: should NOT add istio dependency when bb_maintained is false and istio injection disabled
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: false
+      kyvernoPolicies:
+        enabled: false
+      gatekeeper:
+        enabled: false
+      packages:
+        sample:
+          enabled: true
+          bb_maintained: false
+          values: {}
+          istio:
+            injection: disabled
+          git:
+            repo: https://repo1.dso.mil/some/repo.git
+            path: "./chart"
+            tag: "1.0.0"
+    asserts:
+      - notExists:
+          path: spec.dependsOn
