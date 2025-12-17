@@ -21,7 +21,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
       path: "./chart"
-      tag: "87.1.0-bb.0"
+      tag: "86.2.0-bb.0"
     values:
       # Your application-specific values here
 ```
@@ -177,7 +177,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha.git
       path: "./chart"
-      tag: "87.1.0-bb.0"
+      tag: "86.2.0-bb.0"
     ingress:
       gateway: "public"
     values:
