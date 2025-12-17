@@ -6,11 +6,13 @@
 {{- /* Fallback order: git repo name -> helmRepo chartName -> package key */ -}}
 {{- $bbMaintained := dig "bb_maintained" false $vals -}}
 {{- $defaultPostRenderers := list -}}
+{{- $repoName := "" -}}
 {{- if $bbMaintained -}}
 {{- $defaults := "" -}}
-{{- /* Try git repo name first */ -}}
+{{- /* Try git repo name first - extract last path segment, handle with or without .git */ -}}
 {{- if and (not $defaults) $vals.git -}}
-{{- $repoName := regexReplaceAll ".*/([^/]+)\\.git$" (dig "git" "repo" "" $vals) "${1}" -}}
+{{- $gitRepo := dig "git" "repo" "" $vals -}}
+{{- $repoName = regexReplaceAll ".*/" $gitRepo "" | trimSuffix ".git" -}}
 {{- if $repoName -}}
 {{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $repoName) -}}
 {{- end -}}
@@ -19,19 +21,26 @@
 {{- if and (not $defaults) $vals.helmRepo -}}
 {{- $chartName := dig "helmRepo" "chartName" "" $vals -}}
 {{- if $chartName -}}
+{{- $repoName = $chartName -}}
 {{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $chartName) -}}
 {{- end -}}
 {{- end -}}
 {{- /* Fallback to package key name */ -}}
+{{- if not $repoName -}}
+{{- $repoName = $pkg -}}
+{{- end -}}
 {{- if not $defaults -}}
 {{- $defaults = $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
 {{- end -}}
+{{- /* Load package values from defaults file */ -}}
 {{- if $defaults -}}
-{{- /* Replace __PKG__ placeholder with actual package name for dynamic targeting */ -}}
-{{- $defaults = replace "__PKG__" $pkg $defaults -}}
 {{- $parsedDefaults := $defaults | fromYaml -}}
 {{- $vals = mergeOverwrite $vals (dig "package" dict $parsedDefaults) -}}
-{{- $defaultPostRenderers = dig "postRenderers" list $parsedDefaults -}}
+{{- end -}}
+{{- /* Load postRenderers from named Helm template */ -}}
+{{- $postRendererYaml := include "bb.postrenderers" (dict "repoName" $repoName "pkg" $pkg) -}}
+{{- if $postRendererYaml -}}
+{{- $defaultPostRenderers = $postRendererYaml | fromYamlArray -}}
 {{- end -}}
 {{- end -}}
 

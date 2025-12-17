@@ -7,7 +7,7 @@ The `bb_maintained` flag enables automatic BigBang integration for packages host
 When `bb_maintained: true` is set on a package, BigBang automatically:
 
 1. **Injects infrastructure values** - domain, istio, monitoring, networkPolicies
-2. **Applies postRenderers** - from package-specific defaults files
+2. **Applies postRenderers** - from package-specific named Helm templates
 3. **Enables dependencies** - istio, monitoring auto-added to dependsOn
 4. **Configures namespace** - auto-enables istio injection label
 
@@ -63,61 +63,48 @@ User values for application-specific settings (not in the list above) are preser
 
 ## PostRenderers
 
-BigBang can apply package-specific postRenderers from defaults files located in `chart/defaults/`.
+BigBang can apply package-specific postRenderers using native Helm templates defined in `chart/templates/package/_postrenderers.tpl`.
 
-### Defaults File Lookup Order
+### Package Name Lookup Order
+
+The package name for postRenderers lookup is determined in order:
 
 1. **Git repo name** - extracted from `git.repo` URL (e.g., `nxrm-ha` from `https://.../nxrm-ha.git`)
 2. **Helm repo chart name** - from `helmRepo.chartName`
 3. **Package key name** - the key used in the packages map
 
-### Defaults File Format
+### PostRenderers Template Format
+
+PostRenderers are defined as named Helm templates:
 
 ```yaml
-# chart/defaults/<package-name>.yaml
+# chart/templates/package/_postrenderers.tpl
 
-# Package values (merged into package config)
-package: {}
-
-# PostRenderers (only applied when bb_maintained: true)
-postRenderers:
-  - kustomize:
-      patches:
-        - patch: |
-            - op: add
-              path: /metadata/labels/app
-              value: __PKG__
-          target:
-            kind: Service
-            name: __PKG__
+{{- define "bb.postrenderers.nxrm-ha" -}}
+- kustomize:
+    patches:
+      - patch: |
+          - op: add
+            path: /metadata/labels/app
+            value: {{ . }}
+        target:
+          kind: Service
+          name: {{ . }}
+{{- end -}}
 ```
 
-### Placeholder Replacement
-
-Use `__PKG__` as a placeholder in defaults files - it will be replaced with the actual package name at template time. This allows the same defaults file to work regardless of what key name the user chooses for the package.
+The package name is passed as the template context (`.`), enabling native Helm templating instead of custom placeholder replacement.
 
 ### PostRenderers Merge Behavior
 
-When both default postRenderers (from defaults file) and user postRenderers are defined, they are **merged in order**:
+When both default postRenderers (from template) and user postRenderers are defined, they are **merged in order**:
 
-1. **Default postRenderers** - applied first
+1. **Default postRenderers** - from named template, applied first
 2. **User postRenderers** - appended after defaults
 
 **Example:**
 
 ```yaml
-# defaults/nxrm-ha.yaml (default postRenderers)
-postRenderers:
-  - kustomize:
-      patches:
-        - patch: |
-            - op: add
-              path: /metadata/labels/app
-              value: __PKG__
-          target:
-            kind: Service
-            name: __PKG__
-
 # User configuration
 packages:
   nxrm-ha:
@@ -139,7 +126,7 @@ packages:
 ```yaml
 spec:
   postRenderers:
-    # Default postRenderers (from defaults file) - applied first
+    # Default postRenderers (from bb.postrenderers.nxrm-ha template)
     - kustomize:
         patches:
           - patch: |

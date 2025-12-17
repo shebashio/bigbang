@@ -2,9 +2,9 @@
 suite: Packages - BB Maintained Tests
 tests:
   # ===========================================
-  # PostRenderers from defaults file
+  # PostRenderers from named Helm templates
   # ===========================================
-  - it: should load postRenderers from defaults file when bb_maintained is true
+  - it: should load postRenderers from named template when bb_maintained is true
     template: package/helmrelease.yaml
     set:
       istiod:
@@ -31,7 +31,7 @@ tests:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           pattern: "nxrm-ha"
 
-  - it: should replace __PKG__ placeholder with package name in postRenderers
+  - it: should inject package name into postRenderers via Helm template
     template: package/helmrelease.yaml
     set:
       istiod:
@@ -135,7 +135,7 @@ tests:
   # ===========================================
   # Defaults file lookup by git repo name
   # ===========================================
-  - it: should lookup defaults by git repo name extracted from URL
+  - it: should lookup postRenderers template by git repo name extracted from URL
     template: package/helmrelease.yaml
     set:
       istiod:
@@ -152,10 +152,34 @@ tests:
             path: "./chart"
             tag: "86.2.0-bb.0"
     asserts:
-      # Should find defaults/nxrm-ha.yaml even though package name is my-custom-name
+      # Should find bb.postrenderers.nxrm-ha template even though package name is my-custom-name
       - exists:
           path: spec.postRenderers
-      # __PKG__ should be replaced with the actual package name (my-custom-name)
+      # Package name should be injected via Helm template context
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          pattern: "my-custom-name"
+
+  - it: should extract repo name from git URL WITHOUT .git suffix
+    template: package/helmrelease.yaml
+    set:
+      istiod:
+        enabled: true
+      monitoring:
+        enabled: true
+      packages:
+        my-custom-name:
+          enabled: true
+          bb_maintained: true
+          values: {}
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/maintained/nxrm-ha
+            path: "./chart"
+            tag: "86.2.0-bb.0"
+    asserts:
+      # Should find bb.postrenderers.nxrm-ha template even without .git suffix
+      - exists:
+          path: spec.postRenderers
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           pattern: "my-custom-name"
@@ -177,11 +201,11 @@ tests:
             path: "./chart"
             tag: "86.2.0-bb.0"
     asserts:
-      # No defaults file for 'nonexistent' or 'sample', so no postRenderers
+      # No postRenderers template defined for 'nonexistent' or 'sample'
       - notExists:
           path: spec.postRenderers
 
-  - it: should lookup defaults by helmRepo chartName for OCI sources
+  - it: should lookup postRenderers template by helmRepo chartName for OCI sources
     template: package/helmrelease.yaml
     set:
       istiod:
@@ -198,10 +222,10 @@ tests:
             chartName: nxrm-ha
             tag: "86.2.0-bb.0"
     asserts:
-      # Should find defaults/nxrm-ha.yaml via helmRepo.chartName
+      # Should find bb.postrenderers.nxrm-ha template via helmRepo.chartName
       - exists:
           path: spec.postRenderers
-      # __PKG__ should be replaced with the actual package name (my-oci-package)
+      # Package name should be injected via Helm template context
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           pattern: "my-oci-package"
