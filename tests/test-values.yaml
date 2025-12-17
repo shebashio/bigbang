@@ -957,15 +957,8 @@ loki:
                   protocol: TLS
                   name: https
               resolution: DNS
-
     minio:
-      enabled: false
-    write:
-      replicas: 0
-    backend:
-      replicas: 0
-    read:
-      replicas: 0
+      enabled: true
     bbtests:
       enabled: true
       cypress:
