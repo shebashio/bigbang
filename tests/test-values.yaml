@@ -1299,6 +1299,50 @@ addons:
             policy.default: role:admin
           secret:
             argocdServerAdminPassword: '$2a$10$rUDZDckdDZ2TEwk9PDs3QuqjkL58qR1IHE1Kj4MwDx.7/m5dytZJm'
+        argocd-apps:
+          # -- Deploy Argo CD Applications within this helm release
+          # @default -- `{}` (See [values.yaml])
+          ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
+          applications: {}
+            guestbook:
+              namespace: argocd
+              additionalLabels: {}
+              additionalAnnotations: {}
+              finalizers:
+              - resources-finalizer.argocd.argoproj.io
+              project: guestbook
+              source:
+                repoURL: https://github.com/argoproj/argocd-example-apps.git
+                targetRevision: HEAD
+                path: guestbook
+                directory:
+                  recurse: true
+              # ArgoCD v2.6 or later
+              sources:
+              - chart: elasticsearch
+                repoURL: https://helm.elastic.co
+                targetRevision: 8.5.1
+              - repoURL: https://github.com/argoproj/argocd-example-apps.git
+                path: guestbook
+                targetRevision: HEAD
+              destination:
+                server: https://argocd.dev.bigbang.mil
+                namespace: guestbook
+              syncPolicy:
+                automated:
+                  prune: false
+                  selfHeal: false
+                syncOptions:
+                - CreateNamespace=true
+              revisionHistoryLimit: null
+              ignoreDifferences:
+              - group: apps
+                kind: Deployment
+                jsonPointers:
+                - /spec/replicas
+              info:
+              - name: url
+                value: https://argoproj.github.io/
       bbtests:
         enabled: true
         cypress:
