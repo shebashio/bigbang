@@ -31,7 +31,7 @@ tests:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           pattern: "nxrm-ha"
 
-  - it: should inject package name into postRenderers via Helm template
+  - it: should inject port name fix via postRenderers for Istio protocol detection
     template: package/helmrelease.yaml
     set:
       istiod:
@@ -50,7 +50,7 @@ tests:
     asserts:
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].patch
-          pattern: "value: nxrm-ha"
+          pattern: "value: http-nexus-ui"
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           pattern: "^nxrm-ha$"
