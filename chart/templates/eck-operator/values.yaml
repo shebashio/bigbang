@@ -75,7 +75,7 @@ networkPolicies:
       elastic-operator:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo-tempo@tempo/tempo:9411: {{ .Values.tempo.enabled }}
 upstream:
   imagePullSecrets:
     - name: private-registry
