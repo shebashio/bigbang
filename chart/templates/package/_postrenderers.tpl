@@ -23,18 +23,14 @@
 {{- define "bb.postrenderers.nxrm-ha" -}}
 - kustomize:
     patches:
-      # Add app label for Prometheus ServiceMonitor compatibility
+      # Fix port name for Istio protocol detection (upstream hardcodes "nexus-ui")
       - patch: |
-          - op: add
-            path: /metadata/labels/app
-            value: {{ . }}
           - op: replace
             path: /spec/ports/0/name
             value: http-nexus-ui
         target:
           kind: Service
           name: {{ . }}
-      # Patch headless service port name
       - patch: |
           - op: replace
             path: /spec/ports/0/name
