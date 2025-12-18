@@ -71,6 +71,11 @@ networkPolicies:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
+    from:
+      elastic-operator:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
 upstream:
   imagePullSecrets:
     - name: private-registry
