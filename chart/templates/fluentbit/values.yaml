@@ -19,6 +19,7 @@
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
 
@@ -68,6 +69,11 @@ upstream:
   {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    service.istio.io/canonical-name: fluentbit-fluent-bit
   {{- end }}
 
   {{- if .Values.openshift }}

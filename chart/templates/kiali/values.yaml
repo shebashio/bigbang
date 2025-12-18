@@ -1,9 +1,16 @@
 {{- if .Values.kiali.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.kiali "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
+{{- /* Create a cleaned copy of kiali config and merge deprecated paths into current paths */ -}}
+{{- $kialiPackage := deepCopy .Values.kiali -}}
+{{- if .Values.kiali.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.kiali.values) | fromYaml -}}
+{{- $kialiPackage = set $kialiPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $kialiPackage "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.kiali.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -21,8 +28,13 @@ openshift: {{ .Values.openshift}}
 
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 routes:
   inbound:
@@ -52,6 +64,8 @@ upstream:
         pod_annotations:
           {{ include "istioAnnotation" . }}
         {{- end }}
+        pod_labels:
+          service.istio.io/canonical-name: kiali
         hpa:
           spec:
             maxReplicas: 2
@@ -77,7 +91,7 @@ upstream:
         grafana:
           enabled: {{ .Values.grafana.enabled }}
           {{- $grafanaUrl := first (dig "istio" "grafana" "hosts" list .Values.grafana.values) }}
-          url: https://{{ tpl ($grafanaUrl | default (printf "%s.%s" "grafana" $domainName)) . }}
+          external_url: https://{{ tpl ($grafanaUrl | default (printf "%s.%s" "grafana" $domainName)) . }}
           {{- if .Values.grafana.enabled }}
           auth:
             {{- if (dig "admin" "existingSecret" "" .Values.grafana.values) }}
@@ -94,7 +108,7 @@ upstream:
         tracing:
           enabled: true
           {{- if .Values.tempo.enabled }}
-          internal_url: http://tempo-tempo.tempo.svc.cluster.local:3100
+          internal_url: http://tempo-tempo.tempo.svc.cluster.local:3200
           provider: tempo
           {{- end}}
         {{- end }}
@@ -138,7 +152,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
-            tempo/tempo:3100: {{ .Values.tempo.enabled }}
+            tempo/tempo:3200: {{ .Values.tempo.enabled }}
             istio-system/istiod:15014: {{ .Values.istiod.enabled }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}

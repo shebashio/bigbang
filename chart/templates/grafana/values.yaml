@@ -120,6 +120,11 @@ upstream:
     {{- end }}
   {{- end }}
 
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    service.istio.io/canonical-name: monitoring-grafana
+  {{- end }}
+
   {{- if or .Values.monitoring.enabled .Values.loki.enabled .Values.tempo.enabled $gitlabRedis $authserviceRedisEnabled .Values.addons.argocd.enabled }}
   datasources:
     datasourcesbb.yaml:
@@ -132,6 +137,9 @@ upstream:
         access: proxy
         url: http://mimir-mimir-gateway.mimir.svc.cluster.local/prometheus
         editable: true
+        jsonData:
+          # Should match mimir metamonitoring scrape_interval (default 60s)
+          timeInterval: "60s"
       {{- end }}
       {{- if .Values.monitoring.enabled }}
       {{- if .Values.addons.thanos.enabled }}
@@ -226,7 +234,7 @@ upstream:
         access: proxy
         orgId: 1
         uid: tempo
-        url: http://tempo-tempo.tempo.svc:3100
+        url: http://tempo-tempo.tempo.svc:3200
         isDefault: false
         editable: true
         jsonData:
@@ -289,20 +297,11 @@ upstream:
       allow_sign_up: {{ .Values.grafana.sso.grafana.allow_sign_up | default "True" }}
       role_attribute_path: {{ .Values.grafana.sso.grafana.role_attribute_path | default "Viewer" }}
       {{- end }}
-    {{- with .Values.grafana.sso.grafana }}
-      {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_cert" .tls_client_cert | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
-    {{- end }}
-    {{- with .Values.monitoring.sso.grafana }}
-      {{- list "allowed_domains" .allowed_domains | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_ca" .tls_client_ca | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_skip_verify_insecure" .tls_skip_verify_insecure | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_cert" .tls_client_cert | include "bigbang.addValueIfSet" | indent 4 }}
-      {{- list "tls_client_key" .tls_client_key | include "bigbang.addValueIfSet" | indent 4 }}
-    {{- end }}
+      {{- range $key := list "allowed_domains" "tls_client_ca" "tls_skip_verify_insecure" "tls_client_cert" "tls_client_key" }}
+        {{- with (index $ $key) }}
+      {{ $key }} = {{ . }}
+        {{- end }}
+      {{- end }}
 
     {{- if $enterpriseEnabled }}
     enterprise:
@@ -350,11 +349,6 @@ upstream:
       # Add any default extraSecretMounts to overlay
       {{- if and (dig "extraSecretMounts" list $default) (dig "extraSecretMounts" list $overlay) }}
          {{ $_ := set $overlay "extraSecretMounts" (concat $default.extraSecretMounts $overlay.extraSecretMounts) }}
-      {{- end }}
-
-      # Add any default additionalDataSources to overlay
-      {{- if and (dig "additionalDataSources" list $default) (dig "additionalDataSources" list $overlay) }}
-         {{ $_ := set $overlay "additionalDataSources" (concat $default.additionalDataSources $overlay.additionalDataSources) }}
       {{- end }}
     {{- end }}
   {{- end }}

@@ -128,6 +128,7 @@ kiali:
         envs:
           cypress_url: 'https://kiali.dev.bigbang.mil'
           cypress_check_data: 'true'
+          cypress_pod_monitor_name: 'monitoring-monitoring-istio-envoy'
           # uncomment these next 3 lines if enabling the keycloak SSO integration test
           #cypress_keycloak_test_enable: "true"
           #cypress_keycloak_username: "cypress"
@@ -913,6 +914,7 @@ fluentbit:
                 - 'download.cypress.io'
                 - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
+                - 'grafana.dev.bigbang.mil'
               location: MESH_EXTERNAL
               ports:
                 - number: 443
@@ -958,12 +960,6 @@ loki:
 
     minio:
       enabled: false
-    write:
-      replicas: 0
-    backend:
-      replicas: 0
-    read:
-      replicas: 0
     bbtests:
       enabled: true
       cypress:
@@ -980,18 +976,12 @@ tempo:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
   values:
     istio:
-      tempoQuery:
-        hosts:
-          - "tempo.{{ .Values.domain }}"
-      hardened:
-        customServiceEntries:
+      serviceEntries:
+        custom:
           - name: "cypress-service-entries-tempo"
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'tempo.dev.bigbang.mil'
                 - 'grafana.dev.bigbang.mil'
@@ -1002,19 +992,12 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
-
-    tempo:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
     bbtests:
       enabled: true
       cypress:
         envs:
           cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3100'
+          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
           cypress_check_datasource: 'true'
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
           # uncomment following variables for sso keycloak testing in bb
@@ -1024,17 +1007,7 @@ tempo:
       scripts:
         enabled: false
         envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3100'
-
-    persistence:
-      size: 5Gi
-
-    tempoQuery:
-      resources:
-        limits: null
-        requests:
-          cpu: 200m
-          memory: 128Mi
+          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
 monitoring:
   flux:
@@ -1052,8 +1025,33 @@ monitoring:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_alertmanager
   values:
     # Monitoring CRDs are handled in prometheus-operator-crds chart
-    crds:
-      enabled: false
+    upstream:
+      kube-state-metrics:
+        resources:
+          requests:
+            cpu: 40m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
+      prometheus-node-exporter:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 30Mi
+          limits: {}
+    bbtests:
+      enabled: true
+      cypress:
+        envs:
+          cypress_bigbang_integration: 'true'
+          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
+          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
+          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
+          cypress_check_istio_dashboards: 'true'
+          cypress_keycloak_test_enable: 'false'
+          cypress_tnr_username: "cypress"
+          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
     istio:
       hardened:
         customServiceEntries:
@@ -1074,33 +1072,6 @@ monitoring:
                   protocol: TLS
                   name: https
               resolution: DNS
-
-    kube-state-metrics:
-      resources:
-        requests:
-          cpu: 40m
-          memory: 128Mi
-        limits:
-          cpu: 200m
-          memory: 512Mi
-    prometheus-node-exporter:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 30Mi
-        limits: {}
-    bbtests:
-      enabled: true
-      cypress:
-        envs:
-          cypress_bigbang_integration: 'true'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
-          cypress_check_istio_dashboards: 'true'
-          cypress_keycloak_test_enable: 'false'
-          cypress_tnr_username: "cypress"
-          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
 
 grafana:
   sso:
@@ -1265,6 +1236,25 @@ alloy:
   enabled: true
   alloyLogs:
     enabled: true
+
+  values:
+    bbtests:
+      enabled: true
+
+    istio:
+      hardened:
+        customServiceEntries:
+          - name: "cypress-service-entries-alloy"
+            enabled: true
+            spec:
+              hosts:
+                - 'loki.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
 # Addons are toggled based on labels in CI
 addons:
@@ -1825,8 +1815,6 @@ addons:
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
     values:
-      console:
-        enabled: true
       bbtests:
         enabled: true
       istio:
@@ -1982,8 +1970,6 @@ addons:
 
     minioObjectStorage:
       enabled: true
-    networkPolicies:
-      enabled: true
     imagePullSecrets:
       - name: private-registry
     console:
@@ -2071,6 +2057,13 @@ addons:
         cypress:
           envs:
             cypress_url: https://chat.dev.bigbang.mil
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"            
 
   nexusRepositoryManager:
     enabled: false
@@ -2151,9 +2144,6 @@ addons:
                   blobStoreName: "default"
                   strictContentTypeValidation: true
                   writePolicy: "allow_once"
-                cleanup:
-                  policyNames:
-                    - "string"
                 component:
                   proprietaryComponents: true
                 docker:
@@ -2248,7 +2238,7 @@ addons:
               aws_secret_access_key = minio123
         initContainers:
           - name: velero-plugin-for-aws
-            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.12.1
+            image: registry1.dso.mil/ironbank/opensource/velero/velero-plugin-for-aws:v1.13.0
             imagePullPolicy: IfNotPresent
             volumeMounts:
               - mountPath: /target
@@ -2279,6 +2269,13 @@ addons:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
+      networkPolicies:
+        egress:
+          from:
+            keycloak:
+              to:
+                cidr: 
+                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container  
       istio:
         hardened:
           customServiceEntries:
@@ -2324,6 +2321,8 @@ addons:
               -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
           - name: KC_HTTPS_CERTIFICATE_FILE
             value: /opt/keycloak/conf/tls.crt
+          - name: KC_HTTP_MANAGEMENT_SCHEME
+            value: http
           - name: KC_HTTPS_CERTIFICATE_KEY_FILE
             value: /opt/keycloak/conf/tls.key
           - name: KC_HTTPS_CLIENT_AUTH
@@ -2375,10 +2374,20 @@ addons:
                 https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/51cd6066cc4585fede3383ce4905425fc0a83d99/docs/test-data/quarkus.properties \
                 -o /opt/keycloak/conf/quarkus.properties
 
-              # Download the test realm config
+              # Download the test realm config and remove the Conditional OTP execution
               curl -fsSL \
                 https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/51cd6066cc4585fede3383ce4905425fc0a83d99/docs/test-data/realm.json \
-                -o /opt/keycloak/data/import/realm.json
+                | jq '
+                .authenticationFlows |= map(
+                  if .id == "cdf1be21-4140-4652-9d68-3b60742cc8ad" then
+                    .authenticationExecutions |= map(
+                      select(.flowAlias != "Conditional OTP")
+                    )
+                  else
+                    .
+                  end
+                )
+              ' > /opt/keycloak/data/import/realm.json
 
               ls -l /opt/keycloak/{conf,data/import}
 
@@ -2454,8 +2463,6 @@ addons:
           - name: plugin
             mountPath: /opt/keycloak/providers/p1-keycloak-plugin.jar
             subPath: p1-keycloak-plugin.jar
-        http:
-          internalScheme: HTTPS
 
   vault:
     enabled: false
@@ -2466,6 +2473,9 @@ addons:
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
+    kms_key_id: mrk-ff723da024254ea2b7f490c68fbc9b9b
+    kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
+    kms_secret_key: "" # gets added via CI VAULT_KMS_SECRET_KEY and 01_deploy_bigbang.sh
     values:
       upstream:
         global:
@@ -2498,42 +2508,6 @@ addons:
             raft:
               enabled: true
               setNodeId: true
-              config: |
-                ui = true
-
-                listener "tcp" {
-                  tls_disable = false
-                  address = "[::]:8200"
-                  cluster_address = "[::]:8201"
-                  tls_cert_file = "/vault/tls/tls.crt"
-                  tls_key_file  = "/vault/tls/tls.key"
-                  telemetry {
-                    unauthenticated_metrics_access = true
-                  }
-                }
-
-                storage "raft" {
-                  path = "/vault/data"
-
-                  retry_join {
-                    leader_api_addr = "https://vault-vault-0.vault-vault-internal:8200"
-                    leader_client_cert_file = "/vault/tls/tls.crt"
-                    leader_client_key_file = "/vault/tls/tls.key"
-                    leader_tls_servername = "vault.dev.bigbang.mil"
-                  }
-                }
-
-                seal "awskms" {
-                  region     = "us-gov-west-1"
-                  kms_key_id = "mrk-ff723da024254ea2b7f490c68fbc9b9b"
-                  endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
-                }
-
-                telemetry {
-                  prometheus_retention_time = "24h"
-                  disable_hostname = true
-                }
-                service_registration "kubernetes" {}
 
       istio:
         hardened:
@@ -2680,34 +2654,35 @@ addons:
                       - monitoring
       minio:
         enabled: true
-        tenant:
-          pools:
-          - name: pool-0
-            labels:
-              app: minio
-              app.kubernetes.io/name: minio
-            servers: 1
-            volumesPerServer: 4
-            size: 256Mi
-            resources:
-              requests:
-                cpu: 250m
-                memory: 2Gi
-              limits:
-                cpu: 250m
-                memory: 2Gi
-            securityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              fsGroup: 1001
-              runAsNonRoot: true
-            containerSecurityContext:
-              runAsUser: 1001
-              runAsGroup: 1001
-              runAsNonRoot: true
-              capabilities:
-                drop:
-                  - ALL
+        upstream:
+          tenant:
+            pools:
+            - name: pool-0
+              labels:
+                app: minio
+                app.kubernetes.io/name: minio
+              servers: 1
+              volumesPerServer: 4
+              size: 256Mi
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 2Gi
+                limits:
+                  cpu: 250m
+                  memory: 2Gi
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                fsGroup: 1001
+                runAsNonRoot: true
+              containerSecurityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
       storegateway:
         enabled: true
       compactor:
@@ -2751,11 +2726,6 @@ addons:
   #
   headlamp:
     values:
-      istio:
-        hardened:
-          enabled: true
-      networkPolicies:
-        enabled: true
       bbtests:
         enabled: true
         cypress:

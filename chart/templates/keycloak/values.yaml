@@ -19,7 +19,29 @@ networkPolicies:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   ingressLabels:
     {{- include "getGatewaySelector" (dict "default" "passthrough" "pkg" .Values.addons.keycloak "root" .) | nindent 4 }}
-
+  egress:
+    defaults:
+      allowIstiod:
+        enabled: {{ .Values.istiod.enabled }}
+    definitions:
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}    
+    from:
+      keycloak:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+  ingress:
+    defaults:
+      allowPrometheusToIstioSidecar:
+        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+    to:
+      keycloak:9000:
+        from:
+          k8s:
+            monitoring/prometheus: {{ .Values.monitoring.enabled }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
@@ -56,10 +78,13 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- if $tlsEnabled }}
-  http:
-    internalScheme: HTTPS
+  {{- if .Values.kiali.enabled }}
+  podLabels:
+    service.istio.io/canonical-name: keycloak-keycloak
   {{- end }}
+
+  http:
+    internalScheme: HTTP
 
   extraEnv: |
     - name: KC_HTTPS_CLIENT_AUTH
@@ -75,6 +100,10 @@ upstream:
       value: /opt/keycloak/conf/tls.crt
     - name: KC_HTTPS_CERTIFICATE_KEY_FILE
       value: /opt/keycloak/conf/tls.key
+    {{- if eq (dig "http" "internalScheme" "HTTP" .Values.addons.keycloak.values) "HTTP" }}
+    - name: KC_HTTP_MANAGEMENT_SCHEME
+      value: http
+    {{- end }}
     {{- end }}
 
   {{- if $istioEnabled }}
@@ -92,8 +121,12 @@ upstream:
 
   serviceMonitor:
     enabled: {{ $monitoringEnabled }}
-    {{- if $monitoringEnabled }}
+    scheme: https
+    {{- if and $monitoringEnabled $tlsEnabled $istioEnabled }}
     tlsConfig:
+      caFile: /etc/prom-certs/root-cert.pem
+      certFile: /etc/prom-certs/cert-chain.pem
+      keyFile: /etc/prom-certs/key.pem
       insecureSkipVerify: true
     {{- end }}
 
