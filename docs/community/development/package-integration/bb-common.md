@@ -12,7 +12,7 @@ The Big Bang Common Library ([bb-common](https://repo1.dso.mil/big-bang/product/
 - **Istio Service Mesh** - Virtual services, sidecars, gateways
 - **Network Policies** - Kubernetes network traffic control
 - **Authorization Policies** - Service-to-service access control
-- **Istio Hardening** - REGISTRY_ONLY mode and default-deny policies
+- REGISTRY_ONLY mode and default-deny policies and other good defaults
 
 ## Integration Steps
 
@@ -31,9 +31,9 @@ dependencies:
 
 **See:** [bb-common Istio Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/istio) and [Routes Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/routes)
 
-- Enable Istio sidecar injection on your namespace
+- Enable Istio sidecar injection on your namespace, not needed if deploying using Big Bang umbrella, i.e. `packages`
 - Use `{{- include "bb-common.istio.virtualService" . }}` for virtual services
-- Configure istio values following bb-common patterns
+- Configure Istio values following bb-common patterns
 
 ### 3. Network Policies
 
@@ -41,7 +41,7 @@ dependencies:
 
 - Use `{{- include "bb-common.networkPolicy" . }}` in templates
 - Configure `networkPolicies` values section
-- Add custom policies via `additionalPolicies` as needed
+- Add custom policies via `ingress` and `egress` as needed
 
 ### 4. Authorization Policies
 
@@ -49,7 +49,7 @@ dependencies:
 
 - Use `{{- include "bb-common.authorizationPolicy" . }}` for authorization policies
 - Configure `istio.hardened` values section
-- Add custom policies via `customAuthorizationPolicies` as needed
+- Add policies via `istio.authorizationPolicies.generateFromNetpol`, and prefix the netpols with `example-service-account@` to require service account authentication
 
 ## Additional Resources
 
