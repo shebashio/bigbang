@@ -474,7 +474,7 @@ kiali:
 #
 gatekeeper:
   # -- Toggle deployment of OPA Gatekeeper.
-  enabled: false
+  enabled: true
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"
@@ -482,7 +482,7 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.21.0-bb.0"
+    tag: "move_to_passthrough"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
