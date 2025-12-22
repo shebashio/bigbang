@@ -130,4 +130,7 @@ istio:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
+sso:
+  enabled: {{ .Values.tempo.sso.enabled }}
+
 {{- end -}}
