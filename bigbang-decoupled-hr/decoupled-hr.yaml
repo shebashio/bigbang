@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bigbang-decoupled-podinfo
+  namespace: podinfo
+  labels:
+    app.kubernetes.io/name: podinfo
+    app.kubernetes.io/component: "test"
+spec:
+  releaseName: podinfo
+  targetNamespace: podinfo
+  chart:
+    spec:
+      chart: ./bigbang-decoupled-podinfo
+      sourceRef:
+        kind: GitRepository
+        name: bigbang
+        namespace: podinfo
+      interval: 5m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  interval: 5m
+  values:
+    istio:
+      enabled: true

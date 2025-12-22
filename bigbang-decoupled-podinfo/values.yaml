@@ -1,0 +1,77 @@
+bb-common:
+  networkPolicies:
+    enabled: true
+    egress:
+      from:
+        frontend-podinfo:
+          to:
+            k8s:
+              tempo/tempo:9411: true
+
+    ingress:
+      to:
+        redis:6379:
+          podSelector:
+            matchLabels:
+              app: frontend-podinfo-redis
+          from:
+            k8s:
+              default@podinfo/frontend-podinfo: true
+        backend-podinfo:9898:
+          from:
+            k8s:
+              default@podinfo/frontend-podinfo: true
+
+  istio:
+    enabled: true
+    sidecar:
+      enabled: true
+    authorizationPolicies:
+      enabled: true
+      generateFromNetpol: true
+      defaults:
+        enabled: true
+        allowInNamespace:
+          enabled: false
+
+  routes:
+    inbound:
+      podinfo:
+        enabled: true
+        gateways:
+          - istio-gateway/public-ingressgateway
+        hosts:
+          - podinfo.dev.bigbang.mil
+        service: frontend-podinfo.podinfo.svc.cluster.local
+        port: 9898
+        selector:
+          app.kubernetes.io/name: frontend-podinfo
+
+# podinfo values
+# Frontend instance
+upstream:
+  fullnameOverride: frontend-podinfo
+  replicaCount: 2
+  backend: http://backend-podinfo:9898/echo
+
+  redis:
+    enabled: true
+
+  image:
+    repository: registry1.dso.mil/ironbank/opensource/bigbang/podinfo
+    tag: 6.9.1
+    pullPolicy: IfNotPresent
+    pullSecrets:
+      - name: private-registry
+
+# Backend instance
+backend:
+  fullnameOverride: backend-podinfo
+  replicaCount: 1
+
+  image:
+    repository: registry1.dso.mil/ironbank/opensource/bigbang/podinfo
+    tag: 6.9.1
+    pullPolicy: IfNotPresent
+    pullSecrets:
+      - name: private-registry

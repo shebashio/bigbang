@@ -1,0 +1,38 @@
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: redis-policy-exception
+  namespace: kyverno
+spec:
+  exceptions:
+  - policyName: restrict-image-registries
+    ruleNames:
+    - validate-registries
+    - autogen-validate-registries
+  - policyName: add-default-securitycontext
+    ruleNames:
+    - add-default-securitycontext
+    - autogen-add-default-securitycontext
+  - policyName: require-labels
+    ruleNames:
+    - check-for-labels
+    - autogen-check-for-labels
+  - policyName: require-non-root-user
+    ruleNames:
+    - non-root-user
+    - autogen-non-root-user
+  - policyName: require-non-root-group
+    ruleNames:
+    - run-as-group
+    - autogen-run-as-group
+  match:
+    any:
+    - resources:
+        kinds:
+        - Pod
+        - Deployment
+        namespaces:
+        - podinfo
+        names:
+        - frontend-podinfo-redis*
+        - validate-upstream-redis*

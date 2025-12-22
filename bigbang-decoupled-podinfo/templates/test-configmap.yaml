@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-monitoring
+  namespace: podinfo
+data:
+  {{- $state := lookup "v1" "Secret" "bigbang" "state" }}
+  {{- if $state }}
+  {{- $values := ($state.data | default dict) }}
+  {{- if $values }}
+  {{- $valuesYaml := (get $values "values.yaml" | b64dec) }}
+  {{- $parsedValues := ($valuesYaml | fromYaml) }}
+  {{- if $parsedValues }}
+  monitoringEnabled: {{ dig "monitoring" "enabled" false $parsedValues | quote }}
+  {{- else }}
+  monitoringEnabled: "false"
+  {{- end }}
+  {{- else }}
+  monitoringEnabled: "false"
+  {{- end }}
+  {{- else }}
+  monitoringEnabled: "false"
+  {{- end }}

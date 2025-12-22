@@ -1,0 +1,882 @@
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    generated.network-policies.bigbang.dev/local-key: frontend-podinfo
+    generated.network-policies.bigbang.dev/remote-key: tempo/tempo:9411
+  labels:
+    network-policies.bigbang.dev/direction: egress
+    network-policies.bigbang.dev/source: bb-common
+  name: allow-egress-from-frontend-podinfo-to-ns-tempo-pod-tempo-tcp-port-9411
+  namespace: podinfo
+spec:
+  egress:
+  - ports:
+    - port: 9411
+      protocol: TCP
+    to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: tempo
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: tempo
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: frontend-podinfo
+  policyTypes:
+  - Egress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: egress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-egress-deny-all
+  namespace: podinfo
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: egress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-egress-allow-all-in-ns
+  namespace: podinfo
+spec:
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: podinfo
+  podSelector: {}
+  policyTypes:
+  - Egress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: egress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-egress-allow-kube-dns
+  namespace: podinfo
+spec:
+  egress:
+  - ports:
+    - port: 53
+      protocol: UDP
+    - port: 53
+      protocol: TCP
+    to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+  podSelector: {}
+  policyTypes:
+  - Egress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: egress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-egress-allow-istiod
+  namespace: podinfo
+spec:
+  egress:
+  - ports:
+    - port: 15012
+      protocol: TCP
+    to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-system
+      podSelector:
+        matchLabels:
+          app: istiod
+  podSelector: {}
+  policyTypes:
+  - Egress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    generated.network-policies.bigbang.dev/local-key: backend-podinfo:9898
+    generated.network-policies.bigbang.dev/remote-key: default@podinfo/frontend-podinfo
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: allow-ingress-to-backend-podinfo-tcp-port-9898-from-ns-podinfo-pod-frontend-podinfo
+  namespace: podinfo
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: podinfo
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: frontend-podinfo
+    ports:
+    - port: 9898
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: backend-podinfo
+  policyTypes:
+  - Ingress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    generated.network-policies.bigbang.dev/local-key: redis:6379
+    generated.network-policies.bigbang.dev/remote-key: default@podinfo/frontend-podinfo
+    generated.network-policies.bigbang.dev/with-local-selector-override: |-
+      matchLabels:
+        app: frontend-podinfo-redis
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: allow-ingress-to-redis-tcp-port-6379-from-ns-podinfo-pod-frontend-podinfo
+  namespace: podinfo
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: podinfo
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: frontend-podinfo
+    ports:
+    - port: 6379
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: frontend-podinfo-redis
+  policyTypes:
+  - Ingress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-ingress-deny-all
+  namespace: podinfo
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-ingress-allow-all-in-ns
+  namespace: podinfo
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: podinfo
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: default-ingress-allow-prometheus-to-istio-sidecar
+  namespace: podinfo
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: monitoring
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - port: 15020
+      protocol: TCP
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Source: bigbang-podinfo/charts/upstream/templates/redis/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-podinfo-redis
+data:
+  redis.conf: |
+    maxmemory 64mb
+    maxmemory-policy allkeys-lru
+    save ""
+    appendonly no
+---
+# Source: bigbang-podinfo/templates/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-monitoring
+  namespace: podinfo
+data:
+  monitoringEnabled: "false"
+---
+# Source: bigbang-podinfo/charts/backend/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-podinfo
+  namespace: podinfo
+  labels:
+    helm.sh/chart: backend-6.9.2
+    app.kubernetes.io/name: backend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9898
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9999
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    app.kubernetes.io/name: backend-podinfo
+---
+# Source: bigbang-podinfo/charts/upstream/templates/redis/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-podinfo-redis
+  labels:
+    app: frontend-podinfo-redis
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend-podinfo-redis
+  ports:
+    - name: redis
+      port: 6379
+      protocol: TCP
+      targetPort: redis
+---
+# Source: bigbang-podinfo/charts/upstream/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-podinfo
+  namespace: podinfo
+  labels:
+    helm.sh/chart: upstream-6.9.2
+    app.kubernetes.io/name: frontend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9898
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9999
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    app.kubernetes.io/name: frontend-podinfo
+---
+# Source: bigbang-podinfo/charts/backend/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-podinfo
+  namespace: podinfo
+  labels:
+    helm.sh/chart: backend-6.9.2
+    app.kubernetes.io/name: backend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend-podinfo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backend-podinfo
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9898"
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: backend
+          image: "registry1.dso.mil/ironbank/opensource/bigbang/podinfo:6.9.1"
+          imagePullPolicy: IfNotPresent
+          command:
+            - ./podinfo
+            - --port=9898
+            - --cert-path=/data/cert
+            - --port-metrics=9797
+            - --grpc-port=9999
+            - --grpc-service-name=podinfo
+            - --level=info
+            - --random-delay=false
+            - --random-error=false
+          env:
+          - name: PODINFO_UI_COLOR
+            value: "#34577c"
+          ports:
+            - name: http
+              containerPort: 9898
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9797
+              protocol: TCP
+            - name: grpc
+              containerPort: 9999
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:9898/healthz
+            initialDelaySeconds: 1
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:9898/readyz
+            initialDelaySeconds: 1
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+          volumeMounts:
+          - name: data
+            mountPath: /data
+          resources:
+            requests:
+              cpu: 1m
+              memory: 16Mi
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+# Source: bigbang-podinfo/charts/upstream/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-podinfo
+  namespace: podinfo
+  labels:
+    helm.sh/chart: upstream-6.9.2
+    app.kubernetes.io/name: frontend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend-podinfo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: frontend-podinfo
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9898"
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: upstream
+          image: "registry1.dso.mil/ironbank/opensource/bigbang/podinfo:6.9.1"
+          imagePullPolicy: IfNotPresent
+          command:
+            - ./podinfo
+            - --port=9898
+            - --cert-path=/data/cert
+            - --port-metrics=9797
+            - --grpc-port=9999
+            - --grpc-service-name=podinfo
+            - --cache-server=tcp://frontend-podinfo-redis:6379
+            - --level=info
+            - --random-delay=false
+            - --random-error=false
+          env:
+          - name: PODINFO_UI_COLOR
+            value: "#34577c"
+          - name: PODINFO_BACKEND_URL
+            value: http://backend-podinfo:9898/echo
+          ports:
+            - name: http
+              containerPort: 9898
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9797
+              protocol: TCP
+            - name: grpc
+              containerPort: 9999
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:9898/healthz
+            initialDelaySeconds: 1
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:9898/readyz
+            initialDelaySeconds: 1
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            periodSeconds: 10
+          volumeMounts:
+          - name: data
+            mountPath: /data
+          resources:
+            requests:
+              cpu: 1m
+              memory: 16Mi
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+# Source: bigbang-podinfo/charts/upstream/templates/redis/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-podinfo-redis
+  labels:
+    app: frontend-podinfo-redis
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: frontend-podinfo-redis
+  template:
+    metadata:
+      labels:
+        app: frontend-podinfo-redis
+      annotations:
+        checksum/config: "f070dc3be1560b216d10d1523579d4c617ce37461757bac6b70d2f68f77e7771"
+    spec:
+      containers:
+        - name: redis
+          image: "redis:7.0.7"
+          imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 32Mi
+          volumeMounts:
+            - mountPath: /var/lib/redis
+              name: data
+            - mountPath: /redis-master
+              name: config
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: frontend-podinfo-redis
+            items:
+              - key: redis.conf
+                path: redis.conf
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/istio/render.yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  labels:
+    network-policies.bigbang.dev/direction: authorization-policy
+    network-policies.bigbang.dev/source: bb-common
+  name: default-authz-allow-nothing
+  namespace: podinfo
+spec: {}
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  annotations:
+    generated.authorization-policies.bigbang.dev/from-spiffe: default@podinfo/frontend-podinfo
+    generated.authorization-policies.bigbang.dev/identity: default
+    generated.network-policies.bigbang.dev/local-key: backend-podinfo:9898
+    generated.network-policies.bigbang.dev/remote-key: default@podinfo/frontend-podinfo
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: allow-ingress-to-backend-podinfo-tcp-port-9898-from-ns-podinfo-with-identity-default
+  namespace: podinfo
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/podinfo/sa/default
+    to:
+    - operation:
+        ports:
+        - "9898"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend-podinfo
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/network-policies/render.yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  annotations:
+    generated.authorization-policies.bigbang.dev/from-spiffe: default@podinfo/frontend-podinfo
+    generated.authorization-policies.bigbang.dev/identity: default
+    generated.network-policies.bigbang.dev/local-key: redis:6379
+    generated.network-policies.bigbang.dev/remote-key: default@podinfo/frontend-podinfo
+    generated.network-policies.bigbang.dev/with-local-selector-override: |-
+      matchLabels:
+        app: frontend-podinfo-redis
+  labels:
+    network-policies.bigbang.dev/direction: ingress
+    network-policies.bigbang.dev/source: bb-common
+  name: allow-ingress-to-redis-tcp-port-6379-from-ns-podinfo-with-identity-default
+  namespace: podinfo
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/podinfo/sa/default
+    to:
+    - operation:
+        ports:
+        - "6379"
+  selector:
+    matchLabels:
+      app: frontend-podinfo-redis
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/istio/render.yaml
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-peer-auth
+  namespace: podinfo
+spec:
+  mtls:
+    mode: STRICT
+---
+# Source: bigbang-podinfo/templates/redis-exception.yaml
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: redis-policy-exception
+  namespace: kyverno
+spec:
+  exceptions:
+  - policyName: restrict-image-registries
+    ruleNames:
+    - validate-registries
+    - autogen-validate-registries
+  - policyName: add-default-securitycontext
+    ruleNames:
+    - add-default-securitycontext
+    - autogen-add-default-securitycontext
+  - policyName: require-labels
+    ruleNames:
+    - check-for-labels
+    - autogen-check-for-labels
+  - policyName: require-non-root-user
+    ruleNames:
+    - non-root-user
+    - autogen-non-root-user
+  - policyName: require-non-root-group
+    ruleNames:
+    - run-as-group
+    - autogen-run-as-group
+  match:
+    any:
+    - resources:
+        kinds:
+        - Pod
+        - Deployment
+        namespaces:
+        - podinfo
+        names:
+        - frontend-podinfo-redis*
+        - validate-upstream-redis*
+---
+# Source: bigbang-podinfo/charts/bb-common/templates/istio/render.yaml
+apiVersion: networking.istio.io/v1
+kind: Sidecar
+metadata:
+  name: podinfo-sidecar
+  namespace: podinfo
+spec:
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+---
+# Source: bigbang-podinfo/charts/backend/templates/tests/grpc.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-podinfo-grpc-test-d2mzc
+  namespace: podinfo
+  labels:
+    helm.sh/chart: backend-6.9.2
+    app.kubernetes.io/name: backend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: grpc-health-probe
+      image: stefanprodan/grpc_health_probe:v0.3.0
+      command: ['grpc_health_probe']
+      args:  ['-addr=backend-podinfo.podinfo:9999']
+  restartPolicy: Never
+---
+# Source: bigbang-podinfo/charts/backend/templates/tests/jwt.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-podinfo-jwt-test-g9hxi
+  namespace: podinfo
+  labels:
+    helm.sh/chart: backend-6.9.2
+    app.kubernetes.io/name: backend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: tools
+      image: giantswarm/tiny-tools
+      command:
+        - sh
+        - -c
+        - |
+          TOKEN=$(curl -sd 'test' ${PODINFO_SVC}/token | jq -r .token) &&
+          curl -sH "Authorization: Bearer ${TOKEN}" ${PODINFO_SVC}/token/validate | grep test
+      env:
+      - name: PODINFO_SVC
+        value: "backend-podinfo.podinfo:9898"
+  restartPolicy: Never
+---
+# Source: bigbang-podinfo/charts/backend/templates/tests/service.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-podinfo-service-test-wdluw
+  namespace: podinfo
+  labels:
+    helm.sh/chart: backend-6.9.2
+    app.kubernetes.io/name: backend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:7.69.0
+      command:
+        - sh
+        - -c
+        - |
+          curl -s ${PODINFO_SVC}/api/info | grep version
+      env:
+        - name: PODINFO_SVC
+          value: "backend-podinfo.podinfo:9898"
+  restartPolicy: Never
+---
+# Source: bigbang-podinfo/charts/upstream/templates/tests/grpc.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-podinfo-grpc-test-hxrpm
+  namespace: podinfo
+  labels:
+    helm.sh/chart: upstream-6.9.2
+    app.kubernetes.io/name: frontend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: grpc-health-probe
+      image: stefanprodan/grpc_health_probe:v0.3.0
+      command: ['grpc_health_probe']
+      args:  ['-addr=frontend-podinfo.podinfo:9999']
+  restartPolicy: Never
+---
+# Source: bigbang-podinfo/charts/upstream/templates/tests/jwt.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-podinfo-jwt-test-cyntx
+  namespace: podinfo
+  labels:
+    helm.sh/chart: upstream-6.9.2
+    app.kubernetes.io/name: frontend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: tools
+      image: giantswarm/tiny-tools
+      command:
+        - sh
+        - -c
+        - |
+          TOKEN=$(curl -sd 'test' ${PODINFO_SVC}/token | jq -r .token) &&
+          curl -sH "Authorization: Bearer ${TOKEN}" ${PODINFO_SVC}/token/validate | grep test
+      env:
+      - name: PODINFO_SVC
+        value: "frontend-podinfo.podinfo:9898"
+  restartPolicy: Never
+---
+# Source: bigbang-podinfo/charts/upstream/templates/tests/service.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-podinfo-service-test-fhhmv
+  namespace: podinfo
+  labels:
+    helm.sh/chart: upstream-6.9.2
+    app.kubernetes.io/name: frontend-podinfo
+    app.kubernetes.io/version: "6.9.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    sidecar.istio.io/inject: "false"
+    linkerd.io/inject: disabled
+    appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:7.69.0
+      command:
+        - sh
+        - -c
+        - |
+          curl -s ${PODINFO_SVC}/api/info | grep version
+      env:
+        - name: PODINFO_SVC
+          value: "frontend-podinfo.podinfo:9898"
+  restartPolicy: Never
