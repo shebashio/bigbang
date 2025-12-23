@@ -5,7 +5,9 @@
 {{- define "bigbang.defaults.kyverno" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 
-{{- $allPorts := concat .Values.networkPolicies.externalRegistries.ports .Values.networkPolicies.egress.definitions.registry.ports }}
+{{ $legacyPorts := dig "networkPolicies" "externalRegistries" "ports" list .Values.kyverno.values }}
+{{ $definitionPorts := dig "networkPolicies" "egress" "definitions" "registry" "ports" list .Values.kyverno.values }}
+{{- $allPorts := concat $legacyPorts $definitionPorts }}
 {{- $allPortsSanitized := list -}}
 {{- range $allPorts }}
   {{- $allPortsSanitized = append $allPortsSanitized (dict "port" (int .port) "protocol" (default "TCP" .protocol | upper)) -}}
