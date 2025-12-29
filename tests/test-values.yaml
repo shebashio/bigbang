@@ -169,7 +169,7 @@ gatekeeper:
       allowedHostFilesystem:
         parameters:
           excludedResources:
-          - monitoring/alloy-cypress-test
+          - alloy/alloy-cypress-test
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
@@ -2067,7 +2067,7 @@ addons:
               memory: "2Gi"
             limits:
               cpu: "2"
-              memory: "2Gi"            
+              memory: "2Gi"
 
   nexusRepositoryManager:
     enabled: false
@@ -2278,8 +2278,8 @@ addons:
           from:
             keycloak:
               to:
-                cidr: 
-                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container  
+                cidr:
+                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container
       istio:
         hardened:
           customServiceEntries:
