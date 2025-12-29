@@ -137,13 +137,14 @@ kiali:
 gatekeeper:
   enabled: false
   values:
-    replicas: 1
-    controllerManager:
-      resources:
-        limits: {}
-        requests:
-          cpu: 100m
-          memory: 256Mi
+    upstream:
+      replicas: 1
+      controllerManager:
+        resources:
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 256Mi
 
     violations:
       allowedCapabilities:
