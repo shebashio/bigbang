@@ -169,6 +169,7 @@ gatekeeper:
       allowedHostFilesystem:
         parameters:
           excludedResources:
+          - monitoring/alloy-cypress-test
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
@@ -314,6 +315,7 @@ gatekeeper:
       volumeTypes:
         parameters:
           excludedResources:
+          - monitoring/alloy-cypress-test
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
