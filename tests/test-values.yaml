@@ -170,6 +170,14 @@ gatekeeper:
         parameters:
           excludedResources:
           - alloy/alloy-cypress-test
+          - bbctl/bbctl-bbctl-cypress-test
+          - kiali/kiali-kiali-cypress-test
+          - kyverno-reporter/kyverno-reporter-kyverno-reporter-cypress-test
+          - logging/logging-loki-cypress-test
+          - monitoring/monitoring-grafana-cypress-test
+          - monitoring/monitoring-monitoring-cypress-test
+          - neuvector/neuvector-neuvector-cypress-test
+          - tempo/tempo-tempo-cypress-test
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
@@ -315,7 +323,15 @@ gatekeeper:
       volumeTypes:
         parameters:
           excludedResources:
-          - monitoring/alloy-cypress-test
+          - alloy/alloy-cypress-test
+          - bbctl/bbctl-bbctl-cypress-test
+          - kiali/kiali-kiali-cypress-test
+          - kyverno-reporter/kyverno-reporter-kyverno-reporter-cypress-test
+          - logging/logging-loki-cypress-test
+          - monitoring/monitoring-grafana-cypress-test
+          - monitoring/monitoring-monitoring-cypress-test
+          - neuvector/neuvector-neuvector-cypress-test
+          - tempo/tempo-tempo-cypress-test
           - anchore/anchore-cypress-test
           - argocd/argocd-cypress-test
           - backstage/backstage-cypress-test
