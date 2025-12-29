@@ -1,19 +1,14 @@
 {{- if or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.kyverno "name" "kyverno" "defaults" (include "bigbang.defaults.kyverno" .)) }}
+{{- include "values-secret" (dict 
+"root" $ 
+"package" .Values.kyverno 
+"name" "kyverno" 
+"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno" . | fromYaml) (include "bigbang.kyverno.bb-common-migrations" . | fromYaml)) | toYaml) 
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-
-{{- $legacyPorts := dig "networkPolicies" "externalRegistries" "ports" list .Values.kyverno.values }}
-{{- $definitionDefaultPort := list (dict "port" 443 "protocol" "TCP") }}
-{{- $definitionPorts := dig "networkPolicies" "egress" "definitions" "registry" "ports" $definitionDefaultPort .Values.kyverno.values }}
-{{- $allPorts := concat $legacyPorts $definitionPorts }}
-{{- $allPortsSanitized := list }}
-{{- range $allPorts }}
-  {{- $allPortsSanitized = append $allPortsSanitized (dict "port" (int .port) "protocol" (default "TCP" .protocol | upper)) }}
-{{- end }}
-{{- $uniquePorts := uniq $allPortsSanitized }}
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -27,15 +22,12 @@ networkPolicies:
     definitions:
       kubeAPI:
         from:
-        {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
           - ipBlock:
-              cidr: "0.0.0.0/0"
-        {{- else }}
+              cidr: 192.168.0.0/16
           - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+              cidr: 172.16.0.0/12
           - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-        {{- end }}
+              cidr: 10.0.0.0/8
     to:
       kyverno-admission-controller:9443:
         podSelector:
@@ -56,25 +48,13 @@ networkPolicies:
       allowIstiod:
         enabled: false
     definitions:
-      kubeAPI:
-        to:
-        {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: "0.0.0.0/0"
-              except:
-              - 169.254.169.254/32
-        {{- else }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-        {{- end }}
       private-registry:
         to:
           - ipBlock:
               cidr: "15.205.173.153/32"
         ports:
-        {{- toYaml $uniquePorts | nindent 10 }}
+          - port: 443
+            protocol: TCP
     from:
       kyverno-admission-controller:
         podSelector:
@@ -82,7 +62,7 @@ networkPolicies:
             app.kubernetes.io/component: admission-controller
         to:
           definition:
-            registry: {{ dig "networkPolicies" "externalRegistries" "allowEgress" true .Values.kyverno.values }}
+            private-registry: {{ (dig "policies" "require-image-signature" "enabled" true .Values.kyvernoPolicies.values) }}
             kubeAPI: true
 openshift: {{ .Values.openshift }}
 
