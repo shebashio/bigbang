@@ -19,26 +19,7 @@ networkPolicies:
   hbonePortInjection:
     enabled: false
   ingress:
-    defaults:
-      allowPrometheusToIstioSidecar:
-        enabled: false
-    definitions:
-      kubeAPI:
-        from:
-          - ipBlock:
-              cidr: 192.168.0.0/16
-          - ipBlock:
-              cidr: 172.16.0.0/12
-          - ipBlock:
-              cidr: 10.0.0.0/8
     to:
-      kyverno-admission-controller:9443:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: admission-controller
-        from:
-          definition:
-            kubeAPI: true
       kyverno:8000:
         podSelector:
           matchLabels:
@@ -47,9 +28,6 @@ networkPolicies:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
-    defaults:
-      allowIstiod:
-        enabled: false
     definitions:
       private-registry:
         to:
