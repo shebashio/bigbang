@@ -15,6 +15,9 @@ istio:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  # Setting to false as Kyverno is not in the mesh
+  hbonePortInjection:
+    enabled: false
   ingress:
     defaults:
       allowPrometheusToIstioSidecar:
