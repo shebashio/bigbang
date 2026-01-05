@@ -932,17 +932,12 @@ loki:
   strategy: monolith
   values:
     istio:
-      loki:
-        enabled: true
-      hardened:
-        customServiceEntries:
+      serviceEntries:
+        custom:
           - name: "cypress-service-entries-loki"
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'grafana.dev.bigbang.mil'
                 - 'optimizationguide-pa.googleapis.com'
@@ -957,15 +952,8 @@ loki:
                   protocol: TLS
                   name: https
               resolution: DNS
-
     minio:
       enabled: false
-    write:
-      replicas: 0
-    backend:
-      replicas: 0
-    read:
-      replicas: 0
     bbtests:
       enabled: true
       cypress:
@@ -977,23 +965,14 @@ loki:
           LOKI_URL: 'http://logging-loki.logging.svc:3100'
 
 tempo:
-  sso:
-    enabled: false
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
   values:
     istio:
-      tempoQuery:
-        hosts:
-          - "tempo.{{ .Values.domain }}"
-      hardened:
-        customServiceEntries:
+      serviceEntries:
+        custom:
           - name: "cypress-service-entries-tempo"
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'tempo.dev.bigbang.mil'
                 - 'grafana.dev.bigbang.mil'
@@ -1004,7 +983,6 @@ tempo:
                   protocol: TLS
                   name: https
               resolution: DNS
-
     bbtests:
       enabled: true
       cypress:
@@ -1249,6 +1227,25 @@ alloy:
   enabled: true
   alloyLogs:
     enabled: true
+
+  values:
+    bbtests:
+      enabled: true
+
+    istio:
+      hardened:
+        customServiceEntries:
+          - name: "cypress-service-entries-alloy"
+            enabled: true
+            spec:
+              hosts:
+                - 'loki.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+              resolution: DNS
 
 # Addons are toggled based on labels in CI
 addons:
@@ -2139,9 +2136,6 @@ addons:
                   blobStoreName: "default"
                   strictContentTypeValidation: true
                   writePolicy: "allow_once"
-                cleanup:
-                  policyNames:
-                    - "string"
                 component:
                   proprietaryComponents: true
                 docker:
