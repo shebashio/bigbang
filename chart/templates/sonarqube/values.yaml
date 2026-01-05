@@ -44,13 +44,12 @@ routes:
       service: sonarqube-sonarqube.sonarqube.svc.cluster.local
       port: 9000
       selector:
-        app.kubernetes.io/name: sonarqube
+        app: sonarqube
   outbound:
     bb-tests:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.sonarqube.values }}
       hosts:
       - repo1.dso.mil
-      - sonarqube.dev.bigbang.mil
     sonarqube:
       enabled: true
       hosts:
