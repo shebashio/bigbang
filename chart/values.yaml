@@ -182,6 +182,17 @@ networkPolicies:
         ports:
           - port: 443
             protocol: TCP
+      database-subnets:
+        to:
+          - ipBlock:
+              cidr: 192.168.0.0/16
+          - ipBlock:
+              cidr: 172.16.0.0/12
+          - ipBlock:
+              cidr: 10.0.0.0/8
+        ports:
+        - port: 5432
+          protocol: TCP
   ingress:
     # -- Ingress definitions; create definitions here that you want to re-use globally across
     # all packages

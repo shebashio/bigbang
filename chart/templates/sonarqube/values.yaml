@@ -11,6 +11,9 @@
 {{- define "bigbang.defaults.sonarqube" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.sonarqube.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.sonarqube.values) }}
+{{- $postgresEnabled := dig "upstream" "postgresql" "enabled" false .Values.addons.sonarqube.values }}
+{{- $plugins := dig "upstream" "plugins" "install" (list) .Values.addons.sonarqube.values }}
+{{- $pluginsExist := not (empty $plugins) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -60,10 +63,30 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.sonarqube "root" .) | nindent 4 }}
+  ingress:
+    definitions: {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
+    to:
+      sonarqube:[8000,8001,9000]:
+        podSelector:
+          matchLabels:
+            app: sonarqube
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  egress:
+    definitions: {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
+    from:
+      sonarqube:
+        podSelector:
+          matchLabels:
+            app: sonarqube
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          definition:
+            sonarsource-marketplace: {{ $pluginsExist }}
+            code-repository: true
+            database-subnets: {{ not $postgresEnabled }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
