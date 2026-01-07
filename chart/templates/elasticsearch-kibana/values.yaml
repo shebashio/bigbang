@@ -1,5 +1,11 @@
 {{- if .Values.elasticsearchKibana.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.elasticsearchKibana "name" "ek" "defaults" (include "bigbang.defaults.logging" .)) }}
+{{- /* Create a cleaned copy of elasticsearchKibana config and merge deprecated paths into current paths */ -}}
+{{- $elasticsearchKibanaPackage := deepCopy .Values.elasticsearchKibana -}}
+{{- if .Values.elasticsearchKibana.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.elasticsearchKibana.values) | fromYaml -}}
+{{- $elasticsearchKibanaPackage = set $elasticsearchKibanaPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $elasticsearchKibanaPackage "name" "ek" "defaults" (include "bigbang.defaults.logging" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.logging" -}}
@@ -7,6 +13,7 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.elasticsearchKibana.values) }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
@@ -14,31 +21,28 @@ openshift: {{ .Values.openshift }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+routes:
+  inbound:
+    kibana:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
+
+    elasticsearch:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
+
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
-    }}
-  kibana:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
-  elasticsearch:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.elasticsearchKibana "root" .) | nindent 4 }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
 {{- if and .Values.addons.mattermost.elasticsearch.enabled .Values.addons.mattermost.enabled }}
 mattermost:
