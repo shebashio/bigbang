@@ -24,6 +24,15 @@ domain: {{ $domainName }}
 OpenShift:
   enabled: {{ .Values.openshift }}
 
+sso:
+  enabled: {{ .Values.addons.sonarqube.sso.enabled }}
+  {{- if .Values.addons.sonarqube.sso.enabled }}
+  idpmetadataurl: {{ .Values.sso.url }}
+  {{- end }}
+
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
@@ -62,9 +71,6 @@ routes:
       hosts:
       - github.com
       - release-assets.githubusercontent.com
-
-monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
