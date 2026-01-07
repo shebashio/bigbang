@@ -137,13 +137,14 @@ kiali:
 gatekeeper:
   enabled: false
   values:
-    replicas: 1
-    controllerManager:
-      resources:
-        limits: {}
-        requests:
-          cpu: 100m
-          memory: 256Mi
+    upstream:
+      replicas: 1
+      controllerManager:
+        resources:
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 256Mi
 
     violations:
       allowedCapabilities:
@@ -168,36 +169,7 @@ gatekeeper:
       allowedHostFilesystem:
         parameters:
           excludedResources:
-          - anchore/anchore-cypress-test
-          - argocd/argocd-cypress-test
-          - backstage/backstage-cypress-test
-          - bbctl/bbctl-cypress-test
-          - cluster-auditor/cluster-auditor-cypress-test
-          - fortify/fortify-cypress-test
-          - fortify/fortify-ssc-cypress-test
-          - gitlab/gitlab-cypress-test
-          - gitlab/gitlab-runner-cypress-test
-          - gitlab-runner/gitlab-runner-cypress-test
-          - harbor/harbor-cypress-test
-          - keycloak/keycloak-cypress-test
-          - kiali/kiali-cypress-test
-          - kyverno-reporter/kyverno-reporter-cypress-test
-          - logging/elasticsearch-kibana-cypress-test
-          - logging/loki-cypress-test
-          - mattermost/mattermost-cypress-test
-          - minio/minio-instance-cypress-test
-          - minio-operator/minio-operator-cypress-test
-          - monitoring/grafana-cypress-test
-          - monitoring/monitoring-cypress-test
-          - neuvector/neuvector-cypress-test
-          - nexus-repository-manager/nexus-repository-manager-cypress-test
-          - sonarqube/sonarqube-cypress-test
-          - tempo/tempo-cypress-test
-          - thanos/thanos-cypress-test
-          - twistlock/twistlock-cypress-test
-          - vault/vault-cypress-test
-          - mimir/mimir-cypress-test
-          - headlamp/headlamp-cypress-test
+          - ".*/.*-cypress-test"
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -313,35 +285,7 @@ gatekeeper:
       volumeTypes:
         parameters:
           excludedResources:
-          - anchore/anchore-cypress-test
-          - argocd/argocd-cypress-test
-          - backstage/backstage-cypress-test
-          - bbctl/bbctl-cypress-test
-          - cluster-auditor/cluster-auditor-cypress-test
-          - fortify/fortify-ssc-cypress-test
-          - gitlab/gitlab-cypress-test
-          - gitlab/gitlab-runner-cypress-test
-          - gitlab-runner/gitlab-runner-cypress-test
-          - harbor/harbor-cypress-test
-          - keycloak/keycloak-cypress-test
-          - kiali/kiali-cypress-test
-          - kyverno-reporter/kyverno-reporter-cypress-test
-          - logging/elasticsearch-kibana-cypress-test
-          - logging/loki-cypress-test
-          - mattermost/mattermost-cypress-test
-          - minio/minio-instance-cypress-test
-          - minio-operator/minio-operator-cypress-test
-          - monitoring/grafana-cypress-test
-          - monitoring/monitoring-cypress-test
-          - neuvector/neuvector-cypress-test
-          - nexus-repository-manager/nexus-repository-manager-cypress-test
-          - sonarqube/sonarqube-cypress-test
-          - tempo/tempo-cypress-test
-          - thanos/thanos-cypress-test
-          - twistlock/twistlock-cypress-test
-          - vault/vault-cypress-test
-          - mimir/mimir-cypress-test
-          - headlamp/headlamp-cypress-test
+          - ".*/.*-cypress-test"
           # Allow kyverno test vectors for Helm test
           - default/restrict-host-path-mount-.?
           - default/restrict-host-path-write-.?
@@ -932,17 +876,12 @@ loki:
   strategy: monolith
   values:
     istio:
-      loki:
-        enabled: true
-      hardened:
-        customServiceEntries:
+      serviceEntries:
+        custom:
           - name: "cypress-service-entries-loki"
             enabled: true
             spec:
               hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
                 - 'repo1.dso.mil'
                 - 'grafana.dev.bigbang.mil'
                 - 'optimizationguide-pa.googleapis.com'
@@ -957,7 +896,6 @@ loki:
                   protocol: TLS
                   name: https
               resolution: DNS
-
     minio:
       enabled: false
     bbtests:
@@ -971,9 +909,6 @@ loki:
           LOKI_URL: 'http://logging-loki.logging.svc:3100'
 
 tempo:
-  sso:
-    enabled: false
-    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_tempo
   values:
     istio:
       serviceEntries:
@@ -1122,6 +1057,8 @@ grafana:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
 
 neuvector:
+  sso:
+    client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_neuvector
   values:
     upstream:
       enforcer:
@@ -2064,7 +2001,7 @@ addons:
               memory: "2Gi"
             limits:
               cpu: "2"
-              memory: "2Gi"            
+              memory: "2Gi"
 
   nexusRepositoryManager:
     enabled: false
@@ -2275,8 +2212,8 @@ addons:
           from:
             keycloak:
               to:
-                cidr: 
-                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container  
+                cidr:
+                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container
       istio:
         hardened:
           customServiceEntries:
@@ -2583,6 +2520,23 @@ addons:
           replicas: 1
       istio:
         hardened:
+          customAuthorizationPolicies:
+            - name: "allow-monitoring"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      principals:
+                      - cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus
+                  to:
+                  - operation:
+                      ports:
+                      - "8001"
+                selector:
+                  matchLabels:
+                    app: harbor
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
               enabled: true
