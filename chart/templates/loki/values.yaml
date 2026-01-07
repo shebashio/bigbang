@@ -36,6 +36,7 @@ istio:
 routes:
   inbound:
     loki:
+      enabled: {{ dig "istio" "loki" "enabled" false .Values.loki.values }}
       gateways:
         - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
       hosts:
