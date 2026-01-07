@@ -12,19 +12,6 @@
 {{- $uniquePorts := uniq $allPortsSanitized }}
 
 networkPolicies:
-  ingress:
-    definitions:
-      kubeAPI:
-        from:
-        {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: "0.0.0.0/0"
-        {{- else }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-        {{- end }}
   egress:
     definitions:
       kubeAPI:
