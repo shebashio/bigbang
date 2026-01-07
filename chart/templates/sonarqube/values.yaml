@@ -11,7 +11,7 @@
 {{- define "bigbang.defaults.sonarqube" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.sonarqube.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.sonarqube.values) }}
-{{- $postgresEnabled := dig "upstream" "postgresql" "enabled" false .Values.addons.sonarqube.values }}
+{{- $postgresEnabled := dig "upstream" "postgresql" "enabled" true .Values.addons.sonarqube.values }}
 {{- $plugins := dig "upstream" "plugins" "install" (list) .Values.addons.sonarqube.values }}
 {{- $pluginsExist := not (empty $plugins) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
@@ -53,10 +53,15 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.sonarqube.values }}
       hosts:
       - repo1.dso.mil
-    sonarqube:
+    sonarqube-telemetry:
       enabled: true
       hosts:
       - downloads.sonarsource.com
+    sonarqube-marketplace:
+      enabled: {{ $pluginsExist }}
+      hosts:
+      - github.com
+      - release-assets.githubusercontent.com
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -85,7 +90,7 @@ networkPolicies:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
           definition:
             sonarsource-marketplace: {{ $pluginsExist }}
-            code-repository: true
+            code-repository: false
             database-subnets: {{ not $postgresEnabled }}
 
 image:
