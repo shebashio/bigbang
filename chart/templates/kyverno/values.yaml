@@ -48,6 +48,21 @@ networkPolicies:
           definition:
             private-registry: {{ (dig "policies" "require-image-signature" "enabled" true .Values.kyvernoPolicies.values) }}
             kubeAPI: true
+      ## Kyverno background and cleanup controllers may be needed depending on the flavor of kubernetes in use
+      kyverno-background-controller:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/component: background-controller
+        to:
+          definition:
+            kubeAPI: true
+      kyverno-cleanup-controller:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/component: cleanup-controller
+        to:
+          definition:
+            kubeAPI: true
 
 openshift: {{ .Values.openshift }}
 
