@@ -16,17 +16,13 @@ networkPolicies:
     definitions:
       kubeAPI:
         to:
-        {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: "0.0.0.0/0"
-              except:
-              - 169.254.169.254/32
-        {{- else }}
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-        {{- end }}
+              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+              # ONLY Block requests to cloud metadata IP
+              except:
+              - 169.254.169.254/32
+              {{- end }}
       private-registry:
         to:
           - ipBlock:
