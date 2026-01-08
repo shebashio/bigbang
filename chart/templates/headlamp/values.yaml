@@ -17,10 +17,10 @@
 istio:
   enabled: {{ .Values.istiod.enabled }}
   authorizationPolicies:
-    enabled: $istioHardenedEnabled
-    generateFromNetpol: $istioHardenedEnabled
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
   sidecar:
-    enabled: $istioHardenedEnabled
+    enabled: {{ $istioHardenedEnabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
