@@ -36,6 +36,6 @@ networkPolicies:
             app.kubernetes.io/component: admission-controller
         to:
           definition:
-            private-registry: {{ dig "networkPolicies" "externalRegistries" "allowEgress" false .Values.kyverno.values }}
+            private-registry: {{ or (dig "networkPolicies" "externalRegistries" "allowEgress" false .Values.kyverno.values) (dig "policies" "require-image-signature" "enabled" false .Values.kyvernoPolicies.values) }}
             kubeAPI: true
 {{- end }}

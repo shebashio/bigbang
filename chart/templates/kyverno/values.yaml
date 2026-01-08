@@ -46,7 +46,7 @@ networkPolicies:
             app.kubernetes.io/component: admission-controller
         to:
           definition:
-            private-registry: {{ (dig "policies" "require-image-signature" "enabled" true .Values.kyvernoPolicies.values) }}
+            private-registry: {{ dig "policies" "require-image-signature" "enabled" false .Values.kyvernoPolicies.values }}
             kubeAPI: true
       ## Kyverno background and cleanup controllers may be needed depending on the flavor of kubernetes in use
       kyverno-background-controller:
