@@ -14,6 +14,7 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.elasticsearchKibana.values) }}
+{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
@@ -44,16 +45,28 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
 
-{{- if and .Values.addons.mattermost.elasticsearch.enabled .Values.addons.mattermost.enabled }}
-mattermost:
-  enabled: true
-{{- end }}
+  ingress:
+    to:
+      # Elasticsearch ingress policies
+      elasticsearch:9200:
+        podSelector:
+          matchLabels:
+            common.k8s.elastic.co/type: elasticsearch
+        from:
+          k8s:
+            # Allow Fluentbit to write logs to Elasticsearch
+            fluentbit-fluent-bit@fluentbit/fluent-bit: {{ and .Values.fluentbit.enabled (not $disableDefaultFLB)  }}
 
-{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- if and .Values.fluentbit.enabled (not $disableDefaultFLB) }}
-fluentbit:
-  enabled: true
-{{- end }}
+            # Allow Mattermost to write to Elasticsearch 
+            mattermost@mattermost/mattermost: {{ and .Values.addons.mattermost.elasticsearch.enabled .Values.addons.mattermost.enabled  }}
+
+
+      # Metrics exporter ingress
+      metrics:9108:
+        from:
+          k8s:
+            # Allow Prometheus to scrape metrics
+            monitoring/prometheus: {{ .Values.monitoring.enabled  }}
 
 {{- with .Values.elasticsearchKibana.sso }}
 {{- if .enabled }}
