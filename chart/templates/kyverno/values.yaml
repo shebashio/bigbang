@@ -19,8 +19,8 @@ networkPolicies:
   hbonePortInjection:
     enabled: false
   ingress:
-    definitions:
-      {{ .Values.networkPolicies.ingress.definitions | nindent 6 }}
+    definitions: 
+      {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
     to:
       kyverno:8000:
         podSelector:
@@ -30,8 +30,8 @@ networkPolicies:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
-    definitions:
-      {{ .Values.networkPolicies.egress.definitions | nindent 6 }}
+    definitions: 
+      {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
       private-registry:
         to:
           - ipBlock:
