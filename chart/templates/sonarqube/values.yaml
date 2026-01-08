@@ -98,6 +98,7 @@ networkPolicies:
             sonarsource-marketplace: {{ $pluginsExist }}
             code-repository: false
             database-subnets: {{ not $postgresEnabled }}
+            sso: {{ .Values.addons.sonarqube.sso.enabled }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
