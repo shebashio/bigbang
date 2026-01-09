@@ -45,6 +45,23 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
 
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+
+  egress:
+    definitions:
+      sso:
+        {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
+
+    from:
+      elasticsearch:
+        podSelector:
+          matchLabels:
+            common.k8s.elastic.co/type: elasticsearch
+        to:
+          definition:
+            sso: {{ .Values.elasticsearchKibana.sso.enabled }}
   ingress:
     to:
       # Elasticsearch ingress policies
