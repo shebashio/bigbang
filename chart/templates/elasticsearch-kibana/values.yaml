@@ -40,7 +40,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
