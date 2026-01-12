@@ -10,6 +10,7 @@ domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.sonarqube) "enabled") }}
+{{- $localSSOEnabled := and .Values.addons.keycloak.enabled .Values.addons.sonarqube.sso.enabled }}
 
 OpenShift:
   enabled: {{ .Values.openshift }}
@@ -45,6 +46,11 @@ annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}
 
+{{- if $localSSOEnabled }}
+sso:
+  idpmetadataurl: {{ include "sso.saml.service" . }}/descriptor
+{{- end }}
+
 upstream:
 {{- if .Values.addons.sonarqube.sso.enabled }}
   sonarProperties:
@@ -60,13 +66,19 @@ upstream:
     sonar.auth.saml.providerId: {{ include "sso.url" . }}    #"https://your.keycloak.url/auth/realms/baby-yoda"
     sonar.auth.saml.loginUrl: {{ include "sso.saml.service" . }}    #"https://your.keycloak.url/auth/realms/baby-yoda/protocol/saml"
      # This is the RS256 key copied from Keycloak The value you get from ***Realm Settings > Keys > RS256.*** Click on Certificate
+    {{- if not $localSSOEnabled }}
     sonar.auth.saml.certificate.secured: {{ default (include "sso.saml.cert" .) .Values.addons.sonarqube.sso.certificate }}   #"-----BEGIN CERTIFICATE-----"
+    {{- end }}
     sonar.auth.saml.user.login: {{ .Values.addons.sonarqube.sso.login | default "login" }}   #"login" (user attribute)
     sonar.auth.saml.user.name: {{ .Values.addons.sonarqube.sso.name | default "name" }}      #"username" (user attribute)
     sonar.auth.saml.user.email: {{ .Values.addons.sonarqube.sso.email | default "email" }}   #"email" (user attribute)
     {{- if .Values.addons.sonarqube.sso.group }}
     sonar.auth.saml.group.name: {{ .Values.addons.sonarqube.sso.group }}  #"groups" (user attribute)
     {{- end }}
+  {{- end }}
+
+  {{- if $localSSOEnabled }}
+  sonarSecretProperties: sonarqube-sonarqube-secret
   {{- end }}
 
 {{- with .Values.addons.sonarqube.database }}
