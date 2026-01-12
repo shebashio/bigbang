@@ -52,11 +52,13 @@ networkPolicies:
 
 istio:
   enabled: {{ $istioEnabled }}
+  hardened:
+    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.fluentbit.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 openshift: {{ .Values.openshift }}
 
