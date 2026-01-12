@@ -5,7 +5,12 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.sonarqube.values) | fromYaml -}}
 {{- $sonarqubePackage = set $sonarqubePackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $sonarqubePackage "name" "sonarqube" "defaults" (include "bigbang.defaults.sonarqube" .)) }}
+{{- include "values-secret" (dict 
+"root" $ 
+"package" $sonarqubePackage 
+"name" "sonarqube" 
+"defaults" ((mergeOverwrite (include "bigbang.defaults.sonarqube" . | fromYaml) (include "bigbang.sonarqube.bb-common-migrations" . | fromYaml)) | toYaml) 
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.sonarqube" -}}
@@ -56,15 +61,12 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.sonarqube.values }}
       hosts:
       - repo1.dso.mil
-    sonarqube-telemetry:
-      enabled: true
-      hosts:
-      - downloads.sonarsource.com
     sonarqube-marketplace:
       enabled: {{ $pluginsExist }}
       hosts:
       - github.com
       - release-assets.githubusercontent.com
+      - downloads.sonarsource.com
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -90,9 +92,8 @@ networkPolicies:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
           definition:
             sonarsource-marketplace: {{ $pluginsExist }}
-            code-repository: false
+            code-repository: true
             database-subnets: {{ not $postgresEnabled }}
-            sso: {{ .Values.addons.sonarqube.sso.enabled }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
