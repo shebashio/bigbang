@@ -54,6 +54,13 @@ PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by defaul
   "vault"
 )
 
+# OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
+ENABLE_OIDC=false
+OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda}"
+OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-kubernetes}"
+OIDC_USERNAME_CLAIM="${OIDC_USERNAME_CLAIM:-preferred_username}"
+OIDC_GROUPS_CLAIM="${OIDC_GROUPS_CLAIM:-groups}"
+
 ### Uninitialized globals
 
 # The quickstart instructions have the user set these. Not all users
@@ -202,6 +209,11 @@ function process_arguments {
       echo "                                  (for managing multiple instances)"
       echo " -w|--use-weave-cni               install the weave CNI instead of the"
       echo "                                  default flannel CNI"
+      echo " -O|--enable-oidc                 configure kube-apiserver with OIDC"
+      echo "                                  for group-based RBAC with Keycloak"
+      echo "                                  (uses dev.bigbang.mil defaults)"
+      echo " --oidc-issuer-url URL            override OIDC issuer URL (requires -O)"
+      echo " --oidc-client-id ID              override OIDC client ID (requires -O)"
       echo " -i|--init-script SCRIPTFILE      initialization script to pass to"
       echo "                                  instance before configuring it"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
@@ -258,6 +270,20 @@ function process_arguments {
 
     -w|--use-weave-cni)
       USE_WEAVE=true
+      ;;
+
+    -O|--enable-oidc)
+      ENABLE_OIDC=true
+      ;;
+
+    --oidc-issuer-url)
+      shift
+      OIDC_ISSUER_URL=$1
+      ;;
+
+    --oidc-client-id)
+      shift
+      OIDC_CLIENT_ID=$1
       ;;
 
     *) echo "Option $1 not recognized" ;; # In case a non-existent option is submitted
@@ -629,6 +655,19 @@ function install_k3d {
     k3d_command+=" --k3s-arg \"--disable=servicelb@server:0\""
   fi
 
+  # Add OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
+  if [[ "$ENABLE_OIDC" == true ]]; then
+    echo "Configuring kube-apiserver OIDC for group-based RBAC..."
+    echo "  Issuer URL: ${OIDC_ISSUER_URL}"
+    echo "  Client ID: ${OIDC_CLIENT_ID}"
+    echo "  Username claim: ${OIDC_USERNAME_CLAIM}"
+    echo "  Groups claim: ${OIDC_GROUPS_CLAIM}"
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-issuer-url=${OIDC_ISSUER_URL}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-client-id=${OIDC_CLIENT_ID}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-username-claim=${OIDC_USERNAME_CLAIM}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-groups-claim=${OIDC_GROUPS_CLAIM}@server:0\""
+  fi
+
   # Add Public/Private IP specific k3d config
   if [[ "$PRIVATE_IP" == true ]]; then
     echo "using private ip for k3d"
@@ -972,6 +1011,27 @@ function print_instructions {
       echo "A secondary IP is available for use if you wish to have a passthrough ingress for Istio along with a public Ingress Gateway, this maybe useful for Keycloak x509 mTLS authentication."
       echo "  $SecondaryIP  ${PASSTHROUGH_DOMAINS[*]}"
     fi
+  fi
+
+  if [[ "$ENABLE_OIDC" == true ]]; then
+    echo
+    echo "OIDC CONFIGURATION FOR GROUP-BASED RBAC"
+    echo "========================================"
+    echo "The kube-apiserver has been configured with OIDC authentication."
+    echo "This enables Kubernetes RBAC based on Keycloak group membership."
+    echo
+    echo "Configuration:"
+    echo "  Issuer URL: ${OIDC_ISSUER_URL}"
+    echo "  Client ID: ${OIDC_CLIENT_ID}"
+    echo "  Username claim: ${OIDC_USERNAME_CLAIM}"
+    echo "  Groups claim: ${OIDC_GROUPS_CLAIM}"
+    echo
+    echo "To use group-based RBAC:"
+    echo "  1. Create groups in Keycloak (e.g., 'headlamp-admins', 'headlamp-readers')"
+    echo "  2. Configure Group Membership mapper in Keycloak client to include groups in tokens"
+    echo "  3. Create ClusterRoleBindings that reference these groups"
+    echo
+    echo "See docs/keycloak.md and docs/RBAC.md in the Headlamp package for details."
   fi
 }
 

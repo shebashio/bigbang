@@ -31,6 +31,9 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          definition:
+            kubeAPI: true
+            sso: {{ .Values.addons.headlamp.sso.enabled }}
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
