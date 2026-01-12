@@ -29,9 +29,6 @@ domain: {{ $domainName }}
 OpenShift:
   enabled: {{ .Values.openshift }}
 
-monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
-
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
