@@ -128,6 +128,9 @@ upstream:
     {{- end }}
 {{- end }}
 
+  prometheusExporter:
+    enabled: {{ .Values.monitoring.enabled }}
+
 {{- with .Values.addons.sonarqube.database }}
   {{- if and .host .username .password .database .port }}
 # External Postgres config
