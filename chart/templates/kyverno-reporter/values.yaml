@@ -10,7 +10,7 @@
 "root" $ 
 "package" (get .Values $pkg) 
 "name" ($pkg | kebabcase) 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.kyvernoRporter" . | fromYaml) (include "bigbang.kyverno-reporter.bb-common-migrations" . | fromYaml)) | toYaml)
+"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno-reporter" . | fromYaml) (include "bigbang.kyverno-reporter.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
 
@@ -54,7 +54,10 @@ routes:
       - grafana.{{ $domainName }}
 
 networkPolicies:
-  enabled: false
+  enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   egress:
     from:
       kyverno-reporter:
