@@ -294,9 +294,6 @@ gatekeeper:
 kyverno:
   values:
     upstream:
-      networkPolicies:
-        externalRegistries:
-          allowEgress: true
       admissionController:
         container:
           extraArgs:
@@ -795,16 +792,6 @@ elasticsearchKibana:
     istio:
       hardened:
         customServiceEntries:
-          - name: "repo1"
-            spec:
-              hosts:
-                - repo1.dso.mil
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
           - name: "cypress-service-entries-elasticsearchkibana"
             enabled: true
             spec:
@@ -1763,8 +1750,6 @@ addons:
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
     values:
-      bbtests:
-        enabled: true
       istio:
         console:
           enabled: false
