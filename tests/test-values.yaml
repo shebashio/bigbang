@@ -870,7 +870,7 @@ fluentbit:
 
 loki:
   # Test SingleBinary at Umbrella, and Scalable at package level
-  strategy: monolith
+  strategy: scalable
   values:
     istio:
       serviceEntries:
