@@ -941,6 +941,24 @@ tempo:
         envs:
           TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
+packages:
+  jaeger:
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/jaeger.git
+      tag: null
+      branch: "renovate/ironbank"
+    sso:
+      enabled: true
+      client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-jaeger
+    values:
+      istio:
+        enabled: true
+        hardened: 
+          enabled: true
+      monitoring:
+        enabled: true
+        
 monitoring:
   flux:
     timeout: 20m
