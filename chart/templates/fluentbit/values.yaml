@@ -48,8 +48,28 @@ networkPolicies:
       fluent-bit:
         to:
           definition:
-            storage-subnets: {{ $additionalS3 }}
-
+            external-elastic:
+              # NOTE: External output egress is explicit; no implicit enablement from
+              # additionalOutputs. Toggle these on when needed.
+              enabled: false
+            external-loki:
+              enabled: false
+            external-fluentd:
+              enabled: false
+            storage-subnets:
+              enabled: {{ $additionalS3 }} # NOTE: S3 output requires storage subnet egress
+            kubeAPI:
+              enabled: true
+          k8s:
+            logging/elasticsearch:9200:
+              enabled: {{ .Values.elasticsearchKibana.enabled }}
+              podSelector:
+                matchLabels:
+                  common.k8s.elastic.co/type: elasticsearch
+            logging/logging-loki:3100:
+              enabled: {{ .Values.loki.enabled }}
+            tempo/tempo:9411:
+              enabled: {{ .Values.tempo.enabled }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
