@@ -41,9 +41,9 @@ Package is the term we use for an application that has been prepared to be deplo
               image: registry1.dso.mil/ironbank/path/to/your-app:6.9.0
         ```
 
-3. Add bb-common as helm dependency and create the required include files as referenced [here](https://repo1.dso.mil/big-bang/product/packages/bb-common#as-a-library-chart). You will need to manually create the "bigbang" directory under the "templates".
+3. Add bb-common as a helm dependency and create the required include files as referenced [here](https://repo1.dso.mil/big-bang/product/packages/bb-common#as-a-library-chart).
 
-4. Run a helm dependency update that will download the upstream chart as a dependency as well as any external sub-chart dependencies. Commit any *.tgz files that are downloaded into the "charts" directory. The reason for doing this is that BigBang Packages must be able to be installed in an air-gap without any internet connectivity.
+4. Run a helm dependency update that will download the upstream chart as a dependency as well as any external sub-chart and library chart dependencies. Commit any *.tgz files that are downloaded into the "charts" directory. The reason for doing this is that BigBang Packages must be able to be installed in an air-gap without any internet connectivity.
     ```shell
     helm dependency update ./chart
     ```
@@ -60,7 +60,7 @@ Package is the term we use for an application that has been prepared to be deplo
     # list images from the upstream chart
     helm template <releasename> ./chart -n <namespace> -f chart/values.yaml | grep image:
     ```
-    Add the image overrides, **do not** copy the upstream defaults, in your package's `values.yaml` using the `upstream` key to pass values to the upstream chart. Also add the "imagePullSecrets" tag if not already there. Here is an example:
+    Add the image overrides, **do not** copy the upstream defaults, in your package's `values.yaml` using the `upstream` key to pass values to the upstream chart. Also add the "imagePullSecrets" tag if not already there along with the "Big Bang specific values" that get used by the bb-common library chart. Here is an example:
     ```yaml
     # Big Bang specific values
     networkPolicies:
