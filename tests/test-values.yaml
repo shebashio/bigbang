@@ -870,7 +870,7 @@ fluentbit:
 
 loki:
   # Test SingleBinary at Umbrella, and Scalable at package level
-  strategy: scalable
+  strategy: monolith
   values:
     istio:
       serviceEntries:
@@ -894,7 +894,7 @@ loki:
                   name: https
               resolution: DNS
     minio:
-      enabled: true
+      enabled: false
     bbtests:
       enabled: true
       cypress:
@@ -903,7 +903,7 @@ loki:
           cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
       scripts:
         envs:
-          LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
+          LOKI_URL: 'http://logging-loki.logging.svc:3100'
 
 tempo:
   values:
