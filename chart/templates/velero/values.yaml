@@ -50,11 +50,36 @@ networkPolicies:
   egress:
     definitions: 
       {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+        {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+              # ONLY Block requests to cloud metadata IP
+              except:
+              - 169.254.169.254/32
+        {{- end }}
     from:
       velero:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            istio-gateway/public-ingressgateway:443: {{ .Values.addons.minio.enabled }}
+            minio/minio-instance:80:
+              enabled: {{ .Values.addons.minio.enabled }}
+              podSelector:
+                matchLabels:
+                  v1.min.io/tenant: minio-minio-minio-instance
+          definition:
+            kubeAPI: true
+            storage-subnets: true
+      velero-upgrade-crds:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: velero-upgrade-crds
+        to:
+          definition:
+            kubeAPI: true
 
 openshift: {{ .Values.openshift }}
 
