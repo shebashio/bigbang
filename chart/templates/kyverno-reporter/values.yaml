@@ -8,8 +8,8 @@
 {{- end -}}
 {{- include "values-secret" (dict 
 "root" $ 
-"package" (get .Values $pkg) 
-"name" ($pkg | kebabcase) 
+"package" $kyvernoReporterPackage
+"name" "kyvernoReporter"
 "defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno-reporter" . | fromYaml) (include "bigbang.kyverno-reporter.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
