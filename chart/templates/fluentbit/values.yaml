@@ -20,7 +20,8 @@
     (and
       (dig "additionalOutputs" "s3" "aws_secret_access_key" false .Values.fluentbit.values)
       (dig "additionalOutputs" "s3" "aws_access_key_id" false .Values.fluentbit.values))
-      (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values)))
+      (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values))
+  true)
 }}
 
 {{- $lokiServiceMap := dict
@@ -49,8 +50,6 @@ networkPolicies:
         to:
           definition:
             external-elastic:
-              # NOTE: External output egress is explicit; no implicit enablement from
-              # additionalOutputs. Toggle these on when needed.
               enabled: false
             external-loki:
               enabled: false

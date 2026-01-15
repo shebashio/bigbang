@@ -2,6 +2,7 @@
 suite: Template - bigbang.defaults.fluentbit
 templates:
 - templates/_self-test/render.yaml
+- templates/fluentbit/values.yaml
 tests:
 - it: must source storage-subnets from global definitions and enable when S3 output is configured
   set:
@@ -27,6 +28,7 @@ tests:
       bigbang.defaults.fluentbit:
         resultIsYaml: true
         args: helm:context
+  template: templates/_self-test/render.yaml
   asserts:
   - equal:
       path: result.networkPolicies.egress.definitions["storage-subnets"]
@@ -38,5 +40,5 @@ tests:
           - port: 443
             protocol: TCP
   - equal:
-      path: result.networkPolicies.egress.from["fluent-bit"].to.definition["storage-subnets"]
+      path: result.networkPolicies.egress.from["fluent-bit"].to.definition["storage-subnets"].enabled
       value: true
