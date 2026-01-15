@@ -1,6 +1,6 @@
 {{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
 
-  {{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
+  {{- /* Create a cleaned copy of the config and merge deprecated paths into current paths */ -}}
   {{- $eckOperatorPackage := deepCopy .Values.eckOperator -}}
   {{- if .Values.eckOperator.values -}}
     {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.eckOperator.values) | fromYaml -}}
