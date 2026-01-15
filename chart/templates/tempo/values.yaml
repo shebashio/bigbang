@@ -113,8 +113,8 @@ networkPolicies:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            {{/* TODO: Revisit this logic for bb 4.0 */}}
-            storage-subnets: {{ or (ne $storageMode "local") (dig .Values.tempo.objectStorage.endpoint) }}
+            # TODO: Revisit this logic for bb 4.0
+            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.tempo.objectStorage.endpoint )) }}
 
 istio:
   enabled: {{ $istioEnabled }}
