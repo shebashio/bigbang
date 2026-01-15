@@ -1,18 +1,9 @@
 {{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
-
-  {{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
-  {{- $eckOperatorPackage := deepCopy .Values.eckOperator -}}
-  {{- if .Values.eckOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.eckOperator.values) | fromYaml -}}
-    {{- $eckOperatorPackage = set $eckOperatorPackage "values" $cleanedValues -}}
-  {{- end }}
-
-{{- include "values-secret" (dict "root" $ "package" $eckOperatorPackage "name" "eck-operator" "defaults" (include "bigbang.defaults.eck-operator" .)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.eckOperator "name" "eck-operator" "defaults" (include "bigbang.defaults.eck-operator" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.eck-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.eckOperator.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 license:
   trial: {{ .Values.elasticsearchKibana.license.trial }}
   keyJSON: |
@@ -32,13 +23,16 @@ openshift: {{ .Values.openshift }}
 
 istio:
   enabled: {{ $istioEnabled }}
-
-  sidecar:
-    enabled: {{ $istioHardenedEnabled }}
-
-  authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+  hardened:
+    enabled: {{ or
+      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
+      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
+      (dig "hardened" "enabled" false .Values.istiod.values)
+      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
+      (dig "istio" "hardened" "enabled" false .Values.loki.values)
+      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
+      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
+    }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -55,27 +49,11 @@ serviceMonitor:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
-  hbonePortInjection:
-    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
-  ingress:
-    to:
-      elastic-operator:8080:
-        from:
-          k8s:
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
-  egress:
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
+  istioNamespaceSelector:
+  {{ include "istioNamespaceSelector" . | nindent 4 }}
 
-    from:
-      elastic-operator:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
 upstream:
   imagePullSecrets:
     - name: private-registry
