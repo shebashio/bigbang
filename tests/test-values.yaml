@@ -1805,6 +1805,8 @@ addons:
                 resolution: DNS
       upstream:
         tenant:
+          buckets:
+            - name: velero
           pools:
           - name: pool-0
             labels:
