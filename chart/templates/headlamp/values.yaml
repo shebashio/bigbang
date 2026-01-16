@@ -45,6 +45,10 @@ networkPolicies:
 {{- $baseURL := dig "upstream" "config" "baseURL" "" .Values.addons.headlamp.values }}
 {{- $port := dig "upstream" "service" "port" 4466 .Values.addons.headlamp.values }}
 {{- $serviceName := "headlamp-headlamp" }}
+{{- $ssoHost := "" }}
+{{- if .Values.addons.headlamp.sso.enabled }}
+{{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
+{{- end }}
 routes:
   inbound:
     headlamp:
@@ -71,6 +75,13 @@ routes:
             host: {{ $serviceName }}
             port:
               number: {{ $port }}
+      {{- end }}
+  outbound:
+    sso:
+      enabled: {{ .Values.addons.headlamp.sso.enabled }}
+      {{- if $ssoHost }}
+      hosts:
+        - {{ $ssoHost }}
       {{- end }}
 
 {{- $domainName := default .Values.domain .Values.hostname }}
