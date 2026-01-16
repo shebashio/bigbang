@@ -1059,7 +1059,7 @@ policies:
       - namespace: fluentbit
         pods:
           allow:
-          - fluentbit-script-test
+          - fluentbit-fluent-bit*
       - namespace: minio-operator
         pods:
           allow:
