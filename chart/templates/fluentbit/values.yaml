@@ -69,6 +69,12 @@ networkPolicies:
               enabled: {{ .Values.loki.enabled }}
             tempo/tempo:9411:
               enabled: {{ .Values.tempo.enabled }}
+  ingress:
+    to:
+      "fluent-bit:2020":
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
