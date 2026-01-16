@@ -71,7 +71,7 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
-            istio-gateway/public-ingressgateway:443: {{ .Values.addons.minio.enabled }}
+            istio-gateway/public-ingressgateway:8443: {{ .Values.addons.minio.enabled }}
             minio/minio-instance:9000:
               enabled: {{ .Values.addons.minio.enabled }}
               podSelector:
