@@ -467,6 +467,7 @@ policies:
           - mattermost-operator
           names:
           - mattermost-*
+          - myminio-*
       {{- end }}
       {{- if .Values.alloy.enabled }}
       # Alloy requires access to journalctl as well as /var/log.  This would require modifications
