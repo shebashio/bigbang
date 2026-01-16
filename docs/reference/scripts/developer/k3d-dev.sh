@@ -57,7 +57,7 @@ PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by defaul
 # OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
 ENABLE_OIDC=false
 OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda}"
-OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-kubernetes}"
+OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_headlamp}"
 OIDC_USERNAME_CLAIM="${OIDC_USERNAME_CLAIM:-preferred_username}"
 OIDC_GROUPS_CLAIM="${OIDC_GROUPS_CLAIM:-groups}"
 

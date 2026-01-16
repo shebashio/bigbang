@@ -91,9 +91,9 @@ upstream:
   config:
     oidc:
       clientID: {{ .Values.addons.headlamp.sso.client_id }}
-      clientSecret: {{ .Values.addons.headlamp.sso.client_secret }}
       issuerURL: {{ .Values.sso.url }}
       scopes: "email,profile"
+      usePKCE: true
 {{- else }}
 upstream:
   config:

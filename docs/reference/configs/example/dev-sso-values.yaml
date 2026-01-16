@@ -253,9 +253,7 @@ addons:
     sso:
       enabled: true
       client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-headlamp
-      # Headlamp uses OIDC (confidential client) - client_secret required
-      # For login.dso.mil, the secret would be issued when the client is registered
-      client_secret: ""  # Set via --set addons.headlamp.sso.client_secret=<secret>
+      # Headlamp uses PKCE (public client) - no client_secret required
   argocd:
     sso:
       enabled: true
