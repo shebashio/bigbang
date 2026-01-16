@@ -141,16 +141,17 @@ fileStore:
 {{- else }}
 minio:
   install: true
-  accessKey: {{ .accessKey | default "minio" }}
-  secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
-  imagePullSecrets:
-    - name: private-registry
-  tenants:
-    metrics:
-      enabled: {{ $.Values.monitoring.enabled }}
-  {{- if $istioInjection }}
-  annotations:
-    {{ include "istioAnnotation" $ }}
+  upstream:
+    accessKey: {{ .accessKey | default "minio" }}
+    secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
+    imagePullSecrets:
+      - name: private-registry
+    tenants:
+      metrics:
+        enabled: {{ $.Values.monitoring.enabled }}
+    {{- if $istioInjection }}
+    annotations:
+      {{ include "istioAnnotation" $ }}
   {{- end }}
 {{- end }}
 {{- end }}
