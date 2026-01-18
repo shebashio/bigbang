@@ -1,0 +1,12 @@
+pre-commit:
+  parallel: true
+  commands:
+    bats-k3d-dev:
+      glob: "docs/reference/scripts/developer/k3d-dev.sh"
+      run: bats --jobs 4 docs/reference/scripts/developer/tests/
+
+pre-push:
+  parallel: true
+  commands:
+    bats-k3d-dev:
+      run: bats --jobs 4 docs/reference/scripts/developer/tests/
