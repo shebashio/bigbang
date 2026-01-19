@@ -7,9 +7,9 @@
 
 {{- define "bigbang.defaults.istio-cni" -}}
 upstream:
-  # Including this here as we will likely have a global variable that enable/disables
+  # Ambient mode is automatically enabled when ztunnel is enabled
   ambient:
-    enabled: false
+    enabled: {{ .Values.ztunnel.enabled }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:

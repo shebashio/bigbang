@@ -16,6 +16,7 @@
     "imagePullPolicy",
     "disableAutomaticPassthroughValues",
     "istioCNI",
+    "ztunnel",
     "istioCRDs",
     "istioGateway",
     "istiod",
@@ -250,6 +251,23 @@
       "description": "If true, disables the automatic passthrough of values to upstream packages."
     },
     "istioCNI": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "ztunnel": {
       "properties": {
         "enabled": true,
         "sourceType": true,

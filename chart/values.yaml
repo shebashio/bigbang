@@ -242,6 +242,26 @@ istioCNI:
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
 
+ztunnel:
+  # -- Toggle deployment of ztunnel (required for Istio Ambient mode)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/ztunnel.git
+    path: "./chart"
+    tag: 1.28.2-bb.0
+  helmRepo:
+    repoName: "registry1"
+    chartName: "ztunnel"
+    tag: 1.28.2-bb.0
+  # -- Values to passthrough to the ztunnel chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the ztunnel Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 istioCRDs:
   # -- Toggle deployment of Istio CRDs
   enabled: true

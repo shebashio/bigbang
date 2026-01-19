@@ -1,0 +1,24 @@
+{{- if and (eq .Values.ztunnel.sourceType "git") (not .Values.offline) .Values.ztunnel.enabled }}
+{{- $gitCredsDict := dict
+  "name" "ztunnel"
+  "packageGitScope" .Values.ztunnel.git
+  "rootScope" .
+  "releaseName" .Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: ztunnel
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: ztunnel
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+spec:
+  interval: {{ .Values.flux.interval }}
+  url: {{ .Values.ztunnel.git.repo }}
+  ref:
+    {{- include "validRef" .Values.ztunnel.git | nindent 4 }}
+  {{ include "gitIgnore" . }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end }}

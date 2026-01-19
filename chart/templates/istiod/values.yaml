@@ -41,6 +41,11 @@ authservice:
 upstream:
   cni:
     enabled: {{ .Values.istioCNI.enabled }}
+  {{- if .Values.ztunnel.enabled }}
+  pilot:
+    env:
+      PILOT_ENABLE_AMBIENT: "true"
+  {{- end }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
