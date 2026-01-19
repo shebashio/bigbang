@@ -31,7 +31,7 @@ routes:
       - registry.{{ .Values.domain }}
       {{- end }}
     kas:
-      enabled: {{ dig "istio" "kas" "enabled" true .Values.addons.gitlab.values }}
+      enabled: {{ dig "global" "kas" "enabled" true .Values.addons.gitlab.values }}
       gateways:
       - {{ include "getGatewayName" (dict "gateway" (.Values.addons.gitlab.ingress.gateway | default "public") "root" .)}}
       {{- $kasHosts := dig "istio" "kas" "hosts" list .Values.addons.gitlab.values }}

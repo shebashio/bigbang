@@ -79,7 +79,7 @@ routes:
         app: registry
 
     kas:
-      enabled: true
+      enabled: {{ dig "global" "kas" "enabled" true .Values.addons.gitlab.values }}
       gateways:
       - istio-gateway/public-ingressgateway
       hosts:
