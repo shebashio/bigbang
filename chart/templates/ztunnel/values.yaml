@@ -11,4 +11,11 @@ upstream:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
       - private-registry
+    {{- /* Inherit hub/tag from istiod if set, allowing all Istio components to use same image source */}}
+    {{- if (dig "values" "upstream" "global" "hub" "" .Values.istiod) }}
+    hub: {{ .Values.istiod.values.upstream.global.hub }}
+    {{- end }}
+    {{- if (dig "values" "upstream" "global" "tag" "" .Values.istiod) }}
+    tag: {{ .Values.istiod.values.upstream.global.tag }}
+    {{- end }}
 {{- end }}
