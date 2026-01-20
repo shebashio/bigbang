@@ -1193,7 +1193,7 @@ policies:
       - namespace: fluentbit
         pods:
           allow:
-          - fluentbit-fluent-bit-*
+          - fluentbit-script-test*
       - namespace: eck-operator
         pods:
           allow:
