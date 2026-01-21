@@ -92,7 +92,7 @@ networkPolicies:
           definition:
             sonarsource-marketplace: {{ $pluginsExist }}
             code-repository: true
-            database-subnets: {{ not (empty .Values.addons.sonarqube.database.host) }}
+            database-subnets: {{ not (or (empty .Values.addons.sonarqube.database.host) (dig "upstream" "jdbcOverwrite" "enabled" false .Values.addons.sonarqube.values )) }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
