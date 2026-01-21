@@ -96,6 +96,9 @@ networkPolicies:
             code-repository: true
             database-subnets: {{ not $postgresEnabled }}
       sonarqube-configure-sso:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: configure-sso-certificate-secret
         to:
           definition:
             kubeAPI: 
