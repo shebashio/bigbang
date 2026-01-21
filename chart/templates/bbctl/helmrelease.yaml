@@ -55,7 +55,7 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.loki.enabled (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) .Values.monitoring.enabled .Values.grafana.enabled }}
+  {{- if or .Values.loki.enabled (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) .Values.prometheusOperatorCRDs.enabled .Values.grafana.enabled }}
   dependsOn:
     {{- if .Values.loki.enabled }}
     - name: loki
@@ -65,8 +65,8 @@ spec:
     - name: alloy
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
-    - name: monitoring
+    {{- if .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if .Values.grafana.enabled }}

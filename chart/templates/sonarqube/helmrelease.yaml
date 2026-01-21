@@ -64,7 +64,7 @@ spec:
 
   values:
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.keycloak.enabled $istioEnabled }}
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.prometheusOperatorCRDs.enabled .Values.addons.keycloak.enabled $istioEnabled }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -78,8 +78,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
-    - name: monitoring
+  {{- if .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if and .Values.addons.keycloak.enabled .Values.addons.sonarqube.sso.enabled}}

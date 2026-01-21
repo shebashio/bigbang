@@ -61,10 +61,10 @@ spec:
     - name: {{ .Release.Name }}-loki-values
       kind: Secret
       valuesKey: "overlays"
-  {{- if or .Values.monitoring.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled }}
+  {{- if or .Values.prometheusOperatorCRDs.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled }}
   dependsOn:
-    {{- if  .Values.monitoring.enabled }}
-    - name: monitoring
+    {{- if  .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if  .Values.gatekeeper.enabled }}

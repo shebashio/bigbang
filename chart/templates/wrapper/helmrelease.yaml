@@ -67,8 +67,8 @@ spec:
   {{- /* Wait on istio operator if creating a Virtual Service */ -}}
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
-  {{- $monitoringDep := $.Values.monitoring.enabled -}}
-  {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep }}
+  {{- $prometheusOperatorCRDsDep := $.Values.prometheusOperatorCRDs.enabled -}}
+  {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $prometheusOperatorCRDsDep }}
   dependsOn:
     {{- if $gatekeeperDep }}
     - name: gatekeeper
@@ -82,8 +82,8 @@ spec:
     - name: {{ include "istioHelmRelease" $ }}
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-    {{- if $monitoringDep }}
-    - name: monitoring
+    {{- if $prometheusOperatorCRDsDep }}
+    - name: prometheus-operator-crds
       namespace: {{ $.Release.Namespace }}
     {{- end -}}
   {{- end }}

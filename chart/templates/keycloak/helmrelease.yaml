@@ -66,7 +66,7 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.prometheusOperatorCRDs.enabled }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
   - name: gatekeeper
@@ -80,8 +80,8 @@ spec:
   - name: kyverno-policies
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
-  - name: monitoring
+  {{- if .Values.prometheusOperatorCRDs.enabled }}
+  - name: prometheus-operator-crds
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}

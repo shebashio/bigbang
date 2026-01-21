@@ -66,8 +66,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
-    - name: monitoring
+    {{- if .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}

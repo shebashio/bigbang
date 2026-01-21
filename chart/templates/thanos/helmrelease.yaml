@@ -57,7 +57,7 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.prometheusOperatorCRDs.enabled }}
   dependsOn:
   {{- if $istioEnabled }}
     - name: {{ include "istioHelmRelease" . }}
@@ -67,8 +67,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
-    - name: monitoring
+  {{- if .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}

@@ -57,14 +57,14 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if or .Values.monitoring.enabled $istioEnabled }}
+  {{- if or .Values.prometheusOperatorCRDs.enabled $istioEnabled }}
   dependsOn:
   {{- if $istioEnabled }}
   - name: {{ include "istioHelmRelease" . }}
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
-  - name: monitoring
+  {{- if .Values.prometheusOperatorCRDs.enabled }}
+  - name: prometheus-operator-crds
     namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
