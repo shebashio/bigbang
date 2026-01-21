@@ -96,17 +96,22 @@ networkPolicies:
             code-repository: true
             database-subnets: {{ not $postgresEnabled }}
       sonarqube-configure-sso:
-        metadata:
-          labels:
-            app.kubernetes.io/managed-by: Helm
-          annotations:
-            helm.sh/hook: pre-install,pre-upgrade
-            helm.sh/hook-weight: -10
-            helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
         to:
           definition:
-            kubeAPI: {{ $localSSOEnabled }}
-            sso: {{ $localSSOEnabled }}
+            kubeAPI: 
+              enabled: {{ $localSSOEnabled }}
+              metadata:
+                annotations:
+                  helm.sh/hook: pre-install,pre-upgrade
+                  helm.sh/hook-weight: "-10"
+                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+            sso: 
+              enabled: {{ $localSSOEnabled }}
+              metadata:
+                annotations:
+                  helm.sh/hook: pre-install,pre-upgrade
+                  helm.sh/hook-weight: "-10"
+                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
