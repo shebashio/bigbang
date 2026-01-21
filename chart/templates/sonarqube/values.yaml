@@ -16,7 +16,7 @@
 {{- define "bigbang.defaults.sonarqube" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.sonarqube.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.sonarqube.values) }}
-{{- $postgresEnabled := dig "upstream" "postgresql" "enabled" false .Values.addons.sonarqube.values }}
+{{- $postgresEnabled := ternary true false (dig "database" "host" .Values.addons.sonarqube) }}
 {{- $plugins := dig "upstream" "plugins" "install" (list) .Values.addons.sonarqube.values }}
 {{- $pluginsExist := not (empty $plugins) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
@@ -93,7 +93,7 @@ networkPolicies:
           definition:
             sonarsource-marketplace: {{ $pluginsExist }}
             code-repository: true
-            database-subnets: {{ not $postgresEnabled }}
+            database-subnets: {{ $postgresEnabled }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
