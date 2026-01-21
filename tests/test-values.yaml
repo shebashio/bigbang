@@ -292,6 +292,7 @@ gatekeeper:
           - default/restrict-volume-types-.?
 
 kyverno:
+  enabled: true
   values:
     upstream:
       admissionController:
@@ -314,6 +315,7 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  enabled: true
   values:
     bbtests:
       enabled: true
@@ -324,6 +326,7 @@ kyvernoReporter:
           cypress_check_datasource: 'true'
           
 kyvernoPolicies:
+  enabled: true
   git:
     tag: null
     branch: renovate/ironbank
