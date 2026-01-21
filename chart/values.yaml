@@ -636,11 +636,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.34.0-bb.2"
+    tag: "1.34.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.34.0-bb.2"
+    tag: "1.34.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -755,12 +755,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.2.1-bb.6"
+    tag: "3.7.2-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "3.2.1-bb.6"
+    tag: "3.7.2-bb.1"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -998,11 +998,11 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 25.0.1-bb.0
+    tag: 26.0.0-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
-    tag: 25.0.1-bb.0
+    tag: 26.0.0-bb.0
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1145,11 +1145,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.24.0-bb.0"
+    tag: "0.24.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.24.0-bb.0"
+    tag: "0.24.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1862,11 +1862,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.1.1-bb.2"
+      tag: "11.3.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.1.1-bb.2"
+      tag: "11.3.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
