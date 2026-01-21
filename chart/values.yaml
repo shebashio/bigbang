@@ -998,11 +998,11 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 25.0.1-bb.0
+    tag: 26.0.0-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
-    tag: 25.0.1-bb.0
+    tag: 26.0.0-bb.0
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1745,11 +1745,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.14.2-bb.5"
+      tag: "3.19.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.14.2-bb.5"
+      tag: "3.19.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
@@ -2145,12 +2145,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.18.1-bb.0"
+      tag: "1.18.1-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.18.1-bb.0"
+      tag: "1.18.1-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
