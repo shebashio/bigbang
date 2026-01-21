@@ -58,8 +58,8 @@ spec:
     {{- end }}
     - name: minio-operator
       namespace: {{ .Release.Namespace }}
-    {{- if .Values.monitoring.enabled }}
-    - name: monitoring
+    {{- if .Values.prometheusOperatorCRDs.enabled }}
+    - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}      
 {{- end }}
