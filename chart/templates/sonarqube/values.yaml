@@ -65,6 +65,10 @@ routes:
       - github.com
       - release-assets.githubusercontent.com
       - downloads.sonarsource.com
+    sonarqube-configure-sso:
+      enabled: {{ $localSSOEnabled }}
+      hosts:
+      - {{ include "sso.host" . }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
