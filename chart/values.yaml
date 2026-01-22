@@ -636,11 +636,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.34.0-bb.3"
+    tag: "1.34.0-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.34.0-bb.3"
+    tag: "1.34.0-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -755,12 +755,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.7.2-bb.1"
+    tag: "3.7.2-bb.2"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "3.7.2-bb.1"
+    tag: "3.7.2-bb.2"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
