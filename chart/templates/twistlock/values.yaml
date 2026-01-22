@@ -5,7 +5,7 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.twistlock.values) | fromYaml -}}
 {{- $twistlockPackage = set $twistlockPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $twistlockPackage "name" "twistlock" "defaults" (include "bigbang.defaults.twistlock" .)) }}
+{{- include "values-secret" (dict "root" $ "package" $twistlockPackage "name" "twistlock" "defaults" ((mergeOverwrite (include "bigbang.defaults.twistlock" . | fromYaml) (include "bigbang.twistlock.bb-common-migrations" . | fromYaml)) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.twistlock" -}}
@@ -42,6 +42,12 @@ networkPolicies:
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
   vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
+
+  ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+
+  egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 
 istio:
   enabled: {{ $istioEnabled }}
