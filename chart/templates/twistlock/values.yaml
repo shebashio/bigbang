@@ -1,5 +1,11 @@
 {{- if .Values.twistlock.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.twistlock "name" "twistlock" "defaults" (include "bigbang.defaults.twistlock" .)) }}
+{{- /* Create a cleaned copy of twistlock config and merge deprecated paths into current paths */ -}}
+{{- $twistlockPackage := deepCopy .Values.twistlock -}}
+{{- if .Values.twistlock.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.twistlock.values) | fromYaml -}}
+{{- $twistlockPackage = set $twistlockPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $twistlockPackage "name" "twistlock" "defaults" (include "bigbang.defaults.twistlock" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.twistlock" -}}
