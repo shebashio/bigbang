@@ -38,14 +38,16 @@ networkPolicies:
       alloy-receiver:12345:
         from:
           k8s:
-            alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-logs
       alloy-logs:12345:
         from:
           k8s:
-            alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
       # Allow Prometheus to scrape alloy-metrics
