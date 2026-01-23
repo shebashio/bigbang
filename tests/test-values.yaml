@@ -2109,6 +2109,18 @@ addons:
     plugins:
     - aws
     values:
+      # Minio is only enabled for velero in our test-values so including the netpol required for it here as well
+      networkPolicies:
+        egress:
+          from:
+            velero:
+              to:
+                k8s:
+                  minio/minio-instance:9000:
+                    enabled: true
+                    podSelector:
+                      matchLabels:
+                        v1.min.io/tenant: minio-minio-minio-instance
       upstream:
         upgradeCRDs: true
         serviceAccount:
