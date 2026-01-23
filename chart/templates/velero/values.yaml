@@ -73,7 +73,13 @@ networkPolicies:
             batch.kubernetes.io/job-name: velero-upgrade-crds
         to:
           definition:
-            kubeAPI: true
+            kubeAPI:
+              enabled: true
+              metadata:
+                annotations:
+                  helm.sh/hook: pre-upgrade
+                  helm.sh/hook-weight: "-10"
+                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 
 openshift: {{ .Values.openshift }}
 
