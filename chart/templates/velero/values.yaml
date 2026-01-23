@@ -34,13 +34,6 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
 
-routes:
-  outbound:
-    minio:
-      enabled: {{ .Values.addons.minio.enabled }}
-      hosts:
-      - minio-api.{{ .Values.domain }}
-
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   # note: ztunnel does not exist yet, defaulting to false until ambient package is added
@@ -71,12 +64,6 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
-            istio-gateway/public-ingressgateway:8443: {{ .Values.addons.minio.enabled }}
-            minio/minio-instance:9000:
-              enabled: {{ .Values.addons.minio.enabled }}
-              podSelector:
-                matchLabels:
-                  v1.min.io/tenant: minio-minio-minio-instance
           definition:
             kubeAPI: true
             storage-subnets: true
