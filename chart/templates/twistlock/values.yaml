@@ -10,6 +10,9 @@
 
 {{- define "bigbang.defaults.twistlock" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.twistlock) "enabled") -}}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.twistlock.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.twistlock.values) }}
+
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -35,13 +38,6 @@ imagePullSecrets:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.twistlock "root" .) | nindent 4 }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
 
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
@@ -49,16 +45,29 @@ networkPolicies:
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 
+    from:
+      twistlock-console:
+        to:
+          definition:
+            sso: {{ .Values.twistlock.sso.enabled }}
+
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.twistlock.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
-  console:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.twistlock.ingress.gateway "root" .)}}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  injection: {{ ternary "enabled" "disabled" $istioInjection }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
+
+routes:
+  inbound:
+    console:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.twistlock.ingress.gateway "root" .)}}
 
 {{- if $istioEnabled }}
 annotations:

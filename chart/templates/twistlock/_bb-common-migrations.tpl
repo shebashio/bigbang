@@ -36,4 +36,23 @@ networkPolicies:
         {{- end }}
   {{- end }}
 {{- end }}
+
+routes:
+  inbound:
+    console:
+      enabled: {{ dig "istio" "console" "enabled" true .Values.twistlock.values }}
+      {{- $hosts := dig "istio" "console" "hosts" list .Values.twistlock.values }}
+      hosts:
+      {{- if $hosts }}
+      {{- $hosts | toYaml | nindent 8 }}
+      {{- else }}
+      - twistlock.{{ .Values.domain }}
+      {{- end }}
+      gateways:
+      {{- $gateways := dig "istio" "console" "gateways" list .Values.twistlock.values }}
+      {{- if $gateways }}
+      {{- $gateways | toYaml | nindent 8 }}
+      {{- else }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.twistlock.ingress.gateway "root" .) }}
+      {{- end }}
 {{- end }}
