@@ -7,6 +7,10 @@
 
 {{- define "bigbang.defaults.fortify" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or
+  (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values)
+  (dig "hardened" "enabled" false .Values.istiod.values)
+}}
 
 imagePullSecrets:
 - name: private-registry
@@ -18,23 +22,32 @@ domain: {{ .Values.domain }}
 
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
-  fortify:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.fortify.ingress.gateway "root" .)}}
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
+
+routes:
+  inbound:
+    fortify:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.addons.fortify.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.fortify "root" .) | nindent 4 }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
+  ingress:
+    to:
+      fortify:8001:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  egress:
+    from:
+      fortify:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ dig "tempo" "enabled" false .Values }}
 
 openshift: {{ .Values.openshift }}
 
