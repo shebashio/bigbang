@@ -47,7 +47,7 @@ networkPolicies:
       fortify:
         to:
           k8s:
-            tempo/tempo:9411: {{ dig "tempo" "enabled" false .Values }}
+            tempo/tempo:9411: {{ default false .Values.tempo.enabled }}
 
 openshift: {{ .Values.openshift }}
 
