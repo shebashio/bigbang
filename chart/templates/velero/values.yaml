@@ -25,7 +25,7 @@ monitoring:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+    enabled: {{ $istioHardenedEnabled }}
 
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
