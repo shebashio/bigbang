@@ -42,6 +42,12 @@ networkPolicies:
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
 
+    to:
+      twistlock-console:8081:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 
@@ -50,6 +56,9 @@ networkPolicies:
         to:
           definition:
             sso: {{ .Values.twistlock.sso.enabled }}
+      "*":
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
 
 istio:
   enabled: {{ $istioEnabled }}
