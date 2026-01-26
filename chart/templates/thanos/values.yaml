@@ -2,7 +2,17 @@
 
 {{- /* Create secret */ -}}
 {{- if (get .Values.addons $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values.addons $pkg) "name" $pkg "defaults" (include (printf "bigbang.defaults.%s" $pkg) .)) }}
+  {{- $package := deepCopy (get .Values.addons $pkg) -}}
+  {{- if $package.values -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $package.values) | fromYaml -}}
+    {{- $package = set $package "values" $cleanedValues -}}
+  {{- end -}}
+  {{- include "values-secret" (dict 
+    "root" $ 
+    "package" $package 
+    "name" "thanos" 
+    "defaults" ((mergeOverwrite (include "bigbang.defaults.thanos" . | fromYaml) (include "bigbang.thanos.bb-common-migrations" . | fromYaml)) | toYaml)
+  )}}
 {{- end }}
 
 {{- define "bigbang.defaults.thanos" -}}
