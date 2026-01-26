@@ -142,13 +142,15 @@ fileStore:
 minio:
   install: true
   upstream:
-    accessKey: {{ .accessKey | default "minio" }}
-    secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
     imagePullSecrets:
       - name: private-registry
-    tenants:
+    tenant:
+      name: mattermost-minio-instance
       metrics:
         enabled: {{ $.Values.monitoring.enabled }}
+      configSecret:
+        accessKey: {{ .accessKey | default "minio" }}
+        secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
     {{- if $istioInjection }}
     annotations:
       {{ include "istioAnnotation" $ }}
