@@ -46,14 +46,6 @@ networkPolicies:
         enabled: false
     definitions:
       {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
-      kubeAPI:
-        from:
-          - ipBlock:
-              cidr: 192.168.0.0/16
-          - ipBlock:
-              cidr: 172.16.0.0/12
-          - ipBlock:
-              cidr: 10.0.0.0/8
     to:
       gatekeeper:8443:
         from:
@@ -62,7 +54,7 @@ networkPolicies:
       gatekeeper:8888:
         from:
           definition:
-            monitoring: true
+            monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
     defaults:
       # Gatekeeper is not in the service mesh
