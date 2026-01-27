@@ -36,8 +36,52 @@ upstream:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
+  # Setting to false as Gatekeeper is not in the mesh
+  hbonePortInjection:
+    enabled: false
+  ingress:
+    defaults:
+      # Gatekeeper is not in the service mesh
+      allowPrometheusToIstioSidecar:
+        enabled: false
+    definitions:
+      {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
+      kubeAPI:
+        from:
+          - ipBlock:
+              cidr: 192.168.0.0/16
+          - ipBlock:
+              cidr: 172.16.0.0/12
+          - ipBlock:
+              cidr: 10.0.0.0/8
+    to:
+      gatekeeper:8443:
+        from:
+          definition:
+            kubeAPI: true
+      gatekeeper:8888:
+        from:
+          definition:
+            monitoring: true
+  egress:
+    defaults:
+      # Gatekeeper is not in the service mesh
+      allowIstiod:
+        enabled: false
+    definitions:
+      {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
+    from:
+      gatekeeper:
+        to:
+          definition:
+            kubeAPI: true
+      crd-cleanup:
+        podSelector:
+          matchLabels:
+            job-name: gatekeeper-crd-cleanup
+        to:
+          definition:
+            kubeAPI: true
 violations:  # Try to keep this in alpha order to make it easier to find keys
 
   allowedDockerRegistries:
