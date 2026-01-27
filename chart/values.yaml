@@ -1862,7 +1862,9 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.3.0-bb.1"
+      # tag: "11.3.0-bb.1"
+      tag: null
+      branch: "248-minio-update"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
