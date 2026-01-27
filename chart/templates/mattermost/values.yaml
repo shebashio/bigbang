@@ -145,7 +145,7 @@ minio:
     imagePullSecrets:
       - name: private-registry
     tenant:
-      name: mattermost-minio-instance
+      name: mattermost-minio
       metrics:
         enabled: {{ $.Values.monitoring.enabled }}
       configSecret:
