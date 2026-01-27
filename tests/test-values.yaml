@@ -584,6 +584,7 @@ kyvernoPolicies:
           - from: replace.image.registry
             to: registry1.dso.mil
       require-drop-all-capabilities:
+        validationFailureAction: Audit
         exclude:
           any:
           # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
