@@ -292,6 +292,13 @@ gatekeeper:
           - default/restrict-volume-types-.?
 
 kyverno:
+  enabled: true
+  sourceType: "git"
+  git:
+    tag: ""
+    repo: "https://repo1.dso.mil/big-bang/product/packages/kyverno.git"
+    path: "./chart"
+    branch: "renovate/ironbank"
   values:
     upstream:
       admissionController:
@@ -314,6 +321,7 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  enabled: true
   values:
     bbtests:
       enabled: true
@@ -324,6 +332,7 @@ kyvernoReporter:
           cypress_check_datasource: 'true'
           
 kyvernoPolicies:
+  enabled: true
   values:
     bbtests:
       enabled: true
@@ -932,6 +941,7 @@ tempo:
           TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
 monitoring:
+  enabled: true
   flux:
     timeout: 20m
     install:
