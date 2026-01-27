@@ -23,6 +23,12 @@ networkPolicies:
               except:
               - 169.254.169.254/32
               {{- end }}
+          {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+          {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+          {{- end }}
+          {{- end }}
       private-registry:
         to:
           - ipBlock:
