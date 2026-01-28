@@ -1,21 +1,21 @@
 {{- if .Values.addons.vault.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.vault "name" "vault" "defaults" (include "bigbang.defaults.vault" .)) }}
+{{- /* Create a cleaned copy of vault config and merge deprecated paths into current paths */ -}}
+{{- $vaultPackage := deepCopy .Values.addons.vault -}}
+{{- if .Values.addons.vault.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.vault.values) | fromYaml -}}
+{{- $vaultPackage = set $vaultPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $vaultPackage "name" "vault" "defaults" (include "bigbang.defaults.vault" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.vault.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.vault.values) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
-
-prometheus:
-  servicemonitor:
-    enabled: {{ .Values.monitoring.enabled }}
-
-monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
 
 upstream:
   global:
@@ -108,28 +108,56 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
 
+  serverTelemetry:
+    serviceMonitor:
+      enabled: {{ .Values.monitoring.enabled }}
+
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}  
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.vault "root" .) | nindent 4 }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  nodeCidr: {{ .Values.networkPolicies.nodeCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}  
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+  ingress:
+    to:
+      vault:8200:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  egress:
+    from:
+      vault:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+      vault-agent-injector:
+        to:
+          definition:
+            kubeAPI: true
+      vault-autoinit:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: vault-vault-job-init
+        to:
+          definition:
+            kubeAPI: 
+              enabled: {{ dig "autoInit" "enabled" true .Values.addons.vault.values }}
+              metadata:
+                annotations:
+                  helm.sh/hook: post-install
+                  helm.sh/hook-weight: "-10"
+                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or (dig "istio" "hardened" "enabled" false .Values.addons.vault.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-  vault:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.vault.ingress.gateway "root" .)}}
-    {{- if and .Values.addons.vault.ingress.cert .Values.addons.vault.ingress.key }}
-    tls:
-      cert: {{ .Values.addons.vault.ingress.cert | quote }}
-      key:  {{ .Values.addons.vault.ingress.key | quote }}
-    {{- end }}
+    enabled: {{ $istioHardenedEnabled }}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 {{- if $istioEnabled }}
 minio:
