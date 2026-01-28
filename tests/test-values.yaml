@@ -2478,6 +2478,9 @@ addons:
         exporter:
           replicas: 1
       istio:
+        authorizationPolicies:
+          generateFromNetpol: true
+          enabled: true   
         hardened:
           customServiceEntries:
             - name: "allow-npm-for-cypress-tests"
