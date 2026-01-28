@@ -14,6 +14,15 @@
 networkPolicies:
   egress:
     definitions:
+      kubeAPI:
+        to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+              # ONLY Block requests to cloud metadata IP
+              except:
+              - 169.254.169.254/32
+              {{- end }}
       private-registry:
         to:
           - ipBlock:
