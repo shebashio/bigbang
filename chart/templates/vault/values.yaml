@@ -17,9 +17,50 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
+istio:
+  enabled: {{ $istioEnabled }}
+  hardened:
+    enabled: {{ $istioHardenedEnabled }}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
+
 tls:
-  cert: {{ .Values.addons.vault.ingress.cert }}
-  key: {{ .Values.addons.vault.ingress.key }}
+  cert: {{ .Values.addons.vault.ingress.cert | quote }}
+  key: {{ .Values.addons.vault.ingress.key | quote }}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+  ingress:
+    to:
+      vault:8200:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  egress:
+    from:
+      vault:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+      vault-agent-injector:
+        to:
+          definition:
+            kubeAPI: true
+      vault-autoinit:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: vault-vault-job-init
+        to:
+          definition:
+            kubeAPI: true
 
 upstream:
   global:
@@ -115,47 +156,6 @@ upstream:
   serverTelemetry:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
-
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
-  hbonePortInjection:
-    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
-  ingress:
-    to:
-      vault:8200:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-  egress:
-    from:
-      vault:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      vault-agent-injector:
-        to:
-          definition:
-            kubeAPI: true
-      vault-autoinit:
-        podSelector:
-          matchLabels:
-            batch.kubernetes.io/job-name: vault-vault-job-init
-        to:
-          definition:
-            kubeAPI: {{ dig "autoInit" "enabled" true .Values.addons.vault.values }}
-
-istio:
-  enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-  sidecar:
-    enabled: {{ $istioHardenedEnabled }}
-
-  authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 {{- if $istioEnabled }}
 minio:

@@ -2409,19 +2409,6 @@ addons:
             raft:
               enabled: true
               setNodeId: true
-
-      istio:
-        hardened:
-          customAuthorizationPolicies:
-            - name: allow-egress-instance-metadata
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      ipBlocks:
-                        - 169.254.169.254/32
       bbtests:
         enabled: true
         cypress:
