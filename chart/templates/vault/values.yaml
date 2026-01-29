@@ -143,13 +143,7 @@ networkPolicies:
             batch.kubernetes.io/job-name: vault-vault-job-init
         to:
           definition:
-            kubeAPI: 
-              enabled: {{ dig "autoInit" "enabled" true .Values.addons.vault.values }}
-              metadata:
-                annotations:
-                  helm.sh/hook: post-install
-                  helm.sh/hook-weight: "-10"
-                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+            kubeAPI: {{ dig "autoInit" "enabled" true .Values.addons.vault.values }}
 
 istio:
   enabled: {{ $istioEnabled }}
