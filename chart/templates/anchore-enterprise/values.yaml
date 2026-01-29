@@ -59,6 +59,21 @@ global:
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+postgresql:
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end}}
+  imagePullSecrets: private-registry
+  {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
+  enabled: false
+  postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
+  postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
+  postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.database }}
+  externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
+  postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
+  {{- end }}
+
 upstream:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
   {{- if .Values.addons.anchoreEnterprise.adminPassword }}
@@ -123,20 +138,7 @@ ui-redis:
     {{- end }}
   {{- end }}
 
-postgresql:
-  {{- if $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end}}
-  imagePullSecrets: private-registry
-  {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
-  enabled: false
-  postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
-  postgresPassword: {{ .Values.addons.anchoreEnterprise.database.password }}
-  postgresDatabase: {{ .Values.addons.anchoreEnterprise.database.database }}
-  externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
-  postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
-  {{- end }}
+
 
 
 {{- end }}
