@@ -17,6 +17,10 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
+tls:
+  cert: {{ .Values.addons.vault.ingress.cert }}
+  key: {{ .Values.addons.vault.ingress.key }}
+
 upstream:
   global:
     imagePullSecrets:
