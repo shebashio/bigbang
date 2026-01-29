@@ -56,8 +56,9 @@ PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by defaul
 
 # OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
 ENABLE_OIDC=false
-OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda}"
-OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_headlamp}"
+OIDC_PRESET="${OIDC_PRESET:-}"  # 'dev' or 'dso' - sets issuer/client defaults
+OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-}"
+OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-}"
 OIDC_USERNAME_CLAIM="${OIDC_USERNAME_CLAIM:-preferred_username}"
 OIDC_GROUPS_CLAIM="${OIDC_GROUPS_CLAIM:-groups}"
 
@@ -212,8 +213,15 @@ function process_arguments {
       echo " -O|--enable-oidc                 configure kube-apiserver with OIDC"
       echo "                                  for group-based RBAC with Keycloak"
       echo "                                  (uses dev.bigbang.mil defaults)"
+      echo " --oidc-preset PRESET             use predefined OIDC configuration:"
+      echo "                                  'dev' = in-cluster keycloak (default)"
+      echo "                                  'dso' = login.dso.mil"
       echo " --oidc-issuer-url URL            override OIDC issuer URL (requires -O)"
       echo " --oidc-client-id ID              override OIDC client ID (requires -O)"
+      echo " --oidc-username-claim CLAIM      override OIDC username claim (default:"
+      echo "                                  preferred_username)"
+      echo " --oidc-groups-claim CLAIM        override OIDC groups claim (default:"
+      echo "                                  groups)"
       echo " -i|--init-script SCRIPTFILE      initialization script to pass to"
       echo "                                  instance before configuring it"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
@@ -286,6 +294,21 @@ function process_arguments {
       OIDC_CLIENT_ID=$1
       ;;
 
+    --oidc-username-claim)
+      shift
+      OIDC_USERNAME_CLAIM=$1
+      ;;
+
+    --oidc-groups-claim)
+      shift
+      OIDC_GROUPS_CLAIM=$1
+      ;;
+
+    --oidc-preset)
+      shift
+      OIDC_PRESET=$1
+      ;;
+
     *) echo "Option $1 not recognized" ;; # In case a non-existent option is submitted
 
     esac
@@ -301,6 +324,25 @@ function process_arguments {
   if [[ "${PublicIP}" != "" ]] && [[ "$PrivateIP" == "" ]]; then
     PrivateIP=$PublicIP
   fi
+
+  # Apply OIDC preset configuration, then defaults for any unset values
+  # Explicit CLI flags (--oidc-issuer-url, --oidc-client-id) take precedence
+  case "${OIDC_PRESET}" in
+    dso)
+      # login.dso.mil configuration
+      OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://login.dso.mil/auth/realms/baby-yoda}"
+      OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-headlamp}"
+      ;;
+    dev|"")
+      # In-cluster keycloak at dev.bigbang.mil (default)
+      OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda}"
+      OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_headlamp}"
+      ;;
+    *)
+      echo "Unknown OIDC preset '${OIDC_PRESET}'. Valid options: dev, dso" >&2
+      exit 1
+      ;;
+  esac
 
 }
 
