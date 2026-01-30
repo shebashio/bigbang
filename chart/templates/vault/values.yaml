@@ -17,6 +17,24 @@ domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
+routes:
+  inbound:
+    vault:
+      enabled: true
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.addons.vault.ingress.gateway "root" .)}}
+      hosts:
+        - vault.{{ .Values.domain }}
+      service: vault-vault.vault.svc.cluster.local
+      port: 8200
+      passthrough:
+        enabled: true
+  outbound:
+    aws-kms:
+      enabled: true
+      hosts:
+      - kms.us-gov-west-1.amazonaws.com
+
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
@@ -59,6 +77,8 @@ networkPolicies:
           matchLabels:
             batch.kubernetes.io/job-name: vault-vault-job-init
         to:
+          k8s:
+            {{ include "getGatewayName" (dict "gateway" .Values.addons.vault.ingress.gateway "root" .)}}:{{ dig "routes" "inbound" "vault" "passthrough" "gatewayPort" "8443" .Values.addons.vault.values | int }}: true
           definition:
             kubeAPI: true
 
@@ -156,6 +176,13 @@ upstream:
   serverTelemetry:
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
+      {{- if $istioEnabled }}
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true
+      {{- end }}
 
 {{- if $istioEnabled }}
 minio:
