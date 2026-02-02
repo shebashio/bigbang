@@ -104,6 +104,10 @@ upstream:
     externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
     postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
     {{- end }}
+  primary:
+    service:
+      ports:
+        postgresql: {{ .Values.addons.anchoreEnterprise.database.port }}
 
 
   ui:
