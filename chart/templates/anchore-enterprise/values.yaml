@@ -88,8 +88,24 @@ upstream:
     istio:
       enabled: {{ $istioEnabled }}
       injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled")) }}
-
   {{- end }}
+
+  postgresql:
+    {{- if $istioEnabled }}
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+    {{- end}}
+    imagePullSecrets: private-registry
+    {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
+    enabled: false
+    auth:
+      username: {{ .Values.addons.anchoreEnterprise.database.username }}
+      password: {{ .Values.addons.anchoreEnterprise.database.password }}
+      database: {{ .Values.addons.anchoreEnterprise.database.database }}
+    externalEndpoint: "{{ .Values.addons.anchoreEnterprise.database.host }}"
+    postgresPort: {{ .Values.addons.anchoreEnterprise.database.port }}
+    {{- end }}
+
 
   ui:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
