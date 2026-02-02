@@ -96,7 +96,6 @@ upstream:
     {{- end}}
     imagePullSecrets: private-registry
     {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
-    enabled: false
     auth:
       username: {{ .Values.addons.anchoreEnterprise.database.username }}
       password: {{ .Values.addons.anchoreEnterprise.database.password }}
