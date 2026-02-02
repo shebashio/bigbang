@@ -405,18 +405,16 @@ upstream:
           {{- end }}
           {{- if .Values.addons.vault.enabled }}
           vault.hashicorp.com/agent-inject: "true"
+          vault.hashicorp.com/agent-init-first: "true"
           vault.hashicorp.com/agent-inject-token: "true"
           vault.hashicorp.com/role: "prometheus"
           vault.hashicorp.com/agent-run-as-user: "1000"
           vault.hashicorp.com/agent-run-as-group: "2000"
-          vault.hashicorp.com/agent-copy-volume-mounts: "istio-proxy"
-          vault.hashicorp.com/ca-key: /etc/istio-output-certs/root-cert.pem
-          vault.hashicorp.com/client-cert: /etc/istio-output-certs/cert-chain.pem
-          vault.hashicorp.com/client-key: /etc/istio-output-certs/key.pem
+          vault.hashicorp.com/service: "https://vault.{{ $domainName }}" # Without this it will try and use https://vault-vault.vault.svc:8200 which isn't covered by a cert
           {{- if and $istioEnabled $vaultIstioHosts }} # the 1st istio vault host will be used for the tls server name
           vault.hashicorp.com/tls-server-name: {{ tpl ($vaultIstioHosts | first) $ }}
           {{- else }} # the vault certificate is expected to contain the CN or X509v3 Subject Alternative Name of vault.domain
-          vault.hashicorp.com/tls-server-name: vault-vault.vault.svc
+          vault.hashicorp.com/tls-server-name: vault.{{ $domainName }}
           {{- end }}
           {{- end }}
         {{- end }}
@@ -435,7 +433,7 @@ upstream:
         - targets: [{{ tpl ($vaultHosts | first) $ }}]
         {{- else }}
         static_configs:
-        - targets: [vault-vault.vault.svc]
+        - targets: [vault.{{ $domainName }}]
         {{- end }}
       {{- end }}           
       # Scrape config for service endpoints.
