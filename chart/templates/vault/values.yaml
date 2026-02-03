@@ -42,6 +42,11 @@ routes:
       port: 8200
       passthrough:
         enabled: true
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
+      hosts:
+      - repo1.dso.mil
 
 istio:
   enabled: {{ $istioEnabled }}
