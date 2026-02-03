@@ -5,7 +5,12 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.vault.values) | fromYaml -}}
 {{- $vaultPackage = set $vaultPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $vaultPackage "name" "vault" "defaults" (include "bigbang.defaults.vault" .)) }}
+{{- include "values-secret" (dict 
+"root" $ 
+"package" $vaultPackage 
+"name" "vault" 
+"defaults" ((mergeOverwrite (include "bigbang.defaults.vault" . | fromYaml) (include "bigbang.vault.bb-common-migrations" . | fromYaml)) | toYaml) 
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
@@ -37,11 +42,6 @@ routes:
       port: 8200
       passthrough:
         enabled: true
-  outbound:
-    aws-kms:
-      enabled: true
-      hosts:
-      - kms.us-gov-west-1.amazonaws.com
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -65,7 +65,8 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
-    definitions:
+    definitions: 
+      {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
       custom-app-ingress:
         from:
           - namespaceSelector: {}
@@ -84,13 +85,28 @@ networkPolicies:
           cidr:
             0.0.0.0/0: true
   egress:
+    definitions:
+      {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
+      kms:
+        to:
+          - ipBlock:
+              cidr: "0.0.0.0/0"
+              except:
+              - 169.254.169.254/32
+        ports:
+          - port: 443
+            protocol: TCP
     from:
       vault:
         to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
           cidr:
             169.254.169.254/32: true
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          definitions:
+            kubeAPI: true
+            kms: true
+            sso: {{ .Values.addons.vault.sso.enabled }}
       vault-agent-injector:
         to:
           definition:
