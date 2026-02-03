@@ -72,8 +72,8 @@ minio:
   enabled: {{ $shouldEnableMinio }}
   {{- if $shouldEnableMinio }}
   upstream:
-    tenant:
-      metrics:
+    metrics:
+      serviceMonitor:
         enabled: {{ .Values.monitoring.enabled }}
   {{- end }}
 
