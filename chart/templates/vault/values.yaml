@@ -138,10 +138,8 @@ upstream:
     extraLabels:
       service.istio.io/canonical-name: vault-vault-agent-injector
     {{- end }}
-    logLevel: "trace"
 
   server:
-    logLevel: "trace"
     {{- if $istioEnabled }}
     annotations:
       {{ include "istioAnnotation" . }}
