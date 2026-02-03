@@ -73,8 +73,7 @@ minio:
   {{- if $shouldEnableMinio }}
   upstream:
     metrics:
-      serviceMonitor:
-        enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.monitoring.enabled }}
   {{- end }}
 
 networkPolicies:
