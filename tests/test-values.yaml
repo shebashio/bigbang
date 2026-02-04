@@ -2384,20 +2384,6 @@ addons:
             enabled: true
             hosts:
             - kms.us-gov-west-1.amazonaws.com
-      serviceEntries:
-        custom:
-          - name: vault-autoinit-internal
-            spec:
-              hosts:
-              - vault.dev.bigbang.mil
-              location: MESH_INTERNAL
-              ports:
-              - name: https
-                number: 443
-                protocol: HTTPS
-              resolution: STATIC
-              endpoints:
-              - address: 172.20.1.240
       upstream:
         global:
           tlsDisable: false
