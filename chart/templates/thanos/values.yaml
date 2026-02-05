@@ -70,6 +70,7 @@ istio:
 
 minio:
   enabled: {{ $shouldEnableMinio }}
+  enabled: {{ $shouldEnableMinio }}
   {{- if $shouldEnableMinio }}
   upstream:
     tenant:
