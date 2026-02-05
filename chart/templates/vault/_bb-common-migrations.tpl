@@ -22,8 +22,10 @@ networkPolicies:
         to:
           - ipBlock:
               cidr: {{ .Values.networkPolicies.vpcCidr }}
+              {{- if eq .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
               except:
               - 169.254.169.254/32
+              {{- end }}
         ports:
           - port: 443
             protocol: TCP
