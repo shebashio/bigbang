@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.gitlab-runner" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "disabled" .Values.addons.gitlabRunner) "enabled") }}
 # Passthrough chart upstream config (main gitlab-runner chart values)
 upstream:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -18,6 +19,19 @@ upstream:
     enabled: {{ .Values.monitoring.enabled }}
     serviceMonitor:
       enabled: {{ .Values.monitoring.enabled }}
+      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlabRunner.values) "STRICT") .Values.monitoring.enabled }}
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true
+      {{- end }}
+    podMonitor:
+      enabled: false
+
+  service:
+    enabled: {{ .Values.monitoring.enabled }}
 
   # When istio injected, add an annotation with the istio version to the manager pods only
   {{- if and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") $istioEnabled }}
@@ -34,11 +48,26 @@ istio:
       (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values)
       (dig "hardened" "enabled" false .Values.istiod.values)
     }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlabRunner }}
+  injection: {{ dig "istio" "injection" "disabled" .Values.addons.gitlabRunner }}
 
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  egress:
+    from:
+      gitlab-runner:
+        to:
+          k8s:
+            gitlab/*: true
+          definition:
+            kubeAPI: true
+  ingress:
+    to:
+      gitlab-runner:9252:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  additionalPolicies: []
 
 openshift: {{ .Values.openshift }}
 
