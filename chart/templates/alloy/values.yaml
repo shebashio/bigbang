@@ -123,6 +123,8 @@ upstream:
     - name: tempo
       type: otlp
       url: http://tempo-tempo.tempo.svc.cluster.local:4317
+      tls:
+        insecure: true
     {{- end }}
   {{- if .Values.alloy.additionalDestinations }}
   {{- toYaml .Values.alloy.additionalDestinations | nindent 4 }}
