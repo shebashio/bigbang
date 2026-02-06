@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsVelero) }}
+      reconcileStrategy: {{ $fluxSettingsVelero.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsVelero = omit $fluxSettingsVelero "chart" }}
   {{- toYaml $fluxSettingsVelero | nindent 2 }}
   
   {{- if .Values.addons.velero.postRenderers }}

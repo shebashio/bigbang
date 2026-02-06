@@ -37,7 +37,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsEk) }}
+      reconcileStrategy: {{ $fluxSettingsEk.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsEk = omit $fluxSettingsEk "chart" }}
   {{- toYaml $fluxSettingsEk | nindent 2 }}
 
   {{- if .Values.elasticsearchKibana.postRenderers }}

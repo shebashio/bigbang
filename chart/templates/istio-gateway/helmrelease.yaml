@@ -40,8 +40,12 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsIstioGateway) }}
+      reconcileStrategy: {{ $fluxSettingsIstioGateway.chart.spec.reconcileStrategy }}
+      {{- end }}
 
-  {{- toYaml $fluxSettingsIstioGateway | nindent 2 }}
+  {{- $fluxSettingsIstioGatewayFiltered := omit $fluxSettingsIstioGateway "chart" }}
+  {{- toYaml $fluxSettingsIstioGatewayFiltered | nindent 2 }}
 
   {{- if $.Values.istioGateway.postRenderers }}
   {{- if kindIs "slice" $.Values.istioGateway.postRenderers }}

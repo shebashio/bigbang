@@ -33,7 +33,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsMinio) }}
+      reconcileStrategy: {{ $fluxSettingsMinio.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsMinio = omit $fluxSettingsMinio "chart" }}
   {{- toYaml $fluxSettingsMinio | nindent 2 }}
   
   {{- if .Values.addons.minio.postRenderers }}

@@ -40,7 +40,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsMattermostOperator) }}
+      reconcileStrategy: {{ $fluxSettingsMattermostOperator.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsMattermostOperator = omit $fluxSettingsMattermostOperator "chart" }}
   {{- toYaml $fluxSettingsMattermostOperator | nindent 2 }}
   
   {{- if $mmOpValues.postRenderers }}

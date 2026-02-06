@@ -42,6 +42,9 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsKeycloak) }}
+      reconcileStrategy: {{ $fluxSettingsKeycloak.chart.spec.reconcileStrategy }}
+      {{- end }}
 
   {{- if or $istioEnabled .Values.addons.keycloak.postRenderers }}
   postRenderers:
@@ -53,6 +56,7 @@ spec:
   {{- end }}
   {{- end }}
 
+  {{- $fluxSettingsKeycloak = omit $fluxSettingsKeycloak "chart" }}
   {{- toYaml $fluxSettingsKeycloak | nindent 2 }}
 
   valuesFrom:

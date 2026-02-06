@@ -37,7 +37,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingskyverno) }}
+      reconcileStrategy: {{ $fluxSettingskyverno.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingskyverno = omit $fluxSettingskyverno "chart" }}
   {{- toYaml $fluxSettingskyverno | nindent 2 }}
 
   {{- if .Values.kyverno.postRenderers }}

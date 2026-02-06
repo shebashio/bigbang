@@ -39,6 +39,10 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsAlloy) }}
+      reconcileStrategy: {{ $fluxSettingsAlloy.chart.spec.reconcileStrategy }}
+      {{- end }}
+  {{- $fluxSettingsAlloy = omit $fluxSettingsAlloy "chart" }}
   {{- toYaml $fluxSettingsAlloy | nindent 2 }}
   {{- if .Values.alloy.postRenderers }}
   postRenderers:

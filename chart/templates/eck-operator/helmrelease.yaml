@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsEckOperator) }}
+      reconcileStrategy: {{ $fluxSettingsEckOperator.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsEckOperator = omit $fluxSettingsEckOperator "chart" }}
   {{- toYaml $fluxSettingsEckOperator | nindent 2 }}
 
   {{- if .Values.eckOperator.postRenderers }}

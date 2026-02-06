@@ -42,7 +42,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsMetrics) }}
+      reconcileStrategy: {{ $fluxSettingsMetrics.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsMetrics = omit $fluxSettingsMetrics "chart" }}
   {{- toYaml $fluxSettingsMetrics | nindent 2 }}
 
   {{- if or .Values.addons.metricsServer.postRenderers .Values.addons.metricsServer.automountServiceAccountToken }}

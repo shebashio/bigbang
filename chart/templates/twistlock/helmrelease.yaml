@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsTwistlock) }}
+      reconcileStrategy: {{ $fluxSettingsTwistlock.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsTwistlock = omit $fluxSettingsTwistlock "chart" }}
   {{- toYaml $fluxSettingsTwistlock | nindent 2 }}
   
   {{- if .Values.twistlock.postRenderers }}

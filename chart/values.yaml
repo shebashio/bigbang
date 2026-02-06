@@ -120,6 +120,13 @@ sso:
 flux:
   timeout: 10m
   interval: 2m
+  # -- Chart configuration (maps to HelmRelease.spec.chart.spec)
+  chart:
+    spec:
+      # -- Reconcile strategy for HelmRelease chart sources.
+      # Valid values: "Revision" (reconcile on any source change) or "ChartVersion" (reconcile only on version change).
+      # If not set, Flux defaults to "Revision" for GitRepository and "ChartVersion" for HelmRepository.
+      reconcileStrategy: "ChartVersion"
   test:
     enable: false
   driftDetection:

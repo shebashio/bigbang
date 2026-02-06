@@ -39,8 +39,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsGitlab) }}
+      reconcileStrategy: {{ $fluxSettingsGitlab.chart.spec.reconcileStrategy }}
+      {{- end }}
 
-
+  {{- $fluxSettingsGitlab = omit $fluxSettingsGitlab "chart" }}
   {{- toYaml $fluxSettingsGitlab | nindent 2 }}
   {{- if or .Values.addons.gitlab.postRenderers .Values.monitoring.enabled }}
   postRenderers:

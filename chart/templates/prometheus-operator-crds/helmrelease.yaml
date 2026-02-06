@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsPrometheusOperatorCRDs) }}
+      reconcileStrategy: {{ $fluxSettingsPrometheusOperatorCRDs.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsPrometheusOperatorCRDs = omit $fluxSettingsPrometheusOperatorCRDs "chart" }}
   {{- toYaml $fluxSettingsPrometheusOperatorCRDs | nindent 2 }}
 
   {{- if .Values.prometheusOperatorCRDs.postRenderers }}

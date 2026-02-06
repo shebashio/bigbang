@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsAuthservice) }}
+      reconcileStrategy: {{ $fluxSettingsAuthservice.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsAuthservice = omit $fluxSettingsAuthservice "chart" }}
   {{- toYaml $fluxSettingsAuthservice | nindent 2 }}
 
   {{- if .Values.addons.authservice.postRenderers }}

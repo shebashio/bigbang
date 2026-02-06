@@ -39,7 +39,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsSonarqube) }}
+      reconcileStrategy: {{ $fluxSettingsSonarqube.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsSonarqube = omit $fluxSettingsSonarqube "chart" }}
   {{- toYaml $fluxSettingsSonarqube | nindent 2 }}
   
   {{- if or .Values.addons.sonarqube.postRenderers (and $istioEnabled .Values.monitoring.enabled) }}

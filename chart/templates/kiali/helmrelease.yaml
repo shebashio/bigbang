@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsKiali) }}
+      reconcileStrategy: {{ $fluxSettingsKiali.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsKiali = omit $fluxSettingsKiali "chart" }}
   {{- toYaml $fluxSettingsKiali | nindent 2 }}
 
   {{- if .Values.kiali.postRenderers }}

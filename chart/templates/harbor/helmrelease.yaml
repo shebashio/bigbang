@@ -39,7 +39,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsHarbor) }}
+      reconcileStrategy: {{ $fluxSettingsHarbor.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsHarbor = omit $fluxSettingsHarbor "chart" }}
   {{- toYaml $fluxSettingsHarbor | nindent 2 }}
 
   postRenderers:

@@ -51,7 +51,8 @@ spec:
       {{- end }}
       {{- end }}
       interval: {{ default "5m" $fluxSettings.interval }}
-      reconcileStrategy: Revision
+      reconcileStrategy: {{ dig "chart" "spec" "reconcileStrategy" "Revision" $fluxSettings }}
+  {{- $fluxSettings = omit $fluxSettings "chart" }}
   {{- toYaml $fluxSettings | nindent 2 }}
   {{- if $vals.wrapper.postRenderers }}
   postRenderers:

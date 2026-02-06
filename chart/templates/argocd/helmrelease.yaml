@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsArgo) }}
+      reconcileStrategy: {{ $fluxSettingsArgo.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsArgo = omit $fluxSettingsArgo "chart" }}
   {{- toYaml $fluxSettingsArgo | nindent 2 }}
 
   {{- if .Values.addons.argocd.postRenderers }}

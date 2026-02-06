@@ -38,7 +38,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsNeuvector) }}
+      reconcileStrategy: {{ $fluxSettingsNeuvector.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsNeuvector = omit $fluxSettingsNeuvector "chart" }}
   {{- toYaml $fluxSettingsNeuvector | nindent 2 }}
 
   {{- if .Values.neuvector.postRenderers }}

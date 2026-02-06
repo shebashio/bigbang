@@ -57,7 +57,8 @@ spec:
       {{- fail (printf "Values for source (git or helmRepo) are required for package %s" $pkg) }}
       {{- end }}
       interval: {{ default "5m" $fluxSettings.interval }}
-      reconcileStrategy: Revision
+      reconcileStrategy: {{ dig "chart" "spec" "reconcileStrategy" "Revision" $fluxSettings }}
+  {{- $fluxSettings = omit $fluxSettings "chart" }}
   {{- toYaml $fluxSettings | nindent 2 }}
   {{- if $vals.postRenderers }}
   postRenderers:

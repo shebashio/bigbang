@@ -41,7 +41,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsIstioCore) }}
+      reconcileStrategy: {{ $fluxSettingsIstioCore.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsIstioCore = omit $fluxSettingsIstioCore "chart" }}
   {{- toYaml $fluxSettingsIstioCore | nindent 2 }}
 
   {{- if .Values.istiod.postRenderers }}

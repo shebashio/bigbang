@@ -40,7 +40,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsMimir) }}
+      reconcileStrategy: {{ $fluxSettingsMimir.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsMimir = omit $fluxSettingsMimir "chart" }}
   {{- toYaml $fluxSettingsMimir | nindent 2 }}
   {{- if or .Values.addons.mimir.postRenderers $istioEnabled }}
   postRenderers:

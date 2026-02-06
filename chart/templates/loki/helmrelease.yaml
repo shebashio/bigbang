@@ -39,7 +39,11 @@ spec:
       {{- end }}
       {{- end }}
       interval: 5m
+      {{- if (dig "chart" "spec" "reconcileStrategy" "" $fluxSettingsLoki) }}
+      reconcileStrategy: {{ $fluxSettingsLoki.chart.spec.reconcileStrategy }}
+      {{- end }}
 
+  {{- $fluxSettingsLoki = omit $fluxSettingsLoki "chart" }}
   {{- toYaml $fluxSettingsLoki | nindent 2 }}
 
   {{- if or .Values.loki.postRenderers (and $istioEnabled (eq .Values.loki.strategy "distributed")) }}
