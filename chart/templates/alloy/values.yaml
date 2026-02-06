@@ -159,6 +159,10 @@ upstream:
     enabled: true
     alloy:
       extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
       - name: zipkin
         port: 9411
         targetPort: 9411
