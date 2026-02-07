@@ -2,7 +2,8 @@
 # =============================================================================
 # BATS Tests for k3d-dev.sh
 # =============================================================================
-# Run with: bats docs/reference/scripts/developer/tests/k3d-dev.bats
+# Source: docs/reference/scripts/developer/k3d-dev.sh
+# Run with: bats tests/bats/k3d-dev/
 #
 # These tests verify k3d-dev.sh pure functions and argument parsing.
 # No real AWS API calls, SSH connections, or network requests are made.
@@ -14,7 +15,8 @@
 # Helper to source the script
 _source_k3d_dev() {
     export TMPDIR="${BATS_TEST_TMPDIR:-$(mktemp -d)}"
-    source "${BATS_TEST_DIRNAME}/../k3d-dev.sh"
+    REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}" && git rev-parse --show-toplevel)"
+    source "${REPO_ROOT}/docs/reference/scripts/developer/k3d-dev.sh"
     trap - EXIT  # Clear k3d-dev.sh's trap to prevent interference
 }
 

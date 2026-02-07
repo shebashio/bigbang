@@ -17,7 +17,7 @@ pre-commit:
     bats-k3d-dev:
       # Only fire when the script or its tests are staged
       glob: "docs/reference/scripts/developer/{k3d-dev.sh,tests/*.bats}"
-      run: bats --jobs 4 docs/reference/scripts/developer/tests/
+      run: bats --jobs 4 tests/bats/
 
 # Runs when you `git push` — only if any .sh or .bats files changed.
 pre-push:
@@ -25,4 +25,4 @@ pre-push:
   commands:
     bats-k3d-dev:
       glob: "**/*.{sh,bats}"
-      run: bats --jobs 4 docs/reference/scripts/developer/tests/
+      run: bats --jobs 4 tests/bats/
