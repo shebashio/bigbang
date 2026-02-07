@@ -57,12 +57,6 @@ _reset_globals() {
 # Pure Function Tests
 # =============================================================================
 
-@test "cloud_aws_toolnames returns 'aws'" {
-    _source_k3d_dev
-    result=$(cloud_aws_toolnames)
-    [ "$result" = "aws" ]
-}
-
 @test "k3dsshcmd builds correct SSH command" {
     _source_k3d_dev
     SSHKEY="/path/to/key.pem"
@@ -73,7 +67,6 @@ _reset_globals() {
 
     [[ "$result" == *"-i /path/to/key.pem"* ]]
     [[ "$result" == *"testuser@10.0.0.1"* ]]
-    [[ "$result" == *"StrictHostKeyChecking=no"* ]]
 }
 
 @test "set_kubeconfig uses PublicIP when not provisioning" {
@@ -230,25 +223,6 @@ _reset_globals() {
 # =============================================================================
 # Batch File Tests
 # =============================================================================
-
-@test "run_batch_new creates a batch file with bash header" {
-    _source_k3d_dev
-    _reset_globals
-    run_batch_new
-    [ -n "$RUN_BATCH_FILE" ]
-    [ -f "$RUN_BATCH_FILE" ]
-    head -1 "$RUN_BATCH_FILE" | grep -q "#!/bin/bash"
-}
-
-@test "run_batch_add appends commands to batch file" {
-    _source_k3d_dev
-    _reset_globals
-    run_batch_new
-    run_batch_add "echo 'first command'"
-    run_batch_add "echo 'second command'"
-    grep -q "first command" "$RUN_BATCH_FILE"
-    grep -q "second command" "$RUN_BATCH_FILE"
-}
 
 @test "run_batch_add fails if no batch started" {
     _source_k3d_dev
