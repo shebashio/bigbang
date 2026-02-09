@@ -113,11 +113,18 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
-
-
+  egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    from:
+      backstage:
+        to:
+          k8s:
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+            logging/loki:3100: {{ .Values.loki.enabled }}
+            tempo/tempo:4317: {{ .Values.tempo.enabled }}
+            keycloak/keycloak:8443: {{ .Values.addons.keycloak.enabled }}
 {{- end -}}
 
