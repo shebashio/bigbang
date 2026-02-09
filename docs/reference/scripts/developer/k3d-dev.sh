@@ -1080,7 +1080,15 @@ function print_instructions {
 
 function initialize_instance {
   ##### Configure Instance
-  ## TODO: replace these individual commands with userdata when the spot instance is created?
+
+  # If cloud-init.yaml was passed as --user-data, the host is already prepared.
+  # cloud-init.yaml writes this marker as its final runcmd step.
+  runwithexitcode "test -f /var/lib/cloud/instance/bigbang-ready"
+  if [[ $? -eq 0 ]]; then
+    echo "cloud-init already prepared this host, skipping initialize_instance"
+    return 0
+  fi
+
   echo
   echo
   echo "starting instance config"
@@ -1258,6 +1266,7 @@ EOF
     --instance-initiated-shutdown-behavior "terminate" \
     --block-device-mappings file://${TMPDIR}/device_mappings.json \
     --instance-market-options file://${TMPDIR}/spot_options.json \
+    --user-data file://${SCRIPT_DIR}/cloud-init.yaml \
     ${additional_create_instance_options} |
     jq -r '.Instances[0].InstanceId')
 
