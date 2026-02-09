@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# helpers/bin/aws — Mock aws CLI for BATS tests
+#
+# Dispatches based on subcommand patterns, returns fixture JSON from
+# MOCK_AWS_FIXTURE_DIR. Logs every invocation to MOCK_AWS_CALL_LOG.
+
+# Log the call
+echo "$*" >> "${MOCK_AWS_CALL_LOG:-/dev/null}"
+
+# Dispatch to fixture files based on command pattern
+case "$*" in
+  # STS
+  *"sts get-caller-identity"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/sts_identity.json" ;;
+
+  # EC2 describe
+  *"ec2 describe-vpcs"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_vpcs.json" ;;
+  *"ec2 describe-subnets"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_subnets.json" ;;
+  *"ec2 describe-instances"*"running"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_running_instances.json" ;;
+  *"ec2 describe-instances"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_instances.json" ;;
+  *"ec2 describe-security-groups"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_security_groups.json" ;;
+  *"ec2 describe-images"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_images.json" ;;
+  *"ec2 describe-addresses"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_addresses.json" ;;
+  *"ec2 describe-key-pairs"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_keypairs.json" ;;
+
+  # EC2 create / mutate
+  *"ec2 run-instances"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_run_instances.json" ;;
+  *"ec2 create-security-group"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_create_sg.json" ;;
+  *"ec2 create-key-pair"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_create_keypair.json" ;;
+  *"ec2 allocate-address"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_allocate_address.json" ;;
+  *"ec2 associate-address"*)
+    cat "${MOCK_AWS_FIXTURE_DIR}/ec2_associate_address.json" ;;
+
+  # EC2 operations that return no meaningful output
+  *"ec2 create-tags"*|*"ec2 authorize-security-group-ingress"*)
+    exit 0 ;;
+  *"ec2 terminate-instances"*|*"ec2 wait"*)
+    exit 0 ;;
+  *"ec2 delete-security-group"*|*"ec2 delete-key-pair"*)
+    exit 0 ;;
+  *"ec2 release-address"*|*"ec2 disassociate-address"*)
+    exit 0 ;;
+
+  # Fallback
+  *)
+    echo "MOCK AWS: unhandled command: $*" >&2
+    exit 1
+    ;;
+esac

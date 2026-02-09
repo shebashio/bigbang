@@ -1,0 +1,144 @@
+#cloud-config
+# cloud-init.yaml — Big Bang k3d dev host preparation
+#
+# This replaces the initialize_instance() and install_docker() functions
+# in k3d-dev.sh. Pass to EC2 via --user-data file://cloud-init.yaml
+#
+# What this does:
+#   - Configures sudoers for passwordless sudo
+#   - Sets all sysctl parameters required by Big Bang / Istio
+#   - Configures ulimits for large deployments
+#   - Loads required kernel modules (persisted across reboot)
+#   - Installs Docker CE from official repo
+#   - Adds the default user to the docker group
+#   - Optionally schedules auto-termination (8 hours from boot)
+#
+# What this does NOT do (still handled by k3d-dev.sh phases 3-4):
+#   - Install k3d
+#   - Create the k3d cluster
+#   - Install kubectl
+#   - Configure MetalLB
+#   - Configure DNS / CoreDNS
+
+package_update: true
+package_upgrade: true
+
+snap:
+  commands:
+    - snap install yq
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - gnupg-agent
+  - software-properties-common
+  - jq
+
+# --------------------------------------------------------------------------
+# Sysctl tuning
+# --------------------------------------------------------------------------
+write_files:
+  - path: /etc/sysctl.d/99-bigbang-vm.conf
+    content: |
+      vm.max_map_count=524288
+
+  - path: /etc/sysctl.d/99-bigbang-fs.conf
+    content: |
+      fs.nr_open=13181252
+      fs.file-max=13181250
+      fs.inotify.max_user_instances=1024
+      fs.inotify.max_user_watches=1048576
+      fs.may_detach_mounts=1
+
+  # --------------------------------------------------------------------------
+  # Ulimits
+  # --------------------------------------------------------------------------
+  - path: /etc/security/limits.d/99-bigbang.conf
+    content: |
+      * soft nofile 13181250
+      * hard nofile 13181250
+      * soft nproc  13181250
+      * hard nproc  13181250
+
+  # --------------------------------------------------------------------------
+  # Kernel modules for Istio iptables
+  # --------------------------------------------------------------------------
+  - path: /etc/modules-load.d/istio-iptables.conf
+    content: |
+      br_netfilter
+      nf_nat_redirect
+      xt_REDIRECT
+      xt_owner
+      xt_statistic
+
+  # --------------------------------------------------------------------------
+  # Docker apt source (written before runcmd installs docker)
+  # --------------------------------------------------------------------------
+  - path: /etc/apt/keyrings/docker-setup.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | gpg --batch --dearmor -o /etc/apt/keyrings/docker.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+        https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+        > /etc/apt/sources.list.d/docker.list
+
+  # --------------------------------------------------------------------------
+  # Signal file for k3d-dev.sh to detect cloud-init completion
+  # --------------------------------------------------------------------------
+  # k3d-dev.sh can poll for this file instead of blindly waiting:
+  #   until run "test -f /var/lib/cloud/instance/boot-finished"; do sleep 5; done
+  # (cloud-init writes boot-finished natively, but we add a BB-specific marker too)
+
+runcmd:
+  # --------------------------------------------------------------------------
+  # Sudoers — passwordless sudo for default user
+  # --------------------------------------------------------------------------
+  - echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/dont-prompt-ubuntu-for-sudo-password
+
+  # --------------------------------------------------------------------------
+  # Load kernel modules immediately (persisted via modules-load.d above)
+  # --------------------------------------------------------------------------
+  - modprobe br_netfilter
+  - modprobe nf_nat_redirect
+  - modprobe xt_REDIRECT
+  - modprobe xt_owner
+  - modprobe xt_statistic
+
+  # --------------------------------------------------------------------------
+  # Apply sysctl
+  # --------------------------------------------------------------------------
+  - sysctl --system
+
+  # --------------------------------------------------------------------------
+  # Install Docker CE
+  # --------------------------------------------------------------------------
+  - mkdir -p /etc/apt/keyrings
+  - /etc/apt/keyrings/docker-setup.sh
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - groupadd -f docker
+  - usermod -aG docker ubuntu
+  - systemctl enable --now docker
+
+  # --------------------------------------------------------------------------
+  # Create cypress directory (used by k3d volume mounts)
+  # --------------------------------------------------------------------------
+  - mkdir -p /cypress && chown 1000:1000 /cypress
+
+  # --------------------------------------------------------------------------
+  # Auto-termination cron (8 hours from boot)
+  # To disable: pass --no-terminate flag in k3d-dev.sh which should skip
+  # including this cloud-init or remove the cron after boot
+  # --------------------------------------------------------------------------
+  - echo "$(date -u -d '+8 hours' +'%M %H') * * * /usr/sbin/shutdown -h now" | crontab -
+
+  # --------------------------------------------------------------------------
+  # BB-specific readiness marker
+  # --------------------------------------------------------------------------
+  - touch /var/lib/cloud/instance/bigbang-ready
