@@ -66,5 +66,11 @@ networkPolicies:
         to:
           cidr:
             0.0.0.0/0:443: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
+          k8s:
+            # kube-proxy DNAT translates service port 443 to targetPort 8443.
+            # k3s NetworkPolicy evaluates post-DNAT, so the CIDR port 443 rule
+            # does not match. This explicit k8s rule allows bb-tests pods to
+            # reach the ingressgateway on the actual targetPort.
+            {{ include "getGatewayName" (dict "gateway" .Values.addons.fortify.ingress.gateway "root" .) | replace "ingressgateway" "ingressgateway:8443" }}: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
 
 {{- end }}
