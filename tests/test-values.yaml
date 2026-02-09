@@ -1404,7 +1404,7 @@ addons:
         enabled: true
         cypress: # note `cypress:*`` is different than in the fortify chart test-values.yaml
           envs:
-            cypress_url: "http://fortify-ssc-service:80"
+            cypress_url: "https://fortify.dev.bigbang.mil"
 
   gitlab:
     enabled: false
