@@ -10,6 +10,9 @@ networkPolicies:
           {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0")}}
           - ipBlock:
               cidr: "0.0.0.0/0"
+              # ONLY Block requests to cloud metadata IP
+              except:
+              - 169.254.169.254/32
           {{- else }}
           - ipBlock:
               cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
@@ -22,6 +25,11 @@ networkPolicies:
           {{- if (eq (index $kmsCidrs 0).ipBlock.cidr "0.0.0.0/0") }}
           - ipBlock:
               cidr: {{ .Values.networkPolicies.vpcCidr }}
+            {{- if eq .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
+              # ONLY Block requests to cloud metadata IP
+              except:
+              - 169.254.169.254/32
+            {{- end }}
           {{- else }}
             {{- $kmsCidrs | toYaml | nindent 10 }}
           {{- end }}
