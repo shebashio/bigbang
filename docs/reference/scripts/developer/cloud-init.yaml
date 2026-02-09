@@ -97,9 +97,14 @@ write_files:
 
 runcmd:
   # --------------------------------------------------------------------------
+  # Early marker so k3d-dev.sh knows to wait instead of racing
+  # --------------------------------------------------------------------------
+  - touch /var/lib/cloud/instance/cloud-init-started
+
+  # --------------------------------------------------------------------------
   # Sudoers — passwordless sudo for default user
   # --------------------------------------------------------------------------
-  - echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/dont-prompt-ubuntu-for-sudo-password
+  - 'echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/dont-prompt-ubuntu-for-sudo-password'
 
   # --------------------------------------------------------------------------
   # Load kernel modules immediately (persisted via modules-load.d above)

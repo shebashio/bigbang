@@ -1081,12 +1081,22 @@ function print_instructions {
 function initialize_instance {
   ##### Configure Instance
 
-  # If cloud-init.yaml was passed as --user-data, the host is already prepared.
-  # cloud-init.yaml writes this marker as its final runcmd step.
-  runwithexitcode "test -f /var/lib/cloud/instance/bigbang-ready"
+  # If cloud-init user-data was provided, wait for it to finish rather than
+  # racing it for the apt lock. user-data.txt exists as soon as the instance
+  # metadata is available — well before runcmd starts — so we can detect it
+  # early. bigbang-ready is written as the final runcmd step in cloud-init.yaml.
+  runwithexitcode "sudo grep -q cloud-config /var/lib/cloud/instance/user-data.txt 2>/dev/null"
   if [[ $? -eq 0 ]]; then
-    echo "cloud-init already prepared this host, skipping initialize_instance"
-    return 0
+    echo "cloud-init user-data detected, waiting for host preparation to finish..."
+    for i in $(seq 1 120); do
+      runwithexitcode "test -f /var/lib/cloud/instance/bigbang-ready"
+      if [[ $? -eq 0 ]]; then
+        echo "cloud-init finished, skipping initialize_instance"
+        return 0
+      fi
+      sleep 5
+    done
+    echo "WARNING: cloud-init did not finish in 10 minutes, falling back to manual setup"
   fi
 
   echo
