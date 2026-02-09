@@ -1351,7 +1351,6 @@ addons:
                   - 'registry.npmjs.org'
                   - 'download.cypress.io'
                   - 'cdn.cypress.io'
-                  - 'fortify.dev.bigbang.mil'
                 location: MESH_EXTERNAL
                 ports:
                   - number: 443
@@ -1405,7 +1404,7 @@ addons:
         enabled: true
         cypress: # note `cypress:*`` is different than in the fortify chart test-values.yaml
           envs:
-            cypress_url: "https://fortify.dev.bigbang.mil"
+            cypress_url: "http://fortify-ssc-service:80"
 
   gitlab:
     enabled: false
