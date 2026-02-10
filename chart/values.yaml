@@ -191,8 +191,8 @@ networkPolicies:
           - ipBlock:
               cidr: 10.0.0.0/8
         ports:
-        - port: 5432
-          protocol: TCP
+          - port: 5432
+            protocol: TCP
   ingress:
     # -- Ingress definitions; create definitions here that you want to re-use globally across
     # all packages
@@ -1987,7 +1987,7 @@ addons:
   #
   keycloak:
     # -- Toggle deployment of Keycloak.
-    enabled: false
+    enabled: true
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
