@@ -49,6 +49,13 @@ networkPolicies:
   egress:
     definitions:
       {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
+      private-registry:
+        to:
+          - ipBlock:
+              cidr: "15.205.173.153/32"
+        ports:
+          - port: 443
+            protocol: TCP
     from:
       bbctl-bigbang-policy:
         to:
@@ -66,6 +73,7 @@ networkPolicies:
         to:
           definition:
             kubeAPI: true
+            private-registry: true
       bbctl-bigbang-violations:
         to:
           definition:
