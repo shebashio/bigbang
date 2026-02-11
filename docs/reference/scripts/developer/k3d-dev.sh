@@ -684,7 +684,7 @@ function install_k3d {
   echo "Installing k3d on instance"
   # Shared k3d settings across all options
   # 1 server, 3 agents
-  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
+  k3d_command="k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
   # Volumes to support Twistlock defenders
   k3d_command+=" -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:*"
   # Disable traefik and metrics-server
@@ -762,6 +762,7 @@ function install_k3d {
   run_batch_add "k3d version"
   run_batch_add "sudo mkdir -p /cypress && sudo chown 1000:1000 /cypress"
   run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
+  run_batch_add "export K3D_FIX_MOUNTS=1"
   # Wrap in timeout to work around k3d entrypoint hang (k3d-io/k3d#1420).
   # Exit code 124 = timeout killed it; the cluster is healthy, k3d just hung
   # on agent readiness. Any other non-zero exit is a real failure.
