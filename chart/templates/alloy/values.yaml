@@ -165,6 +165,7 @@ upstream:
         port: 4317
         targetPort: 4317
         protocol: TCP
+        appProtocol: grpc
       - name: zipkin
         port: 9411
         targetPort: 9411
