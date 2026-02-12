@@ -11,7 +11,7 @@
     "root" $ 
     "package" $package 
     "name" "thanos" 
-    "defaults" ((merge (include "bigbang.defaults.thanos" . | fromYaml) (include "bigbang.thanos.bb-common-migrations" . | fromYaml)) | toYaml)
+    "defaults" ((mergeOverwrite (include "bigbang.defaults.thanos" . | fromYaml) (include "bigbang.thanos.bb-common-migrations" . | fromYaml)) | toYaml)
   )}}
 {{- end }}
 
