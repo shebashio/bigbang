@@ -85,12 +85,23 @@ upstream:
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
+routes:
+  inbound:
+    tempo-query:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+      hosts:
+        - tempo.{{ .Values.domain }}
+      service: tempo-tempo.tempo.svc.cluster.local
+      port: 3200
+
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   # note: ztunnel does not exist yet, defaulting to false until ambient package is added
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       tempo:3200:
         from:
@@ -104,9 +115,7 @@ networkPolicies:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
   egress:
-    definitions:
-      storage-subnets:
-        {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       tempo:
         to:
