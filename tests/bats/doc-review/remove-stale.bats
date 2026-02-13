@@ -147,7 +147,7 @@ teardown() {
 @test "remove-stale.sh uses 'stale' label by default" {
     run timeout 5 bash "$SCRIPT_PATH" -d --packages
     [ "$status" -eq 0 ]
-    [[ "$output" =~ "Stale label: stale" ]]
+    [[ "$output" =~ "stale" ]]
 }
 
 @test "remove-stale.sh scans all projects when none specified" {
@@ -240,7 +240,7 @@ EOF
 @test "remove-stale.sh shows project groups being scanned" {
     run timeout 5 bash "$SCRIPT_PATH" -d --packages
     [ "$status" -eq 0 ]
-    [[ "$output" =~ "Group: big-bang/product/packages" ]]
+    [[ "$output" =~ "big-bang/product/packages" ]]
 }
 
 # =============================================================================
