@@ -13,6 +13,7 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
@@ -26,6 +27,7 @@ domain: {{ $domainName }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
 {{- $vaultIstioHosts := (dig "routes" "inbound" "vault" "hosts" dict .Values.addons.vault.values) }}
 
+
 # Reproducing the naming convention based on the upstream chart: 
 # https://github.com/prometheus-community/helm-charts/blob/1a04bc9e7e988a210d0f1d1882243ff1e3bd1c03/charts/kube-prometheus-stack/templates/prometheus-operator/_prometheus-operator.tpl#L5
 {{- $kpsNameOverride := dig "upstream" "nameOverride" "kube-prometheus-stack" .Values.monitoring.values | trunc 50 | trimSuffix "-" }}
@@ -37,6 +39,9 @@ flux:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
@@ -159,40 +164,36 @@ gitlabRunner:
   enabled: {{ .Values.addons.gitlabRunner.enabled }}
 
 istio:
-  {{- $monitoringInjection := dig "istio" "injection" "enabled" .Values.monitoring }}
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or
-      (dig "hardened" "enabled" false .Values.istiod.values)
-      (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-      (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-      (dig "istio" "hardened" "enabled" false .Values.loki.values)
-      (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
-    }}
-    loki:
-      enabled: {{ and .Values.loki.enabled (or (dig "hardened" "enabled" false .Values.istiod.values) (dig "istio" "hardened" "enabled" false .Values.monitoring.values)) }}
-    alloy:
-      enabled: {{ and .Values.alloy.enabled (or (dig "hardened" "enabled" false .Values.istiod.values) (dig "istio" "hardened" "enabled" false .Values.monitoring.values)) }}
-    {{- if and (dig "values" "istio" "hardened" "enabled" false .Values.monitoring) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
-    customServiceEntries:
+    enabled: {{ $istioHardenedEnabled }}
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+    outboundTrafficPolicyMode: REGISTRY_ONLY
+  serviceEntries:
+    {{- if and ($istioHardenedEnabled) (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+    custom:
       - name: egress-object-store
         enabled: true
         spec:
           hosts:
-           - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
+          - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
           location: MESH_EXTERNAL
           ports:
             - number: 443
               protocol: TLS
               name: https
           resolution: DNS
+    {{- else }}
+    custom: []
     {{- end }}
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
   clusterWideHardenedEnabled: {{ (dig "hardened" "enabled" false .Values.istiod.values) }}
   prometheus:
     enabled: true
-    {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+    {{- if and .Values.monitoring.sso.enabled ( not $istioHardenedEnabled ) }}
     service: authservice-haproxy-sso
     port: 8080
     namespace: authservice
@@ -201,7 +202,8 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
   alertmanager:
     enabled: true
-    {{- if and .Values.monitoring.sso.enabled (eq $monitoringInjection "disabled") }}
+    # TBD if this should be whenever istio is enabled
+    {{- if and .Values.monitoring.sso.enabled (not $istioHardenedEnabled ) }}
     service: authservice-haproxy-sso
     port: 8080
     namespace: authservice
@@ -925,6 +927,9 @@ upstream:
 {{- define "bigbang.overlays.monitoring" }}
   {{- $defaults := fromYaml (include "bigbang.defaults.monitoring" .) }}
   {{- $overlays := dig "values" dict .Values.monitoring }}
+  {{- if $overlays }}
+    {{- $overlays = include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy $overlays)) | fromYaml }}
+  {{- end }}
   {{- range $prometheusConfig, $default := $defaults.prometheus }}
     {{- $overlay := (dig "prometheus" $prometheusConfig dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set
