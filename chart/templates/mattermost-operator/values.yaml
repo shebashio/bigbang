@@ -7,7 +7,7 @@
   {{- $mattermostOperatorPackage = set $mattermostOperatorPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- if or $mattermostOperatorPackage.enabled .Values.addons.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" $mattermostOperatorPackage "name" "mattermost-operator" "defaults" (merge (include "bigbang.mattermostOperator.bb-common-migrations" . | fromYaml) (include "bigbang.defaults.mattermostOperator" . | fromYaml) | toYaml)) }}
+{{- include "values-secret" (dict "root" $ "package" $mattermostOperatorPackage "name" "mattermost-operator" "defaults" ((mergeOverwrite (include "bigbang.defaults.mattermostOperator" . | fromYaml) (include "bigbang.mattermostOperator.bb-common-migrations" . | fromYaml)) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermostOperator" -}}
