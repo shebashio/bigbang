@@ -1,5 +1,5 @@
 {{- $nexusOldValues := default dict .Values.addons.nexus -}}
 {{- $nexusValues := mergeOverwrite $nexusOldValues .Values.addons.nexusRepositoryManager -}}
-{{- if and (eq $nexusValues.sourceType "git") $nexusValues.enabled }}
+{{- if and (eq $nexusValues.sourceType "git") (not .Values.offline) $nexusValues.enabled }}
 {{- include "bigbang.gitRepository" (dict "name" "nexus-repository-manager" "gitCredsName" "nexusRepositoryManager" "git" $nexusValues.git "component" "developer-tools" "root" .) }}
 {{- end }}
