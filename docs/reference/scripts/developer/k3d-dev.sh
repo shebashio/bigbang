@@ -541,7 +541,7 @@ function runwithexitcode() {
 }
 
 function runwithreturn() {
-  $(k3sshcmd) "$@"
+  $(k3dsshcmd) "$@"
 }
 
 function getPrivateIP2() {
