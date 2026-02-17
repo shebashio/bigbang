@@ -43,7 +43,7 @@ networkPolicies:
       keycloak:9000:
         from:
           k8s:
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
