@@ -446,11 +446,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.21.0-bb.0"
+    tag: "2.21.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.21.0-bb.0"
+    tag: "2.21.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -790,11 +790,11 @@ loki:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
     path: "./chart"
-    tag: "6.46.0-bb.4"
+    tag: "6.46.0-bb.5"
   helmRepo:
     repoName: "registry1"
     chartName: "loki"
-    tag: "6.46.0-bb.4"
+    tag: "6.46.0-bb.5"
 
   # -- Flux reconciliation overrides specifically for the Loki Package
   flux:
@@ -1191,12 +1191,12 @@ bbctl:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/bbctl.git
-    tag: "3.0.1-bb.2"
+    tag: "3.0.1-bb.3"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "bbctl"
-    tag: "3.0.1-bb.2"
+    tag: "3.0.1-bb.3"
 
   repoCredentials:
     repo: "repo1.dso.mil"
@@ -1745,11 +1745,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.19.2-bb.0"
+      tag: "3.19.2-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.19.2-bb.0"
+      tag: "3.19.2-bb.1"
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
       upgrade:
@@ -1831,11 +1831,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.3-bb.0"
+      tag: "1.25.3-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.3-bb.0"
+      tag: "1.25.3-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2060,11 +2060,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.31.0-bb.9"
+      tag: "0.32.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.31.0-bb.9"
+      tag: "0.32.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
