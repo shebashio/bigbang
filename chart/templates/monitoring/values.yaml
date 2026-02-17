@@ -77,14 +77,6 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      # TODO: Remove this once gluon is updated to at least 0.8.4 in the monitoring package
-      helm-test:
-        podSelector:
-          matchLabels:
-            helm-test: enabled
-        to:
-          cidr:
-            0.0.0.0/0: true
       prometheus:
         to:
           k8s:
@@ -202,7 +194,7 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
   alertmanager:
     enabled: true
-    # TBD if this should be whenever istio is enabled
+    # TBD if this should be whenever istio is enable
     {{- if and .Values.monitoring.sso.enabled (not $istioHardenedEnabled ) }}
     service: authservice-haproxy-sso
     port: 8080
