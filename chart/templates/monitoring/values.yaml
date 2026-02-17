@@ -42,6 +42,8 @@ networkPolicies:
   # note: ztunnel does not exist yet, defaulting to false until ambient package is added
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+  defaultsAsHooks:
+    enabled: true
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
@@ -56,23 +58,6 @@ networkPolicies:
           definition:
             kubeAPI: false
       {{ end }}
-      # TODO: Remove this once bb-common creates default policies in `pre-install` and `post-delete` hook phases
-      admission-create-job:
-      {{ if not $isDefaultKpsName }}
-        podSelector:
-          matchLabels:
-            app: {{ printf "%s-%s" $kpsNameOverride "admission-create" }}
-      {{ end }}
-        to:
-          k8s:
-            udp://kube-system/coredns:53:
-              enabled: true
-              metadata:
-                annotations:
-                  helm.sh/hook: pre-install,pre-upgrade
-              podSelector:
-                matchLabels:
-                  k8s-app: kube-dns
       "*":
         to:
           k8s:
