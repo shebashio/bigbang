@@ -161,7 +161,7 @@ Object storage is often required for:
 - Mattermost file storage
 - Harbor registry storage (depending on design)
 
-## MinIO
+## MinIO (no longer maintained upstream)
 **Best fit for:** general-purpose S3-compatible storage inside Kubernetes.
 
 Pros:
@@ -171,6 +171,20 @@ Pros:
 
 Cons:
 - Still requires operational ownership (upgrades, monitoring, disks)
+- Minio open source project no longer maintained upstream and will soon be removed from Big Bang ecosystem
+
+---
+
+## Garage (S3-Compatible)
+**Best fit for:** edge/distributed environments with object-first storage needs. Soon to be substituted for Minio in Big Bang packages where S3 compatible storage is needed as a chart dependency.
+
+Pros:
+- Designed for distributed and failure-tolerant object storage
+- Lightweight compared to Ceph
+
+Cons:
+- Less common in Kubernetes enterprise environments
+- Operational maturity varies by organization
 
 ---
 
@@ -183,19 +197,6 @@ Pros:
 
 Cons:
 - More complex than MinIO
-
----
-
-## Garage (S3-Compatible)
-**Best fit for:** edge/distributed environments with object-first storage needs.
-
-Pros:
-- Designed for distributed and failure-tolerant object storage
-- Lightweight compared to Ceph
-
-Cons:
-- Less common in Kubernetes enterprise environments
-- Operational maturity varies by organization
 
 ---
 
