@@ -196,7 +196,7 @@ Pros:
 - Good for larger deployments
 
 Cons:
-- More complex than MinIO
+- More complex setup and operations than MinIO or Garage
 
 ---
 
