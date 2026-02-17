@@ -109,7 +109,6 @@ networkPolicies:
           definitions:
             kubeAPI: true
             kms: true
-            sso: {{ .Values.addons.vault.sso.enabled }}
       vault-agent-injector:
         to:
           definition:
