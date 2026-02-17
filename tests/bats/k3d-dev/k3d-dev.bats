@@ -75,14 +75,10 @@ _reset_globals() {
 
 @test "runwithreturn uses k3dsshcmd command builder" {
     _source_k3d_dev
-    k3dsshcmd() {
-        echo "printf stubbed"
-    }
+    fn="$(declare -f runwithreturn)"
 
-    run runwithreturn
-
-    [ "$status" -eq 0 ]
-    [ "$output" = "stubbed" ]
+    [[ "$fn" == *'$(k3dsshcmd) "$@"'* ]]
+    [[ "$fn" != *'$(k3sshcmd) "$@"'* ]]
 }
 
 @test "set_kubeconfig uses PublicIP when not provisioning" {
