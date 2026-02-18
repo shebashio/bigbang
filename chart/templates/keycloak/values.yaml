@@ -45,7 +45,7 @@ routes:
         - {{ include "getGatewayName" (dict "default" "passthrough" "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
       hosts:
         - keycloak.{{ $domainName }}
-      service: keycloak-keycloak-http.svc.cluster.local
+      service: keycloak-keycloak-http.keycloak.svc.cluster.local
       port: 8443
       passthrough:
         enabled: true
