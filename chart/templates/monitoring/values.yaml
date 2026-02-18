@@ -59,11 +59,9 @@ networkPolicies:
             kubeAPI: false
       {{ end }}
       admission-create-job:
-      {{ if not $isDefaultKpsName }}
         podSelector:
           matchLabels:
             app: {{ printf "%s-%s" $kpsNameOverride "admission-create" }}
-      {{ end }}
         metadata:
           annotations:
             helm.sh/hook: pre-install,pre-upgrade
