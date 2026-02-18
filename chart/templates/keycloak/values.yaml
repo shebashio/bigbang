@@ -9,7 +9,7 @@
   "root" $ 
   "package" $keycloakPackage
   "name" "keycloak" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.keycloak" . | fromYaml) (include "bigbang.keycloak.bb-common-migrations" . | fromYaml)) | toYaml)
+  "defaults" (include "bigbang.defaults.keycloak" . )
 ) }}
 {{- end }}
 
@@ -42,7 +42,7 @@ routes:
     keycloak:
       enabled: true
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.addons.keycloak.ingress.gateway "root" .) }}
+        - {{ include "getGatewayName" (dict "default" "passthrough" "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
       hosts:
         - keycloak.{{ $domainName }}
       service: keycloak-keycloak-http.svc.cluster.local
