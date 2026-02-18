@@ -2147,7 +2147,7 @@ addons:
             keycloak:
               to:
                 cidr:
-                  0.0.0.0/0:443: true  # so it can pull the files for the provision-test-data container
+                  15.205.173.153/32:443: true  # so it can pull the files for the provision-test-data container from repo1
       bbtests:
         enabled: true
         cypress:
