@@ -21,8 +21,10 @@
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.harbor.values) }}
 {{- $postgresEnabled := dig "postgresql" "enabled" true .Values.addons.harbor.values }}
 
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
 - name: private-registry
+{{- end }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 externalURL: https://harbor.{{ .Values.domain }}

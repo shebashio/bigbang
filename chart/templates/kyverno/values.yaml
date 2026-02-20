@@ -78,8 +78,10 @@ upstream:
   replicaCount: 3
 
   image:
+    {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
     - name: private-registry
+    {{- end }}
     pullPolicy: {{ .Values.imagePullPolicy }}
 
   grafana:

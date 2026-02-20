@@ -9,8 +9,10 @@
 {{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
 
 waitforready:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
   - name: private-registry
+  {{- end }}
 
 policies:
   add-default-capability-drop:

@@ -105,8 +105,10 @@ upstream:
 
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
     - private-registry
+    {{- end }}
     {{- if $enterpriseEnabled }}
     repository: ironbank/grafana/grafana-enterprise
     {{- end }}

@@ -68,8 +68,10 @@ upstream:
     name: minio-minio-minio-instance
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecret:
       name: private-registry
+    {{- end }}
     metrics:
       enabled: {{ .Values.monitoring.enabled }}
     configSecret:

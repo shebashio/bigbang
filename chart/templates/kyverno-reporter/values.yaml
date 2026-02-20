@@ -80,26 +80,32 @@ openshift: {{ .Values.openshift }}
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
   - name: private-registry
+  {{- end }}
   ui:
     enabled: true
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
     - name: private-registry
+    {{- end }}
     {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
-  
+
   plugin:
     kyverno:
       enabled: true
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+      {{- if ( include "imagePullSecret" . ) }}
       imagePullSecrets:
       - name: private-registry
+      {{- end }}
       {{- if $istioEnabled }}
       podAnnotations:
         {{ include "istioAnnotation" . }}

@@ -26,8 +26,10 @@ istio:
 image: 
   pullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
   
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
   - name: private-registry
+{{- end }}
 
 podAnnotations:
   {{ include "istioAnnotation" . }}
@@ -100,8 +102,10 @@ redis-bb:
   metrics:
     enabled: true 
     image:
+      {{- if ( include "imagePullSecret" . ) }}
       pullSecrets:
         - private-registry
+      {{- end }}
     serviceMonitor:
       enabled: true
       namespace: authservice

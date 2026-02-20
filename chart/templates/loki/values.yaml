@@ -61,8 +61,10 @@ routes:
         app.kubernetes.io/component: gateway
         {{- end }}
 
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
   - name: private-registry
+{{- end }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}

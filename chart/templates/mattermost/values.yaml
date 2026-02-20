@@ -116,9 +116,11 @@ routes:
         - {{ $ssoHost }}
       {{- end }}
 
+{{- if ( include "imagePullSecret" . ) }}
 global:
   imagePullSecrets:
     - name: private-registry
+{{- end }}
 
 {{- with .Values.addons.mattermost.enterprise }}
 enterprise:
@@ -135,8 +137,10 @@ postgresql:
 {{- else }}
 postgresql:
   image:
+    {{- if ( include "imagePullSecret" $ ) }}
     pullSecrets:
       - private-registry
+    {{- end }}
   {{- if and .username .password .host .port .database }}
   secret: "mattermost-database-secret"
   {{- else }}
@@ -184,8 +188,10 @@ fileStore:
 minio:
   install: true
   upstream:
+    {{- if ( include "imagePullSecret" $ ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- end }}
     tenant:
       metrics:
         enabled: {{ $.Values.monitoring.enabled }}

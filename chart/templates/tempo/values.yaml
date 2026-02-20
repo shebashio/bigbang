@@ -77,8 +77,10 @@ upstream:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
   serviceAccount:
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- end }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}

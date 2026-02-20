@@ -14,25 +14,33 @@ upstream:
       enabled: false
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- end }}
     probeWebhook:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- end }}
   postUpgrade:
     cleanupCRD:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- end }}
   preUninstall:
     deleteWebhookConfigurations:
       image:
         pullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- end }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

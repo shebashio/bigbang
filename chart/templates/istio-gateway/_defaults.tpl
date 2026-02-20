@@ -28,8 +28,10 @@ gateways:
 
       imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+      {{- if ( include "imagePullSecret" . ) }}
       imagePullSecrets:
         - name: private-registry
+      {{- end }}
 
       labels:
         istio: ingressgateway
@@ -61,8 +63,10 @@ gateways:
 
       imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+      {{- if ( include "imagePullSecret" . ) }}
       imagePullSecrets:
         - name: private-registry
+      {{- end }}
 
       labels:
         istio: ingressgateway

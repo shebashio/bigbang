@@ -41,8 +41,10 @@ redis-bb:
     metrics:
       enabled: true
       image:
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
           - private-registry
+        {{- end }}
       serviceMonitor:
         enabled: true
         namespace: argocd
@@ -83,8 +85,10 @@ global:
   {{- end }}
   image:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- end }}
 {{- if $istioInjection }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
@@ -145,8 +149,10 @@ upstream:
   controller:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- end }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT, istio injection: enabled
     {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.argocd.values) "STRICT") }}
     metrics:
@@ -162,8 +168,10 @@ upstream:
   dex:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- end }}
   
   server:
     image:

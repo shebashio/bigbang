@@ -33,8 +33,10 @@ monitoring:
       insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
 
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
 - name: private-registry
+{{- end }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

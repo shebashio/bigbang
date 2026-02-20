@@ -52,8 +52,10 @@ networkPolicies:
     {{- include "getGatewaySelector" (dict "pkg" $nexusValues "root" .) | nindent 4 }}
 
 nexus:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- end }}
   {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}

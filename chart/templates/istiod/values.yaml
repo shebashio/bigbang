@@ -41,8 +41,10 @@ upstream:
     enabled: {{ .Values.istioCNI.enabled }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - private-registry
+    {{- end }}
  
   {{- if or $authserviceEnabled .Values.tempo.enabled }}
   meshConfig:

@@ -34,8 +34,10 @@
 {{- $storeGatewayEnabled := dig "storegateway" "enabled" false .Values.addons.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
 
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
 - name: private-registry
+{{- end }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 externalURL: https://thanos.{{ .Values.domain }}
@@ -124,8 +126,10 @@ networkPolicies:
 metrics:
   enabled: true
   image:
+    {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
       - private-registry
+    {{- end }}
   serviceMonitor:
     enabled: true
 {{- end }}

@@ -121,7 +121,9 @@ networkPolicies:
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if ( include "imagePullSecret" . ) }}
   pullSecret: private-registry
+  {{- end }}
 
 {{- if $istioInjection }}
 annotations:

@@ -125,8 +125,10 @@ networkPolicies:
 
 upstream:
   global:
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
     - name: private-registry
+    {{- end }}
 
   injector:
     image:

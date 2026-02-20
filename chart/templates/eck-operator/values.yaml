@@ -82,6 +82,8 @@ networkPolicies:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
 upstream:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- end }}
 {{- end -}}

@@ -13,8 +13,10 @@
 {{- define "bigbang.defaults.mattermostOperator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mattermostOperator.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
   - name: private-registry
+{{- end }}
 
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}

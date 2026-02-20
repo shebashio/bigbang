@@ -12,6 +12,8 @@ upstream:
     enabled: false
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - private-registry
+    {{- end }}
 {{- end }}

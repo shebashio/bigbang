@@ -55,7 +55,9 @@ sso:
   roleAttribute: {{ .Values.addons.anchoreEnterprise.sso.role_attribute }}
 
 global:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecretName: private-registry
+  {{- end }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
@@ -64,7 +66,9 @@ postgresql:
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end}}
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets: private-registry
+  {{- end }}
   {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
   enabled: false
   postgresUser: {{ .Values.addons.anchoreEnterprise.database.username }}
@@ -94,7 +98,9 @@ upstream:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end}}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets: private-registry
+    {{- end }}
     {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
     auth:
       username: {{ .Values.addons.anchoreEnterprise.database.username }}
@@ -109,7 +115,9 @@ upstream:
 
   ui:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecretName: private-registry
+    {{- end }}
 
 ui-redis:
   {{- if and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
@@ -129,14 +137,18 @@ ui-redis:
         {{ include "istioAnnotation" . }}
     {{- end }}
     image:
+      {{- if ( include "imagePullSecret" . ) }}
       pullSecrets:
         - private-registry
+      {{- end }}
     {{- if .Values.monitoring.enabled }}
     metrics:
       enabled: true
       image:
+        {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
           - private-registry
+        {{- end }}
       serviceMonitor:
         enabled: true
         namespace: anchore

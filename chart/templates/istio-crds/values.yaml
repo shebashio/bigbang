@@ -8,6 +8,8 @@
 {{- define "bigbang.defaults.istio-crds" -}}
 upstream:
   global:
+    {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - private-registry
+    {{- end }}
 {{- end }}
