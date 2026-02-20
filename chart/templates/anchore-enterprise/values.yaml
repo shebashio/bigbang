@@ -164,6 +164,19 @@ networkPolicies:
         to:
           definition:
             database-subnets: {{ $externalPostgresEnabled }}
+      configure-sso:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: configure-sso
+        to:
+          definition:
+            sso: 
+              enabled: {{ .Values.addons.anchoreEnterprise.sso.enabled }}
+              metadata:
+                annotations:
+                  helm.sh/hook: post-install,post-upgrade
+                  helm.sh/hook-weight: "-10"
+                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
       datasyncer:
         podSelector:
           matchLabels:
