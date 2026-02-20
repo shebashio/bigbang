@@ -35,16 +35,20 @@ monitoring:
 
 routes:
   inbound:
-    api:
+    anchore-api:
       enabled: true
+      selector:
+        app.kubernetes.io/component: api
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
       hosts:
         - anchore-api.{{ $domainName }}
       service: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
       port: 8228
-    ui:
+    anchore-ui:
       enabled: true
+      selector:
+        app.kubernetes.io/component: ui
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
       hosts:
