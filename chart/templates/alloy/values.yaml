@@ -73,11 +73,6 @@ networkPolicies:
         from:
           k8s:
             "*/*": true
-      # Allow Prometheus to scrape metrics from alloy-receiver
-      alloy-receiver:12345:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       {{- end }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
