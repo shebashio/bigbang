@@ -123,10 +123,6 @@ upstream:
     - name: tempo
       type: otlp
       url: http://tempo-tempo.tempo.svc.cluster.local:4317
-      metrics:
-        enabled: false
-      logs:
-        enabled: false
       tls:
         insecure: true
     {{- end }}
@@ -197,6 +193,10 @@ upstream:
           enabled: true
       zipkin:
         enabled: true
+    metrics:
+      enabled: false
+    logs:
+      enabled: false
     destinations:
       - tempo
   {{- end }}
