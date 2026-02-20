@@ -123,6 +123,10 @@ upstream:
     - name: tempo
       type: otlp
       url: http://tempo-tempo.tempo.svc.cluster.local:4317
+      metrics:
+        enabled: false
+      logs:
+        enabled: false
       tls:
         insecure: true
     {{- end }}
