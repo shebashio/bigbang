@@ -15,7 +15,6 @@
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.anchoreEnterprise.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $externalRedisEnabled := and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
 {{- $externalPostgresEnabled := and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
-{{- $ldapEnabled := }}
 domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
