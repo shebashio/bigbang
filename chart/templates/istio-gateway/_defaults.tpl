@@ -31,6 +31,8 @@ gateways:
       {{- if ( include "imagePullSecret" . ) }}
       imagePullSecrets:
         - name: private-registry
+      {{- else }}
+      imagePullSecrets: []
       {{- end }}
 
       labels:
