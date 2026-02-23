@@ -119,12 +119,6 @@ networkPolicies:
                   helm.sh/hook-weight: "-10"
                   helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 
-image:
-  pullPolicy: {{ .Values.imagePullPolicy }}
-  {{- if ( include "imagePullSecret" . ) }}
-  pullSecret: private-registry
-  {{- end }}
-
 {{- if $istioInjection }}
 annotations:
   {{ include "istioAnnotation" . }}
@@ -136,6 +130,14 @@ sso:
 {{- end }}
 
 upstream:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
+    {{- if ( include "imagePullSecret" . ) }}
+    pullSecrets: private-registry
+    {{- else }}
+    pullSecrets: []
+    {{- end }}
+  
 {{- if .Values.addons.sonarqube.sso.enabled }}
   sonarProperties:
     # enabling saml authentication 

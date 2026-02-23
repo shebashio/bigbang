@@ -44,6 +44,8 @@ redis-bb:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
           - private-registry
+        {{- else }}
+        pullSecrets: []
         {{- end }}
       serviceMonitor:
         enabled: true
@@ -88,6 +90,8 @@ global:
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
 {{- if $istioInjection }}
   podAnnotations:
@@ -152,6 +156,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT, istio injection: enabled
     {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.argocd.values) "STRICT") }}
@@ -171,6 +177,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
   
   server:

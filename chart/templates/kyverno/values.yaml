@@ -81,6 +81,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
     - name: private-registry
+    {{- else }}
+    pullSecrets: []
     {{- end }}
     pullPolicy: {{ .Values.imagePullPolicy }}
 

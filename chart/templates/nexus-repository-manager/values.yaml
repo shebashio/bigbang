@@ -55,6 +55,8 @@ nexus:
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
   {{- if $istioEnabled }}
   podAnnotations:

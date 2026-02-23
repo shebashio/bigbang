@@ -44,6 +44,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
  
   {{- if or $authserviceEnabled .Values.tempo.enabled }}

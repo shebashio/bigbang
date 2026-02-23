@@ -15,5 +15,7 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - private-registry
+    {{- else }}
+    imagePullSecrets: []  
     {{- end }}
 {{- end }}

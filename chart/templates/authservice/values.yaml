@@ -29,6 +29,8 @@ image:
 {{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
   - name: private-registry
+{{- else }}
+imagePullSecrets: []
 {{- end }}
 
 podAnnotations:
@@ -105,6 +107,8 @@ redis-bb:
       {{- if ( include "imagePullSecret" . ) }}
       pullSecrets:
         - private-registry
+      {{- else }}
+      pullSecrets: []
       {{- end }}
     serviceMonitor:
       enabled: true

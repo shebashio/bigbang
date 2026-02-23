@@ -68,6 +68,8 @@ postgresql:
   {{- end}}
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets: private-registry
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
   {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
   enabled: false
@@ -100,6 +102,8 @@ upstream:
     {{- end}}
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets: private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
     {{- if and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
     auth:
@@ -140,6 +144,8 @@ ui-redis:
       {{- if ( include "imagePullSecret" . ) }}
       pullSecrets:
         - private-registry
+      {{- else }}
+      pullSecrets: []        
       {{- end }}
     {{- if .Values.monitoring.enabled }}
     metrics:
@@ -148,6 +154,8 @@ ui-redis:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
           - private-registry
+        {{- else }}
+        pullSecrets: []          
         {{- end }}
       serviceMonitor:
         enabled: true

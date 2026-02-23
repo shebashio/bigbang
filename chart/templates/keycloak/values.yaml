@@ -90,6 +90,8 @@ upstream:
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
   - name: private-registry
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
   {{- with .Values.addons.keycloak.database }}
   database:
@@ -214,6 +216,8 @@ postgresql:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
     - private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
     postgresql:
       auth:

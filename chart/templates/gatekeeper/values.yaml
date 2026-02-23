@@ -17,6 +17,8 @@ upstream:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- else }}
+        pullSecrets: []
         {{- end }}
     probeWebhook:
       image:
@@ -24,6 +26,8 @@ upstream:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- else }}
+        pullSecrets: []
         {{- end }}
   postUpgrade:
     cleanupCRD:
@@ -32,6 +36,8 @@ upstream:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- else }}
+        pullSecrets: []
         {{- end }}
   preUninstall:
     deleteWebhookConfigurations:
@@ -40,6 +46,8 @@ upstream:
         {{- if ( include "imagePullSecret" . ) }}
         pullSecrets:
         - name: private-registry
+        {{- else }}
+        pullSecrets: []
         {{- end }}
 
 networkPolicies:

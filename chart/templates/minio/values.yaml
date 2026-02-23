@@ -71,6 +71,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecret:
       name: private-registry
+    {{- else }}
+    imagePullSecret: []
     {{- end }}
     metrics:
       enabled: {{ .Values.monitoring.enabled }}

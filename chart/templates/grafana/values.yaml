@@ -108,6 +108,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
     - private-registry
+    {{- else }}
+    pullSecrets: []  
     {{- end }}
     {{- if $enterpriseEnabled }}
     repository: ironbank/grafana/grafana-enterprise

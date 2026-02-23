@@ -80,6 +80,8 @@ upstream:
     {{- if ( include "imagePullSecret" . ) }}
     imagePullSecrets:
       - name: private-registry
+    {{- else }}
+    imagePullSecrets: []
     {{- end }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.

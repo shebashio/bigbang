@@ -116,11 +116,13 @@ routes:
         - {{ $ssoHost }}
       {{- end }}
 
-{{- if ( include "imagePullSecret" . ) }}
 global:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
-{{- end }}
+  {{- else }}
+  imagePullSecrets: []
+  {{- end }}
 
 {{- with .Values.addons.mattermost.enterprise }}
 enterprise:

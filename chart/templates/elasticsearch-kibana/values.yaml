@@ -105,6 +105,8 @@ kibana:
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
 {{- if $istioEnabled }}
   podAnnotations:
@@ -135,7 +137,7 @@ elasticsearch:
   {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
     - name: private-registry
-  {{- end }}
+s  {{- end }}
   master:
     initContainers:
       - name: elastic-internal-init-filesystem

@@ -37,6 +37,8 @@
 {{- if ( include "imagePullSecret" . ) }}
 imagePullSecrets:
 - name: private-registry
+{{- else }}
+imagePullSecrets: []
 {{- end }}
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
@@ -129,6 +131,8 @@ metrics:
     {{- if ( include "imagePullSecret" . ) }}
     pullSecrets:
       - private-registry
+    {{- else }}
+    pullSecrets: []
     {{- end }}
   serviceMonitor:
     enabled: true

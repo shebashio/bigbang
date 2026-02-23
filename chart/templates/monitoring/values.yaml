@@ -231,11 +231,13 @@ vault:
   enabled: {{ .Values.addons.vault.enabled }}
   tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
 
-{{- if ( include "imagePullSecret" . ) }}
 global:
+  {{- if ( include "imagePullSecret" . ) }}
   imagePullSecrets:
   - name: private-registry
-{{- end }}
+  {{- else }}
+  imagePullSecrets: []
+  {{- end }}
 
 sso:
   enabled: {{ .Values.monitoring.sso.enabled }}
