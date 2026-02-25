@@ -1,5 +1,5 @@
 {{- if .Values.tempo.enabled }}
-{{- /* Create a cleaned copy of kiali config and merge deprecated paths into current paths */ -}}
+{{- /* Create a cleaned copy of tempo config and merge deprecated paths into current paths */ -}}
 {{- $tempoPackage := deepCopy .Values.tempo -}}
 {{- if .Values.tempo.values -}}
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.tempo.values) | fromYaml -}}
@@ -23,18 +23,10 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- $tempoAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-  {{- $tempoAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
-  {{- if or .Values.kiali.enabled .Values.tempo.sso.enabled }}
+  {{- if .Values.kiali.enabled }}
   podLabels:
-    {{- if .Values.kiali.enabled }}
     service.istio.io/canonical-name: tempo-tempo
-    {{- end }}
-    {{- if .Values.tempo.sso.enabled }}
-    {{ $tempoAuthserviceKey }}: {{ $tempoAuthserviceValue }}
-    {{- end }}
   {{- end }}
-
 
   tempo:
     extraVolumeMounts:
@@ -93,12 +85,23 @@ upstream:
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
+routes:
+  inbound:
+    tempo-query:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+      hosts:
+        - tempo.{{ .Values.domain }}
+      service: tempo-tempo.tempo.svc.cluster.local
+      port: 3200
+
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   # note: ztunnel does not exist yet, defaulting to false until ambient package is added
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       tempo:3200:
         from:
@@ -112,16 +115,15 @@ networkPolicies:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
   egress:
-    definitions:
-      storage-subnets:
-        {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       tempo:
         to:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            storage-subnets: {{ ne $storageMode "local" }}
+            # TODO: Revisit this logic for bb 4.0
+            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.tempo.objectStorage.endpoint )) }}
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -133,11 +135,12 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 sso:
   enabled: {{ .Values.tempo.sso.enabled }}
+
 {{- end -}}

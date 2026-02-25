@@ -6,7 +6,12 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.alloy.values) | fromYaml -}}
 {{- $alloyPackage = set $alloyPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $alloyPackage "name" "alloy" "defaults" (include "bigbang.defaults.alloy" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" $alloyPackage 
+  "name" "alloy" 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.alloy" . | fromYaml) (include "bigbang.alloy.bb-common-migrations" . | fromYaml)) | toYaml)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
@@ -33,17 +38,31 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
+      # Allow alloy-metrics and Prometheus to scrape alloy-receiver
+      alloy-receiver:12345:
+        from:
+          k8s:
+            # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+
+      # Allow alloy-metrics and Prometheus to scrape alloy-logs
       alloy-logs:12345:
+        from:
+          k8s:
+            # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+
+      # Allow Prometheus to scrape alloy-metrics
+      alloy-metrics:12345:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       alloy-logs:
         to:
@@ -61,7 +80,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 upstream:
   {{- if .Values.kiali.enabled }}

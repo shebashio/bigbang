@@ -2,11 +2,24 @@
 
 {{- /* Create secret */ -}}
 {{- if (get .Values.addons $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values.addons $pkg) "name" $pkg "defaults" (include (printf "bigbang.defaults.%s" $pkg) .)) }}
+{{- /* Create a cleaned copy of harbor config and merge deprecated paths into current paths */ -}}
+{{- $harborPackage := deepCopy .Values.addons.harbor -}}
+{{- if .Values.addons.harbor.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.harbor.values) | fromYaml -}}
+{{- $harborPackage = set $harborPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" $harborPackage 
+  "name" $pkg 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.harbor" . | fromYaml) (include "bigbang.harbor.bb-common-migrations" . | fromYaml)) | toYaml)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.harbor" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.harbor.values) }}
+{{- $postgresEnabled := dig "postgresql" "enabled" true .Values.addons.harbor.values }}
 
 imagePullSecrets:
 - name: private-registry
@@ -18,43 +31,49 @@ domain: {{ .Values.domain }}
 
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.harbor }}
-  harbor:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.harbor.ingress.gateway "root" .)}}
+
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
+
+routes:
+  inbound:
+    harbor:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.addons.harbor.ingress.gateway "root" .)}}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.harbor "root" .) | nindent 4 }}
-  istioNamespaceSelector:
-    {{ include "istioNamespaceSelector" . | nindent 4 }}
 
+  egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    from:
+      harbor:
+        to:
+          definition:
+            database-subnets: {{ not $postgresEnabled }}
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+  ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+    to:
+      harbor:8001:
+        from:
+          k8s:
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
-serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
-  # conditional passes only if all conditionals are true:
-  # - istio: enabled
-  # - mTLS: SCRICT
-  {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.tempo.values) "STRICT") }}
-  scheme: https
-  tlsConfig:
-    caFile: /etc/prom-certs/root-cert.pem
-    certFile: /etc/prom-certs/cert-chain.pem
-    keyFile: /etc/prom-certs/key.pem
-    insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
-  {{- end }}
-
 openshift: {{ .Values.openshift }}
+
+upstream:
+  metrics:
+    enabled: {{ .Values.monitoring.enabled }}
+    serviceMonitor:
+      enabled: {{ .Values.monitoring.enabled }}
 
 {{- end }}
