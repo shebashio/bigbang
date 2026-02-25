@@ -970,14 +970,14 @@ monitoring:
       enabled: true
       cypress:
         envs:
-          cypress_bigbang_integration: 'true'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
-          cypress_check_istio_dashboards: 'true'
-          cypress_keycloak_test_enable: 'false'
-          cypress_tnr_username: "cypress"
-          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
+          CYPRESS_bigbang_integration: 'true'
+          CYPRESS_prometheus_url: 'https://prometheus.dev.bigbang.mil'
+          CYPRESS_grafana_url: 'https://grafana.dev.bigbang.mil'
+          CYPRESS_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
+          CYPRESS_check_istio_dashboards: 'true'
+          CYPRESS_keycloak_test_enable: 'false'
+          CYPRESS_tnr_username: "cypress"
+          CYPRESS_tnr_password: "tnr_w!G33ZyAt@C8"
     istio:
       hardened:
         customServiceEntries:
