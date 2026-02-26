@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Kyverno Policies - PolicyException Helpers
+templates:
+  - templates/kyverno-policies/values.yaml
+tests:
+  # ---------- bigbang.policyException (single) ----------
+
+  - it: should render twistlock-restrict-apparmor PolicyException when twistlock is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      twistlock.enabled: true
+    asserts:
+      - isNotNull:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.enabled
+          value: true
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.kind
+          value: PolicyException
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.namespace
+          value: "kyverno"
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.exceptions[0].policyName
+          value: restrict-apparmor
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.exceptions[0].ruleNames[0]
+          value: "*"
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.match.any[0].resources.namespaces[0]
+          value: twistlock
+      - equal:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.match.any[0].resources.names[0]
+          value: "twistlock-defender-ds*"
+
+  - it: should not render twistlock PolicyException when twistlock is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      twistlock.enabled: false
+    asserts:
+      - isNull:
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor
+
+  # ---------- bigbang.policyExceptionBatch ----------
+
+  - it: should render all three monitoring PolicyExceptions when monitoring is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      monitoring.enabled: true
+    asserts:
+      - isNotNull:
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations
+      - isNotNull:
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount
+      - isNotNull:
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types
+
+  - it: should target the correct policy in each batch entry
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      monitoring.enabled: true
+    asserts:
+      - equal:
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.exceptions[0].policyName
+          value: disallow-tolerations
+      - equal:
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount.spec.exceptions[0].policyName
+          value: restrict-host-path-mount
+      - equal:
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types.spec.exceptions[0].policyName
+          value: restrict-volume-types
+
+  - it: should use consistent match criteria across all batch entries
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      monitoring.enabled: true
+    asserts:
+      - equal:
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.match.any[0].resources.namespaces[0]
+          value: monitoring
+      - equal:
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.match.any[0].resources.names[0]
+          value: "monitoring-monitoring-prometheus-node-exporter*"
+      - equal:
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount.spec.match.any[0].resources.namespaces[0]
+          value: monitoring
+      - equal:
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types.spec.match.any[0].resources.namespaces[0]
+          value: monitoring
+
+  - it: should not render monitoring PolicyExceptions when monitoring is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      kyvernoPolicies.enabled: true
+      monitoring.enabled: false
+    asserts:
+      - isNull:
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations
+      - isNull:
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount
+      - isNull:
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types
