@@ -31,7 +31,7 @@ tests:
           value: restrict-apparmor
       - equal:
           path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.exceptions[0].ruleNames[0]
-          value: "*"
+          value: "restrict-apparmor"
       - equal:
           path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.match.any[0].resources.namespaces[0]
           value: twistlock

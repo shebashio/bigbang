@@ -28,6 +28,8 @@
                    omit for namespace-only (static) exceptions
     .kinds       — list of resource kinds (e.g. (list "Pod" "Deployment"))
                    omit to match all kinds
+    .ruleNames   — list of rule names to exempt (defaults to the policy name, which
+                   matches the kyverno-policies subchart convention)
 
   Usage:
 
@@ -49,7 +51,13 @@
     exceptions:
     - policyName: {{ .policy }}
       ruleNames:
-      - "*"
+      {{- if .ruleNames }}
+      {{- range .ruleNames }}
+      - {{ . | quote }}
+      {{- end }}
+      {{- else }}
+      - {{ .policy | quote }}
+      {{- end }}
     match:
       any:
       - resources:
