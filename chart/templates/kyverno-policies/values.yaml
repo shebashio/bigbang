@@ -1238,6 +1238,48 @@ policies:
           allow:
           - headlamp-*
 
+# Ejecting from the helper DSL:
+# If you ever want to replace these helper calls with plain YAML PolicyException
+# blocks, render the fully expanded output and copy it back in:
+#
+#   helm template bigbang chart -s templates/kyverno-policies/values.yaml \
+#     --set twistlock.enabled=true --set monitoring.enabled=true \
+#     | yq '.stringData.defaults' | yq '.additionalPolicyExceptions'
+#
+# That gives you the raw additionalPolicyExceptions map with every entry
+# spelled out — no helpers, no includes, just YAML you can paste directly.
+additionalPolicyExceptions:
+  {{- /* Single-exception helper demo: twistlock / restrict-apparmor
+         7 lines here replaces what would be 15 lines of hand-written PolicyException YAML.
+         See bigbang.policyException in _helpers.tpl. */ -}}
+  {{- if .Values.twistlock.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "twistlock-restrict-apparmor"
+    "enabled"    true
+    "policy"     "restrict-apparmor"
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-defender-ds*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* Batch helper demo: monitoring / prometheus-node-exporter across 3 policies
+         12 lines here replaces what would be 45 lines (15 per policy x 3 policies).
+         At full scale the 72 exclusions collapse from ~1080 lines to ~39 helper calls.
+         See bigbang.policyExceptionBatch in _helpers.tpl. */ -}}
+  {{- if .Values.monitoring.enabled }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "monitoring"
+    "enabled"    true
+    "namespaces" (list "monitoring")
+    "names"      (list "monitoring-monitoring-prometheus-node-exporter*")
+    "policies"   (list
+      "disallow-tolerations"
+      "restrict-host-path-mount"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
 istio:
   enabled: {{ $istioEnabled }}
 
