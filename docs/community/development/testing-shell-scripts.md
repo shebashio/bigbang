@@ -32,7 +32,7 @@ Lefthook is not required to run BATS tests directly, but it wires them into your
 brew install lefthook
 ```
 
-**Linux and other platforms:** See the [Lefthook installation docs](https://lefthook.dev/installation/) for options including `apt`, `rpm`, `npm`, standalone binaries, and building from source.
+**Linux and other platforms:** See the [Lefthook installation docs](https://lefthook.dev/install/) for options including `apt`, `rpm`, `npm`, standalone binaries, and building from source.
 
 ## Running Tests
 
