@@ -18,8 +18,6 @@ ignorePatterns:
   - pattern: "#extending-cypress-tests"
   # ignore cluster.local domains
   - pattern: "(.*\\.)?cluster\\.local.*"
-  # IL4 sites are auth-gated and unreachable from CI runners
-  - pattern: "https://.*\\.il4\\.dso\\.mil"
 # replacementPatterns:
 #   - pattern: ^.attachments
 #     replacement: file://some/conventional/folder/.attachments
