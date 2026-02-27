@@ -1284,7 +1284,7 @@ policies:
 # See bigbang.policyException and bigbang.policyExceptionBatch in
 # chart/templates/kyverno-policies/_helpers.tpl for helper documentation.
 
-{{- if .Values.kyvernoPolicies.DefaultPolicyExceptions.enabled }}
+{{- if (dig "DefaultPolicyExceptions" "enabled" false .Values.kyvernoPolicies) }}
 additionalPolicyExceptions:
 
   {{- /* ── Static exceptions (not addon-gated) ──────────────────────── */ -}}
