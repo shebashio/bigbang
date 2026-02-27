@@ -45,7 +45,7 @@
 {{ .name }}:
   enabled: {{ .enabled }}
   kind: PolicyException
-  namespace: "kyverno"
+  namespace: "bigbang"
   spec:
     exceptions:
     - policyName: {{ .policy }}
