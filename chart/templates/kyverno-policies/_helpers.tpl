@@ -45,7 +45,10 @@
 {{ .name }}:
   enabled: {{ .enabled }}
   kind: PolicyException
-  namespace: "bigbang"
+  namespace: "kyverno"
+  metadata:
+    labels:
+      app: {{ splitList "-" .name | first | quote }}
   spec:
     exceptions:
     - policyName: {{ .policy }}
