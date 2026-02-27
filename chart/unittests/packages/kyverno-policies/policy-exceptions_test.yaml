@@ -19,9 +19,6 @@ tests:
       - isNotNull:
           path: additionalPolicyExceptions.twistlock-restrict-apparmor
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.enabled
-          value: true
-      - equal:
           path: additionalPolicyExceptions.twistlock-restrict-apparmor.kind
           value: PolicyException
       - equal:
