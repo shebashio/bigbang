@@ -13,6 +13,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       twistlock.enabled: true
     asserts:
       - isNotNull:
@@ -47,6 +48,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       twistlock.enabled: false
     asserts:
       - isNull:
@@ -62,6 +64,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       monitoring.enabled: true
     asserts:
       - isNotNull:
@@ -79,6 +82,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       monitoring.enabled: true
     asserts:
       - equal:
@@ -99,6 +103,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       monitoring.enabled: true
     asserts:
       - equal:
@@ -122,6 +127,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       kyvernoPolicies.enabled: true
+      kyvernoPolicies.DefaultPolicyExceptions.enabled: true
       monitoring.enabled: false
     asserts:
       - isNull:
