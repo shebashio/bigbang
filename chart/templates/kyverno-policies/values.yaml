@@ -113,10 +113,9 @@ policies:
   {{- end }}
 
   # Istio services (istio ingress) can create type: NodePort services
-  {{- /* NOTE: This exclusion cannot be ported to a PolicyException because the
+  {{/* This exclusion cannot be ported to a PolicyException because the
      resource names are built dynamically from .Values.istioGateway.values.gateways
-     using range loops. A static PolicyException can't express this.
-     Tracked separately per the kyverno-policy-exclusions-registry PRD. */ -}}
+     using range loops. A static PolicyException can't express this. */}}
   disallow-nodeport-services:
     validationFailureAction: Enforce
     {{- if or $nodePortIngressGateways .Values.istiod.enabled }}

@@ -6,7 +6,6 @@
   in the additionalPolicyExceptions map. These support the migration from
   inline ClusterPolicy exclude blocks to PolicyException CRD objects.
 
-  See docs/reference/kyverno-policy-exclusions-registry.md for background.
 
 */ -}}
 
