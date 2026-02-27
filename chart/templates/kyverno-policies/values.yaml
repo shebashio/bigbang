@@ -113,6 +113,10 @@ policies:
   {{- end }}
 
   # Istio services (istio ingress) can create type: NodePort services
+  {{- /* NOTE: This exclusion cannot be ported to a PolicyException because the
+     resource names are built dynamically from .Values.istioGateway.values.gateways
+     using range loops. A static PolicyException can't express this.
+     Tracked separately per the kyverno-policy-exclusions-registry PRD. */ -}}
   disallow-nodeport-services:
     validationFailureAction: Enforce
     {{- if or $nodePortIngressGateways .Values.istiod.enabled }}
@@ -1248,24 +1252,274 @@ policies:
 #
 # That gives you the raw additionalPolicyExceptions map with every entry
 # spelled out — no helpers, no includes, just YAML you can paste directly.
+#
+# See bigbang.policyException and bigbang.policyExceptionBatch in
+# chart/templates/kyverno-policies/_helpers.tpl for helper documentation.
 additionalPolicyExceptions:
-  {{- /* Single-exception helper demo: twistlock / restrict-apparmor
-         7 lines here replaces what would be 15 lines of hand-written PolicyException YAML.
-         See bigbang.policyException in _helpers.tpl. */ -}}
-  {{- if .Values.twistlock.enabled }}
-  {{- include "bigbang.policyException" (dict
-    "name"       "twistlock-restrict-apparmor"
+
+  {{- /* ── Static exceptions (not addon-gated) ──────────────────────── */ -}}
+
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "kube-system"
     "enabled"    true
-    "policy"     "restrict-apparmor"
-    "namespaces" (list "twistlock")
-    "names"      (list "twistlock-defender-ds*")
+    "namespaces" (list "kube-system")
+    "policies"   (list
+      "add-default-securitycontext"
+      "require-non-root-group"
+      "require-non-root-user"
+    )
+  ) | nindent 2 }}
+
+  {{- if $istioEnabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "istio-disallow-istio-injection-bypass"
+    "enabled"    true
+    "policy"     "disallow-istio-injection-bypass"
+    "namespaces" (list "istio-system" "istio-gateway")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "istio-require-istio-on-namespaces"
+    "enabled"    true
+    "policy"     "require-istio-on-namespaces"
+    "namespaces" (list "kube-node-lease" "kube-public" "kube-system" "bigbang" "default" "flux-system" "istio-system" "istio-gateway")
   ) | nindent 2 }}
   {{- end }}
 
-  {{- /* Batch helper demo: monitoring / prometheus-node-exporter across 3 policies
-         12 lines here replaces what would be 45 lines (15 per policy x 3 policies).
-         At full scale the 72 exclusions collapse from ~1080 lines to ~39 helper calls.
-         See bigbang.policyExceptionBatch in _helpers.tpl. */ -}}
+  {{- /* ── neuvector ────────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.neuvector.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod*" "neuvector-cert-upgrader-job*" "neuvector-controller-pod*" "neuvector-scanner-pod*" "neuvector-prometheus-exporter-pod*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-disallow-host-namespaces"
+    "enabled"    true
+    "policy"     "disallow-host-namespaces"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-disallow-privileged-containers"
+    "enabled"    true
+    "policy"     "disallow-privileged-containers"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod*" "neuvector-controller-pod*" "neuvector-scanner-pod*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-require-drop-all-capabilities"
+    "enabled"    true
+    "policy"     "require-drop-all-capabilities"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod*" "neuvector-cert-upgrader-job-*" "neuvector-controller-pod*" "neuvector-scanner-pod*" "neuvector-prometheus-exporter-pod*")
+  ) | nindent 2 }}
+  {{- /* These two policies share the same dash-suffixed name patterns */ -}}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "neuvector"
+    "enabled"    true
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod-*" "neuvector-controller-pod-*" "neuvector-cert-upgrader-job-*")
+    "policies"   (list
+      "add-default-securitycontext"
+      "require-non-root-group"
+    )
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-require-non-root-user"
+    "enabled"    true
+    "policy"     "require-non-root-user"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "neuvector-restrict-host-path-mount"
+    "enabled"    true
+    "policy"     "restrict-host-path-mount"
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-enforcer-pod*" "neuvector-cert-upgrader-job-*" "neuvector-controller-pod*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "neuvector"
+    "enabled"    true
+    "namespaces" (list "neuvector")
+    "names"      (list "neuvector-controller-pod*" "neuvector-enforcer-pod*")
+    "policies"   (list
+      "restrict-host-path-write"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── twistlock ────────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.twistlock.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "twistlock-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-console*" "twistlock-defender-ds*" "volume-upgrade*")
+  ) | nindent 2 }}
+  {{- /* defender-ds* alone is excluded from 8 policies */ -}}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "twistlock"
+    "enabled"    true
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-defender-ds*")
+    "policies"   (list
+      "disallow-host-namespaces"
+      "disallow-tolerations"
+      "restrict-apparmor"
+      "restrict-capabilities"
+      "restrict-host-path-mount"
+      "restrict-host-path-write"
+      "restrict-selinux-type"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "twistlock-add-default-securitycontext"
+    "enabled"    true
+    "policy"     "add-default-securitycontext"
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-console*" "twistlock-defender-ds*" "volume-upgrade-job*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "twistlock-require-drop-all-capabilities"
+    "enabled"    true
+    "policy"     "require-drop-all-capabilities"
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-defender-ds*" "volume-upgrade*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "twistlock"
+    "enabled"    true
+    "namespaces" (list "twistlock")
+    "names"      (list "twistlock-defender-ds*" "volume-upgrade-job*")
+    "policies"   (list
+      "require-non-root-group"
+      "require-non-root-user"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── fluentbit ────────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.fluentbit.enabled }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "fluentbit"
+    "enabled"    true
+    "namespaces" (list "fluentbit")
+    "names"      (list "fluentbit-fluent-bit*")
+    "policies"   (list
+      "add-default-securitycontext"
+      "disallow-privileged-containers"
+      "disallow-tolerations"
+      "require-non-root-group"
+      "require-non-root-user"
+      "restrict-host-path-mount"
+      "restrict-selinux-type"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── alloy ────────────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.alloy.enabled }}
+  {{- /* 5 policies share the alloy-alloy-logs* pattern (no trailing dash) */ -}}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "alloy"
+    "enabled"    true
+    "namespaces" (list "alloy")
+    "names"      (list "alloy-alloy-logs*")
+    "policies"   (list
+      "add-default-securitycontext"
+      "require-non-root-group"
+      "require-non-root-user"
+      "restrict-host-path-mount"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- /* restrict-selinux-type uses alloy-alloy-logs-* (trailing dash) */ -}}
+  {{- include "bigbang.policyException" (dict
+    "name"       "alloy-restrict-selinux-type"
+    "enabled"    true
+    "policy"     "restrict-selinux-type"
+    "namespaces" (list "alloy")
+    "names"      (list "alloy-alloy-logs-*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "alloy-restrict-capabilities"
+    "enabled"    true
+    "policy"     "restrict-capabilities"
+    "namespaces" (list "alloy")
+    "names"      (list "alloy-alloy-metrics*" "alloy-alloy-receiver*" "alloy-alloy-logs*" "alloy-alloy-singleton*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── velero ───────────────────────────────────────────────────── */ -}}
+
+  {{- if $deployNodeAgent }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "velero"
+    "enabled"    true
+    "namespaces" (list "velero")
+    "names"      (list "node-agent*")
+    "policies"   (list
+      "add-default-securitycontext"
+      "require-non-root-group"
+      "require-non-root-user"
+      "restrict-host-path-mount"
+      "restrict-user-id"
+      "restrict-volume-types"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.addons.velero.enabled }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "velero"
+    "enabled"    true
+    "namespaces" (list "velero")
+    "names"      (list "velero-backup-restore-test*")
+    "policies"   (list
+      "add-default-capability-drop"
+      "require-drop-all-capabilities"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── gitlabRunner ─────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.addons.gitlabRunner.enabled }}
+  {{- /* add-default-capability-drop uses runner* (no dash) */ -}}
+  {{- include "bigbang.policyException" (dict
+    "name"       "gitlabrunner-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "gitlab-runner")
+    "names"      (list "runner*")
+  ) | nindent 2 }}
+  {{- /* remaining 4 policies use runner-* (with dash) */ -}}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "gitlabrunner"
+    "enabled"    true
+    "namespaces" (list "gitlab-runner")
+    "names"      (list "runner-*")
+    "policies"   (list
+      "add-default-securitycontext"
+      "require-drop-all-capabilities"
+      "require-non-root-group"
+      "require-non-root-user"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── monitoring ───────────────────────────────────────────────── */ -}}
+
   {{- if .Values.monitoring.enabled }}
   {{- include "bigbang.policyExceptionBatch" (dict
     "addon"      "monitoring"
@@ -1277,6 +1531,171 @@ additionalPolicyExceptions:
       "restrict-host-path-mount"
       "restrict-volume-types"
     )
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "monitoring-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "flux-system")
+    "kinds"      (list "Pod" "Deployment" "StatefulSet")
+    "names"      (list "notification-controller*" "helm-controller*" "source-controller*" "kustomize-controller*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── istioGateway ─────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.istioGateway.enabled }}
+  {{- include "bigbang.policyExceptionBatch" (dict
+    "addon"      "istio-gateway"
+    "enabled"    true
+    "namespaces" (list "istio-gateway")
+    "names"      (list "*-ingressgateway" "*-egressgateway")
+    "policies"   (list
+      "disallow-image-tags"
+      "restrict-image-registries"
+    )
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── istiod ───────────────────────────────────────────────────── */ -}}
+
+  {{- if .Values.istiod.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "istiod-require-non-root-group"
+    "enabled"    true
+    "policy"     "require-non-root-group"
+    "namespaces" (list "istio-system")
+    "names"      (list "istiod*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── Long tail (single-exclusion addons) ──────────────────────── */ -}}
+
+  {{- if .Values.addons.gitlab.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "gitlab-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "gitlab")
+    "names"      (list "webservice-test-runner*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "gitlab-require-drop-all-capabilities"
+    "enabled"    true
+    "policy"     "require-drop-all-capabilities"
+    "namespaces" (list "gitlab")
+    "names"      (list "webservice-test-runner-*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.mimir.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "mimir-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "mimir")
+    "names"      (list "mimir-mimir-smoke-test*")
+  ) | nindent 2 }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "mimir-require-drop-all-capabilities"
+    "enabled"    true
+    "policy"     "require-drop-all-capabilities"
+    "namespaces" (list "mimir")
+    "names"      (list "mimir-mimir-smoke-test-*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.vault.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "vault-add-default-capability-drop"
+    "enabled"    true
+    "policy"     "add-default-capability-drop"
+    "namespaces" (list "vault")
+    "names"      (list "vault-vault-job-init*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.kiali.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "kiali-require-non-root-user"
+    "enabled"    true
+    "policy"     "require-non-root-user"
+    "namespaces" (list "kiali")
+    "names"      (list "kiali-*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.mattermost.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "mattermost-add-default-securitycontext"
+    "enabled"    true
+    "policy"     "add-default-securitycontext"
+    "namespaces" (list "mattermost" "mattermost-operator")
+    "names"      (list "mattermost-*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.backstage.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "backstage-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "backstage")
+    "kinds"      (list "Pod" "Deployment" "ReplicaSet" "ServiceAccount")
+    "names"      (list "backstage" "backstage*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.externalSecrets.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "externalsecrets-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "external-secrets")
+    "names"      (list "external-secrets*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.gatekeeper.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "gatekeeper-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "gatekeeper-system")
+    "kinds"      (list "Pod" "Deployment")
+    "names"      (list "gatekeeper-audit*" "gatekeeper-controller-manager*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.headlamp.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "headlamp-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "headlamp")
+    "names"      (list "headlamp*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.kyvernoReporter.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "kyvernoreporter-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "kyverno-reporter")
+    "kinds"      (list "Pod" "Deployment")
+    "names"      (list "kyverno-reporter*")
+  ) | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.addons.thanos.enabled }}
+  {{- include "bigbang.policyException" (dict
+    "name"       "thanos-disallow-auto-mount-service-account-token"
+    "enabled"    true
+    "policy"     "disallow-auto-mount-service-account-token"
+    "namespaces" (list "thanos")
+    "kinds"      (list "Pod" "Deployment" "StatefulSet")
+    "names"      (list "thanos-compactor*")
   ) | nindent 2 }}
   {{- end }}
 
