@@ -42,11 +42,12 @@
 
 */ -}}
 {{- define "bigbang.policyException" -}}
-{{ .name }}:
+{{ .name }}-exception:
   enabled: {{ .enabled }}
   kind: PolicyException
   namespace: "kyverno"
   metadata:
+    name: {{ .name | quote }}
     labels:
       app: {{ splitList "-" .name | first | quote }}
   spec:
