@@ -17,24 +17,24 @@ tests:
       twistlock.enabled: true
     asserts:
       - isNotNull:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.kind
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.kind
           value: PolicyException
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.namespace
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.namespace
           value: "kyverno"
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.exceptions[0].policyName
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.spec.exceptions[0].policyName
           value: restrict-apparmor
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.exceptions[0].ruleNames[0]
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.spec.exceptions[0].ruleNames[0]
           value: "restrict-apparmor"
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.match.any[0].resources.namespaces[0]
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.spec.match.any[0].resources.namespaces[0]
           value: twistlock
       - equal:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor.spec.match.any[0].resources.names[0]
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception.spec.match.any[0].resources.names[0]
           value: "twistlock-defender-ds*"
 
   - it: should not render twistlock PolicyException when twistlock is disabled
@@ -49,7 +49,7 @@ tests:
       twistlock.enabled: false
     asserts:
       - isNull:
-          path: additionalPolicyExceptions.twistlock-restrict-apparmor
+          path: additionalPolicyExceptions.twistlock-restrict-apparmor-exception
 
   # ---------- bigbang.policyExceptionBatch ----------
 
@@ -65,11 +65,11 @@ tests:
       monitoring.enabled: true
     asserts:
       - isNotNull:
-          path: additionalPolicyExceptions.monitoring-disallow-tolerations
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations-exception
       - isNotNull:
-          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount-exception
       - isNotNull:
-          path: additionalPolicyExceptions.monitoring-restrict-volume-types
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types-exception
 
   - it: should target the correct policy in each batch entry
     postRenderer:
@@ -83,13 +83,13 @@ tests:
       monitoring.enabled: true
     asserts:
       - equal:
-          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.exceptions[0].policyName
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations-exception.spec.exceptions[0].policyName
           value: disallow-tolerations
       - equal:
-          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount.spec.exceptions[0].policyName
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount-exception.spec.exceptions[0].policyName
           value: restrict-host-path-mount
       - equal:
-          path: additionalPolicyExceptions.monitoring-restrict-volume-types.spec.exceptions[0].policyName
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types-exception.spec.exceptions[0].policyName
           value: restrict-volume-types
 
   - it: should use consistent match criteria across all batch entries
@@ -104,16 +104,16 @@ tests:
       monitoring.enabled: true
     asserts:
       - equal:
-          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.match.any[0].resources.namespaces[0]
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations-exception.spec.match.any[0].resources.namespaces[0]
           value: monitoring
       - equal:
-          path: additionalPolicyExceptions.monitoring-disallow-tolerations.spec.match.any[0].resources.names[0]
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations-exception.spec.match.any[0].resources.names[0]
           value: "monitoring-monitoring-prometheus-node-exporter*"
       - equal:
-          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount.spec.match.any[0].resources.namespaces[0]
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount-exception.spec.match.any[0].resources.namespaces[0]
           value: monitoring
       - equal:
-          path: additionalPolicyExceptions.monitoring-restrict-volume-types.spec.match.any[0].resources.namespaces[0]
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types-exception.spec.match.any[0].resources.namespaces[0]
           value: monitoring
 
   - it: should not render monitoring PolicyExceptions when monitoring is disabled
@@ -128,8 +128,8 @@ tests:
       monitoring.enabled: false
     asserts:
       - isNull:
-          path: additionalPolicyExceptions.monitoring-disallow-tolerations
+          path: additionalPolicyExceptions.monitoring-disallow-tolerations-exception
       - isNull:
-          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount
+          path: additionalPolicyExceptions.monitoring-restrict-host-path-mount-exception
       - isNull:
-          path: additionalPolicyExceptions.monitoring-restrict-volume-types
+          path: additionalPolicyExceptions.monitoring-restrict-volume-types-exception
