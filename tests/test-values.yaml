@@ -135,7 +135,7 @@ kiali:
           #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
 
 gatekeeper:
-  enabled: false
+  enabled: true
   values:
     upstream:
       replicas: 1
@@ -399,7 +399,7 @@ kyvernoPolicies:
           - 'kyverno-policies-bbtest/test: required'
           - kyverno-policies-bbtest/required
       require-image-signature:
-        enabled: false
+        enabled: true
         # set to Audit for now -- having signature issues with registry1.dso.mil/ironbank/bitnami/redis:7.0.0-debian-10-r3
         validationFailureAction: Audit
         parameters:
@@ -735,7 +735,7 @@ kyvernoPolicies:
               value: busybox
 eckOperator:
   # -- Toggle deployment of ECK Operator.
-  enabled: false
+  enabled: true
   values:
     istio:
       hardened:
@@ -756,7 +756,7 @@ eckOperator:
             resolution: DNS
 
 elasticsearchKibana:
-  enabled: false
+  enabled: true
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kibana
@@ -826,7 +826,7 @@ elasticsearchKibana:
             memory: "4Gi"
 
 fluentbit:
-  enabled: false
+  enabled: true
   values:
     istio:
       hardened:
@@ -890,7 +890,7 @@ loki:
                   name: https
               resolution: DNS
     minio:
-      enabled: false
+      enabled: true
     bbtests:
       enabled: true
       cypress:
@@ -1084,7 +1084,7 @@ neuvector:
           cypress_url: https://neuvector.dev.bigbang.mil
 
 twistlock:
-  enabled: false
+  enabled: true
   sso:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-saml
@@ -1159,7 +1159,7 @@ alloy:
 # Addons are toggled based on labels in CI
 addons:
   argocd:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_argocd
@@ -1177,7 +1177,7 @@ addons:
         replica:
           replicaCount: 0
           autoscaling:
-            enabled: false
+            enabled: true
           persistence:
             size: 512Mi
       upstream:
@@ -1242,7 +1242,7 @@ addons:
                 resolution: DNS
 
   backstage:
-    enabled: false
+    enabled: true
     values:
       bbtests:
         enabled: true
@@ -1286,7 +1286,7 @@ addons:
                   Authorization: "Bearer abc-123"
 
   authservice:
-    enabled: false
+    enabled: true
     chains:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
@@ -1309,7 +1309,7 @@ addons:
               size: 256Mi
 
   fortify:
-    enabled: false
+    enabled: true
     flux:
       timeout: 15m
     ingress:
@@ -1383,7 +1383,7 @@ addons:
             cypress_url: "https://fortify.dev.bigbang.mil"
 
   gitlab:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
@@ -1416,7 +1416,7 @@ addons:
       global:
         rails:
           bootstrap:
-            enabled: false
+            enabled: true
       upstream:
         gitlab-runner:
           resources:
@@ -1490,7 +1490,7 @@ addons:
             GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
-    enabled: false
+    enabled: true
     values:
       istio:
         hardened:
@@ -1548,9 +1548,9 @@ addons:
             cypress_gitlab_password: "Runner_PaSsw0rd123"
 
   anchoreEnterprise:
-    enabled: false
+    enabled: true
     sso:
-      enabled: false
+      enabled: true
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_anchore
     values:
       bbtests:
@@ -1666,7 +1666,7 @@ addons:
 
 
   sonarqube:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_saml-sonarqube
@@ -1697,7 +1697,7 @@ addons:
     values:
       istio:
         console:
-          enabled: false
+          enabled: true
         hardened:
           customAuthorizationPolicies:
             - name: "allow-intranamespace-minio-operator"
@@ -1729,7 +1729,7 @@ addons:
                 resolution: DNS
 
   minio:
-    enabled: false
+    enabled: true
     values:
       istio:
         hardened:
@@ -1807,7 +1807,7 @@ addons:
             MINIO_HOST: 'https://minio-api.dev.bigbang.mil'
 
   mimir:
-    enabled: false
+    enabled: true
     values:
       istio:
         hardened:
@@ -1858,12 +1858,12 @@ addons:
       localVolumeUpgrade: true
 
   mattermostOperator:
-    enabled: false
+    enabled: true
 
   mattermost:
-    enabled: false
+    enabled: true
     sso:
-      enabled: false
+      enabled: true
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_mattermost
       client_secret: "no-secret"
     elasticsearch:
@@ -1947,7 +1947,7 @@ addons:
               memory: "2Gi"
 
   nexusRepositoryManager:
-    enabled: false
+    enabled: true
     # Nexus requires manual configuration in Keycloak client and cannot be tested with
     # you must test with your own dev deployment.  Example: keycloak.dev.bigbang.mil
     # See more info in Nexus Package docs /docs/keycloak.md
@@ -1957,7 +1957,7 @@ addons:
     #license_key: "enter-single-line-base64-encoded-string-here"
     sso:
       # -- https://support.sonatype.com/hc/en-us/articles/1500000976522-SAML-integration-for-Nexus-Repository-Manager-Pro-3-and-Nexus-IQ-Server-with-Keycloak#h_01EV7CWCYH3YKAPMAHG8XMQ599
-      enabled: false
+      enabled: true
       idp_data:
         entityId: "https://nexus.dev.bigbang.mil/service/rest/v1/security/saml/metadata"
         # -- IdP Field Mappings
@@ -2028,7 +2028,7 @@ addons:
                 component:
                   proprietaryComponents: true
                 docker:
-                  v1Enabled: false
+                  v1enabled: true
                   forceBasicAuth: true
                   httpPort: 5000
       istio:
@@ -2066,7 +2066,7 @@ addons:
             docker_host_tls_enabled: "true"
 
   velero:
-    enabled: false
+    enabled: true
     plugins:
     - aws
     values:
@@ -2137,7 +2137,7 @@ addons:
             MINIO_HOST: https://minio-api.dev.bigbang.mil
 
   keycloak:
-    enabled: false
+    enabled: true
     ingress:
       gateway: ""
       key: "" # Gets added via chart/ingress-certs.yaml
@@ -2312,13 +2312,13 @@ addons:
             subPath: p1-keycloak-plugin.jar
 
   vault:
-    enabled: false
+    enabled: true
     ingress:
       gateway: "passthrough"
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     sso:
-      enabled: false
+      enabled: true
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_vault
     kms_key_id: mrk-ff723da024254ea2b7f490c68fbc9b9b
     kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
@@ -2368,7 +2368,7 @@ addons:
             cypress_vault_url: "https://vault.dev.bigbang.mil"
 
   metricsServer:
-    enabled: false
+    enabled: true
     values:
       upstream:
         replicas: 1
@@ -2380,16 +2380,16 @@ addons:
   #
   harbor:
     # -- Toggle deployment of harbor
-    enabled: false
+    enabled: true
     # -- Values to pass through to Harbor chart: https://repo1.dso.mil/big-bang/product/packages/harbor.git
     values:
       upstream:
         expose:
           type: clusterIP
           tls:
-            enabled: false
+            enabled: true
         internalTLS:
-          enabled: false
+          enabled: true
         externalURL: https://harbor.dev.bigbang.mil
         nginx:
           replicas: 2
@@ -2457,9 +2457,9 @@ addons:
   #
   thanos:
     # -- Toggle deployment of thanos
-    enabled: false
+    enabled: true
     sso:
-      enabled: false
+      enabled: true
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
     values:
       istio:
@@ -2565,6 +2565,7 @@ addons:
   # Headlamp
   #
   headlamp:
+    enabled: true
     values:
       bbtests:
         enabled: true
