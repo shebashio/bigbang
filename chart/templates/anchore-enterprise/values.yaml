@@ -183,16 +183,7 @@ networkPolicies:
             app.kubernetes.io/component: datasyncer
         to:
           definition:
-            anchore-data-service: true
-            external-data-service: false # can we use some logic here
             database-subnets: {{ $externalPostgresEnabled }}
-      notifications:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: notifications
-        to:
-          definition:
-            notification-services: true
       simplequeue:
         podSelector:
           matchLabels:
@@ -206,7 +197,6 @@ networkPolicies:
             app.kubernetes.io/component: ui
         to:
           definition:
-            ldap-subnets: false
             redis-subnets: {{ $externalRedisEnabled }}
             database-subnets: {{ $externalPostgresEnabled }}
       upgrade:
