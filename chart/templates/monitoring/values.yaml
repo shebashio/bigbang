@@ -15,6 +15,7 @@ hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.monitoring) "enabled") }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.monitoring.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 
@@ -209,6 +210,9 @@ istio:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
   injection: {{ dig "istio" "injection" "enabled" .Values.monitoring }}
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 anchoreEnterprise:
   enabled: {{ .Values.addons.anchoreEnterprise.enabled }}
