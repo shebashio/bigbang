@@ -1,0 +1,21 @@
+{{- if and (((.Values.kiali).enabled) ((.Values.kyverno).enabled) }}
+  apiVersion: kyverno.io/v2
+  kind: PolicyException
+  metadata:
+    labels:
+      app: kiali
+    name: kiali-require-non-root-user-exception
+    namespace: {{ .Release.Namespace }}
+  spec:
+    exceptions:
+    - policyName: require-non-root-user
+      ruleNames:
+      - require-non-root-user
+    match:
+      any:
+      - resources:
+          names:
+          - kiali-*
+          namespaces:
+          - kiali
+{{- end }}
