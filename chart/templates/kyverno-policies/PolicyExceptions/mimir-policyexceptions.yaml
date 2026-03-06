@@ -1,0 +1,43 @@
+{{- if and ((.Values.mimir).enabled) (.Values.kyverno).enabled }}
+  apiVersion: kyverno.io/v2
+  kind: PolicyException
+  metadata:
+    annotations:
+    labels:
+      app: mimir
+    name: mimir-add-default-capability-drop-exception
+    namespace: {{ .Release.Namespace }}
+  spec:
+    exceptions:
+    - policyName: add-default-capability-drop
+      ruleNames:
+      - add-default-capability-drop
+    match:
+      any:
+      - resources:
+          names:
+          - mimir-mimir-smoke-test*
+          namespaces:
+          - mimir
+---
+  apiVersion: kyverno.io/v2
+  kind: PolicyException
+  metadata:
+    annotations:
+    labels:
+      app: mimir
+    name: mimir-require-drop-all-capabilities-exception
+    namespace: {{ .Release.Namespace }}
+  spec:
+    exceptions:
+    - policyName: require-drop-all-capabilities
+      ruleNames:
+      - require-drop-all-capabilities
+    match:
+      any:
+      - resources:
+          names:
+          - mimir-mimir-smoke-test-*
+          namespaces:
+          - mimir
+{{- end }}
