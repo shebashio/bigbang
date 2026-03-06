@@ -1,3 +1,5 @@
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" -}}
+{{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,4 +14,19 @@ data:
   values.yaml: |
 {{- .Values | toYaml | nindent 4 }}
   common.yaml: |
-{{- pick .Values "domain" | toYaml | nindent 4 }}
+    domain: {{ .Values.domain }}
+    istio:
+      enabled: {{ $istioEnabled }}
+      hardened:
+        enabled: {{ $istioHardened }}
+      sidecar:
+        enabled: {{ $istioHardened }}
+      authorizationPolicies:
+        enabled: {{ $istioHardened }}
+        generateFromNetpol: {{ $istioHardened }}
+    monitoring:
+      enabled: {{ .Values.monitoring.enabled }}
+    networkPolicies:
+{{- .Values.networkPolicies | toYaml | nindent 6 }}
+    global:
+{{- pick .Values "domain" | toYaml | nindent 6 }}
