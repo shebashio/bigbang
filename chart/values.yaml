@@ -145,6 +145,9 @@ flux:
 
 # -- Global NetworkPolicies settings
 networkPolicies:
+  hbonePortInjection:
+    enabled: true
+
   # -- Toggle all package NetworkPolicies, can disable specific packages with `package.values.networkPolicies.enabled`
   enabled: true
   # -- Control Plane CIDR, defaults to 0.0.0.0/0, use `kubectl get endpoints -n default kubernetes` to get the CIDR range needed for your cluster
