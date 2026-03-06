@@ -22,6 +22,17 @@ openshift: {{ .Values.openshift }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+routes:
+  outbound:
+    elasticsearch-snapshot-storage:
+      enabled: {{ and $istioHardenedEnabled .Values.elasticsearchKibana.snapshot.enabled (not (empty .Values.elasticsearchKibana.snapshot.serviceEntryHost)) }}
+      hosts:
+        - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
+      ports:
+        - number: 443
+          name: https
+          protocol: HTTPS
+
 istio:
   enabled: {{ $istioEnabled }}
 
@@ -51,6 +62,13 @@ networkPolicies:
         to:
           definition:
             sso: {{ .Values.elasticsearchKibana.sso.enabled }}
+          {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.networkCIDR }}
+          cidr:
+            - cidr: {{ .Values.elasticsearchKibana.snapshot.networkCIDR | quote }}
+              ports:
+                - port: 443
+                  protocol: TCP
+          {{- end }}
   ingress:
     to:
       # Elasticsearch ingress policies
@@ -146,7 +164,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -172,7 +190,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -198,7 +216,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -224,7 +242,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -250,7 +268,7 @@ elasticsearch:
           capabilities:
             drop:
               - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -262,9 +280,26 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+  snapshot:
+    enabled: {{ .Values.elasticsearchKibana.snapshot.enabled }}
+    secretName: {{ .Values.elasticsearchKibana.snapshot.secretName | quote }}
+
   {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
   serviceAccountAnnotations: {}
   {{- else }}
   serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
+
+{{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.serviceEntryHost }}
+routes:
+  outbound:
+    elasticsearch-snapshot-storage:
+      enabled: true
+      hosts:
+        - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
+      ports:
+        - number: 443
+          name: https
+          protocol: HTTPS
+{{- end }}
 {{- end -}}
