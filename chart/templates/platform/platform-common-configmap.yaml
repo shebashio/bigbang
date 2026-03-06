@@ -14,19 +14,20 @@ data:
   values.yaml: |
 {{- .Values | toYaml | nindent 4 }}
   common.yaml: |
-    domain: {{ .Values.domain }}
-    istio:
-      enabled: {{ $istioEnabled }}
-      hardened:
-        enabled: {{ $istioHardened }}
-      sidecar:
-        enabled: {{ $istioHardened }}
-      authorizationPolicies:
-        enabled: {{ $istioHardened }}
-        generateFromNetpol: {{ $istioHardened }}
-    monitoring:
-      enabled: {{ .Values.monitoring.enabled }}
-    networkPolicies:
-{{- .Values.networkPolicies | toYaml | nindent 6 }}
     global:
-{{- pick .Values "domain" | toYaml | nindent 6 }}
+      domain: {{ .Values.domain }}
+      monitoring:
+        enabled: {{ .Values.monitoring.enabled }}
+    bb-common:
+      istio:
+        enabled: {{ $istioEnabled }}
+        hardened:
+          enabled: {{ $istioHardened }}
+        sidecar:
+          enabled: {{ $istioHardened }}
+        authorizationPolicies:
+          enabled: {{ $istioHardened }}
+          generateFromNetpol: {{ $istioHardened }}
+      
+      networkPolicies:
+{{- .Values.networkPolicies | toYaml | nindent 8 }}
