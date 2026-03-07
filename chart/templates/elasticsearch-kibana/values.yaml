@@ -64,10 +64,7 @@ networkPolicies:
             sso: {{ .Values.elasticsearchKibana.sso.enabled }}
           {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.networkCIDR }}
           cidr:
-            - cidr: {{ .Values.elasticsearchKibana.snapshot.networkCIDR | quote }}
-              ports:
-                - port: 443
-                  protocol: TCP
+            {{ printf "%s:443" .Values.elasticsearchKibana.snapshot.networkCIDR }}: true
           {{- end }}
   ingress:
     to:
