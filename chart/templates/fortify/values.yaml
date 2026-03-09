@@ -15,6 +15,8 @@
 {{- define "bigbang.defaults.fortify" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardened := or (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $externalMySQLCIDRs := dig "networkPolicies" "egress" "definitions" "external-mysql" "to" list .Values.addons.fortify.values }}
+{{- $externalMySQLEnabled := and (not (dig "mysql" "enabled" true .Values.addons.fortify.values)) (not (empty $externalMySQLCIDRs)) }}
 
 domain: {{ .Values.domain }}
 
@@ -52,6 +54,14 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   egress:
     from:
+      fortify-webapp:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: fortify-ssc
+            app.kubernetes.io/component: webapp
+        to:
+          definition:
+            external-mysql: {{ $externalMySQLEnabled }}
       keystore-job:
         podSelector:
           matchLabels:
@@ -59,18 +69,5 @@ networkPolicies:
         to:
           definition:
             kubeAPI: true
-      bb-tests:
-        podSelector:
-          matchLabels:
-            helm-test: enabled
-        to:
-          cidr:
-            0.0.0.0/0:443: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
-          k8s:
-            # kube-proxy DNAT translates service port 443 to targetPort 8443.
-            # k3s NetworkPolicy evaluates post-DNAT, so the CIDR port 443 rule
-            # does not match. This explicit k8s rule allows bb-tests pods to
-            # reach the ingressgateway on the actual targetPort.
-            {{ include "getGatewayName" (dict "gateway" .Values.addons.fortify.ingress.gateway "root" .) | replace "ingressgateway" "ingressgateway:8443" }}: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
 
 {{- end }}
