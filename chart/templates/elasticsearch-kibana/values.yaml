@@ -196,16 +196,4 @@ elasticsearch:
   serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
 
-{{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.serviceEntryHost }}
-routes:
-  outbound:
-    elasticsearch-snapshot-storage:
-      enabled: true
-      hosts:
-        - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
-      ports:
-        - number: 443
-          name: https
-          protocol: HTTPS
-{{- end }}
 {{- end -}}
