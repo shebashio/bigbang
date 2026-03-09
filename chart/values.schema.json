@@ -473,6 +473,24 @@
             "kibana": true
           }
         },
+        "snapshot": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "secretName": {
+              "type": "string"
+            },
+            "networkCIDR": {
+              "type": "string"
+            },
+            "serviceEntryHost": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "disableAutomaticPassthroughValues": true
       },
       "allOf": [
