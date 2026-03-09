@@ -28,6 +28,7 @@ routes:
       enabled: {{ and $istioHardenedEnabled .Values.elasticsearchKibana.snapshot.enabled (not (empty .Values.elasticsearchKibana.snapshot.serviceEntryHost)) }}
       hosts:
         - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
+      resolution: {{ if hasPrefix "*" .Values.elasticsearchKibana.snapshot.serviceEntryHost }}NONE{{ else }}DNS{{ end }}
       ports:
         - number: 443
           name: https
