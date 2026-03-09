@@ -1,13 +1,11 @@
 {{- /* Used for creating namespaces that package's use. */ -}}
 {{- /* If two packages reside in the same namespace, set namespace.create=false in one of them. */ -}}
 {{- range $pkg, $vals := .Values.packages -}}
-{{- if and (dig "enabled" true $vals) (dig "namespace" "create" true $vals) (dig "integrations" "enabled" true $vals) -}}
-{{- $pkg = include "resourceName" $pkg -}}
-{{- include "bb-common.network-policies.render" . }}
----
-{{- include "bb-common.istio.render" . }}
----
-{{- include "bb-common.routes.render" . }}
----
+{{- if and (dig "enabled" true $vals) (dig "namespace" "create" true $vals) -}}
+{{- $integrationsEnabled := dig "integrations" "enabled" false $vals.values -}}
+{{- if $integrationsEnabled -}}
+{{- include "bb-common.network-policies.render" $ }}
+
+{{- end -}}
 {{ end -}}
 {{- end -}}
