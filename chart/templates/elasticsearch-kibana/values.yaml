@@ -147,136 +147,45 @@ metrics:
 elasticsearch:
   imagePullSecrets:
     - name: private-registry
+  common:
+    initContainers:
+      - name: elastic-internal-init-filesystem
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+      - name: elastic-internal-suspend
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
+      - name: elastic-internal-init-keystore
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+              - ALL
+      {{- end }}
+  {{- if $istioEnabled }}
   master:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
-    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
   data:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
-    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
   ingest:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
-    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
   ml:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
-    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
   coord:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
-    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
-    {{- end }}
+  {{- end }}
   snapshot:
     enabled: {{ .Values.elasticsearchKibana.snapshot.enabled }}
     secretName: {{ .Values.elasticsearchKibana.snapshot.secretName | quote }}
