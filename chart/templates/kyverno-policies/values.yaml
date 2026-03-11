@@ -10,7 +10,7 @@
 
 # -- Adds additional policyExceptions.  See https://kyverno.io/docs/policy-types/validating-policy/#exceptions
 additionalPolicyExceptions:
-  {{- if .Values.ztunnel.enabled }}
+  {{- if .Values.ambient }}
   ztunnel:
     enabled: true
     kind: PolicyException

@@ -7,12 +7,16 @@ kind: Namespace
 metadata:
   name: nexus-repository-manager
   labels:
-    istio-injection: {{ ternary "enabled" "disabled" 
-      (and 
-        $istioEnabled 
+    {{- if .Values.ambient }}
+    istio.io/dataplane-mode: ambient
+    {{- else }}
+    istio-injection: {{ ternary "enabled" "disabled"
+      (and
+        $istioEnabled
         (eq (dig "istio" "injection" "enabled" $nexusValues) "enabled")
-      ) 
+      )
     }}
+    {{- end }}
     app.kubernetes.io/name: "nexus-repository-manager"
     app.kubernetes.io/component: "developer-tools"
     {{- include "commonLabels" . | nindent 4}}

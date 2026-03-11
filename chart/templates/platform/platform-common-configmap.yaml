@@ -18,6 +18,9 @@ data:
       domain: {{ .Values.domain }}
       monitoring:
         enabled: {{ .Values.monitoring.enabled }}
+      ztunnel:
+        enabled: {{ .Values.ztunnel.enabled }}
+      ambient: {{ .Values.ambient }}
     bb-common:
       istio:
         enabled: {{ $istioEnabled }}

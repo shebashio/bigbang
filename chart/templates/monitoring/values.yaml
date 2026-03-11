@@ -36,7 +36,7 @@ injection in the monitoring namespace.
 }}
 {{- $monitoringInjectionEnabled := and $istioEnabled $monitoringNamespaceInjectionEnabled }}
 {{- $mtlsStrict := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
-{{- $monitoringMtlsStrict := and $mtlsStrict $monitoringInjectionEnabled }}
+{{- $monitoringMtlsStrict := and $mtlsStrict $monitoringInjectionEnabled (not .Values.ambient) }}
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 
@@ -97,9 +97,8 @@ routes:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
   hbonePortInjection:
-    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+    enabled: {{ .Values.ambient }}
   defaultsAsHooks:
     enabled: true
   egress:

@@ -51,6 +51,10 @@
     "domain": {
       "type": "string"
     },
+    "ambient": {
+      "type": "boolean",
+      "description": "Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars."
+    },
     "offline": {
       "type": "boolean"
     },
