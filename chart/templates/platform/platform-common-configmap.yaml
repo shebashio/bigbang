@@ -21,8 +21,6 @@ data:
     bb-common:
       istio:
         enabled: {{ $istioEnabled }}
-        hardened:
-          enabled: {{ $istioHardened }}
         sidecar:
           enabled: {{ $istioHardened }}
         authorizationPolicies:
@@ -30,4 +28,4 @@ data:
           generateFromNetpol: {{ $istioHardened }}
       
       networkPolicies:
-{{- .Values.networkPolicies | toYaml | nindent 8 }}
+{{- pick .Values.networkPolicies "enabled" "hbonePortInjection" "prependReleaseName" "defaultsAsHooks" "egress" "ingress" "additionalPolicies" "additional" | toYaml | nindent 8 }}
