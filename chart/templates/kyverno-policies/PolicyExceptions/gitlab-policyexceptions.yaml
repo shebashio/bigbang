@@ -1,65 +1,65 @@
 
 {{- define "bigbang.policyexceptions.gitlab" }}
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
-  metadata:
-    annotations:
-    labels:
-      app: gitlab
-    name: gitlab-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
-  spec:
-    exceptions:
-    - policyName: add-default-capability-drop
-      ruleNames:
-      - add-default-capability-drop
-    match:
-      any:
-      - resources:
-          names:
-          - webservice-test-runner*
-          namespaces:
-          - gitlab
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  annotations:
+  labels:
+    app: gitlab
+  name: gitlab-add-default-capability-drop-exception
+  namespace: {{ .Release.Namespace }}
+spec:
+  exceptions:
+  - policyName: add-default-capability-drop
+    ruleNames:
+    - add-default-capability-drop
+  match:
+    any:
+    - resources:
+        names:
+        - webservice-test-runner*
+        namespaces:
+        - gitlab
 ---
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
-  metadata:
-    annotations:
-    labels:
-      app: gitlab
-    name: gitlab-require-drop-all-capabilities-exception
-    namespace: {{ .Release.Namespace }}
-  spec:
-    exceptions:
-    - policyName: require-drop-all-capabilities
-      ruleNames:
-      - require-drop-all-capabilities
-    match:
-      any:
-      - resources:
-          names:
-          - webservice-test-runner-*
-          namespaces:
-          - gitlab
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  annotations:
+  labels:
+    app: gitlab
+  name: gitlab-require-drop-all-capabilities-exception
+  namespace: {{ .Release.Namespace }}
+spec:
+  exceptions:
+  - policyName: require-drop-all-capabilities
+    ruleNames:
+    - require-drop-all-capabilities
+  match:
+    any:
+    - resources:
+        names:
+        - webservice-test-runner-*
+        namespaces:
+        - gitlab
 ---
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
-  metadata:
-    annotations:
-    labels:
-      app: gitlabrunner
-    name: gitlabrunner-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
-  spec:
-    exceptions:
-    - policyName: add-default-capability-drop
-      ruleNames:
-      - add-default-capability-drop
-    match:
-      any:
-      - resources:
-          names:
-          - runner*
-          namespaces:
-          - gitlab-runner
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  annotations:
+  labels:
+    app: gitlabrunner
+  name: gitlabrunner-add-default-capability-drop-exception
+  namespace: {{ .Release.Namespace }}
+spec:
+  exceptions:
+  - policyName: add-default-capability-drop
+    ruleNames:
+    - add-default-capability-drop
+  match:
+    any:
+    - resources:
+        names:
+        - runner*
+        namespaces:
+        - gitlab-runner
 {{- end }}
