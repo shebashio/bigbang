@@ -44,3 +44,5 @@ tests:
       - equal:
           path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
           value: false
+      - notExists:
+          path: networkPolicies.egress.from["keystore-job"]

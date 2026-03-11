@@ -62,12 +62,5 @@ networkPolicies:
         to:
           definition:
             external-mysql: {{ $externalMySQLEnabled }}
-      keystore-job:
-        podSelector:
-          matchLabels:
-            job: keystore-generator
-        to:
-          definition:
-            kubeAPI: true
 
 {{- end }}
