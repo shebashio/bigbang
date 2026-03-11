@@ -1,4 +1,4 @@
-{{- if and ((.Values.mattermost).enabled) (.Values.kyverno).enabled }}
+{{- define "bigbang.policyexceptions.mattermost" }}
   apiVersion: kyverno.io/v2
   kind: PolicyException
   metadata:

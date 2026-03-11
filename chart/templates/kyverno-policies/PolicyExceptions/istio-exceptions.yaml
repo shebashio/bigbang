@@ -1,4 +1,5 @@
-{{- if ((.Values.istiod).enabled) }}
+{{- define "bigbang.policyexceptions.istio" }}
+
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:

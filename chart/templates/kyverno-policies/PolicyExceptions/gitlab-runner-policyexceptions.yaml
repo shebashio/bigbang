@@ -1,4 +1,5 @@
-{{- if and (((.Values.addons).gitlabRunner).enabled) ((.Values.kyverno).enabled) }}
+{{- define "bigbang.policyexceptions.gitlabrunner" }}
+
 ---
   apiVersion: kyverno.io/v2
   kind: PolicyException

@@ -1,4 +1,4 @@
-{{- if and ((.Values.fluentbit).enabled) (.Values.kyverno).enabled }}
+{{- define "bigbang.policyexceptions.fluentbit" }}
 ---
   apiVersion: kyverno.io/v2
   kind: PolicyException

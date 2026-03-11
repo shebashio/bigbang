@@ -1,5 +1,4 @@
-{{- if and (((.Values.addons).backstage).enabled) ((.Values.kyverno).enabled) }}
----
+{{- define "bigbang.policyexceptions.backstage" }}
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:

@@ -1,4 +1,4 @@
-{{- if and ((.Values.monitoring).enabled) (.Values.kyverno).enabled }}
+{{- define "bigbang.policyexceptions.monitoring" }}
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:

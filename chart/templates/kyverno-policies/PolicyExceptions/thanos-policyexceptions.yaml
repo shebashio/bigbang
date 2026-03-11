@@ -1,4 +1,4 @@
-{{- if and ((.Values.thanos).enabled) (.Values.kyverno).enabled }}
+{{- define "bigbang.policyexceptions.thanos" }}
   apiVersion: kyverno.io/v2
   kind: PolicyException
   metadata:

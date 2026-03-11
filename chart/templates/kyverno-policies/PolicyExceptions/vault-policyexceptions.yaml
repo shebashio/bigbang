@@ -1,4 +1,5 @@
-{{- if and ((.Values.vault).enabled) (.Values.kyverno).enabled }}
+{{- define "bigbang.policyexceptions.vault" }}
+
   kind: PolicyException
   metadata:
     annotations:

@@ -1,6 +1,4 @@
-
-{{- if and ((.Values.velero).enabled) (.Values.kyverno).enabled }}
----
+{{- define "bigbang.policyexceptions.velero" }}
   apiVersion: kyverno.io/v2
   kind: PolicyException
   metadata:
