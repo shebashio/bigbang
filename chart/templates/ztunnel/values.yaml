@@ -1,0 +1,17 @@
+{{- $pkg := "ztunnel" }}
+
+{{- /* Create secret */ -}}
+{{- if .Values.ztunnel.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "ztunnel" "defaults" (include "bigbang.defaults.ztunnel" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.ztunnel" -}}
+upstream:
+  # Including this here as we will likely have a global variable that enable/disables
+  ambient:
+    enabled: false
+  global:
+    imagePullPolicy: {{ .Values.imagePullPolicy }}
+    imagePullSecrets:
+      - private-registry
+{{- end }}

@@ -9,7 +9,7 @@
 upstream:
   # Including this here as we will likely have a global variable that enable/disables
   ambient:
-    enabled: false
+    enabled: {{ .Values.ztunnel.enabled }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
