@@ -1,13 +1,8 @@
 {{- define "bigbang.policyexceptions.mimir" }}
-
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+mimir-add-default-capability-drop-exception:
   metadata:
-    annotations:
     labels:
       app: mimir
-    name: mimir-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -20,15 +15,10 @@
           - mimir-mimir-smoke-test*
           namespaces:
           - mimir
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+mimir-require-drop-all-capabilities-exception:
   metadata:
-    annotations:
     labels:
       app: mimir
-    name: mimir-require-drop-all-capabilities-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities

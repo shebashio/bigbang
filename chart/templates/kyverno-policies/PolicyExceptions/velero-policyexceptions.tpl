@@ -1,12 +1,8 @@
 {{- define "bigbang.policyexceptions.velero" }}
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+velero-add-default-capability-drop-exception: kyverno.io/v2
   metadata:
-    annotations:
     labels:
       app: velero
-    name: velero-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -19,15 +15,10 @@
           - velero-backup-restore-test*
           namespaces:
           - velero
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+velero-require-drop-all-capabilities-exception:
   metadata:
-    annotations:
     labels:
       app: velero
-    name: velero-require-drop-all-capabilities-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities

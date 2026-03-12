@@ -1,13 +1,8 @@
 {{- define "bigbang.policyexceptions.twistlock" }}
-
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-add-default-capability-drop-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -22,15 +17,10 @@
           - volume-upgrade*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-add-default-securitycontext-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-add-default-securitycontext-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -45,15 +35,11 @@
           - volume-upgrade-job*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+
+twistlock-disallow-host-namespaces-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-disallow-host-namespaces-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: disallow-host-namespaces
@@ -66,15 +52,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-disallow-tolerations-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-disallow-tolerations-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: disallow-tolerations
@@ -87,15 +68,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-require-drop-all-capabilities-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-require-drop-all-capabilities-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities
@@ -109,15 +85,10 @@
           - volume-upgrade*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-require-non-root-group-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-require-non-root-group-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -131,15 +102,10 @@
           - volume-upgrade-job*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-require-non-root-user-exception: kyverno.io/v2
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-require-non-root-user-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -153,15 +119,10 @@
           - volume-upgrade-job*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-apparmor-exception: 
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-apparmor-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-apparmor
@@ -174,15 +135,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-capabilities-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-capabilities-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-capabilities
@@ -195,15 +151,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-host-path-mount-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-host-path-mount-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -216,15 +167,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-host-path-write-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-host-path-write-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-host-path-write
@@ -237,15 +183,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-selinux-type-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-selinux-type-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-selinux-type
@@ -258,15 +199,10 @@
           - twistlock-defender-ds*
           namespaces:
           - twistlock
----
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+twistlock-restrict-volume-types-exception:
   metadata:
-    annotations:
     labels:
       app: twistlock
-    name: twistlock-restrict-volume-types-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: restrict-volume-types

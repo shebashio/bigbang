@@ -1,12 +1,8 @@
 {{- define "bigbang.policyexceptions.vault" }}
-
-  kind: PolicyException
+vault-add-default-capability-drop-exception:
   metadata:
-    annotations:
     labels:
       app: vault
-    name: vault-add-default-capability-drop-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-capability-drop

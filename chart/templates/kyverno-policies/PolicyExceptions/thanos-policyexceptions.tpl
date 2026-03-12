@@ -1,12 +1,8 @@
 {{- define "bigbang.policyexceptions.thanos" }}
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+thanos-disallow-auto-mount-service-account-token-exception:
   metadata:
-    annotations:
     labels:
       app: thanos
-    name: thanos-disallow-auto-mount-service-account-token-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: disallow-auto-mount-service-account-token

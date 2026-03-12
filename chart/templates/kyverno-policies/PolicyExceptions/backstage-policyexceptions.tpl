@@ -1,28 +1,25 @@
 {{- define "bigbang.policyexceptions.backstage" }}
-apiVersion: kyverno.io/v2
-kind: PolicyException
-metadata:
-annotations:
-labels:
-    app: backstage
-name: backstage-disallow-auto-mount-service-account-token-exception
-namespace: {{ .Release.Namespace }}
-spec:
-exceptions:
-- policyName: disallow-auto-mount-service-account-token
-    ruleNames:
-    - disallow-auto-mount-service-account-token
-match:
-    any:
-    - resources:
-        kinds:
-        - Pod
-        - Deployment
-        - ReplicaSet
-        - ServiceAccount
-        names:
-        - backstage
-        - backstage*
-        namespaces:
-        - backstage
+backstage-disallow-auto-mount-service-account-token-exception:
+    metadata:
+        annotations:
+        labels:
+            app: backstage
+    spec:
+        exceptions:
+        - policyName: disallow-auto-mount-service-account-token
+            ruleNames:
+            - disallow-auto-mount-service-account-token
+        match:
+            any:
+            - resources:
+                kinds:
+                - Pod
+                - Deployment
+                - ReplicaSet
+                - ServiceAccount
+                names:
+                - backstage
+                - backstage*
+                namespaces:
+                - backstage
 {{- end }}

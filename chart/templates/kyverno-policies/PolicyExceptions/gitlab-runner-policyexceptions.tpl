@@ -1,87 +1,67 @@
 {{- define "bigbang.policyexceptions.gitlabrunner" }}
-
----
-apiVersion: kyverno.io/v2
-kind: PolicyException
-metadata:
-  annotations:
-  labels:
-    app: gitlabrunner
-  name: gitlabrunner-add-default-securitycontext-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: add-default-securitycontext
-    ruleNames:
-    - add-default-securitycontext
-  match:
-    any:
-    - resources:
-        names:
-        - runner-*
-        namespaces:
-        - gitlab-runner
----
-apiVersion: kyverno.io/v2
-kind: PolicyException
-metadata:
-  annotations:
-  labels:
-    app: gitlabrunner
-  name: gitlabrunner-require-drop-all-capabilities-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: require-drop-all-capabilities
-    ruleNames:
-    - require-drop-all-capabilities
-  match:
-    any:
-    - resources:
-        names:
-        - runner-*
-        namespaces:
-        - gitlab-runner
----
-apiVersion: kyverno.io/v2
-kind: PolicyException
-metadata:
-  annotations:
-  labels:
-    app: gitlabrunner
-  name: gitlabrunner-require-non-root-group-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: require-non-root-group
-    ruleNames:
-    - require-non-root-group
-  match:
-    any:
-    - resources:
-        names:
-        - runner-*
-        namespaces:
-        - gitlab-runner
----
-apiVersion: kyverno.io/v2
-kind: PolicyException
-metadata:
-  annotations:
-  labels:
-    app: gitlabrunner
-  name: gitlabrunner-require-non-root-user-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: require-non-root-user
-    ruleNames:
-    - require-non-root-user
-  match:
-    any:
-    - resources:
-        names:
-        - runner-*
-        namespaces:
-        - gitlab-runner
+gitlabrunner-add-default-securitycontext-exception:
+  metadata:
+    labels:
+      app: gitlabrunner
+  spec:
+    exceptions:
+    - policyName: add-default-securitycontext
+      ruleNames:
+      - add-default-securitycontext
+    match:
+      any:
+      - resources:
+          names:
+          - runner-*
+          namespaces:
+          - gitlab-runner
+gitlabrunner-require-drop-all-capabilities-exception:
+  metadata:
+    labels:
+      app: gitlabrunner
+  spec:
+    exceptions:
+    - policyName: require-drop-all-capabilities
+      ruleNames:
+      - require-drop-all-capabilities
+    match:
+      any:
+      - resources:
+          names:
+          - runner-*
+          namespaces:
+          - gitlab-runner
+gitlabrunner-require-non-root-group-exception:
+  metadata:
+    annotations:
+    labels:
+      app: gitlabrunner
+  spec:
+    exceptions:
+    - policyName: require-non-root-group
+      ruleNames:
+      - require-non-root-group
+    match:
+      any:
+      - resources:
+          names:
+          - runner-*
+          namespaces:
+          - gitlab-runner
+gitlabrunner-require-non-root-user-exception:
+  metadata:
+    labels:
+      app: gitlabrunner
+  spec:
+    exceptions:
+    - policyName: require-non-root-user
+      ruleNames:
+      - require-non-root-user
+    match:
+      any:
+      - resources:
+          names:
+          - runner-*
+          namespaces:
+          - gitlab-runner
 {{- end }}

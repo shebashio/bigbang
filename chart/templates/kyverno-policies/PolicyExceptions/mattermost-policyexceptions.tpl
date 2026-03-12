@@ -1,12 +1,8 @@
 {{- define "bigbang.policyexceptions.mattermost" }}
-  apiVersion: kyverno.io/v2
-  kind: PolicyException
+mattermost-add-default-securitycontext-exception:
   metadata:
-    annotations:
     labels:
       app: mattermost
-    name: mattermost-add-default-securitycontext-exception
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: add-default-securitycontext
