@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Garage - GitRepository Tests
+templates:
+  - templates/garage/gitrepository.yaml
+tests:
+  - it: should render a GitRepository using the main branch
+    set:
+      addons:
+        garage:
+          enabled: true
+    asserts:
+      - isKind:
+          of: GitRepository
+      - equal:
+          path: metadata.name
+          value: garage
+      - equal:
+          path: spec.url
+          value: https://repo1.dso.mil/big-bang/apps/sandbox/garage.git
+      - equal:
+          path: spec.ref.branch
+          value: main
