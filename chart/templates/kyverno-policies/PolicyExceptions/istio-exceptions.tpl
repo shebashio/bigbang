@@ -14,7 +14,6 @@ istio-disallow-istio-injection-bypass-exception:
           namespaces:
           - istio-system
           - istio-gateway
-{{- if .Values.istiod.enabled }}
 istio-require-non-root-user-exception:
   metadata:
     labels:
@@ -48,8 +47,6 @@ istiod-require-non-root-group-exception:
           - istiod*
           namespaces:
           - istio-system
-{{- end }}
-{{- if and ((.Values.istiod).enabled) ((.Values.istioGateway).enabled) }}
 istio-gateway-disallow-image-tags-exception: 
   metadata:
     labels:
