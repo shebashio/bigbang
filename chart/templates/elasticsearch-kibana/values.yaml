@@ -201,7 +201,10 @@ elasticsearch:
        The top-level template strips elasticsearch.secureSettings from user values before
        mergeOverwrite, so this combined defaults list is never clobbered by user overrides. */ -}}
   {{- $rawUserSecureSettings := dig "elasticsearch" "secureSettings" nil .Values.elasticsearchKibana.values }}
-  {{- $userSecureSettings := and $rawUserSecureSettings (kindIs "slice" $rawUserSecureSettings) | ternary $rawUserSecureSettings (list) }}
+  {{- $userSecureSettings := list }}
+  {{- if and $rawUserSecureSettings (kindIs "slice" $rawUserSecureSettings) }}
+  {{- $userSecureSettings = $rawUserSecureSettings }}
+  {{- end }}
   {{- $snapshotSettings := list }}
   {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.secretName }}
   {{- $snapshotSettings = append $snapshotSettings (dict "secretName" .Values.elasticsearchKibana.snapshot.secretName) }}
