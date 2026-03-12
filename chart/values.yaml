@@ -705,6 +705,11 @@ elasticsearchKibana:
 
     # -- Name of the Kubernetes secret (in the logging namespace) containing snapshot
     # repository credentials (e.g., s3.client.default.access_key / secret_key).
+    # To attach additional keystore secrets beyond the snapshot credential (e.g., for
+    # multiple S3 clients or other integrations), use the package-level passthrough:
+    #   elasticsearchKibana.values.elasticsearch.secureSettings:
+    #     - secretName: my-extra-credentials
+    # BB automatically merges both lists — the snapshot secret is always appended last.
     secretName: ""
 
     # -- CIDR block of the cloud storage endpoint targeted by SLM (e.g., "52.216.0.0/15" for S3).
