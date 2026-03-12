@@ -187,9 +187,10 @@ elasticsearch:
     podAnnotations:
       {{ include "istioAnnotation" . }}
   {{- end }}
-  snapshot:
-    enabled: {{ .Values.elasticsearchKibana.snapshot.enabled }}
-    secretName: {{ .Values.elasticsearchKibana.snapshot.secretName | quote }}
+  {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.secretName }}
+  secureSettings:
+    - {{ .Values.elasticsearchKibana.snapshot.secretName | quote }}
+  {{- end }}
 
   {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
   serviceAccountAnnotations: {}
