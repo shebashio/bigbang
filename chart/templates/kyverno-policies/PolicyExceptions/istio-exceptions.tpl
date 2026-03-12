@@ -14,10 +14,28 @@ istio-disallow-istio-injection-bypass-exception:
           namespaces:
           - istio-system
           - istio-gateway
+{{- if .Values.istiod.enabled }}
+istio-require-non-root-user-exception:
+  metadata:
+    labels:
+      app: istio
+    namespace: {{ .Release.Namespace }}
+  spec:
+    exceptions:
+    - policyName: require-non-root-user
+      ruleNames:
+      - non-root-user
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pods/containers
+          names:
+          - istio-init
 istiod-require-non-root-group-exception:
   metadata:
     labels:
-      app: istiod
+      app: istio
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -88,46 +106,4 @@ require-istio-on-namespaces-exception:
           - flux-system
           - istio-system
           - istio-gateway
-{{- end }}
-
-
-
-
-#exceptions that existed prioir to conversion of exclusions to exceptions
-{{- if .Values.istiod.enabled }}
-apiVersion:  kyverno.io/v2
-metadata:
-  name: require-non-root-user-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: require-non-root-user
-    ruleNames:
-    - non-root-user
-  match:
-    any:
-    - resources:
-        kinds:
-        - Pods/containers
-        names:
-        - istio-init
----
-apiVersion:  kyverno.io/v2
-metadata:
-  name: istio-require-non-root-group-exception
-  namespace: {{ .Release.Namespace }}
-spec:
-  exceptions:
-  - policyName: require-non-root-group
-    ruleNames:
-    - run-as-group
-  match:
-    any:
-    - resources:
-        kinds:
-        - Pods/containers
-        names:
-        - istio-init
----
-
 {{- end }}
