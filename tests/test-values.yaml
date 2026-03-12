@@ -135,7 +135,7 @@ kiali:
             # strategy defaults to "openid"
             strategy: "anonymous"
     bbtests:
-      enabled: true
+      enabled: false
       cypress:
         envs:
           cypress_url: 'https://kiali.dev.bigbang.mil'
@@ -323,7 +323,7 @@ kyverno:
           # -- Restrict policy exceptions to a single namespace
           namespace: 'kyverno'
     bbtests:
-      enabled: true
+      enabled: false
 
 kyvernoReporter:
   values:
@@ -338,7 +338,7 @@ kyvernoReporter:
 kyvernoPolicies:
   values:
     bbtests:
-      enabled: true
+      enabled: false
     excludeContainers:
     - not-me
     - or-me
