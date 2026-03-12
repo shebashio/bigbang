@@ -24,24 +24,29 @@ helmRepositories: []
   #       R8XrntaedsdEhPPchOQuFzqTyyAPGifV1SaEu8medVRi6mVICWbVwOteNg==
   #       -----END PUBLIC KEY-----
 
-# -- Single set of registry credentials used to pull all images deployed by BigBang.
-registryCredentials:
-  registry: registry1.dso.mil
-  username: ""
-  password: ""
-  email: ""
+# -- Registry credentials used to pull all images deployed by BigBang.
+# Set to null (or omit) if your environment provides ambient image pull access,
+# e.g. AWS EKS nodes with an IAM role granting ECR access, or GKE Workload Identity for GCR.
+# When null, no private-registry Secret or imagePullSecrets stanzas are created.
+registryCredentials: null
 
-# -- Multiple sets of registry credentials used to pull all images deployed by BigBang.
-# Credentials will only be created when a valid combination exists, registry, username, and password (email is optional)
-# Or a list of registires:
-#  - registry: registry1.dso.mil
-#    username: ""
-#    password: ""
-#    email: ""
-#  - registry: registry.dso.mil
-#    username: ""
-#    password: ""
-#    email: ""
+# -- Single set of registry credentials:
+# registryCredentials:
+#   registry: registry1.dso.mil
+#   username: ""
+#   password: ""
+#   email: ""
+
+# -- Multiple sets of registry credentials:
+# registryCredentials:
+#   - registry: registry1.dso.mil
+#     username: ""
+#     password: ""
+#     email: ""
+#   - registry: registry.dso.mil
+#     username: ""
+#     password: ""
+#     email: ""
 
 # Openshift Container Platform Feature Toggle
 openshift: false
@@ -612,11 +617,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.7.2-bb.0"
+    tag: "3.7.3-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.7.2-bb.0"
+    tag: "3.7.3-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -646,11 +651,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.35.0-bb.1"
+    tag: "1.35.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.35.0-bb.1"
+    tag: "1.35.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -765,12 +770,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.7.2-bb.4"
+    tag: "3.7.2-bb.5"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "3.7.2-bb.4"
+    tag: "3.7.2-bb.5"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -1032,11 +1037,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "80.13.3-bb.0"
+    tag: "80.13.3-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "80.13.3-bb.0"
+    tag: "80.13.3-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1104,11 +1109,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "10.5.5-bb.1"
+    tag: "10.5.15-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "10.5.5-bb.1"
+    tag: "10.5.15-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1395,11 +1400,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.16"
+      tag: "7.1.1-bb.17"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.16"
+      tag: "7.1.1-bb.17"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1435,11 +1440,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.8.2-bb.2"
+      tag: "9.8.2-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.8.2-bb.2"
+      tag: "9.8.2-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1755,11 +1760,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.21.0-bb.0"
+      tag: "3.21.0-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.21.0-bb.0"
+      tag: "3.21.0-bb.3"
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
       upgrade:
@@ -1866,11 +1871,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.4.2-bb.0"
+      tag: "11.4.2-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.4.2-bb.0"
+      tag: "11.4.2-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
