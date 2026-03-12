@@ -15,8 +15,11 @@
 {{- define "bigbang.defaults.fortify" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardened := or (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $externalMySQLHost := dig "externalDatabase" "host" "" .Values.addons.fortify }}
+{{- $externalMySQLPort := dig "externalDatabase" "port" 3306 .Values.addons.fortify }}
 {{- $externalMySQLCIDRs := dig "networkPolicies" "egress" "definitions" "external-mysql" "to" list .Values.addons.fortify.values }}
 {{- $externalMySQLEnabled := and (not (dig "mysql" "enabled" true .Values.addons.fortify.values)) (not (empty $externalMySQLCIDRs)) }}
+{{- $externalMySQLRouteEnabled := and $istioEnabled (not (dig "mysql" "enabled" true .Values.addons.fortify.values)) (ne $externalMySQLHost "") }}
 
 domain: {{ .Values.domain }}
 
@@ -49,6 +52,16 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
       hosts:
         - repo1.dso.mil
+    external-mysql:
+      enabled: {{ $externalMySQLRouteEnabled }}
+      {{- if ne $externalMySQLHost "" }}
+      hosts:
+        - {{ $externalMySQLHost | quote }}
+      {{- end }}
+      ports:
+        - number: {{ $externalMySQLPort }}
+          name: mysql
+          protocol: TCP
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

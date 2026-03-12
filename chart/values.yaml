@@ -1739,6 +1739,15 @@ addons:
       # -- SAML Client Secret to use for Fortify
       client_secret: ""
 
+    externalDatabase:
+      # -- External MySQL host used to generate Fortify's outbound bb-common route/ServiceEntry when `values.mysql.enabled=false`.
+      # This should match the hostname used in `values.fortify_autoconfig` .
+      host: ""
+
+      # -- External MySQL port used to generate Fortify's outbound bb-common route/ServiceEntry when `values.mysql.enabled=false`.
+      # This should match the port used in `values.fortify_autoconfig`.
+      port: 3306
+
     # -- Values to passthrough to the fortify chart: https://repo1.dso.mil/big-bang/product/packages/fortify.git
     values: {}
 

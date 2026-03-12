@@ -46,3 +46,43 @@ tests:
           value: false
       - notExists:
           path: networkPolicies.egress.from["keystore-job"]
+  - it: should enable external-mysql outbound route when mysql is disabled and a database host is provided
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      istiod.enabled: true
+      addons.fortify.enabled: true
+      addons.fortify.values.mysql.enabled: false
+      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
+      addons.fortify.externalDatabase.port: 3307
+    asserts:
+      - equal:
+          path: routes.outbound["external-mysql"].enabled
+          value: true
+      - equal:
+          path: routes.outbound["external-mysql"].hosts[0]
+          value: external-mysql.example.internal
+      - equal:
+          path: routes.outbound["external-mysql"].ports[0].number
+          value: 3307
+      - equal:
+          path: routes.outbound["external-mysql"].ports[0].protocol
+          value: TCP
+  - it: should disable external-mysql outbound route when mysql is enabled even if a database host is provided
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      istiod.enabled: true
+      addons.fortify.enabled: true
+      addons.fortify.values.mysql.enabled: true
+      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
+    asserts:
+      - equal:
+          path: routes.outbound["external-mysql"].enabled
+          value: false
