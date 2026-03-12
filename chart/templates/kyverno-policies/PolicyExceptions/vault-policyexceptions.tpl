@@ -1,0 +1,22 @@
+{{- define "bigbang.policyexceptions.vault" }}
+
+  kind: PolicyException
+  metadata:
+    annotations:
+    labels:
+      app: vault
+    name: vault-add-default-capability-drop-exception
+    namespace: {{ .Release.Namespace }}
+  spec:
+    exceptions:
+    - policyName: add-default-capability-drop
+      ruleNames:
+      - add-default-capability-drop
+    match:
+      any:
+      - resources:
+          names:
+          - vault-vault-job-init*
+          namespaces:
+          - vault
+{{- end }}
