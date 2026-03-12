@@ -1,0 +1,16 @@
+{{- if .Values.addons.garage.enabled }}
+{{- $garagePackage := deepCopy .Values.addons.garage -}}
+{{- if .Values.addons.garage.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.garage.values) | fromYaml -}}
+{{- $_ := set $garagePackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict
+  "root" $
+  "package" $garagePackage
+  "name" "garage"
+  "defaults" (include "bigbang.defaults.garage" .)
+)}}
+{{- end }}
+
+{{- define "bigbang.defaults.garage" -}}
+{{- end -}}

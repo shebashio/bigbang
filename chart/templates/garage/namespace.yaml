@@ -1,0 +1,14 @@
+{{- if .Values.addons.garage.enabled }}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    meta.helm.sh/release-namespace: bigbang
+    meta.helm.sh/release-name: bigbang
+    app.kubernetes.io/name: garage
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.garage) "enabled")) }}
+  name: garage
+{{- end }}
