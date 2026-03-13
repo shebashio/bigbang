@@ -68,8 +68,6 @@ networkPolicies:
           k8s:
             kiali/kiali: {{ .Values.kiali.enabled }}
             backstage/backstage: {{ .Values.addons.backstage.enabled }}
-          definition:
-            gateway: {{ .Values.istioGateway.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
