@@ -20,7 +20,11 @@ spec:
 
   {{- if .Values.addons.garage.postRenderers }}
   postRenderers:
+  {{ include "garage.postRenderers" . | nindent 2 }}
   {{- toYaml .Values.addons.garage.postRenderers | nindent 2 }}
+  {{- else }}
+  postRenderers:
+  {{ include "garage.postRenderers" . | nindent 2 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "garage" "root" .) | nindent 2 }}
 
