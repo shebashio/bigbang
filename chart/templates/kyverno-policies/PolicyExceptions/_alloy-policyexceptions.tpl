@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.alloy" }}
 alloy-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -18,7 +18,7 @@ alloy-add-default-securitycontext-exception:
           - alloy
 alloy-require-non-root-group-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -35,7 +35,7 @@ alloy-require-non-root-group-exception:
           - alloy
 alloy-require-non-root-user-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -52,7 +52,7 @@ alloy-require-non-root-user-exception:
           - alloy
 alloy-restrict-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -72,7 +72,7 @@ alloy-restrict-capabilities-exception:
           - alloy
 alloy-restrict-host-path-mount-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -89,7 +89,7 @@ alloy-restrict-host-path-mount-exception:
           - alloy
 alloy-restrict-selinux-type-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:
@@ -106,7 +106,7 @@ alloy-restrict-selinux-type-exception:
           - alloy
 alloy-restrict-volume-types-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: alloy
   spec:

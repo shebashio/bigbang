@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.headlamp" }}
 headlamp-disallow-auto-mount-service-account-token-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: headlamp
   spec:

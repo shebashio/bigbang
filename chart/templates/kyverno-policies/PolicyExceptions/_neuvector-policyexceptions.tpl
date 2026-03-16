@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.neuvector" }}
 neuvector-add-default-capability-drop-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -22,7 +22,7 @@ neuvector-add-default-capability-drop-exception:
           - neuvector
 neuvector-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
     name: neuvector-add-default-securitycontext-exception
@@ -43,7 +43,7 @@ neuvector-add-default-securitycontext-exception:
           - neuvector
 neuvector-disallow-host-namespaces-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -60,7 +60,7 @@ neuvector-disallow-host-namespaces-exception:
           - neuvector
 neuvector-disallow-privileged-containers-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -79,7 +79,7 @@ neuvector-disallow-privileged-containers-exception:
           - neuvector
 neuvector-require-drop-all-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -100,7 +100,7 @@ neuvector-require-drop-all-capabilities-exception:
           - neuvector
 neuvector-require-non-root-group-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -119,7 +119,7 @@ neuvector-require-non-root-group-exception:
           - neuvector
 neuvector-require-non-root-user-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -136,7 +136,7 @@ neuvector-require-non-root-user-exception:
           - neuvector
 neuvector-restrict-host-path-mount-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -155,7 +155,7 @@ neuvector-restrict-host-path-mount-exception:
           - neuvector
 neuvector-restrict-host-path-write-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:
@@ -173,7 +173,7 @@ neuvector-restrict-host-path-write-exception:
           - neuvector
 neuvector-restrict-volume-types-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: neuvector
   spec:

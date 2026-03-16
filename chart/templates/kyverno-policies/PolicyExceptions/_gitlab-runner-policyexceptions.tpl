@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.gitlabrunner" }}
 gitlabrunner-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlabrunner
   spec:
@@ -18,7 +18,7 @@ gitlabrunner-add-default-securitycontext-exception:
           - gitlab-runner
 gitlabrunner-require-drop-all-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlabrunner
   spec:
@@ -35,7 +35,7 @@ gitlabrunner-require-drop-all-capabilities-exception:
           - gitlab-runner
 gitlabrunner-require-non-root-group-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlabrunner
   spec:
@@ -52,7 +52,7 @@ gitlabrunner-require-non-root-group-exception:
           - gitlab-runner
 gitlabrunner-require-non-root-user-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlabrunner
   spec:

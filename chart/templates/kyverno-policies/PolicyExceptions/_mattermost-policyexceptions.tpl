@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.mattermost" }}
 mattermost-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: mattermost
   spec:

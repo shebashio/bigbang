@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.fluentbit" }}
 fluentbit-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -18,7 +18,7 @@ fluentbit-add-default-securitycontext-exception:
         - fluentbit
 fluentbit-disallow-privileged-containers-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -35,7 +35,7 @@ fluentbit-disallow-privileged-containers-exception:
           - fluentbit
 fluentbit-disallow-tolerations-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -52,7 +52,7 @@ fluentbit-disallow-tolerations-exception:
           - fluentbit
 fluentbit-require-non-root-group-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -69,7 +69,7 @@ fluentbit-require-non-root-group-exception:
           - fluentbit
 fluentbit-require-non-root-user-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -86,7 +86,7 @@ fluentbit-require-non-root-user-exception:
           - fluentbit
 fluentbit-restrict-host-path-mount-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:
@@ -103,7 +103,7 @@ fluentbit-restrict-host-path-mount-exception:
           - fluentbit
 fluentbit-restrict-selinux-type-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
     name: fluentbit-restrict-selinux-type-exception
@@ -122,7 +122,7 @@ fluentbit-restrict-selinux-type-exception:
           - fluentbit
 fluentbit-restrict-volume-types-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: fluentbit
   spec:

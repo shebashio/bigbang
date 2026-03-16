@@ -2,7 +2,7 @@
 {{- define "bigbang.policyexceptions.gitlab" }}
 gitlab-add-default-capability-drop-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlab
   spec:
@@ -19,7 +19,7 @@ gitlab-add-default-capability-drop-exception:
           - gitlab
 gitlab-require-drop-all-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlab
   spec:
@@ -36,7 +36,7 @@ gitlab-require-drop-all-capabilities-exception:
           - gitlab
 gitlabrunner-add-default-capability-drop-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: gitlabrunner
   spec:

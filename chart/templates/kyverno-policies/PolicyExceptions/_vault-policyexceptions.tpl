@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.vault" }}
 vault-add-default-capability-drop-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: vault
   spec:

@@ -1,7 +1,7 @@
 {{- define "bigbang.policyexceptions.twistlock" }}
 twistlock-add-default-capability-drop-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -20,7 +20,7 @@ twistlock-add-default-capability-drop-exception:
           - twistlock
 twistlock-add-default-securitycontext-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -40,7 +40,7 @@ twistlock-add-default-securitycontext-exception:
 
 twistlock-disallow-host-namespaces-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -57,7 +57,7 @@ twistlock-disallow-host-namespaces-exception:
           - twistlock
 twistlock-disallow-tolerations-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -74,7 +74,7 @@ twistlock-disallow-tolerations-exception:
           - twistlock
 twistlock-require-drop-all-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -92,7 +92,7 @@ twistlock-require-drop-all-capabilities-exception:
           - twistlock
 twistlock-require-non-root-group-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -110,7 +110,7 @@ twistlock-require-non-root-group-exception:
           - twistlock
 twistlock-require-non-root-user-exception: kyverno.io/v2
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -128,7 +128,7 @@ twistlock-require-non-root-user-exception: kyverno.io/v2
           - twistlock
 twistlock-restrict-apparmor-exception: 
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -145,7 +145,7 @@ twistlock-restrict-apparmor-exception:
           - twistlock
 twistlock-restrict-capabilities-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -162,7 +162,7 @@ twistlock-restrict-capabilities-exception:
           - twistlock
 twistlock-restrict-host-path-mount-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -179,7 +179,7 @@ twistlock-restrict-host-path-mount-exception:
           - twistlock
 twistlock-restrict-host-path-write-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -196,7 +196,7 @@ twistlock-restrict-host-path-write-exception:
           - twistlock
 twistlock-restrict-selinux-type-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
@@ -213,7 +213,7 @@ twistlock-restrict-selinux-type-exception:
           - twistlock
 twistlock-restrict-volume-types-exception:
   metadata:
-		namespace: kyverno
+    namespace: kyverno
     labels:
       app: twistlock
   spec:
