@@ -1,13 +1,13 @@
 {{- if .Values.grafana.enabled }}
-{{- /* Create a cleaned copy of grafana config and merge deprecated paths into current paths */ -}}
+{{- /* Create package with merged overlay values */ -}}
 {{- $grafanaPackage := deepCopy .Values.grafana -}}
-{{- if .Values.grafana.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.grafana.values) | fromYaml -}}
+{{- $mergedOverlays := fromYaml (include "bigbang.overlays.grafana" .) -}}
+{{- /* Migrate deprecated istio.hardened keys to new structure */ -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $mergedOverlays) | fromYaml -}}
 {{- $grafanaPackage = set $grafanaPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
   "root" $
-  "package" (dict "values" (fromYaml (include "bigbang.overlays.grafana" .)))
+  "package" $grafanaPackage
   "name" "grafana"
   "defaults" ((mergeOverwrite (include "bigbang.defaults.grafana" . | fromYaml) (include "bigbang.grafana.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
@@ -339,7 +339,6 @@ upstream:
 {{- /* The end user will not have to replicate `prometheus.prometheusSpec.additionalScrapeConfigs` or `grafana.extraSecretMounts` from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to `prometheus.prometheusSpec` or `grafana` overlays to ignore the defaults */ -}}
 {{- define "bigbang.overlays.grafana" }}
-
   {{- $defaults := fromYaml (include "bigbang.defaults.grafana" .) }}
 
   {{- $overlays := dig "values" dict .Values.grafana }}
