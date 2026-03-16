@@ -1,5 +1,5 @@
 {{- $fluxSettingsZtunnel := merge .Values.ztunnel.flux .Values.flux -}}
-{{- if or .Values.ztunnel.enabled .Values.ambient }}
+{{- if .Values.ambient }}
 {{- if not (or .Values.istioCNI.enabled .Values.ambient) }}
 {{- fail "ztunnel requires istioCNI to be enabled" }}
 {{- end }}

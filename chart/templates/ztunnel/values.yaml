@@ -1,7 +1,7 @@
 {{- $pkg := "ztunnel" }}
 
 {{- /* Create secret */ -}}
-{{- if or .Values.ztunnel.enabled .Values.ambient }}
+{{- if .Values.ambient }}
 {{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "ztunnel" "defaults" (include "bigbang.defaults.ztunnel" .)) }}
 {{- end }}
 

@@ -25,7 +25,7 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   egress:
-    {{- if .Values.ztunnel.enabled }}
+    {{- if .Values.ambient }}
     defaults:
       allowInNamespace:
         enabled: true
@@ -37,7 +37,7 @@ networkPolicies:
           definition:
             sso: {{ $authserviceEnabled }}
   ingress:
-    {{- if .Values.ztunnel.enabled }}
+    {{- if .Values.ambient }}
     defaults:
       allowInNamespace:
         enabled: true
@@ -63,7 +63,7 @@ upstream:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     imagePullSecrets:
       - private-registry
-  {{- if .Values.ztunnel.enabled }}
+  {{- if .Values.ambient }}
   env:
     PILOT_ENABLE_AMBIENT: "true"
   {{- end }}
@@ -76,7 +76,7 @@ upstream:
     defaultConfig:
       tracing:
         sampling: 10
-      {{- if .Values.ztunnel.enabled }}
+      {{- if .Values.ambient }}
       proxyMetadata:
         ISTIO_META_ENABLE_HBONE: "true"
       {{- end }}
