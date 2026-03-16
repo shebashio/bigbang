@@ -6,15 +6,14 @@
   {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $mmOpValues.values) | fromYaml -}}
   {{- $mattermostOperatorPackage = set $mattermostOperatorPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- if $mattermostOperatorPackage.enabled }}
+{{- if or $mattermostOperatorPackage.enabled .Values.addons.mattermost.enabled }}
 {{- include "values-secret" (dict "root" $ "package" $mattermostOperatorPackage "name" "mattermost-operator" "defaults" ((mergeOverwrite (include "bigbang.defaults.mattermostOperator" . | fromYaml) (include "bigbang.mattermostOperator.bb-common-migrations" . | fromYaml)) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermostOperator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mattermostOperator.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-imagePullSecrets:
-  - name: private-registry
+{{- include "secretsImagePullSecretsWithName" . }}
 
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}

@@ -50,7 +50,7 @@
       {{- /* If we have a map, treat those as key-value pairs. */ -}}
       {{- if and .Values.registryCredentials.username .Values.registryCredentials.password }}
       {{- with .Values.registryCredentials }}
-      {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
+      {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" (default "registry1.dso.mil" .registry) .username .password (default "" .email) (printf "%s:%s" .username .password | b64enc) | b64enc }}
       {{- end }}
       {{- end }}
     {{- end -}}
@@ -74,6 +74,76 @@
     {{- end }}
   }
 }
+{{- end }}
+
+{{- define "secretsImagePullSecretsSingle" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecretWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecret: 
+  name: private-registry
+{{- else }}
+imagePullSecret:
+  name: ""
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecretsWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: 
+  - name: private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecrets" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: 
+  - private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecretsWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: 
+  - name: private-registry
+{{- else }}
+pullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecrets" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: 
+  - private-registry
+{{- else }}
+pullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecret" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecret: private-registry
+{{- else }}
+pullSecret: ""
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecretsSingle" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: private-registry
+{{- else }}
+pullSecrets: ""
+{{- end }}
 {{- end }}
 
 {{/*
@@ -276,7 +346,7 @@ stringData:
 
   {{- $defaultImagePullConfig := dict
     "imagePullPolicy" .Values.imagePullPolicy
-    "imagePullSecrets" (list (dict "name" "private-registry"))
+    "imagePullSecrets" (ternary (list (dict "name" "private-registry")) (list) (not (empty (include "imagePullSecret" $))))
   -}}
 
   {{- $enabledGateways := dict -}}

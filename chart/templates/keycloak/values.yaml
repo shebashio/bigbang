@@ -19,7 +19,7 @@
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled") }}
 {{- $monitoringEnabled := .Values.monitoring.enabled }}
 {{- $tlsEnabled := and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key -}}
-{{- $externalPostgresEnabled := ternary true false (or .Values.addons.keycloak.database.host (dig "upstream" "database" "hostname" false .Values.addons.keycloak.values)) -}}
+{{- $externalPostgresEnabled := or (ne .Values.addons.keycloak.database.host "") (ne (dig "upstream" "database" "hostname" "" .Values.addons.keycloak.values) "") -}}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -87,8 +87,7 @@ upstream:
   replicas: 1
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-  imagePullSecrets:
-  - name: private-registry
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
   {{- with .Values.addons.keycloak.database }}
   database:
     existingSecret: ""
@@ -209,8 +208,7 @@ postgresql:
   auth:
     enablePostgresUser: true
   global:
-    imagePullSecrets:
-    - private-registry
+    {{- include "secretsImagePullSecrets" . | nindent 4 }}
     postgresql:
       auth:
         username: keycloak

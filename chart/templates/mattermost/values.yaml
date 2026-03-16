@@ -11,6 +11,14 @@
 {{- define "bigbang.defaults.mattermost" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mattermost.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- /* External postgres is enabled when all database connection fields are provided */ -}}
+{{- $externalPostgresEnabled := and
+    (ne .Values.addons.mattermost.database.username "")
+    (ne .Values.addons.mattermost.database.password "")
+    (ne .Values.addons.mattermost.database.host "")
+    (ne (.Values.addons.mattermost.database.port | toString) "")
+    (ne .Values.addons.mattermost.database.database "")
+-}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -84,6 +92,7 @@ networkPolicies:
             {{- end }}
           definition:
             kubeAPI: true
+            database-subnets: {{ $externalPostgresEnabled }}
             sso: {{ .Values.addons.mattermost.sso.enabled }}
       {{- if dig "waitJob" "enabled" true .Values.addons.mattermost.values }}
       wait-job:
@@ -117,8 +126,7 @@ routes:
       {{- end }}
 
 global:
-  imagePullSecrets:
-    - name: private-registry
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 {{- with .Values.addons.mattermost.enterprise }}
 enterprise:
@@ -127,7 +135,7 @@ enterprise:
 {{- end }}
 
 {{- with .Values.addons.mattermost.database }}
-{{- if and .username .password .host .port .database }}
+{{- if $externalPostgresEnabled }}
 database:
   secret: "mattermost-database-secret"
 postgresql:
@@ -135,9 +143,8 @@ postgresql:
 {{- else }}
 postgresql:
   image:
-    pullSecrets:
-      - private-registry
-  {{- if and .username .password .host .port .database }}
+    {{- include "secretsPullSecrets" $ | nindent 4 }}
+  {{- if $externalPostgresEnabled }}
   secret: "mattermost-database-secret"
   {{- else }}
   secret: "mattermost-dbcreds"
@@ -184,9 +191,8 @@ fileStore:
 minio:
   install: true
   upstream:
-    imagePullSecrets:
-      - name: private-registry
     tenant:
+      {{- include "secretsImagePullSecretWithName" $ | nindent 6 }}
       metrics:
         enabled: {{ $.Values.monitoring.enabled }}
       configSecret:

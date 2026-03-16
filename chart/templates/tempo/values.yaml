@@ -77,8 +77,7 @@ upstream:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
   serviceAccount:
-    imagePullSecrets:
-      - name: private-registry
+    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -114,6 +113,7 @@ networkPolicies:
           k8s:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
+            alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.alloy.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:

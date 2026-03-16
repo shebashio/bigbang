@@ -1659,9 +1659,6 @@ addons:
             memory: 200Mi
         persistence:
           size: 5Gi
-        postgresql:
-          persistence:
-            size: 256Mi
         curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
       bbtests:
         enabled: true
@@ -1747,8 +1744,6 @@ addons:
             - name: velero
           pools:
           - name: pool-0
-            labels:
-              app.kubernetes.io/name: minio-instance
             servers: 3
             volumesPerServer: 4
             size: 256Mi

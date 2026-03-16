@@ -11,7 +11,17 @@
 {{- end }}
 
 {{- define "bigbang.defaults.istiod" -}}
+{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.istiod.values }}
 {{- $authserviceEnabled := (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled)) }}
+
+istio:
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
+
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   egress:
@@ -41,8 +51,7 @@ upstream:
     enabled: {{ .Values.istioCNI.enabled }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
-    imagePullSecrets:
-      - private-registry
+    {{- include "secretsImagePullSecrets" . | nindent 4 }}
  
   {{- if or $authserviceEnabled .Values.tempo.enabled }}
   meshConfig:
@@ -53,15 +62,24 @@ upstream:
     defaultConfig:
       tracing:
         sampling: 10
-        zipkin:
-          address: tempo-tempo.tempo.svc:9411
+    defaultProviders:
+      tracing:
+        - otel-tracing
+      metrics:
+        - prometheus
     {{- end }}
-    {{- if $authserviceEnabled }}
     extensionProviders:
+    {{- if $authserviceEnabled }}
       - name: "authservice"
         envoyExtAuthzGrpc:
           service: "authservice.authservice.svc.cluster.local"
           port: "10003"
+    {{- end }}
+    {{- if .Values.tempo.enabled }}
+      - name: "otel-tracing"
+        opentelemetry:
+          service: "alloy-alloy-receiver.alloy.svc.cluster.local"
+          port: 4317
     {{- end }}
   {{- end }}
 {{ if and $authserviceEnabled .Values.sso.certificateAuthority.cert }}
