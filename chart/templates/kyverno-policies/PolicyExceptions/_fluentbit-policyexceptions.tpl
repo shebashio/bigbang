@@ -20,17 +20,17 @@ fluentbit-disallow-privileged-containers-exception:
     labels:
       app: fluentbit
   spec:
-  exceptions:
-  - policyName: disallow-privileged-containers
-    ruleNames:
-    - disallow-privileged-containers
-  match:
-    any:
-    - resources:
-        names:
-        - fluentbit-fluent-bit*
-        namespaces:
-        - fluentbit
+    exceptions:
+    - policyName: disallow-privileged-containers
+      ruleNames:
+      - disallow-privileged-containers
+    match:
+      any:
+      - resources:
+          names:
+          - fluentbit-fluent-bit*
+          namespaces:
+          - fluentbit
 fluentbit-disallow-tolerations-exception:
   metadata:
     labels:

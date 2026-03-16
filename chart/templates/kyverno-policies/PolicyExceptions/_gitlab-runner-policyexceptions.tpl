@@ -33,7 +33,6 @@ gitlabrunner-require-drop-all-capabilities-exception:
           - gitlab-runner
 gitlabrunner-require-non-root-group-exception:
   metadata:
-    annotations:
     labels:
       app: gitlabrunner
   spec:

@@ -1,7 +1,6 @@
 {{- define "bigbang.policyexceptions.backstage" }}
 backstage-disallow-auto-mount-service-account-token-exception:
     metadata:
-        annotations:
         labels:
             app: backstage
     spec:
