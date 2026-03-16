@@ -1243,71 +1243,71 @@ policies:
 #Create Exceptions for policies:
 additionalpolicyexceptions:
 {{- if ((.Values.alloy).enabled) }}
-{{- include "bigbang.policyexceptions.alloy" | indent 4 }}
+{{- include "bigbang.policyexceptions.alloy" . | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).backstage).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.backstage" | indent 4 }}
+{{- include "bigbang.policyexceptions.backstage" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.fluentbit).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.fluentbit" | indent 4 }}
+{{- include "bigbang.policyexceptions.fluentbit" . | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).gitlab).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.gitlab" | indent 4 }}
+{{- include "bigbang.policyexceptions.gitlab" . | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).gitlabRunner).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.gitlabRunner" | indent 4 }}
+{{- include "bigbang.policyexceptions.gitlabRunner" . | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).headlamp).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.headlamp" | indent 4 }}
+{{- include "bigbang.policyexceptions.headlamp" . | indent 4 }}
 {{- end}}
 
 {{- if ((.Values.istiod).enabled) }}
-{{- include "bigbang.policyexceptions.istio" | indent 4 }}
+{{- include "bigbang.policyexceptions.istio" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.kyvernoreporter).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.kyvernoreporter" | indent 4 }}
+{{- include "bigbang.policyexceptions.kyvernoreporter" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.mattermost).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.mattermost" | indent 4 }}
+{{- include "bigbang.policyexceptions.mattermost" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.mimir).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.mimir" | indent 4 }}
+{{- include "bigbang.policyexceptions.mimir" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.kyvernoPolicies).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.misc" | indent 4 }}
+{{- include "bigbang.policyexceptions.misc" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.monitoring).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.monitoring" | indent 4 }}
+{{- include "bigbang.policyexceptions.monitoring" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.neuvector).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.neuvector" | indent 4 }}
+{{- include "bigbang.policyexceptions.neuvector" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.thanos).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.thanos" | indent 4 }}
+{{- include "bigbang.policyexceptions.thanos" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.twistlock).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.twistlock" | indent 4 }}
+{{- include "bigbang.policyexceptions.twistlock" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.vault).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.vault" | indent 4 }}
+{{- include "bigbang.policyexceptions.vault" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.velero).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.velero" | indent 4 }}
+{{- include "bigbang.policyexceptions.velero" . | indent 4 }}
 {{- end}}
 
 
