@@ -1241,7 +1241,7 @@ policies:
           - headlamp-*
 
 #Create Exceptions for policies:
-additionalpolicyexceptions:
+additionalPolicyExceptions:
 {{- if ((.Values.alloy).enabled) }}
 {{- include "bigbang.policyexceptions.alloy" . | indent 4 }}
 {{- end}}
