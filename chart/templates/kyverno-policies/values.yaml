@@ -1259,7 +1259,7 @@ additionalpolicyexceptions:
 {{- end}}
 
 {{- if and (((.Values.addons).gitlabRunner).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.gitlabRunner" . | indent 4 }}
+{{- include "bigbang.policyexceptions.gitlabrunner" . | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).headlamp).enabled) ((.Values.kyverno).enabled) }}
