@@ -18,7 +18,6 @@ istio-require-non-root-user-exception:
   metadata:
     labels:
       app: istio
-    namespace: {{ .Release.Namespace }}
   spec:
     exceptions:
     - policyName: require-non-root-user
