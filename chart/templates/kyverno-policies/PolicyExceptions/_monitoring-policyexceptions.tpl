@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.monitoring" }}
 monitoring-disallow-auto-mount-service-account-token-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: monitoring
   spec:
@@ -24,6 +25,7 @@ monitoring-disallow-auto-mount-service-account-token-exception:
           - flux-system
 monitoring-disallow-tolerations-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: monitoring
   spec:
@@ -40,6 +42,7 @@ monitoring-disallow-tolerations-exception:
           - monitoring
 monitoring-restrict-host-path-mount-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: monitoring
   spec:
@@ -56,6 +59,7 @@ monitoring-restrict-host-path-mount-exception:
           - monitoring
 monitoring-restrict-volume-types-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: monitoring
   spec:

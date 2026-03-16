@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.velero" }}
 velero-add-default-capability-drop-exception: kyverno.io/v2
   metadata:
+		namespace: kyverno
     labels:
       app: velero
   spec:
@@ -17,6 +18,7 @@ velero-add-default-capability-drop-exception: kyverno.io/v2
           - velero
 velero-require-drop-all-capabilities-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: velero
   spec:

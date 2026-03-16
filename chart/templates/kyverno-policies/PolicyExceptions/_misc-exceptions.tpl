@@ -2,6 +2,7 @@
 {{- define "bigbang.policyexceptions.misc" }}
 kube-system-add-default-securitycontext-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: kube
   spec:
@@ -16,6 +17,7 @@ kube-system-add-default-securitycontext-exception:
           - kube-system
 kube-system-require-non-root-group-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: kube
   spec:
@@ -30,6 +32,7 @@ kube-system-require-non-root-group-exception:
           - kube-system
 kube-system-require-non-root-user-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: kube
   spec:

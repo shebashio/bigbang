@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.thanos" }}
 thanos-disallow-auto-mount-service-account-token-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: thanos
   spec:

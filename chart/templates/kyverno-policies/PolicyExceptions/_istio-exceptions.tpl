@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.istio" }}
 istio-disallow-istio-injection-bypass-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: istio
   spec:
@@ -16,6 +17,7 @@ istio-disallow-istio-injection-bypass-exception:
           - istio-gateway
 istio-require-non-root-user-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: istio
   spec:
@@ -32,6 +34,7 @@ istio-require-non-root-user-exception:
           - istio-init
 istiod-require-non-root-group-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: istio
   spec:
@@ -48,6 +51,7 @@ istiod-require-non-root-group-exception:
           - istio-system
 istio-gateway-disallow-image-tags-exception: 
   metadata:
+		namespace: kyverno
     labels:
       app: istio
   spec:
@@ -65,6 +69,7 @@ istio-gateway-disallow-image-tags-exception:
           - istio-gateway
 istio-gateway-restrict-image-registries-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: istio
   spec:
@@ -82,6 +87,7 @@ istio-gateway-restrict-image-registries-exception:
           - istio-gateway
 require-istio-on-namespaces-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: istio
       otherapps: "flux/kube-system/default/bigbang"

@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.backstage" }}
 backstage-disallow-auto-mount-service-account-token-exception:
     metadata:
+		namespace: kyverno
         labels:
             app: backstage
     spec:

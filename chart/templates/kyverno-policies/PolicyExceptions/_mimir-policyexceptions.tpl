@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.mimir" }}
 mimir-add-default-capability-drop-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: mimir
   spec:
@@ -17,6 +18,7 @@ mimir-add-default-capability-drop-exception:
           - mimir
 mimir-require-drop-all-capabilities-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: mimir
   spec:

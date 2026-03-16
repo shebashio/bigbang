@@ -1,6 +1,7 @@
 {{- define "bigbang.policyexceptions.kyvernoreporter" }}
 kyvernoreporter-disallow-auto-mount-service-account-token-exception:
   metadata:
+		namespace: kyverno
     labels:
       app: kyvernoreporter
   spec:
