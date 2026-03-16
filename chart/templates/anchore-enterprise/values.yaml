@@ -13,8 +13,8 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.anchoreEnterprise.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $externalRedisEnabled := and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password }}
-{{- $externalPostgresEnabled := and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database }}
+{{- $externalRedisEnabled := and .Values.addons.anchoreEnterprise.redis.host .Values.addons.anchoreEnterprise.redis.port .Values.addons.anchoreEnterprise.redis.password "true" }}
+{{- $externalPostgresEnabled := and .Values.addons.anchoreEnterprise.database.host .Values.addons.anchoreEnterprise.database.port .Values.addons.anchoreEnterprise.database.username .Values.addons.anchoreEnterprise.database.password .Values.addons.anchoreEnterprise.database.database "true" }}
 domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
@@ -140,7 +140,7 @@ networkPolicies:
       ui-redis:9121:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled (not $externalRedisEnabled) }}
   egress:
     definitions:
       {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
@@ -149,6 +149,8 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          definition:
+            database-subnets: {{ $externalPostgresEnabled }}
       api:
         podSelector:
           matchLabels:
@@ -156,14 +158,6 @@ networkPolicies:
         to:
           definition:
             redis-subnets: {{ $externalRedisEnabled }}
-            database-subnets: {{ $externalPostgresEnabled }}
-      catalog:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: catalog
-        to:
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
       configure-sso:
         podSelector:
           matchLabels:
@@ -177,20 +171,6 @@ networkPolicies:
                   helm.sh/hook: post-install,post-upgrade
                   helm.sh/hook-weight: "-10"
                   helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
-      datasyncer:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: datasyncer
-        to:
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
-      simplequeue:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: simplequeue
-        to:
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
       ui:
         podSelector:
           matchLabels:
@@ -198,14 +178,6 @@ networkPolicies:
         to:
           definition:
             redis-subnets: {{ $externalRedisEnabled }}
-            database-subnets: {{ $externalPostgresEnabled }}
-      upgrade:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: upgradejob
-        to:
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
   additionalPolicies: []
 
 sso:
