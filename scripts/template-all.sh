@@ -61,10 +61,17 @@ if [[ $# -eq 0 ]]; then
   running_as_postrenderer=true
 fi
 
-b=$(tput setaf 4) || true # Blue
-r=$(tput setaf 1) || true # Red
-y=$(tput setaf 3) || true # Yellow
-n=$(tput sgr0) || true    # Normal
+# Use colors only when output is a terminal and TERM is set.
+b=""
+r=""
+y=""
+n=""
+if [[ -t 2 && -n "${TERM:-}" ]] && command -v tput >/dev/null 2>&1; then
+  b=$(tput setaf 4) || true # Blue
+  r=$(tput setaf 1) || true # Red
+  y=$(tput setaf 3) || true # Yellow
+  n=$(tput sgr0) || true    # Normal
+fi
 
 function info() {
   echo -e "[${b}INFO${n}] $1" >&2
