@@ -78,8 +78,8 @@ alloy-restrict-host-path-mount-exception:
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
-    ruleNames:
-    - restrict-host-path-mount
+      ruleNames:
+      - restrict-host-path-mount
     match:
       any:
       - resources:
@@ -94,9 +94,9 @@ alloy-restrict-selinux-type-exception:
       app: alloy
   spec:
     exceptions:
-  - policyName: restrict-selinux-type
-    ruleNames:
-    - restrict-selinux-type
+    - policyName: restrict-selinux-type
+      ruleNames:
+      - restrict-selinux-type
     match:
       any:
       - resources:

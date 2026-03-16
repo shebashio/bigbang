@@ -7,7 +7,7 @@ backstage-disallow-auto-mount-service-account-token-exception:
     spec:
         exceptions:
         - policyName: disallow-auto-mount-service-account-token
-            ruleNames:
+          ruleNames:
             - disallow-auto-mount-service-account-token
         match:
             any:
