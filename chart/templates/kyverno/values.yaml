@@ -78,6 +78,12 @@ upstream:
 
   fullnameOverride: kyverno-kyverno
 
+  features:
+    policyExceptions:
+      enabled: true
+      # -- Restrict policy exceptions to a single namespace
+      namespace: 'kyverno'
+
   replicaCount: 3
   
   # clear out the explicit set in the package, so it falls back to our global value
