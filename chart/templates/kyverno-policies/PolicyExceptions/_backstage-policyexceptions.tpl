@@ -2,8 +2,8 @@
 backstage-disallow-auto-mount-service-account-token-exception:
     metadata:
     namespace: kyverno
-        labels:
-            app: backstage
+    labels:
+      app: backstage
     spec:
         exceptions:
         - policyName: disallow-auto-mount-service-account-token
