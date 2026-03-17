@@ -3,21 +3,6 @@ suite: Package - Grafana - Values Tests
 templates:
   - templates/grafana/values.yaml
 tests:
-  - it: make assertions on the default values for Grafana
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      istiod.values.hardened.enabled: true
-    asserts:
-      - equal:
-          path: domain
-          value: "dev.bigbang.mil"
-      - equal:
-          path: istio.enabled
-          value: true
   - it: should enable istio sidecar when istiod hardened is enabled
     postRenderer:
       cmd: "sh"

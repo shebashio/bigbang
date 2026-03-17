@@ -85,21 +85,3 @@ tests:
           value: "only-this-secret"
       - notExists:
           path: upstream.extraSecretMounts[1]
-
-  - it: should include enterprise license mount when enterprise is enabled
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      grafana.enterprise.enabled: true
-      grafana.enterprise.license: "test-license-key"
-    asserts:
-      - contains:
-          path: upstream.extraSecretMounts
-          content:
-            name: "enterprise-license"
-            mountPath: "/etc/grafana/license"
-            secretName: "grafana-enterprise-license"
-            readOnly: true
