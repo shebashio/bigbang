@@ -1,6 +1,4 @@
 # Big Bang
-**[Generally, I think we want these larger sections to be links, dropdowns, or something in order to save us from having one long, scrolling page.]**
-
 Big Bang is a declarative, continuous delivery tool for Kubernetes that enables secure, compliant, and repeatable deployments of cloud-native applications. Built on GitOps principles and designed for enterprise and government environments, Big Bang provides a comprehensive platform for deploying and managing modern applications at scale.
 
 ## [What is Big Bang?](what.md)
@@ -18,9 +16,9 @@ Descriptions of the primary capabilities that Big Bang provides to users.
 ## [Documentation Structure](documentation.md)
 A list of links to relevant documentation, including a getting started guide, installation docs, reference guides, etc.
 
-## Quick Start
+## [Quick Start](getting-started/quick-start.md)
 
-For detailed instructions, see the [Quick Start Guide](getting-started/quick-start.md).
+Detailed instructions on how to get started with Big Bang.
 
 ## [Support and Community](support.md)
 Learning resources, contribution guide, and information on how to get help.
