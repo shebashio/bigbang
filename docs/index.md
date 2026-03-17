@@ -1,4 +1,5 @@
 # Big Bang
+**[Generally, I think we want these larger sections to be links, dropdowns, or something in order to save us from having one long, scrolling page.]**
 
 Big Bang is a declarative, continuous delivery tool for Kubernetes that enables secure, compliant, and repeatable deployments of cloud-native applications. Built on GitOps principles and designed for enterprise and government environments, Big Bang provides a comprehensive platform for deploying and managing modern applications at scale.
 
@@ -13,12 +14,16 @@ Big Bang is an umbrella Helm chart that packages together a collection of open-s
 - **Developer Experience**: Integrated CI/CD pipelines and development tools
 
 ## Why Big Bang?
-
+<!Include here some high-level description of the value gained from using Big Bang. What are the problems or risks we are addressing? Why is it necessary? In broad terms, as opposed to the specific ones down below. Also, the list below really just seems like a list of features. That's not really an answer to "why?" Like why is Big Bang useful to a platform team? Why are these features of particular importance?>
 ### For Platform Teams
+**[We want to talk here about what makes this especially useful for platform teams (and maybe cloud-native platform teams, since that seems to be our focus). Something like: "Since platform teams are tasked with maintaining environments, they need easy-to-use and consistent security. Big Bang provides that by having platform and security be a focus of our out-of-the-box offerings"]**
 - **Rapid Platform Setup**: Deploy a production-ready Kubernetes platform in hours, not months
 - **Security by Default**: Built-in security controls and compliance frameworks
+**[What type of security controls?]**
 - **Operational Excellence**: Integrated monitoring, alerting, and lifecycle management
+**[Can we talk about the way this is integrated or why that's important?]**
 - **Standardization**: Consistent platform across environments and teams
+**[As opposed to what? What is the lack of standardization that teams are dealing with that we are solving?]**
 
 ### For Development Teams
 - **Focus on Applications**: Platform capabilities provided out-of-the-box
