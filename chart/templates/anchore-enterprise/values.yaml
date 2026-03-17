@@ -43,8 +43,30 @@ routes:
         - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
       hosts:
         - anchore-api.{{ $domainName }}
-      service: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
-      port: 8228
+      http:
+        # Disable ability to hit metrics on virtual service
+        - match:
+            - uri:
+                prefix: /metrics
+          route:
+            - destination:
+                host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
+                port:
+                  number: 8228
+          fault:
+            abort:
+              percentage:
+                value: 100
+              httpStatus: 403
+        # Default route for everything else
+        - match:
+            - uri:
+                prefix: /
+          route:
+            - destination:
+                host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
+                port:
+                  number: 8228
     anchore-ui:
       enabled: true
       selector:
