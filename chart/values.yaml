@@ -585,7 +585,9 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.19"
+    #tag: "3.3.4-bb.19"
+    tag: null
+    branch: "update-custompolicyexceptions"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
