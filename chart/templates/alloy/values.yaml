@@ -117,6 +117,8 @@ networkPolicies:
       # Allow alloy-metrics to push metrics to Prometheus and Mimir
       alloy-metrics:
         to:
+          definition:
+            kubeAPI: true
           k8s:
             monitoring/monitoring-monitoring-kube-prometheus:9090: {{ .Values.monitoring.enabled }}
             mimir/mimir-mimir-gateway:8080: {{ $mimirEnabled }}
@@ -160,6 +162,9 @@ upstream:
       {{- if $istioEnabled }}
       url: https://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
       tls:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true
       {{- else }}
       url: http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
@@ -171,6 +176,9 @@ upstream:
       {{- if $istioEnabled }}
       url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
       tls:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
         insecureSkipVerify: true
       {{- else }}
       url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
@@ -271,11 +279,31 @@ upstream:
   # Enable alloy-metrics to scrape ServiceMonitors/PodMonitors and forward via remote write
   alloy-metrics:
     enabled: true
-    {{- if and $istioEnabled $istioHardenedEnabled }}
     alloy:
+      {{- if and $istioEnabled $istioHardenedEnabled }}
       extraAnnotations:
         {{ include "istioAnnotation" . }}
-    {{- end }}
+      {{- end }}
+      # Mount Istio certs so alloy-metrics can scrape ServiceMonitors with mTLS tlsConfig
+      mounts:
+        extra:
+          - name: istio-certs
+            mountPath: /etc/prom-certs/
+    controller:
+      {{- if $istioEnabled }}
+      # Istio sidecar annotations to output certs to the shared istio-certs volume
+      podAnnotations:
+        proxy.istio.io/config: |
+          proxyMetadata:
+            OUTPUT_CERTS: /etc/istio-output-certs
+        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+      {{- end }}
+      volumes:
+        extra:
+          - name: istio-certs
+            emptyDir:
+              medium: Memory
   prometheusOperatorObjects:
     enabled: true
     destinations:
