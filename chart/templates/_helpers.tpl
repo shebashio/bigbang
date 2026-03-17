@@ -717,6 +717,11 @@ valuesFrom:
 {{ .Values.istiod.enabled }}
 {{- end -}}
 
+{{- /* Returns true if ambient mode is enabled (ztunnel deployment) */ -}}
+{{- define "ambientEnabled" -}}
+{{- if .Values.ztunnel }}{{ .Values.ztunnel.enabled }}{{- else }}false{{- end }}
+{{- end -}}
+
 {{- /* Returns the name of the Istio HelmRelease. */ -}}
 {{- define "istioHelmRelease" -}}
 istiod
