@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - Package - HelmRelease Tests
+templates:
+  - templates/package/helmrelease.yaml
+release:
+  name: test
+set:
+  packages:
+    sample:
+      enabled: true
+      git:
+        repo: https://example.com/sample.git
+        path: chart
+        tag: 1.0.0
+tests:
+  - it: should include platform-values ConfigMap in valuesFrom by default
+    asserts:
+      - contains:
+          path: spec.valuesFrom
+          content:
+            name: test-platform-values
+            kind: ConfigMap
+            valuesKey: common.yaml
+
+  - it: should include platform-values ConfigMap in valuesFrom when bbCommonValues is true
+    set:
+      packages:
+        sample:
+          enabled: true
+          bbCommonValues: true
+          git:
+            repo: https://example.com/sample.git
+            path: chart
+            tag: 1.0.0
+    asserts:
+      - contains:
+          path: spec.valuesFrom
+          content:
+            name: test-platform-values
+            kind: ConfigMap
+            valuesKey: common.yaml
+
+  - it: should not include platform-values ConfigMap in valuesFrom when bbCommonValues is false
+    set:
+      packages:
+        sample:
+          enabled: true
+          bbCommonValues: false
+          git:
+            repo: https://example.com/sample.git
+            path: chart
+            tag: 1.0.0
+    asserts:
+      - notContains:
+          path: spec.valuesFrom
+          content:
+            name: test-platform-values
+            kind: ConfigMap
+            valuesKey: common.yaml
+
+  - it: should always include package values Secret in valuesFrom
+    set:
+      packages:
+        sample:
+          enabled: true
+          bbCommonValues: false
+          git:
+            repo: https://example.com/sample.git
+            path: chart
+            tag: 1.0.0
+    asserts:
+      - contains:
+          path: spec.valuesFrom
+          content:
+            name: sample-values
+            kind: Secret

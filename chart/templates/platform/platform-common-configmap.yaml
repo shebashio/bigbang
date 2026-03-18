@@ -11,8 +11,6 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     reconcile.fluxcd.io/watch: Enabled
 data:
-  values.yaml: |
-{{- .Values | toYaml | nindent 4 }}
   common.yaml: |
     global:
       domain: {{ .Values.domain }}
