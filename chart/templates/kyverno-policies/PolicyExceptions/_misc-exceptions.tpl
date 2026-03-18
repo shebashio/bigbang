@@ -45,7 +45,7 @@ kube-system-require-non-root-user-exception:
       - resources:
           namespaces:
           - kube-system
-flux_kube-system_default_bigbang-istio-on-namespaces-exception:
+require-istio-on-namespaces-exception:
   metadata:
     namespace: kyverno
     labels:
