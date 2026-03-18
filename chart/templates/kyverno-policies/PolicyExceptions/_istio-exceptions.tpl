@@ -85,27 +85,5 @@ istio-gateway-restrict-image-registries-exception:
           - '*-egressgateway'
           namespaces:
           - istio-gateway
-require-istio-on-namespaces-exception:
-  metadata:
-    namespace: kyverno
-    labels:
-      app: istio
-      otherapps: "flux_kube-system_default_bigbang"
-  spec:
-    exceptions:
-    - policyName: require-istio-on-namespaces
-      ruleNames:
-      - require-istio-on-namespaces
-    match:
-      any:
-      - resources:
-          namespaces:
-          - kube-node-lease
-          - kube-public
-          - kube-system
-          - bigbang
-          - default
-          - flux-system
-          - istio-system
-          - istio-gateway
+
 {{- end }}
