@@ -90,7 +90,7 @@ require-istio-on-namespaces-exception:
     namespace: kyverno
     labels:
       app: istio
-      otherapps: "flux/kube-system/default/bigbang"
+      otherapps: "flux_kube-system_default_bigbang"
   spec:
     exceptions:
     - policyName: require-istio-on-namespaces
