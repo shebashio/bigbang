@@ -103,9 +103,15 @@ sso:
 
 kibana:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
-{{- if $istioEnabled }}
+{{- if or $istioEnabled .Values.monitoring.enabled }}
   podAnnotations:
+    {{- if .Values.monitoring.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "15020"
+    {{- end }}
+    {{- if $istioEnabled }}
     {{ include "istioAnnotation" . }}
+    {{- end }}
 {{- end }}
 
 {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.kibana }}
