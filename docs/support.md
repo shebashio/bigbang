@@ -1,7 +1,7 @@
 # Support and Community
 
 ### Getting Help
-- **Documentation**: Start with the guides in this documentation
+- **Documentation**: Start with the guides in this [documentation](documentation.md)
 - **Community Support**: [Engage with the community](../README.md#community)
 - **Issues**: Report bugs and request features on [Repo1](https://repo1.dso.mil/big-bang/bigbang/-/issues)
 

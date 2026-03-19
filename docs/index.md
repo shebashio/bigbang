@@ -16,7 +16,7 @@ Descriptions of the primary capabilities that Big Bang provides to users.
 ## [Documentation Structure](documentation.md)
 A list of links to relevant documentation, including a getting started guide, installation docs, reference guides, etc.
 
-## [Quick Start](getting-started/quick-start.md)
+## [Quick Start](installation/environments/quick-start.md)
 
 Detailed instructions on how to get started with Big Bang.
 
