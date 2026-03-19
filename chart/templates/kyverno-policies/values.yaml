@@ -14,6 +14,7 @@ waitforready:
 istio:
   enabled: {{ $istioEnabled }}
 
+
 policies:
   add-default-capability-drop:
     enabled: true
@@ -1246,8 +1247,16 @@ additionalPolicyExceptions:
 {{- include "bigbang.policyexceptions.alloy" . | indent 4 }}
 {{- end}}
 
+{{- if ((.Values.argocd).enabled) }}
+{{- include "bigbang.policyexceptions.argocd" . | indent 4 }}
+{{- end}}
+
 {{- if and (((.Values.addons).backstage).enabled) ((.Values.kyverno).enabled) }}
 {{- include "bigbang.policyexceptions.backstage" . | indent 4 }}
+{{- end}}
+
+{{- if and ((.Values.bbtests).enabled) ((.Values.kyverno).enabled) }}
+{{- include "bigbang.policyexceptions.cypress" . | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.fluentbit).enabled) (.Values.kyverno).enabled }}
