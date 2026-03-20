@@ -102,11 +102,16 @@ sso:
 {{- end }}
 
 kibana:
-  imagePullSecrets:
-    - name: private-registry
-{{- if $istioEnabled }}
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+{{- if or $istioEnabled .Values.monitoring.enabled }}
   podAnnotations:
+    {{- if .Values.monitoring.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "15020"
+    {{- end }}
+    {{- if $istioEnabled }}
     {{ include "istioAnnotation" . }}
+    {{- end }}
 {{- end }}
 
 {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.kibana }}
@@ -129,9 +134,11 @@ metrics:
       insecureSkipVerify: true
   {{- end }}
 
+  image:
+    {{- include "secretsPullSecret" . | nindent 4 }}
+
 elasticsearch:
-  imagePullSecrets:
-    - name: private-registry
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
   master:
     initContainers:
       - name: elastic-internal-init-filesystem
@@ -154,9 +161,15 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if $istioEnabled }}
+    {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "15020"
+      {{- end }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
     {{- end }}
   data:
     initContainers:
@@ -180,9 +193,15 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if $istioEnabled }}
+    {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "15020"
+      {{- end }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
     {{- end }}
   ingest:
     initContainers:
@@ -206,9 +225,15 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if $istioEnabled }}
+    {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "15020"
+      {{- end }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
     {{- end }}
   ml:
     initContainers:
@@ -232,9 +257,15 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if $istioEnabled }}
+    {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "15020"
+      {{- end }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
     {{- end }}
   coord:
     initContainers:
@@ -258,9 +289,15 @@ elasticsearch:
             drop:
               - ALL
       {{- end }}
-    {{- if $istioEnabled }}
+    {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
+      {{- if .Values.monitoring.enabled }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "15020"
+      {{- end }}
+      {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
     {{- end }}
   {{- if not .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch }}
   serviceAccountAnnotations: {}

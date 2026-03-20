@@ -7,7 +7,6 @@
     "domain",
     "offline",
     "helmRepositories",
-    "registryCredentials",
     "openshift",
     "git",
     "sso",
@@ -64,6 +63,9 @@
             "$ref": "#/$defs/registryCredential"
           },
           "minItems": 1
+        },
+        {
+          "type": "null"
         }
       ]
     },
@@ -1058,6 +1060,11 @@
             "type": "boolean"
           }
         },
+        "alloyClusterEvents": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -1153,18 +1160,6 @@
             }
           }
         },
-        "nexusRepositoryManager": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/basePackage"
-            }
-          ],
-          "properties": {
-            "istio": {
-              "$ref": "#/$defs/istio"
-            }
-          }
-        },
         "sonarqube": {
           "allOf": [
             {
@@ -1184,6 +1179,24 @@
             }
           ],
           "properties": {
+            "externalDatabase": {
+              "type": "object",
+              "properties": {
+                "host": {
+                  "type": "string",
+                  "default": "",
+                  "description": "External MySQL host used to generate Fortify's outbound bb-common route/ServiceEntry when values.mysql.enabled=false."
+                },
+                "port": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ],
+                  "default": 3306,
+                  "description": "External MySQL port used to generate Fortify's outbound bb-common route/ServiceEntry when values.mysql.enabled=false."
+                }
+              }
+            },
             "istio": {
               "$ref": "#/$defs/istio"
             }
@@ -1405,11 +1418,6 @@
           "type": "string"
         }
       },
-      "required": [
-        "registry",
-        "username",
-        "password"
-      ],
       "additionalProperties": false
     },
     "helmRepositories": {
