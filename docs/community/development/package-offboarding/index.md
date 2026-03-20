@@ -12,7 +12,7 @@ If a package is re-promoted later, use the [Package Integration Checklist](../pa
 - [ ] 6. Update ADR and BBTOC links: record communication plan and Cyber outcome in amendment/update records.
 - [ ] 7. Execute offboarding implementation: update package track badges, chart references, repository location/CODEOWNERS, and package docs.
 - [ ] 8. Publish notifications: send required track-change notifications on schedule until the transition is complete.
-- [ ] 9. Finalize BBTOC status: set `accepted` when execution is cleared and complete, or `rejected` with explicit next steps.
+- [ ] 9. Finalize BBTOC status: set `accepted` once required approvals are complete and execution is cleared; set `rejected` with explicit next steps if the request is not approved.
 
 ## Required References
 
