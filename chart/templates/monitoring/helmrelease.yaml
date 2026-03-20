@@ -18,8 +18,9 @@ spec:
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
 
-  {{- if .Values.monitoring.postRenderers }}
   postRenderers:
+  {{- include "monitoring.operatorServiceMonitorPostRenderer" . | nindent 4 }}
+  {{- if .Values.monitoring.postRenderers }}
   {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "monitoring" "root" .) | nindent 2 }}
@@ -29,8 +30,7 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.vault.enabled }}
   {{- if $istioEnabled }}
-    - name: {{ include "istioHelmRelease" . }}
-      namespace: {{ .Release.Namespace }}
+    {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
   {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper

@@ -722,9 +722,14 @@ valuesFrom:
 {{- if .Values.ztunnel }}{{ .Values.ztunnel.enabled }}{{- else }}false{{- end }}
 {{- end -}}
 
-{{- /* Returns the name of the Istio HelmRelease. */ -}}
-{{- define "istioHelmRelease" -}}
-istiod
+{{- /* Returns dependsOn entries for Istio HelmReleases. */ -}}
+{{- define "istioHelmReleases" -}}
+- name: istiod
+  namespace: {{ .Release.Namespace }}
+{{- if .Values.istioCNI.enabled }}
+- name: istio-cni
+  namespace: {{ .Release.Namespace }}
+{{- end }}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}
