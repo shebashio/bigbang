@@ -13,7 +13,11 @@ set:
         path: chart
         tag: 1.0.0
 tests:
-  - it: should include platform-values ConfigMap in valuesFrom by default
+  - it: should include platform-values ConfigMap in valuesFrom when bbCommonValues is enabled
+    set:
+      packages:
+        sample:
+          bbCommonValues: true
     asserts:
       - contains:
           path: spec.valuesFrom
