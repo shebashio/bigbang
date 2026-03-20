@@ -231,6 +231,26 @@ upstream:
   {{- if $alloyClusterEventsEnabled }}
   alloy-singleton:
     enabled: true
+    {{- if and $alloyMetricsEnabled $istioEnabled }}
+    alloy:
+      # Mount Istio certs so alloy-singleton can use prometheus destination with mTLS
+      mounts:
+        extra:
+          - name: istio-certs
+            mountPath: /etc/prom-certs/
+    controller:
+      podAnnotations:
+        proxy.istio.io/config: |
+          proxyMetadata:
+            OUTPUT_CERTS: /etc/istio-output-certs
+        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+      volumes:
+        extra:
+          - name: istio-certs
+            emptyDir:
+              medium: Memory
+    {{- end }}
   clusterEvents:
     enabled: true
     destinations:
