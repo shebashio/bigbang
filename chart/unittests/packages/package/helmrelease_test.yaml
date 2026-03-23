@@ -13,7 +13,7 @@ set:
         path: chart
         tag: 1.0.0
 tests:
-  - it: should include platform-values ConfigMap in valuesFrom when bbCommonValues is enabled
+  - it: should include common.yaml valuesFrom when bbCommonValues is enabled
     set:
       packages:
         sample:
@@ -22,11 +22,11 @@ tests:
       - contains:
           path: spec.valuesFrom
           content:
-            name: test-platform-values
-            kind: ConfigMap
+            name: sample-values
+            kind: Secret
             valuesKey: common.yaml
 
-  - it: should include platform-values ConfigMap in valuesFrom when bbCommonValues is true
+  - it: should include common.yaml valuesFrom when bbCommonValues is true
     set:
       packages:
         sample:
@@ -40,11 +40,11 @@ tests:
       - contains:
           path: spec.valuesFrom
           content:
-            name: test-platform-values
-            kind: ConfigMap
+            name: sample-values
+            kind: Secret
             valuesKey: common.yaml
 
-  - it: should not include platform-values ConfigMap in valuesFrom when bbCommonValues is false
+  - it: should not include common.yaml valuesFrom when bbCommonValues is false
     set:
       packages:
         sample:
@@ -58,8 +58,8 @@ tests:
       - notContains:
           path: spec.valuesFrom
           content:
-            name: test-platform-values
-            kind: ConfigMap
+            name: sample-values
+            kind: Secret
             valuesKey: common.yaml
 
   - it: should always include package values Secret in valuesFrom

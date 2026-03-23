@@ -65,8 +65,8 @@ spec:
   {{- end }}
   valuesFrom:
     {{- if dig "bbCommonValues" false $vals }}
-    - name: {{ $.Release.Name }}-platform-values
-      kind: ConfigMap
+    - name: {{ $pkg }}-values
+      kind: Secret
       valuesKey: common.yaml
     {{- end }}
     - name: {{ $pkg }}-values

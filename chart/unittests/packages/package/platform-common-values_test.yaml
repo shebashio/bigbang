@@ -1,12 +1,23 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Platform - Common Values Tests
 templates:
-  - templates/platform/platform-common-configmap.yaml
+  - templates/package/values.yaml
+release:
+  name: test
+set:
+  packages:
+    sample:
+      enabled: true
+      bbCommonValues: true
+      git:
+        repo: https://example.com/sample.git
+        path: chart
+        tag: 1.0.0
 postRenderer:
   cmd: "sh"
   args:
     - "-c"
-    - "yq eval '.data.\"common.yaml\"' - | yq eval '.'"
+    - "yq eval '.stringData.\"common.yaml\"' - | yq eval '.'"
 tests:
   - it: should have global domain set correctly
     asserts:
