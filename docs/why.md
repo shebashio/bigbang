@@ -1,7 +1,7 @@
 # Why Use Big Bang?
 **[Include here some high-level description of the value gained from using Big Bang. What are the problems or risks we are addressing? Why is it necessary? In broad terms, as opposed to the specific ones down below. Also, the list below really just seems like a list of features. That's not really an answer to "why?" Like why is Big Bang useful to a platform team? Why are these features of particular importance?]**
 ## What are the benefits of using Big Bang?
-**[Copied here from the home page in order to build out these subpages]**
+**[Copied here from the getting started page in order to build out these subpages]**
 * Compliant with the [DoD DevSecOps Reference Architecture Design](https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Reference%20Design%20-%20CNCF%20Kubernetes%20w-DD1910_cleared_20211022.pdf).
 * Can be used to check some but not all of the boxes needed to achieve a Continuous Authority to Operate (cATO) or Authority to Operate (ATO).
 * Left shift supply chain security concerns using hardened Iron Bank container images.

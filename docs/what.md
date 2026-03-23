@@ -22,14 +22,23 @@ Big Bang's DevSecOps platform's key features can be broken down into five catego
 
 Built-in security controls with defense-in-depth architecture
 ### Compliance by Design
-Big Bang 
+*Big Bang is designed to follow and comply with estabilished industry best practices, it implements DoW DevSecOps Reference architecture **[Lets talk here about why this is important?]**, achieving compliance out of the box with features like:*
+* ***Feature 1:** Explain Feature*
 
 Implementation of the DoD DevSecOps Reference Architecture and industry standards
 ### Observability Stack 
+*Monitoring, logging, and tracing are key components to accomplishing both Zero Trust Architecture, and best-practice design for our platform. Big Bang offers a high-level of observability by offering the following features:*
+* ***Feature 1:** Explain Feature*
+
 Comprehensive monitoring, logging, and tracing capabilities 
 ### Service Mesh
+**[I'm going to need an explanation here of what exactly a service mesh is before I can really flesh out this section]**
+
 Istio-based secure service-to-service communication
 ### Developer Experience
+*Finally, part of our offering is integrated CI/CD pipelines and development tools in order to create a successful DevSecOps developer experience. Those tools include the following:*
+* ***Feature 1:** Explain Feature*
+
 Integrated CI/CD pipelines and development tools
 
 ## What *isn't* Big Bang?

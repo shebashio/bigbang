@@ -15,3 +15,11 @@ Big Bang is an open-source project welcoming contributions:
 - **[Architecture Decision Records](community/adrs/)**: Understand design decisions
 - **[Development Guide](community/development/)**: Learn how Big Bang works internally
 - **[Tutorials](tutorials/)**: Hands-on guides for specific use cases
+- **[Reference](reference/)**: Configuration examples and technical specifications
+- **[FAQ](getting-started/faq.md)**: Frequently asked questions
+
+### Community and Development
+Contribute to and extend Big Bang:
+- **[Community](community/)**: Get involved with the Big Bang community
+- **[Development](community/development/)**: Contribute code and documentation
+- **[Architecture Decision Records](community/adrs/)**: Design decisions and rationale
