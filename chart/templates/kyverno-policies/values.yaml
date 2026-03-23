@@ -7,9 +7,8 @@
 {{- define "bigbang.defaults.kyverno-policies" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
-{{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 
-{{- if $ambientEnabled }}
+{{- if .Values.ztunnel.enabled }}
 additionalPolicyExceptions:
   ztunnel:
     enabled: true
