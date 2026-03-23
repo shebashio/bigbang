@@ -64,7 +64,14 @@ networkPolicies:
         to:
           definition:
             storage-subnets: true
-
+      velero-upgrade-crds:
+        podSelector:
+          matchLabels:
+            batch.kubernetes.io/job-name: velero-upgrade-crds
+        to:
+          definition:
+            kubeAPI: true
+            
 openshift: {{ .Values.openshift }}
 
 upstream:
