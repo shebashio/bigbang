@@ -64,7 +64,7 @@ spec:
   {{- toYaml $vals.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
-    {{- if dig "bbCommonValues" true $vals }}
+    {{- if dig "bbCommonValues" false $vals }}
     - name: {{ $.Release.Name }}-platform-values
       kind: ConfigMap
       valuesKey: common.yaml
