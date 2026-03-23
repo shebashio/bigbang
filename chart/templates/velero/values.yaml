@@ -54,26 +54,16 @@ networkPolicies:
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
-      velero:
+      "*":
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
           definition:
             kubeAPI: true
-            storage-subnets: true
-      velero-upgrade-crds:
-        podSelector:
-          matchLabels:
-            batch.kubernetes.io/job-name: velero-upgrade-crds
+      velero:
         to:
           definition:
-            kubeAPI:
-              enabled: true
-              metadata:
-                annotations:
-                  helm.sh/hook: pre-upgrade
-                  helm.sh/hook-weight: "-10"
-                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+            storage-subnets: true
 
 openshift: {{ .Values.openshift }}
 
