@@ -24,6 +24,10 @@
 {{- $istioInjection := and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.elasticsearchKibana) "enabled") }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.elasticsearchKibana.values) }}
 {{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
+{{- $snapshotEnabled := dig "snapshot" "enabled" false .Values.elasticsearchKibana.values }}
+{{- $snapshotSecretName := dig "snapshot" "secretName" "" .Values.elasticsearchKibana.values }}
+{{- $snapshotNetworkCIDR := dig "snapshot" "networkCIDR" "" .Values.elasticsearchKibana.values }}
+{{- $snapshotServiceEntryHost := dig "snapshot" "serviceEntryHost" "" .Values.elasticsearchKibana.values }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
 
@@ -34,10 +38,10 @@ imagePullPolicy: {{ .Values.imagePullPolicy }}
 routes:
   outbound:
     elasticsearch-snapshot-storage:
-      enabled: {{ and $istioHardenedEnabled .Values.elasticsearchKibana.snapshot.enabled (not (empty .Values.elasticsearchKibana.snapshot.serviceEntryHost)) }}
+      enabled: {{ and $istioHardenedEnabled $snapshotEnabled (not (empty $snapshotServiceEntryHost)) }}
       hosts:
-        - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
-      resolution: {{ if hasPrefix "*" .Values.elasticsearchKibana.snapshot.serviceEntryHost }}NONE{{ else }}DNS{{ end }}
+        - {{ $snapshotServiceEntryHost | quote }}
+      resolution: {{ if hasPrefix "*" $snapshotServiceEntryHost }}NONE{{ else }}DNS{{ end }}
       ports:
         - number: 443
           name: https
@@ -72,9 +76,9 @@ networkPolicies:
         to:
           definition:
             sso: {{ .Values.elasticsearchKibana.sso.enabled }}
-          {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.networkCIDR }}
+          {{- if and $snapshotEnabled $snapshotNetworkCIDR }}
           cidr:
-            {{ printf "%s:443" .Values.elasticsearchKibana.snapshot.networkCIDR }}: true
+            {{ printf "%s:443" $snapshotNetworkCIDR }}: true
           {{- end }}
   ingress:
     to:
@@ -179,7 +183,7 @@ elasticsearch:
             drop:
               - ALL
       {{- $hasUserSecureSettings := not (empty (dig "elasticsearch" "secureSettings" nil .Values.elasticsearchKibana.values)) }}
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled $hasUserSecureSettings }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled $snapshotEnabled $hasUserSecureSettings }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -346,6 +350,8 @@ elasticsearch:
       {{- end }}
       {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
+    {{- end }}
   {{- end }}
   {{- /* Combine user-provided secureSettings with BB-managed snapshot secret.
        The top-level template strips elasticsearch.secureSettings from user values before
@@ -356,8 +362,8 @@ elasticsearch:
   {{- $userSecureSettings = $rawUserSecureSettings }}
   {{- end }}
   {{- $snapshotSettings := list }}
-  {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.secretName }}
-  {{- $snapshotSettings = append $snapshotSettings (dict "secretName" .Values.elasticsearchKibana.snapshot.secretName) }}
+  {{- if and $snapshotEnabled $snapshotSecretName }}
+  {{- $snapshotSettings = append $snapshotSettings (dict "secretName" $snapshotSecretName) }}
   {{- end }}
   {{- $combinedSecureSettings := concat $userSecureSettings $snapshotSettings }}
   {{- if $combinedSecureSettings }}
