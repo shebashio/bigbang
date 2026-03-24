@@ -9,6 +9,5 @@
 upstream:
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
-    imagePullSecrets:
-      - private-registry
+    {{- include "secretsImagePullSecrets" . | nindent 4 }}
 {{- end }}
