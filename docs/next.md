@@ -1,6 +1,6 @@
 ## What's Next?
 ### New Users
-1. Start with [Getting Started Overview](getting-started/index.md)
+1. Start with [Getting Started Overview](getting-started.md)
 2. Review [Prerequisites](getting-started/prerequisites.md)
 3. Follow the [Quick Start Guide](getting-started/quick-start.md)
 4. Explore [Core Concepts](concepts/)

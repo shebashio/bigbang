@@ -17,8 +17,12 @@ Descriptions of the primary capabilities that Big Bang provides to users.
 ## [Support and Community](support.md)
 Learning resources, contribution guide, and information on how to get help.
 
+## [Release Schedule](release.md)
+The release schedule for Big Bang's major and minor updates.
+
 ## [What's Next?](next.md)
 A list of links to more detailed documentation about Big Bang for if you want to dive deeper.
+
 
 ---
 

@@ -10,6 +10,16 @@ Big Bang is an open-source project welcoming contributions:
 - **Code Contributions**: Submit merge requests for bug fixes and features
 - **Documentation**: Help improve and expand the documentation
 - **Community Support**: Help other users in community forums
+  
+There are three primary ways to contribute to Big Bang. They are listed in the following:
+
+- [Contribute to the Big Bang Team's Backlog](https://repo1.dso.mil/big-bang/bigbang/-/issues).
+- [Contribute to open-source projects under the Big Bang Technical Oversight Committee (BBTOC)](https://repo1.dso.mil/big-bang/product/bbtoc/-/blob/master/CONTRIBUTING.md).
+- [Submit new package proposals](https://repo1.dso.mil/big-bang/product/bbtoc/-/issues/new?issue%5Bmilestone_id%5D=).
+    - Please review the [package integration guide](./docs/community/development/package-integration/index.md) if you are interested in submitting a new package.
+    - A shepherd will be assigned to the project to create a repo in the [Big Bang Community Packages](https://repo1.dso.mil/big-bang/product/community).
+
+Additional information can be found in the [contributing guide](./CONTRIBUTING.md).
 
 ### Learning Resources
 - **[Architecture Decision Records](community/adrs/)**: Understand design decisions
@@ -23,3 +33,7 @@ Contribute to and extend Big Bang:
 - **[Community](community/)**: Get involved with the Big Bang community
 - **[Development](community/development/)**: Contribute code and documentation
 - **[Architecture Decision Records](community/adrs/)**: Design decisions and rationale
+
+### Provide Big Bang Feedback
+
+Your feedback is important to us. Please complete the [Big Bang Feedback Form](https://forms.osi.apps.mil/r/QjGsAfZLeV) to help us continually enhance future Big Bang experiences. At the conclusion of the form, you are welcome to schedule a session with our User Experience Research team to discuss your insights further.
