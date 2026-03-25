@@ -193,27 +193,6 @@ elasticsearch:
       {{- end }}
   {{- if $istioEnabled }}
   master:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
     {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
       {{- if .Values.monitoring.enabled }}
@@ -225,27 +204,6 @@ elasticsearch:
       {{- end }}
     {{- end }}
   data:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
     {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
       {{- if .Values.monitoring.enabled }}
@@ -257,27 +215,6 @@ elasticsearch:
       {{- end }}
     {{- end }}
   ingest:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
     {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
       {{- if .Values.monitoring.enabled }}
@@ -289,27 +226,6 @@ elasticsearch:
       {{- end }}
     {{- end }}
   ml:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
     {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
       {{- if .Values.monitoring.enabled }}
@@ -321,27 +237,6 @@ elasticsearch:
       {{- end }}
     {{- end }}
   coord:
-    initContainers:
-      - name: elastic-internal-init-filesystem
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      - name: elastic-internal-suspend
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- if .Values.elasticsearchKibana.sso.enabled }}
-      - name: elastic-internal-init-keystore
-        securityContext:
-          privileged: false
-          capabilities:
-            drop:
-              - ALL
-      {{- end }}
     {{- if or $istioEnabled .Values.monitoring.enabled }}
     podAnnotations:
       {{- if .Values.monitoring.enabled }}
