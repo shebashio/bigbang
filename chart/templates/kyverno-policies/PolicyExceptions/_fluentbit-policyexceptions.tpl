@@ -4,6 +4,14 @@ fluentbit-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: fluentbit
+    annotations:
+      description: "# Fluent Bit mounts the following hostPaths:
+          # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+          # - `/var/lib/docker/containers`: to tail container logs
+          # - `/etc/machine-id`: to obtain the node's unique machine ID for identifying systemd log folder
+          # - `/var/log/flb-storage`: for Fluent Bit's buffering and persistent state
+          # Since logs can have sensitive information, it is better to exclude
+          # FluentBit from the policy than add the paths as allowable mounts"
   spec:
   exceptions:
   - policyName: add-default-securitycontext
@@ -21,6 +29,8 @@ fluentbit-disallow-privileged-containers-exception:
     namespace: kyverno
     labels:
       app: fluentbit
+    annotations:
+      description: "Fluentbit needs privileged to read and store the buffer for tailing logs from the nodes"
   spec:
     exceptions:
     - policyName: disallow-privileged-containers
@@ -38,6 +48,8 @@ fluentbit-disallow-tolerations-exception:
     namespace: kyverno
     labels:
       app: fluentbit
+    annotations:
+      description: "Fluent bit needs to be able to run on all nodes to gather logs from the host for containers"
   spec:
     exceptions:
     - policyName: disallow-tolerations
@@ -89,6 +101,14 @@ fluentbit-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: fluentbit
+    annotations:
+      description: "# Fluent Bit mounts the following hostPaths:
+          # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+          # - `/var/lib/docker/containers`: to tail container logs
+          # - `/etc/machine-id`: to obtain the node's unique machine ID for identifying systemd log folder
+          # - `/var/log/flb-storage`: for Fluent Bit's buffering and persistent state
+          # Since logs can have sensitive information, it is better to exclude
+          # FluentBit from the policy than add the paths as allowable mounts"
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -106,8 +126,14 @@ fluentbit-restrict-selinux-type-exception:
     namespace: kyverno
     labels:
       app: fluentbit
-    name: fluentbit-restrict-selinux-type-exception
-    namespace: {{ .Release.Namespace }}
+    annotations:
+      description: "# Fluent Bit mounts the following hostPaths:
+          # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+          # - `/var/lib/docker/containers`: to tail container logs
+          # - `/etc/machine-id`: to obtain the node's unique machine ID for identifying systemd log folder
+          # - `/var/log/flb-storage`: for Fluent Bit's buffering and persistent state
+          # Since logs can have sensitive information, it is better to exclude
+          # FluentBit from the policy than add the paths as allowable mounts"
   spec:
     exceptions:
     - policyName: restrict-selinux-type
@@ -125,6 +151,9 @@ fluentbit-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: fluentbit
+    annotations:
+      description: "# Fluent bit containers requires HostPath volumes, to tail node and container logs.  It is also used for buffering
+          # https://docs.fluentbit.io/manual/pipeline/filters/kubernetes#workflow-of-tail-+-kubernetes-filter"
   spec:
     exceptions:
     - policyName: restrict-volume-types

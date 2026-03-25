@@ -4,6 +4,8 @@ backstage-disallow-auto-mount-service-account-token-exception:
     namespace: kyverno
     labels:
       app: backstage
+    annotations:
+      description: "Backstage requires automounting of service account tokens for its backend to function"
     spec:
         exceptions:
         - policyName: disallow-auto-mount-service-account-token

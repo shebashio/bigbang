@@ -4,6 +4,11 @@ twistlock-add-default-capability-drop-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -23,6 +28,11 @@ twistlock-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -43,6 +53,11 @@ twistlock-disallow-host-namespaces-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: "      # Twistlock, by default, does its own network monitoring. hostNetworking is enabled by default for this purpose
+      # With hostNetworking enabled, Istio sidecar injection is disabled. If this function is disabled, Twistlock will
+      # not be able to self monitor. If both Istio sidecar injection and TL monitoring are disabled, a security gap will
+      # be created for network monitoring in Twistlock.  So, it is important to make sure at least one is enabled."
   spec:
     exceptions:
     - policyName: disallow-host-namespaces
@@ -60,6 +75,11 @@ twistlock-disallow-tolerations-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: disallow-tolerations
@@ -77,6 +97,11 @@ twistlock-require-drop-all-capabilities-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities
@@ -95,6 +120,11 @@ twistlock-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -113,6 +143,11 @@ twistlock-require-non-root-user-exception: kyverno.io/v2
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -131,6 +166,11 @@ twistlock-restrict-apparmor-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: restrict-apparmor
@@ -148,6 +188,18 @@ twistlock-restrict-capabilities-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: "    # NEEDS FURTHER JUSTIFICATION
+    # Twistlock Defenders require the following capabilities
+    # - NET_ADMIN  - Process monitoring and Iptables
+    # - NET_RAW    - Iptables (CNNF, runtime DNS, WAAS)  See https://bugzilla.redhat.com/show_bug.cgi?id=1895032
+    # - SYS_ADMIN  - filesystem monitoring
+    # - SYS_PTRACE - local audit monitoring
+    # - SYS_CHROOT - changing mount namespace using setns
+    # - MKNOD      - Create special files using mknod, used by docker-less registry scanning
+    # - SETFCAP    - Set file capabilties, used by docker-less registry scanning
+    # - IPC_LOCK
+    "
   spec:
     exceptions:
     - policyName: restrict-capabilities
@@ -165,6 +217,11 @@ twistlock-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -182,6 +239,11 @@ twistlock-restrict-host-path-write-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: restrict-host-path-write
@@ -199,6 +261,11 @@ twistlock-restrict-selinux-type-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: restrict-selinux-type
@@ -216,6 +283,11 @@ twistlock-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: twistlock
+    annotations:
+      description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
+      # - read logs from `/var/log` to watch for malicious processes
+      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
+      # - access the container runtime socket (observing all running containers on a node)"
   spec:
     exceptions:
     - policyName: restrict-volume-types

@@ -4,6 +4,10 @@ alloy-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -21,6 +25,10 @@ alloy-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -38,6 +46,10 @@ alloy-require-non-root-user-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -55,6 +67,10 @@ alloy-restrict-capabilities-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: restrict-capabilities
@@ -75,6 +91,10 @@ alloy-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -92,6 +112,11 @@ alloy-restrict-selinux-type-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "          # Alloy requires SELinux option type 'spc_t' for privileged host volume mounting on SELinux enabled systems
+          # Alloy mounts the following hostPaths:
+          # - `/var/log`: to tail node logs (e.g. journal) and pod logs
+          # - `/var/lib/docker/containers`: to tail container logs"
   spec:
     exceptions:
     - policyName: restrict-selinux-type
@@ -109,6 +134,10 @@ alloy-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: alloy
+    annotations:
+      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+       to the host operating system, creating a user, adding that user to the systemd-journal user group
+       and then granting permissions recursively on /var/log."
   spec:
     exceptions:
     - policyName: restrict-volume-types

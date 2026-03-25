@@ -5,6 +5,8 @@ cypress-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: cypress
+    annotations:
+      description: "Allows gluon cypress test pods to mount volumes"
   spec:
     exceptions:
     - policyName: restrict-volume-types
@@ -20,6 +22,8 @@ cypress-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: cypress
+    annotations:
+      description: "Allows gluon cypress test pods to mount volumes"
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -67,6 +71,8 @@ cypress-restrict-host-path-write-exception:
     namespace: kyverno
     labels: 
       app: cypress
+    annotations:
+      description: "Allows gluon cypress test pods to mount volumes"
   spec:
     exceptions:
     - policyName: restrict-host-path-write

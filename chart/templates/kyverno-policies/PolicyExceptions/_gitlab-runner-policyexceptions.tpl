@@ -4,6 +4,8 @@ gitlabrunner-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: gitlabrunner
+    annotations:
+      description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -21,6 +23,8 @@ gitlabrunner-require-drop-all-capabilities-exception:
     namespace: kyverno
     labels:
       app: gitlabrunner
+    annotations:
+      description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities
@@ -38,6 +42,8 @@ gitlabrunner-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: gitlabrunner
+    annotations:
+      description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -55,6 +61,8 @@ gitlabrunner-require-non-root-user-exception:
     namespace: kyverno
     labels:
       app: gitlabrunner
+    annotations:
+      description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
     - policyName: require-non-root-user

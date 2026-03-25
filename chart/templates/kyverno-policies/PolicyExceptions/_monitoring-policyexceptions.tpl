@@ -45,6 +45,12 @@ monitoring-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: monitoring
+    annotations:
+      description: "      # Prometheus Node Exporter mounts the following hostPaths:
+      # - `/`: monitor disk usage on filesystem mounts using e2fs call
+      # - `/proc` and `/sys`: gather node metrics
+      # Since mounting the root would expose sensitive information, it is better to
+      # exlcude Prometheus Node Exporter than add the paths as allowable mounts"
   spec:
     exceptions:
     - policyName: restrict-host-path-mount

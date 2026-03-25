@@ -4,6 +4,8 @@ istio-disallow-istio-injection-bypass-exception:
     namespace: kyverno
     labels:
       app: istio
+    annotations:
+      description: "Istio does not inject itself"
   spec:
     exceptions:
     - policyName: disallow-istio-injection-bypass
@@ -54,6 +56,11 @@ istio-gateway-disallow-image-tags-exception:
     namespace: kyverno
     labels:
       app: istio
+    annotations:
+      description: "istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config."
   spec:
     exceptions:
     - policyName: disallow-image-tags
@@ -72,6 +79,11 @@ istio-gateway-restrict-image-registries-exception:
     namespace: kyverno
     labels:
       app: istio
+    annotations:
+      description: "istio/gateway sets the deployment image to `auto` by default
+      # and does not expose any way for the chart consumer to modify
+      # it. The idea is `istiod` will inject the correct image at
+      # pod creation based on `istiod`'s proxy config."
   spec:
     exceptions:
     - policyName: restrict-image-registries

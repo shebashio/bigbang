@@ -4,6 +4,8 @@ neuvector-add-default-capability-drop-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -25,8 +27,8 @@ neuvector-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: neuvector
-    name: neuvector-add-default-securitycontext-exception
-    namespace: {{ .Release.Namespace }}
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -46,6 +48,8 @@ neuvector-disallow-host-namespaces-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: disallow-host-namespaces
@@ -63,6 +67,8 @@ neuvector-disallow-privileged-containers-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime"
   spec:
     exceptions:
     - policyName: disallow-privileged-containers
@@ -82,6 +88,8 @@ neuvector-require-drop-all-capabilities-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities
@@ -103,6 +111,8 @@ neuvector-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -122,6 +132,8 @@ neuvector-require-non-root-user-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -139,6 +151,12 @@ neuvector-restrict-host-path-mount-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "      # Neuvector mounts the following hostPaths:
+      # `/var/neuvector`: for Neuvector's buffering and persistent state
+      # `/var/run`: communication to docker daemon
+      # `/proc`: monitoring of proccesses for malicious activity
+      # `/sys/fs/cgroup`: important files the controller wants to monitor for malicious content"
   spec:
     exceptions:
     - policyName: restrict-host-path-mount
@@ -158,6 +176,12 @@ neuvector-restrict-host-path-write-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "      # Neuvector mounts the following hostPaths:
+      # `/var/neuvector`: for Neuvector's buffering and persistent state
+      # `/var/run`: communication to docker daemon
+      # `/proc`: monitoring of proccesses for malicious activity
+      # `/sys/fs/cgroup`: important files the controller wants to monitor for malicious content"
   spec:
     exceptions:
     - policyName: restrict-host-path-write
@@ -176,6 +200,12 @@ neuvector-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: neuvector
+    annotations:
+      description: "      # Neuvector mounts the following hostPaths:
+      # `/var/neuvector`: for Neuvector's buffering and persistent state
+      # `/var/run`: communication to docker daemon
+      # `/proc`: monitoring of proccesses for malicious activity
+      # `/sys/fs/cgroup`: important files the controller wants to monitor for malicious content"
   spec:
     exceptions:
     - policyName: restrict-volume-types
