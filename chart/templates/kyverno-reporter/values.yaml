@@ -67,6 +67,10 @@ networkPolicies:
         to:
           definition:
             kubeAPI: true
+        to:
+          podSelector:
+            matchLabels:
+              batch.kubernetes.io/job-name: configure-sso
   ingress:
     to:
       policy-reporter:8080:
