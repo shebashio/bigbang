@@ -314,6 +314,9 @@ kyverno:
       enabled: true
 
 kyvernoReporter:
+  git:
+    tag: ""
+    branch: renovate/kyverno-reporter
   values:
     bbtests:
       enabled: true
