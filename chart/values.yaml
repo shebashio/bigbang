@@ -706,7 +706,7 @@ elasticsearchKibana:
     # -- Elasticsearch license in json format seen here: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana#enterprise-license
     keyJSON: ""
     
-  snapshot:
+  objectStorage:
     # -- Toggle Snapshot Lifecycle Management (SLM) support for Elasticsearch.
     # When enabled, injects the specified Kubernetes secret into Elasticsearch's
     # secureSettings to supply credentials for cloud snapshot repositories (S3, Azure, GCS).
