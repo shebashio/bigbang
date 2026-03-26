@@ -2,7 +2,7 @@
 
 Use this checklist for package deprecation and downward/high-impact track changes (for example, Integrated to Maintained or Maintained to Community).
 
-If a package is re-promoted later, use the [Package Integration Checklist](../package-integration/index.md).
+If a package is re-promoted later, use the [Package Lifecycle Integration Checklist](../package-lifecycle/integration.md).
 
 - [ ] 1. Open or update BBTOC issue: include current track, requested track, direction, impact summary, proposed timeline, and release-notes notice.
 - [ ] 2. Set BBTOC status to `in process` and keep status updates limited to `in process`, `accepted`, or `rejected`.
