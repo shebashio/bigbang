@@ -346,6 +346,8 @@ elasticsearch:
       {{- end }}
       {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
+      {{- end }}
+    {{- end }}
   {{- end }}
   {{- /* Combine user-provided secureSettings with BB-managed snapshot secret.
        The top-level template strips elasticsearch.secureSettings from user values before
