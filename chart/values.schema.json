@@ -327,6 +327,23 @@
       ],
       "additionalProperties": false
     },
+    "ztunnel": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
     "kiali": {
       "required": [
         "sso",
@@ -1396,6 +1413,10 @@
           "bbCommonValues": {
             "type": "boolean",
             "default": false
+          },
+          "includeDefaultDependsOn": {
+            "type": "boolean",
+            "default": true
           }
         }
       }

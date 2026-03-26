@@ -455,6 +455,26 @@ istioGateway:
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
 
+ztunnel:
+  # -- Toggle deployment of ztunnel (required for Istio ambient mode)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/ztunnel.git
+    path: "./chart"
+    tag: 1.29.1-bb.1
+  helmRepo:
+    repoName: "registry1"
+    chartName: "ztunnel"
+    tag: 1.29.1-bb.1
+  # -- Values to passthrough to the ztunnel chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the ztunnel Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 kiali:
   # -- Toggle deployment of Kiali.
   enabled: true
@@ -883,11 +903,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.8.11-bb.0"
+    tag: "2.8.12-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.8.11-bb.0"
+    tag: "2.8.12-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
   ingress:
@@ -1021,11 +1041,11 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 27.0.0-bb.0
+    tag: 28.0.0-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
-    tag: 27.0.0-bb.0
+    tag: 28.0.0-bb.0
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1045,11 +1065,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "82.10.4-bb.2"
+    tag: "82.14.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "82.10.4-bb.2"
+    tag: "82.14.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1117,11 +1137,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "10.5.15-bb.1"
+    tag: "10.5.15-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "10.5.15-bb.1"
+    tag: "10.5.15-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1168,11 +1188,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.24.0-bb.5"
+    tag: "0.25.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.24.0-bb.5"
+    tag: "0.25.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1448,11 +1468,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.9.3-bb.1"
+      tag: "9.10.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.9.3-bb.1"
+      tag: "9.10.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1708,11 +1728,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.21.1-bb.2"
+      tag: "3.21.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.21.1-bb.2"
+      tag: "3.21.3-bb.0"
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
       upgrade:
@@ -1924,11 +1944,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "11.3.2-bb.2"
+      tag: "12.0.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "11.3.2-bb.2"
+      tag: "12.0.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -1958,11 +1978,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.1.8-bb.1"
+      tag: "7.1.9-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.1.8-bb.1"
+      tag: "7.1.9-bb.0"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2434,6 +2454,9 @@ packages:
 
     # -- Specify dependencies for the package. Only used for HelmRelease, does not effect Kustomization. See [here](https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies) for a reference.
     dependsOn: []
+
+    # -- Include default Big Bang package HelmRelease dependencies (gatekeeper, kyverno-policies, istio where applicable).
+    includeDefaultDependsOn: true
 
     # -- Package details for Istio.  See [wrapper values](https://repo1.dso.mil/big-bang/product/packages/wrapper/-/blob/main/chart/values.yaml) for settings.
     istio: {}
