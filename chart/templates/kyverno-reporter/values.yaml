@@ -59,6 +59,7 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       kyverno-reporter:
         podSelector:
@@ -68,9 +69,8 @@ networkPolicies:
           definition:
             kubeAPI: true
         to:
-          podSelector:
-            matchLabels:
-              batch.kubernetes.io/job-name: configure-sso
+          definition:
+            sso: true
   ingress:
     to:
       policy-reporter:8080:
