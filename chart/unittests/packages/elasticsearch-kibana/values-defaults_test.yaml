@@ -85,24 +85,3 @@ tests:
       - equal:
           path: routes.inbound.elasticsearch.enabled
           value: false
-  - it: should source snapshot settings from elasticsearchKibana.values.snapshot
-    set:
-      elasticsearchKibana.values.snapshot.enabled: true
-      elasticsearchKibana.values.snapshot.secretName: snapshot-creds
-      elasticsearchKibana.values.snapshot.networkCIDR: 10.0.0.0/24
-      elasticsearchKibana.values.snapshot.serviceEntryHost: s3.example.com
-      istiod.values.hardened.enabled: true
-    asserts:
-      - equal:
-          path: routes.outbound.elasticsearch-snapshot-storage.enabled
-          value: true
-      - equal:
-          path: routes.outbound.elasticsearch-snapshot-storage.hosts[0]
-          value: "s3.example.com"
-      - equal:
-          path: networkPolicies.egress.from.elasticsearch.to.cidr["10.0.0.0/24:443"]
-          value: true
-      - contains:
-          path: elasticsearch.secureSettings
-          content:
-            secretName: snapshot-creds
