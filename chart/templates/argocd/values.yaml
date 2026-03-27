@@ -41,8 +41,8 @@ redis-bb:
       pullSecrets: []
     auth:
       enabled: false
-    {{- if eq (include "metricScrapingEnabled" .) "true" }}
     metrics:
+    {{- if eq (include "metricScrapingEnabled" .) "true" }}
       enabled: true
       serviceMonitor:
         enabled: true

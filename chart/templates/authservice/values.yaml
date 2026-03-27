@@ -128,25 +128,6 @@ redis-bb:
     metrics:
       enabled: true
       image:
-        pullSecrets:
-          - private-registry
-      serviceMonitor:
-        enabled: true
-        namespace: authservice
-        selector:
-          app.kubernetes.io/name: redis-bb
-          app.kubernetes.io/instance: authservice-authservice
-        {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.authservice.values) "STRICT") }}
-        scheme: https
-        tlsConfig:
-          caFile: /etc/prom-certs/root-cert.pem
-          certFile: /etc/prom-certs/cert-chain.pem
-          keyFile: /etc/prom-certs/key.pem
-          insecureSkipVerify: true
-        {{- end }}
-      prometheusRule:
-        enabled: true
-      image:
         {{- include "secretsPullSecrets" . | nindent 8 }}
       serviceMonitor:
         enabled: true
