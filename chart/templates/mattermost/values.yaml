@@ -132,6 +132,7 @@ global:
 enterprise:
   enabled: {{ .enabled }}
   license: {{ .license }}
+  secretName: {{ .secretName }}
 {{- end }}
 
 {{- with .Values.addons.mattermost.database }}
