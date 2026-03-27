@@ -1872,7 +1872,7 @@ addons:
       # license: "eyJpZCI6InIxM205bjR3eTdkYjludG95Z3RiOD---REST---IS---HIDDEN
       license: ""
       # -- Pre existing secret created outside of Helm values with license for Mattermost.
-      secretName: mattermost-license
+      secretName: ""
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
