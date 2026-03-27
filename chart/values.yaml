@@ -95,7 +95,7 @@ sso:
     entityDescriptor: "{{ .Values.sso.url }}/protocol/saml/descriptor"
     # -- SAML SSO Service path
     service: "{{ .Values.sso.url }}/protocol/saml"
-    # -- Literal SAML XML metadata retrieved from `{{ .Values.sso.saml.entityDescriptor }}`.  Required for SSO in Twistlock or Sonarqube.
+    # -- Literal SAML XML metadata retrieved from `{{ .Values.sso.saml.entityDescriptor }}`.  Required for SSO in Twistlock or Sonarqube. Optional for Anchore Enterprise.
     metadata: "" # See docs/assets/configs/example/dev-sso-values.yaml for an example
     # NOTE: SAML attribute names may vary by package.  Use the package values to setup attribute names
 
