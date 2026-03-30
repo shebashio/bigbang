@@ -34,10 +34,10 @@ imagePullPolicy: {{ .Values.imagePullPolicy }}
 routes:
   outbound:
     elasticsearch-snapshot-storage:
-      enabled: {{ and $istioHardenedEnabled .Values.elasticsearchKibana.snapshot.enabled (not (empty .Values.elasticsearchKibana.snapshot.serviceEntryHost)) }}
+      enabled: {{ and $istioHardenedEnabled .Values.elasticsearchKibana.objectStorage.enabled (not (empty .Values.elasticsearchKibana.objectStorage.serviceEntryHost)) }}
       hosts:
-        - {{ .Values.elasticsearchKibana.snapshot.serviceEntryHost | quote }}
-      resolution: {{ if hasPrefix "*" .Values.elasticsearchKibana.snapshot.serviceEntryHost }}NONE{{ else }}DNS{{ end }}
+        - {{ .Values.elasticsearchKibana.objectStorage.serviceEntryHost | quote }}
+      resolution: {{ if hasPrefix "*" .Values.elasticsearchKibana.objectStorage.serviceEntryHost }}NONE{{ else }}DNS{{ end }}
       ports:
         - number: 443
           name: https
@@ -72,10 +72,6 @@ networkPolicies:
         to:
           definition:
             sso: {{ .Values.elasticsearchKibana.sso.enabled }}
-          {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.networkCIDR }}
-          cidr:
-            {{ printf "%s:443" .Values.elasticsearchKibana.snapshot.networkCIDR }}: true
-          {{- end }}
   ingress:
     to:
       # Elasticsearch ingress policies
@@ -179,7 +175,7 @@ elasticsearch:
             drop:
               - ALL
       {{- $hasUserSecureSettings := not (empty (dig "elasticsearch" "secureSettings" nil .Values.elasticsearchKibana.values)) }}
-      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.snapshot.enabled $hasUserSecureSettings }}
+      {{- if or .Values.elasticsearchKibana.sso.enabled .Values.elasticsearchKibana.objectStorage.enabled $hasUserSecureSettings }}
       - name: elastic-internal-init-keystore
         securityContext:
           privileged: false
@@ -253,8 +249,8 @@ elasticsearch:
   {{- $userSecureSettings = $rawUserSecureSettings }}
   {{- end }}
   {{- $snapshotSettings := list }}
-  {{- if and .Values.elasticsearchKibana.snapshot.enabled .Values.elasticsearchKibana.snapshot.secretName }}
-  {{- $snapshotSettings = append $snapshotSettings (dict "secretName" .Values.elasticsearchKibana.snapshot.secretName) }}
+  {{- if and .Values.elasticsearchKibana.objectStorage.enabled .Values.elasticsearchKibana.objectStorage.secretName }}
+  {{- $snapshotSettings = append $snapshotSettings (dict "secretName" .Values.elasticsearchKibana.objectStorage.secretName) }}
   {{- end }}
   {{- $combinedSecureSettings := concat $userSecureSettings $snapshotSettings }}
   {{- if $combinedSecureSettings }}

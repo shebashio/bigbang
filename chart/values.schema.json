@@ -475,16 +475,13 @@
             "kibana": true
           }
         },
-        "snapshot": {
+        "objectStorage": {
           "type": "object",
           "properties": {
             "enabled": {
               "type": "boolean"
             },
             "secretName": {
-              "type": "string"
-            },
-            "networkCIDR": {
               "type": "string"
             },
             "serviceEntryHost": {

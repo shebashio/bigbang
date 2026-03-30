@@ -706,6 +706,9 @@ elasticsearchKibana:
     # -- Elasticsearch license in json format seen here: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana#enterprise-license
     keyJSON: ""
     
+  # -- Object storage configuration for Elasticsearch Snapshot Lifecycle Management (SLM).
+  # Enables injection of cloud storage credentials (S3, Azure, GCS) into the Elasticsearch keystore
+  # and optionally generates an Istio ServiceEntry for egress to the storage endpoint.
   objectStorage:
     # -- Toggle Snapshot Lifecycle Management (SLM) support for Elasticsearch.
     # When enabled, injects the specified Kubernetes secret into Elasticsearch's
@@ -721,13 +724,8 @@ elasticsearchKibana:
     # BB automatically merges both lists — the snapshot secret is always appended last.
     secretName: ""
 
-    # -- CIDR block of the cloud storage endpoint targeted by SLM (e.g., "52.216.0.0/15" for S3).
-    # When provided alongside snapshot.enabled, generates a NetworkPolicy egress rule
-    # allowing Elasticsearch pods to reach the snapshot storage endpoint on port 443.
-    networkCIDR: ""
-
     # -- Hostname of the cloud storage endpoint targeted by SLM (e.g., "s3.amazonaws.com").
-    # When provided alongside snapshot.enabled, generates an Istio ServiceEntry allowing
+    # When provided alongside objectStorage.enabled, generates an Istio ServiceEntry allowing
     # Elasticsearch pods to egress to the snapshot storage endpoint on port 443.
     serviceEntryHost: ""
 
