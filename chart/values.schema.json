@@ -327,6 +327,23 @@
       ],
       "additionalProperties": false
     },
+    "ztunnel": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
     "kiali": {
       "required": [
         "sso",
@@ -755,6 +772,15 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "prometheusMetrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -1060,6 +1086,11 @@
             "type": "boolean"
           }
         },
+        "alloyClusterEvents": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -1144,18 +1175,6 @@
           }
         },
         "gitlabRunner": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/basePackage"
-            }
-          ],
-          "properties": {
-            "istio": {
-              "$ref": "#/$defs/istio"
-            }
-          }
-        },
-        "nexusRepositoryManager": {
           "allOf": [
             {
               "$ref": "#/$defs/basePackage"
@@ -1397,6 +1416,14 @@
             "default": false
           },
           "passBigBangValues": {
+            "type": "boolean",
+            "default": true
+          },
+          "bbCommonValues": {
+            "type": "boolean",
+            "default": false
+          },
+          "includeDefaultDependsOn": {
             "type": "boolean",
             "default": true
           }
