@@ -24,7 +24,7 @@ For additional context on Grafana Labs' decision to migrate to Alloy we recommen
 
 - [Grafana Labs Blog](https://grafana.com/blog/2025/02/13/grafana-loki-3.4-standardized-storage-config-sizing-guidance-and-promtail-merging-into-alloy/?camp=blog&cnt=Grafana+Loki+3.4+is+here%21&mdm=social&src=li)
 - [Alloy Documentation](https://grafana.com/docs/loki/latest/send-data/alloy/)
-  - This was <https://grafana.com/docs/loki/latest/send-data/promtail/>, but that page is gone
+  - This was [Promtail Documentation](https://grafana.com/docs/loki/latest/send-data/promtail/), but that page is now gone
 
 ### Migration Timeline
 
