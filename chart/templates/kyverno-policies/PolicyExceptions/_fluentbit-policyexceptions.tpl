@@ -136,7 +136,7 @@ fluentbit-restrict-host-path-mount-exception:
     exceptions:
     - policyName: restrict-host-path-mount
       ruleNames:
-      - restrict-host-path-mount
+      - restrict-hostpath-dirs
     match:
       any:
       - resources:

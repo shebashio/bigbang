@@ -241,7 +241,7 @@ twistlock-restrict-host-path-mount-exception:
     exceptions:
     - policyName: restrict-host-path-mount
       ruleNames:
-      - restrict-host-path-mount
+      - restrict-hostpath-dirs
     match:
       any:
       - resources:
@@ -266,7 +266,7 @@ twistlock-restrict-host-path-write-exception:
     exceptions:
     - policyName: restrict-host-path-write
       ruleNames:
-      - restrict-host-path-write
+      - require-readonly-hostpath
     match:
       any:
       - resources:
