@@ -35,7 +35,7 @@ gitlabrunner-require-drop-all-capabilities-exception:
     exceptions:
     - policyName: require-drop-all-capabilities
       ruleNames:
-      - require-drop-all-capabilities
+      - drop-all-capabilities
     match:
       any:
       - resources:
@@ -57,7 +57,7 @@ gitlabrunner-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - require-non-root-group
+      - non-root-group
     match:
       any:
       - resources:
@@ -79,7 +79,7 @@ gitlabrunner-require-non-root-user-exception:
     exceptions:
     - policyName: require-non-root-user
       ruleNames:
-      - require-non-root-user
+      - non-root-user
     match:
       any:
       - resources:

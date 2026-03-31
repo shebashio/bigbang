@@ -63,7 +63,7 @@ neuvector-disallow-host-namespaces-exception:
     exceptions:
     - policyName: disallow-host-namespaces
       ruleNames:
-      - disallow-host-namespaces
+      - host-namespaces
     match:
       any:
       - resources:
@@ -85,7 +85,7 @@ neuvector-disallow-privileged-containers-exception:
     exceptions:
     - policyName: disallow-privileged-containers
       ruleNames:
-      - disallow-privileged-containers
+      - priviledged-containers
     match:
       any:
       - resources:
@@ -109,7 +109,7 @@ neuvector-require-drop-all-capabilities-exception:
     exceptions:
     - policyName: require-drop-all-capabilities
       ruleNames:
-      - require-drop-all-capabilities
+      - drop-all-capabilities
     match:
       any:
       - resources:
@@ -135,7 +135,7 @@ neuvector-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - require-non-root-group
+      - run-as-group
     match:
       any:
       - resources:
@@ -159,7 +159,7 @@ neuvector-require-non-root-user-exception:
     exceptions:
     - policyName: require-non-root-user
       ruleNames:
-      - require-non-root-user
+      - non-root-user
     match:
       any:
       - resources:

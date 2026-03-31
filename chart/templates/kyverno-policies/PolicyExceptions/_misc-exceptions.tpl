@@ -34,7 +34,7 @@ kube-system-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - require-non-root-group
+      - non-root-group
     match:
       any:
       - resources:
@@ -54,7 +54,7 @@ kube-system-require-non-root-user-exception:
     exceptions:
     - policyName: require-non-root-user
       ruleNames:
-      - require-non-root-user
+      - non-root-user
     match:
       any:
       - resources:
