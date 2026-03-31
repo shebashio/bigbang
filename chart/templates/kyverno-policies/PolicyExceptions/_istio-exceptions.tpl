@@ -5,6 +5,9 @@ istio-disallow-istio-injection-bypass-exception:
     labels:
       app: istio
     annotations:
+      policies.kyverno.io/title: disallow-istio-injection-bypass-exception
+      policies.kyverno.io/category: Istio
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Istio does not inject itself"
   spec:
     exceptions:
@@ -22,6 +25,11 @@ istio-require-non-root-user-exception:
     namespace: kyverno
     labels:
       app: istio
+    annotations:
+      policies.kyverno.io/title: require-non-root-user-exception
+      policies.kyverno.io/category: Istio
+      policies.kyverno.io/subject: Pod
+      policies.kyverno.io/description: "Istio requires elevated privileges for network management and host path access to function as a node-level proxy."
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -39,6 +47,11 @@ istiod-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: istio
+    annotations:
+      policies.kyverno.io/title: require-non-root-group-exception
+      policies.kyverno.io/category: Istio
+      policies.kyverno.io/subject: Pod
+      policies.kyverno.io/description: "Istiod requires elevated privileges for network management"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -57,7 +70,10 @@ istio-gateway-disallow-image-tags-exception:
     labels:
       app: istio
     annotations:
-      policies.kyverno.io/description: "istio/gateway sets the deployment image to `auto` by default
+        policies.kyverno.io/title: disallow-image-tags-exception
+        policies.kyverno.io/category: Istio
+        policies.kyverno.io/subject: Pod
+        policies.kyverno.io/description: "istio/gateway sets the deployment image to `auto` by default
       # and does not expose any way for the chart consumer to modify
       # it. The idea is `istiod` will inject the correct image at
       # pod creation based on `istiod`'s proxy config."
@@ -80,6 +96,9 @@ istio-gateway-restrict-image-registries-exception:
     labels:
       app: istio
     annotations:
+      policies.kyverno.io/title: restrict-image-registries-exception
+      policies.kyverno.io/category: Istio
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "istio/gateway sets the deployment image to `auto` by default
       # and does not expose any way for the chart consumer to modify
       # it. The idea is `istiod` will inject the correct image at

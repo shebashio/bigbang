@@ -25,6 +25,9 @@ velero-require-drop-all-capabilities-exception:
     labels:
       app: velero
     annotations:
+      policies.kyverno.io/title: Velero require-drop-all-capabilities exception
+      policies.kyverno.io/category: Velero
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "# Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods."
   spec:

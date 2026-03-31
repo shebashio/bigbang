@@ -5,6 +5,9 @@ thanos-disallow-auto-mount-service-account-token-exception:
     labels:
       app: thanos
     annotations:
+      policies.kyverno.io/title: Thanos disallow-auto-mount-service-account-token exception
+      policies.kyverno.io/category: Thanos
+      policies.kyverno.io/subject: Pod, Deployment, StatefulSet
       policies.kyverno.io/description: "Thanos requires automounting of service account"
   spec:
     exceptions:

@@ -5,6 +5,9 @@ gitlabrunner-add-default-securitycontext-exception:
     labels:
       app: gitlabrunner
     annotations:
+      policies.kyverno.io/title: GitLab Runner add-default-securitycontext exception
+      policies.kyverno.io/category: GitLab Runner
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
@@ -24,6 +27,9 @@ gitlabrunner-require-drop-all-capabilities-exception:
     labels:
       app: gitlabrunner
     annotations:
+      policies.kyverno.io/title: GitLab Runner require-drop-all-capabilities exception
+      policies.kyverno.io/category: GitLab Runner
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
@@ -43,6 +49,9 @@ gitlabrunner-require-non-root-group-exception:
     labels:
       app: gitlabrunner
     annotations:
+      policies.kyverno.io/title: GitLab Runner require-non-root-group exception
+      policies.kyverno.io/category: GitLab Runner
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
@@ -62,6 +71,9 @@ gitlabrunner-require-non-root-user-exception:
     labels:
       app: gitlabrunner
     annotations:
+      policies.kyverno.io/title: GitLab Runner require-non-root-user exception
+      policies.kyverno.io/category: GitLab Runner
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:

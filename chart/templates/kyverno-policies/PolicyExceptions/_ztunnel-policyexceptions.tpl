@@ -1,5 +1,5 @@
 {{- define "bigbang.policyexceptions.ztunnel" }}
-ztunnel-disallow-privilege-escalation-exception:
+ztunnel-exceptions:
   metadata:
     namespace: kyverno
     labels:

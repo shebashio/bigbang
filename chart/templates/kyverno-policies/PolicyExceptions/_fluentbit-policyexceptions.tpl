@@ -5,6 +5,9 @@ fluentbit-add-default-securitycontext-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-add-default-securitycontext-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "# Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log."
@@ -26,6 +29,9 @@ fluentbit-disallow-privileged-containers-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-disallow-privileged-containers-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "# NEEDS FURTHER JUSTIFICATION
       Fluentbit needs privileged to read and store the buffer for tailing logs from the nodes"
   spec:
@@ -46,6 +52,9 @@ fluentbit-disallow-tolerations-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-disallow-tolerations-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Fluent bit needs to be able to run on all nodes to gather logs from the host for containers"
   spec:
     exceptions:
@@ -65,6 +74,9 @@ fluentbit-require-non-root-group-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-require-non-root-group-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log."
@@ -86,6 +98,9 @@ fluentbit-require-non-root-user-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-require-non-root-user-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Fluentbit requires access to journalctl as well as /var/log.  This would require modifications
       # to the host operating system, creating a user, adding that user to the systemd-journal user group
       # and then granting permissions recursively on /var/log."
@@ -107,6 +122,9 @@ fluentbit-restrict-host-path-mount-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-restrict-host-path-mount-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "# Fluent Bit mounts the following hostPaths:
           # - `/var/log`: to tail node logs (e.g. journal) and pod logs
           # - `/var/lib/docker/containers`: to tail container logs
@@ -132,6 +150,9 @@ fluentbit-restrict-selinux-type-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-restrict-selinux-type-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "# Fluent Bit mounts the following hostPaths:
           # - `/var/log`: to tail node logs (e.g. journal) and pod logs
           # - `/var/lib/docker/containers`: to tail container logs
@@ -157,6 +178,9 @@ fluentbit-restrict-volume-types-exception:
     labels:
       app: fluentbit
     annotations:
+      policies.kyverno.io/title: Fluentbit-restrict-volume-types-exception
+      policies.kyverno.io/category: Fluentbit
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "# Fluent bit containers requires HostPath volumes, to tail node and container logs.  It is also used for buffering
           # https://docs.fluentbit.io/manual/pipeline/filters/kubernetes#workflow-of-tail-+-kubernetes-filter"
   spec:

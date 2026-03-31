@@ -5,6 +5,9 @@ monitoring-disallow-auto-mount-service-account-token-exception:
     labels:
       app: monitoring
     annotations:
+      policies.kyverno.io/title: Monitoring disallow-auto-mount-service-account-token exception
+      policies.kyverno.io/category: Monitoring
+      policies.kyverno.io/subject: Pod, Deployment, StatefulSet
       policies.kyverno.io/description: "Thanos requires automounting of service account"
   spec:
     exceptions:
@@ -31,6 +34,9 @@ monitoring-disallow-tolerations-exception:
     labels:
       app: monitoring
     annotations:
+      policies.kyverno.io/title: Monitoring disallow-tolerations exception
+      policies.kyverno.io/category: Monitoring
+      policies.kyverno.io/subject: Pod, Deployment, StatefulSet
       policies.kyverno.io/description: "Prometheus Node Exporter needs to be able to run on all nodes, regardless of taint, to gather node metrics"
   spec:
     exceptions:
@@ -50,7 +56,10 @@ monitoring-restrict-host-path-mount-exception:
     labels:
       app: monitoring
     annotations:
-      description: "      # Prometheus Node Exporter mounts the following hostPaths:
+      policies.kyverno.io/title: Monitoring restrict-host-path-mount exception
+      policies.kyverno.io/category: Monitoring
+      policies.kyverno.io/subject: Pod, Deployment, StatefulSet
+      policies.kyverno.io/description: "      # Prometheus Node Exporter mounts the following hostPaths:
       # - `/`: monitor disk usage on filesystem mounts using e2fs call
       # - `/proc` and `/sys`: gather node metrics
       # Since mounting the root would expose sensitive information, it is better to
@@ -72,6 +81,15 @@ monitoring-restrict-volume-types-exception:
     namespace: kyverno
     labels:
       app: monitoring
+    annotations:
+      policies.kyverno.io/title: Monitoring restrict-volume-types exception
+      policies.kyverno.io/category: Monitoring
+      policies.kyverno.io/subject: Pod, Deployment, StatefulSet
+      policies.kyverno.io/description: "      # Prometheus Node Exporter mounts the following hostPaths:
+      # - `/`: monitor disk usage on filesystem mounts using e2fs call
+      # - `/proc` and `/sys`: gather node metrics
+      # Since mounting the root would expose sensitive information, it is better to
+      # exlcude Prometheus Node Exporter than add the paths as allowable mounts"
   spec:
     exceptions:
     - policyName: restrict-volume-types

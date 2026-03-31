@@ -5,6 +5,9 @@ neuvector-add-default-capability-drop-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector add-default-capability-drop exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -28,6 +31,9 @@ neuvector-add-default-securitycontext-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector add-default-securitycontext exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -49,6 +55,9 @@ neuvector-disallow-host-namespaces-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector disallow-host-namespaces exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -68,6 +77,9 @@ neuvector-disallow-privileged-containers-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector disallow-privileged-containers exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime"
   spec:
     exceptions:
@@ -89,6 +101,9 @@ neuvector-require-drop-all-capabilities-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector require-drop-all-capabilities exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -112,6 +127,9 @@ neuvector-require-non-root-group-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector require-non-root-group exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -133,6 +151,9 @@ neuvector-require-non-root-user-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector require-non-root-user exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
@@ -152,6 +173,9 @@ neuvector-restrict-host-path-mount-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector restrict-host-path-mount exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
@@ -177,6 +201,9 @@ neuvector-restrict-host-path-write-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector restrict-host-path-write exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
@@ -201,6 +228,9 @@ neuvector-restrict-volume-types-exception:
     labels:
       app: neuvector
     annotations:
+      policies.kyverno.io/title: Neuvector restrict-volume-types exception
+      policies.kyverno.io/category: Neuvector
+      policies.kyverno.io/subject: Pod, Job
       policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon

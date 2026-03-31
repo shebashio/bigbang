@@ -5,6 +5,9 @@ mimir-add-default-capability-drop-exception:
     labels:
       app: mimir
   annotations:
+      policies.kyverno.io/title: Mimir add-default-capability-drop exception
+      policies.kyverno.io/category: Mimir
+      policies.kyverno.io/subject: Pod
     policies.kyverno.io/description: "For mimir smoke test jobs that require root"
   spec:
     exceptions:
@@ -24,6 +27,9 @@ mimir-require-drop-all-capabilities-exception:
     labels:
       app: mimir
     annotations:
+      policies.kyverno.io/title: Mimir require-drop-all-capabilities exception
+      policies.kyverno.io/category: Mimir
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For mimir smoke test jobs that require root"
   spec:
     exceptions:

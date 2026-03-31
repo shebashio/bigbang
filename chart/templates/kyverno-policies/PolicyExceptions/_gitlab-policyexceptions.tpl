@@ -6,6 +6,9 @@ gitlab-add-default-capability-drop-exception:
     labels:
       app: gitlab
     annotations:
+      policies.kyverno.io/title: GitLab add-default-capability-drop exception
+      policies.kyverno.io/category: GitLab
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
@@ -25,6 +28,9 @@ gitlab-require-drop-all-capabilities-exception:
     labels:
       app: gitlab
     annotations:
+      policies.kyverno.io/title: GitLab require-drop-all-capabilities exception
+      policies.kyverno.io/category: GitLab
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
@@ -44,6 +50,9 @@ gitlabrunner-add-default-capability-drop-exception:
     labels:
       app: gitlabrunner
     annotations:
+      policies.kyverno.io/title: GitLab Runner add-default-capability-drop exception
+      policies.kyverno.io/category: GitLab Runner
+      policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "For GitLab runner CI jobs that require root access"
   spec:
     exceptions:
