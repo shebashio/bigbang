@@ -50,7 +50,7 @@
       {{- /* If we have a map, treat those as key-value pairs. */ -}}
       {{- if and .Values.registryCredentials.username .Values.registryCredentials.password }}
       {{- with .Values.registryCredentials }}
-      {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
+      {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" (default "registry1.dso.mil" .registry) .username .password (default "" .email) (printf "%s:%s" .username .password | b64enc) | b64enc }}
       {{- end }}
       {{- end }}
     {{- end -}}
@@ -74,6 +74,76 @@
     {{- end }}
   }
 }
+{{- end }}
+
+{{- define "secretsImagePullSecretsSingle" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecretWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecret: 
+  name: private-registry
+{{- else }}
+imagePullSecret:
+  name: ""
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecretsWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: 
+  - name: private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsImagePullSecrets" -}}
+{{- if ( include "imagePullSecret" . ) }}
+imagePullSecrets: 
+  - private-registry
+{{- else }}
+imagePullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecretsWithName" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: 
+  - name: private-registry
+{{- else }}
+pullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecrets" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: 
+  - private-registry
+{{- else }}
+pullSecrets: []
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecret" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecret: private-registry
+{{- else }}
+pullSecret: ""
+{{- end }}
+{{- end }}
+
+{{- define "secretsPullSecretsSingle" -}}
+{{- if ( include "imagePullSecret" . ) }}
+pullSecrets: private-registry
+{{- else }}
+pullSecrets: ""
+{{- end }}
 {{- end }}
 
 {{/*
@@ -174,6 +244,46 @@ Returns cleaned values with hardened key removed.
 {{- end -}}
 
 {{/*
+Shared GitRepository resource template.
+Args (dict):
+  - name: resource name (kebab-case, e.g. "kyverno-policies")
+  - gitCredsName: name for gitCredsExtended (e.g. "kyvernoPolicies")
+  - git: the .git values object (repo, branch, tag, semver, commit, credentials)
+  - component: app.kubernetes.io/component label value (optional)
+  - root: root context ($ or .)
+  - extraIgnore: additional gitignore lines appended after standard gitIgnore (optional)
+*/}}
+{{- define "bigbang.gitRepository" -}}
+{{- $gitCredsDict := dict
+  "name" .gitCredsName
+  "packageGitScope" .git
+  "rootScope" .root
+  "releaseName" .root.Release.Name
+}}
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: {{ .name }}
+  namespace: {{ .root.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .name }}
+    {{- if .component }}
+    app.kubernetes.io/component: {{ .component | quote }}
+    {{- end }}
+    {{- include "commonLabels" .root | nindent 4 }}
+spec:
+  interval: {{ .root.Values.flux.interval }}
+  url: {{ .git.repo }}
+  ref:
+    {{- include "validRef" .git | nindent 4 }}
+  {{ include "gitIgnore" .root }}
+  {{- if .extraIgnore }}
+    {{ .extraIgnore }}
+  {{- end }}
+  {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
+{{- end -}}
+
+{{/*
 Build common set of file extensions to include/exclude
 */}}
 {{- define "gitIgnore" -}}
@@ -236,7 +346,7 @@ stringData:
 
   {{- $defaultImagePullConfig := dict
     "imagePullPolicy" .Values.imagePullPolicy
-    "imagePullSecrets" (list (dict "name" "private-registry"))
+    "imagePullSecrets" (ternary (list (dict "name" "private-registry")) (list) (not (empty (include "imagePullSecret" $))))
   -}}
 
   {{- $enabledGateways := dict -}}
@@ -537,6 +647,71 @@ data:
 {{- end }}
 {{- end }}
 
+{{/*
+Shared HelmRelease chart spec block.
+Generates the spec.chart.spec section handling git vs helmRepo sources with cosign verification.
+Args (dict):
+  - name: GitRepository/sourceRef name (kebab-case, e.g. "kyverno-policies")
+  - package: the package values object (contains sourceType, git, helmRepo)
+  - root: root context ($ or .)
+*/}}
+{{- define "bigbang.helmRelease.chartSpec" -}}
+chart:
+  spec:
+    {{- if eq .package.sourceType "git" }}
+    chart: {{ .package.git.path }}
+    sourceRef:
+      kind: GitRepository
+      name: {{ .name }}
+      namespace: {{ .root.Release.Namespace }}
+    {{- else }}
+    chart: {{ .package.helmRepo.chartName }}
+    version: {{ .package.helmRepo.tag }}
+    sourceRef:
+      kind: HelmRepository
+      name: {{ .package.helmRepo.repoName }}
+      namespace: {{ .root.Release.Namespace }}
+    {{- $repoType := include "getRepoType" (dict "repoName" .package.helmRepo.repoName "allRepos" .root.Values.helmRepositories) -}}
+    {{- if (and .package.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+    verify:
+      provider: cosign
+      secretRef:
+        name: {{ printf "%s-cosign-pub" .package.helmRepo.repoName }}
+    {{- end }}
+    {{- end }}
+    interval: 5m
+{{- end -}}
+
+{{/*
+Returns "true" when at least one metric scraper is active:
+  - Prometheus scraping (monitoring.enabled + prometheusMetrics.enabled)
+  - Alloy metrics scraping (alloy.enabled + alloyMetrics.enabled)
+Used to gate ServiceMonitor/PodMonitor CRD creation across all packages.
+*/}}
+{{- define "metricScrapingEnabled" -}}
+{{- or (and .Values.monitoring.enabled (dig "prometheusMetrics" "enabled" true .Values.monitoring)) (and .Values.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.alloy)) -}}
+{{- end -}}
+
+{{/*
+Shared HelmRelease valuesFrom block.
+Generates the standard 3-secret valuesFrom (common, defaults, overlays).
+Args (dict):
+  - name: secret name suffix (e.g. "loki", "ek", "metrics")
+  - root: root context ($ or .)
+*/}}
+{{- define "bigbang.helmRelease.valuesFrom" -}}
+valuesFrom:
+  - name: {{ .root.Release.Name }}-{{ .name }}-values
+    kind: Secret
+    valuesKey: "common"
+  - name: {{ .root.Release.Name }}-{{ .name }}-values
+    kind: Secret
+    valuesKey: "defaults"
+  - name: {{ .root.Release.Name }}-{{ .name }}-values
+    kind: Secret
+    valuesKey: "overlays"
+{{- end -}}
+
 {{- /* Returns type of Helm Repository */ -}}
 {{- define "getRepoType" -}}
   {{- $repoName := .repoName -}}
@@ -552,9 +727,14 @@ data:
 {{ .Values.istiod.enabled }}
 {{- end -}}
 
-{{- /* Returns the name of the Istio HelmRelease. */ -}}
-{{- define "istioHelmRelease" -}}
-istiod
+{{- /* Returns dependsOn entries for Istio HelmReleases. */ -}}
+{{- define "istioHelmReleases" -}}
+- name: istiod
+  namespace: {{ .Release.Namespace }}
+{{- if .Values.istioCNI.enabled }}
+- name: istio-cni
+  namespace: {{ .Release.Namespace }}
+{{- end }}
 {{- end -}}
 
 {{- /* Returns name of istio Namespace Selector*/ -}}

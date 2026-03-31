@@ -1,9 +1,24 @@
+{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
+{{- $mattermostPackage := deepCopy .Values.addons.mattermost -}}
+{{- if .Values.addons.mattermost.values -}}
+  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.mattermost.values) | fromYaml -}}
+  {{- $mattermostPackage = set $mattermostPackage "values" $cleanedValues -}}
+{{- end -}}
 {{- if .Values.addons.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.mattermost "name" "mattermost" "defaults" (include "bigbang.defaults.mattermost" .)) }}
+{{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermost" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mattermost.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- /* External postgres is enabled when all database connection fields are provided */ -}}
+{{- $externalPostgresEnabled := and
+    (ne .Values.addons.mattermost.database.username "")
+    (ne .Values.addons.mattermost.database.password "")
+    (ne .Values.addons.mattermost.database.host "")
+    (ne (.Values.addons.mattermost.database.port | toString) "")
+    (ne .Values.addons.mattermost.database.database "")
+-}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -18,17 +33,12 @@ image:
 
 istio:
   enabled: {{ $istioEnabled }}
-  chat:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.mattermost.ingress.gateway "root" .)}}
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.mattermost.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
-    kyvernoReporter:
-      enabled: {{ .Values.kyvernoReporter.enabled }}
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: true
 
 {{- if $istioInjection }}
 podAnnotations:
@@ -38,10 +48,10 @@ updateJob:
 {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     # conditional passes only for default istio: enabled, mTLS: STRICT
     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mattermost) "STRICT") }}
     scheme: https
@@ -67,16 +77,56 @@ sso:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
-  ingressLabels:
-    {{- include "getGatewaySelector" (dict "pkg" .Values.addons.mattermost "root" .) | nindent 4 }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+  egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    from:
+      mattermost:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            {{- if .Values.elasticsearchKibana.enabled }}
+            logging/logging-ek-es-http:9200: {{ .Values.addons.mattermost.elasticsearch.enabled }}
+            {{- end }}
+          definition:
+            kubeAPI: true
+            database-subnets: {{ $externalPostgresEnabled }}
+            sso: {{ .Values.addons.mattermost.sso.enabled }}
+      {{- if dig "waitJob" "enabled" true .Values.addons.mattermost.values }}
+      wait-job:
+        to:
+          definition:
+            kubeAPI: true
+      {{- end }}
+  ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+    to:
+      mattermost:8067:
+        from:
+          k8s:
+            monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+
+{{- $ssoHost := "" }}
+{{- if .Values.addons.mattermost.sso.enabled }}
+{{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
+{{- end }}
+routes:
+  inbound:
+    chat:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.addons.mattermost.ingress.gateway "root" .) }}
+  outbound:
+    sso:
+      enabled: {{ .Values.addons.mattermost.sso.enabled }}
+      {{- if $ssoHost }}
+      hosts:
+        - {{ $ssoHost }}
+      {{- end }}
 
 global:
-  imagePullSecrets:
-    - name: private-registry
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 {{- with .Values.addons.mattermost.enterprise }}
 enterprise:
@@ -85,7 +135,7 @@ enterprise:
 {{- end }}
 
 {{- with .Values.addons.mattermost.database }}
-{{- if and .username .password .host .port .database }}
+{{- if $externalPostgresEnabled }}
 database:
   secret: "mattermost-database-secret"
 postgresql:
@@ -93,9 +143,8 @@ postgresql:
 {{- else }}
 postgresql:
   image:
-    pullSecrets:
-      - private-registry
-  {{- if and .username .password .host .port .database }}
+    {{- include "secretsPullSecrets" $ | nindent 4 }}
+  {{- if $externalPostgresEnabled }}
   secret: "mattermost-database-secret"
   {{- else }}
   secret: "mattermost-dbcreds"
@@ -141,16 +190,17 @@ fileStore:
 {{- else }}
 minio:
   install: true
-  accessKey: {{ .accessKey | default "minio" }}
-  secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
-  imagePullSecrets:
-    - name: private-registry
-  tenants:
-    metrics:
-      enabled: {{ $.Values.monitoring.enabled }}
-  {{- if $istioInjection }}
-  annotations:
-    {{ include "istioAnnotation" $ }}
+  upstream:
+    tenant:
+      {{- include "secretsImagePullSecretWithName" $ | nindent 6 }}
+      metrics:
+        enabled: {{ eq (include "metricScrapingEnabled" $) "true" }}
+      configSecret:
+        accessKey: {{ .accessKey | default "minio" }}
+        secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
+    {{- if $istioInjection }}
+    annotations:
+      {{ include "istioAnnotation" $ }}
   {{- end }}
 {{- end }}
 {{- end }}

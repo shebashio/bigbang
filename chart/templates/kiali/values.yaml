@@ -5,7 +5,12 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.kiali.values) | fromYaml -}}
 {{- $kialiPackage = set $kialiPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $kialiPackage "name" "kiali" "defaults" (include "bigbang.defaults.kiali" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" $kialiPackage 
+  "name" "kiali" 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.kiali" . | fromYaml) (include "bigbang.kiali.bb-common-migrations" . | fromYaml)) | toYaml)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
@@ -34,7 +39,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 routes:
   inbound:
@@ -53,6 +58,8 @@ upstream:
   {{- end }}
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
+    {{- include "secretsPullSecrets" . | nindent 4 }}
+
   cr:
     spec:
       {{- if $istioEnabled }}
@@ -60,6 +67,12 @@ upstream:
       {{- end}}
       deployment:
         image_pull_policy: {{ .Values.imagePullPolicy }}
+        {{- if ( include "imagePullSecret" . ) }}
+        image_pull_secrets:
+        - private-registry
+        {{- else }}
+        image_pull_secrets: []
+        {{- end }}
         {{- if include "istioEnabled" . }}
         pod_annotations:
           {{ include "istioAnnotation" . }}
@@ -108,8 +121,11 @@ upstream:
         tracing:
           enabled: true
           {{- if .Values.tempo.enabled }}
+          external_url: https://{{ tpl ($grafanaUrl | default (printf "%s.%s" "grafana" $domainName)) . }}
           internal_url: http://tempo-tempo.tempo.svc.cluster.local:3200
           provider: tempo
+          tempo_config:
+            datasource_uid: tempo
           {{- end}}
         {{- end }}
         istio:
@@ -126,26 +142,23 @@ upstream:
               {{- end -}}
               {{- end -}}
           {{- if .Values.istiod.enabled }}
-          ingress_gateway_namespace: istio-gateway
           egress_gateway_namespace: istio-gateway
           {{- end }}
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6}}
     defaults:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
   egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6}}
     defaults:
       allowIstiod:
         enabled: {{ .Values.istiod.enabled }}
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-      sso:
-        {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
     from:
       kiali:
         to:

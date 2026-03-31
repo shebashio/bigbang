@@ -8,18 +8,19 @@
   "root" $
   "package" $headlampPackage
   "name" "headlamp"
-  "defaults" (merge (include "bigbang.headlamp.bb-common-migrations" . | fromYaml) (include "bigbang.defaults.headlamp" . | fromYaml) | toYaml)
+  "defaults" (mergeOverwrite (include "bigbang.headlamp.bb-common-migrations" . | fromYaml) (include "bigbang.defaults.headlamp" . | fromYaml) | toYaml)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.headlamp" -}}
+{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.istiod.values }}
 istio:
   enabled: {{ .Values.istiod.enabled }}
   authorizationPolicies:
-    enabled: true
-    generateFromNetpol: true
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
   sidecar:
-    enabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}
+    enabled: {{ $istioHardenedEnabled }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -30,17 +31,24 @@ networkPolicies:
         to:
           k8s:
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
+          definition:
+            kubeAPI: true
+            sso: {{ .Values.addons.headlamp.sso.enabled }}
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       headlamp:4466:
         from:
           k8s:
-            monitoring-monitoring-prometheus-blackbox-exporter@monitoring/prometheus-blackbox-exporter: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-prometheus-blackbox-exporter@monitoring/prometheus-blackbox-exporter: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
 {{- $baseURL := dig "upstream" "config" "baseURL" "" .Values.addons.headlamp.values }}
 {{- $port := dig "upstream" "service" "port" 4466 .Values.addons.headlamp.values }}
 {{- $serviceName := "headlamp-headlamp" }}
+{{- $ssoHost := "" }}
+{{- if .Values.addons.headlamp.sso.enabled }}
+{{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
+{{- end }}
 routes:
   inbound:
     headlamp:
@@ -68,12 +76,16 @@ routes:
             port:
               number: {{ $port }}
       {{- end }}
+  outbound:
+    sso:
+      enabled: {{ .Values.addons.headlamp.sso.enabled }}
+      {{- if $ssoHost }}
+      hosts:
+        - {{ $ssoHost }}
+      {{- end }}
 
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
-
-image:
-  imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 {{- if (eq (include "istioEnabled" .) "true") }}
 annotations:
@@ -82,19 +94,22 @@ annotations:
 
 openshift: {{ .Values.openshift }}
 
-{{- if .Values.addons.headlamp.sso.enabled }}
 upstream:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
+
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+
   config:
+    {{- if .Values.addons.headlamp.sso.enabled }}
     oidc:
       clientID: {{ .Values.addons.headlamp.sso.client_id }}
-      clientSecret: {{ .Values.addons.headlamp.sso.client_secret }}
       issuerURL: {{ .Values.sso.url }}
       scopes: "email,profile"
-{{- else }}
-upstream:
-  config:
+      usePKCE: true
+    {{- else }}
     oidc:
       secret:
        create: false
-{{- end }}
+    {{- end }}
 {{- end -}}

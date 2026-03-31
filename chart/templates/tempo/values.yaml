@@ -71,19 +71,28 @@ upstream:
         #           value: SPAN_KIND_SERVER
   {{- end }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
   tempoQuery:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
   serviceAccount:
-    imagePullSecrets:
-      - name: private-registry
+    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 domain: {{ $domainName }}
+
+routes:
+  inbound:
+    tempo-query:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+      hosts:
+        - tempo.{{ .Values.domain }}
+      service: tempo-tempo.tempo.svc.cluster.local
+      port: 3200
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -91,11 +100,13 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       tempo:3200:
         from:
           k8s:
             monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
             kiali-service-account@kiali/kiali: {{ .Values.kiali.enabled }}
       tempo:4317:
@@ -103,17 +114,17 @@ networkPolicies:
           k8s:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
+            alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.alloy.enabled }}
   egress:
-    definitions:
-      storage-subnets:
-        {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       tempo:
         to:
           k8s:
             monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
           definition:
-            storage-subnets: {{ ne $storageMode "local" }}
+            # TODO: Revisit this logic for bb 4.0
+            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.tempo.objectStorage.endpoint )) }}
 
 istio:
   enabled: {{ $istioEnabled }}
@@ -125,7 +136,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

@@ -5,7 +5,12 @@
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.loki.values) | fromYaml -}}
 {{- $lokiPackage = set $lokiPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $lokiPackage "name" "loki" "defaults" (include "bigbang.defaults.loki" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" $lokiPackage 
+  "name" "loki" 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.loki" . | fromYaml) (include "bigbang.loki.bb-common-migrations" . | fromYaml)) | toYaml)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.loki" -}}
@@ -31,7 +36,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 routes:
   inbound:
@@ -43,9 +48,11 @@ routes:
       {{- if ne .Values.loki.strategy "monolith" }}
       service: logging-loki-gateway.logging.svc.cluster.local
       port: {{ dig "gateway" "service" "port" 80 .Values.loki.values }}
+      containerPort: {{ dig "gateway" "containerPort" 8080 .Values.loki.values }}
       {{- else }}
       service: logging-loki.logging.svc.cluster.local
       port: {{ dig "loki" "server" "http_listen_port" 3100 .Values.loki.values }}
+      containerPort: {{ dig "loki" "server" "http_listen_port" 3100 .Values.loki.values }}
       {{- end }}
       selector:
         app.kubernetes.io/name: logging-loki
@@ -54,8 +61,7 @@ routes:
         app.kubernetes.io/component: gateway
         {{- end }}
 
-imagePullSecrets:
-  - name: private-registry
+{{- include "secretsImagePullSecretsWithName" . }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
@@ -66,14 +72,17 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       logging-loki:3100:
         from:
           k8s:
             alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
             alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
+            alloy-alloy-singleton@alloy/alloy-singleton: {{ and .Values.alloy.enabled (dig "alloyClusterEvents" "enabled" false .Values.alloy) }}
             fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.fluentbit.enabled }}
             monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (eq .Values.loki.strategy "monolith") }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       loki:8080:
         podSelector:
@@ -88,22 +97,7 @@ networkPolicies:
           k8s:
             minio-operator@minio-operator/minio-operator: {{ $minioEnabled }}
   egress:
-    definitions:
-      storage-subnets:
-        {{ toYaml ( index .Values.networkPolicies.egress.definitions "storage-subnets") | nindent 8 }}
-      kubeAPI:
-        to:
-        {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: "0.0.0.0/0"
-              except:
-              - 169.254.169.254/32
-        {{- else }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-        {{- end }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       logging-loki:
         to:
@@ -120,9 +114,9 @@ networkPolicies:
             kubeAPI: {{ $minioEnabled }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     # conditional passes only for default istio: enabled, mTLS: SCRICT
     {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.loki.values) "STRICT") }}
     scheme: https

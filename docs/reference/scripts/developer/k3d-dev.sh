@@ -19,7 +19,49 @@ RESET_K3D=false
 USE_WEAVE=false
 TERMINATE_INSTANCE=true
 QUIET=false
+K3D_TIMEOUT=300
 TMPDIR=$(mktemp -d)
+BASE_DOMAIN="dev.bigbang.mil"
+PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
+  "alertmanager"
+  "anchore-api"
+  "anchore"
+  "argocd"
+  "backstage"
+  "chat"
+  "fortify"
+  "gitlab"
+  "grafana"
+  "harbor"
+  "headlamp"
+  "kiali"
+  "kibana"
+  "loki"
+  "minio-api"
+  "minio"
+  "neuvector"
+  "policyreporter"
+  "prometheus"
+  "registry"
+  "sonarqube"
+  "tempo"
+  "thanos"
+  "thanos-minio"
+  "tracing"
+  "twistlock"
+)
+PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by default
+  "keycloak"
+  "vault"
+)
+
+# OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
+ENABLE_OIDC=false
+OIDC_PRESET="${OIDC_PRESET:-}"  # 'dev' or 'dso' - sets issuer/client defaults
+OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-}"
+OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-}"
+OIDC_USERNAME_CLAIM="${OIDC_USERNAME_CLAIM:-preferred_username}"
+OIDC_GROUPS_CLAIM="${OIDC_GROUPS_CLAIM:-groups}"
 
 ### Uninitialized globals
 
@@ -32,12 +74,14 @@ CLOUD_RECREATE_INSTANCE=false
 INIT_SCRIPT=""
 RUN_BATCH_FILE=""
 CURRENT_EPOCH=0
-KUBECONFIG=""
+KUBECONFIG="${KUBECONFIG:-}"
 KUBECTL_CHECKSUM=""
 KUBECTL_VERSION=""
 PrivateIP=""
 PublicIP=""
 SSHKEY=""
+PUBLIC_DOMAINS=()
+PASSTHROUGH_DOMAINS=()
 
 ### AWS Cloud provider globals
 AMI_ID=${AMI_ID:-""}
@@ -158,6 +202,9 @@ function process_arguments {
       echo "========= These options apply regardless of cloud provider ================"
       echo
       echo " -K|--recreate-k3d                recreate the k3d cluster on host"
+      echo " --k3d-timeout SECONDS            timeout for k3d cluster create"
+      echo "                                  (default: 300). Works around k3d"
+      echo "                                  agent readiness hang (k3d#1420)"
       echo " -m|--use-metallb                 create k3d cluster with metalLB"
       echo "                                  load balancer (default)"
       echo " -M|--disable-metallb             Don't use a metalLB load balancer"
@@ -167,6 +214,18 @@ function process_arguments {
       echo "                                  (for managing multiple instances)"
       echo " -w|--use-weave-cni               install the weave CNI instead of the"
       echo "                                  default flannel CNI"
+      echo " -O|--enable-oidc                 configure kube-apiserver with OIDC"
+      echo "                                  for group-based RBAC with Keycloak"
+      echo "                                  (uses dev.bigbang.mil defaults)"
+      echo " --oidc-preset PRESET             use predefined OIDC configuration:"
+      echo "                                  'dev' = in-cluster keycloak (default)"
+      echo "                                  'dso' = login.dso.mil"
+      echo " --oidc-issuer-url URL            override OIDC issuer URL (requires -O)"
+      echo " --oidc-client-id ID              override OIDC client ID (requires -O)"
+      echo " --oidc-username-claim CLAIM      override OIDC username claim (default:"
+      echo "                                  preferred_username)"
+      echo " --oidc-groups-claim CLAIM        override OIDC groups claim (default:"
+      echo "                                  groups)"
       echo " -i|--init-script SCRIPTFILE      initialization script to pass to"
       echo "                                  instance before configuring it"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
@@ -178,6 +237,9 @@ function process_arguments {
       echo " -q|--quiet                       suppress the final completion message"
       echo " -I|--print-instructions          Print the instructional message for the"
       echo "                                  instance described or discovered and exit"
+      echo " -D|--domain DOMAIN               Base domain to use for cluster; defaults to"
+      echo "                                  dev.bigbang.mil"
+      echo " -C|--kubeconfig FILENAME         Use the provided kubeconfig path"
       echo
       echo "========= These options override -c and use your own infrastructure ======="
       echo
@@ -193,8 +255,16 @@ function process_arguments {
       echo " -h|--help                        output this help"
       exit 0
       ;;
+    -C|--kubeconfig)
+      shift
+      KUBECONFIG=$1
+      ;;
     -I|--print-instructions)
       action=print_instructions
+      ;;
+    -D|--domain)
+      shift
+      BASE_DOMAIN=$1
       ;;
     -K|--recreate-k3d)
       RESET_K3D=true
@@ -214,6 +284,40 @@ function process_arguments {
       USE_WEAVE=true
       ;;
 
+    -O|--enable-oidc)
+      ENABLE_OIDC=true
+      ;;
+
+    --oidc-issuer-url)
+      shift
+      OIDC_ISSUER_URL=$1
+      ;;
+
+    --oidc-client-id)
+      shift
+      OIDC_CLIENT_ID=$1
+      ;;
+
+    --oidc-username-claim)
+      shift
+      OIDC_USERNAME_CLAIM=$1
+      ;;
+
+    --oidc-groups-claim)
+      shift
+      OIDC_GROUPS_CLAIM=$1
+      ;;
+
+    --oidc-preset)
+      shift
+      OIDC_PRESET=$1
+      ;;
+
+    --k3d-timeout)
+      shift
+      K3D_TIMEOUT=$1
+      ;;
+
     *) echo "Option $1 not recognized" ;; # In case a non-existent option is submitted
 
     esac
@@ -230,6 +334,36 @@ function process_arguments {
     PrivateIP=$PublicIP
   fi
 
+  # Apply OIDC preset configuration, then defaults for any unset values
+  # Explicit CLI flags (--oidc-issuer-url, --oidc-client-id) take precedence
+  case "${OIDC_PRESET}" in
+    dso)
+      # login.dso.mil configuration
+      OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://login.dso.mil/auth/realms/baby-yoda}"
+      OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-headlamp}"
+      ;;
+    dev|"")
+      # In-cluster keycloak at dev.bigbang.mil (default)
+      OIDC_ISSUER_URL="${OIDC_ISSUER_URL:-https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda}"
+      OIDC_CLIENT_ID="${OIDC_CLIENT_ID:-dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_headlamp}"
+      ;;
+    *)
+      echo "Unknown OIDC preset '${OIDC_PRESET}'. Valid options: dev, dso" >&2
+      exit 1
+      ;;
+  esac
+
+}
+
+function set_domains {
+  PUBLIC_DOMAINS=()
+  PASSTHROUGH_DOMAINS=()
+  for subdomain in "${PUBLIC_SUBDOMAINS[@]}"; do
+    PUBLIC_DOMAINS+=("${subdomain}.${BASE_DOMAIN}")
+  done
+  for subdomain in "${PASSTHROUGH_SUBDOMAINS[@]}"; do
+    PASSTHROUGH_DOMAINS+=("${subdomain}.${BASE_DOMAIN}")
+  done
 }
 
 function check_missing_tools {
@@ -278,7 +412,10 @@ function cloud_aws_configure {
 
   SGname="${AWSUSERNAME}-dev-${PROJECTTAG}"
   KeyName="${AWSUSERNAME}-dev-${PROJECTTAG}"
-  SSHKEY=~/.ssh/${KeyName}.pem
+  # Respect an explicitly provided --ssh-keyfile; otherwise use the default path.
+  if [[ -z "${SSHKEY}" ]]; then
+    SSHKEY=~/.ssh/${KeyName}.pem
+  fi
 
   # check for aws username environment variable. If not found then terminate script
   if [[ -z "${AWSUSERNAME}" ]]; then
@@ -342,11 +479,13 @@ function cloud_aws_report_instances {
 }
 
 function set_kubeconfig {
-  if [[ "${PROVISION_CLOUD_INSTANCE}" == "false" ]]; then
-    KUBECONFIG=${PublicIP}-dev-${PROJECTTAG}-config
-  elif [[ "${AWSUSERNAME}" != "" ]]; then
-    KUBECONFIG=${AWSUSERNAME}-dev-${PROJECTTAG}-config
-  fi
+    if [[ "${KUBECONFIG}" == "" ]]; then
+	if [[ "${PROVISION_CLOUD_INSTANCE}" == "false" ]]; then
+	    KUBECONFIG=~/.kube/${PublicIP}-dev-${PROJECTTAG}-config
+	elif [[ "${AWSUSERNAME}" != "" ]]; then
+	    KUBECONFIG=~/.kube/${AWSUSERNAME}-dev-${PROJECTTAG}-config
+	fi
+    fi
 }
 
 function run_batch_new() {
@@ -374,7 +513,7 @@ function run_batch_execute() {
   fi
   batch_basename=$(basename ${RUN_BATCH_FILE})
   cat ${RUN_BATCH_FILE} | run "sudo cat > /tmp/${batch_basename}"
-  $(k3dsshcmd) -t "bash /tmp/${batch_basename}"
+  $(k3dsshcmd) "bash /tmp/${batch_basename}"
   if [[ $? -ne 0 ]]; then
     echo "Batch file /tmp/${batch_basename} failed on target system." >&2
     echo "You can debug it by logging into the system:" >&2
@@ -401,7 +540,7 @@ function runwithexitcode() {
 }
 
 function runwithreturn() {
-  $(k3sshcmd) "$@"
+  $(k3dsshcmd) "$@"
 }
 
 function getPrivateIP2() {
@@ -547,7 +686,7 @@ function install_k3d {
   echo "Installing k3d on instance"
   # Shared k3d settings across all options
   # 1 server, 3 agents
-  k3d_command="export K3D_FIX_MOUNTS=1; k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
+  k3d_command="k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
   # Volumes to support Twistlock defenders
   k3d_command+=" -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:*"
   # Disable traefik and metrics-server
@@ -568,6 +707,19 @@ function install_k3d {
   # Add MetalLB specific k3d config
   if [[ "$METAL_LB" == true || "$ATTACH_SECONDARY_IP" == true ]]; then
     k3d_command+=" --k3s-arg \"--disable=servicelb@server:0\""
+  fi
+
+  # Add OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
+  if [[ "$ENABLE_OIDC" == true ]]; then
+    echo "Configuring kube-apiserver OIDC for group-based RBAC..."
+    echo "  Issuer URL: ${OIDC_ISSUER_URL}"
+    echo "  Client ID: ${OIDC_CLIENT_ID}"
+    echo "  Username claim: ${OIDC_USERNAME_CLAIM}"
+    echo "  Groups claim: ${OIDC_GROUPS_CLAIM}"
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-issuer-url=${OIDC_ISSUER_URL}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-client-id=${OIDC_CLIENT_ID}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-username-claim=${OIDC_USERNAME_CLAIM}@server:0\""
+    k3d_command+=" --k3s-arg \"--kube-apiserver-arg=oidc-groups-claim=${OIDC_GROUPS_CLAIM}@server:0\""
   fi
 
   # Add Public/Private IP specific k3d config
@@ -612,7 +764,12 @@ function install_k3d {
   run_batch_add "k3d version"
   run_batch_add "sudo mkdir -p /cypress && sudo chown 1000:1000 /cypress"
   run_batch_add "docker network create k3d-network --driver=bridge --subnet=172.20.0.0/16 --gateway 172.20.0.1"
-  run_batch_add "${k3d_command}"
+  run_batch_add "export K3D_FIX_MOUNTS=1"
+  # Wrap in timeout to work around k3d entrypoint hang (k3d-io/k3d#1420).
+  # Exit code 124 = timeout killed it; the cluster is healthy, k3d just hung
+  # on agent readiness. Any other non-zero exit is a real failure.
+  run_batch_add "set +e; timeout ${K3D_TIMEOUT} ${k3d_command}; rc=\$?; set -e; if [ \$rc -eq 124 ]; then echo 'WARNING: k3d cluster create timed out after ${K3D_TIMEOUT}s (likely k3d-io/k3d#1420 agent readiness hang). Cluster is probably healthy — verifying...'; elif [ \$rc -ne 0 ]; then echo 'ERROR: k3d cluster create failed with exit code '\$rc; exit \$rc; fi"
+  run_batch_add "k3d cluster list | grep -q '1/1'"
   run_batch_execute
 }
 
@@ -639,11 +796,11 @@ function install_kubectl {
 
   echo "copying kubeconfig to workstation..."
   mkdir -p ~/.kube
-  scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}:/home/${SSHUSER}/.kube/config ~/.kube/${KUBECONFIG}
+  scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}:/home/${SSHUSER}/.kube/config ${KUBECONFIG}
   if [[ "$PRIVATE_IP" == true ]]; then
-    $sed_gsed -i "s/0\.0\.0\.0/${PrivateIP}/g" ~/.kube/${KUBECONFIG}
+    $sed_gsed -i "s/0\.0\.0\.0/${PrivateIP}/g" ${KUBECONFIG}
   else # default is to use public ip
-    $sed_gsed -i "s/0\.0\.0\.0/${PublicIP}/g" ~/.kube/${KUBECONFIG}
+    $sed_gsed -i "s/0\.0\.0\.0/${PublicIP}/g" ${KUBECONFIG}
   fi
 }
 
@@ -674,7 +831,9 @@ function install_metallb {
     run_batch_add 'echo "Waiting for MetalLB controller..."'
     run_batch_add "kubectl wait --for=condition=available --timeout 300s -n metallb-system deployment controller"
     run_batch_add 'echo "MetalLB is installed"'
-
+    run_batch_add 'echo "Waiting for MetalLB CRDs to be established..."'
+    run_batch_add "kubectl wait --for=condition=established --timeout 60s crd/ipaddresspools.metallb.io"
+    run_batch_add "kubectl wait --for=condition=established --timeout 60s crd/l2advertisements.metallb.io"
 
     if [[ "$METAL_LB" == true ]]; then
       echo "Building MetalLB configuration for -m mode."
@@ -830,12 +989,26 @@ EOF
 
       scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TMPDIR}/primaryProxy.yaml ${SSHUSER}@${PublicIP}:/home/${SSHUSER}/
       scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TMPDIR}/secondaryProxy.yaml ${SSHUSER}@${PublicIP}:/home/${SSHUSER}/
-      run_batch_add "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/${SSHUSER}/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
-      run_batch_add "docker run -d --name=secondaryProxy --network=k3d-network -p $(getPrivateIP2):443:443 -v /home/${SSHUSER}/secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
     fi
 
+    # Apply MetalLB config in the main batch (after CRD waits above)
     scp -i ${SSHKEY} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TMPDIR}/metallb-config.yaml ${SSHUSER}@${PublicIP}:/home/${SSHUSER}/
-    run_batch_add "kubectl create -f /home/${SSHUSER}/metallb-config.yaml"
+    run_batch_add "kubectl apply -f /home/${SSHUSER}/metallb-config.yaml"
+    run_batch_execute
+
+    # Proxy containers in a separate batch so a MetalLB config failure doesn't skip them
+    if [[ "$ATTACH_SECONDARY_IP" == true ]]; then
+      echo "Starting proxy containers..."
+      run_batch_new
+      run_batch_add "docker run -d --name=primaryProxy --network=k3d-network -p $PrivateIP:443:443  -v /home/${SSHUSER}/primaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      run_batch_add "docker run -d --name=secondaryProxy --network=k3d-network -p $(getPrivateIP2):443:443 -v /home/${SSHUSER}/secondaryProxy.yaml:/etc/confd/values.yaml ghcr.io/k3d-io/k3d-proxy:$K3D_VERSION"
+      run_batch_execute
+    fi
+
+    # Post-setup health check
+    echo "Verifying MetalLB setup..."
+    run_batch_new
+    run_batch_add "kubectl get ipaddresspool -n metallb-system -o name | grep -q . || { echo 'ERROR: No IPAddressPool resources found'; exit 1; }"
     run_batch_execute
   fi
 }
@@ -857,7 +1030,7 @@ function print_instructions {
   echo "  ssh -i ${SSHKEY} -o IdentitiesOnly=yes ${SSHUSER}@${PublicIP}"
   echo
   echo "To use kubectl from your local workstation you must set the KUBECONFIG environment variable:"
-  echo "  export KUBECONFIG=~/.kube/${KUBECONFIG}"
+  echo "  export KUBECONFIG=${KUBECONFIG}"
   if [[ "$PRIVATE_IP" == true ]]; then
     echo "The cluster connection will not work until you start sshuttle as described below."
   fi
@@ -892,8 +1065,8 @@ function print_instructions {
       echo "Edit your workstation /etc/hosts to add the LOADBALANCER EXTERNAL-IPs from the istio-system services with application hostnames."
       echo "Here is an example. You might have to change this depending on the number of gateways you configure for k8s cluster."
       echo "  # METALLB ISTIO INGRESS IPs"
-      echo "  172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil"
-      echo "  172.20.1.241 sonarqube.dev.bigbang.mil prometheus.dev.bigbang.mil nexus.dev.bigbang.mil gitlab.dev.bigbang.mil"
+      echo "  172.20.1.240 ${PASSTHROUGH_DOMAINS[*]}"
+      echo "  172.20.1.241 ${PUBLIC_DOMAINS[*]}"
     fi
   elif [[ "$PRIVATE_IP" == true ]]; then # not using MetalLB
     # Not using MetalLB and using private IP
@@ -901,18 +1074,46 @@ function print_instructions {
     echo "  sshuttle --dns -vr ${SSHUSER}@${PublicIP} 172.31.0.0/16 --ssh-cmd 'ssh -i ${SSHKEY}'"
     echo
     echo "To access apps from a browser edit your /etc/hosts to add the private IP of your EC2 instance with application hostnames. Example:"
-    echo "  ${PrivateIP}  gitlab.dev.bigbang.mil prometheus.dev.bigbang.mil kibana.dev.bigbang.mil"
+    echo "  ${PrivateIP} ${PUBLIC_DOMAINS[*]}"
     echo
   else # Not using MetalLB and using public IP. This is the default
     echo "To access apps from a browser edit your /etc/hosts to add the public IP of your EC2 instance with application hostnames."
-    echo "Example:"
-    echo "  ${PublicIP} gitlab.dev.bigbang.mil prometheus.dev.bigbang.mil kibana.dev.bigbang.mil"
-    echo
-
     if [[ $SecondaryIP ]]; then
-      echo "A secondary IP is available for use if you wish to have a passthrough ingress for Istio along with a public Ingress Gateway, this maybe useful for Keycloak x509 mTLS authentication."
-      echo "  $SecondaryIP  keycloak.dev.bigbang.mil"
+      echo
+      echo "This cluster uses two public IPs routed to different Istio gateways."
+      echo "Add BOTH lines to your /etc/hosts:"
+      echo
+      echo "  # Public gateway (${PublicIP})"
+      echo "  ${PublicIP} ${PUBLIC_DOMAINS[*]}"
+      echo
+      echo "  # Passthrough gateway (${SecondaryIP})"
+      echo "  ${SecondaryIP} ${PASSTHROUGH_DOMAINS[*]}"
+    else
+      echo "Example:"
+      echo "  ${PublicIP} ${PUBLIC_DOMAINS[*]}"
     fi
+    echo
+  fi
+
+  if [[ "$ENABLE_OIDC" == true ]]; then
+    echo
+    echo "OIDC CONFIGURATION FOR GROUP-BASED RBAC"
+    echo "========================================"
+    echo "The kube-apiserver has been configured with OIDC authentication."
+    echo "This enables Kubernetes RBAC based on Keycloak group membership."
+    echo
+    echo "Configuration:"
+    echo "  Issuer URL: ${OIDC_ISSUER_URL}"
+    echo "  Client ID: ${OIDC_CLIENT_ID}"
+    echo "  Username claim: ${OIDC_USERNAME_CLAIM}"
+    echo "  Groups claim: ${OIDC_GROUPS_CLAIM}"
+    echo
+    echo "To use group-based RBAC:"
+    echo "  1. Create groups in Keycloak (e.g., 'headlamp-admins', 'headlamp-readers')"
+    echo "  2. Configure Group Membership mapper in Keycloak client to include groups in tokens"
+    echo "  3. Create ClusterRoleBindings that reference these groups"
+    echo
+    echo "See docs/keycloak.md and docs/RBAC.md in the Headlamp package for details."
   fi
 }
 
@@ -1266,33 +1467,46 @@ function cloud_aws_create_instances {
 }
 
 function fix_etc_hosts {
-    if [[ "$METAL_LB" == "true" ]]; then
-      run <<ENDSSH
-    # run this command on remote
-    # fix /etc/hosts for new cluster
-    sudo sed -i '/dev.bigbang.mil/d' /etc/hosts
-    sudo bash -c "echo '## begin dev.bigbang.mil section (METAL_LB)' >> /etc/hosts"
-    sudo bash -c "echo 172.20.1.240  keycloak.dev.bigbang.mil vault.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo 172.20.1.241 anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil neuvector.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo '## end dev.bigbang.mil section' >> /etc/hosts"
-    # run kubectl to add keycloak and vault's hostname/IP to the configmap for coredns, restart coredns
-    kubectl get configmap -n kube-system coredns -o yaml | sed '/^    172.20.0.1 host.k3d.internal$/a\ \ \ \ 172.20.1.240 keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-    kubectl delete pod -n kube-system -l k8s-app=kube-dns
-ENDSSH
-    elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
-      run <<ENDSSH
-    # run this command on remote
-    # fix /etc/hosts for new cluster
-    sudo sed -i '/dev.bigbang.mil/d' /etc/hosts
-    sudo bash -c "echo '## begin dev.bigbang.mil section (ATTACH_SECONDARY_IP)' >> /etc/hosts"
-    sudo bash -c "echo $(getPrivateIP2)  keycloak.dev.bigbang.mil vault.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo $PrivateIP anchore-api.dev.bigbang.mil anchore.dev.bigbang.mil argocd.dev.bigbang.mil gitlab.dev.bigbang.mil registry.dev.bigbang.mil tracing.dev.bigbang.mil kiali.dev.bigbang.mil kibana.dev.bigbang.mil chat.dev.bigbang.mil minio.dev.bigbang.mil minio-api.dev.bigbang.mil alertmanager.dev.bigbang.mil grafana.dev.bigbang.mil prometheus.dev.bigbang.mil neuvector.dev.bigbang.mil nexus.dev.bigbang.mil sonarqube.dev.bigbang.mil tempo.dev.bigbang.mil twistlock.dev.bigbang.mil >> /etc/hosts"
-    sudo bash -c "echo '## end dev.bigbang.mil section' >> /etc/hosts"
-    # run kubectl to add keycloak and vault's hostname/IP to the configmap for coredns, restart coredns
-    kubectl get configmap -n kube-system coredns -o yaml | sed '/^    .* host.k3d.internal$/a\ \ \ \ $(getPrivateIP2) keycloak.dev.bigbang.mil vault.dev.bigbang.mil' | kubectl apply -f -
-    kubectl delete pod -n kube-system -l k8s-app=kube-dns
-ENDSSH
+  local primary_ip # for the public gateway
+  local secondary_ip # for the passthrough gateway
+
+  if [[ "$METAL_LB" == "true" ]]; then
+    primary_ip="172.20.1.241"
+    secondary_ip="172.20.1.240"
+  elif [[ "$ATTACH_SECONDARY_IP" == true ]]; then
+    primary_ip=${PrivateIP}
+    secondary_ip=$(getPrivateIP2)
+  else
+    # No need to fix /etc/hosts if we are not using MetalLB or a secondary IP
+    return
   fi
+
+  run <<ENDSSH
+# fix /etc/hosts for new cluster
+sudo sed -i '/${BASE_DOMAIN}/d' /etc/hosts
+sudo bash -c "echo '## begin ${BASE_DOMAIN} section (METAL_LB)' >> /etc/hosts"
+sudo bash -c "echo ${primary_ip} ${PUBLIC_DOMAINS[*]} >> /etc/hosts"
+sudo bash -c "echo ${secondary_ip} ${PASSTHROUGH_DOMAINS[*]} >> /etc/hosts"
+sudo bash -c "echo '## end ${BASE_DOMAIN} section' >> /etc/hosts"
+
+# run kubectl to add a configmap for coredns to resolve bigbang hostnames, restart coredns
+kubectl create configmap coredns-custom \
+  --namespace=kube-system \
+  --from-literal=bigbang.server='${BASE_DOMAIN} {
+  template IN A ${PASSTHROUGH_DOMAINS[*]} {
+    answer "{{ .Name }} 60 IN A ${secondary_ip}"
+  }
+
+  template IN A {
+    answer "{{ .Name }} 60 IN A ${primary_ip}"
+  }
+
+  errors
+  log
+}' --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl -n kube-system rollout restart deployment coredns
+ENDSSH
 }
 
 function check_for_existing_instances {
@@ -1326,6 +1540,7 @@ function create_instances {
 
 function main {
   process_arguments "$@"
+  set_domains
 
   extratools=""
   if [[ "${CLOUDPROVIDER}" != "" ]]; then

@@ -42,18 +42,11 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
 
+  ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+
   egress:
-    definitions:
-      sso:
-        {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          {{- if ne .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-          {{- end }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       controller:
         podSelector:
@@ -67,6 +60,9 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 upstream:
+  
+  {{- include "secretsImagePullSecretsSingle" . | nindent 2 }}
+
   openshift: {{ .Values.openshift }}
   {{- if or .Values.monitoring.enabled $istioInjection .Values.neuvector.sso.enabled }}
   controller:
@@ -112,12 +108,15 @@ upstream:
   {{- end }}
 
 monitor:
-  install: {{ .Values.monitoring.enabled }}
+  install: {{ eq (include "metricScrapingEnabled" .) "true" }}
+
+  {{- include "secretsImagePullSecretsSingle" . | nindent 2 }}
+
   exporter:
-    enabled: {{ .Values.monitoring.enabled }}
-    {{- if or .Values.monitoring.enabled $istioInjection }}
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+    {{- if or (eq (include "metricScrapingEnabled" .) "true") $istioInjection }}
     podAnnotations:
-      {{- if .Values.monitoring.enabled }}
+      {{- if eq (include "metricScrapingEnabled" .) "true" }}
       checksum/metrics-pass: {{ sha256sum $neuvectorMetricsPass }}
       {{- end }}
       {{- if $istioInjection }}
@@ -125,8 +124,8 @@ monitor:
       {{- end }}
     {{- end }}
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
-      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") .Values.monitoring.enabled }}
+      enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.neuvector.values) "STRICT") (eq (include "metricScrapingEnabled" .) "true") }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -136,7 +135,7 @@ monitor:
       {{- end }}
 
     svc:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       type: ClusterIP
     CTRL_USERNAME: metrics
     CTRL_PASSWORD: {{ $neuvectorMetricsPass }}
@@ -167,5 +166,10 @@ monitor:
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.neuvector.values) | fromYaml -}}
 {{- $neuvectorPackage = set $neuvectorPackage "values" $cleanedValues -}}
 
-{{- include "values-secret" (dict "root" $ "package" $neuvectorPackage "name" "neuvector" "defaults" (include "bigbang.defaults.neuvector" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" $neuvectorPackage 
+  "name" "neuvector" 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.neuvector" . | fromYaml) (include "bigbang.neuvector.bb-common-migrations" . | fromYaml)) | toYaml)
+) }}
 {{- end }}

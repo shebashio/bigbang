@@ -1,49 +1,95 @@
+{{- $pkg := "gitlab-runner" }}
+
 {{- if .Values.addons.gitlabRunner.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.gitlabRunner "name" "gitlab-runner" "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
+{{- /* Create a cleaned copy of gitlab-runner config and merge deprecated paths into current paths */ -}}
+{{- $gitlabRunnerPackage := deepCopy .Values.addons.gitlabRunner -}}
+{{- if .Values.addons.gitlabRunner.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.gitlabRunner.values) | fromYaml -}}
+{{- $gitlabRunnerPackage = set $gitlabRunnerPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $gitlabRunnerPackage "name" $pkg "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.gitlab-runner" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-# Passthrough chart upstream config (main gitlab-runner chart values)
-upstream:
-  imagePullPolicy: {{ .Values.imagePullPolicy }}
-
-  imagePullSecrets:
-  - name: private-registry
-
-  metrics:
-    enabled: {{ .Values.monitoring.enabled }}
-    serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
-
-  # When istio injected, add an annotation with the istio version to the manager pods only
-  {{- if and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") $istioEnabled }}
-  podAnnotations:
-    {{ include "istioAnnotation" . }}
-  {{- end }}
-
+{{- $istioInjection := and (eq (dig "istio" "injection" "enabled" .Values.addons.gitlabRunner) "enabled") $istioEnabled }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
 istio:
   enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlab.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.gitlabRunner }}
+  sidecar:
+    enabled: {{ $istioHardenedEnabled }}
+  authorizationPolicies:
+    enabled: {{ $istioHardenedEnabled }}
+    generateFromNetpol: {{ $istioHardenedEnabled }}
 
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
+  # note: ztunnel does not exist yet, defaulting to false until ambient package is added
+  hbonePortInjection:
+    enabled: {{ dig "enabled" false (default dict .Values.ztunnel) }}
+  egress:
+    from:
+      gitlab-runner:
+        podSelector:
+          matchLabels:
+            app: gitlab-runner
+        to:
+          k8s:
+            gitlab/*: true
+          definition:
+            kubeAPI: true
+  ingress:
+    to:
+      gitlab-runner:9252:
+        podSelector:
+          matchLabels:
+            app: gitlab-runner
+        from:
+          k8s:
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+  additionalPolicies: []
+
+openshift: {{ .Values.openshift }}
 
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
+
+# Passthrough chart upstream config (main gitlab-runner chart values)
+upstream:
+  imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+
+  podLabels:
+    app.kubernetes.io/name: gitlab-runner
+
+  metrics:
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+    serviceMonitor:
+      enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlabRunner.values) "STRICT") (eq (include "metricScrapingEnabled" .) "true") }}
+      scheme: https
+      tlsConfig:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true
+      {{- end }}
+    podMonitor:
+      enabled: false
+
+  service:
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+
+  # When istio injected, add an annotation with the istio version to the manager pods only
+  {{- if $istioInjection }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
 
 # autoRegister requires kyverno
 {{- if and .Values.kyverno.enabled .Values.addons.gitlab.enabled }}

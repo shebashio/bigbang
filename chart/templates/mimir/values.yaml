@@ -1,6 +1,11 @@
 {{- /* Create secret */ -}}
 {{- if .Values.addons.mimir.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.mimir "name" "mimir" "defaults" (include "bigbang.defaults.mimir" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" .Values.addons.mimir 
+  "name" "mimir" 
+  "defaults" ((mergeOverwrite (include "bigbang.defaults.mimir" . | fromYaml) (include "bigbang.mimir.bb-common-migrations" . | fromYaml)) | toYaml)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
@@ -11,6 +16,11 @@
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 {{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.mimir) "enabled"))  }}
 
+
+upgradeJob:
+  image:
+    {{- include "secretsPullSecretsSingle" . | nindent 4 }}
+  
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
@@ -18,11 +28,7 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   prependReleaseName: false
   egress:
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       mimir:
         to:
@@ -38,6 +44,7 @@ networkPolicies:
             kubeAPI: true
 
   ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       mimir:[15020]:
         from:
@@ -99,12 +106,26 @@ istio:
           resolution: DNS
     {{- end }}
 
+routes:
+  inbound:
+    mimir-gateway:
+      gateways:
+        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+      hosts:
+        - mimir.{{ .Values.domain }}
+      service: mimir-mimir-gateway.mimir.svc.cluster.local
+      port: 8080
+      selector:
+        app.kubernetes.io/component: gateway
+        app.kubernetes.io/name: mimir
+
 {{- if $minioEnabled }}
 minio-tenant:
   enabled: true
   upstream:
     tenant:
       name: mimir-mimir-minio-tenant
+      {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
       configSecret:
         accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
         secretKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
@@ -114,6 +135,12 @@ minio-tenant:
 {{- end }}
 
 upstream:
+  image:
+    {{- include "secretsPullSecrets" . | nindent 4 }}
+    
+  rollout_operator:
+    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
+
   query_scheduler:
     enabled: {{ not $istioEnabled }}
   {{- if or $minioEnabled $s3Enabled }}
@@ -167,8 +194,8 @@ upstream:
     {{- end }}
   metaMonitoring:
     serviceMonitor:
-      enabled: {{ .Values.monitoring.enabled }}
-      {{- if and .Values.monitoring.enabled $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+      enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+      {{- if and (eq (include "metricScrapingEnabled" .) "true") $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
