@@ -179,10 +179,7 @@ twistlock-restrict-apparmor-exception:
       policies.kyverno.io/title: Twistlock restrict-apparmor exception
       policies.kyverno.io/category: Twistlock
       policies.kyverno.io/subject: Pod
-      policies.kyverno.io/description: " # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster, including:
-      # - read logs from `/var/log` to watch for malicious processes
-      # - audit modifications to `/etc/passwd` (watching for suspicious changes)
-      # - access the container runtime socket (observing all running containers on a node)"
+      policies.kyverno.io/description: "Twistlock Defenders use an `unconfined` appArmor profile."
   spec:
     exceptions:
     - policyName: restrict-apparmor
