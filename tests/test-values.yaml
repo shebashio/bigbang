@@ -701,8 +701,6 @@ kyvernoPolicies:
     additionalPolicyExceptions:
       testpolicyexception:
         enabled: true
-        kind: PolicyException
-        namespace: "kyverno"
         annotations:
           policies.kyverno.io/title: Test PolicyException
           policies.kyverno.io/category: Test
@@ -1934,9 +1932,6 @@ addons:
                       matchLabels:
                         v1.min.io/tenant: minio-minio-minio-instance
       upstream:
-        serviceAccount:
-          server:
-            name: velero
         configuration:
           backupStorageLocation:
             - bucket: velero
