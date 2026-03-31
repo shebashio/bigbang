@@ -319,6 +319,19 @@ check_existing_issue() {
     return 1
 }
 
+# Ensure labels include a status:: label; default to status::grooming
+ensure_status_label() {
+    local labels="$1"
+
+    if [[ "$labels" =~ (^|,)status::[^,]+($|,) ]]; then
+        echo "$labels"
+    elif [[ -n "$labels" ]]; then
+        echo "$labels,status::grooming"
+    else
+        echo "status::grooming"
+    fi
+}
+
 # Function to check if issue is already in epic
 check_issue_in_epic() {
     local issue_id="$1"
@@ -782,6 +795,7 @@ Please review and ensure this document is up-to-date.
     if [[ -n "$team_label" ]]; then
         labels="$labels,$team_label"
     fi
+    labels=$(ensure_status_label "$labels")
 
     if [[ "$DRY_RUN" == true ]]; then
         echo -e "   ${YELLOW}[DRY RUN]${NC} Would create issue:"
@@ -936,6 +950,7 @@ Please review and ensure these documents are up-to-date.
     if [[ -n "$team_label" ]]; then
         labels="$labels,$team_label"
     fi
+    labels=$(ensure_status_label "$labels")
 
     if [[ "$DRY_RUN" == true ]]; then
         echo -e "   ${YELLOW}[DRY RUN]${NC} Would create issue:"
