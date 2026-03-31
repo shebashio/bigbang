@@ -299,6 +299,13 @@ policies:
           names:
           - headlamp*
       {{- end }}
+      {{- if .Values.addons.renovate.enabled }}
+      - resources:
+          namespaces:
+          - renovate
+          names:
+          - renovate*
+      {{- end }}
       {{- if .Values.addons.backstage.enabled }}
       - resources:
           namespaces:

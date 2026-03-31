@@ -43,6 +43,7 @@ injection in the monitoring namespace.
 {{- $authserviceEnabled := and $istioEnabled (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
 {{- $headlampEnabled := (.Values.addons.headlamp.enabled) }}
+{{- $renovateEnabled := (.Values.addons.renovate.enabled) }}
 {{- $thanosEnabled := (.Values.addons.thanos.enabled) }}
 {{- $lokiEnabled := (.Values.loki.enabled) }}
 {{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}

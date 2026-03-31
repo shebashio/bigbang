@@ -1,0 +1,36 @@
+{{- if .Values.addons.renovate.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.addons.renovate "name" "renovate" "defaults" (include "bigbang.defaults.renovate" .)) }}
+{{- end }}
+
+{{- define "bigbang.defaults.renovate" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.harbor.values) }}
+{{- $domainName := default .Values.domain }}
+domain: {{ $domainName }}
+
+bb-common:
+  istio:
+    enabled: {{ $istioEnabled }}
+    authorizationPolicies:
+      enabled: {{ $istioHardenedEnabled }}
+      generateFromNetpol: {{ $istioHardenedEnabled }}
+    sidecar:
+      enabled: {{ $istioHardenedEnabled }}
+
+
+istio:
+  enabled: {{ $istioEnabled }}
+  # enabled: true
+  hardened:
+    enabled: {{ or 
+      (dig "istio" "hardened" "enabled" false .Values.addons.renovate.values) 
+      (dig "hardened" "enabled" false .Values.istio.values) 
+    }}
+
+upstream:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
+  imagePullSecrets:
+    - name: private-registry
+
+{{- end }}
