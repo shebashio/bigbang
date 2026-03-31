@@ -733,6 +733,8 @@ elasticsearchKibana:
     # -- Toggle Snapshot Lifecycle Management (SLM) support for Elasticsearch.
     # When enabled, injects the specified Kubernetes secret into Elasticsearch's
     # secureSettings to supply credentials for cloud snapshot repositories (S3, Azure, GCS).
+    # By default, an internal, MinIO server is used.  For production environments, external
+    # storage should be configured with the objectStorage settings below.
     enabled: false
 
     objectStorage:
