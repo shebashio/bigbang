@@ -162,21 +162,6 @@ policies:
       - registry1.dso.mil
       - registry.dso.mil
 
-  {{- if $deployNodeAgent }}
-  restrict-user-id:
-    exclude:
-      any:
-      {{- if $deployNodeAgent }}
-      # Velero.  The node agent backup tool requires root user access to the host's runtime pod directory which is
-      # mounted inside velero/node agent pods.
-      - resources:
-          namespaces:
-          - velero
-          names:
-          - node-agent*
-      {{- end }}
-  {{- end }}
-
   update-automountserviceaccounttokens-default:
     enabled: true
     namespaces:
@@ -509,6 +494,7 @@ additionalPolicyExceptions:
 {{- include "bigbang.policyexceptions.ztunnel" . | indent 4 }}  
 {{- end }}
 
+# NOTE: If you add a new package, add it to the list above and create a corresponding template in `chart/templates/kyverno-policies/PolicyExceptions/`
 {{- end }}
 
 {{- /* This function merges defaults in lists from above into overlays */ -}}
