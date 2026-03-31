@@ -322,6 +322,23 @@ check_existing_issue() {
     return 1
 }
 
+# Function to get latest closed timestamp for matching issue title
+get_latest_closed_issue_at() {
+    local project="$1"
+    local issue_title="$2"
+
+    local encoded_path=$(echo "$project" | sed 's/\//%2F/g')
+    local closed_at
+    closed_at=$(glab api "projects/$encoded_path/issues?state=closed&per_page=100" 2>/dev/null | \
+        jq -r --arg title "$issue_title" '[.[] | select(.title == $title) | .closed_at] | sort | last // empty')
+
+    if [[ -n "$closed_at" ]]; then
+        echo "$closed_at"
+        return 0
+    fi
+    return 1
+}
+
 # Check if a project has a specific label (cached)
 project_has_label() {
     local project="$1"
@@ -448,6 +465,7 @@ skipped_team=0
 added_to_epic=0
 would_add_to_epic=0
 already_in_epic=0
+skipped_closed_review=0
 
 # Phase 1: Scan or use input file
 if [[ -n "$INPUT_FILE" ]]; then
@@ -810,6 +828,16 @@ create_single_file_issue() {
         return
     fi
 
+    # If a matching issue was previously closed after the file was last modified,
+    # treat that closure as the most recent review event and skip re-creating.
+    local latest_closed_at=$(get_latest_closed_issue_at "$project" "$issue_title" || echo "")
+    if [[ -n "$latest_closed_at" && ( "$latest_closed_at" > "$last_modified" || "$latest_closed_at" == "$last_modified" ) ]]; then
+        echo -e "   ${DIM}⏭️  Previously reviewed and closed on ${latest_closed_at%%T*}; no newer doc changes${NC}"
+        skipped_closed_review=$((skipped_closed_review + 1))
+        echo ""
+        return
+    fi
+
     # Prepare issue content
     local gitlab_base="https://repo1.dso.mil"
     local default_branch=$(get_default_branch "$project")
@@ -918,6 +946,7 @@ create_directory_issue() {
     fi
 
     local issue_title="Documentation Review Needed for $directory/"
+    local latest_file_modified=$(echo "$files_json" | jq -r 'map(.last_modified) | sort | last // empty')
 
     # Check for existing issue (idempotency check)
     local existing_iid=$(check_existing_issue "$project" "$issue_title" || echo "")
@@ -949,6 +978,16 @@ create_directory_issue() {
                 fi
             fi
         fi
+        echo ""
+        return
+    fi
+
+    # If a matching issue was previously closed after the newest file change in this directory,
+    # treat that closure as the most recent review event and skip re-creating.
+    local latest_closed_at=$(get_latest_closed_issue_at "$project" "$issue_title" || echo "")
+    if [[ -n "$latest_closed_at" && -n "$latest_file_modified" && ( "$latest_closed_at" > "$latest_file_modified" || "$latest_closed_at" == "$latest_file_modified" ) ]]; then
+        echo -e "   ${DIM}⏭️  Previously reviewed and closed on ${latest_closed_at%%T*}; no newer doc changes${NC}"
+        skipped_closed_review=$((skipped_closed_review + 1))
         echo ""
         return
     fi
@@ -1136,6 +1175,9 @@ echo ""
 echo -e "${CYAN}📋 Issue Statistics:${NC}"
 if [[ $skipped_team -gt 0 ]]; then
     echo -e "   • Skipped (team filter): ${BOLD}${YELLOW}$skipped_team${NC}"
+fi
+if [[ $skipped_closed_review -gt 0 ]]; then
+    echo -e "   • Skipped (already reviewed/closed): ${BOLD}${YELLOW}$skipped_closed_review${NC}"
 fi
 echo -e "   • Already existing issues: ${BOLD}${YELLOW}$duplicate_issues${NC}"
 
