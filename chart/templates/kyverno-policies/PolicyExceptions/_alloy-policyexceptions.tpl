@@ -5,7 +5,7 @@ alloy-add-default-securitycontext-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
        to the host operating system, creating a user, adding that user to the systemd-journal user group
        and then granting permissions recursively on /var/log."
   spec:
@@ -26,7 +26,7 @@ alloy-require-non-root-group-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
        to the host operating system, creating a user, adding that user to the systemd-journal user group
        and then granting permissions recursively on /var/log."
   spec:
@@ -47,7 +47,7 @@ alloy-require-non-root-user-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
        to the host operating system, creating a user, adding that user to the systemd-journal user group
        and then granting permissions recursively on /var/log."
   spec:
@@ -68,7 +68,7 @@ alloy-restrict-capabilities-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
        to the host operating system, creating a user, adding that user to the systemd-journal user group
        and then granting permissions recursively on /var/log."
   spec:
@@ -92,7 +92,7 @@ alloy-restrict-host-path-mount-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
+      policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
        to the host operating system, creating a user, adding that user to the systemd-journal user group
        and then granting permissions recursively on /var/log."
   spec:
@@ -113,10 +113,10 @@ alloy-restrict-selinux-type-exception:
     labels:
       app: alloy
     annotations:
-      description: "          # Alloy requires SELinux option type 'spc_t' for privileged host volume mounting on SELinux enabled systems
-          # Alloy mounts the following hostPaths:
-          # - `/var/log`: to tail node logs (e.g. journal) and pod logs
-          # - `/var/lib/docker/containers`: to tail container logs"
+      policies.kyverno.io/description: " Alloy requires SELinux option type 'spc_t' for privileged host volume mounting on SELinux enabled systems
+           Alloy mounts the following hostPaths:
+           - `/var/log`: to tail node logs (e.g. journal) and pod logs
+           - `/var/lib/docker/containers`: to tail container logs"
   spec:
     exceptions:
     - policyName: restrict-selinux-type
@@ -135,9 +135,9 @@ alloy-restrict-volume-types-exception:
     labels:
       app: alloy
     annotations:
-      description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
-       to the host operating system, creating a user, adding that user to the systemd-journal user group
-       and then granting permissions recursively on /var/log."
+      policies.kyverno.io/description: "Alloy mounts the following hostPaths:
+       - `/var/log`: to tail node logs (e.g. journal) and pod logs
+       - `/var/lib/docker/containers`: to tail container logs"
   spec:
     exceptions:
     - policyName: restrict-volume-types

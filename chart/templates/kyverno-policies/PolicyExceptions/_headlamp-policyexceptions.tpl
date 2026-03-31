@@ -4,6 +4,8 @@ headlamp-disallow-auto-mount-service-account-token-exception:
     namespace: kyverno
     labels:
       app: headlamp
+    annotations:
+      policies.kyverno.io/description: "Prevent Automounting of Kubernetes API Credentials on Pods and Service Accounts"
   spec:
     exceptions:
     - policyName: disallow-auto-mount-service-account-token

@@ -6,7 +6,7 @@ argocd-add-default-capability-drop:
         labels:
         app: argocd
         annotations:
-            description: "# application-controller pods interact with secrets, configmaps, events, and Argo CRDs
+            policies.kyverno.io/description: "# application-controller pods interact with secrets, configmaps, events, and Argo CRDs
           # More details in argocd/chart/templates/argocd-application-controller/role.yaml"
     spec:
         exceptions:

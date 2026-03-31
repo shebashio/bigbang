@@ -4,6 +4,8 @@ vault-add-default-capability-drop-exception:
     namespace: kyverno
     labels:
       app: vault
+    annotations:
+      policies.kyverno.io/description: "For vault jobs that require root access"
   spec:
     exceptions:
     - policyName: add-default-capability-drop

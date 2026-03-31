@@ -5,7 +5,7 @@ neuvector-add-default-capability-drop-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: add-default-capability-drop
@@ -28,7 +28,7 @@ neuvector-add-default-securitycontext-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -49,7 +49,7 @@ neuvector-disallow-host-namespaces-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: disallow-host-namespaces
@@ -68,7 +68,7 @@ neuvector-disallow-privileged-containers-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime"
+      policies.kyverno.io/description: "Neuvector needs privileged access for realtime scanning of files from the node / access to the container runtime"
   spec:
     exceptions:
     - policyName: disallow-privileged-containers
@@ -89,7 +89,7 @@ neuvector-require-drop-all-capabilities-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-drop-all-capabilities
@@ -112,7 +112,7 @@ neuvector-require-non-root-group-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -133,7 +133,7 @@ neuvector-require-non-root-user-exception:
     labels:
       app: neuvector
     annotations:
-      description: "Neuvector needs access to host to inspect network traffic"
+      policies.kyverno.io/description: "Neuvector needs access to host to inspect network traffic"
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -152,7 +152,7 @@ neuvector-restrict-host-path-mount-exception:
     labels:
       app: neuvector
     annotations:
-      description: "      # Neuvector mounts the following hostPaths:
+      policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
       # `/proc`: monitoring of proccesses for malicious activity
@@ -177,7 +177,7 @@ neuvector-restrict-host-path-write-exception:
     labels:
       app: neuvector
     annotations:
-      description: "      # Neuvector mounts the following hostPaths:
+      policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
       # `/proc`: monitoring of proccesses for malicious activity
@@ -201,7 +201,7 @@ neuvector-restrict-volume-types-exception:
     labels:
       app: neuvector
     annotations:
-      description: "      # Neuvector mounts the following hostPaths:
+      policies.kyverno.io/description: "      # Neuvector mounts the following hostPaths:
       # `/var/neuvector`: for Neuvector's buffering and persistent state
       # `/var/run`: communication to docker daemon
       # `/proc`: monitoring of proccesses for malicious activity

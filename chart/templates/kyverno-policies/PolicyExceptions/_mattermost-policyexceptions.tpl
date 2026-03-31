@@ -4,6 +4,8 @@ mattermost-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: mattermost
+    annotations:
+      policies.kyverno.io/description: "Mattermost fails when policy was implemented"
   spec:
     exceptions:
     - policyName: add-default-securitycontext

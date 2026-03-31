@@ -5,6 +5,8 @@ kube-system-add-default-securitycontext-exception:
     namespace: kyverno
     labels:
       app: kube
+    annotations:
+      policies.kyverno.io/description: "Kube-system requires access to journalctl as well"
   spec:
     exceptions:
     - policyName: add-default-securitycontext
@@ -20,6 +22,8 @@ kube-system-require-non-root-group-exception:
     namespace: kyverno
     labels:
       app: kube
+    annotations:
+      policies.kyverno.io/description: "Kube-system requires access to journalctl as well"
   spec:
     exceptions:
     - policyName: require-non-root-group
@@ -35,6 +39,8 @@ kube-system-require-non-root-user-exception:
     namespace: kyverno
     labels:
       app: kube
+    annotations:
+      policies.kyverno.io/description: "Kube-system requires access to journalctl as well"
   spec:
     exceptions:
     - policyName: require-non-root-user
@@ -50,6 +56,14 @@ require-istio-on-namespaces-exception:
     namespace: kyverno
     labels:
       app: kube
+    annotations:
+      policies.kyverno.io/description: "
+      - The Namespaces listed in this exception are required to run without Istio sidecar injection. This is because:
+      - Kuberentes control plane does not use Istio
+      - No pods in bigbang / default
+      - Flux is installed prior to Istio
+      - Istio does not inject itself
+      "
   spec:
     exceptions:
     - policyName: require-istio-on-namespaces

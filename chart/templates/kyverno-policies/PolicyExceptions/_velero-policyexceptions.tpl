@@ -5,7 +5,7 @@ velero-add-default-capability-drop-exception: kyverno.io/v2
     labels:
       app: velero
     annotations:
-      description: "# Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
+      policies.kyverno.io/description: "# Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods."
   spec:
     exceptions:
@@ -25,7 +25,7 @@ velero-require-drop-all-capabilities-exception:
     labels:
       app: velero
     annotations:
-      description: "# Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
+      policies.kyverno.io/description: "# Velero.  The node agent backup tool requires root group access to see the host's runtime pod directory which is
       # mounted inside velero/node agent pods."
   spec:
     exceptions:

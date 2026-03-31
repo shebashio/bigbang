@@ -4,6 +4,8 @@ monitoring-disallow-auto-mount-service-account-token-exception:
     namespace: kyverno
     labels:
       app: monitoring
+    annotations:
+      policies.kyverno.io/description: "Thanos requires automounting of service account"
   spec:
     exceptions:
     - policyName: disallow-auto-mount-service-account-token
@@ -28,6 +30,8 @@ monitoring-disallow-tolerations-exception:
     namespace: kyverno
     labels:
       app: monitoring
+    annotations:
+      policies.kyverno.io/description: "Prometheus Node Exporter needs to be able to run on all nodes, regardless of taint, to gather node metrics"
   spec:
     exceptions:
     - policyName: disallow-tolerations

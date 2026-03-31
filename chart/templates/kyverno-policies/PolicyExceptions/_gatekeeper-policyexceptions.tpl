@@ -3,7 +3,7 @@ gatekeeper-disallow-auto-mount-service-account-token-exception:
     labels:
       app: gatekeeper
     annotations:
-      description: "Gatekeeper requires automounting of service account tokens for its audit and controller-manager components to function"
+      policies.kyverno.io/description: "Gatekeeper requires automounting of service account tokens for its audit and controller-manager components to function"
   spec:
     exceptions:
     - policyName: disallow-auto-mount-service-account-token
