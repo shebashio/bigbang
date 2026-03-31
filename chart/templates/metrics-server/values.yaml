@@ -16,4 +16,12 @@ upstream:
   nameOverride: "metrics-server"
   fullnameOverride: "metrics-server"
 
+  serviceMonitor:
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+    dashboards:
+      namespace: monitoring
+
+  metrics:
+    enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+
 {{- end }}
