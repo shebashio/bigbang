@@ -145,7 +145,7 @@ twistlock-require-non-root-group-exception:
           - volume-upgrade-job*
           namespaces:
           - twistlock
-twistlock-require-non-root-user-exception: kyverno.io/v2
+twistlock-require-non-root-user-exception:
   metadata:
     namespace: kyverno
     labels:
