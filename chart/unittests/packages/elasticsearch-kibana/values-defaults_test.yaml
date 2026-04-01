@@ -85,3 +85,39 @@ tests:
       - equal:
           path: routes.inbound.elasticsearch.enabled
           value: false
+  - it: should enable snapshot storage service entry route when objectStorage is enabled with a serviceEntryHost
+    set:
+      istiod.values.hardened.enabled: true
+      elasticsearchKibana.objectStorage.enabled: true
+      elasticsearchKibana.objectStorage.serviceEntryHost: "s3.amazonaws.com"
+    asserts:
+      - equal:
+          path: routes.outbound.elasticsearch-snapshot-storage.enabled
+          value: true
+      - equal:
+          path: routes.outbound.elasticsearch-snapshot-storage.hosts[0]
+          value: "s3.amazonaws.com"
+  - it: should disable snapshot storage service entry route when objectStorage is disabled
+    set:
+      istiod.values.hardened.enabled: true
+      elasticsearchKibana.objectStorage.enabled: false
+      elasticsearchKibana.objectStorage.serviceEntryHost: "s3.amazonaws.com"
+    asserts:
+      - equal:
+          path: routes.outbound.elasticsearch-snapshot-storage.enabled
+          value: false
+  - it: should inject secureSettings when objectStorage is enabled with a secretName
+    set:
+      elasticsearchKibana.objectStorage.enabled: true
+      elasticsearchKibana.objectStorage.secretName: "my-snapshot-secret"
+    asserts:
+      - equal:
+          path: elasticsearch.secureSettings[0].secretName
+          value: "my-snapshot-secret"
+  - it: should not inject secureSettings when objectStorage is enabled but secretName is empty
+    set:
+      elasticsearchKibana.objectStorage.enabled: true
+      elasticsearchKibana.objectStorage.secretName: ""
+    asserts:
+      - isNull:
+          path: elasticsearch.secureSettings
