@@ -12,17 +12,17 @@ fluentbit-add-default-securitycontext-exception:
       # to the host operating system, creating a user, adding that user to the  systemd-journal user group
       # and then granting permissions recursively on /var/log."
   spec:
-  exceptions:
-  - policyName: add-default-securitycontext
-    ruleNames:
-    - add-default-securitycontext
-  match:
-    any:
-    - resources:
-        names:
-        - fluentbit-fluent-bit*
-        namespaces:
-        - fluentbit
+    exceptions:
+    - policyName: add-default-securitycontext
+      ruleNames:
+      - add-default-securitycontext
+    match:
+      any:
+      - resources:
+          names:
+          - fluentbit-fluent-bit*
+          namespaces:
+          - fluentbit
 fluentbit-disallow-privileged-containers-exception:
   metadata:
     namespace: kyverno
