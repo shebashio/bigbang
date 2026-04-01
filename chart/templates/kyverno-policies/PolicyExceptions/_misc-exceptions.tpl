@@ -80,7 +80,7 @@ require-istio-on-namespaces-exception:
     exceptions:
     - policyName: require-istio-on-namespaces
       ruleNames:
-      - require-istio-on-namespaces
+      - istio-on-namespace
     match:
       any:
       - resources:

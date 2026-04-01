@@ -57,7 +57,8 @@ gitlabrunner-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - non-root-group
+      - run-as-group
+      - fs-group
     match:
       any:
       - resources:

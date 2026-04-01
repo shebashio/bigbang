@@ -13,7 +13,7 @@ istio-disallow-istio-injection-bypass-exception:
     exceptions:
     - policyName: disallow-istio-injection-bypass
       ruleNames:
-      - disallow-istio-injection-bypass
+      - istio-on-pods
     match:
       any:
       - resources:
@@ -56,7 +56,8 @@ istiod-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - require-non-root-group
+      - run-as-group
+      - fs-group
     match:
       any:
       - resources:

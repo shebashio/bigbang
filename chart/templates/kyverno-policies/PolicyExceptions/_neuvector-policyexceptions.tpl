@@ -136,6 +136,7 @@ neuvector-require-non-root-group-exception:
     - policyName: require-non-root-group
       ruleNames:
       - run-as-group
+      - fs-group
     match:
       any:
       - resources:
