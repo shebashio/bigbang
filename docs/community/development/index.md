@@ -35,7 +35,7 @@ Join MatterMost channels to ask questions and communicate with the team. Here is
 
 ## Package Offboarding
 
-[Offboard Package from Big Bang](./package-lifecycle/offboarding.md) and [Package Offboarding Checklist](./package-offboarding/index.md).
+[Offboard Package from Big Bang](./package-lifecycle/offboarding.md).
 
 ## Big Bang Code Through Party Bus Pipeline
 
