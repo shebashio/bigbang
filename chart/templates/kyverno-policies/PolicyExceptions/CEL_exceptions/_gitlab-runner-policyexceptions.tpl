@@ -21,7 +21,7 @@ gitlabrunner-require-drop-all-capabilities-exception:
     policyRefs:
     - name: require-drop-all-capabilities
       ruleNames:
-      - require-drop-all-capabilities
+      - drop-all-capabilities
     matchConditions:
     - name: match-runner
       expression: "object.metadata.namespace == 'gitlab-runner' && object.metadata.name.startsWith('runner-')"

@@ -217,7 +217,7 @@ twistlock-restrict-capabilities-exception:
     exceptions:
     - policyName: restrict-capabilities
       ruleNames:
-      - restrict-capabilities
+      - capabilities
     match:
       any:
       - resources:
@@ -292,7 +292,7 @@ twistlock-restrict-selinux-type-exception:
     exceptions:
     - policyName: restrict-selinux-type
       ruleNames:
-      - restrict-selinux-type
+      - pod-selinux-options-type
     match:
       any:
       - resources:

@@ -36,7 +36,7 @@ gitlab-require-drop-all-capabilities-exception:
     exceptions:
     - policyName: require-drop-all-capabilities
       ruleNames:
-      - require-drop-all-capabilities
+      - drop-all-capabilities
     match:
       any:
       - resources:
