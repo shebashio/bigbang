@@ -223,3 +223,4 @@ elasticsearch:
   serviceAccountAnnotations: {{ toYaml .Values.elasticsearchKibana.serviceAccountAnnotations.elasticsearch | nindent 4 }}
   {{- end }}
 {{- end -}}
+{{- end -}}
