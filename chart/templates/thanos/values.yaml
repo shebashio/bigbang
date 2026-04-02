@@ -180,7 +180,7 @@ upstream:
       {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
       {{- end }}
     {{- end }}
-    {{- if .Values.addons.thanos.objectStorage.endpoint }}
+    {{- if .Values.monitoring.enabled }}
     extraFlags:
       - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "upstream" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
     {{- end }}
