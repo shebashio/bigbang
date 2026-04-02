@@ -1,4 +1,5 @@
 ## What's Next?
+**[We should have some introductory text here explaining the purpose of this page: e.g. to offer steps for further learning after getting through the rest of the landing page content. Although, I'm unsure of the value here, because so much of this seems to be directing users to go back to earlier pages]**
 ### New Users
 1. Start with [Getting Started Overview](getting-started.md)
 2. Review [Prerequisites](getting-started/prerequisites.md)

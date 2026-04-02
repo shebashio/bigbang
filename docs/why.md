@@ -2,6 +2,8 @@
 **[Include here some high-level description of the value gained from using Big Bang. What are the problems or risks we are addressing? Why is it necessary? In broad terms, as opposed to the specific ones down below. Also, the list below really just seems like a list of features. That's not really an answer to "why?" Like why is Big Bang useful to a platform team? Why are these features of particular importance?]**
 ## What are the benefits of using Big Bang?
 **[Copied here from the getting started page in order to build out these subpages]**
+
+Big Bang provides the following key benefits to users:
 * Compliant with the [DoD DevSecOps Reference Architecture Design](https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Reference%20Design%20-%20CNCF%20Kubernetes%20w-DD1910_cleared_20211022.pdf).
 * Can be used to check some but not all of the boxes needed to achieve a Continuous Authority to Operate (cATO) or Authority to Operate (ATO).
 * Left shift supply chain security concerns using hardened Iron Bank container images.
@@ -22,6 +24,9 @@
   - __Namespace__ `istio-injection=enabled`: transparently injects mTLS service mesh protection into their application's Kubernetes YAML manifest
   - __Pod__ `protect=keycloak`: declares an EnvoyFilter CustomResource to auto inject an SSO Authentication Proxy in front of the data path to get to their application
 
+## Team Benefits
+
+Additionally, Big Bang provides an array of benefits depending on the type of team using it, Platform Teams, Development Teams, and Organizations will each find key features that are especially useful to their efforts and concerns.
 
 ### For Platform Teams
 **[We want to talk here about what makes this especially useful for platform teams (and maybe cloud-native platform teams, since that seems to be our focus). Something like: "Since platform teams are tasked with maintaining environments, they need easy-to-use and consistent security. Big Bang provides that by having platform and security be a focus of our out-of-the-box offerings"]**

@@ -3,7 +3,8 @@ Big Bang is a declarative, continuous delivery tool for Kubernetes that enables 
 
 ## [Getting Started](getting-started.md)
 
-Detailed instructions on how to get started with Big Bang.
+**Ready to get started?** Begin with this getting started overview or jump straight to the [Quick Start Guide](installation/environments/quick-start.md) to deploy Big Bang in your environment.
+
 
 ## [What is Big Bang?](what.md)
 General features and capabilities of Big Bang.
@@ -22,8 +23,3 @@ The release schedule for Big Bang's major and minor updates.
 
 ## [What's Next?](next.md)
 A list of links to more detailed documentation about Big Bang for if you want to dive deeper.
-
-
----
-
-**Ready to get started?** Begin with the [Getting Started Overview](getting-started/index.md) or jump straight to the [Quick Start Guide](getting-started/quick-start.md) to deploy Big Bang in your environment.
