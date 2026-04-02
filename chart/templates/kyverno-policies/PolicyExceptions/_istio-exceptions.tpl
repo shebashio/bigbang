@@ -83,6 +83,7 @@ istio-gateway-disallow-image-tags-exception:
     - policyName: disallow-image-tags
       ruleNames:
       - disallow-image-tags
+      - validate-image-tag
     match:
       any:
       - resources:
