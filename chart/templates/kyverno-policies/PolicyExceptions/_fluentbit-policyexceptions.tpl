@@ -165,6 +165,7 @@ fluentbit-restrict-selinux-type-exception:
     - policyName: restrict-selinux-type
       ruleNames:
       - pod-selinux-options-type
+      - container-selinux-options-type
     match:
       any:
       - resources:
