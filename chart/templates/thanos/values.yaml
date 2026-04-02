@@ -151,22 +151,10 @@ metrics:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
+storegateway:
+  enabled: false
+
 upstream:
-  fullnameOverride: "thanos"
-  imagePullSecrets:
-  - name: private-registry
-  imagePullPolicy: {{ .Values.imagePullPolicy }}
-  {{- if .Values.monitoring.enabled }}
-  metrics:
-    enabled: true
-    image:
-      pullSecrets:
-        - private-registry
-    serviceMonitor:
-      enabled: true
-  {{- end }}
-  storegateway:
-    enabled: false
   query:
     dnsDiscovery:
       # to allow lookups to work with and without Istio enabled, we disable k8s dns service
@@ -198,24 +186,30 @@ upstream:
     {{- end }}
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
+
   queryFrontend:
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
+
   bucketweb:
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
+
   ruler:
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
+
   receive:
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
-  {{- if or (dig "upstream" "compactor" "enabled" false .Values.addons.thanos.values) .Values.addons.thanos.objectStorage.endpoint }}
+
+  {{- if or (dig "values" "upstream" "compactor" "enabled" false .Values.addons.thanos) .Values.addons.thanos.objectStorage.endpoint }}
   compactor:
     enabled: true
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
   {{- end }}
+
   {{- if .Values.addons.thanos.objectStorage.endpoint }}
   objstoreConfig: |-
     type: s3
@@ -225,6 +219,7 @@ upstream:
       access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
       secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
       insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+
   storegateway:
     enabled: true
     useEndpointGroup: true
@@ -232,4 +227,3 @@ upstream:
     networkPolicy:
       enabled: {{ .Values.networkPolicies.enabled }}
   {{- end }}
-{{- end }}
