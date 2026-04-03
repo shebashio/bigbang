@@ -149,32 +149,40 @@ minio-tenant:
 upstream:
   image:
     {{- include "secretsPullSecrets" . | nindent 4 }}
-    
+
   rollout_operator:
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
   query_scheduler:
     enabled: {{ not $istioEnabled }}
-  {{- if or $minioEnabled $s3Enabled }}
-  {{- if and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
+{{- if or $istioEnabled (and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey) }}
   global:
+    {{- if $istioEnabled }}
+    podAnnotations:
+      proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
+    {{- end }}
+    {{- if and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
     extraEnvFrom:
     - secretRef:
         name: mimir-objstore-secret
-  {{- end }}
-  {{- if .Values.addons.mimir.serviceAccountAnnotations }}
-  serviceAccount:
-    annotations:
-      {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
-      {{ $key }}: {{ $value | quote }}
-      {{- end }}
-  {{- end }}
+    {{- end }}
+{{- end }}
+{{- if or $istioEnabled $minioEnabled $s3Enabled }}
   mimir:
     structuredConfig:
-    {{- if $mimirEnterpriseEnabled }}
+      {{- if $istioEnabled }}
+      # Clear query-scheduler address so the querier does not continuously attempt to
+      # resolve the disabled query-scheduler headless service when Istio is enabled.
+      frontend:
+        scheduler_address: ""
+      frontend_worker:
+        scheduler_address: ""
+      {{- end }}
+      {{- if or $minioEnabled $s3Enabled }}
+      {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
-    {{- end }}
+      {{- end }}
       alertmanager_storage:
         backend: s3
       blocks_storage:
@@ -201,9 +209,18 @@ upstream:
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
-          {{- end }}
-          {{- end }}
-    {{- end }}
+            {{- end }}
+            {{- end }}
+      {{- end }}
+{{- end }}
+  {{- if or $minioEnabled $s3Enabled }}
+  {{- if .Values.addons.mimir.serviceAccountAnnotations }}
+  serviceAccount:
+    annotations:
+      {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
+  {{- end }}
   metaMonitoring:
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
@@ -218,3 +235,4 @@ upstream:
     dashboards:
       enabled: {{ .Values.grafana.enabled }}
 {{- end }}
+{{- end -}}
