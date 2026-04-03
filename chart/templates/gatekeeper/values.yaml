@@ -198,7 +198,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - istio-system
         - istio-gateway
 
-  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled .Values.alloy.enabled }}
+  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled .Values.alloy.enabled .Values.ztunnel.enabled }}
   restrictedTaint:
     parameters:
       excludedResources:
@@ -211,6 +211,9 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
       {{- if .Values.alloy.enabled }}
       - alloy/alloy-alloy-logs-.*
+      {{- end }}
+      {{- if .Values.ztunnel.enabled }}
+      - istio-system/ztunnel-.*
       {{- end }}
   {{- end }}
 
