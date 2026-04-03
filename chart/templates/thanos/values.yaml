@@ -185,29 +185,29 @@ upstream:
       - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "upstream" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
     {{- end }}
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
 
   queryFrontend:
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
 
   bucketweb:
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
 
   ruler:
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
 
   receive:
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
 
   {{- if or (dig "values" "upstream" "compactor" "enabled" false .Values.addons.thanos) .Values.addons.thanos.objectStorage.endpoint }}
   compactor:
     enabled: true
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
   {{- end }}
 
   {{- if .Values.addons.thanos.objectStorage.endpoint }}
@@ -225,6 +225,6 @@ upstream:
     useEndpointGroup: true
     endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
     networkPolicy:
-      enabled: {{ .Values.networkPolicies.enabled }}
+      enabled: false
   {{- end }}
 {{- end }}
