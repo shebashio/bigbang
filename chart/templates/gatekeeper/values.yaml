@@ -118,7 +118,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       - alloy/alloy-alloy-logs-.*
       {{- end }}
       {{- if .Values.ztunnel.enabled }}
-      # ztunnel requires hostpath volume types for certificates and cni integration
+      # ztunnel requires host file system for certificates and cni integration
       - istio-system/ztunnel-.*
       {{- end }}
       {{- if and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent }}
