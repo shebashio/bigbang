@@ -136,7 +136,7 @@ networkPolicies:
             app.kubernetes.io/component: query
         from:
           k8s:
-            grafana@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
             haproxy@authservice/haproxy: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
 
 {{- if .Values.monitoring.enabled }}
