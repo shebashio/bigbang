@@ -1571,6 +1571,10 @@
             "helmRepo"
           ]
         },
+        "releaseName": {
+          "type": "string",
+          "description": "Optional Helm releaseName override for this package."
+        },
         "flux": {
           "$ref": "#/$defs/flux"
         },
