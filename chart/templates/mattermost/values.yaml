@@ -131,8 +131,8 @@ global:
 {{- with .Values.addons.mattermost.enterprise }}
 enterprise:
   enabled: {{ .enabled }}
+  existingSecret: {{ .existingSecret }}
   license: {{ .license }}
-  secretName: {{ .secretName }}
 {{- end }}
 
 {{- with .Values.addons.mattermost.database }}
