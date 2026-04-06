@@ -137,6 +137,8 @@ minio-tenant:
   upstream:
     tenant:
       name: mimir-mimir-minio-tenant
+      buckets:
+        - name: {{ .Values.addons.mimir.minioObjectStorage.bucketName }}
       {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
       configSecret:
         accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
@@ -153,8 +155,6 @@ upstream:
   rollout_operator:
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
-  query_scheduler:
-    enabled: {{ not $istioEnabled }}
 {{- if or $istioEnabled (and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey) }}
   global:
     {{- if $istioEnabled }}
@@ -167,18 +167,9 @@ upstream:
         name: mimir-objstore-secret
     {{- end }}
 {{- end }}
-{{- if or $istioEnabled $minioEnabled $s3Enabled }}
+{{- if or $minioEnabled $s3Enabled }}
   mimir:
     structuredConfig:
-      {{- if $istioEnabled }}
-      # Clear query-scheduler address so the querier does not continuously attempt to
-      # resolve the disabled query-scheduler headless service when Istio is enabled.
-      frontend:
-        scheduler_address: ""
-      frontend_worker:
-        scheduler_address: ""
-      {{- end }}
-      {{- if or $minioEnabled $s3Enabled }}
       {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
@@ -198,7 +189,7 @@ upstream:
             endpoint: minio.mimir.svc.cluster.local
             insecure: true
             secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
-            bucket_name: mimir
+            bucket_name: {{ .Values.addons.mimir.minioObjectStorage.bucketName }}
             {{- else }}
             {{- if $s3Enabled }}
             {{- if and .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
@@ -211,7 +202,6 @@ upstream:
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
             {{- end }}
             {{- end }}
-      {{- end }}
 {{- end }}
   {{- if or $minioEnabled $s3Enabled }}
   {{- if .Values.addons.mimir.serviceAccountAnnotations }}
