@@ -8,7 +8,7 @@
 {{- define "bigbang.defaults.ztunnel" -}}
 upstream:
   ambient:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ or .Values.ambient .Values.ztunnel.enabled }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     {{- include "secretsImagePullSecrets" . | nindent 4 }}
