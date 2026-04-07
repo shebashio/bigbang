@@ -64,20 +64,25 @@ Ztunnel logs are captured by the cluster's logging collector (Alloy or Fluentbit
 
 ### Monitoring
 
-Ztunnel exposes metrics on port `15020` and includes Prometheus annotations for discovery:
+Ztunnel exposes metrics on port `15020` at both `/metrics` and `/stats/prometheus` endpoints. When using Big Bang's monitoring stack, ztunnel metrics are **automatically scraped** by the existing `istio-envoy` PodMonitor because:
 
-```yaml
-prometheus.io/scrape: "true"
-prometheus.io/port: "15020"
-```
+- Ztunnel's container is named `istio-proxy`
+- Ztunnel includes the required Prometheus annotations (`prometheus.io/scrape: "true"`)
 
-**Note:** Ztunnel does not create a ServiceMonitor or PodMonitor. Metrics scraping relies on Prometheus being configured for annotation-based pod discovery. When using the Big Bang monitoring stack, ensure your Prometheus configuration includes pod annotation discovery for the `istio-system` namespace.
+No additional configuration is required for metrics collection.
 
 Key metrics exposed include:
 
-- Connection counts and throughput
-- mTLS handshake statistics
-- Error rates and latency
+| Metric | Description |
+|--------|-------------|
+| `istio_build` | Build info (component, version) |
+| `istio_tcp_connections_opened_total` | TCP connections opened with source/destination labels |
+| `istio_tcp_connections_closed_total` | TCP connections closed |
+| `istio_tcp_received_bytes_total` | Bytes received per connection |
+| `istio_tcp_sent_bytes_total` | Bytes sent per connection |
+| `istio_xds_message_total` | XDS control plane messages |
+
+Metrics include rich labels for traffic analysis: source/destination workload, namespace, service, app, version, and `connection_security_policy` (showing `mutual_tls` when mTLS is active).
 
 ### Health Checks
 
