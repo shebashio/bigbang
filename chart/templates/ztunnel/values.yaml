@@ -10,6 +10,8 @@ upstream:
   ambient:
     enabled: {{ or .Values.istio.ambient.enabled .Values.ztunnel.enabled }}
   global:
+    networkPolicy:
+      enabled: true
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     {{- include "secretsImagePullSecrets" . | nindent 4 }}
 {{- end }}
