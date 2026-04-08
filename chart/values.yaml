@@ -101,6 +101,8 @@ sso:
 
   # -- OIDC endpoints can be retrieved from `{{ .Values.sso.url }}/.well-known/openid-configuration`
   oidc:
+    # -- OIDC discovery URL
+    discoveryUrl: "{{ .Values.sso.url }}/.well-known/openid-configuration"
     # -- OIDC authorization path
     authorization: "{{ .Values.sso.url }}/protocol/openid-connect/auth"
     # -- OIDC logout / end session path
@@ -614,6 +616,17 @@ kyvernoPolicies:
 kyvernoReporter:
   # -- Toggle deployment of Kyverno Reporter
   enabled: true
+
+  sso:
+    # -- Toggle SSO for kyvernoReporter virtualservice on and off
+    enabled: false
+
+    # -- OIDC Client ID to use for kyvernoReporter
+    client_id: ""
+
+    # -- OIDC Client Secret to use for kyvernoReporter
+    client_secret: ""
+
 
   # -- Choose source type of "git" or "helmRepo"
   sourceType: "git"

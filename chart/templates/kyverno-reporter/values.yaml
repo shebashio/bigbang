@@ -94,6 +94,12 @@ upstream:
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
+    openIDConnect:
+      enabled: false
+      discoveryUrl: {{ .Values.sso.oidc.discoveryUrl | quote }}
+      callbackUrl: "https://policyreporter.dev.bigbang.mil/callback"
+      clientId: {{ .Values.kyvernoReporter.sso.clientId }}
+      clientSecret: {{ .Values.kyvernoReporter.sso.clientSecret }}
 
   plugin:
     kyverno:
