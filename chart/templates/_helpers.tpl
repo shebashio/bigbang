@@ -731,7 +731,7 @@ valuesFrom:
 {{- define "istioHelmReleases" -}}
 - name: istiod
   namespace: {{ .Release.Namespace }}
-{{- if .Values.istioCNI.enabled }}
+{{- if or .Values.istioCNI.enabled .Values.istio.ambient.enabled }}
 - name: istio-cni
   namespace: {{ .Release.Namespace }}
 {{- end }}
