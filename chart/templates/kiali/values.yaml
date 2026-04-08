@@ -169,4 +169,8 @@ networkPolicies:
             istio-system/istiod:15014: {{ .Values.istiod.enabled }}
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
+waitJob:
+  enableImagePullSecrets: {{ ternary true false .Values.registryCredentials }}
+bbtests:
+  enableImagePullSecrets: {{ ternary true false .Values.registryCredentials }}
 {{- end -}}
