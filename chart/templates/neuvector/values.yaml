@@ -39,7 +39,7 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
 
   hbonePortInjection:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ .Values.istio.ambient.enabled }}
 
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}

@@ -98,7 +98,7 @@ routes:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ .Values.istio.ambient.enabled }}
   defaultsAsHooks:
     enabled: true
   egress:

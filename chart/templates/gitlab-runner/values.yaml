@@ -27,7 +27,7 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ .Values.istio.ambient.enabled }}
   egress:
     from:
       gitlab-runner:

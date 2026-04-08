@@ -26,7 +26,7 @@ podAnnotations:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ .Values.istio.ambient.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
   ingress:

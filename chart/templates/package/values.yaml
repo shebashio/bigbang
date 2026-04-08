@@ -32,7 +32,7 @@ stringData:
       istio:
         enabled: {{ $istioEnabled }}
         ambient:
-          enabled: {{ $.Values.ambient }}
+          enabled: {{ $.Values.istio.ambient.enabled }}
         sidecar:
           enabled: {{ $istioHardened }}
         authorizationPolicies:
@@ -40,7 +40,7 @@ stringData:
           generateFromNetpol: {{ $istioHardened }}
       networkPolicies:
         hbonePortInjection: 
-          enabled: {{ $.Values.ambient }}
+          enabled: {{ $.Values.istio.ambient.enabled }}
 {{- pick $.Values.networkPolicies "enabled" "hbonePortInjection" "prependReleaseName" "defaultsAsHooks" "egress" "ingress" "additionalPolicies" "additional" | toYaml | nindent 8 }}
   {{- end }}
 

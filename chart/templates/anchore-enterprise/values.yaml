@@ -106,7 +106,7 @@ istio:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.ambient }}
+    enabled: {{ .Values.istio.ambient.enabled }}
   ingress:
     definitions: 
       {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}

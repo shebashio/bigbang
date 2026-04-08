@@ -31,7 +31,7 @@ Gateway API is open source, licensed under the [Apache License 2.0](https://gith
 
 ### Installation
 
-Gateway API CRDs are installed into the `kube-system` namespace. The package can be enabled explicitly or is automatically enabled when `ambient: true` is set in Big Bang values:
+Gateway API CRDs are installed into the `kube-system` namespace. The package can be enabled explicitly or is automatically enabled when `istio.ambient.enabled: true` is set in Big Bang values:
 
 ```yaml
 # Explicit enable
@@ -39,7 +39,9 @@ gatewayAPI:
   enabled: true
 
 # Or via ambient mode (auto-enables gateway-api)
-ambient: true
+istio:
+  ambient:
+    enabled: true
 ```
 
 ### Storage
@@ -50,14 +52,6 @@ Gateway API installs CRDs only and does not require any persistent storage.
 
 Gateway API does not have a UI. Configuration is managed via kubectl and the Gateway API CRDs.
 
-### Logging
-
-Gateway API CRD controller logs are captured by the cluster's logging collector (Alloy or Fluentbit) and shipped to your configured logging backend.
-
-### Health Checks
-
-Standard Kubernetes readiness and liveness probes are configured for the Gateway API controller.
-
 ### Dependent Packages
 
 Gateway API has no required dependencies within Big Bang. However, it is typically used alongside:
@@ -67,11 +61,11 @@ Gateway API has no required dependencies within Big Bang. However, it is typical
 
 ### Configuration
 
-Values can be passed through to the Gateway API chart:
+This package installs only the Gateway API CRDs and does not deploy any controllers or workloads. There are no upstream chart values to configure.
 
 ```yaml
 gatewayAPI:
   enabled: true
-  values:
-    # Upstream chart values go here
 ```
+
+The actual Gateway API controller functionality is provided by Istio (istiod) when it reconciles Gateway and HTTPRoute resources.

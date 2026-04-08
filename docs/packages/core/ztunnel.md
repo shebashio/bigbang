@@ -35,7 +35,7 @@ Ztunnel is part of the Istio project and is open source, licensed under the [Apa
 
 ### Installation
 
-Ztunnel is deployed to the `istio-system` namespace. It can be enabled explicitly or is automatically enabled when `ambient: true` is set in Big Bang values:
+Ztunnel is deployed to the `istio-system` namespace. It can be enabled explicitly or is automatically enabled when `istio.ambient.enabled: true` is set in Big Bang values:
 
 ```yaml
 # Explicit enable
@@ -43,7 +43,9 @@ ztunnel:
   enabled: true
 
 # Or via ambient mode (auto-enables ztunnel)
-ambient: true
+istio:
+  ambient:
+    enabled: true
 ```
 
 ### Storage
@@ -115,8 +117,8 @@ ztunnel:
   values:
     # Upstream chart values go here
     upstream:
-      ambient:
-        enabled: true
+      env:
+        COLOR: red
 ```
 
 ### Ambient Mode
@@ -124,11 +126,9 @@ ztunnel:
 To enable full Istio ambient mode with ztunnel, configure Big Bang with:
 
 ```yaml
-ambient: true
-istiod:
-  enabled: true
-istioCNI:
-  enabled: true
+istio:
+  ambient:
+    enabled: true
 ```
 
-This will automatically enable and configure Gateway API and ztunnel with the appropriate settings.
+This will automatically enable and configure istio-cni, Gateway API, and ztunnel with the appropriate settings.
