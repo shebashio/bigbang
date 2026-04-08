@@ -36,8 +36,10 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
       rollout-operator:
         to:
+          definition:
+            kubeAPI: true
           k8s:
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
       minio:
         to:
           definition:
