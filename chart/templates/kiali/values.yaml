@@ -170,7 +170,7 @@ networkPolicies:
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 waitJob:
-  enableImagePullSecrets: {{ ternary true false .Values.registryCredentials }}
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
 bbtests:
-  enableImagePullSecrets: {{ ternary true false .Values.registryCredentials }}
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
 {{- end -}}
