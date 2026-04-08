@@ -1792,6 +1792,15 @@ addons:
           structuredConfig:
             limits:
               max_global_series_per_user: 0
+            store_gateway:
+              sharding_ring:
+                # Reduce ring-stability wait from the upstream default of 1m to 30s
+                # (must be >= memberlist.dead_node_reclaim_time set in package values.yaml).
+                # Prevents CI/CD pipeline timeouts on Helm upgrade: stale ring entries
+                # from the previous pod generation are cleaned within 30s, so the
+                # store-gateway reaches ACTIVE state in ~30s instead of ~62s.
+                wait_stability_min_duration: 30s
+                wait_stability_max_duration: 2m
 
     minioObjectStorage:
       enabled: true
