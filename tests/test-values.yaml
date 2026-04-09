@@ -1801,6 +1801,10 @@ addons:
                 # store-gateway reaches ACTIVE state in ~30s instead of ~62s.
                 wait_stability_min_duration: 30s
                 wait_stability_max_duration: 2m
+        "chunks-cache":
+          enabled: true
+          allocatedMemory: 512
+          replicas: 1
 
     minioObjectStorage:
       enabled: true
