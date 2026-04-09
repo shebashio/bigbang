@@ -99,6 +99,7 @@ upstream:
   serviceMonitor:
     enabled: true
     namespace: monitoring
+    path: /api/v2/metrics/prometheus
     interval: 10s
     scrapeTimeout: 10s
     selector:
@@ -364,6 +365,7 @@ upstream:
           tls.verify               On
           tls.ca_file              /etc/elasticsearch/certs/ca.crt
           {{- end }}
+          net.keepalive            Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
       [OUTPUT]
           Name                     es
@@ -378,6 +380,7 @@ upstream:
           tls                      On
           tls.verify               On
           tls.ca_file              /etc/elasticsearch/certs/ca.crt
+          net.keepalive            Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
       {{- end }}
 
@@ -391,6 +394,7 @@ upstream:
           auto_kubernetes_labels on
           Retry_Limit            False
           tls                    Off
+          net.keepalive          Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
       [OUTPUT]
           name                   loki
@@ -401,6 +405,7 @@ upstream:
           auto_kubernetes_labels on
           Retry_Limit            False
           tls                    Off
+          net.keepalive          Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
       {{- end }}
 
@@ -424,6 +429,7 @@ upstream:
           Shared_Key    {{ $fluentdSharedKey }}
           {{- end }}
           Retry_Limit   False
+          net.keepalive Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
           tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
           tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
@@ -432,7 +438,7 @@ upstream:
           {{- end }}
           {{- if $fluentdAdditionalConfig }}
           {{- range $key, $value := $fluentdAdditionalConfig }}
-          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "tls" "tls.verify" "tls.ca_file") }}
+          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "net.keepalive" "tls" "tls.verify" "tls.ca_file") }}
           {{- if has $key $preset }}
           {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
           {{- else }}
@@ -452,6 +458,7 @@ upstream:
           Shared_Key    {{ $fluentdSharedKey }}
           {{- end }}
           Retry_Limit   False
+          net.keepalive Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
           tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
           tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
@@ -460,7 +467,7 @@ upstream:
           {{- end }}
           {{- if $fluentdAdditionalConfig }}
           {{- range $key, $value := $fluentdAdditionalConfig }}
-          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "tls" "tls.verify" "tls.ca_file") }}
+          {{- $preset := (list "Name" "Match" "Host" "Port" "Username" "Password" "Shared_Key" "Retry_Limit" "net.keepalive" "tls" "tls.verify" "tls.ca_file") }}
           {{- if has $key $preset }}
           {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
           {{- else }}
@@ -480,10 +487,11 @@ upstream:
           bucket        {{ $bucket }}
           region        {{ $region }}
           Retry_Limit   False
+          net.keepalive Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
           {{- if $additionalConfig }}
           {{- range $key, $value := $additionalConfig }}
-          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit") }}
+          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit" "net.keepalive") }}
           {{- if has $key $preset }}
           {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
           {{- else }}
@@ -497,10 +505,11 @@ upstream:
           bucket        {{ $bucket }}
           region        {{ $region }}
           Retry_Limit   False
+          net.keepalive Off
           storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
           {{- if $additionalConfig }}
           {{- range $key, $value := $additionalConfig }}
-          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit") }}
+          {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit" "net.keepalive") }}
           {{- if has $key $preset }}
           {{- fail (printf "Cannot specify config option `%s`, Big Bang has set a default, please use `outputs` if you need to customize this value." $key) }}
           {{- else }}
