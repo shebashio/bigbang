@@ -1,7 +1,7 @@
 {{- /* Used for creating values for the package's Helm chart */ -}}
-{{- range $pkg, $vals := .Values.packages -}}
+{{- range $pkgKey, $vals := .Values.packages -}}
 {{- if (dig "enabled" true $vals) -}}
-{{- $pkg = include "resourceName" $pkg -}}
+{{- $pkg := include "resourceName" $pkgKey -}}
 {{- $defaults := $.Files.Get (printf "defaults/%s.yaml" $pkg) -}}
 {{- if $defaults -}}
 {{- $vals := mergeOverwrite $vals ($defaults | fromYaml).package -}}
@@ -10,8 +10,8 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ $pkg }}-values
-  namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkg) }}
-                {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkg) }}
+  namespace:  {{ if dig "helmRelease" "namespace" nil (index $.Values.packages $pkgKey) }}
+                {{ dig "helmRelease" "namespace" "" (index $.Values.packages $pkgKey) }}
               {{ else }}
                 {{ default (dig "namespace" "name" $pkg $vals) "" }}
               {{ end }}
@@ -19,7 +19,26 @@ metadata:
     {{- include "commonLabels" $ | nindent 4 }}
 type: Opaque
 stringData:
-  {{- if (not $vals.kustomize) }}
+{{- if (not $vals.kustomize) }}
+{{- if dig "bbCommonValues" false $vals }}
+{{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
+{{- $istioHardened := dig "hardened" "enabled" false $.Values.istiod.values }}
+  common.yaml: |
+    global:
+      domain: {{ $.Values.domain }}
+      monitoring:
+        enabled: {{ $.Values.monitoring.enabled }}
+    bb-common:
+      istio:
+        enabled: {{ $istioEnabled }}
+        sidecar:
+          enabled: {{ $istioHardened }}
+        authorizationPolicies:
+          enabled: {{ $istioHardened }}
+          generateFromNetpol: {{ $istioHardened }}
+      networkPolicies:
+{{- pick $.Values.networkPolicies "enabled" "hbonePortInjection" "prependReleaseName" "defaultsAsHooks" "egress" "ingress" "additionalPolicies" "additional" | toYaml | nindent 8 }}
+  {{- end }}
 
   {{- if or ($vals.values) (dig "passBigBangValues" true $vals) }}
   values.yaml: |-
@@ -37,7 +56,7 @@ stringData:
   {{- else }}
   {{- if or ($vals.values) (dig "passBigBangValues" true $vals) }}
   {{- if (dig "passBigBangValues" true $vals) }}
-  bigbang:
+  bigbang: |-
     {{- include "values-bigbang" $.Values | nindent 6 }}
   {{- end }}
   {{- if $vals.values -}}

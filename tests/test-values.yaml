@@ -701,8 +701,6 @@ kyvernoPolicies:
     additionalPolicyExceptions:
       testpolicyexception:
         enabled: true
-        kind: PolicyException
-        namespace: "kyverno"
         annotations:
           policies.kyverno.io/title: Test PolicyException
           policies.kyverno.io/category: Test
@@ -1839,8 +1837,6 @@ addons:
     elasticsearch:
       enabled: true
     values:
-      enterprise:
-        enabled: true
       monitoring:
         enabled: true
       istio:
@@ -2202,6 +2198,8 @@ addons:
         replicas: 1
       bbtests:
         enabled: true
+        scripts:
+          enabled: true
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Harbor

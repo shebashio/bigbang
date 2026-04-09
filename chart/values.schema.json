@@ -285,6 +285,23 @@
       ],
       "additionalProperties": false
     },
+    "gatewayAPI": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
     "istiod": {
       "properties": {
         "enabled": true,
@@ -318,6 +335,23 @@
           },
           "additionalProperties": false
         },
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "ztunnel": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
         "postRenderers": true
       },
       "allOf": [
@@ -758,6 +792,15 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
+        "prometheusMetrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
         "istio": {
           "$ref": "#/$defs/istio"
         },
@@ -1395,6 +1438,10 @@
           "passBigBangValues": {
             "type": "boolean",
             "default": true
+          },
+          "bbCommonValues": {
+            "type": "boolean",
+            "default": false
           },
           "includeDefaultDependsOn": {
             "type": "boolean",
