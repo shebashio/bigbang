@@ -847,7 +847,7 @@ fluentbit:
 
 loki:
   # Test SingleBinary at Umbrella, and Scalable at package level
-  strategy: monolith
+  strategy: scalable
   values:
     routes:
       inbound:
@@ -883,7 +883,7 @@ loki:
                   name: https
               resolution: DNS
     minio:
-      enabled: false
+      enabled: true
     bbtests:
       enabled: true
       cypress:
