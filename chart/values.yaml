@@ -7,6 +7,7 @@ istio:
   ambient:
     # -- Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars.
     # This automatically enables istioCNI, ztunnel, and gatewayAPI packages.
+    # NOTE: Ambient mode is currently in an alpha state.
     enabled: false
 
 # -- (experimental) Toggle sourcing from external repos.
