@@ -1,10 +1,9 @@
 ## Release Schedule
-
-- Big Bang releases adopt a standardized versioning based on and loosely following the [Semantic Versioning 2.0.0 guidelines](https://semver.org/spec/v2.0.0.html) (major.minor.patch). These releases are not based on a fixed schedule and instead, follow the specifics in the scheme that is described in this section.
+Big Bang releases adopt a standardized versioning based on and loosely following the [Semantic Versioning 2.0.0 guidelines](https://semver.org/spec/v2.0.0.html) (major.minor.patch). These releases are not based on a fixed schedule and instead, follow the specifics in the scheme that is described in this section.
 
 ### Patch Version
 
-A patch version increment is performed when there is a change in the tag (i.e., version number) of a Big Bang core package or a bug fix for a Big Bang template or values files. A change in the patch version number should be backwards compatible with previous patch changes within a minor version. If there is a significant functionality change in the a core package that requires adjustments to Big Bang templates, this would require a change in the minor or major version depending on the impact to the values and secrets used to integrated the package with Big Bang.
+A patch version increment is performed when there is a change in the tag (i.e., version number) of a Big Bang core package or a bug fix for a Big Bang template or values files. A change in the patch version number should be backwards compatible with previous patch changes within a minor version. If there is a significant functionality change in a core package that requires adjustments to Big Bang templates, this would require a change in the minor or major version depending on the impact to the values and secrets used to integrated the package with Big Bang.
 
 NOTE: Patch versions would not typically be created for addon package updates, rather customers would be expected to be updating those packages via `git.tag`/`helmRepo.tag` changes directly, or "inheriting" those updates through another version.
 

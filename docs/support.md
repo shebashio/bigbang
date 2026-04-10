@@ -1,6 +1,8 @@
 # Support and Community
 
 ### Getting Help
+**[For any problems you are facing when using Big Bang, please refer to the following links:]**
+
 - **Documentation**: Start with the guides in this [documentation](documentation.md)
 - **Community Support**: [Engage with the community](../README.md#community)
 - **Issues**: Report bugs and request features on [Repo1](https://repo1.dso.mil/big-bang/bigbang/-/issues)
