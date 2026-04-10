@@ -46,7 +46,7 @@ baseConfig:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.istio.ambient.enabled }}
+    enabled: {{ include "ambientEnabled" . }}
   egress:
     definitions:
       {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}

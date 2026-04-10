@@ -72,7 +72,7 @@ routes:
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
-    enabled: {{ .Values.istio.ambient.enabled }}
+    enabled: {{ include "ambientEnabled" . }}
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:

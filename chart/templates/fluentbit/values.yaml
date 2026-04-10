@@ -39,7 +39,7 @@ networkPolicies:
   istioNamespaceSelector:
   {{ include "istioNamespaceSelector" . | nindent 4 }}
   hbonePortInjection:
-    enabled: {{ .Values.istio.ambient.enabled }}
+    enabled: {{ include "ambientEnabled" . }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
