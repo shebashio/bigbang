@@ -1308,13 +1308,13 @@ renovate:
     tag: "46.31.6-bb.1"
   helmRepo:
     repoName: "registry1"
-    chartName: "renovate"
+    chartName: "maintained/renovate"
     tag: "46.31.6-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Renovate Package
   flux: {}
 
-  # -- Values to passthrough to the Renovate chart: https://repo1.dso.mil/big-bang/product/packages/renovate.git
+  # -- Values to passthrough to the Renovate chart: https://repo1.dso.mil/big-bang/product/maintained/renovate.git
   values: {}
 
   # -- Post Renderers.  See docs/postrenders.md
