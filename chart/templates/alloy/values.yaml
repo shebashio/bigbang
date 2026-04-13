@@ -21,7 +21,10 @@
 {{- $tempoEnabled := .Values.tempo.enabled }}
 {{- $mimirEnabled := .Values.addons.mimir.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.alloy.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{/* Sidecar injection is only effective when istio is enabled AND ambient mode is NOT enabled */}}
+{{- $sidecarInjectionEnabled := and $istioEnabled (not $ambientEnabled) }}
 
 {{- $lokiServiceMap := dict
     "monolith" "logging-loki"
@@ -158,7 +161,7 @@ upstream:
     {{- if and $alloyMetricsEnabled .Values.monitoring.enabled }}
     - name: prometheus
       type: prometheus
-      {{- if $istioEnabled }}
+      {{- if $sidecarInjectionEnabled }}
       url: https://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
       tls:
         caFile: /etc/prom-certs/root-cert.pem
@@ -172,7 +175,7 @@ upstream:
     {{- if and $alloyMetricsEnabled $mimirEnabled }}
     - name: mimir
       type: prometheus
-      {{- if $istioEnabled }}
+      {{- if $sidecarInjectionEnabled }}
       url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
       tls:
         caFile: /etc/prom-certs/root-cert.pem
@@ -230,7 +233,7 @@ upstream:
   {{- if $alloyClusterEventsEnabled }}
   alloy-singleton:
     enabled: true
-    {{- if and $alloyMetricsEnabled $istioEnabled }}
+    {{- if and $alloyMetricsEnabled $sidecarInjectionEnabled }}
     alloy:
       # Mount Istio certs so alloy-singleton can use prometheus destination with mTLS
       mounts:
@@ -303,13 +306,15 @@ upstream:
       extraAnnotations:
         {{ include "istioAnnotation" . }}
       {{- end }}
+      {{- if $sidecarInjectionEnabled }}
       # Mount Istio certs so alloy-metrics can scrape ServiceMonitors with mTLS tlsConfig
       mounts:
         extra:
           - name: istio-certs
             mountPath: /etc/prom-certs/
+      {{- end }}
     controller:
-      {{- if $istioEnabled }}
+      {{- if $sidecarInjectionEnabled }}
       # Istio sidecar annotations to output certs to the shared istio-certs volume
       podAnnotations:
         proxy.istio.io/config: |
@@ -317,12 +322,12 @@ upstream:
             OUTPUT_CERTS: /etc/istio-output-certs
         sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
         traffic.sidecar.istio.io/includeOutboundIPRanges: ""
-      {{- end }}
       volumes:
         extra:
           - name: istio-certs
             emptyDir:
               medium: Memory
+      {{- end }}
   prometheusOperatorObjects:
     enabled: true
     destinations:
@@ -344,7 +349,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-logs
       app.kubernetes.io/name: alloy-logs
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -360,7 +365,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-singleton
       app.kubernetes.io/name: alloy-singleton
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -378,7 +383,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-metrics
       app.kubernetes.io/name: alloy-metrics
-    {{- if and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
