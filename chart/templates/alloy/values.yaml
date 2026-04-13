@@ -141,12 +141,12 @@ upstream:
   {{- end }}
   destinations:
     {{- if and (or $alloyLogsEnabled $alloyClusterEventsEnabled) .Values.loki.enabled }}
-    - name: loki
+    loki:
       type: loki
       url: {{ $lokiWriteDestUrl }}
     {{- end }}
     {{- if $tempoEnabled }}
-    - name: tempo
+    tempo:
       type: otlp
       url: http://tempo-tempo.tempo.svc.cluster.local:4317
       metrics:
@@ -157,7 +157,7 @@ upstream:
         insecure: true
     {{- end }}
     {{- if and $alloyMetricsEnabled .Values.monitoring.enabled }}
-    - name: prometheus
+    prometheus:
       type: prometheus
       {{- if $istioEnabled }}
       url: https://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
@@ -171,7 +171,7 @@ upstream:
       {{- end }}
     {{- end }}
     {{- if and $alloyMetricsEnabled $mimirEnabled }}
-    - name: mimir
+    mimir:
       type: prometheus
       {{- if $istioEnabled }}
       url: https://mimir-mimir-gateway.mimir.svc.cluster.local:80/api/v1/push
@@ -185,12 +185,15 @@ upstream:
       {{- end }}
     {{- end }}
   {{- if .Values.alloy.additionalDestinations }}
-  {{- toYaml .Values.alloy.additionalDestinations | nindent 4 }}
+    {{- range $dest := .Values.alloy.additionalDestinations }}
+    {{ $dest.name }}:
+{{ toYaml $dest | nindent 6 }}
+    {{- end }}
   {{- end }}
   {{- if $alloyLogsEnabled }}
   alloy-logs:
     enabled: true
-  podLogs:
+  podLogsViaLoki:
     enabled: true
     destinations:
       {{- if .Values.loki.enabled }}
@@ -204,29 +207,6 @@ upstream:
       {{- end }}
       {{- end }}
     collector: alloy-logs
-    labelsToKeep:
-      - app.kubernetes.io/name
-      - container
-      - instance
-      - job
-      - level
-      - namespace
-      - service.name
-      - service.namespace
-      - deployment.environment
-      - deployment.environment.name
-      - k8s.namespace.name
-      - k8s.deployment.name
-      - k8s.statefulset.name
-      - k8s.daemonset.name
-      - k8s.cronjob.name
-      - k8s.job.name
-      - k8s.node.name
-      - k8s.pod.name
-      - pod
-    structuredMetadata:
-      k8s.pod.name: null
-      pod: null
   {{- end }}
   {{- if $alloyClusterEventsEnabled }}
   alloy-singleton:
