@@ -292,6 +292,7 @@ upstream:
     collector: alloy-logs
     structuredMetadata:
       k8s.pod.name: k8s.pod.name
+      pod: ""
       service.instance.id: service.instance.id
   {{- end }}
   {{- if $alloyClusterEventsEnabled }}
