@@ -158,12 +158,6 @@ upstream:
         access: proxy
         url: http://monitoring-monitoring-kube-prometheus.monitoring.svc:9090
         editable: true
-      # Keep a lowercase alias for upstream dashboards that still reference datasource: "prometheus".
-      - name: prometheus
-        type: prometheus
-        access: proxy
-        url: http://monitoring-monitoring-kube-prometheus.monitoring.svc:9090
-        editable: true
       {{- end }}
       {{- end }}
       {{- if .Values.addons.argocd.enabled }}
