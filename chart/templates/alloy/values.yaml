@@ -190,9 +190,89 @@ upstream:
 {{ toYaml $dest | nindent 6 }}
     {{- end }}
   {{- end }}
+  collectors:
   {{- if $alloyLogsEnabled }}
-  alloy-logs:
-    enabled: true
+    alloy-logs:
+      enabled: true
+      presets:
+        - daemonset
+        - filesystem-log-reader
+  {{- end }}
+  {{- if $alloyClusterEventsEnabled }}
+    alloy-singleton:
+      enabled: true
+      presets:
+        - singleton
+      {{- if and $alloyMetricsEnabled $istioEnabled }}
+      alloy:
+        # Mount Istio certs so alloy-singleton can use prometheus destination with mTLS
+        mounts:
+          extra:
+            - name: istio-certs
+              mountPath: /etc/prom-certs/
+      controller:
+        podAnnotations:
+          proxy.istio.io/config: |
+            proxyMetadata:
+              OUTPUT_CERTS: /etc/istio-output-certs
+          sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+          traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+        volumes:
+          extra:
+            - name: istio-certs
+              emptyDir:
+                medium: Memory
+      {{- end }}
+  {{- end }}
+  {{- if $tempoEnabled }}
+    alloy-receiver:
+      enabled: true
+      presets:
+        - deployment
+      alloy:
+        extraPorts:
+        - name: otlp-grpc
+          port: 4317
+          targetPort: 4317
+          protocol: TCP
+          appProtocol: grpc
+        - name: zipkin
+          port: 9411
+          targetPort: 9411
+          protocol: TCP
+  {{- end }}
+  {{- if $alloyMetricsEnabled }}
+    alloy-metrics:
+      enabled: true
+      presets:
+        - deployment
+      alloy:
+        {{- if and $istioEnabled $istioHardenedEnabled }}
+        extraAnnotations:
+          {{ include "istioAnnotation" . }}
+        {{- end }}
+        # Mount Istio certs so alloy-metrics can scrape ServiceMonitors with mTLS tlsConfig
+        mounts:
+          extra:
+            - name: istio-certs
+              mountPath: /etc/prom-certs/
+      controller:
+        {{- if $istioEnabled }}
+        # Istio sidecar annotations to output certs to the shared istio-certs volume
+        podAnnotations:
+          proxy.istio.io/config: |
+            proxyMetadata:
+              OUTPUT_CERTS: /etc/istio-output-certs
+          sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+          traffic.sidecar.istio.io/includeOutboundIPRanges: ""
+        {{- end }}
+        volumes:
+          extra:
+            - name: istio-certs
+              emptyDir:
+                medium: Memory
+  {{- end }}
+  {{- if $alloyLogsEnabled }}
   podLogsViaLoki:
     enabled: true
     destinations:
@@ -209,30 +289,9 @@ upstream:
     collector: alloy-logs
   {{- end }}
   {{- if $alloyClusterEventsEnabled }}
-  alloy-singleton:
-    enabled: true
-    {{- if and $alloyMetricsEnabled $istioEnabled }}
-    alloy:
-      # Mount Istio certs so alloy-singleton can use prometheus destination with mTLS
-      mounts:
-        extra:
-          - name: istio-certs
-            mountPath: /etc/prom-certs/
-    controller:
-      podAnnotations:
-        proxy.istio.io/config: |
-          proxyMetadata:
-            OUTPUT_CERTS: /etc/istio-output-certs
-        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
-      volumes:
-        extra:
-          - name: istio-certs
-            emptyDir:
-              medium: Memory
-    {{- end }}
   clusterEvents:
     enabled: true
+    collector: alloy-singleton
     destinations:
       {{- if .Values.loki.enabled }}
       - loki
@@ -246,22 +305,9 @@ upstream:
       {{- end }}
   {{- end }}
   {{- if $tempoEnabled }}
-  # Enable alloy-receiver to collect traces and forward to Tempo
-  alloy-receiver:
-    enabled: true
-    alloy:
-      extraPorts:
-      - name: otlp-grpc
-        port: 4317
-        targetPort: 4317
-        protocol: TCP
-        appProtocol: grpc
-      - name: zipkin
-        port: 9411
-        targetPort: 9411
-        protocol: TCP
   applicationObservability:
     enabled: true
+    collector: alloy-receiver
     receivers:
       otlp:
         grpc:
@@ -276,34 +322,6 @@ upstream:
       - tempo
   {{- end }}
   {{- if $alloyMetricsEnabled }}
-  # Enable alloy-metrics to scrape ServiceMonitors/PodMonitors and forward via remote write
-  alloy-metrics:
-    enabled: true
-    alloy:
-      {{- if and $istioEnabled $istioHardenedEnabled }}
-      extraAnnotations:
-        {{ include "istioAnnotation" . }}
-      {{- end }}
-      # Mount Istio certs so alloy-metrics can scrape ServiceMonitors with mTLS tlsConfig
-      mounts:
-        extra:
-          - name: istio-certs
-            mountPath: /etc/prom-certs/
-    controller:
-      {{- if $istioEnabled }}
-      # Istio sidecar annotations to output certs to the shared istio-certs volume
-      podAnnotations:
-        proxy.istio.io/config: |
-          proxyMetadata:
-            OUTPUT_CERTS: /etc/istio-output-certs
-        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-        traffic.sidecar.istio.io/includeOutboundIPRanges: ""
-      {{- end }}
-      volumes:
-        extra:
-          - name: istio-certs
-            emptyDir:
-              medium: Memory
   prometheusOperatorObjects:
     enabled: true
     destinations:
