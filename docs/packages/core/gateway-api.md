@@ -4,7 +4,7 @@
 
 [Gateway API](https://gateway-api.sigs.k8s.io/) is a collection of Kubernetes Custom Resource Definitions (CRDs) that provide an expressive, extensible, and role-oriented approach to defining traffic routing and network policies. It is the successor to the Kubernetes Ingress API and provides a more powerful and flexible way to configure ingress, egress, and service-to-service traffic.
 
-Gateway API is a core dependency for Istio ambient mode and provides the standard API for configuring traffic management in modern Kubernetes environments.
+Gateway API provides the standard API for configuring traffic management in modern Kubernetes environments. In Istio ambient mode, Gateway API is required specifically for L7 traffic management via waypoint proxies. Basic L4 ambient functionality (mTLS, network policies) works with just ztunnel and does not require Gateway API.
 
 ```mermaid
 flowchart TD
