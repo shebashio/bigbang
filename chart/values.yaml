@@ -1098,11 +1098,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "82.18.0-bb.0"
+    tag: "83.4.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "82.18.0-bb.0"
+    tag: "83.4.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1170,11 +1170,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "10.5.15-bb.2"
+    tag: "10.5.15-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "10.5.15-bb.2"
+    tag: "10.5.15-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux: {}
@@ -1309,11 +1309,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "9.4.16-bb.0"
+      tag: "9.4.17-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "9.4.16-bb.0"
+      tag: "9.4.17-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1872,11 +1872,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.5.1-bb.2"
+      tag: "11.5.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.5.1-bb.2"
+      tag: "11.5.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:

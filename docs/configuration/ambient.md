@@ -1,6 +1,8 @@
 # Configuring Istio Ambient Mode in Big Bang
 
 > **WARNING:** Ambient mode is currently in an **alpha state** within Big Bang. It is not fully integrated and is **not recommended for production use**. Expect potential breaking changes in future releases.
+>
+> **NOTE:** During the alpha phase, the global `istio.ambient.enabled` flag only deploys the required ambient infrastructure (ztunnel, istio-cni, gateway-api). Individual packages must be explicitly configured to participate in the ambient mesh until they have been validated. In future releases, the global ambient flag will automatically opt packages into ambient mode.
 
 [[_TOC_]]
 
@@ -47,6 +49,26 @@ istio:
 #   values: {}
 # gatewayAPI:
 #   values: {}
+```
+
+## Platform-Specific Configuration
+
+### istio-cni
+
+When enabling ambient mode, `istio-cni` is automatically deployed. Depending on your Kubernetes platform, you may need to customize the CNI configuration. Common platforms that require specific settings include:
+
+- **OpenShift**: Requires specific CNI bin/conf directories
+- **K3s/K3d**: Uses non-standard CNI paths
+- **GKE/EKS/AKS**: May have platform-specific networking requirements
+
+Refer to the [upstream istio-cni values](https://github.com/istio/istio/blob/master/manifests/charts/istio-cni/values.yaml) for available configuration options. Override these in your Big Bang values:
+
+```yaml
+istioCNI:
+  values:
+    cni:
+      cniBinDir: /opt/cni/bin       # Customize for your platform
+      cniConfDir: /etc/cni/net.d    # Customize for your platform
 ```
 
 ## Additional Resources
