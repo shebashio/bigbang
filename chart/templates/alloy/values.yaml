@@ -197,6 +197,9 @@ upstream:
       presets:
         - daemonset
         - filesystem-log-reader
+      global:
+        podSecurityContext:
+          fsGroup: 0
   {{- end }}
   {{- if $alloyClusterEventsEnabled }}
     alloy-singleton:
