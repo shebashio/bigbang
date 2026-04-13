@@ -95,8 +95,8 @@ networkPolicies:
       alloy-logs:
         to:
           k8s:
-            # Loki egress: namespace with app.kubernetes.io/name=logging, pod with app.kubernetes.io/name=logging-loki, port 3100
-            logging/logging-loki:3100: {{ .Values.loki.enabled }}
+            # Loki egress follows the active Loki write path for the selected deployment strategy.
+            logging/{{ $lokiServiceName }}:3100: {{ .Values.loki.enabled }}
       alloy:
         to:
           tempo/tempo:4317: {{ .Values.tempo.enabled }}
@@ -104,7 +104,7 @@ networkPolicies:
       alloy-singleton:
         to:
           k8s:
-            logging/logging-loki:3100: {{ .Values.loki.enabled }}
+            logging/{{ $lokiServiceName }}:3100: {{ .Values.loki.enabled }}
       {{- end }}
       {{- if $tempoEnabled }}
       # Allow alloy-receiver to forward traces to Tempo backend
