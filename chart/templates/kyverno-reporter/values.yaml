@@ -69,7 +69,7 @@ networkPolicies:
             kubeAPI: true
         to:
           definition:
-            sso: true
+            sso: {{ .Values.kyvernoReporter.sso.enabled }}
   ingress:
     to:
       policy-reporter:8080:
@@ -95,9 +95,9 @@ upstream:
       {{ include "istioAnnotation" . }}
     {{- end }}
     openIDConnect:
-      enabled: false
+      enabled: {{ .Values.kyvernoReporter.sso.enabled }}
       discoveryUrl: {{ .Values.sso.oidc.discoveryUrl | quote }}
-      callbackUrl: "https://policyreporter.dev.bigbang.mil/callback"
+      callbackUrl: {{ printf "https://policyreporter.%s/callback" $domainName | quote }}
       clientId: {{ .Values.kyvernoReporter.sso.clientId }}
       clientSecret: {{ .Values.kyvernoReporter.sso.clientSecret }}
 
