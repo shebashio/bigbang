@@ -1,6 +1,15 @@
 # -- Domain used for BigBang created exposed services, can be overridden by individual packages.
 domain: dev.bigbang.mil
 
+# -- Global Istio settings
+istio:
+  # -- Ambient mesh mode configuration
+  ambient:
+    # -- Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars.
+    # This automatically enables istioCNI, ztunnel, and gatewayAPI packages.
+    # NOTE: Ambient mode is currently in an alpha state.
+    enabled: false
+
 # -- (experimental) Toggle sourcing from external repos.
 # All this does right now is toggle GitRepositories, it is _not_ fully functional
 offline: false
@@ -992,11 +1001,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "1.26.5-bb.0"
+    tag: "1.26.5-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "1.26.5-bb.0"
+    tag: "1.26.5-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Tempo Package
   flux: {}
@@ -1089,11 +1098,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "82.18.0-bb.0"
+    tag: "83.4.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "82.18.0-bb.0"
+    tag: "83.4.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
