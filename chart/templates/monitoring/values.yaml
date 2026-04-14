@@ -74,6 +74,8 @@ istio:
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
     outboundTrafficPolicyMode: REGISTRY_ONLY
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   {{- if and $istioHardenedEnabled (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
   serviceEntries:
     custom:

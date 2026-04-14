@@ -71,6 +71,8 @@ istio:
   enabled: {{ $istioEnabled }}
   sidecar:
     enabled: {{ $istioHardened }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ $istioHardened }}
     generateFromNetpol: true

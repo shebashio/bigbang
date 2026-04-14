@@ -53,6 +53,8 @@ networkPolicies:
 
 istio:
   enabled: {{ $istioEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values)

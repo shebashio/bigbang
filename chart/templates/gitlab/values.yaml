@@ -109,6 +109,8 @@ routes:
 istio:
   enabled: {{ $istioInjection }}
   sidecar:
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ $istioHardened }}
     generateFromNetpol: {{ $istioHardened }}

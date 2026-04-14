@@ -21,6 +21,8 @@ istio:
     generateFromNetpol: {{ $istioHardenedEnabled }}
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

@@ -70,6 +70,9 @@ istio:
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
 
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
+
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
   authorizationPolicies:

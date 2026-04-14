@@ -19,6 +19,8 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 istio:
   enabled: {{ $istioEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ $istioHardened }}
     generateFromNetpol: {{ $istioHardened }}

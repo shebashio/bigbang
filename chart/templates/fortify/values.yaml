@@ -38,6 +38,8 @@ istio:
     enabled: {{ $istioHardened }}
   sidecar:
     enabled: {{ $istioHardened }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ $istioHardened }}
 

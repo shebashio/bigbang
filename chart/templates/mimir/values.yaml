@@ -80,6 +80,8 @@ networkPolicies:
             alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
 istio:
   enabled: {{ $istioEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   hardened:
     enabled: {{ or
       (dig "istio" "hardened" "enabled" false .Values.monitoring.values)

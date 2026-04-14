@@ -36,6 +36,8 @@ istio:
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
   sidecar:
     enabled: {{ $istioHardenedEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
