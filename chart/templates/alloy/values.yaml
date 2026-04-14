@@ -17,7 +17,10 @@
 {{- define "bigbang.defaults.alloy" -}}
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.alloy) }}
-{{- $alloyClusterEventsEnabled := (dig "alloyClusterEvents" "enabled" false .Values.alloy) }}
+{{- $alloyClusterEventsEnabled := or
+      (dig "alloyClusterEvents" "enabled" false .Values.alloy)
+      (dig "values" "upstream" "clusterEvents" "enabled" false .Values.alloy)
+}}
 {{- $tempoEnabled := .Values.tempo.enabled }}
 {{- $mimirEnabled := .Values.addons.mimir.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
