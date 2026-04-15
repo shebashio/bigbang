@@ -1,7 +1,6 @@
 # Why Use Big Bang?
-**[Include here some high-level description of the value gained from using Big Bang. What are the problems or risks we are addressing? Why is it necessary? In broad terms, as opposed to the specific ones down below. Also, the list below really just seems like a list of features. That's not really an answer to "why?" Like why is Big Bang useful to a platform team? Why are these features of particular importance?]**
+Big Bang offers out-of-the-box solutions that reduce the time to ATO (authority to operate), providing users with a solution that is already approved, with security, monitoring, and platforms built in. Big Bang's solutions and features are broadly applicable, requiring only that teams develop for their specific needs outside of the general out-of-the-box setup.
 ## What are the benefits of using Big Bang?
-**[Copied here from the getting started page in order to build out these subpages]**
 
 Big Bang provides the following key benefits to users:
 * Compliant with the [DoD DevSecOps Reference Architecture Design](https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Reference%20Design%20-%20CNCF%20Kubernetes%20w-DD1910_cleared_20211022.pdf).
@@ -39,7 +38,7 @@ Since platform teams are tasked with maintaining environments, they need easy-to
   **[As opposed to what? What is the lack of standardization that teams are dealing with that we are solving?]**_
 
 ### For Development Teams
-**[Again, we can say something here specific to development teams at a high level. Specifically, what is different from a platform team's concerns. Perhaps something like: "With Big Bang, development teams can focus on application development with state-of-the-art tooling without concerning themselves with development operations and platform maintenance. This leads to a more focused and efficient development pipeline."]**
+With Big Bang, development teams can focus on application development with state-of-the-art tooling without concerning themselves with development operations and platform maintenance. This leads to a more focused and efficient development pipeline.
 - **Focus on Applications**: Platform capabilities provided out-of-the-box
   **[So earlier, we talked about what this does for platform teams. Are the platform capabilities provided out of the box, or are they just conveniently accessed by platform teams, who can more efficiently manage that platform?]**
 - **Modern Toolchain**: Access to industry-leading development and deployment tools
@@ -48,7 +47,7 @@ Since platform teams are tasked with maintaining environments, they need easy-to
 - **Self-Service**: GitOps-driven deployments with minimal operational overhead
 
 ### For Organizations
-**[Organizations definitely have different concerns that either team, right? And you do address those in the bullets, but we want, again, a high-level answer here. Something like: "For organizations, there is a greater concern about cost, compliance, and risk awareness, Big Bang's features address those concerns in the following ways:"]**
+For organizations, there is a greater concern about cost, compliance, and risk awareness, Big Bang's features address those concerns in the following ways:
 - **Compliance**: Built-in support for NIST, FedRAMP, and DoD security standards
 - **Cost Efficiency**: Reduced time-to-market and operational overhead
   **[Is it beneficial here to give a value on that reduction?]**
