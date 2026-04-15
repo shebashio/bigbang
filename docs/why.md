@@ -29,7 +29,7 @@ Big Bang provides the following key benefits to users:
 Additionally, Big Bang provides a number of benefits depending on the type of team using it, Platform Teams, Development Teams, and Organizations will each find key features that are especially useful to their efforts and concerns.
 
 ### For Platform Teams
-**[We want to talk here about what makes this especially useful for platform teams (and maybe cloud-native platform teams, since that seems to be our focus). Something like: "Since platform teams are tasked with maintaining environments, they need easy-to-use and consistent security. Big Bang provides that by having platform and security be a focus of our out-of-the-box offerings"]**
+Since platform teams are tasked with maintaining environments, they need easy-to-use and consistent security. Big Bang provides that by having platform and security be a focus of our out-of-the-box offerings
 - **Rapid Platform Setup**: Deploy a production-ready Kubernetes platform in hours, not months
 - **Security by Default**: Built-in security controls and compliance frameworks
   **[What type of security controls?]**
