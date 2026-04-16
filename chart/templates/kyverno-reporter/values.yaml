@@ -96,7 +96,7 @@ upstream:
     {{- end }}
     openIDConnect:
       enabled: {{ .Values.kyvernoReporter.sso.enabled }}
-      discoveryUrl: {{ .Values.sso.oidc.discoveryUrl | quote }}
+      discoveryUrl: {{ printf "%s/.well-known/openid-configuration" .Values.sso.url | quote }}
       callbackUrl: {{ printf "https://policyreporter.%s/callback" $domainName | quote }}
       clientId: {{ .Values.kyvernoReporter.sso.client_id }}
       clientSecret: {{ .Values.kyvernoReporter.sso.client_secret }}
