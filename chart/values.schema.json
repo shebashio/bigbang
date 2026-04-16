@@ -467,7 +467,7 @@
         "enabled": true,
         "sourceType": true,
         "git": true,
-"sso": {
+        "sso": {
           "type": "object",
           "required": [
             "enabled",
@@ -488,6 +488,8 @@
               "type": "string"
             }
           },
+          "additionalProperties": false
+        },
         "helmRepo": true,
         "flux": true,
         "values": true,
