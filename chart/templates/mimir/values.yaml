@@ -26,6 +26,8 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
   prependReleaseName: false
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}

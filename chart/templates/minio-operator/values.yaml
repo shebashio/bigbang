@@ -44,6 +44,8 @@ upstream:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
   egress:
     from:
       minio-operator:

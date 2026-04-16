@@ -26,6 +26,8 @@ istio:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
   egress:
     {{- if eq (include "ambientEnabled" .) "true" }}
     defaults:
