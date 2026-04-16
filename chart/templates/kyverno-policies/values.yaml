@@ -1280,8 +1280,6 @@ policies:
 
 istio:
   enabled: {{ $istioEnabled }}
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
 
 {{- end }}
 

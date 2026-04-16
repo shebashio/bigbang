@@ -32,8 +32,5 @@ istio:
       (dig "hardened" "enabled" false .Values.istiod.values)
     }}
 
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
-
 openshift: {{ .Values.openshift }}
 {{- end -}}
