@@ -98,8 +98,8 @@ upstream:
       enabled: {{ .Values.kyvernoReporter.sso.enabled }}
       discoveryUrl: {{ .Values.sso.oidc.discoveryUrl | quote }}
       callbackUrl: {{ printf "https://policyreporter.%s/callback" $domainName | quote }}
-      clientId: {{ .Values.kyvernoReporter.sso.clientId }}
-      clientSecret: {{ .Values.kyvernoReporter.sso.clientSecret }}
+      clientId: {{ .Values.kyvernoReporter.sso.client_id }}
+      clientSecret: {{ .Values.kyvernoReporter.sso.client_secret }}
 
   plugin:
     kyverno:
