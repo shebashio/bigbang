@@ -5,7 +5,7 @@ alloy-add-default-securitycontext-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-add-default-securitycontext-exception
+      policies.kyverno.io/title: Alloy-add-default-securitycontext-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
@@ -29,7 +29,7 @@ alloy-require-non-root-group-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-require-non-root-group-exception
+      policies.kyverno.io/title: Alloy-require-non-root-group-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
@@ -54,7 +54,7 @@ alloy-require-non-root-user-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-require-non-root-user-exception
+      policies.kyverno.io/title: Alloy-require-non-root-user-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
@@ -78,7 +78,7 @@ alloy-restrict-capabilities-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-restrict-capabilities-exception
+      policies.kyverno.io/title: Alloy-restrict-capabilities-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
@@ -105,7 +105,7 @@ alloy-restrict-host-path-mount-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-restrict-host-path-mount-exception
+      policies.kyverno.io/title: Alloy-restrict-host-path-mount-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy requires access to journalctl as well as /var/log.  This would require modifications
@@ -129,7 +129,7 @@ alloy-restrict-selinux-type-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-restrict-selinux-type-exception
+      policies.kyverno.io/title: Alloy-restrict-selinux-type-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: " Alloy requires SELinux option type 'spc_t' for privileged host volume mounting on SELinux enabled systems
@@ -155,7 +155,7 @@ alloy-restrict-volume-types-exception:
     labels:
       app: alloy
     annotations:
-      policies.kyverno.io/title: Allloy-restrict-volume-types-exception
+      policies.kyverno.io/title: Alloy-restrict-volume-types-exception
       policies.kyverno.io/category: Alloy
       policies.kyverno.io/subject: Pod
       policies.kyverno.io/description: "Alloy mounts the following hostPaths:
