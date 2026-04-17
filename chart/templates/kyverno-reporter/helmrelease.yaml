@@ -42,7 +42,7 @@ spec:
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
     {{- if and .Values.addons.keycloak.enabled .Values.kyvernoReporter.sso.enabled }}
-      - name: keycloak
-        namespace: {{ .Release.Namespace }}
+    - name: keycloak
+      namespace: {{ .Release.Namespace }}
     {{- end }}
 {{- end }}
