@@ -18,9 +18,9 @@ spec:
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if or (get .Values $pkg).postRenderers (and $istioEnabled (ne (include "ambientEnabled" .) "true")) }}
+  {{- if or (get .Values $pkg).postRenderers (and .Values.monitoring.enabled $istioEnabled (ne (include "ambientEnabled" .) "true")) }}
   postRenderers:
-  {{- if and $istioEnabled (ne (include "ambientEnabled" .) "true") }}
+  {{- if and .Values.monitoring.enabled $istioEnabled (ne (include "ambientEnabled" .) "true") }}
   {{ include "KyvernoReporter.ServiceMonitorPostRenderer" . | nindent 2 }}
   {{- end }}
   {{- if (get .Values $pkg).postRenderers }}
