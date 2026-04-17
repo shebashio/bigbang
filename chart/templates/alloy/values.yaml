@@ -23,7 +23,7 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.alloy.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{/* Sidecar injection is only effective when istio is enabled AND ambient mode is NOT enabled */}}
+{{/* When ambient mode is enabled, sidecar injection is disabled since sidecars are not used */}}
 {{- $sidecarInjectionEnabled := and $istioEnabled (not $ambientEnabled) }}
 
 {{- $lokiServiceMap := dict

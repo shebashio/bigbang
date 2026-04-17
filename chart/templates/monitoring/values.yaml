@@ -37,8 +37,8 @@ injection in the monitoring namespace.
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{- $monitoringInjectionEnabled := and $istioEnabled $monitoringNamespaceInjectionEnabled }}
 {{/*
-Sidecar injection is only effective when injection is enabled AND ambient mode is NOT enabled.
-In ambient mode, there are no sidecars, so sidecar-specific annotations and cert mounting don't apply.
+When ambient mode is enabled, sidecar injection is disabled since sidecars are not used.
+Sidecar-specific annotations and cert mounting don't apply in ambient mode.
 */}}
 {{- $sidecarInjectionEnabled := and $monitoringInjectionEnabled (not $ambientEnabled) }}
 {{- $mtlsStrict := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
@@ -296,7 +296,7 @@ upstream:
       enabled: true
       # Note: We need to change the portName in order for istio to correctly detect TCP is being used
       #       for the headless service
-      {{- if $monitoringInjectionEnabled }}
+      {{- if $istioEnabled }}
       portName: "tcp-grpc"
       {{- end }}
     thanosServiceMonitor:
