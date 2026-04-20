@@ -1961,6 +1961,9 @@ addons:
             MINIO_HOST: https://minio-api.dev.bigbang.mil
 
   keycloak:
+    git:
+      tag: ""
+      branch: renovate/keycloak
     enabled: false
     ingress:
       gateway: ""
