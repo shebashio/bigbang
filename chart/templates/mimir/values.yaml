@@ -45,7 +45,7 @@ istio:
 routes:
   inbound:
     mimir-gateway:
-      enabled: {{ dig "upstream" "gateway" "enabled" false .Values.addons.mimir }}
+      enabled: false
       gateways:
         - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
       hosts:
