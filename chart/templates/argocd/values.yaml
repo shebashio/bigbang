@@ -99,7 +99,7 @@ global:
 istio:
   enabled: {{ $istioEnabled }}
   sidecar:
-    enabled: {{ $istioHardened }}
+    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
   injection: {{ dig "istio" "injection" "enabled" .Values.addons.argocd }}

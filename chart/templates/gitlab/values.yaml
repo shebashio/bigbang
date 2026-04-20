@@ -109,6 +109,7 @@ routes:
 istio:
   enabled: {{ $istioInjection }}
   sidecar:
+    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:

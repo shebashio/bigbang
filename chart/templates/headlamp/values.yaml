@@ -20,7 +20,7 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: {{ $istioHardenedEnabled }}
   sidecar:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
 
