@@ -808,7 +808,8 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.57.2-bb.0"
+    tag: null
+    branch: bb/script-test-adjustments
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
