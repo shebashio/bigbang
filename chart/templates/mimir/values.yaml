@@ -36,7 +36,10 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
 
   sidecar:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
+
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
     enabled: {{ $istioHardenedEnabled }}
@@ -63,14 +66,17 @@ routes:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
-  prependReleaseName: false
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
       mimir:
         to:
           k8s:
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
+            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+          definition:
+            storage-subnets: {{ not $minioEnabled }}
       rollout-operator:
         to:
           k8s:
@@ -109,12 +115,12 @@ networkPolicies:
         from:
           k8s: 
             minio-operator@minio-operator/minio-operator: {{ .Values.addons.minioOperator.enabled }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
       minio:[15020]:
         from:
           k8s:
-            minio-operator@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+            minio-operator@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ and $minioEnabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
 
 {{- if $minioEnabled }}
 minio-tenant:
