@@ -21,30 +21,30 @@ Per the upstream PR authors (Microsoft):
 
 ### Known Limitations
 
-| Limitation | Details |
-|-----------|---------|
-| **DNS resolution** | HostProcess pods cannot resolve cluster-local DNS names. Requires `ALT_XDS_HOSTNAME` and `ALT_CA_HOSTNAME` environment variables as workarounds, or init container PowerShell scripts to configure DNS namespaces. |
-| **Socket reuse** | Not supported on Windows due to platform limitations. |
-| **No published image** | Istio does not publish a Windows ztunnel image. You must build your own. |
-| **No IronBank image** | No hardened image exists. Will not until the feature reaches GA and is submitted for hardening. |
-| **ARM64** | Windows ARM64 builds are tracked in [ztunnel #1584](https://github.com/istio/ztunnel/issues/1584) but not yet available. |
-| **Sidecar mode** | Traditional Istio sidecar injection does **not** work on Windows at all ([istio #27893](https://github.com/istio/istio/issues/27893)). Ambient is the only path for Windows mesh participation. |
+| Limitation             | Details                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **DNS resolution**     | HostProcess pods cannot resolve cluster-local DNS names. Requires `ALT_XDS_HOSTNAME` and `ALT_CA_HOSTNAME` environment variables as workarounds, or init container PowerShell scripts to configure DNS namespaces. |
+| **Socket reuse**       | Not supported on Windows due to platform limitations.                                                                                                                                                              |
+| **No published image** | Istio does not publish a Windows ztunnel image. You must build your own.                                                                                                                                           |
+| **No IronBank image**  | No hardened image exists. Will not until the feature reaches GA and is submitted for hardening.                                                                                                                    |
+| **ARM64**              | Windows ARM64 builds are tracked in [ztunnel #1584](https://github.com/istio/ztunnel/issues/1584) but not yet available.                                                                                           |
+| **Sidecar mode**       | Traditional Istio sidecar injection does **not** work on Windows at all ([istio #27893](https://github.com/istio/istio/issues/27893)). Ambient is the only path for Windows mesh participation.                    |
 
 ## Architecture
 
 ```
-Linux Node                              Windows Node
-┌────────────────────────┐              ┌────────────────────────┐
-│  ztunnel (DaemonSet)   │              │  ztunnel.exe           │
-│  - Linux container     │              │  (HostProcess DaemonSet)│
-│  - iptables/eBPF       │◄──── HBONE ──►│  - Windows HNS APIs    │
-│  - istio-cni plugin    │   (mTLS)     │  - No CNI plugin needed│
-│                        │              │                        │
-│  ┌──────┐ ┌──────┐    │              │  ┌──────┐ ┌──────┐    │
-│  │Pod A │ │Pod B │    │              │  │Pod C │ │Pod D │    │
-│  │(Linux)│ │(Linux)│   │              │  │(Win) │ │(Win) │    │
-│  └──────┘ └──────┘    │              │  └──────┘ └──────┘    │
-└────────────────────────┘              └────────────────────────┘
+Linux Node                               Windows Node
+┌────────────────────────┐               ┌─────────────────────────┐
+│  ztunnel (DaemonSet)   │               │  ztunnel.exe            │
+│  - Linux container     │               │  (HostProcess DaemonSet)│
+│  - iptables/eBPF       │◄──── HBONE ──►│  - Windows HNS APIs     │
+│  - istio-cni plugin    │   (mTLS)      │  - No CNI plugin needed │
+│                        │               │                         │
+│  ┌───────┐ ┌───────┐   │               │  ┌──────┐ ┌──────┐      │
+│  │Pod A  │ │Pod B  │   │               │  │Pod C │ │Pod D │      │
+│  │(Linux)│ │(Linux)│   │               │  │(Win) │ │(Win) │      │
+│  └───────┘ └───────┘   │               │  └──────┘ └──────┘      │
+└────────────────────────┘               └─────────────────────────┘
          │                                       │
          └──────── istiod (control plane) ───────┘
                    PILOT_ENABLE_AMBIENT=true
@@ -143,11 +143,14 @@ Or customize and apply manually. The key requirements:
 - Must run in `istio-system` namespace (same as Linux ztunnel)
 - Must be a HostProcess pod (`hostProcess: true` in securityContext)
 - Must have a `nodeSelector` targeting Windows nodes:
+
   ```yaml
   nodeSelector:
     kubernetes.io/os: windows
   ```
+
 - Must set DNS workaround environment variables:
+
   ```yaml
   env:
     - name: ALT_XDS_HOSTNAME
@@ -179,11 +182,11 @@ kubectl logs -n istio-system <windows-ztunnel-pod>
 
 In a mixed cluster, you can run three modes simultaneously:
 
-| Mode | Namespace Label | Use Case |
-|------|----------------|----------|
-| **Ambient** | `istio.io/dataplane-mode: ambient` | Linux or Windows workloads, no sidecar overhead |
-| **Sidecar** | `istio-injection: enabled` | Linux workloads needing L7 policy without waypoints |
-| **None** | `istio-injection: disabled` | Workloads excluded from mesh |
+| Mode        | Namespace Label                    | Use Case                                            |
+| ----------- | ---------------------------------- | --------------------------------------------------- |
+| **Ambient** | `istio.io/dataplane-mode: ambient` | Linux or Windows workloads, no sidecar overhead     |
+| **Sidecar** | `istio-injection: enabled`         | Linux workloads needing L7 policy without waypoints |
+| **None**    | `istio-injection: disabled`        | Workloads excluded from mesh                        |
 
 Istio resolves the mode per-namespace (or per-pod) based on labels. Both ambient and sidecar workloads can communicate with each other through the mesh - istiod handles the translation between HBONE (ambient) and direct Envoy-to-Envoy (sidecar) communication.
 
@@ -192,6 +195,7 @@ Istio resolves the mode per-namespace (or per-pod) based on labels. Both ambient
 Big Bang core package namespaces (monitoring, logging, grafana, etc.) hardcode `istio-injection: enabled/disabled` in their namespace templates. To switch a core package to ambient mode, either:
 
 1. **Post-deploy label override:**
+
    ```bash
    kubectl label namespace logging \
      istio.io/dataplane-mode=ambient \
@@ -200,6 +204,7 @@ Big Bang core package namespaces (monitoring, logging, grafana, etc.) hardcode `
    ```
 
 2. **PostRenderers on the Big Bang HelmRelease** (if deployed via Flux):
+
    ```yaml
    # Applied at the Flux HelmRelease level that deploys Big Bang itself
    postRenderers:
@@ -217,6 +222,7 @@ Big Bang core package namespaces (monitoring, logging, grafana, etc.) hardcode `
    ```
 
 3. **Kyverno mutating policy** (declarative and self-healing):
+
    ```yaml
    apiVersion: kyverno.io/v1
    kind: ClusterPolicy
