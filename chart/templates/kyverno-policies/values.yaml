@@ -469,11 +469,11 @@ additionalPolicyExceptions:
 {{- include "bigbang.policyexceptions.kyvernoreporter" . | indent 4 }}
 {{- end}}
 
-{{- if and ((.Values.mattermost).enabled) (.Values.kyverno).enabled }}
+{{- if and ((.Values.addons.mattermost).enabled) (.Values.kyverno).enabled }}
 {{- include "bigbang.policyexceptions.mattermost" . | indent 4 }}
 {{- end}}
 
-{{- if and ((.Values.mimir).enabled) (.Values.kyverno).enabled }}
+{{- if and ((.Values.addons.mimir).enabled) (.Values.kyverno).enabled }}
 {{- include "bigbang.policyexceptions.mimir" . | indent 4 }}
 {{- end}}
 
@@ -489,7 +489,7 @@ additionalPolicyExceptions:
 {{- include "bigbang.policyexceptions.neuvector" . | indent 4 }}
 {{- end}}
 
-{{- if and ((.Values.thanos).enabled) (.Values.kyverno).enabled }}
+{{- if and ((.Values.addons.thanos).enabled) (.Values.kyverno).enabled }}
 {{- include "bigbang.policyexceptions.thanos" . | indent 4 }}
 {{- end}}
 
@@ -497,7 +497,7 @@ additionalPolicyExceptions:
 {{- include "bigbang.policyexceptions.twistlock" . | indent 4 }}
 {{- end}}
 
-{{- if and ((.Values.vault).enabled) (.Values.kyverno).enabled }}
+{{- if and ((.Values.addons.vault).enabled) (.Values.kyverno).enabled }}
 {{- include "bigbang.policyexceptions.vault" . | indent 4 }}
 {{- end}}
 
