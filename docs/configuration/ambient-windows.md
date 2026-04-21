@@ -2,6 +2,8 @@
 
 > **WARNING:** Windows ambient support is **experimental** and not part of any official Istio release. The code lives on the `experimental-windows-ambient` branch of [`istio/ztunnel`](https://github.com/istio/ztunnel/tree/experimental-windows-ambient) and is maintained by Microsoft engineers. Expect breaking changes.
 
+> **Supportability:** This workflow is for experimentation and evaluation only. It is not currently validated as a Big Bang production deployment pattern.
+
 [[_TOC_]]
 
 ## Overview
@@ -28,7 +30,7 @@ Per the upstream PR authors (Microsoft):
 | **No published image** | Istio does not publish a Windows ztunnel image. You must build your own.                                                                                                                                           |
 | **No IronBank image**  | No hardened image exists. Will not until the feature reaches GA and is submitted for hardening.                                                                                                                    |
 | **ARM64**              | Windows ARM64 builds are tracked in [ztunnel #1584](https://github.com/istio/ztunnel/issues/1584) but not yet available.                                                                                           |
-| **Sidecar mode**       | Traditional Istio sidecar injection does **not** work on Windows at all ([istio #27893](https://github.com/istio/istio/issues/27893)). Ambient is the only path for Windows mesh participation.                    |
+| **Sidecar mode**       | Traditional Istio sidecar injection is not currently supported on Windows ([istio #27893](https://github.com/istio/istio/issues/27893)). Ambient is currently the only mesh data plane path for Windows workloads. |
 
 ## Architecture
 
@@ -171,8 +173,11 @@ kubectl label namespace <windows-workload-ns> istio.io/dataplane-mode=ambient
 # Check ztunnel pods on both OS types
 kubectl get pods -n istio-system -l app=ztunnel -o wide
 
-# Verify Windows pods are enrolled
-kubectl get pods -n <windows-workload-ns> -o yaml | grep -A2 "ambient"
+# Verify namespace ambient label
+kubectl get namespace <windows-workload-ns> -o jsonpath='{.metadata.labels.istio\.io/dataplane-mode}{"\n"}'
+
+# Verify Windows workloads are in the labeled namespace
+kubectl get pods -n <windows-workload-ns> -o wide
 
 # Check ztunnel logs on Windows node
 kubectl logs -n istio-system <windows-ztunnel-pod>
@@ -247,7 +252,7 @@ Big Bang core package namespaces (monitoring, logging, grafana, etc.) hardcode `
                  istio-injection: "disabled"
    ```
 
-Extra packages deployed via `packages:` in Big Bang values automatically receive the `istio.io/dataplane-mode: ambient` label when `istio.ambient.enabled: true` is set.
+Extra packages deployed via `packages:` in Big Bang values typically inherit ambient behavior when `istio.ambient.enabled: true` is set. Validate rendered namespace labels in your environment before relying on this behavior.
 
 ## L7 Traffic Management (Waypoint Proxies)
 
