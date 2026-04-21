@@ -14,8 +14,7 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/renovate/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: renovate
-  releaseName: renovate
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "renovate" "package" .Values.renovate "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "renovate" "package" .Values.renovate "root" . "emitReleaseName" true) | nindent 2 }}
   {{- toYaml $fluxSettingsRenovate | nindent 2 }}
   {{- if .Values.renovate.postRenderers }}
   postRenderers:
