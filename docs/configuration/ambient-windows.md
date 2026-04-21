@@ -14,7 +14,7 @@ This enables a **hybrid cluster** where Linux nodes run the standard ztunnel Dae
 
 ### What Works
 
-Per the upstream PR authors (Microsoft):
+According to the upstream PR authors (Microsoft):
 
 - In-pod traffic redirection via Windows HostProcess containers
 - HBONE protocol upgrade (L4 mTLS tunnel)
@@ -28,7 +28,7 @@ Per the upstream PR authors (Microsoft):
 | **DNS resolution**     | HostProcess pods cannot resolve cluster-local DNS names. Requires `ALT_XDS_HOSTNAME` and `ALT_CA_HOSTNAME` environment variables as workarounds, or init container PowerShell scripts to configure DNS namespaces. |
 | **Socket reuse**       | Not supported on Windows due to platform limitations.                                                                                                                                                              |
 | **No published image** | Istio does not publish a Windows ztunnel image. You must build your own.                                                                                                                                           |
-| **No IronBank image**  | No hardened image exists. Will not until the feature reaches GA and is submitted for hardening.                                                                                                                    |
+| **No IronBank image**  | No hardened image exists. There will not be one until the feature reaches GA and is submitted for hardening.                                                                                                       |
 | **ARM64**              | Windows ARM64 builds are tracked in [ztunnel #1584](https://github.com/istio/ztunnel/issues/1584) but not yet available.                                                                                           |
 | **Sidecar mode**       | Traditional Istio sidecar injection is not currently supported on Windows ([istio #27893](https://github.com/istio/istio/issues/27893)). Ambient is currently the only mesh data plane path for Windows workloads. |
 
@@ -193,7 +193,7 @@ In a mixed cluster, you can run three modes simultaneously:
 | **Sidecar** | `istio-injection: enabled`         | Linux workloads needing L7 policy without waypoints |
 | **None**    | `istio-injection: disabled`        | Workloads excluded from mesh                        |
 
-Istio resolves the mode per-namespace (or per-pod) based on labels. Both ambient and sidecar workloads can communicate with each other through the mesh - istiod handles the translation between HBONE (ambient) and direct Envoy-to-Envoy (sidecar) communication.
+Istio resolves the mode per namespace (or per pod) based on labels. Both ambient and sidecar workloads can communicate with each other through the mesh; istiod handles translation between HBONE (ambient) and direct Envoy-to-Envoy (sidecar) communication.
 
 ### Big Bang Core Packages
 
@@ -252,7 +252,7 @@ Big Bang core package namespaces (monitoring, logging, grafana, etc.) hardcode `
                  istio-injection: "disabled"
    ```
 
-Extra packages deployed via `packages:` in Big Bang values typically inherit ambient behavior when `istio.ambient.enabled: true` is set. Validate rendered namespace labels in your environment before relying on this behavior.
+Extra packages deployed via `packages:` in Big Bang values typically inherit ambient behavior when `istio.ambient.enabled: true` is set. Validate the rendered namespace labels in your environment before relying on this behavior.
 
 ## L7 Traffic Management (Waypoint Proxies)
 
