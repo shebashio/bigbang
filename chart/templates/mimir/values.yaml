@@ -84,7 +84,7 @@ networkPolicies:
       minio:
         to:
           definition:
-            kubeAPI: true
+            kubeAPI: {{ $minioEnabled }}
 
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
@@ -114,7 +114,7 @@ networkPolicies:
       minio:[9000]:
         from:
           k8s: 
-            minio-operator@minio-operator/minio-operator: {{ .Values.addons.minioOperator.enabled }}
+            minio-operator@minio-operator/minio-operator: {{ and $minioEnabled .Values.addons.minioOperator.enabled }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
       minio:[15020]:
         from:
