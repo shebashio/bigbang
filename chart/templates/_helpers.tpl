@@ -656,6 +656,9 @@ Args (dict):
   - root: root context ($ or .)
 */}}
 {{- define "bigbang.helmRelease.chartSpec" -}}
+{{- if and .emitReleaseName (dig "releaseName" "" .package) }}
+releaseName: {{ .package.releaseName }}
+{{- end }}
 chart:
   spec:
     {{- if eq .package.sourceType "git" }}
@@ -738,6 +741,10 @@ valuesFrom:
   namespace: {{ .Release.Namespace }}
 {{- if or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
 - name: istio-cni
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- if eq (include "ambientEnabled" .) "true" }}
+- name: ztunnel
   namespace: {{ .Release.Namespace }}
 {{- end }}
 {{- end -}}

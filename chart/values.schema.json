@@ -272,6 +272,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -289,6 +290,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -323,6 +325,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -340,6 +343,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -365,6 +369,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -386,6 +391,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -413,6 +419,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -431,6 +438,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -449,6 +457,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -467,7 +476,31 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
+        "sso": {
+          "type": "object",
+          "required": [
+            "enabled",
+            "client_id",
+            "client_secret"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "client_id": {
+              "type": "string"
+            },
+            "client_secret": {
+              "type": "string"
+            },
+            "default_role": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "helmRepo": true,
         "flux": true,
         "values": true,
@@ -495,6 +528,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -539,6 +573,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -560,6 +595,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -593,6 +629,7 @@
           "type": "string"
         },
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -648,6 +685,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -715,6 +753,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -779,6 +818,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -801,6 +841,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -912,6 +953,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -989,6 +1031,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -1068,6 +1111,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -1125,6 +1169,7 @@
       "properties": {
         "enabled": true,
         "sourceType": true,
+        "releaseName": true,
         "git": true,
         "helmRepo": true,
         "flux": true,
@@ -1625,6 +1670,10 @@
             "git",
             "helmRepo"
           ]
+        },
+        "releaseName": {
+          "type": "string",
+          "description": "Optional Helm releaseName override for this package."
         },
         "flux": {
           "$ref": "#/$defs/flux"
