@@ -3,13 +3,8 @@ set -euo pipefail
 
 # Attach closed Renovate issues (strict title match) to a parent epic/work item.
 #
-# Defaults target:
-# - Group: big-bang
-# - Epic IID: 638
-# - Date window: 2026-02-02 to 2026-05-01 (inclusive, based on closed_at date)
-# - Mode: dry run
-#
 # Strict match: title must start with "Renovate:"
+# Defaults target:
 
 START_DATE="2026-01-19"
 END_DATE="2026-05-01"
@@ -18,17 +13,24 @@ EPIC_IID="638"
 DRY_RUN="true"
 
 usage() {
-  cat <<'EOF'
+  local default_mode
+  if [[ "${DRY_RUN}" == "true" ]]; then
+    default_mode="dry run"
+  else
+    default_mode="apply"
+  fi
+
+  cat <<EOF
 Usage:
   scripts/attach-renovate-issues-to-epic.sh [options]
 
 Options:
-  --start-date YYYY-MM-DD   Start date (inclusive) for issue closed_at (default: 2026-02-02)
-  --end-date YYYY-MM-DD     End date (inclusive) for issue closed_at (default: 2026-05-01)
-  --group PATH              GitLab group path (default: big-bang)
-  --epic-iid IID            Parent epic/work item IID (default: 638)
-  --apply                   Apply changes (default is dry run)
-  --dry-run                 Dry run mode (default)
+  --start-date YYYY-MM-DD   Start date (inclusive) for issue closed_at (current: ${START_DATE})
+  --end-date YYYY-MM-DD     End date (inclusive) for issue closed_at (current: ${END_DATE})
+  --group PATH              GitLab group path (current: ${GROUP_PATH})
+  --epic-iid IID            Parent epic/work item IID (current: ${EPIC_IID})
+  --apply                   Apply changes (current: ${default_mode})
+  --dry-run                 Dry run mode (current: ${default_mode})
   -h, --help                Show this help text
 
 Examples:
