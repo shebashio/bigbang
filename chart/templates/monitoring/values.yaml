@@ -169,6 +169,7 @@ networkPolicies:
         from:
           k8s:
             authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
+            authservice-waypoint@authservice/authservice-waypoint: {{ and $ambientEnabled $authserviceEnabled .Values.monitoring.sso.enabled }}
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             logging/logging-loki: {{ .Values.loki.enabled }}
           definition:
@@ -254,6 +255,14 @@ sso:
 
 upstream:
   alertmanager:
+    {{- if and $ambientEnabled $authserviceEnabled .Values.monitoring.sso.enabled }}
+    # In ambient mode, route alertmanager traffic through the authservice waypoint so SSO is enforced.
+    service:
+      labels:
+        istio.io/use-waypoint: authservice-waypoint
+        istio.io/use-waypoint-namespace: authservice
+        istio.io/ingress-use-waypoint: "true"
+    {{- end }}
     alertmanagerSpec:
       # The operator performs a strategic merge to add our imagePullPolicy definition to the default containers
       # NOTE: This functionality is not actively maintained upstream and may not work in a future monitoring upgrade

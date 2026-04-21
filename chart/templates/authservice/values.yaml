@@ -114,11 +114,12 @@ networkPolicies:
           k8s:
             # Tempo trace data
             tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      # Waypoint egress to prometheus when the waypoint fronts it for SSO (ambient)
+      # Waypoint egress to prometheus/alertmanager when the waypoint fronts them for SSO (ambient)
       authservice-waypoint:
         to:
           k8s:
             monitoring/prometheus:9090: {{ and $ambientEnabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
+            monitoring/alertmanager:9093: {{ and $ambientEnabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
       haproxy:
         to:
           k8s:
