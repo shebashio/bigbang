@@ -53,20 +53,140 @@ Big Bang supports various deployment patterns:
 
 ## How do I deploy Big Bang?
 
-**Note:** The Deployment Process and Pre-Requisites will vary depending on the deployment scenario. The [Quick Start Demo Deployment](../installation/environments/quick-start.md) for example, allows some steps to be skipped due to a mixture of automation and generically reusable demonstration configuration that satisfies pre-requisites. The following is a general overview of the process, reference the [deployment guides](../installation/index.md) for more detail.
+>**Note:** The deployment process and prerequisites vary depending on your deployment
+scenario. The [Quick Start Demo](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/quick-start.md) Deployment
+automates several steps using reusable demo configuration. For a production reference,
+see the [Big Bang customer template](https://repo1.dso.mil/big-bang/customers/template).
+The following is a general overview - refer to the [deployment guides](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/index.md)
+for environment-specific detail.
+---
+### Step 1 - Obtain Registry1 Credentials
 
-1. Satisfy Pre-Requisites:
-    * Provision a Kubernetes Cluster according to [best practices](./prerequisites.md#kubernetes-cluster).
-    * Ensure the cluster has network connectivity to a Git Repo you control.
-    * Install Flux GitOps Operator on the cluster.
-    * Configure Flux, the cluster, and the Git Repo for GitOps Deployments that support deploying encrypted values.
-    * Commit to the Git Repo Big Bang's `values.yaml` and encrypted secrets that have been configured to match the desired state of the cluster (including HTTPS Certs and DNS names).
-1. `kubectl apply --filename bigbang.yaml`
-    * [bigbang.yaml](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml) will trigger a chain reaction of GitOps Custom Resources that will deploy other GitOps Custom Resources that will eventually deploy an instance of a DevSecOps Platform that's declaratively defined in your Git Repo.
-    * To be specific, the chain reaction pattern we consider best practice is to have:
-        * `bigbang.yaml` deploys a git repository and kustomization Custom Resource.
-        * Flux reads the declarative configuration stored in the kustomization Custom Resource to do a GitOps equivalent of `kustomize build . | kubectl apply  --filename -`, to deploy a helmrelease Custom Resource of the Big Bang Helm Chart, that references input `values.yaml` files defined in the Git Repo.
-        * Flux reads the declarative configuration stored in the helmrelease Custom Resource to do a GitOps equivalent of `helm upgrade --install bigbang /chart  --namespace=bigbang  --filename encrypted_values.yaml --filename values.yaml --create-namespace=true`, the Big Bang Helm Chart, then deploys more Custom Resources that flux uses to deploy packages specified in Big Bang's `values.yaml.`
+All Big Bang container images are sourced from [Iron Bank](https://p1.dso.mil/products/iron-bank)
+via `registry1.dso.mil`. A Registry1 account with a valid image pull token is required
+before anything in Big Bang can run - including Flux itself.
+
+>In production, use robot credentials rather than personal tokens:
+`robot$bigbang-onboarding-imagepull`
+
+For air-gapped environments, all required images are bundled in the
+[Big Bang release artifacts](https://repo1.dso.mil/big-bang/bigbang/-/releases) as
+`images.tar.gz`. See the air-gap [deployment guide](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/airgap.md)
+for full instructions. [Zarf](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/airgap-zarf.md) is the
+recommended tooling for air-gapped deployments.
+---
+### Step 2 - Prepare Your Infrastructure
+Big Bang assumes **bring-your-own cluster (BYOC)**. The cluster itself is not managed by
+Big Bang. Before deploying, ensure the following requirements are met.
+
+**Hardware (minimum per node)**
+
+| Resource | Minimum |
+|---|----|
+|CPU|4 cores|
+|Memory|16GB|
+|Disk|100 GB|
+|Disk|100GB|
+|Nodes|3 (distributed across availability zones for HA)|
+
+Deploying additional packages increases resource requirements. Refer to each package's
+`values.yaml` for its specific resource requests and limits.
+
+**Kubernetes Cluster Requirements**
+- **A non-EOL Kubernetes version:** See `kubeVersion` in `Chart.yaml` for the supported range
+- **A CNI that supports NetworkPolicies:** `flannel` does not support NetworkPolicies and is
+not suitable for production Big Bang deployments
+- **A default StorageClass with dynamic volume provisioning:** For production, a StorageClass
+supporting `ReadWriteMany` access mode is recommended for HA add-on configurations
+- **Load balancer support - one of:**
+  - CSP-managed load balancers (AWS EKS, Azure AKS, GKE) via cloud provider integration
+  - MetalLB, kube-vip, or
+  kube-router for bare metal
+  - `NodePort` override if no load balancer provisioner is available
+---
+### Step 3 - Set Up Your Git Repository
+Big Bang's desired state is declared entirely in Git. Before bootstrapping:
+- Provision a Git repository you control with network connectivity to the cluster
+- Commit Big Bang's `values.yaml` configured for your environment - including DNS names,
+HTTPS certificates, enabled packages, and registry credentials
+- Encrypt secrets using https://github.com/mozilla/sops and commit encrypted
+values alongside your configuration
+
+A reference repository structure is available in the
+https://repo1.dso.mil/big-bang/customers/template.
+
+---
+### Step 4 Install Flux
+Flux is Big Bang's GitOps engine. Always install Flux using the bootstrap manifests that
+ship with the specific Big Bang version you are deploying - this ensures compatibility.
+````
+export REGISTRY1_USER='your-registry1-username'
+export REGISTRY1_TOKEN='your-registry1-token'
+export BB_VERSION='3.21.0'   # pin to your target BB release version
+
+kubectl create ns flux-system
+
+kubectl create secret docker-registry private-registry \
+--docker-server=registry1.dso.mil \
+--docker-username=$REGISTRY1_USER \
+--docker-password=$REGISTRY1_TOKEN \
+--namespace flux-system
+
+kubectl apply -k https://repo1.dso.mil/big-bang/bigbang.git//base/flux?ref=${BB_VERSION}
+````
+Alternatively, use the install script included in the Big Bang repository:
+````
+git clone https://repo1.dso.mil/big-bang/bigbang.git
+./bigbang/scripts/install_flux.sh -u $REGISTRY1_USER -p $REGISTRY1_TOKEN
+````
+Verify Flux is running before proceeding:
+````
+kubectl get pods -n flux-system
+kubectl get crds | grep flux
+````
+>**Note:** Always pin Flux installation to the base/flux ref matching your target Big Bang version. Do not use master in production.
+---
+### Step 5 - Deploy Big Bang
+With Flux running and your Git repository configured, bootstrap Big Bang with a single
+command:
+````
+kubectl apply --filename bigbang.yaml
+````
+A reference `bigbang.yaml` is available in the
+https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml.
+
+This triggers a GitOps chain reaction that fully bootstraps the platform:
+1. `bigbang.yaml` creates a `GitRepository` and `Kustomization` Custom Resource in the
+cluster.
+2. Flux reads the `Kustomization` and performs the equivalent of:
+````
+kustomize build . | kubectl apply --filename -
+````
+3. This deploys a `HelmRelease` Custom Resource for the Big Bang Helm Chart, referencing
+   your `values.yaml` files stored in Git.
+4. Flux reads the HelmRelease and performs the equivalent of:
+````
+   helm upgrade --install bigbang ./chart \
+   --namespace bigbang \
+   --values encrypted_values.yaml \
+   --values values.yaml \
+   --create-namespace
+````
+5. The Big Bang Helm Chart deploys additional `GitRepository`, `HelmRepository`, and
+   `HelmRelease` Custom Resources - one per enabled package. Flux reconciles each
+   independently, deploying the full DevSecOps platform as declared in your Git repository.
+---
+### Step 6 - Validate
+Monitor the rollout until all resources converge:
+````
+# Watch all Flux-managed resources reconcile
+watch kubectl get gitrepositories,kustomizations,helmreleases,pods -A
+
+# Check for any pods not in Running or Completed state
+kubectl get pods -A | grep -Ev 'Running|Completed'
+````
+All `HelmRelease` resources should reach `Ready: True`. Packages may take several minutes to reconcile depending on cluster resources and image pull times.
+
 
 ## New User Orientation
 
