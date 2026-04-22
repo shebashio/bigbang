@@ -104,6 +104,7 @@ networkPolicies:
         from:
           k8s:
             "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
+            kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.kiali.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
