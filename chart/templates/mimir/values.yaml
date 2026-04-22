@@ -122,7 +122,6 @@ networkPolicies:
             minio-operator@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ and $minioEnabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
 
-# Only needed if package has tests
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
