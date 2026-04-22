@@ -126,7 +126,7 @@ bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
-      cypress_grafana_url: {{ printf "grafana.%s" .Values.domain | quote }}
+      cypress_grafana_url: {{ printf "https://grafana.%s" .Values.domain | quote }}
   scripts:
     envs:
       MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
