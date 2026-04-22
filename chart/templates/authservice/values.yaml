@@ -101,6 +101,9 @@ networkPolicies:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
       # HBONE ingress from istio-gateway to the authservice waypoint (ambient)
       authservice-waypoint:15008:
+        podSelector:
+          matchLabels:
+            gateway.networking.k8s.io/gateway-name: authservice-waypoint
         from:
           k8s:
             "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
