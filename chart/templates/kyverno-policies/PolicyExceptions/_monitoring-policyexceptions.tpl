@@ -41,8 +41,7 @@ monitoring-disallow-tolerations-exception:
   spec:
     exceptions:
     - policyName: disallow-tolerations
-      ruleNames:
-      - disallow-tolerations
+      ruleNames: ["*"]
     match:
       any:
       - resources:
