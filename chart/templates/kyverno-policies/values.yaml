@@ -43,6 +43,9 @@ policies:
   disallow-istio-injection-bypass:
     enabled: {{ $istioEnabled }}
 
+  disallow-host-namespaces:
+    enabled: true
+
   disallow-namespaces:
     enabled: true
     validationFailureAction: Enforce
@@ -56,6 +59,8 @@ policies:
     enabled: true
     validationFailureAction: Audit
 
+  disallow-tolerations:
+    enabled: true
 
   require-drop-all-capabilities:
     validationFailureAction: Enforce
