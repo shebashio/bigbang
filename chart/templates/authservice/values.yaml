@@ -124,6 +124,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus:9090: {{ and $ambientEnabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
             monitoring/alertmanager:9093: {{ and $ambientEnabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
+            thanos/thanos:9090: {{ and $ambientEnabled .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled }}
       haproxy:
         to:
           k8s:

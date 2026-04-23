@@ -377,12 +377,14 @@ upstream:
               insecure: false
               trace:
                 enable: true
+              {{- if $monitoringMtlsStrict }}
               http_config:
                 tls_config:
                   key_file: /etc/prom-certs/key.pem
                   ca_file: /etc/prom-certs/root-cert.pem
                   cert_file: /etc/prom-certs/cert-chain.pem
                 insecure_skip_verify: true
+              {{- end }}
         # by default, the object stores only sync every 2 hours
         # increase the frequency so the tests will pass 
         blockSize: 1m
