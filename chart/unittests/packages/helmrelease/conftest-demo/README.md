@@ -1,11 +1,14 @@
-# Conftest demo: at-rest vs post-render contracts
+# Conftest demo: at-rest and post-render contracts
 
 Big Bang already has a working `helm unittest` contract in
 `chart/unittests/packages/helmrelease/metadata_contract_test.yaml`.
 
 That file is the comparison artifact for this demo. It shows the tradeoff
 clearly: `helm unittest` can enforce repo rules, but for generic contracts it
-often does so through a long package-by-package assertion file.
+often does so through a long package-by-package assertion file. In this branch
+that comparison file is about 990 lines. The post-render conftest policy says
+the same core contract once and automatically covers future HelmReleases that
+appear in the canonical render.
 
 This folder shows two narrower `conftest` stories:
 
@@ -69,12 +72,18 @@ These are coherence checks over canonical CI inputs, not style lint.
 
 Relevant history:
 
-- `!7449` Mattermost external DB config
-- `!7432` Keycloak external DB logic error
-- `!7534` Mattermost existing secret vs inline license
-- `!7140` Grafana SSO cleanup
-- `!7163` Authservice wiring via shared SSO state
-- `!7384` Vault SSO route cleanup
+- `!7449` Mattermost external DB config  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7449
+- `!7432` Keycloak external DB logic error  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7432
+- `!7534` Mattermost existing secret vs inline license  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7534
+- `!7140` Grafana SSO cleanup  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7140
+- `!7163` Authservice wiring via shared SSO state  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7163
+- `!7384` Vault SSO route cleanup  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7384
 
 ### Clean run
 
@@ -179,13 +188,20 @@ These are cross-object checks over the rendered set.
 
 Relevant history:
 
-- `!7651` Add common labels to all rendered helmreleases
-- `!7576` Add toggle to enable ambient packages
-- `!7598` Honor global ambient flag for integrated packages
-- `!7487` Add istio-cni conditional dependency
-- `!6376` bbctl requires monitoring
-- `!6369` bbctl dependency conditionals
-- `!7420` Mattermost requires Mattermost Operator
+- `!7651` Add common labels to all rendered helmreleases  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7651
+- `!7576` Add toggle to enable ambient packages  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7576
+- `!7598` Honor global ambient flag for integrated packages  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7598
+- `!7487` Add istio-cni conditional dependency  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7487
+- `!6376` `bbctl` requires `monitoring`  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/6376
+- `!6369` `bbctl` dependency conditionals  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/6369
+- `!7420` Mattermost requires Mattermost Operator  
+  https://repo1.dso.mil/big-bang/bigbang/-/merge_requests/7420
 
 ### Why `--combine` matters
 
@@ -205,6 +221,10 @@ With `--combine`, `conftest` evaluates the rendered set once:
 `post-render/all-enabled-demo-values.yaml` turns on the optional packages used
 for this rendered-set demo. Today that render produces 47 `HelmRelease`
 objects.
+
+That is the important property of this demo. The policy does not enumerate 47
+packages by name. It finds rendered `HelmRelease` objects and applies the
+contract to the whole set.
 
 ### Clean run
 
@@ -283,5 +303,9 @@ Yes:
 
 - `conftest` can validate hand-authored scenario inputs directly
 - `conftest --combine` can validate repo-wide rendered-object invariants
+- the rendered policy is shorter because it works at the object-class level,
+  not the package-by-package level
+- the rendered policy automatically covers future HelmReleases that appear in
+  the canonical render
 - Rego is a good fit for generic contracts that cut across package boundaries
 - this is a believable complement to `helm unittest`
