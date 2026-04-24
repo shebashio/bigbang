@@ -1,0 +1,990 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - HelmRelease - Metadata Contract
+release:
+  name: test
+  namespace: bigbang
+tests:
+- it: alloy HelmRelease should include standard metadata labels
+  template: alloy/helmrelease.yaml
+  set:
+    alloy:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: alloy
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: alloy
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: anchore-enterprise HelmRelease should include standard metadata labels
+  template: anchore-enterprise/helmrelease.yaml
+  set:
+    addons:
+      anchoreEnterprise:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: anchore-enterprise
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: anchore-enterprise
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: argocd HelmRelease should include standard metadata labels
+  template: argocd/helmrelease.yaml
+  set:
+    addons:
+      argocd:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: argocd
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: argocd
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: authservice HelmRelease should include standard metadata labels
+  template: authservice/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+    istiod:
+      enabled: true
+    addons:
+      authservice:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: authservice
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: authservice
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: backstage HelmRelease should include standard metadata labels
+  template: backstage/helmrelease.yaml
+  set:
+    addons:
+      backstage:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: backstage
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: backstage
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: bbctl HelmRelease should include standard metadata labels
+  template: bbctl/helmrelease.yaml
+  set:
+    bbctl:
+      enabled: true
+    monitoring:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: bbctl
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: bbctl
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: eck-operator HelmRelease should include standard metadata labels
+  template: eck-operator/helmrelease.yaml
+  set:
+    eckOperator:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: eck-operator
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: eck-operator
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: elasticsearch-kibana HelmRelease should include standard metadata labels
+  template: elasticsearch-kibana/helmrelease.yaml
+  set:
+    elasticsearchKibana:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: ek
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: elasticsearch-kibana
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: external-secrets HelmRelease should include standard metadata labels
+  template: external-secrets/helmrelease.yaml
+  set:
+    addons:
+      externalSecrets:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: external-secrets
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: external-secrets
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: fluentbit HelmRelease should include standard metadata labels
+  template: fluentbit/helmrelease.yaml
+  set:
+    fluentbit:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: fluentbit
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: fluentbit
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: fortify HelmRelease should include standard metadata labels
+  template: fortify/helmrelease.yaml
+  set:
+    addons:
+      fortify:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: fortify
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: fortify
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: gatekeeper HelmRelease should include standard metadata labels
+  template: gatekeeper/helmrelease.yaml
+  set:
+    gatekeeper:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: gatekeeper
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: gatekeeper
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: gateway-api HelmRelease should include standard metadata labels
+  template: gateway-api/helmrelease.yaml
+  set:
+    gatewayAPI:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: gateway-api
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: gateway-api
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: gitlab HelmRelease should include standard metadata labels
+  template: gitlab/helmrelease.yaml
+  set:
+    addons:
+      gitlab:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: gitlab
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: gitlab
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: gitlab-runner HelmRelease should include standard metadata labels
+  template: gitlab-runner/helmrelease.yaml
+  set:
+    addons:
+      gitlabRunner:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: gitlab-runner
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: gitlab-runner
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: grafana HelmRelease should include standard metadata labels
+  template: grafana/helmrelease.yaml
+  set:
+    grafana:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: grafana
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: grafana
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: harbor HelmRelease should include standard metadata labels
+  template: harbor/helmrelease.yaml
+  set:
+    addons:
+      harbor:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: harbor
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: harbor
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: headlamp HelmRelease should include standard metadata labels
+  template: headlamp/helmrelease.yaml
+  set:
+    addons:
+      headlamp:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: headlamp
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: headlamp
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: istio-cni HelmRelease should include standard metadata labels
+  template: istio-cni/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+    istiod:
+      enabled: true
+    istioCNI:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: istio-cni
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: istio-cni
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: istio-crds HelmRelease should include standard metadata labels
+  template: istio-crds/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: istio-crds
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: istio-crds
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: istio-gateway public HelmRelease should include standard metadata labels
+  template: istio-gateway/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+    istiod:
+      enabled: true
+  documentSelector:
+    path: metadata.name
+    value: public-ingressgateway
+  asserts:
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: istio-gateway-public
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: istio-gateway passthrough HelmRelease should include standard metadata labels
+  template: istio-gateway/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+    istiod:
+      enabled: true
+  documentSelector:
+    path: metadata.name
+    value: passthrough-ingressgateway
+  asserts:
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: istio-gateway-passthrough
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: istiod HelmRelease should include standard metadata labels
+  template: istiod/helmrelease.yaml
+  set:
+    istioCRDs:
+      enabled: true
+    istiod:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: istiod
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: istiod
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: keycloak HelmRelease should include standard metadata labels
+  template: keycloak/helmrelease.yaml
+  set:
+    addons:
+      keycloak:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: keycloak
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: keycloak
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: kiali HelmRelease should include standard metadata labels
+  template: kiali/helmrelease.yaml
+  set:
+    kiali:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: kiali
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: kiali
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: kyverno HelmRelease should include standard metadata labels
+  template: kyverno/helmrelease.yaml
+  set:
+    kyverno:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: kyverno
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: kyverno
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: kyverno-policies HelmRelease should include standard metadata labels
+  template: kyverno-policies/helmrelease.yaml
+  set:
+    kyvernoPolicies:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: kyverno-policies
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: kyverno-policies
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: kyverno-reporter HelmRelease should include standard metadata labels
+  template: kyverno-reporter/helmrelease.yaml
+  set:
+    kyvernoReporter:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: kyverno-reporter
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: kyverno-reporter
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: loki HelmRelease should include standard metadata labels
+  template: loki/helmrelease.yaml
+  set:
+    loki:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: loki
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: loki
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: mattermost HelmRelease should include standard metadata labels
+  template: mattermost/helmrelease.yaml
+  set:
+    addons:
+      mattermost:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: mattermost
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: mattermost
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: mattermost-operator HelmRelease should include standard metadata labels
+  template: mattermost-operator/helmrelease.yaml
+  set:
+    addons:
+      mattermostOperator:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: mattermost-operator
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: mattermost-operator
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: metrics-server HelmRelease should include standard metadata labels
+  template: metrics-server/helmrelease.yaml
+  set:
+    addons:
+      metricsServer:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: metrics-server
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: metrics-server
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: mimir HelmRelease should include standard metadata labels
+  template: mimir/helmrelease.yaml
+  set:
+    addons:
+      mimir:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: mimir
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: mimir
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: minio HelmRelease should include standard metadata labels
+  template: minio/helmrelease.yaml
+  set:
+    addons:
+      minio:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: minio
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: minio
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: minio-operator HelmRelease should include standard metadata labels
+  template: minio-operator/helmrelease.yaml
+  set:
+    addons:
+      minioOperator:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: minio-operator
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: minio-operator
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: monitoring HelmRelease should include standard metadata labels
+  template: monitoring/helmrelease.yaml
+  set:
+    monitoring:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: monitoring
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: monitoring
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: neuvector HelmRelease should include standard metadata labels
+  template: neuvector/helmrelease.yaml
+  set:
+    neuvector:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: neuvector
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: neuvector
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: generic package HelmRelease should include standard metadata labels
+  template: package/helmrelease.yaml
+  set:
+    packages:
+      sample:
+        enabled: true
+        namespace:
+          name: sample
+        git:
+          repo: https://example.com/sample.git
+          path: chart
+          tag: 1.0.0
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: sample
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: sample
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: prometheus-operator-crds HelmRelease should include standard metadata labels
+  template: prometheus-operator-crds/helmrelease.yaml
+  set:
+    prometheusOperatorCRDs:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: prometheus-operator-crds
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: prometheus-operator-crds
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: sonarqube HelmRelease should include standard metadata labels
+  template: sonarqube/helmrelease.yaml
+  set:
+    addons:
+      sonarqube:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: sonarqube
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: sonarqube
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: tempo HelmRelease should include standard metadata labels
+  template: tempo/helmrelease.yaml
+  set:
+    tempo:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: tempo
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: tempo
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: thanos HelmRelease should include standard metadata labels
+  template: thanos/helmrelease.yaml
+  set:
+    addons:
+      thanos:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: thanos
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: thanos
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: twistlock HelmRelease should include standard metadata labels
+  template: twistlock/helmrelease.yaml
+  set:
+    twistlock:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: twistlock
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: twistlock
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: vault HelmRelease should include standard metadata labels
+  template: vault/helmrelease.yaml
+  set:
+    addons:
+      vault:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: vault
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: vault
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: velero HelmRelease should include standard metadata labels
+  template: velero/helmrelease.yaml
+  set:
+    addons:
+      velero:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: velero
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: velero
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: wrapper HelmRelease should include standard metadata labels
+  template: wrapper/helmrelease.yaml
+  set:
+    packages:
+      sample:
+        enabled: true
+        namespace:
+          name: sample
+        wrapper:
+          enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: sample-wrapper
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: sample-wrapper
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang
+
+- it: ztunnel HelmRelease should include standard metadata labels
+  template: ztunnel/helmrelease.yaml
+  set:
+    ztunnel:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: ztunnel
+  - equal:
+      path: metadata.labels["app.kubernetes.io/name"]
+      value: ztunnel
+  - exists:
+      path: metadata.labels["app.kubernetes.io/managed-by"]
+  - equal:
+      path: metadata.labels["app.kubernetes.io/part-of"]
+      value: bigbang

@@ -1,0 +1,96 @@
+alloy:
+  enabled: true
+bbctl:
+  enabled: true
+eckOperator:
+  enabled: true
+elasticsearchKibana:
+  enabled: true
+fluentbit:
+  enabled: true
+gatekeeper:
+  enabled: true
+gatewayAPI:
+  enabled: true
+grafana:
+  enabled: true
+istioCNI:
+  enabled: true
+istioCRDs:
+  enabled: true
+istioGateway:
+  enabled: true
+istiod:
+  enabled: true
+kiali:
+  enabled: true
+kyverno:
+  enabled: true
+kyvernoPolicies:
+  enabled: true
+kyvernoReporter:
+  enabled: true
+loki:
+  enabled: true
+monitoring:
+  enabled: true
+neuvector:
+  enabled: true
+prometheusOperatorCRDs:
+  enabled: true
+tempo:
+  enabled: true
+twistlock:
+  enabled: true
+ztunnel:
+  enabled: true
+addons:
+  anchoreEnterprise:
+    enabled: true
+  argocd:
+    enabled: true
+  authservice:
+    enabled: true
+  backstage:
+    enabled: true
+  externalSecrets:
+    enabled: true
+  fortify:
+    enabled: true
+  gitlab:
+    enabled: true
+  gitlabRunner:
+    enabled: true
+  harbor:
+    enabled: true
+  headlamp:
+    enabled: true
+  keycloak:
+    enabled: true
+  mattermost:
+    enabled: true
+  mattermostOperator:
+    enabled: true
+  metricsServer:
+    enabled: true
+  mimir:
+    enabled: true
+  minio:
+    enabled: true
+  minioOperator:
+    enabled: true
+  sonarqube:
+    enabled: true
+  thanos:
+    enabled: true
+  vault:
+    enabled: true
+  velero:
+    enabled: true
+packages:
+  sample:
+    enabled: true
+    namespace:
+      name: sample
+    wrapper:
+      enabled: true
