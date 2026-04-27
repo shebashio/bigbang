@@ -10,7 +10,7 @@ Ambient Mesh is available in Big Bang 3.23 but is not enabled by default. When e
 
 Ambient can be enabled by setting the `istio.ambient.enabled` flag to `true` in your values configuration file, which enables it globally for all Big Bang applications.
 
-For more information on configuration and what is enabled behind the scenes, refer to [this article](https://docs-bigbang.dso.mil/latest/docs/configuration/ambient/?h=ambient/#enabling-ambient-mode).
+For more information on configuration and what is enabled behind the scenes, refer to the [Enabling Ambient Mode documentation](https://docs-bigbang.dso.mil/latest/docs/configuration/ambient/?h=ambient/#enabling-ambient-mode).
 
 ## Changes to the Network Stack
 
@@ -28,7 +28,7 @@ For a deeper dive into the architecture, please check out [this link](https://is
 
 ## Current Implementation
 
-Ambient Mesh today is primarily focues on Layer 4. However, Layer 7 capabilities are still available through **waypoint proxies**, which are deployed only where needed.
+Ambient Mesh today is primarily focused on Layer 4. However, Layer 7 capabilities are still available through **waypoint proxies**, which are deployed only where needed.
 
 In Big Bang, this is particularly relevant for applications that rely on **Authservice** for authentication which should continue to function in the same way (using the Authservice label):
 
@@ -55,9 +55,9 @@ Common errors include:
 
 You can also use the [istioctl](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/) utility to analyze the entire environment to look for any issues that stick out by executing the following command:
 
-`istioctl analzye -A`
+`istioctl analyze -A`
 
-For a more in-depth troubleshooting resource please refer to the [follwing link](https://github.com/istio/istio/wiki/Troubleshooting-Istio-Ambient).
+For a more in-depth troubleshooting resource please refer to the [following link](https://github.com/istio/istio/wiki/Troubleshooting-Istio-Ambient).
 
 ## Summary
 
