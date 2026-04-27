@@ -732,24 +732,6 @@ kyvernoPolicies:
 eckOperator:
   # -- Toggle deployment of ECK Operator.
   enabled: false
-  values:
-    istio:
-      hardened:
-        customServiceEntries:
-        - name: "cypress-service-entries-eckoperator"
-          enabled: true
-          spec:
-            hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-            location: MESH_EXTERNAL
-            ports:
-              - number: 443
-                protocol: TLS
-                name: https
-            resolution: DNS
 
 elasticsearchKibana:
   enabled: false
@@ -824,23 +806,6 @@ elasticsearchKibana:
 fluentbit:
   enabled: false
   values:
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-fluentbit"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
     bbtests:
       enabled: true
     upstream:

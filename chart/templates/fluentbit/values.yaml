@@ -86,6 +86,17 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: true
 
+routes:
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.fluentbit.values }}
+      hosts:
+      - 'repo1.dso.mil'
+      - grafana.{{ .Values.domain }}
+
+bbtests:
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
+
 openshift: {{ .Values.openshift }}
 
 upstream:

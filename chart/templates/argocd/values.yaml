@@ -118,7 +118,7 @@ routes:
     argocd:
       enabled: true
       gateways:
-      - istio-gateway/public-ingressgateway 
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
       hosts:
       - argocd.{{ $domainName }}
       service: argocd-argocd-server
@@ -126,6 +126,12 @@ routes:
       port: 80
       selector:
         app.kubernetes.io/name: argocd-server
+routes:
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.argocd.values }}
+      hosts:
+      - 'repo1.dso.mil'
 
 networkPolicies:
   # -- Toggle BigBang networkPolicies integration
