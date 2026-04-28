@@ -112,6 +112,8 @@ monitoring:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
 
 upstream:
   {{- if .Values.addons.argocd.redis.host }}
