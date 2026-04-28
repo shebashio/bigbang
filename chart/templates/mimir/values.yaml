@@ -22,6 +22,10 @@
 {{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 {{- $istioInjection := (and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.mimir) "enabled"))  }}
+{{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
+{{- $kafkaBrokerHost := (.Values.addons.mimir.kafkaIngestStorage.brokerHost) }}
+{{- $kafkaBrokerPort := (.Values.addons.mimir.kafkaIngestStorage.brokerPort) }}
+{{- $kafkaBrokerRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerHost "") }}
 
 upgradeJob:
   image:
@@ -63,6 +67,16 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
       hosts:
       - repo1.dso.mil
+    kafka-broker:
+      enabled: {{ $kafkaBrokerRouteEnabled }}
+      {{- if ne $kafkaBrokerHost "" }}
+      hosts:
+        - {{ $kafkaBrokerHost | quote }}
+      {{- end }}
+      ports:
+        - number: {{ $kafkaBrokerPort }}
+          name: kafka
+          protocol: TCP
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -77,6 +91,7 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
           definition:
             storage-subnets: {{ not $minioEnabled }}
+            kafka-subnets: {{ $kafkaEnabled }}
       rollout-operator:
         to:
           k8s:
@@ -167,9 +182,10 @@ upstream:
         name: mimir-objstore-secret
     {{- end }}
 {{- end }}
-{{- if or $minioEnabled $s3Enabled }}
+{{- if or $minioEnabled $s3Enabled $kafkaEnabled }}
   mimir:
     structuredConfig:
+      {{- if or $minioEnabled $s3Enabled }}
       {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
@@ -202,6 +218,16 @@ upstream:
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
             {{- end }}
             {{- end }}
+      {{- end }}
+      {{- if $kafkaEnabled }}
+      ingest_storage:
+        enabled: true
+        kafka:
+          address: "{{ $kafkaBrokerHost }}:{{ $kafkaBrokerPort }}"
+          topic: {{ .Values.addons.mimir.kafkaIngestStorage.topic | quote }}
+      ingester:
+        push_grpc_method_enabled: false
+      {{- end }}
 {{- end }}
   {{- if or $minioEnabled $s3Enabled }}
   {{- if .Values.addons.mimir.serviceAccountAnnotations }}
