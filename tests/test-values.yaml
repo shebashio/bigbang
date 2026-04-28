@@ -1478,10 +1478,6 @@ addons:
         curlContainerImage: registry1.dso.mil/ironbank/big-bang/base:2.1.0
       bbtests:
         enabled: true
-        cypress:
-          envs:
-            cypress_url: "https://sonarqube.dev.bigbang.mil"
-            cypress_url_setup: "https://sonarqube.dev.bigbang.mil/setup"
 
   minioOperator:
     enabled: true # Minio Operator is required for Loki in default core
@@ -1948,9 +1944,6 @@ addons:
               setNodeId: true
       bbtests:
         enabled: true
-        cypress:
-          envs:
-            cypress_vault_url: "https://vault.dev.bigbang.mil"
 
   metricsServer:
     values:
