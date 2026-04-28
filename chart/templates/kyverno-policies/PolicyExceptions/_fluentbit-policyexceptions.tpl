@@ -38,7 +38,7 @@ fluentbit-disallow-privileged-containers-exception:
     exceptions:
     - policyName: disallow-privileged-containers
       ruleNames:
-      - disallow-privileged-containers
+      - priviledged-containers
     match:
       any:
       - resources:
@@ -83,7 +83,7 @@ fluentbit-require-non-root-group-exception:
     exceptions:
     - policyName: require-non-root-group
       ruleNames:
-      - require-non-root-group
+      - run-as-group
     match:
       any:
       - resources:
@@ -107,7 +107,7 @@ fluentbit-require-non-root-user-exception:
     exceptions:
     - policyName: require-non-root-user
       ruleNames:
-      - require-non-root-user
+      - non-root-user
     match:
       any:
       - resources:
