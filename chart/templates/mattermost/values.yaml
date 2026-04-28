@@ -125,6 +125,21 @@ routes:
       hosts:
         - {{ $ssoHost }}
       {{- end }}
+    bbtests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.mattermost.values }}
+      hosts:
+      - 'repo1.dso.mil'
+
+waitJob:
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
+bbtests:
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
+  cypress:
+    envs:
+      cypress_url: {{ printf "https://chat.%s" $domainName | quote }}
+      cypress_keycloak_test_enable: {{ and .Values.addons.keycloak.enabled .Values.addons.mattermost.sso.enabled | quote }}
+      cypress_tnr_username: {{ dig "bbtests" "cypress" "envs" "tnr_username" "cypress" .Values.addons.keycloak.values }}
+      cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "tnr_password" "password" .Values.addons.keycloak.values }}
 
 global:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}

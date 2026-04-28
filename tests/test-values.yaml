@@ -922,36 +922,6 @@ monitoring:
           limits: {}
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_bigbang_integration: 'true'
-          cypress_prometheus_url: 'https://prometheus.dev.bigbang.mil'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_alertmanager_url: 'https://alertmanager.dev.bigbang.mil'
-          cypress_check_istio_dashboards: 'true'
-          cypress_keycloak_test_enable: 'false'
-          cypress_tnr_username: "cypress"
-          cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-monitoring"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'prometheus.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'alertmanager.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
 
 grafana:
   sso:
@@ -1661,27 +1631,6 @@ addons:
     values:
       monitoring:
         enabled: true
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "cypress-service-entries-mattermost"
-              enabled: true
-              spec:
-                hosts:
-                  - 'kiali.dev.bigbang.mil'
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'grafana.dev.bigbang.mil'
-                  - 'prometheus.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
-
       postgresql:
         persistence:
           size: 256Mi
@@ -1723,16 +1672,6 @@ addons:
                     - ALL
       bbtests:
         enabled: true
-        cypress:
-          envs:
-            cypress_url: https://chat.dev.bigbang.mil
-          resources:
-            requests:
-              cpu: "2"
-              memory: "2Gi"
-            limits:
-              cpu: "2"
-              memory: "2Gi"
 
   velero:
     enabled: false
