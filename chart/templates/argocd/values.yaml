@@ -102,11 +102,7 @@ istio:
     enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
-  {{- if eq (include "ambientEnabled" .) "true" }}
-  injection: "disabled"
-  {{- else }}
-  injection: {{ dig "istio" "injection" "enabled" .Values.addons.argocd }}
-  {{- end }}
+  injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" .Values.addons.argocd) (eq (include "ambientEnabled" .) "true") }}
   authorizationPolicies:
     enabled: {{ $istioHardened }}
     generateFromNetpol: {{ $istioHardened }}
