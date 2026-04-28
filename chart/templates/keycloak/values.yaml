@@ -87,7 +87,6 @@ networkPolicies:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
 bbtests:
-  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
       cypress_url: {{ printf "https://keycloak.%s" $domainName | quote }}

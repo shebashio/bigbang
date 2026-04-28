@@ -49,11 +49,6 @@ routes:
     kiali:
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kiali.values }}
-      hosts:
-      - repo1.dso.mil
 
 waitJob:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}

@@ -89,6 +89,6 @@ bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
-      cypress_url: {{ printf "https://fortify.%s" $domainName | quote }}
+      cypress_url: {{ printf "https://fortify.%s" .Values.domain | quote }}
 
 {{- end }}
