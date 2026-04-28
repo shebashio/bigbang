@@ -202,6 +202,16 @@ networkPolicies:
         ports:
           - port: 443
             protocol: TCP
+      # -- Egress definition for Kafka broker subnets (i.e. Amazon MSK, Confluent Cloud, Azure Event Hubs, etc.)
+      kafka-subnets:
+        to:
+          - ipBlock:
+              cidr: "0.0.0.0/0"
+        ports:
+          - port: 9092
+            protocol: TCP
+          - port: 9093
+            protocol: TCP
       database-subnets:
         to:
           - ipBlock:
@@ -2371,6 +2381,21 @@ addons:
 
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
+
+    # -- Configure Mimir to use external Kafka for ingest storage (Mimir 6.x+)
+    # When enabled, disables the classic gRPC push path and enables the Kafka-backed ingest storage path.
+    # For production, use a cloud-managed Kafka service (Amazon MSK, Confluent Cloud, Azure Event Hubs).
+    # The bundled kafka-native image in the mimir chart is for testing only and is not used here.
+    kafkaIngestStorage:
+      enabled: false
+      # -- Kafka broker hostname.
+      # Examples: "b-1.cluster.kafka.us-east-1.amazonaws.com" (Amazon MSK),
+      #           "pkc-xxxxx.us-east-1.aws.confluent.cloud" (Confluent Cloud)
+      brokerHost: ""
+      # -- Kafka broker port. Use 9092 for plaintext, 9093 for TLS.
+      brokerPort: 9092
+      # -- Kafka topic name for Mimir ingest storage.
+      topic: "mimir-ingest"
 
     # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}
