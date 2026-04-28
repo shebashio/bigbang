@@ -25,6 +25,13 @@ istio:
     enabled: {{ $istioHardenedEnabled }}
     generateFromNetpol: {{ $istioHardenedEnabled }}
 
+routes:
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlabRunner.values }}
+      hosts:
+      - 'repo1.dso.mil'
+      - gitlab.{{ .Values.domain }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -53,8 +60,13 @@ networkPolicies:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
   additionalPolicies: []
 
-openshift: {{ .Values.openshift }}
+bbtests:
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
+  cypress:
+    envs:
+      cypress_url: {{ printf "https://gitlab.%s" .Values.domain | quote }}
 
+openshift: {{ .Values.openshift }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

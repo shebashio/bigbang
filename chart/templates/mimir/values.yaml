@@ -60,7 +60,7 @@ routes:
         app.kubernetes.io/name: mimir
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.mimir.values }}
       hosts:
       - repo1.dso.mil
 

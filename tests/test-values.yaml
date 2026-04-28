@@ -124,15 +124,6 @@ kiali:
             strategy: "anonymous"
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_url: 'https://kiali.dev.bigbang.mil'
-          cypress_check_data: 'true'
-          cypress_pod_monitor_name: 'monitoring-monitoring-istio-envoy'
-          # uncomment these next 3 lines if enabling the keycloak SSO integration test
-          #cypress_keycloak_test_enable: "true"
-          #cypress_keycloak_username: "cypress"
-          #cypress_keycloak_password: "tnr_w!G33ZyAt@C8"
 
 gatekeeper:
   enabled: false
@@ -1252,22 +1243,6 @@ addons:
     sso:
       enabled: false
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "cypress-service-entries-fortify"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
       storage:
         volume: 5Gi
       jvmMaxRAMPercentage: 85
@@ -1313,9 +1288,6 @@ addons:
               memory: 500Mi
       bbtests:
         enabled: true
-        cypress: # note `cypress:*`` is different than in the fortify chart test-values.yaml
-          envs:
-            cypress_url: "https://fortify.dev.bigbang.mil"
 
   gitlab:
     enabled: false
@@ -1325,29 +1297,6 @@ addons:
     flux:
       timeout: 30m
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "cypress-service-entries-gitlab"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
-                  - "registry.dev.bigbang.mil"
-                  - 'keycloak.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
-                  - 'registry1.dso.mil'
-                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
       global:
         rails:
           bootstrap:
@@ -1417,34 +1366,10 @@ addons:
               size: 256Mi
       bbtests:
         enabled: true
-        cypress:
-          envs:
-            cypress_url: https://gitlab.dev.bigbang.mil
-        scripts:
-          envs:
-            GITLAB_REGISTRY: registry.dev.bigbang.mil
 
   gitlabRunner:
     enabled: false
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "cypress-service-entries-gitlab-runner"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'gitlab.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
       resources:
         requests:
           memory: 64Mi
@@ -1467,15 +1392,7 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          resources:
-            requests:
-              cpu: 2
-              memory: 4Gi
-            limits:
-              cpu: 4
-              memory: 6Gi
           envs:
-            cypress_url: "https://gitlab.dev.bigbang.mil"
             cypress_gitlab_first_name: "testrunner"
             cypress_gitlab_last_name: "userrunner"
             cypress_gitlab_email: "gitlab@dev.bigbang.mil"
@@ -1571,8 +1488,6 @@ addons:
             requests:
               cpu: 100m
               memory: 200Mi
-
-
 
   sonarqube:
     enabled: false

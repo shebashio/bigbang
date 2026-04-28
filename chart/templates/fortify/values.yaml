@@ -85,4 +85,10 @@ networkPolicies:
           definition:
             external-mysql: {{ $externalMySQLEnabled }}
 
+bbtests:
+  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
+  cypress:
+    envs:
+      cypress_url: {{ printf "https://fortify.%s" $domainName | quote }}
+
 {{- end }}
