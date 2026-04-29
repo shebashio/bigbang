@@ -152,10 +152,11 @@ postgresql:
   secret: "mattermost-dbcreds"
   {{- end }}
   install: true
-  {{- if $istioInjection }}
   primary:
+    {{- if $istioInjection }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
+    {{- end }}
     podSecurityContext:
       enabled: true
       fsGroup: 1001
@@ -169,12 +170,12 @@ postgresql:
       capabilities:
         drop:
           - ALL
-    #permissions for initContainers
     volumePermissions:
       securityContext:
         capabilities:
           drop:
             - ALL
+  {{- if $istioInjection }}
   readReplicas:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
