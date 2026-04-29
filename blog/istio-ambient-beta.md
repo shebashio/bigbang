@@ -1,18 +1,18 @@
 # Ambient Mode on Big Bang is now in Beta
 
-Big Bang 3.23 introduces support for **Istio Ambient Mesh** as an opt-in (beta) feature. By default, Ambient is **disabled**, allowing existing deployments to continue operating without disruption. Users can explicitly enable Ambient to begin evaluating its benefits and tradeoffs in controlled environments.
+Big Bang 3.23 introduces support for **Istio Ambient Mesh** as an opt-in (beta) feature. With BB 3.23, Ambient mode defaults to **disabled**, allowing existing deployments to continue operating using the existing sidecar pattern without disruption. Users can explicitly enable Ambient Mode to begin evaluating its benefits and tradeoffs in controlled environments.
 
-This post provides a high-level overview of what Ambient brings, how it impacts networking, and what changes were made in Big Bang to support it.
+This post provides a high-level overview of the Ambient Mesh capability, how this capability impacts cluster networking traffic, and the changes that were made in the Big Bang product to support it.
 
 ## Why Ambient?
 
-Ambient Mesh offers major advantages over the sidecar model by reducing resource overhead. Instead of running a dedicated proxy in every pod, Ambient uses a shared Layer 4 proxy, ztunnel, on each node. As workload count grows, this model becomes more efficient because proxy overhead no longer scales with every pod.
-It also simplifies operations. Since applications are no longer tied to an injected sidecar, pods do not need to be restarted just to pick up Istio proxy updates.
+Ambient Mesh offers major advantages over the sidecar model by reducing resource overhead. Instead of running a dedicated proxy in every kubernetes pod, Ambient uses a shared Layer 4 proxy, ztunnel, on each kubernetes cluster node. As workload count grows, this model becomes more efficient because proxy overhead no longer scales with every pod.
+Ambient Mode also simplifies operations. Since applications are no longer tied to an injected sidecar, pods do not need to be restarted just to pick up Istio proxy updates.
 Additionally, the Ambient Mesh architecture significantly reduces the complexity of onboarding and integrating mission applications into the Big Bang service mesh.
 
 ## Opt-In Ambient (Beta)
 
-Ambient Mesh is available in Big Bang 3.23, but is not enabled by default. When enabled, it should be treated as beta, and production use should be carefully evaluated based on your environment's needs.
+Ambient Mesh is available in Big Bang 3.23, but is not enabled by default. When enabled, it should be treated as a beta feature, and production use should be carefully evaluated based on your environment's needs. Ambient Mesh will ship as the default mesh networking configuration with BB 4.0.
 
 Ambient can be enabled by setting the `istio.ambient.enabled` flag to `true` in your values configuration file, which enables it globally for all Big Bang applications.
 
@@ -82,4 +82,4 @@ Big Bang 3.23 introduces Ambient Mesh as a **beta, opt-in feature** that:
 * Shifts enforcement toward **L4 Authorization Policies + Network Policies**
 * Supports **selective L7 processing** for authentication for packages that leverage Authservice
 
-Please stay tuned for further updates as our Ambient implementation progresses.
+Please stay tuned for further updates and timeline on BB 4.0 as our Ambient implementation progresses.
