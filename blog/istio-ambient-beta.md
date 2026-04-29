@@ -17,7 +17,7 @@ Ambient Mesh is available in Big Bang 3.23, but is not enabled by default. When 
 
 Ambient can be enabled by setting the `istio.ambient.enabled` flag to `true` in your values configuration file, which enables it globally for all Big Bang applications.
 
-For more information on configuration and what is enabled behind the scenes, refer to the [Enabling Ambient Mode documentation](https://docs-bigbang.dso.mil/latest/docs/configuration/ambient/?h=ambient/#enabling-ambient-mode).
+For more information on configuration and what is enabled behind the scenes, refer to the [Enabling Ambient Mode documentation](https://docs-bigbang.dso.mil/latest/docs/configuration/ambient/#enabling-ambient-mode).
 
 ## Changes to the Network Stack
 
