@@ -6,11 +6,9 @@ This post provides a high-level overview of what Ambient brings, how it impacts 
 
 ## Why Ambient?
 
-Ambient Mesh provides significant advantages over the sidecar approach by drastically reducing resource overhead. As the number of workloads increases, these benefits become more pronounced since each pod no longer requires its own dedicated proxy. 
-
-Instead, each node runs a shared Layer 4 proxy (ztunnel) that applications across the cluster can opt into. This also means that pods no longer need to be restarted when Istio is updated to ensure they are using the most up-to-date image.
-
-In addition, Ambient Mesh significantly reduces the complexity of onboarding new applications. This not only makes it easier and quicker to bring new packages into Big Bang, but also simplifies onboarding for mission applications into the mesh.
+Ambient Mesh offers major advantages over the sidecar model by reducing resource overhead. Instead of running a dedicated proxy in every pod, Ambient uses a shared Layer 4 proxy, ztunnel, on each node. As workload count grows, this model becomes more efficient because proxy overhead no longer scales with every pod.
+It also simplifies operations. Since applications are no longer tied to an injected sidecar, pods do not need to be restarted just to pick up Istio proxy updates.
+Additionally, the Ambient Mesh architecture significantly reduces the complexity of onboarding and integrating mission applications into the Big Bang service mesh.
 
 ## Opt-In Ambient (Beta)
 
@@ -36,7 +34,7 @@ For a deeper dive into the architecture, please check out [this link](https://is
 
 ## Current Implementation
 
-Ambient Mesh today is primarily focused on Layer 4. However, Layer 7 capabilities are still available through **waypoint proxies**, which are deployed only where needed.
+Ambient Mesh is primarily a Layer 4-first architecture. Instead of injecting an Envoy sidecar into every workload, Istio uses ztunnel, a node-level proxy, to create a secure L4 overlay for meshed traffic. When teams need Layer 7 features—such as HTTP routing, header-based policy, or richer request-level telemetry—they can opt specific workloads into waypoint proxies. This split lets ambient mesh provide a lower-friction security baseline by default, while making deeper application-aware processing an explicit, targeted choice rather than a universal sidecar tax.
 
 In Big Bang, this is particularly relevant for applications that rely on **Authservice** for authentication which should continue to function in the same way (using the Authservice label):
 
@@ -46,7 +44,7 @@ In Big Bang, this is particularly relevant for applications that rely on **Auths
 
 Additional waypoint proxies can be manually deployed using [Istio's configuration documentation](https://istio.io/latest/docs/ambient/usage/waypoint/), but there is currently no built-in support for templating them via the Big Bang chart.
 
-## Basic Troubleshooting
+## Troubleshooting Istio Ambient Mesh Workloads
 
 Since the `istio-proxy` containers no longer exist, troubleshooting shifts to inspecting ztunnel logs.
 
