@@ -1,12 +1,13 @@
 # Ambient Mode on Big Bang is now in Beta
 
-Big Bang 3.23 introduces support for **Istio Ambient Mesh** as an opt-in (beta) feature. With BB 3.23, Ambient mode defaults to **disabled**, allowing existing deployments to continue operating using the existing sidecar pattern without disruption. Users can explicitly enable Ambient Mode to begin evaluating its benefits and tradeoffs in controlled environments.
+Big Bang 3.23 introduces support for **Istio Ambient Mesh** as an opt-in (beta) feature. With BB 3.23, Ambient Mode defaults to **disabled**, allowing existing deployments to continue operating using the existing sidecar pattern without disruption. Users can explicitly enable Ambient Mode to begin evaluating its benefits and tradeoffs in controlled environments.
 
 This post provides a high-level overview of the Ambient Mesh capability, how this capability impacts cluster networking traffic, and the changes that were made in the Big Bang product to support it.
 
 ## Why Ambient?
 
-Ambient Mesh offers major advantages over the sidecar model by reducing resource overhead. Instead of running a dedicated proxy in every kubernetes pod, Ambient uses a shared Layer 4 proxy, ztunnel, on each kubernetes cluster node. As workload count grows, this model becomes more efficient because proxy overhead no longer scales with every pod.
+Ambient Mesh offers major advantages over the sidecar model by reducing resource overhead. Instead of running a dedicated proxy in every Kubernetes pod, Ambient uses a shared Layer 4 proxy, ztunnel, on each Kubernetes cluster node. As workload count grows, this model becomes more efficient because proxy overhead no longer scales with every pod.
+
 Ambient Mode also simplifies operations. Since applications are no longer tied to an injected sidecar, pods do not need to be restarted just to pick up Istio proxy updates.
 Additionally, the Ambient Mesh architecture significantly reduces the complexity of onboarding and integrating mission applications into the Big Bang service mesh.
 
@@ -28,15 +29,15 @@ Ambient introduces a fundamental change in how traffic flows:
 
 One of the most significant changes from a networking perspective is that workloads now communicate over TCP port 15008 (HBONE) when using the tunnel. This requirement is automatically handled by the bb-common integration, which allows this port when Ambient is enabled.
 
-From a security perspective, once traffic is allowed over the tunnel, it can reach any port on the destination workload. To address this, Big Bang automatically enables Layer 4 Authorization Policies to ensure environments remain properly segmented and secure.
+From a security perspective, allowing HBONE tunnel traffic enables connectivity to destination workloads, so NetworkPolicy and AuthorizationPolicy must be configured to preserve intended segmentation. To address this, Big Bang automatically enables Layer 4 Authorization Policies to ensure environments remain properly segmented and secure.
 
-For a deeper dive into the architecture, please check out [this link](https://istio.io/latest/docs/ambient/architecture/).
+For a deeper dive into the architecture, please check out [Istio Ambient Architecture](https://istio.io/latest/docs/ambient/architecture/).
 
 ## Current Implementation
 
-Ambient Mesh is primarily a Layer 4-first architecture. Instead of injecting an Envoy sidecar into every workload, Istio uses ztunnel, a node-level proxy, to create a secure L4 overlay for meshed traffic. When teams need Layer 7 features—such as HTTP routing, header-based policy, or richer request-level telemetry—they can opt specific workloads into waypoint proxies. This split lets ambient mesh provide a lower-friction security baseline by default, while making deeper application-aware processing an explicit, targeted choice rather than a universal sidecar tax.
+Ambient Mesh is primarily a Layer 4-first architecture. Instead of injecting an Envoy sidecar into every workload, Istio uses ztunnel, a node-level proxy, to create a secure L4 overlay for meshed traffic. When teams need Layer 7 features—such as HTTP routing, header-based policy, or richer request-level telemetry—they can opt specific workloads into waypoint proxies. This split lets Ambient Mesh provide a lower-friction security baseline by default, while making deeper application-aware processing an explicit, targeted choice rather than a universal sidecar tax.
 
-In Big Bang, this is particularly relevant for applications that rely on **Authservice** for authentication which should continue to function in the same way (using the Authservice label):
+In Big Bang, this is particularly relevant for applications that rely on **Authservice** for authentication which are expected to continue to function in the same way (using the Authservice label), but should still be validated:
 
 * Prometheus
 * AlertManager
@@ -60,7 +61,7 @@ Below is an example of an error that indicates a problem with a missing or misco
 error	access	connection complete	src.addr=10.42.1.22:36146 src.workload="kiali-5f4f9bd98c-jdb59" src.namespace="kiali" src.identity="spiffe://cluster.local/ns/kiali/sa/kiali-service-account" dst.addr=10.42.1.17:15008 dst.hbone_addr=10.42.1.17:9090 dst.service="monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local" dst.workload="prometheus-monitoring-monitoring-kube-prometheus-0" dst.namespace="monitoring" dst.identity="spiffe://cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus" direction="outbound" bytes_sent=0 bytes_recv=0 duration="0ms" error="io error: Connection refused (os error 111)"
 ```
 
-> **Note**: As mentioned earlier, TCP port 15008 is the primary port used when in Ambient mode so close attention should be paid to the `dst.addr` when troubleshooting network policy related issues. 
+> **Note**: As mentioned earlier, TCP port 15008 is the primary port used when in Ambient Mode so close attention should be paid to the `dst.addr` when troubleshooting network policy related issues. 
 
 Another example shows what it may look like if you have a missing or misconfigured authorization policy:
 
@@ -72,7 +73,7 @@ You can also use the [istioctl](https://istio.io/latest/docs/ops/diagnostic-tool
 
 `istioctl analyze -A`
 
-For a more in-depth troubleshooting resource please refer to the [following link](https://github.com/istio/istio/wiki/Troubleshooting-Istio-Ambient).
+For a more in-depth troubleshooting resource please refer to [Troubleshooting Istio Ambient](https://github.com/istio/istio/wiki/Troubleshooting-Istio-Ambient).
 
 ## Summary
 
