@@ -184,7 +184,7 @@ twistlock-restrict-apparmor-exception:
     exceptions:
     - policyName: restrict-apparmor
       ruleNames:
-      - restrict-apparmor
+      - app-armor
     match:
       any:
       - resources:
