@@ -25,7 +25,10 @@
 {{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
 {{- $kafkaBrokerHost := (.Values.addons.mimir.kafkaIngestStorage.brokerHost) }}
 {{- $kafkaBrokerPort := (.Values.addons.mimir.kafkaIngestStorage.brokerPort) }}
+{{- $kafkaBrokerNetworkCIDR := (.Values.addons.mimir.kafkaIngestStorage.brokerNetworkCIDR) }}
+{{- $kafkaBrokerClusterDomain := (.Values.addons.mimir.kafkaIngestStorage.brokerClusterDomain) }}
 {{- $kafkaBrokerRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerHost "") }}
+{{- $kafkaBrokerWildcardRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerClusterDomain "") }}
 
 upgradeJob:
   image:
@@ -64,14 +67,27 @@ routes:
         app.kubernetes.io/name: mimir
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.mimir.values }}
       hosts:
       - repo1.dso.mil
     kafka-broker:
-      enabled: {{ $kafkaBrokerRouteEnabled }}
+      {{- /* Disable single-host entry when wildcard covers it to avoid redundant ServiceEntries */}}
+      enabled: {{ and $kafkaBrokerRouteEnabled (not $kafkaBrokerWildcardRouteEnabled) }}
       {{- if ne $kafkaBrokerHost "" }}
       hosts:
         - {{ $kafkaBrokerHost | quote }}
+      {{- end }}
+      ports:
+        - number: {{ $kafkaBrokerPort }}
+          name: kafka
+          protocol: TCP
+    kafka-broker-wildcard:
+      enabled: {{ $kafkaBrokerWildcardRouteEnabled }}
+      {{- /* resolution: NONE required — Istio rejects wildcard hosts with DNS resolution */}}
+      resolution: NONE
+      {{- if ne $kafkaBrokerClusterDomain "" }}
+      hosts:
+        - {{ printf "*.%s" $kafkaBrokerClusterDomain | quote }}
       {{- end }}
       ports:
         - number: {{ $kafkaBrokerPort }}
@@ -83,7 +99,14 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
   egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    definitions:
+      {{- $egressDefs := .Values.networkPolicies.egress.definitions | deepCopy }}
+      {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
+      {{- /* Override kafka-subnets with the specific broker CIDR and only the configured port */}}
+      {{- $kafkaDef := dict "to" (list (dict "ipBlock" (dict "cidr" $kafkaBrokerNetworkCIDR))) "ports" (list (dict "port" $kafkaBrokerPort "protocol" "TCP")) }}
+      {{- $_ := set $egressDefs "kafka-subnets" $kafkaDef }}
+      {{- end }}
+      {{ $egressDefs | toYaml | nindent 6 }}
     from:
       mimir:
         to:
@@ -91,7 +114,28 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
           definition:
             storage-subnets: {{ not $minioEnabled }}
-            kafka-subnets: {{ $kafkaEnabled }}
+      {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
+      # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
+      # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
+      # operators must provide their broker subnet CIDR to enable network access.
+      # Scoped to distributor (producer) and ingester (consumer) only.
+      mimir-distributor:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: mimir
+            app.kubernetes.io/component: distributor
+        to:
+          definition:
+            kafka-subnets: true
+      mimir-ingester:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: mimir
+            app.kubernetes.io/component: ingester
+        to:
+          definition:
+            kafka-subnets: true
+      {{- end }}
       rollout-operator:
         to:
           k8s:
@@ -229,7 +273,7 @@ upstream:
         push_grpc_method_enabled: false
       {{- end }}
 {{- end }}
-  {{- if or $minioEnabled $s3Enabled }}
+  {{- if or $minioEnabled $s3Enabled $kafkaEnabled }}
   {{- if .Values.addons.mimir.serviceAccountAnnotations }}
   serviceAccount:
     annotations:
