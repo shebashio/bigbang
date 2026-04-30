@@ -117,3 +117,73 @@ tests:
   - notMatchRegex:
       path: stringData.defaults
       pattern: "ingest_storage"
+
+- it: should render wildcard kafka-broker route when brokerClusterDomain and istio are set
+  set:
+    istio:
+      enabled: true
+    addons:
+      mimir:
+        enabled: true
+        kafkaIngestStorage:
+          enabled: true
+          brokerHost: "b-1.mimir-kafka-test.abc123.kafka.us-gov-west-1.amazonaws.com"
+          brokerPort: 9092
+          topic: "mimir-ingest"
+          brokerClusterDomain: "mimir-kafka-test.abc123.kafka.us-gov-west-1.amazonaws.com"
+      minioOperator:
+        enabled: false
+  template: mimir/values.yaml
+  asserts:
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "kafka-broker-wildcard"
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "\\*\\.mimir-kafka-test\\.abc123\\.kafka\\.us-gov-west-1\\.amazonaws\\.com"
+
+- it: should override kafka-subnets definition with brokerNetworkCIDR when set
+  set:
+    addons:
+      mimir:
+        enabled: true
+        kafkaIngestStorage:
+          enabled: true
+          brokerHost: "b-1.mimir-kafka-test.abc123.kafka.us-gov-west-1.amazonaws.com"
+          brokerPort: 9092
+          topic: "mimir-ingest"
+          brokerNetworkCIDR: "172.31.0.0/16"
+      minioOperator:
+        enabled: false
+  template: mimir/values.yaml
+  asserts:
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "172\\.31\\.0\\.0/16"
+
+- it: should scope kafka egress to distributor and ingester pod selectors only
+  set:
+    addons:
+      mimir:
+        enabled: true
+        kafkaIngestStorage:
+          enabled: true
+          brokerHost: "b-1.mimir-kafka-test.abc123.kafka.us-gov-west-1.amazonaws.com"
+          brokerPort: 9092
+          topic: "mimir-ingest"
+      minioOperator:
+        enabled: false
+  template: mimir/values.yaml
+  asserts:
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "mimir-distributor"
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "mimir-ingester"
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "app.kubernetes.io/component: distributor"
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "app.kubernetes.io/component: ingester"
