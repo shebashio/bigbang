@@ -171,6 +171,7 @@ tests:
           brokerHost: "b-1.mimir-kafka-test.abc123.kafka.us-gov-west-1.amazonaws.com"
           brokerPort: 9092
           topic: "mimir-ingest"
+          brokerNetworkCIDR: "10.0.0.0/8"
       minioOperator:
         enabled: false
   template: mimir/values.yaml
