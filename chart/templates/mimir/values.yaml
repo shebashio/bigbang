@@ -96,6 +96,7 @@ routes:
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
   egress:
