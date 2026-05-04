@@ -8,30 +8,29 @@ Follow the [Extra Package Deployment Guide](../../installation/environments/extr
 
 ### Example Deployment Values
 ``` yaml
-packages:
-  renovate:
-    enabled: true
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
-      tag: 32.38.0-bb.1
-    values:
-      networkPolicies:
-        enabled: "{{ $.Values.networkPolicies.enabled }}"
-      istio:
-        enabled: "{{ $.Values.istiod.enabled }}"
-      cronjob:
-        schedule: '0 1 * * *'
-      renovate:
-        config: |
-        {
-            "platform": "gitlab",
-            "endpoint": "https://gitlab.example.com/api/v4",
-            "token": "your-gitlab-renovate-user-token",
-            "autodiscover": "false",
-            "dryRun": true,
-            "printConfig": true,
-            "repositories": ["username/repo", "orgname/repo"]
-        }
+renovate:
+  enabled: true
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
+    tag: 46.31.6-bb.4
+  values:
+    networkPolicies:
+      enabled: "{{ $.Values.networkPolicies.enabled }}"
+    istio:
+      enabled: "{{ $.Values.istiod.enabled }}"
+    cronjob:
+      schedule: '0 1 * * *'
+    renovate:
+      config: |
+      {
+          "platform": "gitlab",
+          "endpoint": "https://gitlab.example.com/api/v4",
+          "token": "your-gitlab-renovate-user-token",
+          "autodiscover": "false",
+          "dryRun": true,
+          "printConfig": true,
+          "repositories": ["username/repo", "orgname/repo"]
+      }
 ```
 
 ### Config
@@ -103,26 +102,25 @@ Once you have configured the schedule in the values.yaml file, you can deploy th
 
 ### Example Yaml
 ```yaml
-packages:
-  renovate:
-    enabled: true
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
-      tag: 32.38.0-bb.1
-    values:
-      cronjob:
-        # At 01:00 every day
-        schedule: '0 1 * * *'
-        # -- If it is set to true, all subsequent executions are suspended. This setting does not apply to already started executions.
-        suspend: false
-        annotations: {}
-        labels: {}
-        concurrencyPolicy: ''
-        failedJobsHistoryLimit: ''
-        successfulJobsHistoryLimit: ''
-        jobRestartPolicy: Never
-        jobBackoffLimit: ''
-        startingDeadlineSeconds: ''
+renovate:
+  enabled: true
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
+    tag: 46.31.6-bb.4
+  values:
+    cronjob:
+      # At 01:00 every day
+      schedule: '0 1 * * *'
+      # -- If it is set to true, all subsequent executions are suspended. This setting does not apply to already started executions.
+      suspend: false
+      annotations: {}
+      labels: {}
+      concurrencyPolicy: ''
+      failedJobsHistoryLimit: ''
+      successfulJobsHistoryLimit: ''
+      jobRestartPolicy: Never
+      jobBackoffLimit: ''
+      startingDeadlineSeconds: ''
 
   ``` 
 
