@@ -67,6 +67,6 @@ We're excited to bring you Big Bang 3.0 and hope you find these improvements val
 - [Register to attend our next briefing](https://repo1.dso.mil/big-bang/product/bbtoc#meetups), scheduled for Thursday 5 June 2025 at 1300 CT
 - Join the Big Bang Distro List for the latest Big Bang BBTOC, Immersion Series, and e-mail updates
   - _send a request to `aflcmc.hncx.platformonebigbang@us.af.mil` to be added to the distro_
-- [Join the Big Bang Slack Channel](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-21zrvwacw-zoionTAz0UdzVbjnAFSnDw)
+- [Join the Big Bang Slack Channel](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-38q4ytzv4-P1uxIpm9pzooo_m06OOmzg)
 
 We also extend a sincere thank you to everyone who participated in the Istio beta program, and to all our community members submitting contributions, bug reports, and feature requests. Your feedback is invaluable to the work that we do. So, as always, _thank you for helping us build a better Big Bang!_ 🚀

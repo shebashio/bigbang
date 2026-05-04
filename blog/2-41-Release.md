@@ -54,7 +54,7 @@ We always encourage consumers to view the [Release notes](https://repo1.dso.mil/
 We extend our gratitude to Daniel Dides and the entire Big Bang team for their valued contributions to this release. The success of Big Bang relies heavily on the engagement of our community, and we request feedback through the following methods:
 - [Issue](https://repo1.dso.mil/big-bang/bigbang/-/issues/new) reporting on our platform
 - Consulting our [comprehensive documentation](https://docs-bigbang.dso.mil/latest/) for implementation guidance
-- Providing [feedback](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-21zrvwacw-zoionTAz0UdzVbjnAFSnDw) on new features and improvements
+- Providing [feedback](https://join.slack.com/t/bigbanguniver-ft39451/shared_invite/zt-2mrtefxg6-5WJr85JD3NPbreMuAcQR0A) on new features and improvements
 
 ## Looking Forward
 
