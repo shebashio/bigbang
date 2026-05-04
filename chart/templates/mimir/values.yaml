@@ -193,6 +193,8 @@ bbtests:
 {{- if $minioEnabled }}
 minio-tenant:
   enabled: true
+  bucketInit:
+    enabled: true
   upstream:
     tenant:
       name: mimir-mimir-minio-tenant
@@ -273,8 +275,7 @@ upstream:
         push_grpc_method_enabled: false
       {{- end }}
 {{- end }}
-  {{- if or $minioEnabled $s3Enabled $kafkaEnabled }}
-  {{- if .Values.addons.mimir.serviceAccountAnnotations }}
+  {{- if and (or $minioEnabled $s3Enabled $kafkaEnabled) .Values.addons.mimir.serviceAccountAnnotations }}
   serviceAccount:
     annotations:
       {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
@@ -294,5 +295,4 @@ upstream:
       {{- end }}
     dashboards:
       enabled: {{ .Values.grafana.enabled }}
-{{- end }}
 {{- end -}}
