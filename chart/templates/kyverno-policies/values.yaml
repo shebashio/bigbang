@@ -435,83 +435,95 @@ policies:
 #Create Exceptions for policies:
 additionalPolicyExceptions:
 {{- if ((.Values.alloy).enabled) }}
-{{- include "bigbang.policyexceptions.alloy" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.alloy" .)) | indent 4 }}
 {{- end}}
 
 {{- if ((.Values.addons.argocd).enabled) }}
-{{- include "bigbang.policyexceptions.argocd" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.argocd" .)) | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).backstage).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.backstage" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.backstage" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.bbtests).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.cypress" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.cypress" .)) | indent 4 }}
+{{- end}}
+
+{{- if and ((.Values.addons.externalSecrets).enabled) ((.Values.kyverno).enabled) }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.externalsecrets" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.fluentbit).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.fluentbit" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.fluentbit" .)) | indent 4 }}
+{{- end}}
+
+{{- if and ((.Values.gatekeeper).enabled) (.Values.kyverno).enabled }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.gatekeeper" .)) | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).gitlab).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.gitlab" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.gitlab" .)) | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).gitlabRunner).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.gitlabrunner" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.gitlabrunner" .)) | indent 4 }}
 {{- end}}
 
 {{- if and (((.Values.addons).headlamp).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.headlamp" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.headlamp" .)) | indent 4 }}
 {{- end}}
 
 {{- if ((.Values.istiod).enabled) }}
-{{- include "bigbang.policyexceptions.istio" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.istio" .)) | indent 4 }}
+{{- end}}
+
+{{- if and ((.Values.kiali).enabled) ((.Values.kyverno).enabled) }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.kiali" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.kyvernoreporter).enabled) ((.Values.kyverno).enabled) }}
-{{- include "bigbang.policyexceptions.kyvernoreporter" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.kyvernoreporter" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.addons.mattermost).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.mattermost" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.mattermost" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.addons.mimir).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.mimir" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.mimir" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.kyvernoPolicies).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.misc" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.misc" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.monitoring).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.monitoring" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.monitoring" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.neuvector).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.neuvector" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.neuvector" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.addons.thanos).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.thanos" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.thanos" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.twistlock).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.twistlock" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.twistlock" .)) | indent 4 }}
 {{- end}}
 
 {{- if and ((.Values.addons.vault).enabled) (.Values.kyverno).enabled }}
-{{- include "bigbang.policyexceptions.vault" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.vault" .)) | indent 4 }}
 {{- end}}
 
 {{- if $deployNodeAgent }}
-{{- include "bigbang.policyexceptions.velero" . | indent 4 }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.velero" .)) | indent 4 }}
 {{- end}}
 
-{{- if .Values.ztunnel.enabled }}
-{{- include "bigbang.policyexceptions.ztunnel" . | indent 4 }}  
+{{- if eq (include "ambientEnabled" .) "true" }}
+{{- include "bigbang.policyexceptions.normalize" (dict "raw" (include "bigbang.policyexceptions.ztunnel" .)) | indent 4 }}  
 {{- end }}
 
 {{- end }}

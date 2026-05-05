@@ -1,5 +1,7 @@
+{{- define "bigbang.policyexceptions.gatekeeper" }}
 gatekeeper-disallow-auto-mount-service-account-token-exception:
   metadata:
+    namespace: kyverno
     labels:
       app: gatekeeper
     annotations:
@@ -23,3 +25,4 @@ gatekeeper-disallow-auto-mount-service-account-token-exception:
           - gatekeeper-controller-manager*
           namespaces:
           - gatekeeper-system
+{{- end }}

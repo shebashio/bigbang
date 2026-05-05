@@ -1,4 +1,15 @@
 {{- define "bigbang.policyexceptions.istio" }}
+{{- $nodePortIngressGateways := list }}
+{{- range $name, $values := .Values.istioGateway.values.gateways }}
+{{- if eq $values.type "NodePort" }}
+{{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
+{{- end }}
+{{- end }}
+{{- range $name, $values := .Values.istioGateway.values.gateways }}
+{{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
+{{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
+{{- end }}
+{{- end }}
 istio-disallow-istio-injection-bypass-exception:
   metadata:
     namespace: kyverno
@@ -20,6 +31,47 @@ istio-disallow-istio-injection-bypass-exception:
           namespaces:
           - istio-system
           - istio-gateway
+{{- if or $nodePortIngressGateways (and .Values.istiod.enabled .Values.istioGateway.enabled) }}
+istio-disallow-nodeport-services-exception:
+  metadata:
+    namespace: kyverno
+    labels:
+      app: istio
+    annotations:
+      policies.kyverno.io/title: Istio disallow-nodeport-services exception
+      policies.kyverno.io/category: Istio
+      policies.kyverno.io/subject: Service
+      policies.kyverno.io/description: Istio gateway services may need to be exposed as NodePort services.
+  spec:
+    exceptions:
+    - policyName: disallow-nodeport-services
+      ruleNames:
+      - disallow-nodeport-services
+    match:
+      any:
+      {{- if $nodePortIngressGateways }}
+      - resources:
+          kinds:
+          - Service
+          names:
+          {{- range $name := $nodePortIngressGateways }}
+          - {{ $name }}
+          {{- end }}
+          namespaces:
+          - istio-system
+      {{- end }}
+      {{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
+      - resources:
+          kinds:
+          - Service
+          names:
+          {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
+          - {{ $gw.serviceName }}
+          {{- end }}
+          namespaces:
+          - istio-gateway
+      {{- end }}
+{{- end }}
 istio-require-non-root-user-exception:
   metadata:
     namespace: kyverno
