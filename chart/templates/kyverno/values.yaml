@@ -85,6 +85,12 @@ upstream:
   # clear out the explicit set in the package, so it falls back to our global value
   existingImagePullSecrets: []
 
+  features:
+    policyExceptions:
+      enabled: true
+      # -- Restrict policy exceptions to a single namespace
+      namespace: 'kyverno'
+
   grafana:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     namespace: monitoring
