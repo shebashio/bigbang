@@ -211,8 +211,8 @@ networkPolicies:
           - ipBlock:
               cidr: 10.0.0.0/8
         ports:
-        - port: 5432
-          protocol: TCP
+          - port: 5432
+            protocol: TCP
   ingress:
     # -- Ingress definitions; create definitions here that you want to re-use globally across
     # all packages
@@ -636,11 +636,11 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.62"
+    tag: "3.3.4-bb.64"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
-    tag: "3.3.4-bb.62"
+    tag: "3.3.4-bb.64"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -766,7 +766,7 @@ elasticsearchKibana:
 
     # -- Elasticsearch license in json format seen here: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana#enterprise-license
     keyJSON: ""
-    
+
   # -- Values to passthrough to the elasticsearch-kibana chart: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
   values: {}
 
@@ -1110,11 +1110,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "83.4.0-bb.1"
+    tag: "83.4.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "83.4.0-bb.1"
+    tag: "83.4.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1315,18 +1315,18 @@ renovate:
   sourceType: "git"
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/maintained/renovate.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
     path: "./chart"
-    tag: "46.31.6-bb.1"
+    tag: "46.31.6-bb.4"
   helmRepo:
     repoName: "registry1"
-    chartName: "maintained/renovate"
-    tag: "46.31.6-bb.1"
+    chartName: "renovate"
+    tag: "46.31.6-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Renovate Package
   flux: {}
 
-  # -- Values to passthrough to the Renovate chart: https://repo1.dso.mil/big-bang/product/maintained/renovate.git
+  # -- Values to passthrough to the Renovate chart: https://repo1.dso.mil/big-bang/product/packages/renovate.git
   values: {}
 
   # -- Post Renderers.  See docs/postrenders.md
@@ -1346,11 +1346,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "9.5.0-bb.0"
+      tag: "9.5.9-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "9.5.0-bb.0"
+      tag: "9.5.9-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
