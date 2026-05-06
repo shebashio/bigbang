@@ -9,7 +9,7 @@ additionalPolicyExceptions values schema.
 {{- range $name, $exception := $exceptions }}
 {{- if $exception }}
 {{ $name }}:
-  enabled: {{ default true $exception.enabled }}
+  enabled: {{ if hasKey $exception "enabled" }}{{ $exception.enabled }}{{ else }}true{{ end }}
   kind: {{ default "PolicyException" $exception.kind }}
   namespace: {{ default (dig "metadata" "namespace" "kyverno" $exception) $exception.namespace }}
   annotations:
