@@ -1,0 +1,31 @@
+# Bucket A packages
+fluentbit:
+  enabled: true
+elasticsearchKibana:
+  enabled: true
+eckOperator:
+  enabled: true
+
+# Disable alloy (conflicts with fluentbit)
+alloy:
+  enabled: false
+
+addons:
+  minioOperator:
+    enabled: true
+  argocd:
+    enabled: true
+  fortify:
+    enabled: true
+  anchoreEnterprise:
+    enabled: true
+  vault:
+    enabled: true
+  keycloak:
+    enabled: true
+  sonarqube:
+    enabled: true
+  mattermostOperator:
+    enabled: true
+  mattermost:
+    enabled: true
