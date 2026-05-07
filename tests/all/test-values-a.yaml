@@ -6,8 +6,10 @@ elasticsearchKibana:
 eckOperator:
   enabled: true
 
-# Disable alloy (conflicts with fluentbit)
+# Disable alloy/loki in favor of fluentbit/elasticsearch-kibana/eck-operator for logging/observability in this bucket
 alloy:
+  enabled: false
+loki:
   enabled: false
 
 addons:
