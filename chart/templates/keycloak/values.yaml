@@ -90,6 +90,8 @@ bbtests:
   cypress:
     envs:
       cypress_url: {{ printf "https://keycloak.%s" $domainName | quote }}
+      tnr_username: "cypress"
+      tnr_password: "tnr_w!G33ZyAt@C8"
 
 upstream:
   replicas: 1

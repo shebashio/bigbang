@@ -58,10 +58,9 @@ bbtests:
     envs:
       cypress_url: {{ printf "https://kiali.%s" $domainName | quote }}
       cypress_check_data: {{ .Values.grafana.enabled | quote }}
+      cypress_ambient_enabled: {{ include "ambientEnabled" . | quote }}
       cypress_pod_monitor_name: "monitoring-monitoring-istio-envoy"
-      cypress_keycloak_test_enable: {{ and .Values.addons.keycloak.enabled .Values.kiali.sso.enabled | quote }}
-      cypress_keycloak_username: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_username" "cypress" .Values.addons.keycloak.values }}
-      cypress_keycloak_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "password" .Values.addons.keycloak.values }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.kiali "values" .Values) | nindent 6 }}
 
 {{- if and .Values.kiali.enabled .Values.kiali.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso))  }}
 oidcCaCert: {{ default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | quote }}

@@ -210,7 +210,7 @@ bbtests:
       cypress_alertmanager_url: {{ printf "https://alertmanager.%s" $domainName | quote }}
       cypress_keycloak_test_enable: {{ and .Values.addons.keycloak.enabled .Values.monitoring.sso.enabled | quote }}
       cypress_tnr_username: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_username" "cypress" .Values.addons.keycloak.values }}
-      cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "password" .Values.addons.keycloak.values }}
+      cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "tnr_w!G33ZyAt@C8" .Values.addons.keycloak.values }}
 
 openshift: {{ .Values.openshift }}
 
