@@ -42,3 +42,63 @@ tests:
   - equal:
       path: result.networkPolicies.egress.from["fluent-bit"].to.definition["storage-subnets"].enabled
       value: true
+
+- it: must generate collector-native pipeline outputs and secret-backed env for default elasticsearch and loki
+  set:
+    fluentbit:
+      values: {}
+    elasticsearchKibana:
+      enabled: true
+    loki:
+      enabled: true
+    _selfTest:
+      bigbang.defaults.fluentbit:
+        resultIsYaml: true
+        args: helm:context
+  template: templates/_self-test/render.yaml
+  asserts:
+  - equal:
+      path: result.upstream.config.pipeline.filters[0].name
+      value: kubernetes
+  - equal:
+      path: result.upstream.config.pipeline.outputs[0].name
+      value: es
+  - equal:
+      path: result.upstream.config.pipeline.outputs[0].match
+      value: kube.*
+  - equal:
+      path: result.upstream.config.pipeline.outputs[2].name
+      value: loki
+  - equal:
+      path: result.upstream.env[0].name
+      value: FLUENT_ELASTICSEARCH_PASSWORD
+
+- it: must keep opt-in additional outputs when disableDefault is true
+  set:
+    fluentbit:
+      values:
+        additionalOutputs:
+          disableDefault: true
+          loki:
+            host: loki.example
+            port: 3100
+            user: loki-user
+            password: loki-pass
+    _selfTest:
+      bigbang.defaults.fluentbit:
+        resultIsYaml: true
+        args: helm:context
+  template: templates/_self-test/render.yaml
+  asserts:
+  - equal:
+      path: result.upstream.config.pipeline.outputs[0].host
+      value: ${EXTERNAL_LOKI_HOST}
+  - equal:
+      path: result.upstream.config.pipeline.outputs[0].match
+      value: kube.*
+  - equal:
+      path: result.upstream.env[0].name
+      value: EXTERNAL_LOKI_HOST
+  - equal:
+      path: result.upstream.env[2].name
+      value: EXTERNAL_LOKI_USER
