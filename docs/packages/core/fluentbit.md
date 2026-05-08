@@ -55,17 +55,17 @@ Since Fluentbit is the method for shipping cluster logs to the ECK stack, to red
 ```yaml
 fluentbit:
   values:
-    config:
-      inputs: |
-        [INPUT]
-            Name tail
-            Path /var/log/containers/*.log
-            Exclude_Path /var/log/containers/*fluent*.log,/var/log/containers/*gatekeeper-audit*.log
-            Parser containerd
-            Tag kube.*
-            Mem_Buf_Limit 50MB
-            Skip_Long_Lines On
-            storage.type filesystem
+    upstream:
+      config:
+        pipeline:
+          inputs:
+            - name: tail
+              path: /var/log/containers/*.log
+              parser: containerd
+              tag: kube.*
+              mem_buf_limit: 50MB
+              skip_long_lines: true
+              storage.type: filesystem
 ```
 
 ## High Availability
