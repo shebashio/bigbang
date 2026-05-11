@@ -182,7 +182,7 @@ loki:
   {{- end }}
 
 {{- if (eq .Values.loki.strategy "monolith") }}
-deploymentMode: SingleBinary
+deploymentMode: Monolithic
 singleBinary:
   replicas: 1
   extraArgs:
