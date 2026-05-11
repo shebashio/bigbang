@@ -306,11 +306,6 @@ kyvernoReporter:
   values:
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_grafana_url: https://grafana.dev.bigbang.mil
-          cypress_prometheus_url: https://prometheus.dev.bigbang.mil
-          cypress_check_datasource: 'true'
           
 kyvernoPolicies:
   values:
@@ -781,16 +776,6 @@ elasticsearchKibana:
       count: 1
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_kibana_url: "https://kibana.dev.bigbang.mil"
-        resources:
-          requests:
-            cpu: "2"
-            memory: "4Gi"
-          limits:
-            cpu: "2"
-            memory: "4Gi"
 
 fluentbit:
   enabled: false
@@ -853,39 +838,8 @@ loki:
 
 tempo:
   values:
-    istio:
-      serviceEntries:
-        custom:
-          - name: "cypress-service-entries-tempo"
-            enabled: true
-            spec:
-              hosts:
-                - 'repo1.dso.mil'
-                - 'tempo.dev.bigbang.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'grafana.com'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_url: 'https://tempo.dev.bigbang.mil'
-          cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
-          cypress_check_datasource: 'true'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          # uncomment following variables for sso keycloak testing in bb
-          #cypress_tnr_username: "cypress"
-          #cypress_tnr_password: "tnr_w!G33ZyAt@C8"
-          #cypress_keycloak_test_enable: "true"
-      scripts:
-        enabled: false
-        envs:
-          TEMPO_METRICS_URL: 'http://tempo-tempo.tempo.svc:3200'
 
 monitoring:
   flux:
@@ -979,31 +933,10 @@ neuvector:
           sidecar.istio.io/proxyMemoryLimit: "2Gi"
       k3s:
         enabled: true
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-neuvector"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'neuvector.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     bbtests:
       enabled: true
       updater:
         enabled: true
-      cypress:
-        envs:
-          cypress_url: https://neuvector.dev.bigbang.mil
 
 twistlock:
   enabled: false
