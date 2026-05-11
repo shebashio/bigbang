@@ -80,6 +80,11 @@ networkPolicies:
                   helm.sh/hook-weight: "-10"
                   helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 
+bbtests:
+  scripts:
+    envs:
+      MINIO_HOST: {{ printf "https://minio-api.%s" $domainName | quote }}
+
 openshift: {{ .Values.openshift }}
 
 upstream:
