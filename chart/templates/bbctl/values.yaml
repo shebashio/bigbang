@@ -126,4 +126,12 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.bbctl.values }}
       hosts:
       - grafana.{{ .Values.domain }}
+      - repo1.dso.mil
+
+bbtests:
+  cypress:
+    envs:
+      cypress_grafana_url: {{ printf "https://grafana.%s" .Values.domain | quote }}
+      cypress_grafana_username: 'admin'
+      cypress_grafana_password: 'prom-operator'
 {{- end -}}

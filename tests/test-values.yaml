@@ -881,24 +881,6 @@ grafana:
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_grafana
       scopes: "openid Grafana"
   values:
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-grafana"
-            enabled: true
-            spec:
-              hosts:
-                - 'registry.npmjs.org'
-                - 'download.cypress.io'
-                - 'cdn.cypress.io'
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     dashboards:
       default:
         k8s-deployment:
@@ -919,9 +901,6 @@ grafana:
             path: /var/lib/grafana/dashboards
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
 
 neuvector:
   sso:
@@ -981,12 +960,7 @@ bbctl:
   values:
     bbtests:
       enabled: true
-      cypress:
-        artifacts: true
-        envs:
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-          cypress_grafana_username: 'admin'
-          cypress_grafana_password: 'prom-operator'
+
 alloy:
   enabled: true
   alloyLogs:
@@ -995,21 +969,6 @@ alloy:
   values:
     bbtests:
       enabled: true
-
-    istio:
-      hardened:
-        customServiceEntries:
-          - name: "cypress-service-entries-alloy"
-            enabled: true
-            spec:
-              hosts:
-                - 'loki.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
 
 # Addons are toggled based on labels in CI
 addons:
@@ -1075,27 +1034,6 @@ addons:
     values:
       bbtests:
         enabled: true
-        cypress:
-          envs:
-            cypress_url: "https://backstage.dev.bigbang.mil"
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "cypress-service-entries-backstage"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'fortify.dev.bigbang.mil'
-                  - 'repo1.dso.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
       backstage:
         backstage:
           appConfig:
@@ -1932,38 +1870,8 @@ addons:
         #redis:
         exporter:
           replicas: 1
-      istio:
-        hardened:
-          customServiceEntries:
-            - name: "allow-npm-for-cypress-tests"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'registry1.dso.mil'
-                  - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-                  - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'index.docker.io'
-                  - 'auth.docker.io'
-                  - 'production.cloudflare.docker.com'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
       bbtests:
         enabled: true
-        cypress:
-          artifacts: true
-          envs:
-            cypress_url: "https://harbor.dev.bigbang.mil"
-        scripts:
-          envs:
-            HARBOR_REGISTRY: "harbor.dev.bigbang.mil"
   # ----------------------------------------------------------------------------------------------------------------------
   # Thanos
   #
@@ -2080,7 +1988,3 @@ addons:
     values:
       bbtests:
         enabled: true
-        cypress:
-          artifacts: true
-          envs:
-            cypress_url: https://headlamp.dev.bigbang.mil
