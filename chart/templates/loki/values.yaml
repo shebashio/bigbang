@@ -172,6 +172,14 @@ loki:
   limits_config:
     max_line_size: 0
   {{- end }}
+  {{- if eq .Values.loki.strategy "scalable" }}
+  # In hardened Istio mode, REGISTRY_ONLY sidecars will block direct gRPC calls to pod IPs.
+  # Advertise the write ingesters by stable headless-service DNS name so queriers can reach
+  # them through the service registry for label/series/query_range requests.
+  ingester:
+    lifecycler:
+      address: ${HOSTNAME}.logging-loki-write-headless.logging.svc.cluster.local
+  {{- end }}
   {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
