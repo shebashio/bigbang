@@ -108,7 +108,7 @@ routes:
 
 {{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
 istio:
-  enabled: $istioEnabled
+  enabled: {{ $istioEnabled }}
   sidecar:
     enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
   ambient:
