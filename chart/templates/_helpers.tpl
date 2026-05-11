@@ -851,8 +851,8 @@ networkPolicies:
 {{- $values := .values -}}
 cypress_keycloak_test_enable: {{ and $values.addons.keycloak.enabled $pkg.sso.enabled | quote }}
 cypress_keycloak_url: {{ printf "https://keycloak.%s/" $values.domain | quote }}
-cypress_tnr_username: {{ $values.addons.keycloak.values.bbtests.cypress.envs.cypress_tnr_username | quote | default "cypress" }}
-cypress_tnr_password: {{ $values.addons.keycloak.values.bbtests.cypress.envs.cypress_tnr_password | quote | default "tnr_w!G33ZyAt@C8" }}
+cypress_tnr_username: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_username" "cypress" $values.addons.keycloak.values | quote }}
+cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "tnr_w!G33ZyAt@C8" $values.addons.keycloak.values | quote }}
 {{- end }}
 
 #######################################################################################################################################

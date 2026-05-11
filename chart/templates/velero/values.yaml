@@ -83,7 +83,7 @@ networkPolicies:
 bbtests:
   scripts:
     envs:
-      MINIO_HOST: {{ printf "https://minio-api.%s" $domainName | quote }}
+      MINIO_HOST: {{ printf "https://minio-api.%s" .Values.domain | quote }}
 
 openshift: {{ .Values.openshift }}
 
