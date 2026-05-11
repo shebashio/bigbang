@@ -803,38 +803,10 @@ loki:
         requests:
           cpu: 200m
           memory: 1Gi
-    istio:
-      serviceEntries:
-        custom:
-          - name: "cypress-service-entries-loki"
-            enabled: true
-            spec:
-              hosts:
-                - 'repo1.dso.mil'
-                - 'grafana.dev.bigbang.mil'
-                - 'optimizationguide-pa.googleapis.com'
-                - 'clientservices.googleapis.com'
-                - 'accounts.google.com'
-                - 'redirector.gvt1.com'
-                - 'content-autofill.googleapis.com'
-                - 'safebrowsing.googleapis.com'
-              location: MESH_EXTERNAL
-              ports:
-                - number: 443
-                  protocol: TLS
-                  name: https
-              resolution: DNS
     minio:
       enabled: false
     bbtests:
       enabled: true
-      cypress:
-        envs:
-          cypress_check_datasource: 'true'
-          cypress_grafana_url: 'https://grafana.dev.bigbang.mil'
-      scripts:
-        envs:
-          LOKI_URL: 'http://logging-loki.logging.svc:3100'
 
 tempo:
   values:
