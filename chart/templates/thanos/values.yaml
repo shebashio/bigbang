@@ -108,8 +108,9 @@ networkPolicies:
             authservice/authservice:10003: {{ .Values.addons.authservice.enabled }}
       thanos-storegateway:
         podSelector:
-          app.kubernetes.io/name: thanos
-          app.kubernetes.io/component: storegateway
+          matchLabels:
+            app.kubernetes.io/name: thanos
+            app.kubernetes.io/component: storegateway
         to:
           definition:
             storage-subnets: {{ $storeGatewayEnabled }}
