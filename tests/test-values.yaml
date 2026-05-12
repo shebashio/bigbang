@@ -1752,6 +1752,36 @@ addons:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
     values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - name: "cypress-service-entries-thanos"
+              enabled: true
+              spec:
+                hosts:
+                  - 'registry.npmjs.org'
+                  - 'download.cypress.io'
+                  - 'cdn.cypress.io'
+                  - 'repo1.dso.mil'
+                  - 'thanos.dev.bigbang.mil'
+                  - 'grafana.dev.bigbang.mil'
+                location: MESH_EXTERNAL
+                ports:
+                  - number: 443
+                    protocol: TLS
+                    name: https
+                resolution: DNS
+          customAuthorizationPolicies:
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       minio:
         enabled: true
         upstream:
@@ -1792,6 +1822,15 @@ addons:
         retentionResolution1h: 30d
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            cypress_url: "https://thanos.dev.bigbang.mil"
+            cypress_prometheus_integration_enabled: "true"
+            cypress_objstorage_integration_enabled: "true"
+        scripts:
+          image: "registry1.dso.mil/bigbang-ci/gitlab-tester:0.0.4"
+          envs:
+            THANOS_REGISTRY: "thanos.dev.bigbang.mil"
       objstoreConfig: |-
         type: s3
         config:

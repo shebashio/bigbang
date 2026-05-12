@@ -53,11 +53,6 @@ routes:
       enabled: {{ and $istioHardened (not (empty $s3Endpoint)) }}
       hosts:
       - {{ $s3Endpoint }}
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.thanos.values }}
-      hosts:
-      - repo1.dso.mil
-      - grafana.{{ .Values.domain }}
   inbound:
     query-frontend:
       enabled: {{ $istioEnabled }}
@@ -144,16 +139,6 @@ networkPolicies:
         from:
           k8s:
             authservice-waypoint@authservice/authservice-waypoint: {{ and (eq (include "ambientEnabled" .) "true") .Values.addons.authservice.enabled .Values.addons.thanos.sso.enabled }}
-
-bbtests:
-  cypress:
-    envs:
-      cypress_url: {{ printf "https://thanos.%s" .Values.domain | quote }}
-      cypress_prometheus_integration_enabled: {{ .Values.monitoring.enabled | quote }}
-      cypress_objstorage_integration_enabled: {{ $shouldEnableMinio | quote }}
-  scripts:
-    envs:
-      THANOS_REGISTRY: {{ printf "thanos.%s" .Values.domain | quote }}
 
 {{- if .Values.monitoring.enabled }}
 metrics:
