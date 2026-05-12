@@ -119,6 +119,25 @@ networkPolicies:
             minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+      thanos-query-frontend:9090:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: thanos
+            app.kubernetes.io/component: query-frontend
+        from:
+          definition:
+            gateway: {{ .Values.istioGateway.enabled }}
+          k8s:
+            authservice/authservice:10003: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
+      thanos-query:10902:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: thanos
+            app.kubernetes.io/component: query
+        from:
+          k8s:
+            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
+            authservice/authservice:10003: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
       # Allow authservice waypoint to reach thanos-query-frontend for SSO in ambient mode
       thanos-query-frontend:9090:
         podSelector:
@@ -206,6 +225,7 @@ upstream:
       access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
       secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
       insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+  {{- end }}
 
   storegateway:
     enabled: true
