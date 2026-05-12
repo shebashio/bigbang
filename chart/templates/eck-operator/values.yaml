@@ -69,6 +69,24 @@ networkPolicies:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+      elasticsearch:
+        to:
+          - namespaceSelector: {}
+            podSelector:
+              matchLabels:
+                common.k8s.elastic.co/type: elasticsearch
+        ports:
+          - port: 9200
+            protocol: TCP
+      kibana:
+        to:
+          - namespaceSelector: {}
+            podSelector:
+              matchLabels:
+                common.k8s.elastic.co/type: kibana
+        ports:
+          - port: 5601
+            protocol: TCP
       kubeAPI:
         to:
           - ipBlock:
