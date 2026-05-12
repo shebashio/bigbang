@@ -107,6 +107,9 @@ networkPolicies:
             monitoring/prometheus:10901: {{ .Values.monitoring.enabled }}
             authservice/authservice:10003: {{ .Values.addons.authservice.enabled }}
       thanos-storegateway:
+        podSelector:
+          app.kubernetes.io/name: thanos
+          app.kubernetes.io/component: storegateway
         to:
           definition:
             storage-subnets: {{ $storeGatewayEnabled }}
@@ -178,14 +181,6 @@ upstream:
       {{- if (dig "values" "upstream" "storegateway" "enabled" false .Values.addons.thanos) }}
       - dns+thanos-storegateway.thanos.svc.cluster.local:10901
       {{- end }}
-    {{- if or .Values.addons.thanos.sso.enabled .Values.kiali.enabled }}
-    podLabels:
-      {{- if .Values.addons.thanos.sso.enabled }}
-      {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-      {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
-      {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
-      {{- end }}
-    {{- end }}
     {{- if .Values.monitoring.enabled }}
     extraFlags:
       - "--endpoint=dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:{{- dig "values" "upstream" "query" "containerPorts" "grpc" 10901 .Values.addons.thanos }}"
@@ -194,6 +189,14 @@ upstream:
       enabled: false
 
   queryFrontend:
+    {{- if or .Values.addons.thanos.sso.enabled .Values.kiali.enabled }}
+    podLabels:
+      {{- if .Values.addons.thanos.sso.enabled }}
+      {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
+      {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+      {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
+      {{- end }}
+    {{- end }}
     networkPolicy:
       enabled: false
 
