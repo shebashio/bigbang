@@ -228,11 +228,14 @@ upstream:
   {{- end }}
 
   storegateway:
-    enabled: true
+    enabled: {{ $storeGatewayEnabled }}
     useEndpointGroup: true
+    networkPolicy:
+      enabled: false
+    {{- if .Values.addons.thanos.objectStorage.endpoint }}
     endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
     access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
     secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
     insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
-    networkPolicy:
-      enabled: false
+    {{- end }}
+{{- end }}
