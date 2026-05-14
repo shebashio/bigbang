@@ -120,7 +120,7 @@ routes:
     argocd:
       enabled: true
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.anchoreEnterprise.ingress.gateway "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" .Values.addons.argocd.ingress.gateway "root" .)}}
       hosts:
       - argocd.{{ $domainName }}
       service: argocd-argocd-server
@@ -160,12 +160,12 @@ networkPolicies:
       redis-bb:6379:
         from:
           k8s:
-            monitoring/grafana: {{ .Values.grafana.enabled }}
+            monitoring/grafana: {{ and .Values.addons.argocd.redis.host .Values.addons.argocd.redis.port .Values.grafana.enabled }}
       # -- Ingress to redis-exporter for metrics from prometheus
       redis-bb:9121:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.addons.argocd.redis.host .Values.addons.argocd.redis.port .Values.monitoring.enabled }}
   egress:
     from:
       # -- Egress to tempo for tracing from all pods
