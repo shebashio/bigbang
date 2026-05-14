@@ -5,6 +5,15 @@ renovate:
 
 gatekeeper:
   enabled: true
+  flux:
+    install:
+      strategy:
+        name: RetryOnFailure
+        retryInterval: 1m
+    upgrade:
+      strategy:
+        name: RetryOnFailure
+        retryInterval: 1m
 kyvernoPolicies:
   enabled: false
 kyverno:
