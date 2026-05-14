@@ -64,7 +64,7 @@ routes:
         {{- end }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kyvernoReporter.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.loki.values }}
       hosts:
       - repo1.dso.mil
       - grafana.{{ $domainName }}

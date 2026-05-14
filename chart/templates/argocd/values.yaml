@@ -110,11 +110,6 @@ istio:
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  hbonePortInjection:
-    enabled: {{ include "ambientEnabled" . }}
-
 routes:
   inbound:
     argocd:
@@ -128,7 +123,6 @@ routes:
       port: 80
       selector:
         app.kubernetes.io/name: argocd-server
-routes:
   outbound:
     bb-tests:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.argocd.values }}
@@ -138,7 +132,8 @@ routes:
 networkPolicies:
   # -- Toggle BigBang networkPolicies integration
   enabled: {{ .Values.networkPolicies.enabled }}
-
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
   ingress:
     to:
       # -- Ingress to argocd-server for metrics from prometheus
