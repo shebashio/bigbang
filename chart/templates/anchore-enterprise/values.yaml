@@ -258,6 +258,7 @@ postgresql:
   {{- end }}
 
 upstream:
+  setServiceAppProtocol: {{ $istioEnabled }}
   imagePullPolicy: {{ .Values.imagePullPolicy }}
   # imagePullSecretName used for main enterprise charts and some bignbang templates
   {{- if ( include "imagePullSecret" . ) }}
