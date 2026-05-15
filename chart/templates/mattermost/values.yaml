@@ -125,7 +125,7 @@ routes:
       hosts:
         - {{ $ssoHost }}
       {{- end }}
-    bbtests:
+    bb-tests:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.mattermost.values }}
       hosts:
       - 'repo1.dso.mil'

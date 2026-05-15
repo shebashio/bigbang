@@ -11,6 +11,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.gitlab-runner" -}}
+{{- $domainName := .Values.domain }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.gitlabRunner) "enabled") }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.gitlabRunner.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
@@ -31,7 +32,7 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlabRunner.values }}
       hosts:
       - 'repo1.dso.mil'
-      - gitlab.{{ .Values.domain }}
+      - gitlab.{{ $domainName }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -64,7 +65,7 @@ bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
-      cypress_url: {{ printf "https://gitlab.%s" .Values.domain | quote }}
+      cypress_url: {{ printf "https://gitlab.%s" $domainName | quote }}
 
 openshift: {{ .Values.openshift }}
 

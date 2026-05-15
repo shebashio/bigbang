@@ -15,6 +15,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.alloy" -}}
+{{- $domainName := .Values.domain }}
 {{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
 {{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.alloy) }}
 {{- $alloyClusterEventsEnabled := (dig "alloyClusterEvents" "enabled" false .Values.alloy) }}
@@ -144,7 +145,7 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.alloy.values }}
       hosts:
       - repo1.dso.mil
-      - loki.{{ .Values.domain }}
+      - loki.{{ $domainName }}
 
 upstream:
   {{- if .Values.kiali.enabled }}
