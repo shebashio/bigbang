@@ -1342,6 +1342,9 @@ addons:
       bbtests:
         enabled: true
       upstream:
+        global:
+          podLabels:
+            kyverno-policies-bbtest/required: "true"
         mimir:
           structuredConfig:
             limits:
