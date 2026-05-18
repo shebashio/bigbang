@@ -710,7 +710,7 @@ function install_k3d {
   k3d_command="k3d cluster create --trace --servers 1 --agents 3 -v /cypress:/cypress@server:* -v /cypress:/cypress@agent:* --verbose"
   if [[ "$ENABLE_TWISTLOCK_NODE_MOUNTS" == true ]]; then
     # Volumes to support Twistlock defenders
-    k3d_command+=" -v /etc:/etc@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:*"
+    k3d_command+=" -v /etc/passwd:/etc/passwd@server:*\;agent:* -v /dev/log:/dev/log@server:*\;agent:* -v /run/systemd/private:/run/systemd/private@server:*\;agent:* -v /var/lib/twistlock:/var/lib/twistlock@server:*\;agent:*"
   fi
   # Disable traefik and metrics-server
   k3d_command+=" --k3s-arg \"--disable=traefik@server:0\" --k3s-arg \"--disable=metrics-server@server:0\""
