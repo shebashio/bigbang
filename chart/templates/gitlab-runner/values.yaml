@@ -85,7 +85,7 @@ upstream:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-      {{- if and $istioInjection (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.gitlabRunner.values) "STRICT") (eq (include "metricScrapingEnabled" .) "true") }}
+      {{- if eq (include "metricsUseMtls" (list .Values.addons.gitlabRunner.values .)) "true" }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem

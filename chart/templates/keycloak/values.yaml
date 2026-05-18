@@ -159,7 +159,7 @@ upstream:
   serviceMonitor:
     enabled: {{ $monitoringEnabled }}
     scheme: https
-    {{- if and $monitoringEnabled $tlsEnabled $istioEnabled }}
+    {{- if eq (include "metricsUseMtls" (list .Values.addons.keycloak.values .)) "true" }}
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
       certFile: /etc/prom-certs/cert-chain.pem

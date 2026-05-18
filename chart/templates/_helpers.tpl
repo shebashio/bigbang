@@ -735,6 +735,23 @@ valuesFrom:
 {{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
 {{- end -}}
 
+{{- /*
+Returns "true" if ServiceMonitor should use mTLS for scraping Istio-injected pods.
+Checks: istio enabled, sidecar injection (not ambient), and mTLS STRICT mode.
+Args (list):
+  - [0] pkgValues: the package values (e.g. .Values.loki.values)
+  - [1] root: root context ($)
+Usage: {{- if eq (include "metricsUseMtls" (list .Values.loki.values .)) "true" }}
+*/ -}}
+{{- define "metricsUseMtls" -}}
+{{- $pkgValues := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- $istioEnabled := $root.Values.istiod.enabled -}}
+{{- $ambientEnabled := or $root.Values.ztunnel.enabled $root.Values.istio.ambient.enabled -}}
+{{- $mtlsStrict := eq (dig "istio" "mtls" "mode" "STRICT" $pkgValues) "STRICT" -}}
+{{- and $istioEnabled (not $ambientEnabled) $mtlsStrict -}}
+{{- end -}}
+
 {{- /* Returns dependsOn entries for Istio HelmReleases. */ -}}
 {{- define "istioHelmReleases" -}}
 - name: istiod
