@@ -21,7 +21,7 @@ openshift: {{ .Values.openshift }}
 
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-  {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") }}
+  {{- if and $istioEnabled (eq (dig "istio" "injection" "enabled" .Values.addons.anchoreEnterprise) "enabled") (eq (include "ambientEnabled" .) "false") }}
   {{- if (eq (dig "values" "istio" "mtls" "mode" "STRICT" .Values.addons.anchoreEnterprise) "STRICT") }}
   serviceMonitor:
     scheme: "https"
