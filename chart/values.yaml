@@ -526,8 +526,8 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: null
-    branch: "djp-log-prom-readiness-waits"
+    tag: "2.26.0-bb.1"
+    branch: null
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
@@ -1121,7 +1121,8 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "83.4.0-bb.2"
+    tag: null
+    branch: "djp-prometheus-service-waitjob"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
