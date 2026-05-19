@@ -526,8 +526,8 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.26.0-bb.1"
-    branch: null
+    tag: null
+    branch: djp-log-prom-readiness-waits
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
@@ -556,55 +556,7 @@ kiali:
     client_secret: ""
 
   # -- Values to pass through to Kiali chart: https://repo1.dso.mil/big-bang/product/packages/kiali
-  values:
-    upstream:
-      cr:
-        spec:
-          deployment:
-            additional_pod_init_containers_yaml:
-              - name: wait-for-prometheus
-                image: registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.35.5
-                command:
-                  - /usr/bin/bash
-                  - -ec
-                  - |
-                    url="http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
-                    timeout_seconds=300
-                    poll_seconds=5
-                    start_time="$(date +%s)"
-
-                    log() {
-                      printf '[%s] %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*"
-                    }
-
-                    elapsed_seconds() {
-                      echo $(( $(date +%s) - start_time ))
-                    }
-
-                    # Kiali v2.26 can start with Prometheus disabled when the
-                    # Prometheus client cannot be built during process startup.
-                    # Block the Kiali server container instead of trying to
-                    # detect and restart a degraded Kiali process after the fact.
-                    log "waiting for Prometheus before starting Kiali: ${url}"
-
-                    while true; do
-                      curl_output=""
-                      if curl_output="$(curl -fsS --connect-timeout 2 --max-time 5 -o /dev/null -w '%{http_code}' "${url}" 2>&1)"; then
-                        log "Prometheus reachable; http_status=${curl_output}; allowing Kiali to start"
-                        exit 0
-                      fi
-
-                      curl_rc="$?"
-                      elapsed="$(elapsed_seconds)"
-                      log "Prometheus not reachable yet; elapsed=${elapsed}s curl_exit=${curl_rc} detail=${curl_output}"
-
-                      if [ "${elapsed}" -ge "${timeout_seconds}" ]; then
-                        log "timed out after ${elapsed}s waiting for Prometheus; blocking Kiali startup"
-                        exit 1
-                      fi
-
-                      sleep "${poll_seconds}"
-                    done
+  values: {}
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
