@@ -46,7 +46,7 @@ See the [detailed prerequisites guide](../getting-started/prerequisites.md) for 
 
 Big Bang supports various deployment patterns:
 
-- **Cloud Deployments**: AWS EKS, Azure AKS, Google GKE
+- **Cloud Deployments**: AWS EKS in GovCloud
 - **On-Premises**: Self-managed Kubernetes clusters
 - **Edge Deployments**: Resource-constrained environments
 - **Air-Gapped**: Disconnected environments with registry mirrors
@@ -76,7 +76,7 @@ for full instructions. [Zarf](https://repo1.dso.mil/big-bang/bigbang/-/blob/inst
 recommended tooling for air-gapped deployments.
 ---
 ### Step 2 - Prepare Your Infrastructure
-Big Bang assumes **bring-your-own cluster (BYOC)**. The cluster itself is not managed by
+Big Bang assumes **bring-your-own cluster (BYOC)**. The cluster itself is not provisioned by
 Big Bang. Before deploying, ensure the following requirements are met.
 
 **Hardware (minimum per node)**
@@ -85,7 +85,6 @@ Big Bang. Before deploying, ensure the following requirements are met.
 |---|----|
 |CPU|4 cores|
 |Memory|16GB|
-|Disk|100 GB|
 |Disk|100GB|
 |Nodes|3 (distributed across availability zones for HA)|
 

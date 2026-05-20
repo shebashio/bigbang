@@ -1,7 +1,7 @@
 # Documentation Structure
 ### Getting Started
 Start here if you're new to Big Bang:
-- **[Overview](getting-started/index.md)**: Introduction to Big Bang concepts
+- **[Overview](getting-started.md)**: Introduction to Big Bang concepts
 - **[Prerequisites](getting-started/prerequisites.md)**: Cluster and environment requirements
 - **[Quick Start](getting-started/quick-start.md)**: Deploy Big Bang in minutes
 - **[First Deployment](getting-started/first-deployment.md)**: Detailed deployment walkthrough
