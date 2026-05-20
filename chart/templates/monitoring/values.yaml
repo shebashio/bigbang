@@ -105,6 +105,14 @@ routes:
     monitoring-alertmanager:
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.monitoring.values }}
+      hosts:
+      - 'repo1.dso.mil'
+      - prometheus.{{ $domainName }}
+      - grafana.{{ $domainName }}
+      - alertmanager.{{ $domainName }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
@@ -192,6 +200,15 @@ networkPolicies:
             alloy/alloy-logs: {{ .Values.alloy.enabled }}
             alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             logging/logging-loki: {{ .Values.loki.enabled }}
+
+bbtests:
+  cypress:
+    envs:
+      cypress_bigbang_integration: 'true'
+      cypress_prometheus_url: {{ printf "https://prometheus.%s" $domainName | quote }}
+      cypress_grafana_url: {{ printf "https://grafana.%s" $domainName | quote }}
+      cypress_alertmanager_url: {{ printf "https://alertmanager.%s" $domainName | quote }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.monitoring "values" .Values) | nindent 6 }}
 
 openshift: {{ .Values.openshift }}
 
@@ -394,12 +411,7 @@ upstream:
             key: objstore.yml
             name: monitoring-objstore-secret
         {{- end }}
-        {{- if $monitoringMtlsStrict }}    
-        # Add volume/mount on thanos sidecar for Istio certs for mTLS scraping
-        volumes:
-          - emptyDir:
-              medium: Memory
-            name: istio-certs
+        {{- if $monitoringMtlsStrict }}
         volumeMounts:
           - mountPath: /etc/prom-certs/
             name: istio-certs
@@ -569,7 +581,7 @@ upstream:
             action: replace
             target_label: kubernetes_pod_name
       {{- end }}
-      {{- if $monitoringMtlsStrict }}    
+      {{- if $monitoringMtlsStrict }}
       # Add volume/mount for Istio certs for mTLS scraping
       volumes:
         - emptyDir:

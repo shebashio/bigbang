@@ -793,11 +793,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "3.3.2-bb.0"
+    tag: "3.4.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "3.3.2-bb.0"
+    tag: "3.4.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -845,12 +845,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "3.8.4-bb.1"
+    tag: "4.0.1-bb.0"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "3.8.4-bb.1"
+    tag: "4.0.1-bb.0"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -1356,11 +1356,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "9.5.11-bb.0"
+      tag: "9.5.11-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "9.5.11-bb.0"
+      tag: "9.5.11-bb.1"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1448,11 +1448,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.5-bb.2"
+      tag: "1.1.5-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.5-bb.2"
+      tag: "1.1.5-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1808,11 +1808,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "3.23.0-bb.0"
+      tag: "3.23.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "3.23.0-bb.0"
+      tag: "3.23.0-bb.1"
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
       upgrade:
@@ -1919,11 +1919,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.6.1-bb.0"
+      tag: "11.6.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.6.1-bb.0"
+      tag: "11.6.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
