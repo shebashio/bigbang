@@ -581,7 +581,7 @@ upstream:
             action: replace
             target_label: kubernetes_pod_name
       {{- end }}
-      {{- if $monitoringMtlsStrict }}    
+      {{- if $monitoringMtlsStrict }}
       # Add volume/mount for Istio certs for mTLS scraping
       volumes:
         - emptyDir:
