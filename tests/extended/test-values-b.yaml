@@ -5,6 +5,9 @@ renovate:
 
 gatekeeper:
   enabled: true
+  git:
+    tag: null
+    branch: helm4
   flux:
     install:
       strategy:
