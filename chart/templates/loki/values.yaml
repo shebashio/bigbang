@@ -134,7 +134,7 @@ monitoring:
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     # conditional passes for istio sidecar injection enabled with mTLS STRICT (not ambient mode)
-    {{- if eq (include "metricsUseMtls" (list .Values.loki.values .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem

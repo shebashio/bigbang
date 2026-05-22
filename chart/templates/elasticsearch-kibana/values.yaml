@@ -132,7 +132,7 @@ monitoring:
 
 metrics:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-  {{- if eq (include "metricsUseMtls" (list .Values.elasticsearchKibana.values .)) "true" }}
+  {{- if eq (include "metricsSidecarMtls" (list .Values.elasticsearchKibana .)) "true" }}
   serviceMonitor:
     scheme: https
     tlsConfig:

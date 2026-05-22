@@ -11,7 +11,7 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
-  - it: should render tlsConfig when istio enabled with STRICT mTLS
+  - it: should render tlsConfig when istio enabled with STRICT mTLS (injection defaults to enabled)
     set:
       istiod.enabled: true
       loki.values.istio.mtls.mode: STRICT
@@ -78,6 +78,17 @@ tests:
     set:
       istiod.enabled: true
       loki.values.istio.enabled: false
+      loki.values.istio.mtls.mode: STRICT
+    asserts:
+      - notExists:
+          path: monitoring.serviceMonitor.scheme
+      - notExists:
+          path: monitoring.serviceMonitor.tlsConfig
+
+  - it: should not render tlsConfig when package injection is disabled
+    set:
+      istiod.enabled: true
+      loki.istio.injection: disabled
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:

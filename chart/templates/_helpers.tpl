@@ -737,20 +737,21 @@ valuesFrom:
 
 {{- /*
 Returns "true" if ServiceMonitor should use mTLS for scraping Istio-injected pods.
-Checks: global istio enabled, package istio enabled, not ambient mode, and mTLS STRICT mode.
+Checks: global istio enabled, package istio enabled, injection enabled, not ambient mode, and mTLS STRICT mode.
 Args (list):
-  - [0] pkgValues: the package values (e.g. .Values.loki.values)
+  - [0] pkg: the package config (e.g. .Values.loki)
   - [1] root: root context ($)
-Usage: {{- if eq (include "metricsUseMtls" (list .Values.loki.values .)) "true" }}
+Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 */ -}}
-{{- define "metricsUseMtls" -}}
-{{- $pkgValues := index . 0 -}}
+{{- define "metricsSidecarMtls" -}}
+{{- $pkg := index . 0 -}}
 {{- $root := index . 1 -}}
 {{- $globalIstioEnabled := eq (include "istioEnabled" $root) "true" -}}
-{{- $pkgIstioEnabled := dig "istio" "enabled" true $pkgValues -}}
+{{- $pkgIstioEnabled := dig "values" "istio" "enabled" true $pkg -}}
+{{- $injectionEnabled := ne (dig "istio" "injection" "enabled" $pkg) "disabled" -}}
 {{- $ambientEnabled := eq (include "ambientEnabled" $root) "true" -}}
-{{- $mtlsStrict := eq (dig "istio" "mtls" "mode" "STRICT" $pkgValues) "STRICT" -}}
-{{- and $globalIstioEnabled $pkgIstioEnabled (not $ambientEnabled) $mtlsStrict -}}
+{{- $mtlsStrict := eq (dig "values" "istio" "mtls" "mode" "STRICT" $pkg) "STRICT" -}}
+{{- and $globalIstioEnabled $pkgIstioEnabled $injectionEnabled (not $ambientEnabled) $mtlsStrict -}}
 {{- end -}}
 
 {{- /* Returns dependsOn entries for Istio HelmReleases. */ -}}

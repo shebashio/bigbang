@@ -23,7 +23,7 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsUseMtls" (list .Values.twistlock.values .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.twistlock .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem

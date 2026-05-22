@@ -48,7 +48,7 @@ monitoring:
 
 serviceMonitor:
   enabled: {{ eq (include "metricScrapingEnabled" $) "true" }}
-  {{- if eq (include "metricsUseMtls" (list $.Values.eckOperator.values $)) "true" }}
+  {{- if eq (include "metricsSidecarMtls" (list $.Values.eckOperator $)) "true" }}
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
     certFile: /etc/prom-certs/cert-chain.pem

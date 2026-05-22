@@ -118,7 +118,7 @@ upstream:
     scrapeTimeout: 10s
     selector:
       prometheus: monitoring-monitoring-kube-prometheus
-    {{- if eq (include "metricsUseMtls" (list .Values.fluentbit.values .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.fluentbit .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
