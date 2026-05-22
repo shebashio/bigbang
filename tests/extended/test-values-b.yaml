@@ -5,9 +5,6 @@ renovate:
 
 gatekeeper:
   enabled: true
-  git:
-    tag: null
-    branch: helm4
   flux:
     install:
       strategy:
@@ -33,9 +30,6 @@ addons:
     enabled: true
   thanos:
     enabled: true
-
-    git:
-      tag: 17.4.0-bb.1
   mimir:
     enabled: true
   harbor:
