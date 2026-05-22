@@ -73,3 +73,14 @@ tests:
           path: monitoring.serviceMonitor.scheme
       - notExists:
           path: monitoring.serviceMonitor.tlsConfig
+
+  - it: should not render tlsConfig when package istio.enabled is false
+    set:
+      istiod.enabled: true
+      loki.values.istio.enabled: false
+      loki.values.istio.mtls.mode: STRICT
+    asserts:
+      - notExists:
+          path: monitoring.serviceMonitor.scheme
+      - notExists:
+          path: monitoring.serviceMonitor.tlsConfig
