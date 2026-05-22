@@ -133,7 +133,6 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    # conditional passes for istio sidecar injection enabled with mTLS STRICT (not ambient mode)
     {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
     scheme: https
     tlsConfig:
