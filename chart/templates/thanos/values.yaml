@@ -152,19 +152,19 @@ networkPolicies:
           k8s:
             authservice-waypoint@authservice/authservice-waypoint: {{ and (eq (include "ambientEnabled" .) "true") .Values.addons.authservice.enabled .Values.addons.thanos.sso.enabled }}
 
-{{- if .Values.monitoring.enabled }}
-metrics:
-  enabled: true
-  image:
-    {{- include "secretsPullSecrets" . | nindent 4 }}
-  serviceMonitor:
-    enabled: true
-{{- end }}
-
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 upstream:
+  {{- if .Values.monitoring.enabled }}
+  metrics:
+    enabled: true
+    image:
+      {{- include "secretsPullSecrets" . | nindent 4 }}
+    serviceMonitor:
+      enabled: true
+  {{- end }}
+
   query:
     dnsDiscovery:
       # to allow lookups to work with and without Istio enabled, we disable k8s dns service
@@ -198,6 +198,15 @@ upstream:
       {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
       {{- end }}
     {{- end }}
+    {{- if and (eq (include "ambientEnabled" .) "true") .Values.addons.authservice.enabled .Values.addons.thanos.sso.enabled }}
+      # In ambient mode, route query-frontend traffic through the authservice waypoint so SSO is enforced.
+    service:
+      labels:
+        istio.io/use-waypoint: authservice-waypoint
+        istio.io/use-waypoint-namespace: authservice
+        istio.io/ingress-use-waypoint: "true"
+    {{- end }}
+
     networkPolicy:
       enabled: false
 
