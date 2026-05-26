@@ -85,7 +85,7 @@ networkPolicies:
 
 routes:
   outbound:
-    grafana-bb-tests:
+    bb-tests:
       enabled: {{ dig "bbtests" "enabled" false .Values.grafana.values }}
       hosts:
       - repo1.dso.mil
