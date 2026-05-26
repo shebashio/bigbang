@@ -581,6 +581,8 @@ gatekeeper:
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
+    waitStrategy:
+      name: legacy
     install:
       crds: CreateReplace
     upgrade:
