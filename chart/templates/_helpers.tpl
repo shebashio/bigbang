@@ -738,6 +738,9 @@ valuesFrom:
 {{- /*
 Returns "true" if ServiceMonitor should use mTLS for scraping Istio-injected pods.
 Checks: global istio enabled, package istio enabled, injection enabled, not ambient mode, and mTLS STRICT mode.
+This typically gates the creation of a ServiceMonitor tlsConfig with istio-provided certs for scraping metrics from Istio-injected pods.
+insecureSkipVerify will be set to true in the tlsConfig because Prometheus does not support Istio security naming, thus skipping verifying the target pod certificate
+If any of the conditions are not met, the ServiceMonitor will be created without the tlsConfig
 Args (list):
   - [0] pkg: the package config (e.g. .Values.loki)
   - [1] root: root context ($)
