@@ -4928,6 +4928,7 @@ spec:
     spec:
       containers:
       - args:
+        - --feature-gates=UseHelm3Defaults=true
         - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local./
         - --watch-all-namespaces=true
         - --log-level=info
