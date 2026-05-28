@@ -1,13 +1,7 @@
 {{- if .Values.addons.keycloak.enabled }}
-{{- /* Create a cleaned copy of keycloak config and merge deprecated paths into current paths */ -}}
-{{- $keycloakPackage := deepCopy .Values.addons.keycloak -}}
-{{- if .Values.addons.keycloak.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.keycloak.values) | fromYaml -}}
-{{- $keycloakPackage = set $keycloakPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
   "root" $ 
-  "package" $keycloakPackage
+  "package" .Values.addons.keycloak
   "name" "keycloak" 
   "defaults" (include "bigbang.defaults.keycloak" . )
 ) }}
@@ -15,7 +9,6 @@
 
 {{- define "bigbang.defaults.keycloak" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.keycloak.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.keycloak) "enabled") }}
 {{- $monitoringEnabled := eq (include "metricScrapingEnabled" .) "true" }}
 {{- $tlsEnabled := and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key -}}
@@ -25,66 +18,61 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
 
-istio:
-  enabled: {{ $istioEnabled }}
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
-
-  authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: true
-
-routes:
-  inbound:
-    keycloak:
-      enabled: true
-      gateways:
-        - {{ include "getGatewayName" (dict "default" "passthrough" "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
-      hosts:
-        - keycloak.{{ $domainName }}
-      service: keycloak-keycloak-http.keycloak.svc.cluster.local
-      port: 8443
-      passthrough:
-        enabled: true
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.keycloak.values }}
-      hosts:
-      - repo1.dso.mil
-
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  hbonePortInjection:
-    enabled: {{ include "ambientEnabled" . }}
-  egress:
-    defaults:
-      allowIstiod:
-        enabled: {{ .Values.istiod.enabled }}
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
-    from:
+bb-common:
+  istio:
+    enabled: {{ $istioEnabled }}
+  
+    sidecar:
+      enabled: {{ ne (include "ambientEnabled" .) "true" }}
+  
+    ambient:
+      enabled: {{ include "ambientEnabled" . }}
+  
+  routes:
+    inbound:
       keycloak:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
-  ingress:
-    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
-    defaults:
-      allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
-    to:
-      keycloak:9000:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+        enabled: true
+        gateways:
+          - {{ include "getGatewayName" (dict "default" "passthrough" "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
+        hosts:
+          - keycloak.{{ $domainName }}
+        service: keycloak-keycloak-http.keycloak.svc.cluster.local
+        port: 8443
+        passthrough:
+          enabled: true
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.addons.keycloak.values }}
+        hosts:
+        - repo1.dso.mil
+  
+  networkPolicies:
+    enabled: {{ .Values.networkPolicies.enabled }}
+    hbonePortInjection:
+      enabled: {{ include "ambientEnabled" . }}
+    egress:
+      defaults:
+        allowIstiod:
+          enabled: {{ .Values.istiod.enabled }}
+      definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
+      from:
+        keycloak:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            definition:
+              database-subnets: {{ $externalPostgresEnabled }}
+    ingress:
+      definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
+      defaults:
+        allowPrometheusToIstioSidecar:
+          enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+      to:
+        keycloak:9000:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
 bbtests:
   cypress:

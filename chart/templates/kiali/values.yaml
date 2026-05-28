@@ -1,21 +1,14 @@
 {{- if .Values.kiali.enabled }}
-{{- /* Create a cleaned copy of kiali config and merge deprecated paths into current paths */ -}}
-{{- $kialiPackage := deepCopy .Values.kiali -}}
-{{- if .Values.kiali.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.kiali.values) | fromYaml -}}
-{{- $kialiPackage = set $kialiPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
   "root" $ 
-  "package" $kialiPackage 
+  "package" .Values.kiali
   "name" "kiali" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.kiali" . | fromYaml) (include "bigbang.kiali.bb-common-migrations" . | fromYaml)) | toYaml)
+  "defaults" (include "bigbang.defaults.kiali" . )
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.kiali.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
@@ -31,24 +24,46 @@ tracing:
 
 openshift: {{ .Values.openshift}}
 
-istio:
-  enabled: {{ $istioEnabled }}
-
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
-
-  authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
-
-routes:
-  inbound:
-    kiali:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+bb-common:
+  istio:
+    enabled: {{ $istioEnabled }}
+  
+    sidecar:
+      enabled: {{ ne (include "ambientEnabled" .) "true" }}
+  
+    ambient:
+      enabled: {{ include "ambientEnabled" . }}
+  
+  routes:
+    inbound:
+      kiali:
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+  
+  networkPolicies:
+    enabled: {{ .Values.networkPolicies.enabled }}
+    hbonePortInjection:
+      enabled: {{ include "ambientEnabled" . }}
+    ingress:
+      definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8}}
+      defaults:
+        allowPrometheusToIstioSidecar:
+          enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+    egress:
+      definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 8}}
+      defaults:
+        allowIstiod:
+          enabled: {{ .Values.istiod.enabled }}
+      from:
+        kiali:
+          to:
+            k8s:
+              monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+              monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+              tempo/tempo:3200: {{ .Values.tempo.enabled }}
+              istio-system/istiod:15014: {{ .Values.istiod.enabled }}
+            definition:
+              sso: {{ .Values.kiali.sso.enabled }}
 
 waitJob:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -159,28 +174,4 @@ upstream:
           {{- if .Values.istiod.enabled }}
           egress_gateway_namespace: istio-gateway
           {{- end }}
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  hbonePortInjection:
-    enabled: {{ include "ambientEnabled" . }}
-  ingress:
-    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6}}
-    defaults:
-      allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
-  egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6}}
-    defaults:
-      allowIstiod:
-        enabled: {{ .Values.istiod.enabled }}
-    from:
-      kiali:
-        to:
-          k8s:
-            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
-            tempo/tempo:3200: {{ .Values.tempo.enabled }}
-            istio-system/istiod:15014: {{ .Values.istiod.enabled }}
-          definition:
-            sso: {{ .Values.kiali.sso.enabled }}
 {{- end -}}
