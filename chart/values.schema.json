@@ -1264,6 +1264,18 @@
             }
           }
         },
+        "garage": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/basePackage"
+            }
+          ],
+          "properties": {
+            "istio": {
+              "$ref": "#/$defs/istio"
+            }
+          }
+        },
         "gitlab": {
           "allOf": [
             {
