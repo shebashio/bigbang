@@ -1,0 +1,73 @@
+{{- if .Values.addons.garage.enabled }}
+{{- $garagePackage := deepCopy .Values.addons.garage -}}
+{{- if .Values.addons.garage.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.garage.values) | fromYaml -}}
+{{- $garagePackage = set $garagePackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict
+  "root" $
+  "package" $garagePackage
+  "name" "garage"
+  "defaults" (include "bigbang.defaults.garage" .)
+)}}
+{{- end }}
+
+{{- define "bigbang.defaults.garage" -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
+# hostname is deprecated and replaced with domain. But if hostname exists then use it.
+{{- $domainName := default .Values.domain .Values.hostname }}
+istio:
+  enabled: {{ $istioEnabled }}
+  ambient:
+    enabled: {{ include "ambientEnabled" . }}
+  sidecar:
+    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+  authorizationPolicies:
+    enabled: {{ $istioHardened }}
+    generateFromNetpol: {{ $istioHardened }}
+
+networkPolicies:
+  enabled: {{ .Values.networkPolicies.enabled }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" . }}
+  egress:
+    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    from:
+      garage:
+        to:
+          k8s:
+            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+  ingress:
+    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+
+routes:
+  inbound:
+    s3:
+      enabled: true
+      gateways:
+      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.garage.ingress.gateway | default "public") "root" .)}}
+      hosts:
+      - garage-s3.{{ $domainName }}
+      service: garage
+      port: 3900
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.addons.garage.values }}
+      hosts:
+      - repo1.dso.mil
+
+monitoring:
+  enabled: {{ .Values.monitoring.enabled }}
+
+upstream:
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
+  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+  monitoring:
+    metrics:
+      enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+      serviceMonitor:
+        enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+
+{{- end -}}
