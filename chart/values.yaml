@@ -1497,6 +1497,35 @@ addons:
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
 
+  garage:
+    # -- Toggle deployment of Garage.
+    enabled: false
+
+    # -- Choose source type of "git" or "helmRepo"
+    sourceType: "git"
+
+    git:
+      repo: https://repo1.dso.mil/big-bang/apps/sandbox/garage.git
+      path: "./chart"
+      tag: ""
+    helmRepo:
+      repoName: "registry1"
+      chartName: "garage"
+      tag: ""
+
+    # -- Flux reconciliation overrides specifically for the Garage package
+    flux: {}
+
+    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
+    ingress:
+      gateway: ""
+
+    # -- Values to passthrough to the garage chart: https://repo1.dso.mil/big-bang/apps/sandbox/garage.git
+    values: {}
+
+    # -- Post Renderers.  See docs/postrenders.md
+    postRenderers: []
+
   gitlab:
     # -- Toggle deployment of Gitlab
     enabled: false
