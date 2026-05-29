@@ -2087,8 +2087,15 @@ addons:
       # -- Database password for the username used to connect to the existing database.
       password: ""
 
-    # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
-    flux: {}
+    # -- Flux reconciliation overrides specifically for the Keycloak Package
+    flux:
+      # Keycloak package upgrades can roll the bundled PostgreSQL subchart.
+      # In package CI, the temporary DB outage can make the Keycloak StatefulSet
+      # look failed to Flux v1.5's kstatus/poller wait path before the pod
+      # recovers. Use legacy Helm waiting until Keycloak upgrade CI proves the
+      # default wait strategy handles PostgreSQL subchart rollouts safely.
+      waitStrategy:
+        name: legacy
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
