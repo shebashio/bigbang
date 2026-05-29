@@ -2059,7 +2059,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.1.9-bb.3"
+      tag: null
+      branch: "renovate/keycloak"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
@@ -2085,8 +2086,10 @@ addons:
       # -- Database password for the username used to connect to the existing database.
       password: ""
 
-    # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
-    flux: {}
+    # -- Flux reconciliation overrides specifically for the Keycloak Package
+    flux:
+      waitStrategy:
+        name: legacy
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istio.gateways`).  The default is "public".
     ingress:
