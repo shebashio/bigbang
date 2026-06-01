@@ -36,8 +36,8 @@ stringData:
         sidecar:
           enabled: {{ $istioHardened }}
         authorizationPolicies:
-          enabled: {{ $istioHardened }}
-          generateFromNetpol: {{ $istioHardened }}
+          enabled: {{ include "authorizationPoliciesEnabled" (list (default (dict) $vals.values) $) }}
+          generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list (default (dict) $vals.values) $) }}
       networkPolicies:
         hbonePortInjection:
           enabled: {{ include "ambientEnabled" $ }}

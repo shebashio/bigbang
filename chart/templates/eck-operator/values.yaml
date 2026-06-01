@@ -40,7 +40,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.eckOperator.values .) }}
     generateFromNetpol: true
 
 monitoring:

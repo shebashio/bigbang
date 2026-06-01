@@ -28,7 +28,7 @@ istio:
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.neuvector.values .) }}
     generateFromNetpol: true
 
 routes:

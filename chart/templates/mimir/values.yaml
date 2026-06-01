@@ -49,7 +49,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mimir.values .) }}
     generateFromNetpol: true
 
 routes:

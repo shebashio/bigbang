@@ -39,7 +39,7 @@ istio:
   ambient:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mattermost.values .) }}
     generateFromNetpol: true
 
 {{- if $istioInjection }}

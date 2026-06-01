@@ -60,7 +60,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.vault.values .) }}
     generateFromNetpol: true
 
 tls:

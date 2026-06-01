@@ -41,7 +41,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.sonarqube.values .) }}
     generateFromNetpol: true
 
 routes:

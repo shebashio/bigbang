@@ -104,8 +104,8 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
   injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" .Values.addons.argocd) (eq (include "ambientEnabled" .) "true") }}
   authorizationPolicies:
-    enabled: {{ $istioHardened }}
-    generateFromNetpol: {{ $istioHardened }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.argocd.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.argocd.values .) }}
 
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}

@@ -143,8 +143,8 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.tempo.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.tempo.values .) }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}

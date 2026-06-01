@@ -45,7 +45,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.authservice.values .) }}
     generateFromNetpol: true
 
   clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}

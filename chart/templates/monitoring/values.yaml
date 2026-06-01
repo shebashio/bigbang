@@ -95,8 +95,8 @@ istio:
     custom: []
   {{- end }}
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.monitoring.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.monitoring.values .) }}
 routes:
   inbound:
     monitoring-prometheus:

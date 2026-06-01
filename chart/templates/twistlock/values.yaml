@@ -78,8 +78,8 @@ istio:
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.twistlock.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.twistlock.values .) }}
 
 routes:
   inbound:

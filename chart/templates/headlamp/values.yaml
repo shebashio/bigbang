@@ -18,8 +18,8 @@
 istio:
   enabled: {{ .Values.istiod.enabled }}
   authorizationPolicies:
-    enabled: {{ $istioHardenedEnabled }}
-    generateFromNetpol: {{ $istioHardenedEnabled }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.headlamp.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.headlamp.values .) }}
   sidecar:
     enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
   ambient:
