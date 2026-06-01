@@ -2,6 +2,8 @@
 {{- range $pkgKey, $vals := .Values.packages -}}
 {{- if and (dig "enabled" true $vals) (dig "wrapper" "enabled" false $vals) -}}
 {{- $pkg := include "resourceName" $pkgKey -}}
+{{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
+{{- $istioHardened := dig "hardened" "enabled" false $.Values.istiod.values }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -14,16 +16,19 @@ metadata:
 type: Opaque
 stringData:
   values.yaml: |
-    {{- $defaults := ($.Files.Get (printf "defaults/%s.yaml" $pkg) | fromYaml) -}}
-    {{- $overlays := dict "bigbang" $.Values "package" $vals -}}
-    {{- $merged := mergeOverwrite $overlays $defaults }}
-    package:
-      name: {{ $pkg }}
-      {{- if (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn") }}
-      {{- tpl (toYaml (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn")) $ | nindent 6 }}
-      {{- end }}
-    bigbang:
-      {{- include "values-bigbang" $merged.bigbang | nindent 6 }}
+    istio:
+      enabled: {{ $istioEnabled }}
+      ambient:
+        enabled: {{ include "ambientEnabled" $ }}
+      sidecar:
+        enabled: {{ $istioHardened }}
+      authorizationPolicies:
+        enabled: {{ $istioHardened }}
+        generateFromNetpol: {{ $istioHardened }}
+    networkPolicies:
+      hbonePortInjection:
+        enabled: {{ include "ambientEnabled" $ }}
+{{- pick $.Values.networkPolicies "enabled" "hbonePortInjection" "prependReleaseName" "defaultsAsHooks" "egress" "ingress" "additionalPolicies" "additional" | toYaml | nindent 6 }}
 ---
 {{ end -}}
 {{- end -}}

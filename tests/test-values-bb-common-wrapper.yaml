@@ -1,0 +1,118 @@
+wrapper:
+  sourceType: "git"
+
+  helmRepo:
+    # -- Repository holding OCI chart, corresponding to `helmRepositories` name
+    repoName: "registry1"
+    # -- Name of the OCI chart in `repo`
+    chartName: bb-common
+    # -- Tag of the OCI chart in `repo`
+    tag: "1.0.0"
+  git:
+    # -- Git repo holding the wrapper helm chart, example: https://repo1.dso.mil/big-bang/product/packages/wrapper
+    repo: "https://repo1.dso.mil/big-bang/product/packages/bb-common.git"
+    # -- Path inside of the git repo to find the helm chart, example: chart
+    path: "chart"
+    # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
+    tag: "1.0.0"
+
+
+packages:
+  podinfo:
+    namespace:
+      name: podinfo
+    helmRelease:
+      namespace: "bigbang"
+    enabled: true
+    sourceType: "git"
+    git:
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: 6.12.0
+      branch: null
+    wrapper: 
+      enabled: true
+
+    values:
+      cache: tcp://podinfo-upstream-redis:6379
+      image:
+        repository: registry1.dso.mil/ironbank/opensource/bigbang/podinfo
+        tag: 6.10.1
+        pullSecrets:
+          - name: private-registry
+      serviceMonitor:
+        enabled: true
+      redis:
+        enabled: true
+        repository: registry1.dso.mil/ironbank/opensource/redis/redis8-slim
+        tag: 8.6.1
+        imagePullSecrets:
+          - name: private-registry
+
+kyvernoPolicies:
+  values:
+    policies:
+      restrict-host-path-mount:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      restrict-host-path-write:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      restrict-volume-types:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      require-non-root-group:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      require-non-root-user:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      disallow-image-tags:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      require-drop-all-capabilities:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
+      restrict-image-registries:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - podinfo
+                names:
+                  - podinfo*
