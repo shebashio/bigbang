@@ -59,12 +59,13 @@ tests:
 
 - it: must generate collector-native pipeline outputs and secret-backed env for default elasticsearch and loki
   set:
-    fluentbit:
-      values: {}
-    elasticsearchKibana:
-      enabled: true
-    loki:
-      enabled: true
+    packages:
+      fluentbit:
+        values: {}
+      elasticsearchKibana:
+        enabled: true
+      loki:
+        enabled: true
     _selfTest:
       bigbang.defaults.fluentbit:
         resultIsYaml: true
@@ -89,15 +90,16 @@ tests:
 
 - it: must keep opt-in additional outputs when disableDefault is true
   set:
-    fluentbit:
-      values:
-        additionalOutputs:
-          disableDefault: true
-          loki:
-            host: loki.example
-            port: 3100
-            user: loki-user
-            password: loki-pass
+    packages:
+      fluentbit:
+        values:
+          additionalOutputs:
+            disableDefault: true
+            loki:
+              host: loki.example
+              port: 3100
+              user: loki-user
+              password: loki-pass
     _selfTest:
       bigbang.defaults.fluentbit:
         resultIsYaml: true
@@ -116,3 +118,21 @@ tests:
   - equal:
       path: result.upstream.env[2].name
       value: EXTERNAL_LOKI_USER
+
+- it: must enable allowPrivilegeEscalation when upstream securityContext is privileged
+  set:
+    packages:
+      fluentbit:
+        values:
+          upstream:
+            securityContext:
+              privileged: true
+    _selfTest:
+      bigbang.defaults.fluentbit:
+        resultIsYaml: true
+        args: helm:context
+  template: templates/_self-test/render.yaml
+  asserts:
+  - equal:
+      path: result.upstream.securityContext.allowPrivilegeEscalation
+      value: true

@@ -90,15 +90,15 @@ tests:
       packages.fluentbit.enabled: true
       packages.loki.enabled: true
     asserts:
+      - equal:
+          path: upstream.config.pipeline.outputs[0].auto_kubernetes_labels
+          value: "off"
+      - equal:
+          path: upstream.config.pipeline.outputs[1].auto_kubernetes_labels
+          value: "off"
       - matchRegex:
-          path: upstream.config.outputs
-          pattern: "auto_kubernetes_labels off"
-      - matchRegex:
-          path: upstream.config.outputs
+          path: upstream.config.pipeline.outputs[0].labels
           pattern: "cluster="
-      - notMatchRegex:
-          path: upstream.config.outputs
-          pattern: "auto_kubernetes_labels on"
 
   - it: should fold flat networkPolicies overrides into the bb-common common block
     postRenderer:

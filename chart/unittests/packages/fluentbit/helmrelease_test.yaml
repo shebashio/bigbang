@@ -12,13 +12,19 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.postRenderers[0].kustomize.patches
-          count: 3
+          count: 2
       - equal:
-          path: spec.postRenderers[0].kustomize.patches[2].target.kind
+          path: spec.postRenderers[0].kustomize.patches[0].target.kind
           value: ServiceMonitor
       - matchRegex:
-          path: spec.postRenderers[0].kustomize.patches[2].patch
-          pattern: "tcp-http"
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: "/metadata/namespace"
+      - equal:
+          path: spec.postRenderers[0].kustomize.patches[1].target.kind
+          value: ConfigMap
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[1].patch
+          pattern: "monitoring"
 
   - it: should not add ServiceMonitor patch when metric scraping is disabled
     template: templates/fluentbit/helmrelease.yaml
@@ -29,10 +35,4 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.postRenderers[0].kustomize.patches
-          count: 2
-      - equal:
-          path: spec.postRenderers[0].kustomize.patches[0].target.kind
-          value: DaemonSet
-      - equal:
-          path: spec.postRenderers[0].kustomize.patches[1].target.kind
-          value: Service
+          count: 0

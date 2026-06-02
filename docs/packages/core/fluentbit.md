@@ -44,8 +44,10 @@ This storage buffer hostPath mount, in conjunction with the hostPath mount of `/
 ```yaml
 fluentbit:
   values:
-    securityContext:
-      privileged: true
+    upstream:
+      securityContext:
+        privileged: true
+        allowPrivilegeEscalation: true
 ```
 
 ## Logging
