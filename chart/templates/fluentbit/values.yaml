@@ -19,6 +19,9 @@
 {{- $existingEnv := dig "upstream" "env" (list) .Values.fluentbit.values }}
 {{- $existingExtraVolumes := dig "upstream" "extraVolumes" (list) .Values.fluentbit.values }}
 {{- $existingExtraVolumeMounts := dig "upstream" "extraVolumeMounts" (list) .Values.fluentbit.values }}
+{{- $upstreamSecurityContextPrivileged := dig "upstream" "securityContext" "privileged" false .Values.fluentbit.values }}
+{{- $fluentbitVersionLabel := trimPrefix "v" (default "v5.0.3" (dig "upstream" "image" "tag" "" .Values.fluentbit.values)) }}
+{{- $bbtestsEnabled := dig "bbtests" "enabled" false .Values.fluentbit.values }}
 
 {{- $additionalElasticsearch := and
   (dig "additionalOutputs" "elasticsearch" "host" false .Values.fluentbit.values)
@@ -391,6 +394,11 @@ upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
+  {{- if $upstreamSecurityContextPrivileged }}
+  securityContext:
+    allowPrivilegeEscalation: true
+  {{- end }}
+
   openShift:
     enabled: {{ .Values.openshift }}
 
@@ -423,10 +431,15 @@ upstream:
     {{ include "istioAnnotation" . | nindent 2 }}
   {{- end }}
 
-  {{- if .Values.kiali.enabled }}
   podLabels:
+    app.kubernetes.io/version: {{ $fluentbitVersionLabel | quote }}
+    {{- if $bbtestsEnabled }}
+    kyverno-policies-bbtest/test: required
+    kyverno-policies-bbtest/required: required
+    {{- end }}
+    {{- if .Values.kiali.enabled }}
     service.istio.io/canonical-name: fluentbit-fluent-bit
-  {{- end }}
+    {{- end }}
 
   {{- if .Values.openshift }}
   podSecurityContext:

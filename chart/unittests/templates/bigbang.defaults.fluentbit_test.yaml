@@ -102,3 +102,20 @@ tests:
   - equal:
       path: result.upstream.env[2].name
       value: EXTERNAL_LOKI_USER
+
+- it: must enable allowPrivilegeEscalation when upstream securityContext is privileged
+  set:
+    fluentbit:
+      values:
+        upstream:
+          securityContext:
+            privileged: true
+    _selfTest:
+      bigbang.defaults.fluentbit:
+        resultIsYaml: true
+        args: helm:context
+  template: templates/_self-test/render.yaml
+  asserts:
+  - equal:
+      path: result.upstream.securityContext.allowPrivilegeEscalation
+      value: true
