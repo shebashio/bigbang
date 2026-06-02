@@ -156,15 +156,6 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 upstream:
-  {{- if .Values.monitoring.enabled }}
-  metrics:
-    enabled: true
-    image:
-      {{- include "secretsPullSecrets" . | nindent 4 }}
-    serviceMonitor:
-      enabled: true
-  {{- end }}
-
   query:
     dnsDiscovery:
       # to allow lookups to work with and without Istio enabled, we disable k8s dns service
