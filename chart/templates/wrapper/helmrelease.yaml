@@ -60,12 +60,14 @@ spec:
   valuesFrom:
     - name: {{ $pkg }}-wrapper-values
       kind: Secret
-
+    - name: {{ $pkg }}-wrapper-values
+      kind: Secret
+      valuesKey: 'package-values.yaml'
   {{- /* Always wait on policy enforcement */ -}}
   {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
   {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
-  {{- /* Wait on istio operator if creating a Virtual Service */ -}}
-  {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
+  {{- /* Wait on Istio when it's enabled, matching the package HelmRelease pattern */ -}}
+  {{- $istioOpDep := $istioEnabled -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
   {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep }}
@@ -80,6 +82,8 @@ spec:
     {{- end }}
     {{- if $istioOpDep }}
     {{- include "istioHelmReleases" $ | nindent 4 }}
+    {{- /* Also wait on the gateway HRs so bb-common's gateway lookup finds the Deployment at first render */ -}}
+    {{- include "istioGatewayHelmReleases" $ | nindent 4 }}
     {{- end }}
     {{- if $monitoringDep }}
     - name: monitoring

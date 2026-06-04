@@ -15,6 +15,8 @@ metadata:
              {{ end }}
 type: Opaque
 stringData:
+  package-values.yaml: |
+    {{ toYaml $vals.wrapper.values | nindent 4 }}
   values.yaml: |
     istio:
       enabled: {{ $istioEnabled }}

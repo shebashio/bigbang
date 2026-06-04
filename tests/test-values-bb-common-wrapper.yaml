@@ -7,15 +7,16 @@ wrapper:
     # -- Name of the OCI chart in `repo`
     chartName: bb-common
     # -- Tag of the OCI chart in `repo`
-    tag: "1.0.0"
+    tag: "1.0.1"
   git:
     # -- Git repo holding the wrapper helm chart, example: https://repo1.dso.mil/big-bang/product/packages/wrapper
     repo: "https://repo1.dso.mil/big-bang/product/packages/bb-common.git"
     # -- Path inside of the git repo to find the helm chart, example: chart
     path: "chart"
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
-    tag: "1.0.0"
+    tag: null
 
+    branch: gateway-sa-fix
 
 packages:
   podinfo:
@@ -32,9 +33,37 @@ packages:
       branch: null
     wrapper: 
       enabled: true
+      values:
+        networkPolicies:
+          ingress:
+            to:
+              podinfo:9898:
+                from:
+                  k8s:
+                    monitoring-monitoring-kube-prometheus@monitoring/prometheus:
+                      enabled: true
+              redis:6379:
+                podSelector:
+                  matchLabels:
+                    app: podinfo-redis
+                from:
+                  k8s:
+                    default@podinfo/podinfo: true
+        routes:
+          inbound:
+            podinfo:
+              enabled: true
+              hosts:
+                - podinfo.dev.bigbang.mil
+              gateways:
+                - istio-gateway/public-ingressgateway
+              service: podinfo
+              port: 9898
+              selector:
+                app.kubernetes.io/name: podinfo
 
     values:
-      cache: tcp://podinfo-upstream-redis:6379
+      cache: tcp://podinfo-redis:6379
       image:
         repository: registry1.dso.mil/ironbank/opensource/bigbang/podinfo
         tag: 6.10.1
