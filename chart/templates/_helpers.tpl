@@ -749,6 +749,21 @@ valuesFrom:
 {{- end }}
 {{- end -}}
 
+{{- /*
+Returns dependsOn entries for every enabled Istio Gateway HelmRelease.
+Consumers that need the gateway Deployment to exist at render time
+(e.g. bb-common's lookup of the gateway ServiceAccount) should include
+this alongside `istioHelmReleases`.
+*/ -}}
+{{- define "istioGatewayHelmReleases" -}}
+{{- $ctx := . -}}
+{{- $gateways := include "enabledGateways" $ctx | fromYaml -}}
+{{- range $name, $gw := $gateways }}
+- name: {{ $gw.serviceName }}
+  namespace: {{ $ctx.Release.Namespace }}
+{{- end }}
+{{- end -}}
+
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
 ingress: istio-gateway
