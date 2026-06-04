@@ -58,11 +58,11 @@ routes:
     grafana:
       enabled: {{ .Values.grafana.enabled }}
       hosts:
-      - {{ $grafanaUrl }}
+      - {{ $grafanaUrl | default (printf "%s.%s" "grafana" $domainName) }}
     sso:
       enabled: {{ .Values.kiali.sso.enabled }}
       hosts:
-      - {{ include "sso.host" }}
+      - {{ include "sso.host" . }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
