@@ -34,7 +34,7 @@ templates:
   - templates/thanos/values.yaml
   - templates/vault/values.yaml
   - templates/velero/values.yaml
-  # - templates/minio-operator/values.yaml
+  - templates/minio-operator/values.yaml
 tests:
   - it: enables authorization policies if ambient is enabled
     postRenderer:

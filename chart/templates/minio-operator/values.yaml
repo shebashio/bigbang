@@ -67,6 +67,10 @@ istio:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.minio.ingress.gateway "root" .)}}
 
+  authorizationPolicies:
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minio .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minio .) }}
+
 routes:
   outbound:
     bb-tests:
