@@ -31,6 +31,20 @@ upstream:
 
 Remove existing `# --` comments from subkeys nested under the upstream passthrough key and do not add new ones. If maintainers need context near an override, use regular YAML comments that do not follow the `helm-docs` documentation format.
 
+When a passthrough chart needs container image overrides, explicitly pin the image tag or digest. Do not introduce parallel Big Bang owned image keys only to avoid nesting under `upstream`, and do not rely on upstream implicit defaults such as `.Chart.AppVersion` because Big Bang needs deterministic image references.
+
+Example:
+
+```yaml
+# -- Values passed to [the upstream chart](https://github.com/<upstream-org>/<upstream-repo>/blob/<version-or-branch>/<chart-path>/values.yaml).
+# @default -- See upstream values; this package file includes only Big Bang overrides.
+upstream:
+  image:
+    registry: registry1.dso.mil
+    repository: ironbank/example/package
+    tag: 1.2.3
+```
+
 This convention applies to upstream passthrough sections, such as `upstream` or an equivalent chart alias. It does not remove the expectation that Big Bang specific values are documented individually in the generated README values table.
 
 ## Consequences
