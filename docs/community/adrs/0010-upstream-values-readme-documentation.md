@@ -58,3 +58,6 @@ Package maintainers will have less README churn during upstream chart upgrades b
 Big Bang overrides nested under the upstream passthrough key will no longer be individually listed in the README table. Reviewers and users who need those details must inspect the package `values.yaml` and the linked upstream values file.
 
 Maintainers must keep the upstream values link accurate for the chart source and version strategy used by the package.
+
+Maintainers must also keep pinned upstream image overrides aligned with chart upgrades, image metadata annotations, and Renovate configuration. This adds review responsibility during package upgrades, but prevents accidental drift from upstream image defaults and keeps Big Bang deployments on the intended images.
+
