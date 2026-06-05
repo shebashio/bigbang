@@ -25,7 +25,7 @@ Use `# @default -- ...` on the documented passthrough parent to control the gene
 Example:
 
 ```yaml
-# -- Values passed to [the upstream chart](https://github.com/<upstream-org>/<upstream-repo>/blob/<version-or-branch>/<chart-path>/values.yaml).
+# -- Values passed to [the upstream chart- <version-or-branch>](https://github.com/<upstream-org>/<upstream-repo>/blob/<version-or-branch>/<chart-path>/values.yaml).
 # @default -- See upstream values; this package file includes only Big Bang overrides.
 upstream:
   someOverride: value
