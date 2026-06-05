@@ -14,6 +14,8 @@ Package `README.md` values tables are generated from `values.yaml` comments with
 
 That behavior is useful for Big Bang owned values, but it is not desirable for upstream passthrough sections. The upstream chart owns the full configuration surface, and that surface changes during upstream chart upgrades. Duplicating upstream subkeys in Big Bang README tables increases maintenance churn, makes the table harder to scan, and can leave stale documentation in the package when the bundled upstream chart changes.
 
+Some upstream passthrough overrides are still Big Bang maintained values. Container image overrides are the most common example: Big Bang packages may need to set Iron Bank image repositories and explicit tags or digests under the upstream chart's native image keys so image provenance, upgrades, and generated image metadata remain deterministic.
+
 ## Decision
 
 For package values that are passed through to a bundled upstream chart, document the parent passthrough key as a single row in the generated README values table. The row must point users to the upstream chart values file on GitHub when one is available.
