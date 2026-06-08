@@ -32,13 +32,14 @@
         target:
           kind: Deployment
           name: ^.+-query-frontend$
-      # Set failurePolicy: Ignore on the rollout-operator admission webhook so that
-      # the minio-tenant StatefulSet can be created on first install before the
-      # rollout-operator pod has endpoints. With failurePolicy: Fail (upstream default),
-      # the minio-operator's StatefulSet creation is rejected until rollout-operator is
-      # ready, delaying bucket provisioning and causing Mimir sanity-check failures.
+      # Set failurePolicy: Ignore on the rollout-operator admission webhooks so that
+      # StatefulSet operations are not blocked when the rollout-operator pod is
+      # temporarily unavailable (e.g. during upgrades, rollbacks, or initial install
+      # before the minio-tenant StatefulSet can be created). With failurePolicy: Fail
+      # (upstream default), any StatefulSet mutation is rejected until rollout-operator
+      # is ready, which can cause rollbacks to deadlock with a 502 Bad Gateway error.
       # In a GitOps environment, uncoordinated downscales are not a practical risk as
-      # all StatefulSet mutations flow through Flux. Remove this patch when upstream
+      # all StatefulSet mutations flow through Flux. Remove these patches when upstream
       # mimir-distributed resolves the ordering issue.
       - patch: |
           - op: replace
@@ -48,4 +49,12 @@
           group: admissionregistration.k8s.io
           kind: MutatingWebhookConfiguration
           name: ^prepare-downscale-.*$
+      - patch: |
+          - op: replace
+            path: /webhooks/0/failurePolicy
+            value: Ignore
+        target:
+          group: admissionregistration.k8s.io
+          kind: ValidatingWebhookConfiguration
+          name: ^no-downscale-.*$
 {{- end }}
