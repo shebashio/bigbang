@@ -35,7 +35,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.kyvernoReporter.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.kyvernoReporter.values .) }}
 
 routes:
   inbound:

@@ -68,8 +68,8 @@ istio:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.minio.ingress.gateway "root" .)}}
 
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minio .) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minio .) }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minioOperator.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.minioOperator.values .) }}
 
 routes:
   outbound:

@@ -50,7 +50,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mimir.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mimir.values .) }}
 
 routes:
   inbound:

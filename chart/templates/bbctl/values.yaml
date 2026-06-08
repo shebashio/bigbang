@@ -113,7 +113,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.bbctl.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.bbctl.values .) }}
 
 routes:
   outbound:

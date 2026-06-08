@@ -29,7 +29,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.neuvector.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.neuvector.values .) }}
 
 routes:
   inbound:

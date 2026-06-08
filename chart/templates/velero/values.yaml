@@ -40,7 +40,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.velero.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.velero.values .) }}
 
 networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}

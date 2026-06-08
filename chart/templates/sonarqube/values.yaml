@@ -42,7 +42,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.sonarqube.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.sonarqube.values .) }}
 
 routes:
   inbound:

@@ -85,7 +85,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.fluentbit.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.fluentbit.values .) }}
 
 routes:
   outbound:

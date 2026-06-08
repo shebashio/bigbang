@@ -41,7 +41,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.eckOperator.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.eckOperator.values .) }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

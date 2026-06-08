@@ -76,7 +76,7 @@ istio:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.thanos.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.thanos.values .) }}
 
 minio:
   enabled: {{ $shouldEnableMinio }}

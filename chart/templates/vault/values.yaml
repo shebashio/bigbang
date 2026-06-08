@@ -61,7 +61,7 @@ istio:
 
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.vault.values .) }}
-    generateFromNetpol: true
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.vault.values .) }}
 
 tls:
   cert: {{ .Values.addons.vault.ingress.cert | quote }}
