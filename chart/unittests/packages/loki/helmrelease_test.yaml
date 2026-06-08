@@ -36,3 +36,21 @@ tests:
   asserts:
   - notExists:
       path: spec.postRenderers
+
+- it: should not render standalone MinIO when Loki MinIO tenant is enabled
+  set:
+    loki:
+      enabled: true
+      strategy: scalable
+      values:
+        minio:
+          enabled: true
+    addons:
+      minioOperator:
+        enabled: true
+      minio:
+        enabled: false
+  template: minio/helmrelease.yaml
+  asserts:
+  - hasDocuments:
+      count: 0

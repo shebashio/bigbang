@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Loki - Values
+templates:
+  - templates/loki/values.yaml
+tests:
+  - it: should enable the Loki-owned Big Bang MinIO tenant for scalable MinIO
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      loki:
+        enabled: true
+        strategy: scalable
+        values:
+          minio:
+            enabled: true
+    asserts:
+      - equal:
+          path: '["minio-tenant"].enabled'
+          value: true
+      - equal:
+          path: loki.storage.type
+          value: s3
+      - equal:
+          path: loki.storage.bucketNames.chunks
+          value: loki
+      - equal:
+          path: loki.storage.bucketNames.ruler
+          value: loki
+      - equal:
+          path: loki.storage.bucketNames.admin
+          value: loki-admin
+      - equal:
+          path: loki.storage.bucketNames.deletion
+          value: loki-deletion
+
+  - it: should not enable the Loki MinIO tenant when scalable MinIO is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      loki:
+        enabled: true
+        strategy: scalable
+        values:
+          minio:
+            enabled: false
+    asserts:
+      - notExists:
+          path: '["minio-tenant"]'

@@ -137,6 +137,11 @@ fluentbit:
   enabled: true
 {{- end }}
 
+{{- if $minioEnabled }}
+minio-tenant:
+  enabled: true
+{{- end }}
+
 loki:
   extraMemberlistConfig:
     bind_addr:
@@ -144,6 +149,13 @@ loki:
   storage:
     {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
     type: "filesystem"
+    {{- else if $minioEnabled }}
+    type: "s3"
+    bucketNames:
+      chunks: loki
+      ruler: loki
+      admin: loki-admin
+      deletion: loki-deletion
     {{- else }}
     type: "s3"
     bucketNames:
