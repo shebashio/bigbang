@@ -27,10 +27,7 @@ annotations:
 istio:
   enabled: {{ $istioEnabled }}
   hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.externalSecrets.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
 
 openshift: {{ .Values.openshift }}
 {{- end -}}
