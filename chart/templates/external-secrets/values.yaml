@@ -15,7 +15,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
 

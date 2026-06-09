@@ -74,7 +74,7 @@ routes:
           protocol: TCP
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   egress:
     from:
       fortify-webapp:

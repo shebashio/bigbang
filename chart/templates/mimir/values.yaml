@@ -95,7 +95,7 @@ routes:
           protocol: TCP
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}

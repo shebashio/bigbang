@@ -68,7 +68,7 @@ monitoring:
   enabled: {{ .Values.monitoring.enabled | default false }}
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled | default false }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
   ingress: 

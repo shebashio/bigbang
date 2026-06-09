@@ -58,7 +58,7 @@ istio:
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.grafana.values .) }}
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   prependReleaseName: true
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}

@@ -43,7 +43,7 @@ istio:
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.velero.values .) }}
 
 networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
+  enabled: {{ include "networkPoliciesEnabled" . }}
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
   ingress:

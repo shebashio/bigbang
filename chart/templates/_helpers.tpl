@@ -759,6 +759,16 @@ valuesFrom:
 {{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
 {{- end -}}
 
+{{- /* Returns "true" if networkPolicies should be enabled for a package.
+       True when .Values.networkPolicies.enabled is true OR ambient mode is enabled.
+       Ambient mode requires bb-common's network-policies render to run because the
+       AuthorizationPolicies that grant cross-namespace traffic on ambient workloads
+       are generated alongside the NetworkPolicies (via generateFromNetpol).
+    */ -}}
+{{- define "networkPoliciesEnabled" -}}
+{{ or .Values.networkPolicies.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- end -}}
+
 {{- /* Returns "true" if authorization policies should be generated.
        True when istio.hardened is enabled at the package or global istiod level,
        OR when ambient mode is globally enabled.

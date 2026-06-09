@@ -50,3 +50,47 @@ tests:
       - equal:
           path: istio.authorizationPolicies.enabled
           value: true
+  - it: enables networkPolicies if ambient is enabled even when networkPolicies.enabled is false
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      networkPolicies:
+        enabled: false
+      istio:
+        ambient:
+          enabled: true
+    asserts:
+      - equal:
+          path: networkPolicies.enabled
+          value: true
+  - it: enables networkPolicies if ztunnel is enabled even when networkPolicies.enabled is false
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      networkPolicies:
+        enabled: false
+      ztunnel:
+        enabled: true
+    asserts:
+      - equal:
+          path: networkPolicies.enabled
+          value: true
+  - it: disables networkPolicies when both networkPolicies.enabled and ambient are false
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      networkPolicies:
+        enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.enabled
+          value: false
