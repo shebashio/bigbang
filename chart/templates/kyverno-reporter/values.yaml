@@ -17,7 +17,7 @@
 {{- define "bigbang.defaults.kyverno-reporter" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kyvernoReporter.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.kyvernoReporter.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kyvernoReporter.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 domain: {{ $domainName }}
 
 global:

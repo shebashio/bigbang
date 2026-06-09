@@ -18,7 +18,7 @@
 
 {{- define "bigbang.defaults.harbor" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values) (dig "hardened" "enabled" false .Values.istiod.values) (dig "hardened" "enabled" false .Values.addons.harbor.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.harbor.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $postgresEnabled := dig "postgresql" "enabled" true .Values.addons.harbor.values }}
 
 externalURL: https://harbor.{{ .Values.domain }}
