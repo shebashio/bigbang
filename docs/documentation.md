@@ -1,9 +1,10 @@
 # Documentation Structure
+
 ### Getting Started
 Start here if you're new to Big Bang:
-- **[Overview](getting-started.md)**: Introduction to Big Bang concepts
+- **[Overview](getting-started/)**: New-user orientation and recommended reading path
 - **[Prerequisites](getting-started/prerequisites.md)**: Cluster and environment requirements
-- **[Quick Start](getting-started/quick-start.md)**: Deploy Big Bang in minutes
+- **[Quick Start](installation/environments/quick-start.md)**: Demo deployment guide
 - **[First Deployment](getting-started/first-deployment.md)**: Detailed deployment walkthrough
 - **[FAQ](getting-started/faq.md)**: Common questions and answers
 
@@ -41,4 +42,4 @@ Contribute to and extend Big Bang:
 ### Reference
 Technical reference materials:
 - **[Tutorials](tutorials/)**: Step-by-step guides for common tasks
-- **[Reference](reference/)**: Configuration examples and technical specifications
+- **[Example Configurations](https://repo1.dso.mil/big-bang/bigbang/-/tree/master/docs/reference/configs/example)**: Example values files and deployment snippets

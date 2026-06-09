@@ -1,233 +1,147 @@
 # Installation
 
-This section provides guidance for installing Big Bang in various environments. Whether you're setting up a new cluster or migrating from an existing deployment, these documents will guide you through the installation process and help you avoid common pitfalls.
+This section provides guidance for installing Big Bang in different environments. Use it as an entry point for choosing the right deployment path, preparing prerequisites, and understanding the GitOps bootstrap flow.
 
-## What You'll Find Here
+## Choose a Deployment Path
 
-The installation documentation covers the essential aspects of deploying Big Bang:
+- **[Quick Start Demo](environments/quick-start.md)**: Use this path for a hands-on demo deployment in a development environment.
+- **[Customer Template](https://repo1.dso.mil/big-bang/customers/template)**: Use this repository as the starting point for a real Big Bang environment.
+- **[Air-Gapped Deployment](environments/airgap.md)**: Use this guidance for disconnected environments that need mirrored repositories and image registries.
+- **[Air-Gapped Deployment with Zarf](environments/airgap-zarf.md)**: Use this path when Zarf is part of your disconnected deployment workflow.
+- **[Appliance Mode](environments/appliance-mode.md)**: Review this guidance for constrained or edge-style deployments.
+- **[Extra Package Deployment](environments/extra-package-deployment.md)**: Deploy packages outside the standard Big Bang package set.
+- **[SSO Quick Start](environments/sso-quickstart.md)**: Add SSO protection to applications with Keycloak and Authservice.
 
-- **Prerequisites**: Cluster requirements, infrastructure setup, and dependency verification
-- **Installation Methods**: Step-by-step installation procedures for different environments
-- **Configuration**: Essential configuration options and customization guidance
-- **Validation**: Post-installation verification and health checks
+Air-gapped and edge deployments are environment-specific. Review the linked guides carefully and validate them against your target architecture before using them in production.
 
 ## Installation Overview
 
-Big Bang uses GitOps principles with Flux to deploy and manage Kubernetes applications. The installation process typically involves:
+Big Bang uses GitOps principles with Flux to deploy and manage Kubernetes applications. The installation process typically includes:
 
-1. **Cluster Preparation**: Ensuring your Kubernetes cluster meets Big Bang requirements
-2. **Flux Installation**: Setting up the GitOps engine that manages deployments
-3. **Big Bang Deployment**: Configuring and deploying the Big Bang umbrella chart
-4. **Package Configuration**: Customizing individual packages for your environment
-5. **Validation**: Verifying successful deployment and functionality
-
-## Quick Start
-
-For a basic installation:
-
-1. Verify cluster meets [prerequisites](#prerequisites)
-2. Install Flux controllers
-3. Deploy Big Bang with your configuration
-4. Validate installation using the health checks
+1. **Cluster preparation:** Ensure your Kubernetes cluster meets Big Bang requirements.
+2. **Flux installation:** Install the GitOps engine that manages Big Bang resources.
+3. **Big Bang bootstrap:** Apply the customer-template bootstrap resource for your environment.
+4. **Package configuration:** Customize enabled packages through values files stored in Git.
+5. **Validation:** Verify Flux resources and package workloads converge successfully.
 
 ## Prerequisites
 
-Before installing Big Bang, ensure your environment meets these requirements:
+Before installing Big Bang, ensure your environment has:
 
-- **Kubernetes Version**: Compatible Kubernetes cluster (see compatibility matrix)
-- **Node Resources**: Sufficient CPU, memory, and storage capacity
-- **Network Access**: Connectivity to required registries and repositories
-- **Storage Classes**: Available persistent storage for applications
-- **Load Balancer**: External load balancer capability (cloud or on-premises)
+- A supported Kubernetes version. See `kubeVersion` in [Chart.yaml](../../chart/Chart.yaml) and the [prerequisites guide](../getting-started/prerequisites.md).
+- Sufficient CPU, memory, and storage for the packages you plan to enable.
+- Network access to required Git repositories and registries, or mirrored equivalents for disconnected environments.
+- A default `StorageClass` with dynamic volume provisioning.
+- A load-balancer or ingress strategy appropriate for your environment.
+- Registry1 credentials with a valid image pull token.
 
-See the [detailed prerequisites guide](../getting-started/prerequisites.md) for more information.
+## Bootstrap Flow
 
-## Common Installation Scenarios
+The exact deployment process varies by scenario. The [Quick Start Demo](environments/quick-start.md) automates several steps using reusable demo configuration. Production deployments should start from the [Big Bang customer template](https://repo1.dso.mil/big-bang/customers/template).
 
-Big Bang supports various deployment patterns:
+### 1. Obtain Registry1 Credentials
 
-- **Cloud Deployments**: AWS EKS in GovCloud
-- **On-Premises**: Self-managed Kubernetes clusters
-- **Edge Deployments**: Resource-constrained environments 
-- **Air-Gapped**: Disconnected environments with registry mirrors
+Big Bang container images are sourced from Iron Bank through `registry1.dso.mil`. A Registry1 account with a valid image pull token is required before Big Bang-managed workloads can run, including Flux. You can request robot credentials through the [Iron Bank robot account request form](https://repo1.dso.mil/dsop/big-bang/base/-/work_items/new?initialCreationContext=list-route&type=ISSUE&description_template=Robot%20Account).
 
-**[Note: While we are compatible with air-gapped and edge deployments, we do not validate them.]**
+Use robot credentials for production deployments rather than personal tokens.
 
-## How do I deploy Big Bang?
+### 2. Prepare Your Git Repository
 
->**Note:** The deployment process and prerequisites vary depending on your deployment
-scenario. The [Quick Start Demo](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/quick-start.md) Deployment
-automates several steps using reusable demo configuration. For a production reference,
-see the [Big Bang customer template](https://repo1.dso.mil/big-bang/customers/template).
-The following is a general overview - refer to the [deployment guides](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/index.md)
-for environment-specific detail.
----
-### Step 1 - Obtain Registry1 Credentials
+Big Bang desired state is declared in Git. Before bootstrapping:
 
-All Big Bang container images are sourced from [Iron Bank](https://p1.dso.mil/products/iron-bank)
-via `registry1.dso.mil`. A Registry1 account with a valid image pull token is required
-before anything in Big Bang can run - including Flux itself. You can request credentials from Iron Bank [here](https://repo1.dso.mil/dsop/big-bang/base/-/work_items/new?initialCreationContext=list-route&type=ISSUE&description_template=Robot%20Account).
+- Provision a Git repository that the cluster can reach.
+- Commit Big Bang values files configured for your environment, including DNS names, TLS certificates, enabled packages, and registry credentials.
+- Encrypt secrets with [SOPS](https://github.com/getsops/sops) or your approved secret-management workflow before committing them.
+- Use the [customer template](https://repo1.dso.mil/big-bang/customers/template) as the reference repository structure.
 
->In production, use robot credentials rather than personal tokens:
-`robot$bigbang-onboarding-imagepull`
+### 3. Install Flux
 
-For air-gapped environments, all required images are bundled in the
-[Big Bang release artifacts](https://repo1.dso.mil/big-bang/bigbang/-/releases) as
-`images.tar.gz`. See the air-gap [deployment guide](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/airgap.md)
-for full instructions. [Zarf](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/airgap-zarf.md) is the
-recommended tooling for air-gapped deployments. 
+Install Flux using the bootstrap manifests that match the Big Bang release you are deploying. Pin the release explicitly instead of using `master` in production.
 
-**[Note: These documents are currently out of date and under review.]**
-
----
-### Step 2 - Prepare Your Infrastructure
-Big Bang assumes **bring-your-own cluster (BYOC)**. The cluster itself is not provisioned by
-Big Bang. Before deploying, ensure the following requirements are met.
-
-**Hardware (minimum per node)**
-
-| Resource | Minimum |
-|---|----|
-|CPU|4 cores|
-|Memory|16GB|
-|Disk|100GB|
-|Nodes|3 (distributed across availability zones for HA)|
-
-Deploying additional packages increases resource requirements. Refer to each package's
-`values.yaml` for its specific resource requests and limits.
-
-**Kubernetes Cluster Requirements**
-- **A non-EOL Kubernetes version:** See `kubeVersion` in `Chart.yaml` for the supported range
-- **A CNI that supports NetworkPolicies:** `flannel` does not support NetworkPolicies and is
-not suitable for production Big Bang deployments
-- **A default StorageClass with dynamic volume provisioning:** For production, a StorageClass
-supporting `ReadWriteMany` access mode is recommended for HA add-on configurations
-- **Load balancer support - one of:**
-  - CSP-managed load balancers (AWS EKS, Azure AKS, GKE) via cloud provider integration
-  - MetalLB, kube-vip, or
-  kube-router for bare metal
-  - `NodePort` override if no load balancer provisioner is available
----
-### Step 3 - Set Up Your Git Repository
-Big Bang's desired state is declared entirely in Git. Before bootstrapping:
-- Provision a Git repository you control with network connectivity to the cluster
-- Commit Big Bang's `values.yaml` configured for your environment - including DNS names,
-HTTPS certificates, enabled packages, and registry credentials
-- Encrypt secrets using https://github.com/mozilla/sops and commit encrypted
-values alongside your configuration
-
-A reference repository structure is available in the
-https://repo1.dso.mil/big-bang/customers/template.
-
----
-### Step 4 Install Flux
-Flux is Big Bang's GitOps engine. Always install Flux using the bootstrap manifests that
-ship with the specific Big Bang version you are deploying - this ensures compatibility.
-````
+```shell
 export REGISTRY1_USER='your-registry1-username'
 export REGISTRY1_TOKEN='your-registry1-token'
-export BB_VERSION='3.21.0'   # pin to your target BB release version
+export BB_VERSION='<target-bigbang-version>'
 
-kubectl create ns flux-system
+kubectl create namespace flux-system
 
 kubectl create secret docker-registry private-registry \
---docker-server=registry1.dso.mil \
---docker-username=$REGISTRY1_USER \
---docker-password=$REGISTRY1_TOKEN \
---namespace flux-system
+  --docker-server=registry1.dso.mil \
+  --docker-username="${REGISTRY1_USER}" \
+  --docker-password="${REGISTRY1_TOKEN}" \
+  --namespace flux-system
 
-kubectl apply -k https://repo1.dso.mil/big-bang/bigbang.git//base/flux?ref=${BB_VERSION}
-````
+kubectl apply -k "https://repo1.dso.mil/big-bang/bigbang.git//base/flux?ref=${BB_VERSION}"
+```
+
 Alternatively, use the install script included in the Big Bang repository:
-````
+
+```shell
 git clone https://repo1.dso.mil/big-bang/bigbang.git
-./bigbang/scripts/install_flux.sh -u $REGISTRY1_USER -p $REGISTRY1_TOKEN
-````
+./bigbang/scripts/install_flux.sh -u "${REGISTRY1_USER}" -p "${REGISTRY1_TOKEN}"
+```
+
 Verify Flux is running before proceeding:
-````
+
+```shell
 kubectl get pods -n flux-system
 kubectl get crds | grep flux
-````
->**Note:** Always pin Flux installation to the base/flux ref matching your target Big Bang version. Do not use master in production.
----
-### Step 5 - Deploy Big Bang
-With Flux running and your Git repository configured, bootstrap Big Bang with a single
-command:
-````
+```
+
+### 4. Deploy Big Bang
+
+With Flux running and your Git repository configured, apply the bootstrap resource from your customer-template repository:
+
+```shell
 kubectl apply --filename bigbang.yaml
-````
-A reference `bigbang.yaml` is available in the
-https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml.
+```
 
-This triggers a GitOps chain reaction that fully bootstraps the platform:
-1. `bigbang.yaml` creates a `GitRepository` and `Kustomization` Custom Resource in the
-cluster.
-2. Flux reads the `Kustomization` and performs the equivalent of:
-````
-kustomize build . | kubectl apply --filename -
-````
-3. This deploys a `HelmRelease` Custom Resource for the Big Bang Helm Chart, referencing
-   your `values.yaml` files stored in Git.
-4. Flux reads the HelmRelease and performs the equivalent of:
-````
-   helm upgrade --install bigbang ./chart \
-   --namespace bigbang \
-   --values encrypted_values.yaml \
-   --values values.yaml \
-   --create-namespace
-````
-5. The Big Bang Helm Chart deploys additional `GitRepository`, `HelmRepository`, and
-   `HelmRelease` Custom Resources - one per enabled package. Flux reconciles each
-   independently, deploying the full DevSecOps platform as declared in your Git repository.
----
-### Step 6 - Validate
+A reference `bigbang.yaml` is available in the [customer template](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml).
+
+This triggers the GitOps bootstrap flow:
+
+1. `bigbang.yaml` creates Flux `GitRepository` and `Kustomization` resources.
+2. Flux reconciles the `Kustomization` and applies the environment manifests from Git.
+3. The environment manifests create a `HelmRelease` for the Big Bang Helm chart.
+4. The Big Bang Helm chart creates package `GitRepository`, `HelmRepository`, and `HelmRelease` resources for enabled packages.
+5. Flux reconciles each enabled package independently.
+
+### 5. Validate
+
 Monitor the rollout until all resources converge:
-````
-# Watch all Flux-managed resources reconcile
+
+```shell
 watch kubectl get gitrepositories,kustomizations,helmreleases,pods -A
-
-# Check for any pods not in Running or Completed state
 kubectl get pods -A | grep -Ev 'Running|Completed'
-````
+```
+
 All `HelmRelease` resources should reach `Ready: True`. Packages may take several minutes to reconcile depending on cluster resources and image pull times.
-
-
-## New User Orientation
-
-New users are encouraged to read through the useful background information present in the [Getting Started](../getting-started/), [Concepts](../concepts/), [Configuration](../configuration/), and [Packages](../packages/) sections.
-
 
 ## When Installation Problems Occur
 
-Installation issues can manifest at different stages of the deployment process. Our [troubleshooting documentation](../operations/troubleshooting/index.md) is organized to help you quickly identify and resolve problems based on the symptoms you're experiencing:
+Installation issues can occur at different stages of the deployment process. Use the [troubleshooting documentation](../operations/troubleshooting/) to identify failures by symptom and deployment stage.
 
-### Diagnostic Approach
+Start with:
 
-When facing installation problems, follow this systematic approach:
-
-1. **Start with Installation Troubleshooting** for immediate deployment failures
-2. **Move to Package Troubleshooting** for individual component issues
-3. **Check Networking Troubleshooting** for connectivity problems
-4. **Use Performance Troubleshooting** for resource-related issues
-
-Each guide provides both quick diagnostic commands and detailed remediation steps, allowing you to either quickly resolve common issues or dive deep into complex problems.
+1. **Installation troubleshooting** for immediate deployment failures.
+2. **Package troubleshooting** for individual component issues.
+3. **Networking troubleshooting** for connectivity and ingress issues.
+4. **Performance troubleshooting** for resource-related issues.
 
 ## Post-Installation Operations
 
-After successful installation, transition to operational procedures:
+After a successful installation, review:
 
-1. **Set Up Monitoring**: Configure observability using [Operations Monitoring](../operations/monitoring.md)
-2. **Plan Backups**: Implement backup strategies from [Operations Backup & Restore](../operations/backup-restore.md)
-3. **Review Upgrades**: Understand upgrade procedures in [Operations Upgrades](../operations/upgrades.md)
-4. **Ongoing Maintenance**: Follow guidance in [Operations Maintenance](../operations/maintenance/)
+- [Monitoring](../operations/monitoring.md)
+- [Backup and Restore](../operations/backup-restore.md)
+- [Upgrades](../operations/upgrades.md)
+- [Maintenance](../operations/maintenance/)
 
 ## Getting Help
 
-If troubleshooting guides don't resolve your issue:
+If troubleshooting guides do not resolve your issue:
 
-- Gather diagnostic information using commands from the troubleshooting guides
-- Check Big Bang GitLab repository for similar reported issues
-- Engage with the Big Bang community with detailed problem descriptions
-- Consider escalating to platform support with collected diagnostic data
-
-The troubleshooting documentation is designed to provide both immediate solutions and the diagnostic information needed for effective support requests.
+- Gather diagnostic information using commands from the troubleshooting guides.
+- Check the Big Bang GitLab repository for similar reported issues.
+- Engage with the Big Bang community with a clear problem description and relevant logs.
+- Escalate through your platform support path with collected diagnostic data.
