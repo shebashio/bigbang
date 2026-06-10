@@ -92,6 +92,20 @@ networkPolicies:
   enabled: {{ .Values.networkPolicies.enabled }}
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
+  additionalPolicies:
+    - name: allow-ingress-from-prometheus-to-thanos-namespace
+      spec:
+        podSelector: {}
+        policyTypes:
+          - Ingress
+        ingress:
+          - from:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: monitoring
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: prometheus
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:
@@ -124,7 +138,6 @@ networkPolicies:
           k8s:
             minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       thanos-query-frontend:9090:
         podSelector:
           matchLabels:
