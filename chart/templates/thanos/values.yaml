@@ -155,7 +155,7 @@ networkPolicies:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-      thanos-compactor:9090:
+      thanos-compactor:10902:
         podSelector:
           matchLabels:
             app.kubernetes.io/name: thanos
