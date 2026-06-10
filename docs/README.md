@@ -7,6 +7,8 @@ contribute to the published site.
 This guide is for writers and reviewers who are adding, moving, or reorganizing
 documentation.
 
+The docs in this repository are compiled nightly using the [bb-docs-compiler repository](https://repo1.dso.mil/big-bang/team/tools/bb-docs-compiler) and a [compiler pipeline definition](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/blob/master/pipelines/bigbang-docs.yaml).
+
 ## Core Concepts
 
 ### Pages and URLs
