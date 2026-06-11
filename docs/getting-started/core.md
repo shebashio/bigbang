@@ -2,7 +2,7 @@
 **[To facilitate to those concepts, Big Bang is designed with core capabilities that fall into six categories: Architecture, which includes the overall data flow of Big Bang and its features; Security and Compliance features, which provide easy-to-manage protection, monitoring, incident response, and management tools to maintain consistency; Observability capabilities, which provide dashboard visibility into metrics, distribution, and alerts; Developer tools, which provides four main tools to help for application deployment. artifact management, quality analysis, and code management; Operations features, which cover day-to-day procedures, troubleshooting, and upgrades; and Package Management, which includes, core packages, add-on packages, and community packages.]**
 
 ### Architecture
-**[Big Bang's architecture design is represented [here](concepts/architecture.md) in diagrams for the following data flows:]**
+**[Big Bang's architecture design is represented [here](../concepts/architecture.md) in diagrams for the following data flows:]**
 - Kube API server webhooks 
 - Logs data
 - Metrics data
@@ -15,7 +15,7 @@
 - Runtime security with vulnerability scanning
 - Supply chain security with image signing
 
-Go [here](concepts/security-model.md) for further information about Big Bang's security model.
+Go [here](../concepts/security-model.md) for further information about Big Bang's security model.
 
 ### Observability
 **[Big Bang includes the following features that increase visibility into operations:]**
@@ -31,13 +31,13 @@ Go [here](concepts/security-model.md) for further information about Big Bang's s
 - Nexus for artifact and dependency management
 - SonarQube for code quality and security analysis
 
-For information about Big Bang's GitOps workflow, go [here](concepts/git-ops-workflow.md).
+For information about Big Bang's GitOps workflow, go [here](../concepts/git-ops-workflow.md).
 
 ### Operations
 The following links provide more information on the day-to-day management and maintenance of Big Bang:
 - **[Operations](operations/)**: Monitoring, backup, and maintenance procedures
 - **[Troubleshooting](operations/troubleshooting/)**: Diagnose and resolve common issues
-- **[Upgrades](operations/upgrades.md)**: Version management and upgrade procedures
+- **[Upgrades](../operations/upgrades.md)**: Version management and upgrade procedures
 
 ### Packages
 Big Bang's scope is to provide publicly available installation manifests for packages required to adhere to the DoD DevSecOps Reference Architecture and additional useful utilities. Big Bang packages are broken into three categories:
@@ -55,4 +55,4 @@ Big Bang also builds tooling around the testing and validation of Big Bang packa
 
 Big Bang is intended to be used for deploying and maintaining a DoD hardened and approved set of packages into a Kubernetes cluster.  Deployment and configuration of ingress/egress, load balancing, policy auditing, logging, and/or monitoring are handled via Big Bang.  Additional packages (e.g., ArgoCD and GitLab) can also be enabled and customized to extend Big Bang's baseline.  Once deployed, the Kubernetes cluster can be used to add mission specific applications.
 
-Go [here](concepts/package-management.md) for further information about Big Bang's concept for pakcage managememt.
+Go [here](../concepts/package-management.md) for further information about Big Bang's concept for pakcage managememt.

@@ -2,9 +2,8 @@
 
 Start with the [Getting Started Overview](../getting-started/index.md), which includes the following sections:
 
-* [What is Big Bang?](../getting-started/index.md#what-is-big-bang)
-* [What *isn't* Big Bang?](../getting-started/index.md#what-isnt-big-bang)
-* [Benefits of Big Bang](../getting-started/index.md#what-are-the-benefits-of-using-big-bang)
+* [What is Big Bang?](../getting-started/what.md)
+* [Benefits of Big Bang](../getting-started/why.md)
 ## Acronyms
 
 * **CSP**: Cloud Service Provider
