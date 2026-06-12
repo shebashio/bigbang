@@ -57,12 +57,6 @@ istio:
   enabled: {{ $istioEnabled }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
-  hardened:
-    enabled: {{ or
-      (dig "istio" "hardened" "enabled" false .Values.addons.minioOperator.values)
-      (dig "istio" "hardened" "enabled" false .Values.addons.minio.values)
-      (dig "hardened" "enabled" false .Values.istiod.values)
-    }}
   console:
     gateways:
       - {{ include "getGatewayName" (dict "gateway" .Values.addons.minio.ingress.gateway "root" .)}}
