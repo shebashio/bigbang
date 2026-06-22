@@ -1,0 +1,50 @@
+{{- /*
+Kyverno PolicyExceptions for Grafana Alloy workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.alloy" -}}
+{{- if .Values.alloy.enabled }}
+# alloy-logs needs privileged host access (journald, /var/log, container logs).
+alloy-logs:
+  spec:
+    policyRefs:
+      - name: require-non-root-group
+        kind: ValidatingPolicy
+      - name: require-non-root-user
+        kind: ValidatingPolicy
+      - name: restrict-host-path-mount
+        kind: ValidatingPolicy
+      - name: restrict-selinux-type
+        kind: ValidatingPolicy
+      - name: restrict-volume-types
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: alloy-logs
+        expression: >-
+          (object.metadata.namespace == 'alloy' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-logs'))
+# Several Alloy components require additional capabilities.
+alloy-restrict-capabilities:
+  spec:
+    policyRefs:
+      - name: restrict-capabilities
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: alloy-components
+        expression: >-
+          (object.metadata.namespace == 'alloy' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-metrics') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-receiver') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-logs') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-singleton')
+          ))
+alloy-add-default-securitycontext:
+  spec:
+    policyRefs:
+      - name: add-default-securitycontext
+        kind: MutatingPolicy
+    matchConditions:
+      - name: alloy-logs
+        expression: >-
+          (object.metadata.namespace == 'alloy' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-alloy-logs'))
+{{- end }}
+{{- end -}}
