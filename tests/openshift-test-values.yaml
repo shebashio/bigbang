@@ -71,355 +71,159 @@ neuvector:
         openshift: true
 kyvernoPolicies:
   values:
-    policies:
-      disallow-privileged-containers:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-      disallow-privilege-escalation:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - anchore
-              names:
-              - anchore-enterprise-migrate-db
-          - resources:
-              namespaces:
-              - authservice
-              names:
-              - authservice-authservice-redis-bb-master-*
-          - resources:
-              namespaces:
-              - sonarqube
-              names:
-              - sonarqube-postgresql-*
-              - sonarqube-sonarqube-*
-      restrict-image-registries:
-        exclude:
-          any:
-          # ArgoCD deploys a test app as part of its Cypress test
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
-          - resources:
-              namespaces:
-              - openshift-marketplace
-              names:
-              - certified-operators-*
-              - community-operators-*
-              - redhat-*
-          - resources:
-              namespaces:
-              - openshift-operator-lifecycle-manager
-              names:
-              - collect-profiles-*
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-          - resources:
-              namespaces:
-              - openshift-monitoring
-              names:
-              - prometheus-k8s-*
-      require-non-root-group:
-        exclude:
-          any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - authservice
-              names:
-              - authservice-authservice-redis-bb-master-*
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          - resources:
-              namespaces:
-              - fortify
-              names:
-              - fortify-mysql-* # mysql breaks if you give it a different group
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-              - controller-*
-          - resources:
-              namespaces:
-              - harbor
-              names:
-              - harbor-redis-bb-*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - argocd-argocd-redis-*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - openshift-operator-lifecycle-manager
-              names:
-              - collect-profiles-*
-          - resources:
-              namespaces:
-              - openshift-marketplace
-              names:
-              - certified-operators-*
-              - community-operators-*
-              - redhat-*
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-          - resources:
-              namespaces:
-              - istio-system
-              names:
-              - passthrough-ingressgateway-*
-              - public-ingressgateway-*
-          - resources:
-              namespaces:
-              - openshift-monitoring
-              names:
-              - prometheus-k8s-*
-      require-non-root-user:
-        exclude:
-          any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - authservice
-              names:
-              - authservice-authservice-redis-bb-master-*
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook*
-              - argocd-argocd-redis-*
-          - resources:
-              namespaces:
-              - harbor
-              names:
-              - harbor-redis-bb-*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - volume-upgrade-job*
-          - resources:
-              namespaces:
-              - openshift-operator-lifecycle-manager
-              names:
-              - collect-profiles-*
-          - resources:
-              namespaces:
-              - openshift-marketplace
-              names:
-              - certified-operators-*
-              - community-operators-*
-              - redhat-*
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-          - resources:
-              namespaces:
-              - istio-system
-              names:
-              - passthrough-ingressgateway-*
-              - public-ingressgateway-*
-          - resources:
-              namespaces:
-              - openshift-monitoring
-              names:
-              - prometheus-k8s-*
-      require-drop-all-capabilities:
-        exclude:
-          any:
-          # Gitlab Minio sub-chart does not have configurable securityContext values from upstream. Minio installation
-          # is only recommended for Dev/CI environments.
-          - resources:
-              namespaces:
-              - gitlab
-              names:
-              - gitlab-minio-*
-          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - twistlock-defender-ds*
-          # Neuvector needs access to host to inspect network traffic
-          - resources:
-              namespaces:
-              - neuvector
-              names:
-              - neuvector-enforcer-pod*
-              - neuvector-controller-pod*
-              - neuvector-prometheus-exporter-pod*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-          - resources:
-              namespaces:
-              - openshift-monitoring
-              names:
-              - prometheus-k8s-*
-      restrict-volume-types:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              names:
-              - "*-cypress-test*"
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-      restrict-host-path-mount:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              names:
-              - "*-cypress-test*"
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-      restrict-host-path-write:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              names:
-              - "*-cypress-test*"
-          - resources:
-              namespaces:
-              - neuvector
-              names:
-              - "neuvector-enforcer-*"
-              - "neuvector-manager-*"
-          - resources:
-              namespaces:
-              - openshift-etcd
-              names:
-              - installer-*
-        parameters:
-          allow:
-          - /tmp/allowed
+    additionalPolicyExceptions:
+      openshift-disallow-privileged-containers:
+        spec:
+          policyRefs:
+            - name: disallow-privileged-containers
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-'))
+      openshift-disallow-privilege-escalation:
+        spec:
+          policyRefs:
+            - name: disallow-privilege-escalation
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'anchore' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('anchore-enterprise-migrate-db')) ||
+                (object.metadata.namespace == 'authservice' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('authservice-authservice-redis-bb-master-')) ||
+                (object.metadata.namespace == 'sonarqube' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('sonarqube-postgresql-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('sonarqube-sonarqube-')
+                ))
+      openshift-restrict-image-registries:
+        spec:
+          policyRefs:
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-')) ||
+                (object.metadata.namespace == 'openshift-marketplace' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('certified-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('community-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('redhat-')
+                )) ||
+                (object.metadata.namespace == 'openshift-operator-lifecycle-manager' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('collect-profiles-')) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-')) ||
+                (object.metadata.namespace == 'openshift-monitoring' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('prometheus-k8s-'))
+      openshift-require-non-root-group:
+        spec:
+          policyRefs:
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'authservice' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('authservice-authservice-redis-bb-master-')) ||
+                (object.metadata.namespace == 'gitlab' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('gitlab-minio-')) ||
+                (object.metadata.namespace == 'fortify' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('fortify-mysql-')) ||
+                (object.metadata.namespace == 'metallb-system' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('controller-')
+                )) ||
+                (object.metadata.namespace == 'harbor' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('harbor-redis-bb-')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('argocd-argocd-redis-')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'openshift-operator-lifecycle-manager' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('collect-profiles-')) ||
+                (object.metadata.namespace == 'openshift-marketplace' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('certified-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('community-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('redhat-')
+                )) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-')) ||
+                (object.metadata.namespace == 'istio-system' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('passthrough-ingressgateway-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('public-ingressgateway-')
+                )) ||
+                (object.metadata.namespace == 'openshift-monitoring' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('prometheus-k8s-'))
+      openshift-require-non-root-user:
+        spec:
+          policyRefs:
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'authservice' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('authservice-authservice-redis-bb-master-')) ||
+                (object.metadata.namespace == 'gitlab' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('gitlab-minio-')) ||
+                (object.metadata.namespace == 'metallb-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-')) ||
+                (object.metadata.namespace == 'argocd' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('argocd-argocd-redis-')
+                )) ||
+                (object.metadata.namespace == 'harbor' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('harbor-redis-bb-')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')) ||
+                (object.metadata.namespace == 'openshift-operator-lifecycle-manager' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('collect-profiles-')) ||
+                (object.metadata.namespace == 'openshift-marketplace' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('certified-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('community-operators-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('redhat-')
+                )) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-')) ||
+                (object.metadata.namespace == 'istio-system' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('passthrough-ingressgateway-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('public-ingressgateway-')
+                )) ||
+                (object.metadata.namespace == 'openshift-monitoring' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('prometheus-k8s-'))
+      openshift-require-drop-all-capabilities:
+        spec:
+          policyRefs:
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                (object.metadata.namespace == 'gitlab' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('gitlab-minio-')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-prometheus-exporter-pod')
+                )) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-')) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-')) ||
+                (object.metadata.namespace == 'openshift-monitoring' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('prometheus-k8s-'))
+      openshift-restrict-volume-types:
+        spec:
+          policyRefs:
+            - name: restrict-volume-types
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                ((object.metadata.namespace in ['gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-'))
+      openshift-restrict-host-path-mount:
+        spec:
+          policyRefs:
+            - name: restrict-host-path-mount
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                ((object.metadata.namespace in ['gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-'))
+      openshift-restrict-host-path-write:
+        spec:
+          policyRefs:
+            - name: restrict-host-path-write
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: openshift-workloads
+              expression: >-
+                ((object.metadata.namespace in ['gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
+                )) ||
+                (object.metadata.namespace == 'openshift-etcd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('installer-'))
 # Addons are toggled based on labels in CI
 addons:
   minioOperator:
