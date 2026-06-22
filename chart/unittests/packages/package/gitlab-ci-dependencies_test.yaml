@@ -285,40 +285,43 @@ tests:
     asserts:
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: sync-redis-credentials"
+          pattern: 'sync-gitlab-redis-credentials:'
       - matchRegex:
           path: stringData.overlays
-          pattern: "(?s)clone:.*name: redis.*namespace: redis"
+          pattern: 'resource\.Get\("v1", "secrets", "redis", "redis"\)'
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: gitlab-redis-secret-bb"
+          pattern: 'gitlab-redis-secret-bb'
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: sync-postgresql-credentials"
+          pattern: 'sync-gitlab-postgresql-credentials:'
       - matchRegex:
           path: stringData.overlays
-          pattern: "(?s)clone:.*name: postgresql-app.*namespace: postgresql"
+          pattern: 'resource\.Get\("v1", "secrets", "postgresql", "postgresql-app"\)'
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: gitlab-database"
+          pattern: 'gitlab-database'
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: sync-garage-gitlab-credentials"
+          pattern: 'sync-gitlab-object-storage-credentials:'
       - matchRegex:
           path: stringData.overlays
-          pattern: "(?s)names:.*garage-gitlab-credentials.*namespaces:.*garage"
+          pattern: '(?s)resourceNames:.*garage-gitlab-credentials'
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: gitlab-object-storage"
+          pattern: 'gitlab-object-storage'
       - matchRegex:
           path: stringData.overlays
-          pattern: "backups:.*base64_encode"
+          pattern: '"backups": base64\.encode'
       - matchRegex:
           path: stringData.overlays
-          pattern: "rails:.*base64_encode"
+          pattern: '"rails": base64\.encode'
       - matchRegex:
           path: stringData.overlays
-          pattern: "registry:.*base64_encode"
+          pattern: '"registry": base64\.encode'
+      - matchRegex:
+          path: stringData.overlays
+          pattern: 'kind: GeneratingPolicy'
 
   - it: points GitLab at the synchronized dependency Secrets
     template: gitlab/values.yaml
