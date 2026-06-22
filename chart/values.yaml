@@ -1543,13 +1543,13 @@ addons:
     sourceType: "git"
 
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/garage.git
+      repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
       path: "./chart"
-      tag: ""
+      tag: "0.9.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "garage"
-      tag: ""
+      tag: "0.9.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Garage package
     flux: {}
@@ -1558,7 +1558,29 @@ addons:
     ingress:
       gateway: ""
 
-    # -- Values to passthrough to the garage chart: https://repo1.dso.mil/big-bang/apps/sandbox/garage.git
+    # -- Garage initialization Job configuration. Bootstraps the cluster layout, imports an
+    # S3 access key, and creates one or more buckets on post-install/post-upgrade. All steps
+    # are idempotent. WARNING: credentials are write-once after initial bootstrap - changing
+    # only secretAccessKey without changing accessKeyId will break consuming apps on their
+    # next restart. Do not store credentials in plaintext for production; use SOPS or an
+    # external secrets manager. See docs/credential-rotation.md in the garage package repo
+    # for rotation procedures.
+    garageInit:
+      # -- Enable the garageInit Job. Credentials and at least one bucket are required when true.
+      enabled: false
+      # -- S3 credentials to import into Garage as a named access key.
+      # accessKeyId must be "GK" followed by exactly 24 lowercase hex characters (26 chars total).
+      # secretAccessKey must be exactly 64 lowercase hex characters.
+      credentials:
+        # -- Garage access key ID.
+        accessKeyId: ""
+        # -- Garage secret access key.
+        secretAccessKey: ""
+      # -- S3 buckets to create and grant the key read/write/owner access.
+      # At least one bucket is required when garageInit.enabled is true.
+      buckets: []
+
+    # -- Values to passthrough to the garage chart: https://repo1.dso.mil/big-bang/product/maintained/garage.git
     values: {}
 
     # -- Post Renderers.  See docs/postrenders.md
