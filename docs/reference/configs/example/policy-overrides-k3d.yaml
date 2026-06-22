@@ -62,16 +62,44 @@ gatekeeper:
 
 kyvernoPolicies:
   values:
-    exclude:
-      any:
-      # Allows k3d load balancer to bypass policies.
-      - resources:
-          namespaces:
-          - istio-system
-          names:
-          - svclb-*
+    additionalPolicyExceptions:
+      k3d-svclb:
+        spec:
+          policyRefs:
+            - name: disallow-privileged-containers
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation
+              kind: ValidatingPolicy
+            - name: restrict-capabilities
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+            - name: restrict-host-ports
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces
+              kind: ValidatingPolicy
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+            - name: restrict-seccomp
+              kind: ValidatingPolicy
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+            - name: disallow-image-tags
+              kind: ValidatingPolicy
+            - name: require-labels
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop
+              kind: MutatingPolicy
+            - name: add-default-securitycontext
+              kind: MutatingPolicy
+          matchConditions:
+            - name: k3d-svclb
+              expression: >-
+                (object.metadata.namespace == 'istio-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('svclb-'))
     policies:
       restrict-host-path-mount-pv:
         parameters:
           allow:
-          - /var/lib/rancher/k3s/storage/pvc-*
+            - /var/lib/rancher/k3s/storage/pvc-*

@@ -643,7 +643,8 @@ kyvernoPolicies:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
     path: ./chart
-    tag: "3.3.4-bb.87"
+    tag: ""
+    branch: rm-legacy-exceptions
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-policies"
@@ -655,7 +656,16 @@ kyvernoPolicies:
       ignore:
         - paths: [""]
           target:
-            kind: ClusterPolicy
+            kind: ValidatingPolicy
+        - paths: [""]
+          target:
+            kind: MutatingPolicy
+        - paths: [""]
+          target:
+            kind: ImageValidatingPolicy
+        - paths: [""]
+          target:
+            kind: GeneratingPolicy
         - paths: [""]
           target:
             kind: Job
