@@ -62,16 +62,45 @@ gatekeeper:
 
 kyvernoPolicies:
   values:
-    exclude:
-      any:
-      # Allows k3d load balancer to bypass policies.
-      - resources:
-          namespaces:
-          - istio-system
-          names:
-          - svclb-*
-    policies:
-      restrict-host-path-mount-pv:
+    additionalPolicyExceptions:
+      k3d-svclb:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: disallow-privileged-containers-cel
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation-cel
+              kind: ValidatingPolicy
+            - name: restrict-capabilities-cel
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities-cel
+              kind: ValidatingPolicy
+            - name: restrict-host-ports-cel
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-user-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-group-cel
+              kind: ValidatingPolicy
+            - name: restrict-seccomp-cel
+              kind: ValidatingPolicy
+            - name: restrict-image-registries-cel
+              kind: ValidatingPolicy
+            - name: disallow-image-tags-cel
+              kind: ValidatingPolicy
+            - name: require-labels-cel
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop-cel
+              kind: MutatingPolicy
+            - name: add-default-securitycontext-cel
+              kind: MutatingPolicy
+          matchConditions:
+            - name: k3d-svclb
+              expression: >-
+                (object.metadata.namespace == 'istio-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('svclb-'))
+    celPoliciesBeta:
+      restrict-host-path-mount-pv-cel:
         parameters:
           allow:
-          - /var/lib/rancher/k3s/storage/pvc-*
+            - /var/lib/rancher/k3s/storage/pvc-*

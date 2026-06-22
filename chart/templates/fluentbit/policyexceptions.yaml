@@ -1,0 +1,40 @@
+{{- /*
+Kyverno PolicyExceptions for Fluent Bit workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.fluentbit" -}}
+{{- if .Values.fluentbit.enabled }}
+# Fluent Bit needs privileged host access (journald, /var/log, container logs)
+# to tail node and container logs, so it cannot meet the restricted policies.
+fluentbit-fluent-bit:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-privileged-containers-cel
+        kind: ValidatingPolicy
+      - name: require-non-root-group-cel
+        kind: ValidatingPolicy
+      - name: require-non-root-user-cel
+        kind: ValidatingPolicy
+      - name: restrict-host-path-mount-cel
+        kind: ValidatingPolicy
+      - name: restrict-selinux-type-cel
+        kind: ValidatingPolicy
+      - name: restrict-volume-types-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: fluentbit
+        expression: >-
+          (object.metadata.namespace == 'fluentbit' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('fluentbit-fluent-bit'))
+fluentbit-add-default-securitycontext:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: add-default-securitycontext-cel
+        kind: MutatingPolicy
+    matchConditions:
+      - name: fluentbit
+        expression: >-
+          (object.metadata.namespace == 'fluentbit' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('fluentbit-fluent-bit'))
+{{- end }}
+{{- end -}}

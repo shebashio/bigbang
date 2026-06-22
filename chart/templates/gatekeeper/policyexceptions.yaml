@@ -1,0 +1,22 @@
+{{- /*
+Kyverno PolicyExceptions for Gatekeeper workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.gatekeeper" -}}
+{{- if .Values.gatekeeper.enabled }}
+# Gatekeeper's audit and controller-manager pods need their API token.
+gatekeeper-auto-mount:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-auto-mount-service-account-token-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: gatekeeper
+        expression: >-
+          (object.metadata.namespace == 'gatekeeper-system' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('gatekeeper-audit') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('gatekeeper-controller-manager')
+          ))
+{{- end }}
+{{- end -}}

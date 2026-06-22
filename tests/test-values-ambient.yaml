@@ -310,409 +310,225 @@ kyvernoReporter:
 kyvernoPolicies:
   values:
     bbtests:
-      enabled: true
-      chainsawEnabled: false
-      kyvernoCliEnabled: false
-      legacyEnabled: true
-    excludeContainers:
-    - not-me
-    - or-me
-    exclude:
-      any:
-      # Allows k3d load balancer to bypass policies.
-      - resources:
-          namespaces:
-          - istio-system
-          names:
-          - svclb-*
-      # Exclude gatekeeper test resources so Helm tests will work
-      - resources:
-          namespaces:
-          - default
-          names:
-          - bad-test*
-          - good-test*
-    # Parameters are copied from kyverno policies for test vectors
-    # Exclusions are for allowing other helm tests to function
-    policies:
-      add-default-capability-drop:
-        exclude:
-          any:
-          # Need to be able to test the `require-drop-all-capabilities` policy
-          # without this policy mutating the podspecs and adding the "missing" capability
-          - resources:
-              namespaces:
-              - default
-              names:
-              - require-drop-all-capabilities*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
-      clone-configs:
-        parameters:
-          clone:
-          - name: clone-configs-1
-            kind: ConfigMap
-            namespace: "{{ .Release.Namespace }}"
-          - name: clone-configs-2
-            kind: Secret
-            namespace: "{{ .Release.Namespace }}"
-      disallow-annotations:
-        parameters:
-          disallow:
-          - 'kyverno-policies-bbtest/test: disallowed'
-          - kyverno-policies-bbtest/disallowed
-      disallow-labels:
-        parameters:
-          disallow:
-          - 'kyverno-policies-bbtest/test: disallowed'
-          - kyverno-policies-bbtest/disallowed
-      disallow-tolerations:
-        parameters:
-          disallow:
-          - effect: NoSchedule
-            key: notallowed
-            value: 'false'
-          - effect: '*NoSchedule'
-            key: disa??owed
-            value: 'true'
-      require-annotations:
-        parameters:
-          require:
-          - 'kyverno-policies-bbtest/test: required'
-          - kyverno-policies-bbtest/required
-      require-image-signature:
-        enabled: false
-        # set to Audit for now -- having signature issues with registry1.dso.mil/ironbank/bitnami/redis:7.0.0-debian-10-r3
-        validationFailureAction: Audit
-        parameters:
-          require:
-          - imageReferences:
-            - "ghcr.io/kyverno/test-verify-image:*"
-            attestors:
-            - count: 1
-              entries:
-              - keys:
-                  publicKeys: |-
-                    -----BEGIN PUBLIC KEY-----
-                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM
-                    5/KAQN0/KjHcorm/J5yctVd7iEcnessRQjU917hmKO6JWVGHpDguIyakZA==
-                    -----END PUBLIC KEY-----
-                  # Skip Rekor Transparency log check
-                  rekor:
-                    ignoreTlog: true
-                    url: ""
-            mutateDigest: false
-            verifyDigest: false
-          - imageReferences:
-            - "registry1.dso.mil/ironbank/*"
-            attestors:
-            - count: 1
-              entries:
-              - keys:
-                  publicKeys: |-
-                    -----BEGIN PUBLIC KEY-----
-                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7CjMGH005DFFz6mffqTIGurBt6fL
-                    UfTZxuEDFRBS8mFJx1xw8DEVvjMibLTtqmAoJxUmzmGFgzz+LV875syVEg==
-                    -----END PUBLIC KEY-----
-                  # Skip Rekor Transparency log check
-                  rekor:
-                    ignoreTlog: true
-                    url: ""
-            # Ironbank images are rebuilt nightly and tags are not immutable
-            mutateDigest: false
-            verifyDigest: false
-      require-labels:
-        parameters:
-          require:
-          - 'kyverno-policies-bbtest/test: required'
-          - kyverno-policies-bbtest/required
-      restrict-external-ips:
-        parameters:
-          allow:
-          - 192.168.0.1
-      restrict-external-names:
-        parameters:
-          allow:
-          - allowed
-      restrict-host-path-mount:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - anchore
-              - backstage
-              - bbctl
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - mimir
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - alloy
-              - headlamp
-              names:
-              - "*-cypress-test*"
-        parameters:
-          allow:
-          - /tmp/allowed
-      restrict-host-path-mount-pv:
-        parameters:
-          allow:
-          - /tmp/allowed
-          - /var/lib/rancher/k3s/storage/pvc-*
-      restrict-host-path-write:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - anchore
-              - backstage
-              - bbctl
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - mimir
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - alloy
-              - headlamp
-              names:
-              - "*-cypress-test*"
-          - resources:
-              namespaces:
-              - neuvector
-              names:
-              - "neuvector-enforcer-*"
-              - "neuvector-manager-*"
-        parameters:
-          allow:
-          - /tmp/allowed
-      restrict-host-ports:
-        parameters:
-          allow:
-          - '63999'
-          - '>= 64000 & < 65000'
-          - '> 65000'
-      restrict-volume-types:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - anchore
-              - backstage
-              - bbctl
-              - gitlab
-              - gitlab-runner
-              - kiali
-              - cluster-auditor
-              - mattermost
-              - keycloak
-              - kyverno-reporter
-              - mimir
-              - monitoring
-              - vault
-              - logging
-              - twistlock
-              - sonarqube
-              - logging
-              - tempo
-              - argocd
-              - minio
-              - minio-operator
-              - neuvector
-              - harbor
-              - fortify
-              - thanos
-              - alloy
-              - headlamp
-              names:
-              - "*-cypress-test*"
-      update-image-registry:
-        parameters:
-          update:
-          - from: replace.image.registry
-            to: registry1.dso.mil
-      require-drop-all-capabilities:
-        exclude:
-          any:
-          # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - twistlock-defender-ds*
-          # Neuvector needs access to host to inspect network traffic
-          - resources:
-              namespaces:
-              - neuvector
-              names:
-              - neuvector-enforcer-pod*
-              - neuvector-controller-pod*
-              - neuvector-prometheus-exporter-pod*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook-ui-*
-      require-non-root-group:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - fortify
-              names:
-              - fortify-mysql-* # mysql breaks if you give it a different group
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-              - controller-*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - alloy
-              names:
-              - alloy-config-validator*
-              - alloy-config-analysis*
-              - alloy-test*
-      require-non-root-user:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - volume-upgrade-job*
-          - resources:
-              namespaces:
-              - alloy
-              names:
-              - alloy-config-validator*
-              - alloy-config-analysis*
-              - alloy-test*
-      add-default-securitycontext:
-        exclude:
-          any:
-          - resources:
-              namespaces:
-              - metallb-system
-              names:
-              - speaker-*
-          - resources:
-              namespaces:
-              - argocd
-              names:
-              - guestbook*
-          - resources:
-              namespaces:
-              - velero
-              names:
-              - velero-backup-restore-test*
-          - resources:
-              namespaces:
-              - twistlock
-              names:
-              - volume-upgrade-job*
-          - resources:
-              namespaces:
-              - alloy
-              names:
-              - alloy-config-validator*
-              - alloy-config-analysis*
-              - alloy-test*
-      disallow-namespaces:
-        parameters:
-          disallow:
-          - bigbang
-      restrict-image-registries:
-        exclude:
-          any:
-            - resources:
-                namespaces:
-                  - gitlab
+      enabled: false
     additionalPolicyExceptions:
+      # Pre-existing test exception, migrated to a CEL ValidatingPolicy reference.
       testpolicyexception:
-        enabled: true
-        annotations:
-          policies.kyverno.io/title: Test PolicyException
-          policies.kyverno.io/category: Test
-          policies.kyverno.io/subject: Pod
-          policies.kyverno.io/description: >-
-            This Test PolicyException allows pods to deploy busybox for debugging.
-        # -- PolicyException specification.  See `kubectl explain policyexceptions.spec`
+        apiVersion: policies.kyverno.io/v1
         spec:
-          exceptions:
-          #Name of Policy for exception
-          - policyName: block-ephemeral-containers
-            ruleNames:
-            - block-ephemeral-containers
-          match:
-            any:
-            - resources:
-                kinds:
-                - Pod
-                names:
-                - important-tool*
-          conditions:
-            any:
-            - key: "{{ request.object.metadata.labels.app || '' }}"
-              operator: Equals
-              value: busybox
+          policyRefs:
+            - name: block-ephemeral-containers-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: important-tool
+              expression: >-
+                (object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('important-tool'))
+      # Legacy global exclude (applied to all policies): k3d load balancer pods.
+      svclb-bypass:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: disallow-privileged-containers-cel
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation-cel
+              kind: ValidatingPolicy
+            - name: restrict-capabilities-cel
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities-cel
+              kind: ValidatingPolicy
+            - name: restrict-host-ports-cel
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-user-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-group-cel
+              kind: ValidatingPolicy
+            - name: restrict-seccomp-cel
+              kind: ValidatingPolicy
+            - name: restrict-image-registries-cel
+              kind: ValidatingPolicy
+            - name: disallow-image-tags-cel
+              kind: ValidatingPolicy
+            - name: require-labels-cel
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop-cel
+              kind: MutatingPolicy
+            - name: add-default-securitycontext-cel
+              kind: MutatingPolicy
+          matchConditions:
+            - name: svclb
+              expression: >-
+                (object.metadata.namespace == 'istio-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('svclb-'))
+      # Legacy global exclude (applied to all policies): gatekeeper helm-test pods.
+      gatekeeper-test-bypass:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: disallow-privileged-containers-cel
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation-cel
+              kind: ValidatingPolicy
+            - name: restrict-capabilities-cel
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities-cel
+              kind: ValidatingPolicy
+            - name: restrict-host-ports-cel
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-user-cel
+              kind: ValidatingPolicy
+            - name: require-non-root-group-cel
+              kind: ValidatingPolicy
+            - name: restrict-seccomp-cel
+              kind: ValidatingPolicy
+            - name: restrict-image-registries-cel
+              kind: ValidatingPolicy
+            - name: disallow-image-tags-cel
+              kind: ValidatingPolicy
+            - name: require-labels-cel
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop-cel
+              kind: MutatingPolicy
+            - name: add-default-securitycontext-cel
+              kind: MutatingPolicy
+          matchConditions:
+            - name: gatekeeper-test
+              expression: >-
+                (object.metadata.namespace == 'default' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('bad-test') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('good-test')
+                ))
+      # Per-policy excludes below.
+      add-default-capability-drop:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: add-default-capability-drop-cel
+              kind: MutatingPolicy
+          matchConditions:
+            - name: add-default-capability-drop-exclude
+              expression: >-
+                (object.metadata.namespace == 'default' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('require-drop-all-capabilities')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-'))
+      restrict-host-path-mount:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: restrict-host-path-mount-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: cypress-test
+              expression: >-
+                ((object.metadata.namespace in ['anchore', 'backstage', 'bbctl', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+      restrict-host-path-write:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: restrict-host-path-write-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: restrict-host-path-write-exclude
+              expression: >-
+                ((object.metadata.namespace in ['anchore', 'backstage', 'bbctl', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
+                ))
+      restrict-volume-types:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: restrict-volume-types-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: cypress-test
+              expression: >-
+                ((object.metadata.namespace in ['anchore', 'backstage', 'bbctl', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+      require-drop-all-capabilities:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: require-drop-all-capabilities-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: require-drop-all-capabilities-exclude
+              expression: >-
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-prometheus-exporter-pod')
+                )) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-'))
+      require-non-root-group:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: require-non-root-group-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: require-non-root-group-exclude
+              expression: >-
+                (object.metadata.namespace == 'fortify' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('fortify-mysql-')) ||
+                (object.metadata.namespace == 'metallb-system' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('controller-')
+                )) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+      require-non-root-user:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: require-non-root-user-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: require-non-root-user-exclude
+              expression: >-
+                (object.metadata.namespace == 'metallb-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+      add-default-securitycontext:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: add-default-securitycontext-cel
+              kind: MutatingPolicy
+          matchConditions:
+            - name: add-default-securitycontext-exclude
+              expression: >-
+                (object.metadata.namespace == 'metallb-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+      restrict-image-registries:
+        apiVersion: policies.kyverno.io/v1
+        spec:
+          policyRefs:
+            - name: restrict-image-registries-cel
+              kind: ValidatingPolicy
+          matchConditions:
+            - name: gitlab
+              expression: >-
+                (object.metadata.namespace == 'gitlab')
+
 eckOperator:
   # -- Toggle deployment of ECK Operator.
   enabled: false

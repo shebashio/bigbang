@@ -6,20 +6,18 @@ kyverno:
 kyvernoPolicies:
   enabled: true
   values:
-    policies:
-      disallow-shared-subpath-volume-writes:
-        validationFailureAction: audit
-      restrict-host-ports:
-        validationFailureAction: audit
-      restrict-capabilities:
-        validationFailureAction: audit
-      restrict-image-registries:
-        validationFailureAction: audit
-      disallow-host-namespaces:
-        validationFailureAction: audit
-      disallow-privileged-containers:
-        validationFailureAction: audit
-      require-non-root-user:
-        validationFailureAction: audit
-      restrict-host-path-mount-pv:
-        validationFailureAction: audit
+    celPoliciesBeta:
+      restrict-host-ports-cel:
+        validationFailureAction: Audit
+      restrict-capabilities-cel:
+        validationFailureAction: Audit
+      restrict-image-registries-cel:
+        validationFailureAction: Audit
+      disallow-host-namespaces-cel:
+        validationFailureAction: Audit
+      disallow-privileged-containers-cel:
+        validationFailureAction: Audit
+      require-non-root-user-cel:
+        validationFailureAction: Audit
+      restrict-host-path-mount-pv-cel:
+        validationFailureAction: Audit

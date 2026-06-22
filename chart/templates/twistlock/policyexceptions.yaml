@@ -1,0 +1,89 @@
+{{- /*
+Kyverno PolicyExceptions for Twistlock (Prisma Cloud Defender) workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.twistlock" -}}
+{{- if .Values.twistlock.enabled }}
+# Twistlock Defenders run privileged on every node for real-time scanning
+# (logs, /etc/passwd, container runtime socket, iptables), so they need broad
+# carve-outs from the restricted Pod Security policies.
+twistlock-defender-ds:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-host-namespaces-cel
+        kind: ValidatingPolicy
+      - name: restrict-apparmor-cel
+        kind: ValidatingPolicy
+      - name: restrict-capabilities-cel
+        kind: ValidatingPolicy
+      - name: restrict-host-path-mount-cel
+        kind: ValidatingPolicy
+      - name: restrict-host-path-write-cel
+        kind: ValidatingPolicy
+      - name: restrict-selinux-type-cel
+        kind: ValidatingPolicy
+      - name: restrict-volume-types-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: twistlock-defender
+        expression: >-
+          (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds'))
+twistlock-require-drop-all-capabilities:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: require-drop-all-capabilities-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: twistlock-workloads
+        expression: >-
+          (object.metadata.namespace == 'twistlock' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade')
+          ))
+twistlock-require-non-root:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: require-non-root-group-cel
+        kind: ValidatingPolicy
+      - name: require-non-root-user-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: twistlock-workloads
+        expression: >-
+          (object.metadata.namespace == 'twistlock' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')
+          ))
+twistlock-add-default-capability-drop:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: add-default-capability-drop-cel
+        kind: MutatingPolicy
+    matchConditions:
+      - name: twistlock-workloads
+        expression: >-
+          (object.metadata.namespace == 'twistlock' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-console') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade')
+          ))
+twistlock-add-default-securitycontext:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: add-default-securitycontext-cel
+        kind: MutatingPolicy
+    matchConditions:
+      - name: twistlock-workloads
+        expression: >-
+          (object.metadata.namespace == 'twistlock' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-console') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')
+          ))
+{{- end }}
+{{- end -}}

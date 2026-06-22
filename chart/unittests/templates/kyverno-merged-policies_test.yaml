@@ -82,13 +82,10 @@ tests:
         path: kind
         value: TestResult
 
-    # Merged and deduplicated 'allow' list for monitoring
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.allow'
-        value: [ "grafana", "monitoring-grafana*", "monitoring-monitoring-kube-admission-create*", "monitoring-monitoring-kube-admission-patch*", "monitoring-monitoring-kube-state-metrics*", "monitoring-operator*", "prometheus-monitoring-prometheus*", "test-monitoring" ]
+        value: [ "test-monitoring", "grafana" ]
 
-
-    # Deduplicated 'deny' list for monitoring
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny'
         value: [ "deny-monitoring" ]
@@ -99,5 +96,84 @@ tests:
         value: [ "custom-pod" ]
 
     - equal:
-        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny' 
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny'
         value: [ "custom-deny" ]
+
+# A celPoliciesBeta.<policy>.parameters override must APPEND to the bigbang defaults,
+# not replace them.
+- it: must concat celPoliciesBeta parameter lists with the defaults
+  set:
+    _selfTest:
+      bigbang.overlays.kyverno-policies:
+        resultIsYaml: true
+        args:
+          Values:
+            addons:
+              vault:
+                enabled: false
+              gitlabRunner:
+                enabled: false
+              gitlab:
+                enabled: false
+              velero:
+                enabled: false
+              mimir:
+                enabled: false
+              thanos:
+                enabled: false
+              mattermost:
+                enabled: false
+              headlamp:
+                enabled: false
+              externalSecrets:
+                enabled: false
+              backstage:
+                enabled: false
+            twistlock:
+              enabled: false
+            istiod:
+              enabled: true
+            istioGateway:
+              enabled: true
+              values:
+                gateways:
+                  public: {}
+            neuvector:
+              enabled: false
+            # fluentbit enabled so the bigbang default allow paths (/var/log,
+            # /var/log/flb-storage/) are present to merge against.
+            fluentbit:
+              enabled: true
+            gatekeeper:
+              enabled: false
+            alloy:
+              enabled: false
+            istio:
+              ambient:
+                enabled: false
+            ztunnel:
+              enabled: false
+            kyvernoReporter:
+              enabled: false
+            kiali:
+              enabled: false
+            monitoring:
+              enabled: false
+            kyvernoPolicies:
+              enabled: true
+              values:
+                celPoliciesBeta:
+                  restrict-host-path-write-cel:
+                    parameters:
+                      allow:
+                        - /tmp/allowed
+  template: templates/_self-test/render.yaml
+  asserts:
+    - equal:
+        path: kind
+        value: TestResult
+
+    # Overlay /tmp/allowed is appended to the fluentbit defaults rather than replacing them.
+    - equal:
+        path: 'result.celPoliciesBeta.restrict-host-path-write-cel.parameters.allow'
+        value: [ "/var/log/flb-storage/", "/var/log", "/tmp/allowed" ]

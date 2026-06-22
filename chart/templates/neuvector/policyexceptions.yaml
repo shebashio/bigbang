@@ -1,0 +1,144 @@
+{{- /*
+Kyverno PolicyExceptions for NeuVector workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.neuvector" -}}
+{{- if .Values.neuvector.enabled }}
+# NeuVector needs host access to inspect network traffic / scan the node and
+# container runtime, so its pods cannot meet the restricted Pod Security policies.
+neuvector-require-drop-all-capabilities:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: require-drop-all-capabilities-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-cert-upgrader-job') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-scanner-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-prometheus-exporter-pod')
+          ))
+neuvector-disallow-host-namespaces:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-host-namespaces-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-enforcer
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod'))
+neuvector-disallow-privileged-containers:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-privileged-containers-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-scanner-pod')
+          ))
+neuvector-require-non-root-group:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: require-non-root-group-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-cert-upgrader-job')
+          ))
+neuvector-require-non-root-user:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: require-non-root-user-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector'))
+neuvector-restrict-host-path-mount:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: restrict-host-path-mount-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-cert-upgrader-job') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod')
+          ))
+neuvector-restrict-host-path-write:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: restrict-host-path-write-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod')
+          ))
+neuvector-restrict-volume-types:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: restrict-volume-types-cel
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod')
+          ))
+neuvector-add-default-capability-drop:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: add-default-capability-drop-cel
+        kind: MutatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-cert-upgrader-job') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-scanner-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-prometheus-exporter-pod')
+          ))
+neuvector-add-default-securitycontext:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: add-default-securitycontext-cel
+        kind: MutatingPolicy
+    matchConditions:
+      - name: neuvector-workloads
+        expression: >-
+          (object.metadata.namespace == 'neuvector' && (
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+            object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-cert-upgrader-job')
+          ))
+{{- end }}
+{{- end -}}

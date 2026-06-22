@@ -1,0 +1,21 @@
+{{- /*
+Kyverno PolicyExceptions for Backstage workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.backstage" -}}
+{{- if .Values.addons.backstage.enabled }}
+# Backstage needs its API token to interact with the cluster.
+backstage-auto-mount:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-auto-mount-service-account-token-cel
+        kind: ValidatingPolicy
+      - name: disallow-auto-mount-service-account-token-cel-serviceaccounts
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: backstage
+        expression: >-
+          (object.metadata.namespace == 'backstage' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('backstage'))
+{{- end }}
+{{- end -}}

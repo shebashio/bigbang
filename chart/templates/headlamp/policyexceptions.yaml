@@ -1,0 +1,21 @@
+{{- /*
+Kyverno PolicyExceptions for Headlamp workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.headlamp" -}}
+{{- if .Values.addons.headlamp.enabled }}
+# Headlamp needs its API token to interact with the cluster.
+headlamp-auto-mount:
+  apiVersion: policies.kyverno.io/v1
+  spec:
+    policyRefs:
+      - name: disallow-auto-mount-service-account-token-cel
+        kind: ValidatingPolicy
+      - name: disallow-auto-mount-service-account-token-cel-serviceaccounts
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: headlamp
+        expression: >-
+          (object.metadata.namespace == 'headlamp' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('headlamp'))
+{{- end }}
+{{- end -}}
