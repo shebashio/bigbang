@@ -1,0 +1,18 @@
+{{- /*
+Kyverno PolicyExceptions for Kiali workloads.
+Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
+*/ -}}
+{{- define "bigbang.kyvernoPolicyExceptions.kiali" -}}
+{{- if .Values.kiali.enabled }}
+# The Kiali operator needs to deploy the Kiali server before securitycontext is set.
+kiali-require-non-root-user:
+  spec:
+    policyRefs:
+      - name: require-non-root-user
+        kind: ValidatingPolicy
+    matchConditions:
+      - name: kiali
+        expression: >-
+          (object.metadata.namespace == 'kiali' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('kiali-'))
+{{- end }}
+{{- end -}}
