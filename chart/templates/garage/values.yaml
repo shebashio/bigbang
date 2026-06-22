@@ -17,45 +17,54 @@
 {{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-istio:
-  enabled: {{ $istioEnabled }}
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
-  sidecar:
-    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
-  authorizationPolicies:
-    enabled: {{ $istioHardened }}
-    generateFromNetpol: {{ $istioHardened }}
 
-networkPolicies:
-  enabled: {{ .Values.networkPolicies.enabled }}
-  hbonePortInjection:
-    enabled: {{ include "ambientEnabled" . }}
-  egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
-    from:
-      garage:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-  ingress:
-    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
-
-routes:
-  inbound:
-    s3:
-      enabled: true
-      gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.garage.ingress.gateway | default "public") "root" .)}}
-      hosts:
-      - garage-s3.{{ $domainName }}
-      service: garage
-      port: 3900
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.garage.values }}
-      hosts:
-      - repo1.dso.mil
+bb-common:
+  domain: {{ $domainName }}
+  istio:
+    enabled: {{ $istioEnabled }}
+    ambient:
+      enabled: {{ include "ambientEnabled" . }}
+    sidecar:
+      enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+    authorizationPolicies:
+      enabled: {{ $istioHardened }}
+      generateFromNetpol: {{ $istioHardened }}
+  networkPolicies:
+    enabled: {{ .Values.networkPolicies.enabled }}
+    hbonePortInjection:
+      enabled: {{ include "ambientEnabled" . }}
+    egress:
+      definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
+      from:
+        garage:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.tempo.enabled }}
+    ingress:
+      definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
+  routes:
+    inbound:
+      s3-api:
+        enabled: true
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.addons.garage.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - garage-s3.{{ $domainName }}
+        service: garage
+        port: 3900
+      s3-web:
+        enabled: false
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.addons.garage.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - garage-web.{{ $domainName }}
+        service: garage
+        port: 3902
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.addons.garage.values }}
+        hosts:
+        - repo1.dso.mil
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -69,5 +78,14 @@ upstream:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       serviceMonitor:
         enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+
+garageInit:
+  enabled: {{ .Values.addons.garage.garageInit.enabled }}
+  credentials:
+    accessKeyId: {{ .Values.addons.garage.garageInit.credentials.accessKeyId | quote }}
+    secretAccessKey: {{ .Values.addons.garage.garageInit.credentials.secretAccessKey | quote }}
+  buckets: {{ .Values.addons.garage.garageInit.buckets | toYaml | nindent 4 }}
+  image:
+    pullPolicy: {{ .Values.imagePullPolicy }}
 
 {{- end -}}
