@@ -7,19 +7,17 @@ kyvernoPolicies:
   enabled: true
   values:
     policies:
-      disallow-shared-subpath-volume-writes:
-        validationFailureAction: audit
       restrict-host-ports:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       restrict-capabilities:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       restrict-image-registries:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       disallow-host-namespaces:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       disallow-privileged-containers:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       require-non-root-user:
-        validationFailureAction: audit
+        validationFailureAction: Audit
       restrict-host-path-mount-pv:
-        validationFailureAction: audit
+        validationFailureAction: Audit
