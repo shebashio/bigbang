@@ -80,22 +80,267 @@ tests:
         path: kind
         value: TestResult
 
-    # Merged and deduplicated 'allow' list for monitoring
+    # The monitoring namespace exists in the bigbang defaults, so the overlay entries are
+    # merged into it (deduplicated and sorted) rather than replacing it.
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.allow'
-        value: [ "grafana", "monitoring-grafana*", "monitoring-monitoring-kube-admission-create*", "monitoring-monitoring-kube-admission-patch*", "monitoring-monitoring-kube-state-metrics*", "monitoring-operator*", "prometheus-monitoring-prometheus*", "test-monitoring" ]
+        value:
+          - grafana
+          - monitoring-grafana.*
+          - monitoring-monitoring-kube-admission-create.*
+          - monitoring-monitoring-kube-admission-patch.*
+          - monitoring-monitoring-kube-state-metrics.*
+          - monitoring-operator.*
+          - prometheus-monitoring-prometheus.*
+          - test-monitoring
 
-
-    # Deduplicated 'deny' list for monitoring
+    # The bigbang defaults have no deny list for monitoring, so only the overlay entry remains.
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="monitoring")].pods.deny'
         value: [ "deny-monitoring" ]
 
-    # Custom namespace from overlay
+    # Custom namespace exists only in the overlay, so it is added verbatim.
     - equal:
         path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.allow'
         value: [ "custom-pod" ]
 
     - equal:
-        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny' 
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="custom")].pods.deny'
         value: [ "custom-deny" ]
+
+# A policies.<policy>.parameters override must APPEND to the bigbang defaults,
+# not replace them.
+- it: must concat policies parameter lists with the defaults
+  set:
+    _selfTest:
+      bigbang.overlays.kyverno-policies:
+        resultIsYaml: true
+        args:
+          Values:
+            addons:
+              vault:
+                enabled: false
+              gitlabRunner:
+                enabled: false
+              gitlab:
+                enabled: false
+              velero:
+                enabled: false
+              mimir:
+                enabled: false
+              thanos:
+                enabled: false
+              mattermost:
+                enabled: false
+              headlamp:
+                enabled: false
+              externalSecrets:
+                enabled: false
+            twistlock:
+              enabled: false
+            istiod:
+              enabled: true
+            istioGateway:
+              enabled: true
+              values:
+                gateways:
+                  public: {}
+            neuvector:
+              enabled: false
+            # fluentbit enabled so the bigbang default allow paths (/var/log,
+            # /var/log/flb-storage/) are present to merge against.
+            fluentbit:
+              enabled: true
+            gatekeeper:
+              enabled: false
+            alloy:
+              enabled: false
+            istio:
+              ambient:
+                enabled: false
+            ztunnel:
+              enabled: false
+            kyvernoReporter:
+              enabled: false
+            kiali:
+              enabled: false
+            monitoring:
+              enabled: false
+            kyvernoPolicies:
+              enabled: true
+              values:
+                policies:
+                  restrict-host-path-write:
+                    parameters:
+                      allow:
+                        - /tmp/allowed
+  template: templates/_self-test/render.yaml
+  asserts:
+    - equal:
+        path: kind
+        value: TestResult
+
+    # Overlay /tmp/allowed is appended to the fluentbit defaults rather than replacing them.
+    - equal:
+        path: 'result.policies.restrict-host-path-write.parameters.allow'
+        value: [ "/var/log/flb-storage/", "/var/log", "/tmp/allowed" ]
+
+# policies.<policy>.excludeContainers / excludeNamespaces are the CEL-era equivalent of the
+# legacy per-policy `exclude` block, so an overlay must APPEND to the bigbang defaults there too.
+- it: must concat policies exclude lists with the defaults
+  set:
+    _selfTest:
+      bigbang.overlays.kyverno-policies:
+        resultIsYaml: true
+        args:
+          Values:
+            addons:
+              vault:
+                enabled: false
+              gitlabRunner:
+                enabled: false
+              gitlab:
+                enabled: false
+              velero:
+                enabled: false
+              mimir:
+                enabled: false
+              thanos:
+                enabled: false
+              mattermost:
+                enabled: false
+              headlamp:
+                enabled: false
+              externalSecrets:
+                enabled: false
+            twistlock:
+              enabled: false
+            # istiod enabled so the bigbang default excludeContainers (istio-init) and the
+            # istio namespace exclusions are present to merge against.
+            istiod:
+              enabled: true
+            istioGateway:
+              enabled: true
+              values:
+                gateways:
+                  public: {}
+            neuvector:
+              enabled: false
+            fluentbit:
+              enabled: false
+            gatekeeper:
+              enabled: false
+            alloy:
+              enabled: false
+            istio:
+              ambient:
+                enabled: false
+            ztunnel:
+              enabled: false
+            kyvernoReporter:
+              enabled: false
+            kiali:
+              enabled: false
+            monitoring:
+              enabled: false
+            kyvernoPolicies:
+              enabled: true
+              values:
+                policies:
+                  require-non-root-user:
+                    excludeContainers:
+                      - my-init
+                  require-istio-on-namespaces:
+                    excludeNamespaces:
+                      - my-namespace
+  template: templates/_self-test/render.yaml
+  asserts:
+    - equal:
+        path: kind
+        value: TestResult
+
+    - equal:
+        path: 'result.policies.require-non-root-user.excludeContainers'
+        value: [ "istio-init", "my-init" ]
+
+    - equal:
+        path: 'result.policies.require-istio-on-namespaces.excludeNamespaces'
+        value: [ "kube-node-lease", "kube-public", "bigbang", "default", "flux-system", "istio-system", "istio-gateway", "my-namespace" ]
+
+# update-automountserviceaccounttokens-default takes a plain list of namespace names rather than
+# the list-of-maps shape, so it merges by concat rather than by namespace key.
+- it: must concat policies plain namespace lists with the defaults
+  set:
+    _selfTest:
+      bigbang.overlays.kyverno-policies:
+        resultIsYaml: true
+        args:
+          Values:
+            addons:
+              vault:
+                enabled: false
+              gitlabRunner:
+                enabled: false
+              gitlab:
+                enabled: false
+              velero:
+                enabled: false
+              mimir:
+                enabled: false
+              thanos:
+                enabled: false
+              mattermost:
+                enabled: false
+              headlamp:
+                enabled: false
+              externalSecrets:
+                enabled: false
+            twistlock:
+              enabled: false
+            istiod:
+              enabled: true
+            istioGateway:
+              enabled: true
+              values:
+                gateways:
+                  public: {}
+            neuvector:
+              enabled: false
+            fluentbit:
+              enabled: false
+            gatekeeper:
+              enabled: false
+            alloy:
+              enabled: false
+            istio:
+              ambient:
+                enabled: false
+            ztunnel:
+              enabled: false
+            kyvernoReporter:
+              enabled: false
+            kiali:
+              enabled: false
+            monitoring:
+              enabled: false
+            kyvernoPolicies:
+              enabled: true
+              values:
+                policies:
+                  update-automountserviceaccounttokens-default:
+                    namespaces:
+                      - my-namespace
+  template: templates/_self-test/render.yaml
+  asserts:
+    - equal:
+        path: kind
+        value: TestResult
+
+    # istio-system is the first bigbang default; my-namespace is appended rather than replacing.
+    - equal:
+        path: 'result.policies.update-automountserviceaccounttokens-default.namespaces[0]'
+        value: istio-system
+
+    - contains:
+        path: 'result.policies.update-automountserviceaccounttokens-default.namespaces'
+        content: my-namespace
