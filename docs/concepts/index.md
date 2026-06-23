@@ -2,6 +2,11 @@
 
 Start with the [Getting Started Overview](../getting-started.md)
 
+<<<<<<< HEAD
+=======
+* [What is Big Bang?](../getting-started/what.md)
+* [Benefits of Big Bang](../getting-started/why.md)
+>>>>>>> p1docs-bbdocsupdate-jm
 ## Acronyms
 
 * **CSP**: Cloud Service Provider
