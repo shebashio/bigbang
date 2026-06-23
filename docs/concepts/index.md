@@ -1,12 +1,10 @@
 # Useful Background Contextual Information
 
-Start with the [Getting Started Overview](../getting-started.md)
+Start with the [Getting Started Overview](../getting-started/index.md)
 
-<<<<<<< HEAD
-=======
 * [What is Big Bang?](../getting-started/what.md)
 * [Benefits of Big Bang](../getting-started/why.md)
->>>>>>> p1docs-bbdocsupdate-jm
+
 ## Acronyms
 
 * **CSP**: Cloud Service Provider
@@ -23,7 +21,7 @@ Start with the [Getting Started Overview](../getting-started.md)
 
 ## Prerequisites
 
-* Prerequisites vary depending on deployment scenario. [Prerequisites can be found here.](../getting-started.md)
+* Prerequisites vary depending on deployment scenario. [Prerequisites can be found here.](../getting-started/prerequisites.md)
 
 ## Additional Useful Background Contextual Information
 

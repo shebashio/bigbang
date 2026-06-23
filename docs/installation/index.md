@@ -51,16 +51,15 @@ Big Bang supports various deployment patterns:
 - **Edge Deployments**: Resource-constrained environments 
 - **Air-Gapped**: Disconnected environments with registry mirrors
 
-<<<<<<< HEAD
 **[Note: While we are compatible with air-gapped and edge deployments, we do not validate them.]**
 
 ## How do I deploy Big Bang?
 
 >**Note:** The deployment process and prerequisites vary depending on your deployment
-scenario. The [Quick Start Demo](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/quick-start.md) Deployment
+scenario. The [Quick Start Demo](environments/quick-start.md) Deployment
 automates several steps using reusable demo configuration. For a production reference,
 see the [Big Bang customer template](https://repo1.dso.mil/big-bang/customers/template).
-The following is a general overview - refer to the [deployment guides](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/index.md)
+The following is a general overview - refer to the [deployment guides](environments/index.md)
 for environment-specific detail.
 ---
 ### Step 1 - Obtain Registry1 Credentials
@@ -191,25 +190,6 @@ watch kubectl get gitrepositories,kustomizations,helmreleases,pods -A
 kubectl get pods -A | grep -Ev 'Running|Completed'
 ````
 All `HelmRelease` resources should reach `Ready: True`. Packages may take several minutes to reconcile depending on cluster resources and image pull times.
-
-=======
-## How do I deploy Big Bang?
-
-**Note:** The Deployment Process and Pre-Requisites will vary depending on the deployment scenario. The [Quick Start Demo Deployment](../installation/environments/quick-start.md) for example, allows some steps to be skipped due to a mixture of automation and generically reusable demonstration configuration that satisfies pre-requisites. The following is a general overview of the process, reference the [deployment guides](../installation/index.md) for more detail.
-
-1. Satisfy Pre-Requisites:
-    * Provision a Kubernetes Cluster according to [best practices](./prerequisites.md#kubernetes-cluster).
-    * Ensure the cluster has network connectivity to a Git Repo you control.
-    * Install Flux GitOps Operator on the cluster.
-    * Configure Flux, the cluster, and the Git Repo for GitOps Deployments that support deploying encrypted values.
-    * Commit to the Git Repo Big Bang's `values.yaml` and encrypted secrets that have been configured to match the desired state of the cluster (including HTTPS Certs and DNS names).
-1. `kubectl apply --filename bigbang.yaml`
-    * [bigbang.yaml](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/dev/bigbang.yaml) will trigger a chain reaction of GitOps Custom Resources that will deploy other GitOps Custom Resources that will eventually deploy an instance of a DevSecOps Platform that's declaratively defined in your Git Repo.
-    * To be specific, the chain reaction pattern we consider best practice is to have:
-        * `bigbang.yaml` deploys a git repository and kustomization Custom Resource.
-        * Flux reads the declarative configuration stored in the kustomization Custom Resource to do a GitOps equivalent of `kustomize build . | kubectl apply  --filename -`, to deploy a helmrelease Custom Resource of the Big Bang Helm Chart, that references input `values.yaml` files defined in the Git Repo.
-        * Flux reads the declarative configuration stored in the helmrelease Custom Resource to do a GitOps equivalent of `helm upgrade --install bigbang /chart  --namespace=bigbang  --filename encrypted_values.yaml --filename values.yaml --create-namespace=true`, the Big Bang Helm Chart, then deploys more Custom Resources that flux uses to deploy packages specified in Big Bang's `values.yaml.`
->>>>>>> p1docs-bbdocsupdate-jm
 
 ## New User Orientation
 
