@@ -155,11 +155,9 @@ networkPolicies:
           definition:
             kubeAPI: {{ $minioEnabled }}
       mimir-init:
-        # Flux release name = "mimir-mimir" (targetNamespace-helmReleaseName), so the
-        # init job pod label is app.kubernetes.io/name: mimir-mimir-init, not mimir-init.
         podSelector:
           matchLabels:
-            app.kubernetes.io/name: mimir-mimir-init
+            app.kubernetes.io/component: garage-init
         to:
           definition:
             kubeAPI: {{ $garageEnabled }}
