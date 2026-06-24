@@ -2463,6 +2463,19 @@ addons:
       # Example: "mimir-kafka-test.<cluster-id>.kafka.us-gov-west-1.amazonaws.com"
       brokerClusterDomain: ""
 
+    # -- Enable Big Bang Garage dependency chart for Mimir as an in-cluster S3-compatible object store.
+    # Garage runs as a sub-chart inside the Mimir release; no separate Garage addon is required.
+    garageObjectStorage:
+      enabled: false
+      # -- Garage access key ID. Must be "GK" followed by exactly 24 lowercase hex characters.
+      accessKey: ""
+      # -- Garage secret access key. Must be exactly 64 lowercase hex characters.
+      secretKey: ""
+      # -- Bucket name for Mimir metrics storage. The garageInit job creates this bucket automatically.
+      bucketName: "mimir"
+      # -- S3 region value passed to Mimir. Garage does not enforce regions but Mimir requires a non-empty value.
+      region: "garage"
+
     # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}
       ## Example IRSA Service Account Annotation
