@@ -1317,10 +1317,12 @@ addons:
 
   mimir:
     enabled: false
+    git:
+      tag: null #$ 6.0.6-bb.3
+      branch: staging-garage-epic
     values:
       bbtests:
         enabled: true
-      upstream:
         global:
           podLabels:
             kyverno-policies-bbtest/required: "true"
