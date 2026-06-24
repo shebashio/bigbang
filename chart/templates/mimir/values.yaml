@@ -31,6 +31,13 @@
 {{- $kafkaBrokerRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerHost "") }}
 {{- $kafkaBrokerWildcardRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerClusterDomain "") }}
 
+{{- if and $minioEnabled $garageEnabled }}
+  {{- fail "addons.mimir: minioObjectStorage and garageObjectStorage are mutually exclusive; enable only one S3 backend at a time" }}
+{{- end }}
+{{- if and $s3Enabled $garageEnabled }}
+  {{- fail "addons.mimir: s3ObjectStorage and garageObjectStorage are mutually exclusive; enable only one S3 backend at a time" }}
+{{- end }}
+
 upgradeJob:
   image:
     {{- include "secretsPullSecretsSingle" . | nindent 4 }}
