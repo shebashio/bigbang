@@ -293,7 +293,6 @@ upstream:
             secret_access_key: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
             endpoint: mimir-garage.mimir.svc.cluster.local:3900
             insecure: true
-            path_style_force_enabled: true
             bucket_name: {{ .Values.addons.mimir.garageObjectStorage.bucketName }}
             region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
             {{- end }}
