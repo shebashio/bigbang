@@ -121,6 +121,7 @@ networkPolicies:
         to:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+            mimir/garage:3900: {{ $garageEnabled }}
           definition:
             storage-subnets: {{ not (or $minioEnabled $garageEnabled) }}
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
