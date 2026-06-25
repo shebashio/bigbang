@@ -238,6 +238,7 @@ minio-tenant:
 {{- end }}
 
 {{- if $garageEnabled }}
+{{- $garageAdminToken := required "addons.mimir.garageObjectStorage.adminToken is required when garageObjectStorage.enabled is true; generate with: openssl rand -hex 32" .Values.addons.mimir.garageObjectStorage.adminToken }}
 garage:
   enabled: true
   garageInit:
@@ -248,14 +249,10 @@ garage:
       accessKeyId: {{ .Values.addons.mimir.garageObjectStorage.accessKey }}
       secretAccessKey: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
     region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
-    {{- if .Values.addons.mimir.garageObjectStorage.adminToken }}
-    adminToken: {{ .Values.addons.mimir.garageObjectStorage.adminToken | quote }}
-    {{- end }}
-  {{- if .Values.addons.mimir.garageObjectStorage.adminToken }}
+    adminToken: {{ $garageAdminToken | quote }}
   upstream:
     environment:
-      GARAGE_ADMIN_TOKEN: {{ .Values.addons.mimir.garageObjectStorage.adminToken | quote }}
-  {{- end }}
+      GARAGE_ADMIN_TOKEN: {{ $garageAdminToken | quote }}
 {{- end }}
 
 upstream:
