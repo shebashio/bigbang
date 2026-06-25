@@ -154,13 +154,24 @@ networkPolicies:
         to:
           definition:
             kubeAPI: {{ $minioEnabled }}
+      {{- if $garageEnabled }}
       mimir-init:
         podSelector:
           matchLabels:
             app.kubernetes.io/component: garage-init
         to:
-          definition:
-            kubeAPI: {{ $garageEnabled }}
+          literal:
+            garage-admin-api:
+              enabled: true
+              spec:
+                - to:
+                    - podSelector:
+                        matchLabels:
+                          app.kubernetes.io/name: garage
+                  ports:
+                    - port: 3903
+                      protocol: TCP
+      {{- end }}
 
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
