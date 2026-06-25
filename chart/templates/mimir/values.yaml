@@ -252,7 +252,8 @@ garage:
     adminToken: {{ $garageAdminToken | quote }}
   upstream:
     environment:
-      GARAGE_ADMIN_TOKEN: {{ $garageAdminToken | quote }}
+      - name: GARAGE_ADMIN_TOKEN
+        value: {{ $garageAdminToken | quote }}
 {{- end }}
 
 upstream:
