@@ -1523,11 +1523,14 @@ addons:
 
     # -- Garage initialization Job configuration. Bootstraps the cluster layout, imports an
     # S3 access key, and creates one or more buckets on post-install/post-upgrade. All steps
-    # are idempotent. WARNING: credentials are write-once after initial bootstrap - changing
-    # only secretAccessKey without changing accessKeyId will break consuming apps on their
-    # next restart. Do not store credentials in plaintext for production; use SOPS or an
-    # external secrets manager. See docs/credential-rotation.md in the garage package repo
-    # for rotation procedures.
+    # are idempotent.
+    #
+    # Credential management (applies to credentials.accessKeyId, credentials.secretAccessKey,
+    # and adminToken):
+    # - Treat all three as write-once. Rotating any of them after initial install requires
+    #   coordinating a Garage pod rollout with the init Job. See docs/credential-rotation.md
+    #   in the garage package repo for the safe rotation procedure.
+    # - Do not store plaintext credentials in values.yaml for production; use SOPS or ESO.
     garageInit:
       # -- Enable the garageInit Job. Credentials and at least one bucket are required when true.
       enabled: false
@@ -1542,6 +1545,10 @@ addons:
       # -- S3 buckets to create and grant the key read/write/owner access.
       # At least one bucket is required when garageInit.enabled is true.
       buckets: []
+      # -- Garage admin API bearer token. Required when garageInit.enabled is true.
+      # Garage 2.x rejects all admin API requests with 403 without this token.
+      # Generate with: openssl rand -hex 32
+      adminToken: ""
 
     # -- Values to passthrough to the garage chart: https://repo1.dso.mil/big-bang/product/maintained/garage.git
     values: {}

@@ -69,6 +69,12 @@ bb-common:
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
 
+{{- $garageInitEnabled := .Values.addons.garage.garageInit.enabled }}
+{{- $garageAdminToken := "" }}
+{{- if $garageInitEnabled }}
+{{- $garageAdminToken = required "addons.garage.garageInit.adminToken is required when garageInit.enabled is true; generate with: openssl rand -hex 32" .Values.addons.garage.garageInit.adminToken }}
+{{- end }}
+
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -78,13 +84,21 @@ upstream:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       serviceMonitor:
         enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
+  {{- if $garageInitEnabled }}
+  environment:
+    - name: GARAGE_ADMIN_TOKEN
+      value: {{ $garageAdminToken | quote }}
+  {{- end }}
 
 garageInit:
-  enabled: {{ .Values.addons.garage.garageInit.enabled }}
+  enabled: {{ $garageInitEnabled }}
+  {{- if $garageInitEnabled }}
   credentials:
     accessKeyId: {{ .Values.addons.garage.garageInit.credentials.accessKeyId | quote }}
     secretAccessKey: {{ .Values.addons.garage.garageInit.credentials.secretAccessKey | quote }}
   buckets: {{ .Values.addons.garage.garageInit.buckets | toYaml | nindent 4 }}
+  adminToken: {{ $garageAdminToken | quote }}
+  {{- end }}
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
 
