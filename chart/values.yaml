@@ -2448,6 +2448,11 @@ addons:
       bucketName: "mimir"
       # -- S3 region value passed to Mimir. Garage does not enforce regions but Mimir requires a non-empty value.
       region: "garage"
+      # -- Garage admin API bearer token. Required for Garage 2.x admin API authentication.
+      # When set, Garage pods are configured to require this token and the garageInit job
+      # presents it on every admin API request. Generate with: openssl rand -hex 32
+      # WARNING: do not store plaintext tokens in values.yaml for production; use SOPS or ESO.
+      adminToken: ""
 
     # -- Mimir Service Account Annotations
     serviceAccountAnnotations: {}

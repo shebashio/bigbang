@@ -248,6 +248,14 @@ garage:
       accessKeyId: {{ .Values.addons.mimir.garageObjectStorage.accessKey }}
       secretAccessKey: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
     region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
+    {{- if .Values.addons.mimir.garageObjectStorage.adminToken }}
+    adminToken: {{ .Values.addons.mimir.garageObjectStorage.adminToken | quote }}
+    {{- end }}
+  {{- if .Values.addons.mimir.garageObjectStorage.adminToken }}
+  upstream:
+    environment:
+      GARAGE_ADMIN_TOKEN: {{ .Values.addons.mimir.garageObjectStorage.adminToken | quote }}
+  {{- end }}
 {{- end }}
 
 upstream:
