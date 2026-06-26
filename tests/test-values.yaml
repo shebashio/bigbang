@@ -1056,6 +1056,20 @@ addons:
       bbtests:
         enabled: true
 
+  garage:
+    enabled: true
+    garageInit:
+      enabled: true
+      credentials:
+        accessKeyId: "GKbb0000000000000000000000"
+        secretAccessKey: "bb00000000000000000000000000000000000000000000000000000000000000"
+      buckets:
+        - bb-smoketest
+      adminToken: "271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c"
+    values:
+      bbtests:
+        enabled: true
+
   gitlab:
     enabled: false
     sso:
