@@ -85,7 +85,7 @@ Follow these conventions unless the docs maintainers agree to a different
 structure.
 
 - Every public Markdown page should be represented in the `.pages` file for its
-  immediate directory.
+  immediate directory. Exceptions, e.g. internal maintainer documentation, should be noted in those files and excluded from `.pages`.
 - Every public documentation section should have an `index.md`.
 - A directory with multiple public pages should have its own `.pages` file.
 - The display label in `.pages` should be human-friendly; the path after the
