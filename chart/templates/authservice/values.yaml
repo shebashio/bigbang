@@ -107,6 +107,8 @@ networkPolicies:
           k8s:
             "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
             kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.kiali.enabled }}
+            # Grafana's Prometheus datasource reaches Prometheus through the waypoint when monitoring SSO is enabled
+            monitoring/grafana: {{ and $ambientEnabled .Values.addons.authservice.enabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
     from:

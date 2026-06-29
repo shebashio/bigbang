@@ -97,6 +97,25 @@ istio:
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.monitoring.values .) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.monitoring.values .) }}
+    {{- if and $ambientEnabled .Values.addons.authservice.enabled .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
+    # When Prometheus is fronted by the authservice waypoint for SSO, the waypoint enforces L7
+    # authz and only honors policies that target the Service (workload-selector policies are not
+    # applied at the waypoint). Grafana's datasource is machine traffic with no SSO session, so
+    # explicitly allow its identity through the waypoint to Prometheus.
+    custom:
+      - name: allow-grafana-to-prometheus-waypoint
+        spec:
+          action: ALLOW
+          targetRefs:
+            - group: ""
+              kind: Service
+              name: monitoring-monitoring-kube-prometheus
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - cluster.local/ns/monitoring/sa/monitoring-grafana
+    {{- end }}
 routes:
   inbound:
     monitoring-prometheus:
