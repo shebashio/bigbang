@@ -1,5 +1,7 @@
 # Big Bang Documentation Structure
 
+_This file is intentionally excluded from .pages as an internal maintainer guidance document._
+
 This directory is the source for the Big Bang documentation site. Treat it as a
 docs-as-code project: Markdown files, directory names, and navigation files all
 contribute to the published site.
