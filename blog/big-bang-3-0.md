@@ -26,18 +26,15 @@ With Big Bang 3.0, **drift detection** will be enabled by default on our **Flux 
 
 This feature will prevent unwanted deviations between the desired and actual cluster state, ensuring that any unauthorized changes made through the Kubernetes API will be automatically reverted during Flux's reconciliation process. With drift detection enabled, Flux will actively monitor for discrepancies between the intended configuration and the current state of the cluster. If a drift is detected, changes will be automatically reverted for more efficient operation.
 
-While drift detection will be enabled by default for most existing HelmReleases, a few newer packages, such as Backstage or the charts that comprise Operatorless Istio, will have it implemented in subsequent releases. For more information about this upcoming change, [click here](https://docs-bigbang.dso.mil/latest/docs/adrs/0006-drift-detection/?h=drift+d/)!
+While drift detection will be enabled by default for most existing HelmReleases, a few newer packages, such as the charts that comprise Operatorless Istio, will have it implemented in subsequent releases. For more information about this upcoming change, [click here](https://docs-bigbang.dso.mil/latest/docs/adrs/0006-drift-detection/?h=drift+d/)!
 
-### 💡 The Universe Expands: Headlamp, Backstage, and Compliance Dashboard
+### 💡 The Universe Expands: Headlamp and Compliance Dashboard
 
-To further enhance Big Bang’s value as a comprehensive platform for building, deploying, and managing secure and compliant Kubernetes applications, our 3.0 release broadens its capabilities with the addition of three new packages to the umbrella chart:
+To further enhance Big Bang’s value as a comprehensive platform for building, deploying, and managing secure and compliant Kubernetes applications, our 3.0 release broadens its capabilities with the addition of new packages to the umbrella chart:
 
 - **[Headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)** – A user-friendly Kubernetes UI, specifically recommended by the Flux maintainers for monitoring Flux Custom Resource state without requiring `kubectl` or similar tools.
   - [Big Bang Docs: Headlamp](https://docs-bigbang.dso.mil/latest/packages/headlamp/)
   - [headlamp.dev](https://headlamp.dev/)
-- **[Backstage](https://repo1.dso.mil/big-bang/product/packages/backstage)** – An open-source framework for building developer portals with additional customized modules for integrating with many of the applications in Big Bang. It’s already popular among the Big Bang community for providing self-service portals.
-  - [Big Bang Docs: Backstage](https://docs-bigbang.dso.mil/latest/packages/backstage/)
-  - [backstage.io](https://backstage.io/)
 - **[Compliance Dashboard](https://repo1.dso.mil/big-bang/apps/sandbox/compliance-dashboard)** – A unified dashboard that simplifies cluster security and compliance management by aggregating data from multiple tools into a single, readable interface This gives SREs a clear view of policies and an overall Compliance Score for each cluster.
 
 ### ⚡️ Streamlining Updates with the Passthrough Pattern
@@ -46,7 +43,7 @@ This release introduces a new values pattern to some of our packages that we're 
 
 The Big Bang team will continue maintaining Big Bang packages, but without forking upstream project helm charts. If it is necessary modify a package's helm templates, we either contribute upstream or make the modification with mutating webhooks or post renderers. This change greatly reduces the workload of our routine package renovate process.
 
-You may have already seen this pattern in packages like Kiali, Backstage, and Operatorless Istio, with broader adoption coming in 3.0. Watch the Upgrade Notices in the Release Notes for instructions on how to update your deployments as we roll out this change.
+You may have already seen this pattern in packages like Kiali and Operatorless Istio, with broader adoption coming in 3.0. Watch the Upgrade Notices in the Release Notes for instructions on how to update your deployments as we roll out this change.
 
 ### Anchore Enterprise rename
 
