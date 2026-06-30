@@ -88,6 +88,29 @@ packages:
 
 This deploys the istio-cni package with tag of `1.27.0-bb.0` to the kube-system namespace which already exists within the cluster.
 
+When Big Bang ambient mode is enabled, generic package namespaces are ambient-enrolled by default. Packages that expose Kubernetes admission webhooks called by kube-apiserver should opt out of ambient namespace enrollment. For cert-manager ecosystem packages, configure the namespace label override on the package that creates the namespace:
+
+```yaml
+packages:
+  cert-manager:
+    enabled: true
+    namespace:
+      labels:
+        istio.io/dataplane-mode: none
+  cert-manager-trust-manager:
+    enabled: true
+    namespace:
+      create: false
+      name: cert-manager
+  cert-manager-approver-policy:
+    enabled: true
+    namespace:
+      create: false
+      name: cert-manager
+```
+
+If `cert-manager-trust-manager` or `cert-manager-approver-policy` create their own namespaces, apply the same `istio.io/dataplane-mode: none` label to those package namespace settings.
+
 It is also possible to disable the creation of the `imagePullSecret` by setting the `<package>.namespace.createRegistrySecret` to false:
 
 ```yaml

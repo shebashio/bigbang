@@ -2494,6 +2494,9 @@ packages:
     # @default -- true
     enabled: false
 
+    # -- Namespace settings for this package. In ambient deployments, packages that expose admission webhooks called by kube-apiserver, such as cert-manager, cert-manager-trust-manager, and cert-manager-approver-policy, must opt out of ambient namespace enrollment with `namespace.labels."istio.io/dataplane-mode": none`.
+    namespace: {}
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
