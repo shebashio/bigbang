@@ -608,11 +608,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.8.1-bb.2"
+    tag: "3.8.1-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.8.1-bb.2"
+    tag: "3.8.1-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -1358,11 +1358,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "9.5.21-bb.0"
+      tag: "9.7.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "9.5.21-bb.0"
+      tag: "9.7.0-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1550,11 +1550,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.11.1-bb.2"
+      tag: "9.11.7-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.11.1-bb.2"
+      tag: "9.11.7-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2336,12 +2336,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.0.6-bb.2"
+      tag: "6.0.6-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.0.6-bb.2"
+      tag: "6.0.6-bb.3"
 
     # -- Enable Mimir Enterprise
     enterprise:
