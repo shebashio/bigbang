@@ -2022,7 +2022,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.2.0-bb.2"
+      tag: null
+      branch: renovate/keycloak
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
