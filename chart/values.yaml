@@ -270,11 +270,11 @@ istioCNI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni.git
     path: "./chart"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-cni"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   # -- Values to passthrough to the Istio CNI chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CNI Package
@@ -290,11 +290,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -343,11 +343,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -381,11 +381,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.30.1-bb.1
+    tag: 1.30.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.30.1-bb.1
+    tag: 1.30.2-bb.0
   # -- Values to passthrough to the gateway chart(s)
   values: {}
   # EXAMPLE: Set the tls key/cert for the existing public gateway
@@ -504,11 +504,11 @@ ztunnel:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/ztunnel.git
     path: "./chart"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "ztunnel"
-    tag: 1.30.1-bb.0
+    tag: 1.30.2-bb.0
   # -- Values to passthrough to the ztunnel chart
   values: {}
   # -- Flux reconciliation overrides specifically for the ztunnel Package
@@ -608,11 +608,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.8.1-bb.2"
+    tag: "3.8.1-bb.4"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.8.1-bb.2"
+    tag: "3.8.1-bb.4"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -847,12 +847,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "4.0.1-bb.0"
+    tag: "4.1.6-bb.1"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "4.0.1-bb.0"
+    tag: "4.1.6-bb.1"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -1358,11 +1358,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "9.5.21-bb.0"
+      tag: "9.7.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "9.5.21-bb.0"
+      tag: "9.7.0-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1393,45 +1393,6 @@ addons:
         g, Impact Level 2 Authorized, role:admin
 
     # -- Values to passthrough to the argocd chart: https://repo1.dso.mil/big-bang/product/packages/argocd.git
-    values: {}
-
-    # -- Post Renderers.  See docs/postrenders.md
-    postRenderers: []
-
-  backstage:
-    # -- Toggle deployment of Backstage.
-    enabled: false
-
-    # -- Choose source type of "git" or "helmRepo"
-    sourceType: "git"
-
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/packages/backstage.git
-      path: "./chart"
-      tag: "2.8.1-bb.0"
-    helmRepo:
-      repoName: "registry1"
-      chartName: "backstage"
-      tag: "2.8.1-bb.0"
-
-    # -- Flux reconciliation overrides specifically for the Backstage Package
-    flux: {}
-
-    # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
-    ingress:
-      gateway: ""
-
-    sso:
-      # -- Toggle SSO for Backstage on and off
-      enabled: false
-
-      # -- Backstage OIDC client ID
-      client_id: ""
-
-      # -- Backstage OIDC client secret
-      client_secret: ""
-
-    # -- Values to passthrough to the Backstage chart: https://repo1.dso.mil/big-bang/product/packages/backstage.git
     values: {}
 
     # -- Post Renderers.  See docs/postrenders.md
@@ -1550,11 +1511,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.11.1-bb.2"
+      tag: "9.11.7-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.11.1-bb.2"
+      tag: "9.11.7-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1921,11 +1882,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.8.1-bb.0"
+      tag: "11.8.2-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.8.1-bb.0"
+      tag: "11.8.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2027,11 +1988,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "12.0.2-bb.1"
+      tag: "12.1.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "12.0.2-bb.1"
+      tag: "12.1.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -2336,12 +2297,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.0.6-bb.2"
+      tag: "6.0.6-bb.3"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.0.6-bb.2"
+      tag: "6.0.6-bb.3"
 
     # -- Enable Mimir Enterprise
     enterprise:
@@ -2493,6 +2454,9 @@ packages:
     # -- Toggle deployment of this package
     # @default -- true
     enabled: false
+
+    # -- Namespace settings for this package. Use `namespace.labels` to add custom labels or override labels rendered by Big Bang for this package namespace.
+    namespace: {}
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
