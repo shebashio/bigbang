@@ -4,6 +4,8 @@
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $webhookEnabled := dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values }}
+{{- $certControllerEnabled := dig "upstream" "certController" "create" false .Values.addons.externalSecrets.values }}
 
 upstream:
   image:
@@ -26,6 +28,9 @@ istio:
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
+    additionalPolicies:
+      allow-ingress-to-external-secrets-webhook-tcp-port-10250-from-kubeAPI:
+        enabled: {{ $webhookEnabled }}
 
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" . }}
@@ -37,7 +42,7 @@ networkPolicies:
       external-secrets-webhook:10250:
         from:
           definition:
-            kubeAPI: {{ dig "upstream" "webhook" "create" "false" .Values.addons.externalSecrets }}
+            kubeAPI: {{ $webhookEnabled }}
   egress:
     definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6}}
     from:
@@ -48,11 +53,11 @@ networkPolicies:
       external-secrets-webhook:
         to:
           definition:
-            kubeAPI: {{ dig "upstream" "certController" "create" "false" .Values.addons.externalSecrets }}
+            kubeAPI: {{ $webhookEnabled }}
       external-secrets-cert-controller:
         to:
           definition:
-            kubeAPI: {{ dig "upstream" "webhook" "create" "false" .Values.addons.externalSecrets }}
+            kubeAPI: {{ $certControllerEnabled }}
 
 {{- if $istioEnabled }}
 annotations:

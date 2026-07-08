@@ -18,7 +18,7 @@ spec:
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if or .Values.addons.externalSecrets.postRenderers $istioEnabled (and dig "upstream" "webhook" "create" "false" .Values.addons.externalSecrets) }}
+  {{- if or .Values.addons.externalSecrets.postRenderers $istioEnabled (and dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values) }}
   postRenderers:
   {{- if $istioEnabled }}
   {{- include "externalSecrets.istioPostRenderers" . | nindent 2 }}
