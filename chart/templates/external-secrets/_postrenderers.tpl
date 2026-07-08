@@ -3,8 +3,8 @@
     patches:
       - patch: |
           - op: add
-            path: /spec/ports/1/appProtocol
-            value: tcp
+            path: /spec/ports/0/appProtocol
+            value: https
         target:
           kind: Service
           name: external-secrets-webhook
