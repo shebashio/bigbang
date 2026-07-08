@@ -29,7 +29,7 @@ istio:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
     additionalPolicies:
-      allow-ingress-to-external-secrets-webhook-tcp-port-10250-from-kubeAPI:
+      allow-ingress-to-external-secrets-webhook-tcp-port-10250-from-kube-api:
         enabled: {{ $webhookEnabled }}
 
 networkPolicies:
