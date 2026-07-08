@@ -35,7 +35,7 @@ Review the following existing documentation before choosing an integration path:
 
 ## Additional Network Policies/Network Policy Changes
 
-### Allowing HBone Traffic
+### Allowing HBONE Traffic
 
 The following table illustrates when the addition of TCP Port 15008 (HBONE) traffic is required:
 
@@ -45,22 +45,74 @@ The following table illustrates when the addition of TCP Port 15008 (HBONE) traf
 | Ambient | Sidecar | Egress Only |
 | Sidecar | Ambient | Ingress Only |
 
+Add TCP port 15008 in addition to the original application port in case services outside the mesh need to communicate with the application.
+
 Original:
 
 ```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-hbone-from-public-ingressgateway
+  namespace: parabol
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-gateway
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: public-ingressgateway
+          istio: ingressgateway
+    ports:
+    - port: 3000
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: parabol
+      app.kubernetes.io/component: webserver
+  policyTypes:
+  - Ingress
 ```
 
 Updated:
 
 ```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-hbone-from-public-ingressgateway
+  namespace: parabol
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-gateway
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: public-ingressgateway
+          istio: ingressgateway
+    ports:
+    - port: 3000
+      protocol: TCP
+    - port: 15008
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: parabol
+      app.kubernetes.io/component: webserver
+  policyTypes:
+  - Ingress
 ```
 
 > [!NOTE]
-> If the application doesn't communicate with anything in any other namepsace and is in Sidecar Mode this is not needed.
+> If the application doesn't communicate with anything in any other namespace and is in Sidecar Mode this is not needed.
 
 ### Allowing Kubelet Traffic
 
-When a package is in Ambient Mode it will also require an additional network policy to allow traffic from the Kubelet for health and readiness probes to continue functioning as expected:
+When a package is in ambient mode, it also requires an additional network policy to allow traffic from the kubelet so health and readiness probes continue functioning as expected.
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -81,7 +133,7 @@ For additional information on the above listed network policies please refer to 
 
 ## Authorization Policies
 
-Since network policies behave a bit differently in Ambient Mode, authorization policies are now enabled by default with its behavior explicitly set to deny all traffic not otherwise allowed. This means every application will need an authorization policy that allows all traffic within its own namespace at a bare minimum:
+Since network policies behave differently in Ambient Mode, authorization policies are enabled by default and deny traffic that is not otherwise allowed. At a minimum, every application needs an authorization policy that allows traffic within its own namespace.
 
 ```
 apiVersion: security.istio.io/v1
@@ -98,16 +150,46 @@ spec:
         - <Update with Package Namespace>
 ```
 
-### Prometheus Ingress
-
-Another common authorization policy that may be required would be to allow prometheus access to an application's service monitor
+It is also recommended to have an explicit deny-all authorization policy as shown below:
 
 ```
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: default-authz-allow-nothing
+  namespace: <Update with Package Namespace>
+spec: {}
+```
+
+### Prometheus Ingress
+
+Another common authorization policy allows Prometheus to access an application’s ServiceMonitor:
+
+```
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-metrics-from-ns-monitoring-with-identity-monitoring-monitoring-kube-prometheus
+  namespace: <>
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus
+    to:
+    - operation:
+        ports:
+        - <Update with Appropriate Port>
+  selector:
+    matchLabels:
+      <Update with Appropriate Pod Labels>
 ```
 
 ### Istio Gateway Ingress
 
-If the application allows traffic to it from an Istio Ingress Gateway the following authorization policy may also be needed:
+If the application allows traffic from an Istio ingress gateway, the following authorization policy may also be needed:
 
 ```
 apiVersion: security.istio.io/v1
@@ -126,14 +208,253 @@ spec:
         - cluster.local/ns/istio-gateway/sa/public-ingressgateway-ingressgateway-service-account
   selector:
     matchLabels:
-      app.kubernetes.io/name: kiali
+      <Update with Appropriate Pod Labels>
 ```
+
+> [!NOTE]
+> You may need to update the principal accordingly if using a non-default gateway.
 
 ## Namespace Labels
 
+To label an application for Ambient Mode, use the following namespace label instead of the typical sidecar injection label:
 
+```
+istio.io/dataplane-mode: ambient
+```
 
 ## Extra Package Deployment Using Packages Key
 
 Use this path only when the chart cannot be modified to consume `bb-common`. Operators must explicitly provide the namespace labels, network policies, and mesh resources that `bb-common` would normally help generate.
 
+The following example shows how to deploy the `Parabol` community package in a test environment via the `packages` key:
+
+```
+packages:
+  parabol:
+    enabled: true
+    namespace:
+      name: parabol
+    helmRelease:
+      namespace: "bigbang"
+    sourceType: "git"
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/community/parabol.git
+      path: "./chart"
+      branch: "main"
+    values:
+      global:
+        imageRegistry:
+          host: registry1.dso.mil
+          imagePullSecrets:
+            - name: private-registry
+      networkPolicies:
+        enabled: true
+      services:
+        redis:
+          localStorage:
+            enabled: true
+        postgres:
+          localStorage:
+            enabled: true
+            volumeSize: 10Gi
+        parabol:
+          localStorage:
+            enabled: true
+            volumeSize: 1Gi
+            awsEbs: false
+            storageClassName: "local-path"
+            accessModes:
+            - ReadWriteOnce
+      parabolDeployment:
+        env:
+          serverId: 1
+          authGooleDisabled: false
+        readinessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+          httpGet:
+            path: /manifest.json
+            port: 3000
+```
+
+The following additional network policies and authorization policies were also needed to allow the application to function properly:
+
+```yaml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-kubelet-healthprobes
+  namespace: parabol
+spec:
+  podSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: parabol
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: 169.254.7.127/32
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-postgresql-metrics-from-prometheus
+  namespace: parabol
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: monitoring
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - port: 9187
+      protocol: TCP
+    - port: 15008
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: postgres
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-redis-metrics-from-prometheus
+  namespace: parabol
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: monitoring
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - port: 9121
+      protocol: TCP
+    - port: 15008
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: redis
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-from-public-ingressgateway
+  namespace: parabol
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-gateway
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: public-ingressgateway
+          istio: ingressgateway
+    ports:
+    - port: 3000
+      protocol: TCP
+    - port: 15008
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: parabol
+      app.kubernetes.io/component: webserver
+  policyTypes:
+  - Ingress
+```
+
+```yaml
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: default-authz-allow-all-in-ns
+  namespace: parabol
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        namespaces:
+        - parabol
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-postgresql-metrics-from-ns-monitoring-with-identity-monitoring-monitoring-kube-prometheus
+  namespace: parabol
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus
+    to:
+    - operation:
+        ports:
+        - "9187"
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: postgres
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-redis-metrics-from-ns-monitoring-with-identity-monitoring-monitoring-kube-prometheus
+  namespace: parabol
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/monitoring/sa/monitoring-monitoring-kube-prometheus
+    to:
+    - operation:
+        ports:
+        - "9121"
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: redis
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: parabol-public-ingressgateway-authz-policy
+  namespace: parabol
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        namespaces:
+        - istio-gateway
+        principals:
+        - cluster.local/ns/istio-gateway/sa/public-ingressgateway-ingressgateway-service-account
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parabol
+      app.kubernetes.io/component: webserver
+```
+
+## External Helm Chart Deployment Using ArgoCD in Ambient Mode
+
+TODO: Add an Argo CD-based example for deploying an external Helm chart in ambient mode.
+
+## Sidecar Mode Mission Application Using Argo CD
+
+TODO: Add an Argo CD-based example for deploying a mission application in sidecar mode while ambient mode is enabled globally.
