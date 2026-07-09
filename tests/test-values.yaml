@@ -1314,10 +1314,12 @@ addons:
 
   mimir:
     enabled: false
+    git:
+      tag: null #$ 6.0.6-bb.3
+      branch: mimir-garage
     values:
       bbtests:
         enabled: true
-      upstream:
         global:
           podLabels:
             kyverno-policies-bbtest/required: "true"
