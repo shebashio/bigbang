@@ -1,13 +1,13 @@
 {{/*
-Patches the upstream garage-metrics Service to add appProtocol: http on the metrics port.
+Patches the upstream garage metrics Service to add appProtocol: http.
 
 Without appProtocol, Istio generates a dual inbound filter chain (istio-http/* ALPN +
 TCP catch-all). Prometheus connects with standard TLS ALPN (h2/http/1.1) which does not
 match the istio-http/* chain and fails on the TCP catch-all with unexpected EOF.
-Setting appProtocol: http produces a single HTTP connection manager inbound filter chain,
-identical to how other BB packages expose their metrics ports under STRICT mTLS.
+Setting appProtocol: http produces a single HTTP connection manager inbound filter chain.
 
-Applied whenever Istio is enabled and monitoring is enabled.
+Targets the upstream metrics Service by name suffix since the release name varies by
+deployment. Applied when Istio is enabled and monitoring is enabled.
 */}}
 {{- define "garage.metricsServicePostRenderer" }}
 - kustomize:
@@ -18,22 +18,21 @@ Applied whenever Istio is enabled and monitoring is enabled.
             value: http
         target:
           kind: Service
-          name: ^garage-metrics$
+          name: ^.*-metrics$
 {{- end }}
 
 {{/*
 Patches the upstream garage ServiceMonitor to set scheme: https and inject Istio
 prom-certs into tlsConfig.
 
-The upstream chart has an nindent 6 bug in its tlsConfig rendering that places fields
-(caFile, certFile, keyFile, insecureSkipVerify) as siblings of tlsConfig at the endpoint
-level rather than as children. The Prometheus Operator CRD rejects those fields at the
-endpoint level, causing Helm upgrades to fail when tlsConfig is populated.
+The upstream chart's tlsConfig rendering has an nindent bug that places fields as
+siblings of tlsConfig rather than children, causing Prometheus Operator CRD validation
+to fail. By not passing tlsConfig through upstream values and instead injecting it here
+via JSON Patch, the bug is bypassed entirely.
 
-By patching the ServiceMonitor after render we bypass the upstream template entirely
-and write a correctly nested tlsConfig directly into the rendered manifest.
-
-Applied when Istio is enabled, ambient is not active, and mTLS mode is STRICT.
+Targets by kind only since there is exactly one ServiceMonitor in the garage release
+and the name varies with the Flux release name. Applied when Istio is enabled, ambient
+is not active, and mTLS mode is STRICT.
 */}}
 {{- define "garage.serviceMonitorPostRenderer" }}
 - kustomize:
@@ -51,5 +50,4 @@ Applied when Istio is enabled, ambient is not active, and mTLS mode is STRICT.
               insecureSkipVerify: true
         target:
           kind: ServiceMonitor
-          name: ^garage$
 {{- end }}
