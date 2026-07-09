@@ -20,7 +20,6 @@
 
 {{- $minioEnabled := (.Values.addons.mimir.minioObjectStorage.enabled) }}
 {{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
-{{- $garageEnabled := (.Values.addons.mimir.garageObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 {{- $istioInjection := (and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.mimir) "enabled"))  }}
 {{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
@@ -30,13 +29,6 @@
 {{- $kafkaBrokerClusterDomain := (.Values.addons.mimir.kafkaIngestStorage.brokerClusterDomain) }}
 {{- $kafkaBrokerRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerHost "") }}
 {{- $kafkaBrokerWildcardRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerClusterDomain "") }}
-
-{{- if and $minioEnabled $garageEnabled }}
-  {{- fail "addons.mimir: minioObjectStorage and garageObjectStorage are mutually exclusive; enable only one S3 backend at a time" }}
-{{- end }}
-{{- if and $s3Enabled $garageEnabled }}
-  {{- fail "addons.mimir: s3ObjectStorage and garageObjectStorage are mutually exclusive; enable only one S3 backend at a time" }}
-{{- end }}
 
 upgradeJob:
   image:
@@ -121,9 +113,8 @@ networkPolicies:
         to:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
-            mimir/garage:3900: {{ $garageEnabled }}
           definition:
-            storage-subnets: {{ not (or $minioEnabled $garageEnabled) }}
+            storage-subnets: {{ not $minioEnabled }}
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
       # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
       # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
@@ -154,24 +145,6 @@ networkPolicies:
         to:
           definition:
             kubeAPI: {{ $minioEnabled }}
-      {{- if $garageEnabled }}
-      mimir-init:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: garage-init
-        to:
-          literal:
-            garage-admin-api:
-              enabled: true
-              spec:
-                - to:
-                    - podSelector:
-                        matchLabels:
-                          app.kubernetes.io/name: garage
-                  ports:
-                    - port: 3903
-                      protocol: TCP
-      {{- end }}
 
   ingress:
     definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
@@ -237,25 +210,6 @@ minio-tenant:
           password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
 {{- end }}
 
-{{- if $garageEnabled }}
-{{- $garageAdminToken := required "addons.mimir.garageObjectStorage.adminToken is required when garageObjectStorage.enabled is true; generate with: openssl rand -hex 32" .Values.addons.mimir.garageObjectStorage.adminToken }}
-garage:
-  enabled: true
-  garageInit:
-    enabled: true
-    buckets:
-      - {{ .Values.addons.mimir.garageObjectStorage.bucketName }}
-    credentials:
-      accessKeyId: {{ .Values.addons.mimir.garageObjectStorage.accessKey }}
-      secretAccessKey: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
-    region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
-    adminToken: {{ $garageAdminToken | quote }}
-  upstream:
-    environment:
-      - name: GARAGE_ADMIN_TOKEN
-        value: {{ $garageAdminToken | quote }}
-{{- end }}
-
 upstream:
   image:
     {{- include "secretsPullSecrets" . | nindent 4 }}
@@ -275,10 +229,10 @@ upstream:
         name: mimir-objstore-secret
     {{- end }}
 {{- end }}
-{{- if or $minioEnabled $s3Enabled $kafkaEnabled $garageEnabled }}
+{{- if or $minioEnabled $s3Enabled $kafkaEnabled }}
   mimir:
     structuredConfig:
-      {{- if or $minioEnabled $s3Enabled $garageEnabled }}
+      {{- if or $minioEnabled $s3Enabled }}
       {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
@@ -299,7 +253,8 @@ upstream:
             insecure: true
             secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
             bucket_name: {{ .Values.addons.mimir.minioObjectStorage.bucketName }}
-            {{- else if $s3Enabled }}
+            {{- else }}
+            {{- if $s3Enabled }}
             {{- if and .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
             access_key_id: "${AWS_ACCESS_KEY_ID}" # This is a secret injected via an environment variable
             secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
@@ -308,13 +263,7 @@ upstream:
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
-            {{- else if $garageEnabled }}
-            access_key_id: {{ .Values.addons.mimir.garageObjectStorage.accessKey }}
-            secret_access_key: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
-            endpoint: mimir-mimir-garage.mimir.svc.cluster.local:3900
-            insecure: true
-            bucket_name: {{ .Values.addons.mimir.garageObjectStorage.bucketName }}
-            region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
+            {{- end }}
             {{- end }}
       {{- end }}
       {{- if $kafkaEnabled }}

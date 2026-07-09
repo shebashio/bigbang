@@ -2415,29 +2415,6 @@ addons:
 
       # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
       insecure: false
-      
-    # -- Enable Big Bang Garage dependency chart for Mimir as an in-cluster S3-compatible object store.
-    # Garage runs as a sub-chart inside the Mimir release; no separate Garage addon is required.
-    #
-    # Credential management (applies to accessKey, secretKey, and adminToken):
-    # - Treat all three as write-once. Rotating any of them after initial install requires
-    #   coordinating a Garage pod rollout with the init job. See the garage chart
-    #   docs/credential-rotation.md for the safe rotation procedure.
-    # - Do not store plaintext credentials in values.yaml for production; use SOPS or ESO.
-    garageObjectStorage:
-      enabled: false
-      # -- Garage access key ID. Must be "GK" followed by exactly 24 lowercase hex characters.
-      accessKey: ""
-      # -- Garage secret access key. Must be exactly 64 lowercase hex characters.
-      secretKey: ""
-      # -- Bucket name for Mimir metrics storage. The garageInit job creates this bucket automatically.
-      bucketName: "mimir"
-      # -- S3 region value passed to Mimir. Garage does not enforce regions but Mimir requires a non-empty value.
-      region: "garage"
-      # -- Garage admin API bearer token. Required when garageObjectStorage.enabled is true.
-      # Garage 2.x rejects all admin API requests with 403 without this token.
-      # Generate with: openssl rand -hex 32
-      adminToken: ""
 
     # -- Configure Mimir to use external Kafka for ingest storage (Mimir 6.x+)
     # When enabled, disables the classic gRPC push path and enables the Kafka-backed ingest storage path.
