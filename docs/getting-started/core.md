@@ -1,15 +1,15 @@
 # Core Capabilities
-**[To facilitate to those concepts, Big Bang is designed with core capabilities that fall into six categories: Architecture, which includes the overall data flow of Big Bang and its features; Security and Compliance features, which provide easy-to-manage protection, monitoring, incident response, and management tools to maintain consistency; Observability capabilities, which provide dashboard visibility into metrics, distribution, and alerts; Developer tools, which provides four main tools to help for application deployment. artifact management, quality analysis, and code management; Operations features, which cover day-to-day procedures, troubleshooting, and upgrades; and Package Management, which includes, core packages, add-on packages, and community packages.]**
+To facilitate to those concepts, Big Bang is designed with core capabilities that fall into six categories: Architecture, which includes the overall data flow of Big Bang and its features; Security and Compliance features, which provide easy-to-manage protection, monitoring, incident response, and management tools to maintain consistency; Observability capabilities, which provide dashboard visibility into metrics, distribution, and alerts; Developer tools, which provides four main tools to help for application deployment. artifact management, quality analysis, and code management; Operations features, which cover day-to-day procedures, troubleshooting, and upgrades; and Package Management, which includes, core packages, add-on packages, and community packages.
 
 ### Architecture
-**[Big Bang's architecture design is represented [here](../concepts/architecture.md) in diagrams for the following data flows:]**
+Big Bang's architecture design is represented [here](../concepts/architecture.md) in diagrams for the following data flows:
 - Kube API server webhooks 
 - Logs data
 - Metrics data
 - Network encryption and ingress
 
 ### Security and Compliance
-**[Big Bang has the following features to support security and compliance for its users:]**
+Big Bang has the following features to support security and compliance for its users:
 - Istio service mesh with mutual TLS
 - Kyverno policy engine for admission control
 - Runtime security with vulnerability scanning
@@ -18,14 +18,14 @@
 Go [here](../concepts/security-model.md) for further information about Big Bang's security model.
 
 ### Observability
-**[Big Bang includes the following features that increase visibility into operations:]**
+Big Bang includes the following features that increase visibility into operations:
 - Prometheus and Grafana for metrics and dashboards
 - Elasticsearch and Kibana for log aggregation and analysis
 - Tempo for distributed tracing
 - Alertmanager for notification management
 
 ### Developer Tools
-**[Big Bang uses the following developer tools to support continued development:]**
+Big Bang uses the following developer tools to support continued development:
 - GitLab for source code management and CI/CD
 - ArgoCD for application deployment and management
 - Nexus for artifact and dependency management

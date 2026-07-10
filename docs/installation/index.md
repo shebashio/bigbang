@@ -77,7 +77,7 @@ For air-gapped environments, all required images are bundled in the
 for full instructions. [Zarf](https://repo1.dso.mil/big-bang/bigbang/-/blob/installation/environments/airgap-zarf.md) is the
 recommended tooling for air-gapped deployments. 
 
-**[Note: These documents are currently out of date and under review.]**
+**[Note: These documents are currently out of date and under review. There is an active effort to update our air-gapped strategy that is included [here](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates/-/work_items/830)]**
 
 ---
 ### Step 2 - Prepare Your Infrastructure

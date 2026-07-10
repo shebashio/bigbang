@@ -9,9 +9,9 @@ Start here if you're new to Big Bang:
 
 Additionally, several useful starting points in the Big Bang documentation are listed in the following:
 
-- **[Developer Contribution Documentation](./docs/community/development/index.md)**
-- **[Key Big Bang Concept Overviews](./docs/concepts/index.md)**
-- **[Tutorials for Big Bang](./docs/tutorials/)**
+- **[Developer Contribution Documentation](../community/development/index.md)**
+- **[Key Big Bang Concept Overviews](../concepts/index.md)**
+- **[Tutorials for Big Bang](../tutorials/)**
 - **[Big Bang Example Configurations](https://repo1.dso.mil/big-bang/bigbang/-/tree/master/docs/reference/configs/example)**
 
 ### Installation and Configuration
