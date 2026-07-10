@@ -4,6 +4,7 @@
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.externalSecrets.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $webhookEnabled := dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values }}
 {{- $certControllerEnabled := dig "upstream" "certController" "create" false .Values.addons.externalSecrets.values }}
 
@@ -18,13 +19,12 @@ monitoring:
 
 istio:
   enabled: {{ $istioEnabled }}
-
+  hardened:
+    enabled: {{ $istioHardenedEnabled }}
   sidecar:
-    enabled: {{ ne (include "ambientEnabled" .) "true" }}
-
+    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" . }}
-
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
