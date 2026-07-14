@@ -39,7 +39,7 @@ Review the following existing documentation before choosing an integration path:
 
 ### Allowing HBONE Traffic
 
-Once ambient is enabled, traffic will get tunneled between your pods using TCP port 15008 so this port will be required in addition to the original port to allow non-HBONE traffic to continue working.
+Once ambient mode is enabled, traffic is tunneled between workloads using TCP port 15008. As a result, this port is required for communication to continue as expected. Additionally, the original port should remain open to allow non-HBONE traffic to continue working.
 
 Original:
 
@@ -123,7 +123,7 @@ spec:
           cidr: 169.254.7.127/32
 ```
 
-For more information about these network policies please refer to [Istio's Ambient and Kubernetes Network Policy Documentation](https://istio.io/latest/docs/ambient/usage/networkpolicy/).
+For more information about these network policies, please refer to [Istio's Ambient and Kubernetes Network Policy Documentation](https://istio.io/latest/docs/ambient/usage/networkpolicy/).
 
 ## Authorization Policies
 
@@ -144,7 +144,7 @@ spec:
         - <Update with Package Namespace>
 ```
 
-It is also recommended to have an explicit deny-all authorization policy as shown below:
+It is also recommended to have an allow-nothing authorization policy as shown below:
 
 ```yaml
 apiVersion: security.istio.io/v1
@@ -216,11 +216,14 @@ To label an application for ambient mode, use the following namespace label inst
 istio.io/dataplane-mode: ambient
 ```
 
+> [!NOTE]
+> This is handled automatically when using the `packages` key method.
+
 ## Extra Package Deployment Using Packages Key
 
-Use this path only when the chart cannot be modified to consume `bb-common`. Operators must explicitly provide the namespace labels, network policies, and mesh resources that `bb-common` would normally help generate.
+Use this path only when the chart cannot be modified to consume `bb-common`. Operators must explicitly provide the network policies and Istio resources that `bb-common` would normally help generate.
 
-The following example shows how to deploy the `Parabol` community package in a test environment via the `packages` key:
+The following example shows how to deploy the Parabol community package in a test environment via the `packages` key:
 
 ```yaml
 packages:
@@ -449,7 +452,7 @@ spec:
 
 Mission applications deployed via Argo CD can also be configured to run in ambient mode by using the following steps:
 
-1. Precreate the namespace with the proper label:
+1. Create the namespace in advance with the proper label:
 
 ```yaml
 apiVersion: v1
@@ -497,7 +500,7 @@ spec:
 
 ## Sidecar Mode Mission Application Using Argo CD
 
-The same process works when configuring the mission application to function in sidecar mode as well. The only difference is the label on the namespace that gets precreated:
+The same process works when configuring the mission application to function in sidecar mode as well. The only difference is the label on the namespace that is created in advance:
 
 ```yaml
 apiVersion: v1
