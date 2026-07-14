@@ -114,13 +114,11 @@ kind: NetworkPolicy
 metadata:
   name: ingress-allow-kubelet-healthprobes
 spec:
-  podSelector:
-    matchLabels:
-      kubernetes.io/metadata.name: <Update with Package Namespace>
+  podSelector: {}
   ingress:
-    - from:
-      - ipBlock:
-          cidr: 169.254.7.127/32
+  - from:
+    - ipBlock:
+        cidr: 169.254.7.127/32
 ```
 
 For more information about these network policies, please refer to [Istio's Ambient and Kubernetes Network Policy Documentation](https://istio.io/latest/docs/ambient/usage/networkpolicy/).
@@ -287,13 +285,11 @@ metadata:
   name: allow-ingress-kubelet-healthprobes
   namespace: parabol
 spec:
-  podSelector:
-    matchLabels:
-      kubernetes.io/metadata.name: parabol
+  podSelector: {}
   ingress:
-    - from:
-      - ipBlock:
-          cidr: 169.254.7.127/32
+  - from:
+    - ipBlock:
+        cidr: 169.254.7.127/32
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
