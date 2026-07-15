@@ -256,7 +256,7 @@ packages:
         parabol:
           localStorage:
             enabled: true
-            volumeSize: 1Gi
+            storage: 1Gi
             awsEbs: false
             storageClassName: "local-path"
             accessModes:
