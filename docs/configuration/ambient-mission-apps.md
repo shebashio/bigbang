@@ -276,6 +276,8 @@ packages:
             port: 3000
 ```
 
+### Additional Policies
+
 The following additional network policies and authorization policies were also needed to allow the application to function properly:
 
 ```yaml
@@ -460,7 +462,7 @@ metadata:
     istio.io/dataplane-mode: "ambient"
 ```
 
-2. Deploy the same authorization and network policies mentioned for the previous scenario along with any other package-specific policies.
+2. Deploy the same authorization and network policies mentioned for the [previous scenario](ambient-mission-apps.md#additional-policies) along with any other package-specific policies.
 
 3. Use the following YAML to deploy the application:
 
