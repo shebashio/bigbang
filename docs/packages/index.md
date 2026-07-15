@@ -105,7 +105,7 @@ The following active repositories are hosted in the [`product/packages`](https:/
 |----|----|----|
 | [bb-common](https://repo1.dso.mil/big-bang/product/packages/bb-common) | ![bb-common Build](https://repo1.dso.mil/big-bang/product/packages/bb-common/badges/main/pipeline.svg) | Common Helm library chart for Big Bang packages |
 | [Gluon](https://repo1.dso.mil/big-bang/product/packages/gluon) | ![Gluon Build](https://repo1.dso.mil/big-bang/product/packages/gluon/badges/master/pipeline.svg) | Shared automation and tooling for Big Bang packages |
-| [wrapper](https://repo1.dso.mil/big-bang/product/packages/wrapper) | ![wrapper Build](https://repo1.dso.mil/big-bang/product/packages/wrapper/badges/main/pipeline.svg) | Wrapper chart fro deploying arbitrary big bang packages with big bang capabilities |
+| [wrapper](https://repo1.dso.mil/big-bang/product/packages/wrapper) | ![wrapper Build](https://repo1.dso.mil/big-bang/product/packages/wrapper/badges/main/pipeline.svg) | Wrapper chart for deploying arbitrary big bang packages with big bang capabilities |
 
 # Maintained Packages
 
