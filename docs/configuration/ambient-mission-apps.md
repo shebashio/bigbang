@@ -12,7 +12,8 @@ Mission applications and external Helm charts can still require additional work 
 - A completely external Helm chart deployed outside of the Big Bang `packages` key.
 - A mission application that must run in Istio sidecar mode while the rest of the environment uses ambient mode.
 
-Where possible, prefer integrating the chart with [bb-common](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md). The common library keeps service mesh, network policy, and authorization policy behavior aligned with Big Bang defaults and reduces the number of hand-maintained manifests required by operators. It also provides additional functionality needed for a given package to work properly in ambient mode.
+> [!IMPORTANT]
+> Where possible, prefer integrating the chart with [bb-common](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md). The common library keeps service mesh, network policy, and authorization policy behavior aligned with Big Bang defaults and reduces the number of hand-maintained manifests required by operators. It also provides additional functionality needed for a given package to work properly in ambient mode.
 
 The examples in this document use the Parabol community package as a representative mission application. The same ambient mode concepts apply to other mission applications, but namespaces, ports, selectors, and package-specific Helm values must be adjusted for the application being deployed.
 
