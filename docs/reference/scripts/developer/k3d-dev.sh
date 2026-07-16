@@ -5,7 +5,7 @@
 ### Initialized globals
 
 K3D_VERSION="5.8.3"
-DEFAULT_K3S_TAG="v1.35.3-k3s1"
+DEFAULT_K3S_TAG="v1.36.2-k3s1"
 PROVISION_CLOUD_INSTANCE=true
 CLOUDPROVIDER="aws"
 SSHUSER=ubuntu
@@ -28,7 +28,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "anchore-api"
   "anchore"
   "argocd"
-  "backstage"
   "chat"
   "fortify"
   "gitlab"
