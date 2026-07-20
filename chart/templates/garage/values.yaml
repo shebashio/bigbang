@@ -19,7 +19,6 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 
 bb-common:
-  domain: {{ $domainName }}
   istio:
     enabled: {{ $istioEnabled }}
     ambient:
