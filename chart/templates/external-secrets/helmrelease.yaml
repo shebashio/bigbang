@@ -1,4 +1,4 @@
-{{- $fluxSettings := merge .Values.addons.externalSecrets.flux .Values.flux -}}
+{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) .Values.addons.externalSecrets.flux -}}
 {{- if .Values.addons.externalSecrets.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2

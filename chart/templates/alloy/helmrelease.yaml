@@ -1,4 +1,4 @@
-{{- $fluxSettingsAlloy := merge .Values.alloy.flux .Values.flux -}}
+{{- $fluxSettingsAlloy := mergeOverwrite (deepCopy .Values.flux) .Values.alloy.flux -}}
 {{- if .Values.alloy.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $isStrictIstio := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.alloy.values) "STRICT") -}}
@@ -48,4 +48,3 @@ spec:
   {{- end }}
   {{- end }}
 {{- end }}
-

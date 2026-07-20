@@ -1,4 +1,4 @@
-{{- $fluxSettingsIstioGateway := merge .Values.istioGateway.flux .Values.flux -}}
+{{- $fluxSettingsIstioGateway := mergeOverwrite (deepCopy .Values.flux) .Values.istioGateway.flux -}}
 {{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
 {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
 ---

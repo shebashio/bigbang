@@ -1,4 +1,4 @@
-{{- $fluxSettingsAuthservice := merge .Values.addons.authservice.flux .Values.flux -}}
+{{- $fluxSettingsAuthservice := mergeOverwrite (deepCopy .Values.flux) .Values.addons.authservice.flux -}}
 {{- if eq (include "authserviceEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
