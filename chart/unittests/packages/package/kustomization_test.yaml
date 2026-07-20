@@ -8,6 +8,9 @@ tests:
       flux:
         interval: 5m
         timeout: 20m
+        force: true
+        wait: true
+        prune: true
       packages:
         sample:
           enabled: true
