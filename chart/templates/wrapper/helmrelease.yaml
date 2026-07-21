@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Used for Helm chart deployment of Big Bang wrapper.  One per package. */ -}}
 {{- range $pkgKey, $vals := .Values.packages -}}
 {{- if and (dig "enabled" true $vals) (dig "wrapper" "enabled" false $vals) -}}

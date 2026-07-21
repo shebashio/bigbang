@@ -1510,6 +1510,52 @@
     },
     "packages": {
       "type": "object",
+      "properties": {
+        "istioCNI": { "$ref": "#/$defs/packageAlias" },
+        "istioCRDs": { "$ref": "#/$defs/packageAlias" },
+        "gatewayAPI": { "$ref": "#/$defs/packageAlias" },
+        "istiod": { "$ref": "#/$defs/packageAlias" },
+        "istioGateway": { "$ref": "#/$defs/packageAlias" },
+        "ztunnel": { "$ref": "#/$defs/packageAlias" },
+        "kiali": { "$ref": "#/$defs/packageAlias" },
+        "gatekeeper": { "$ref": "#/$defs/packageAlias" },
+        "kyverno": { "$ref": "#/$defs/packageAlias" },
+        "kyvernoPolicies": { "$ref": "#/$defs/packageAlias" },
+        "kyvernoReporter": { "$ref": "#/$defs/packageAlias" },
+        "elasticsearchKibana": { "$ref": "#/$defs/packageAlias" },
+        "eckOperator": { "$ref": "#/$defs/packageAlias" },
+        "fluentbit": { "$ref": "#/$defs/packageAlias" },
+        "alloy": { "$ref": "#/$defs/packageAlias" },
+        "loki": { "$ref": "#/$defs/packageAlias" },
+        "neuvector": { "$ref": "#/$defs/packageAlias" },
+        "tempo": { "$ref": "#/$defs/packageAlias" },
+        "prometheusOperatorCRDs": { "$ref": "#/$defs/packageAlias" },
+        "monitoring": { "$ref": "#/$defs/packageAlias" },
+        "grafana": { "$ref": "#/$defs/packageAlias" },
+        "twistlock": { "$ref": "#/$defs/packageAlias" },
+        "bbctl": { "$ref": "#/$defs/packageAlias" },
+        "renovate": { "$ref": "#/$defs/packageAlias" },
+        "argocd": { "$ref": "#/$defs/packageAlias" },
+        "authservice": { "$ref": "#/$defs/packageAlias" },
+        "minioOperator": { "$ref": "#/$defs/packageAlias" },
+        "minio": { "$ref": "#/$defs/packageAlias" },
+        "gitlab": { "$ref": "#/$defs/packageAlias" },
+        "gitlabRunner": { "$ref": "#/$defs/packageAlias" },
+        "sonarqube": { "$ref": "#/$defs/packageAlias" },
+        "fortify": { "$ref": "#/$defs/packageAlias" },
+        "anchoreEnterprise": { "$ref": "#/$defs/packageAlias" },
+        "mattermostOperator": { "$ref": "#/$defs/packageAlias" },
+        "mattermost": { "$ref": "#/$defs/packageAlias" },
+        "velero": { "$ref": "#/$defs/packageAlias" },
+        "keycloak": { "$ref": "#/$defs/packageAlias" },
+        "vault": { "$ref": "#/$defs/packageAlias" },
+        "metricsServer": { "$ref": "#/$defs/packageAlias" },
+        "harbor": { "$ref": "#/$defs/packageAlias" },
+        "headlamp": { "$ref": "#/$defs/packageAlias" },
+        "thanos": { "$ref": "#/$defs/packageAlias" },
+        "externalSecrets": { "$ref": "#/$defs/packageAlias" },
+        "mimir": { "$ref": "#/$defs/packageAlias" }
+      },
       "additionalProperties": {
         "type": "object",
         "allOf": [
@@ -1735,6 +1781,37 @@
     }
   },
   "$defs": {
+    "packageAlias": {
+      "type": "object",
+      "description": "Partial override for a built-in package using the unified packages.<name> path. Values are merged over the package's legacy defaults.",
+      "properties": {
+        "enabled": {
+          "type": ["boolean", "string"]
+        },
+        "sourceType": {
+          "$ref": "#/$defs/sourceType"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "git": {
+          "type": "object"
+        },
+        "helmRepo": {
+          "type": "object"
+        },
+        "flux": {
+          "$ref": "#/$defs/flux"
+        },
+        "postRenderers": {
+          "$ref": "#/$defs/postRenderers"
+        },
+        "values": {
+          "$ref": "#/$defs/values"
+        }
+      },
+      "additionalProperties": true
+    },
     "registryCredential": {
       "type": "object",
       "properties": {

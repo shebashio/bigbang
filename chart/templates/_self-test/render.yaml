@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- /*
   This template renders self-test results based on the configuration provided in the `_selfTest` section
   of the Helm values. Each entry in `_selfTest` corresponds to a template to be

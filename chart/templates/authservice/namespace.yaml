@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- if eq (include "authserviceEnabled" .) "true" }}
 apiVersion: v1
