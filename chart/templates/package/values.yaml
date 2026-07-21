@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Used for creating values for the package's Helm chart */ -}}
 {{- range $pkgKey, $vals := .Values.packages -}}
 {{- if (dig "enabled" true $vals) -}}
