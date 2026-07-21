@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.addons.gitlab.enabled }}
 {{- $gitlabPackage := deepCopy .Values.addons.gitlab -}}
 {{- if .Values.addons.gitlab.values -}}

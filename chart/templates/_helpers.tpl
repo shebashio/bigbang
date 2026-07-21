@@ -40,6 +40,58 @@
 {{- end -}}
 {{- end }}
 
+{{/*
+Normalize the backwards-compatible packages.<name> configuration for built-in
+packages onto the legacy values paths consumed by the existing templates.
+
+Built-in entries are removed from .Values.packages after normalization so the
+generic additional-package templates do not deploy them a second time. Unknown
+entries remain in .Values.packages and continue to be treated as custom
+packages. New-path values take precedence over legacy-path values.
+
+This compatibility layer is temporary and can be replaced by the unified
+package catalog in Big Bang 4.x.
+*/}}
+{{- define "bigbang.normalizePackageAliases" -}}
+{{- $packages := .Values.packages | default dict -}}
+{{- $rootPackages := list
+  "istioCNI" "istioCRDs" "gatewayAPI" "istiod" "istioGateway" "ztunnel"
+  "kiali" "gatekeeper" "kyverno" "kyvernoPolicies" "kyvernoReporter"
+  "elasticsearchKibana" "eckOperator" "fluentbit" "alloy" "loki"
+  "neuvector" "tempo" "prometheusOperatorCRDs" "monitoring" "grafana"
+  "twistlock" "bbctl" "renovate"
+-}}
+{{- $addonPackages := list
+  "argocd" "authservice" "minioOperator" "minio" "gitlab" "gitlabRunner"
+  "sonarqube" "fortify" "anchoreEnterprise" "mattermostOperator"
+  "mattermost" "velero" "keycloak" "vault" "metricsServer" "harbor"
+  "headlamp" "thanos" "externalSecrets" "mimir"
+-}}
+{{- $migrations := .Values._packageAliasMigrations | default list -}}
+
+{{- range $name := $rootPackages -}}
+  {{- if hasKey $packages $name -}}
+    {{- $legacy := get $.Values $name | default dict -}}
+    {{- $alias := get $packages $name | default dict -}}
+    {{- $_ := set $.Values $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
+    {{- $_ := unset $packages $name -}}
+    {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $name) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $name := $addonPackages -}}
+  {{- if hasKey $packages $name -}}
+    {{- $legacy := get $.Values.addons $name | default dict -}}
+    {{- $alias := get $packages $name | default dict -}}
+    {{- $_ := set $.Values.addons $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
+    {{- $_ := unset $packages $name -}}
+    {{- $migrations = append $migrations (printf "packages.%s replaces addons.%s" $name $name) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $_ := set .Values "_packageAliasMigrations" (uniq $migrations) -}}
+{{- end -}}
+
 {{- define "imagePullSecret" }}
   {{- if .Values.registryCredentials -}}
     {{- $credType := typeOf .Values.registryCredentials -}}
