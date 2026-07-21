@@ -311,7 +311,7 @@ upstream:
             {{- else if $garageEnabled }}
             access_key_id: {{ .Values.addons.mimir.garageObjectStorage.accessKey }}
             secret_access_key: {{ .Values.addons.mimir.garageObjectStorage.secretKey }}
-            endpoint: mimir-mimir-garage.mimir.svc.cluster.local:3900
+            endpoint: garage.mimir.svc.cluster.local:3900
             insecure: true
             bucket_name: {{ .Values.addons.mimir.garageObjectStorage.bucketName }}
             region: {{ .Values.addons.mimir.garageObjectStorage.region | default "garage" }}
