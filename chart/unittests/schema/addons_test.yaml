@@ -30,3 +30,13 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: ".*"
+
+  - it: should fail validation when a GitLab object storage endpoint omits its URI scheme
+    set:
+      addons:
+        gitlab:
+          objectStorage:
+            endpoint: garage.garage.svc.cluster.local:3900
+    asserts:
+      - failedTemplate:
+          errorPattern: "addons.gitlab.objectStorage.endpoint"

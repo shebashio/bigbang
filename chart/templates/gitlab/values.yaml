@@ -22,7 +22,7 @@ domain: {{ $domainName }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") }}
 {{- $extObjStorageIsConfigured := (or .Values.addons.gitlab.objectStorage.region .Values.addons.gitlab.objectStorage.endpoint) }}
-{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values }}
+{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" $extObjStorageIsConfigured .Values.addons.gitlab.values }}
 {{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
 {{- $kasEnabled := dig "global" "kas" "enabled" false .Values.addons.gitlab.values }}
 
@@ -548,13 +548,21 @@ global:
     {{- end }}
 
     {{- if or $extObjStorageIsConfigured $consolidatedObjStoreEnabled }}
+    {{- if and $extObjStorageIsConfigured $consolidatedObjStoreEnabled }}
+    object_store:
+      enabled: true
+      connection:
+        secret: gitlab-object-storage
+        key: rails
+    {{- end }}
+
     lfs:
       {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
       bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
       {{- else }}
       bucket: gitlab-lfs
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -566,7 +574,7 @@ global:
       {{- else }}
       bucket: gitlab-artifacts
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -578,7 +586,7 @@ global:
       {{- else }}
       bucket: gitlab-uploads
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -590,7 +598,7 @@ global:
       {{- else }}
       bucket: gitlab-packages
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -602,7 +610,7 @@ global:
       {{- else }}
       bucket: gitlab-mr-diffs
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -614,7 +622,7 @@ global:
       {{- else }}
       bucket: gitlab-terraform-state
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -627,7 +635,7 @@ global:
       {{- else }}
       bucket: gitlab-dependency-proxy
       {{- end }}
-      {{- if not (dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values)}}
+      {{- if not $consolidatedObjStoreEnabled }}
       connection:
         secret: gitlab-object-storage
         key: rails
@@ -657,9 +665,11 @@ global:
   {{- end }}
 
   {{- if and (ne .Values.addons.gitlab.redis.password "") (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled) }}
-  redis:  
-    password:
+  redis:
+    auth:
+      enabled: true
       secret: "gitlab-redis-secret-bb"
+      key: "secret"
   {{- end }}
 
   {{- if .Values.addons.gitlab.smtp.password }}

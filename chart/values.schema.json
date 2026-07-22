@@ -1259,6 +1259,19 @@
             }
           ],
           "properties": {
+            "objectStorage": {
+              "type": "object",
+              "properties": {
+                "endpoint": {
+                  "type": "string",
+                  "pattern": "^(https?://.+)?$"
+                },
+                "regionendpoint": {
+                  "type": "string",
+                  "pattern": "^(https?://.+)?$"
+                }
+              }
+            },
             "dependsOn": {
               "type": "array",
               "items": {
