@@ -1507,12 +1507,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
       path: "./chart"
-      tag: ""
-      branch: "integrated-path"
+      tag: "0.9.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "garage"
-      tag: ""
+      tag: "0.9.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Garage package
     flux: {}
