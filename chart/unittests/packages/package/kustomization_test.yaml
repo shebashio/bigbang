@@ -16,6 +16,7 @@ tests:
           enabled: true
           kustomize: true
           git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/sample.git
             path: ./manifests
           flux:
             force: false
