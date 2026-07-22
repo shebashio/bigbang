@@ -790,17 +790,17 @@ Kubernetes: `>=1.34.0-0`
 | packages.sample.kustomize | bool | `false` | Use a kustomize deployment rather than Helm |
 | packages.sample.passBigBangValues | bool | false | Pass bigbang values to the package |
 | packages.sample.bbCommonValues | bool | true | Pass bb-common values to the package |
-| packages.sample.helmRepo | object | `{"chartName":null,"repoName":null,"tag":null}` | HelmRepo source is supported as an option for Helm deployments. If both `git` and `helmRepo` are provided `git` will take precedence. |
+| packages.sample.helmRepo | object | `{"chartName":null,"repoName":null,"tag":null}` | HelmRepo source is supported as an option for Helm deployments and is selected with `sourceType: helmRepo`. |
 | packages.sample.helmRepo.repoName | string | `nil` | Name of the HelmRepo specified in `helmRepositories` |
 | packages.sample.helmRepo.chartName | string | `nil` | Name of the chart stored in the Helm repository |
 | packages.sample.helmRepo.tag | string | `nil` | Tag of the chart in the Helm repo, required |
-| packages.sample.git | object | `{"branch":null,"commit":null,"credentials":{"caFile":"","knownHosts":"","password":"","privateKey":"","publicKey":"","username":""},"existingSecret":"","path":null,"repo":null,"semver":null,"tag":null}` | Git source is supported for both Helm and Kustomize deployments. If both `git` and `helmRepo` are provided `git` will take precedence. |
+| packages.sample.git | object | `{"branch":null,"commit":null,"credentials":{"caFile":"","knownHosts":"","password":"","privateKey":"","publicKey":"","username":""},"existingSecret":"","path":null,"repo":null,"semver":null,"tag":null}` | Git source is supported for both Helm and Kustomize deployments and is selected with `sourceType: git`. |
 | packages.sample.git.repo | string | `nil` | Git repo URL holding the helm chart for this package, required if using git |
 | packages.sample.git.commit | string | `nil` | Git commit to check out.  Takes precedence over semver, tag, and branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference) |
 | packages.sample.git.semver | string | `nil` | Git semVer tag expression to check out.  Takes precedence over tag. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference) |
 | packages.sample.git.tag | string | `nil` | Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference) |
 | packages.sample.git.branch | string | `nil` | Git branch to check out.  [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference). |
-| packages.sample.git.path | string | `nil` | Path inside of the git repo to find the helm chart or kustomize |
+| packages.sample.git.path | string | `nil` | Path inside the Git repository to the Helm chart or Kustomization. Required for Kustomize packages. |
 | packages.sample.git.existingSecret | string | `""` | Optional, alternative existing secret to use for git credentials, must be in the appropriate format: https://toolkit.fluxcd.io/components/source/gitrepositories/#https-authentication |
 | packages.sample.git.credentials | object | `{"caFile":"","knownHosts":"","password":"","privateKey":"","publicKey":"","username":""}` | Optional, alternative Chart created secrets with user defined values |
 | packages.sample.git.credentials.username | string | `""` | HTTP git credentials, both username and password must be provided |
