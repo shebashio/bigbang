@@ -68,8 +68,26 @@ routes:
       hosts:
       - {{ coalesce (dig "sso" "host" nil .Values.addons.gitlab.values) (include "sso.host" .) }}
 
-{{- $minioEnabled := dig "global" "minio" "enabled" true .Values.addons.gitlab.values }}
-{{- $postgresEnabled := dig "upstream" "postgresql" "install" true .Values.addons.gitlab.values }}
+{{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
+{{- $gitlabUpstreamValues := (get .Values.addons.gitlab.values "upstream") | default dict }}
+{{- $minioEnabled := true }}
+{{- if hasKey $gitlabGlobalValues "minio" }}
+  {{- $gitlabMinioValues := get $gitlabGlobalValues "minio" }}
+  {{- if kindIs "map" $gitlabMinioValues }}
+    {{- $minioEnabled = dig "enabled" true $gitlabMinioValues }}
+  {{- else }}
+    {{- $minioEnabled = false }}
+  {{- end }}
+{{- end }}
+{{- $postgresEnabled := true }}
+{{- if hasKey $gitlabUpstreamValues "postgresql" }}
+  {{- $gitlabPostgresqlValues := get $gitlabUpstreamValues "postgresql" }}
+  {{- if kindIs "map" $gitlabPostgresqlValues }}
+    {{- $postgresEnabled = dig "install" true $gitlabPostgresqlValues }}
+  {{- else }}
+    {{- $postgresEnabled = false }}
+  {{- end }}
+{{- end }}
 {{- $iamProfileUsed := dig "use_iam_profile" false .Values.addons.gitlab.values }}
 {{- $iamProfileUsed = not (empty .Values.addons.gitlab.objectStorage.iamProfile) | or $iamProfileUsed }}
 networkPolicies:

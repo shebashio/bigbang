@@ -110,3 +110,56 @@ tests:
       - equal:
           path: global.appConfig.artifacts.connection.key
           value: rails
+
+  - it: preserves GitLab 18 network policy defaults when removed service blocks are absent
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          value: false
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          value: false
+      - notExists:
+          path: redis-bb
+      - notExists:
+          path: garage
+      - notExists:
+          path: postgresql.enabled
+
+  - it: tolerates null GitLab 19 removed service blocks without enabling replacements
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons:
+        gitlab:
+          enabled: true
+          values:
+            global:
+              minio: null
+            upstream:
+              postgresql: null
+              redis: null
+              minio: null
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          value: true
+      - notExists:
+          path: redis-bb
+      - notExists:
+          path: garage
+      - notExists:
+          path: postgresql.enabled
