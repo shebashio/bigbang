@@ -1521,6 +1521,12 @@ addons:
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
 
+    # -- Additional HelmRelease dependencies for GitLab. Use this for operators
+    # that must be Ready before the GitLab chart creates their custom resources.
+    dependsOn: []
+    # - name: cloudnative-pg
+    #   namespace: bigbang
+
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
       gateway: ""
