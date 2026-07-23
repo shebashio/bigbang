@@ -109,12 +109,6 @@ upstream:
   openShift:
     enabled: {{ .Values.openshift }}
 
-  extraPorts:
-    - name: tcp-http
-      containerPort: 2020
-      protocol: TCP
-      port: 2021
-
   {{- if eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: true
