@@ -108,8 +108,7 @@ tests:
           enabled: true
           sourceType: git
           git:
-            repo: https://github.com/stefanprodan/podinfo.git
-            path: null
+            path: charts/podinfo
             tag: "6.3.4"
     asserts:
       - failedTemplate:

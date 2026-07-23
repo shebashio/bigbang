@@ -531,6 +531,24 @@ tests:
         name: istiod
       any: true
 
+- it: authservice should depend on gateway-api when ambient mode is enabled
+  set:
+    istio:
+      ambient:
+        enabled: true
+    addons:
+      authservice:
+        enabled: true
+    monitoring:
+      enabled: false
+  template: authservice/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: gateway-api
+      any: true
+
 - it: kyverno-policies should always depend on kyverno
   set:
     kyvernoPolicies:
