@@ -549,6 +549,21 @@ tests:
         name: gateway-api
       any: true
 
+- it: other Istio-integrated packages should not depend on gateway-api in ambient mode
+  set:
+    istio:
+      ambient:
+        enabled: true
+    monitoring:
+      enabled: true
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - notContains:
+      path: spec.dependsOn
+      content:
+        name: gateway-api
+      any: true
+
 - it: kyverno-policies should always depend on kyverno
   set:
     kyvernoPolicies:
