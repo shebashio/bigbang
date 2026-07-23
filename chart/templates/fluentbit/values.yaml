@@ -113,7 +113,7 @@ upstream:
   serviceMonitor:
     enabled: true
     namespace: monitoring
-    path: /api/v2/metrics/prometheus
+    path: /api/v1/metrics/prometheus
     interval: 10s
     scrapeTimeout: 10s
     selector:
