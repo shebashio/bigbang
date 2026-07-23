@@ -9,14 +9,6 @@
           kind: DaemonSet
           name: fluentbit-fluent-bit
           namespace: fluentbit
-      - patch: |
-          - op: replace
-            path: /spec/ports/0/name
-            value: tcp-http
-        target:
-          kind: Service
-          name: fluentbit-fluent-bit
-          namespace: fluentbit
       {{- if eq (include "metricScrapingEnabled" .) "true" }}
       - patch: |
           - op: replace
