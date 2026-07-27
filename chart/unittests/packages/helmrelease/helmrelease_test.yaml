@@ -551,9 +551,8 @@ tests:
 
 - it: standalone ztunnel should not make authservice depend on gateway-api
   set:
-    packages:
-      ztunnel:
-        enabled: true
+    ztunnel:
+      enabled: true
     addons:
       authservice:
         enabled: true
@@ -620,9 +619,8 @@ tests:
 
 - it: standalone ztunnel should not render gateway-api
   set:
-    packages:
-      ztunnel:
-        enabled: true
+    ztunnel:
+      enabled: true
   template: gateway-api/helmrelease.yaml
   asserts:
   - hasDocuments:

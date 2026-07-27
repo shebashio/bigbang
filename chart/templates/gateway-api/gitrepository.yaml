@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-{{- if and (eq .Values.gatewayAPI.sourceType "git") (not .Values.offline) (or .Values.gatewayAPI.enabled .Values.istio.ambient.enabled) }}
-=======
-{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if and (eq .Values.gatewayAPI.sourceType "git") (not .Values.offline) (eq (include "gatewayAPIEnabled" .) "true") }}
->>>>>>> Stashed changes
 {{- include "bigbang.gitRepository" (dict "name" "gateway-api" "gitCredsName" "gatewayAPI" "git" .Values.gatewayAPI.git "component" "core" "root" .) }}
 {{- end }}
