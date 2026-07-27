@@ -549,6 +549,85 @@ tests:
         name: gateway-api
       any: true
 
+- it: standalone ztunnel should not make authservice depend on gateway-api
+  set:
+    packages:
+      ztunnel:
+        enabled: true
+    addons:
+      authservice:
+        enabled: true
+    monitoring:
+      enabled: false
+  template: authservice/helmrelease.yaml
+  asserts:
+  - notContains:
+      path: spec.dependsOn
+      content:
+        name: gateway-api
+      any: true
+  - notContains:
+      path: spec.dependsOn
+      content:
+        name: ztunnel
+      any: true
+
+- it: standalone gateway-api should not make sidecar authservice depend on it
+  set:
+    gatewayAPI:
+      enabled: true
+    addons:
+      authservice:
+        enabled: true
+    monitoring:
+      enabled: false
+  template: authservice/helmrelease.yaml
+  asserts:
+  - notContains:
+      path: spec.dependsOn
+      content:
+        name: gateway-api
+      any: true
+
+- it: standalone ztunnel should render with its required istio-cni dependency
+  set:
+    ztunnel:
+      enabled: true
+  template: ztunnel/helmrelease.yaml
+  asserts:
+  - isKind:
+      of: HelmRelease
+  - equal:
+      path: metadata.name
+      value: ztunnel
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: istio-cni
+      any: true
+
+- it: standalone ztunnel should automatically render istio-cni
+  set:
+    ztunnel:
+      enabled: true
+  template: istio-cni/helmrelease.yaml
+  asserts:
+  - isKind:
+      of: HelmRelease
+  - equal:
+      path: metadata.name
+      value: istio-cni
+
+- it: standalone ztunnel should not render gateway-api
+  set:
+    packages:
+      ztunnel:
+        enabled: true
+  template: gateway-api/helmrelease.yaml
+  asserts:
+  - hasDocuments:
+      count: 0
+
 - it: other Istio-integrated packages should not depend on gateway-api in ambient mode
   set:
     istio:

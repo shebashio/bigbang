@@ -62,11 +62,11 @@ authservice:
 
 upstream:
   cni:
-    enabled: {{ or .Values.istioCNI.enabled .Values.istio.ambient.enabled }}
+    enabled: {{ include "istioCNIEnabled" . }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     {{- include "secretsImagePullSecrets" . | nindent 4 }}
-  {{- if eq (include "ambientEnabled" .) "true" }}
+  {{- if eq (include "ztunnelEnabled" .) "true" }}
   pilot:
     env:
       PILOT_ENABLE_AMBIENT: "true"

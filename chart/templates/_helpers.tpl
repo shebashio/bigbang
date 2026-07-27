@@ -753,9 +753,24 @@ valuesFrom:
 -}}
 {{- end -}}
 
-{{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
+{{- /* Returns true when the umbrella ecosystem is configured for ambient mode. */ -}}
 {{- define "ambientEnabled" -}}
+{{ .Values.istio.ambient.enabled }}
+{{- end -}}
+
+{{- /* Returns true when ztunnel infrastructure should be deployed. */ -}}
+{{- define "ztunnelEnabled" -}}
 {{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- end -}}
+
+{{- /* Returns true when Istio CNI should be deployed. Ztunnel requires ambient CNI support. */ -}}
+{{- define "istioCNIEnabled" -}}
+{{ or .Values.istioCNI.enabled (eq (include "ztunnelEnabled" .) "true") }}
+{{- end -}}
+
+{{- /* Returns true when the Gateway API CRDs should be deployed. */ -}}
+{{- define "gatewayAPIEnabled" -}}
+{{ or .Values.gatewayAPI.enabled .Values.istio.ambient.enabled }}
 {{- end -}}
 
 {{- /* Returns "true" if networkPolicies should be enabled for a package.
@@ -809,7 +824,7 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- define "istioHelmReleases" -}}
 - name: istiod
   namespace: {{ .Release.Namespace }}
-{{- if or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- if eq (include "istioCNIEnabled" .) "true" }}
 - name: istio-cni
   namespace: {{ .Release.Namespace }}
 {{- end }}

@@ -65,7 +65,7 @@ tests:
       - equal:
           path: networkPolicies.enabled
           value: true
-  - it: enables networkPolicies if ztunnel is enabled even when networkPolicies.enabled is false
+  - it: does not enable ambient networkPolicies when only ztunnel is enabled
     postRenderer:
       cmd: "sh"
       args:
@@ -79,7 +79,10 @@ tests:
     asserts:
       - equal:
           path: networkPolicies.enabled
-          value: true
+          value: false
+      - equal:
+          path: istio.ambient.enabled
+          value: false
   - it: disables networkPolicies when both networkPolicies.enabled and ambient are false
     postRenderer:
       cmd: "sh"

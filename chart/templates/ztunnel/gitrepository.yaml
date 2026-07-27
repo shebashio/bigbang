@@ -1,3 +1,8 @@
+<<<<<<< Updated upstream
 {{- if and (eq .Values.ztunnel.sourceType "git") (not .Values.offline) (eq (include "ambientEnabled" .) "true") }}
+=======
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- if and (eq .Values.ztunnel.sourceType "git") (not .Values.offline) (eq (include "ztunnelEnabled" .) "true") }}
+>>>>>>> Stashed changes
 {{- include "bigbang.gitRepository" (dict "name" "ztunnel" "gitCredsName" "ztunnel" "git" .Values.ztunnel.git "component" "core" "root" .) }}
 {{- end }}

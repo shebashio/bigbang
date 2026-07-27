@@ -1,3 +1,8 @@
+<<<<<<< Updated upstream
 {{- if and (eq .Values.istioCNI.sourceType "git") (not .Values.offline) (or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true")) }}
+=======
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- if and (eq .Values.istioCNI.sourceType "git") (not .Values.offline) (eq (include "istioCNIEnabled" .) "true") }}
+>>>>>>> Stashed changes
 {{- include "bigbang.gitRepository" (dict "name" "istio-cni" "gitCredsName" "istioCNI" "git" .Values.istioCNI.git "component" "core" "root" .) }}
 {{- end }}

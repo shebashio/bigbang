@@ -124,14 +124,20 @@ tests:
           path: bb-common.istio.authorizationPolicies.generateFromNetpol
           value: true
 
-  - it: should enable networkPolicies when ambient is enabled via ztunnel
+  - it: should not enable ambient package settings when only ztunnel is enabled
     set:
       networkPolicies.enabled: false
       ztunnel.enabled: true
     asserts:
       - equal:
           path: bb-common.networkPolicies.enabled
-          value: true
+          value: false
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: false
 
   - it: should pass through networkPolicies egress settings
     set:

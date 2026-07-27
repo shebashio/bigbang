@@ -52,16 +52,18 @@ tests:
       - notExists:
           path: monitoring.serviceMonitor.tlsConfig
 
-  - it: should not render tlsConfig when ambient mode is enabled via ztunnel
+  - it: should retain sidecar tlsConfig when only ztunnel is enabled
     set:
       istiod.enabled: true
       ztunnel.enabled: true
       loki.values.istio.mtls.mode: STRICT
     asserts:
-      - notExists:
+      - equal:
           path: monitoring.serviceMonitor.scheme
-      - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          value: https
+      - equal:
+          path: monitoring.serviceMonitor.tlsConfig.caFile
+          value: /etc/prom-certs/root-cert.pem
 
   - it: should not render tlsConfig when ambient mode is enabled via istio.ambient.enabled
     set:
