@@ -1107,30 +1107,6 @@ addons:
           hpa:
             minReplicas: 1
             maxReplicas: 1
-        postgresql:
-          persistence:
-            size: 256Mi
-          primary:
-            resources:
-              limits:
-                memory: 1Gi
-          metrics:
-            resources:
-              requests:
-                cpu: 10m
-        minio:
-          persistence:
-            size: 256Mi
-          resources:
-            requests:
-              cpu: 50m
-        redis:
-          master:
-            persistence:
-              size: 256Mi
-          replica:
-            persistence:
-              size: 256Mi
       bbtests:
         enabled: true
 
