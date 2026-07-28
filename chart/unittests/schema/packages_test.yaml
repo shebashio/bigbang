@@ -31,6 +31,18 @@ tests:
     asserts:
       - notFailedTemplate: {}
 
+  - it: should allow a Git Helm package to use the default chart path
+    set:
+      packages:
+        podinfo:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://github.com/stefanprodan/podinfo.git
+            tag: "6.3.4"
+    asserts:
+      - notFailedTemplate: {}
+
   - it: should pass validation with a HelmRepository package
     set:
       packages:
@@ -59,6 +71,20 @@ tests:
     asserts:
       - notFailedTemplate: {}
 
+  - it: should fail validation when a Git Kustomization omits its path
+    set:
+      packages:
+        podinfo:
+          enabled: true
+          sourceType: git
+          kustomize: true
+          git:
+            repo: https://github.com/example/manifests.git
+            branch: main
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
   - it: should allow incomplete source stubs for disabled packages
     set:
       packages:
@@ -82,8 +108,6 @@ tests:
           enabled: true
           sourceType: git
           git:
-            repo: https://github.com/stefanprodan/podinfo.git
-            path: null
             tag: "6.3.4"
     asserts:
       - failedTemplate:
