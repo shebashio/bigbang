@@ -3,6 +3,7 @@
 #   repoName: A string matching the `CI_PROJECT_NAME` in repo1. Typically this is the URL/path for the repo.
 #   hrName: A string matching the helmrelease name in `chart/templates/package/helmrelease.yaml`.
 #   filePath: A string matching the filePath for the package directory in `chart/templates`. This is typically just `package`.
+#   enablePath: Optional values path whose enabled field should be set instead of the package path.
 #   dependencies: A list of all packages that should also be deployed in CI if this one is enabled. These names should match the other package(s) values keys.
 # Note: For any locations where the value matches the top level key, these can be left blank.
 
@@ -14,6 +15,11 @@ istioCNI:
   repoName: "istio-cni"
   hrName: "istio-cni"
   filePath: "istio-cni"
+ztunnel:
+  repoName: "ztunnel"
+  hrName: "ztunnel"
+  filePath: "ztunnel"
+  enablePath: "istio.ambient"
 istioCRDs:
   repoName: "istio-crds"
   hrName: "istio-crds"
@@ -38,10 +44,15 @@ elasticsearchKibana:
   repoName: "elasticsearch-kibana"
   hrName: "ek"
   filePath: "elasticsearch-kibana"
+  dependencies:
+    - "fluentbit"
 eckOperator:
   repoName: "eck-operator"
   hrName: "eck-operator"
   filePath: "eck-operator"
+  dependencies:
+    - "elasticsearchKibana"
+    - "fluentbit"
 fluentbit:
   hrName: "fluentbit"
   filePath: "fluentbit"
