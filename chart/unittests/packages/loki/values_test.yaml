@@ -52,10 +52,10 @@ tests:
       - notExists:
           path: monitoring.serviceMonitor.tlsConfig
 
-  - it: should retain sidecar tlsConfig when only ztunnel is enabled
+  - it: should retain sidecar tlsConfig when only istio-cni is enabled
     set:
       istiod.enabled: true
-      ztunnel.enabled: true
+      istioCNI.enabled: true
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - equal:

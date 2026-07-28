@@ -124,10 +124,10 @@ tests:
           path: bb-common.istio.authorizationPolicies.generateFromNetpol
           value: true
 
-  - it: should not enable ambient package settings when only ztunnel is enabled
+  - it: should not enable ambient package settings when only istio-cni is enabled
     set:
       networkPolicies.enabled: false
-      ztunnel.enabled: true
+      istioCNI.enabled: true
     asserts:
       - equal:
           path: bb-common.networkPolicies.enabled

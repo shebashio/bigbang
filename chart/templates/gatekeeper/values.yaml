@@ -98,7 +98,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - podinfo/curl
       {{- end }}
 
-  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.alloy.enabled (eq (include "ztunnelEnabled" .) "true") (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
+  {{- if or .Values.monitoring.enabled .Values.fluentbit.enabled .Values.twistlock.enabled .Values.neuvector.enabled .Values.alloy.enabled (eq (include "ambientEnabled" .) "true") (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent)}}
   allowedHostFilesystem:
     parameters:
       excludedResources:
@@ -122,7 +122,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # alloy pods need access to host for logs
       - alloy/alloy-alloy-logs-.*
       {{- end }}
-      {{- if eq (include "ztunnelEnabled" .) "true" }}
+      {{- if eq (include "ambientEnabled" .) "true" }}
       # ztunnel requires host file system for certificates and cni integration
       - istio-system/ztunnel-.*
       {{- end }}
@@ -207,7 +207,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - istio-system
         - istio-gateway
 
-  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled .Values.alloy.enabled (eq (include "ztunnelEnabled" .) "true") }}
+  {{- if or .Values.monitoring.enabled .Values.twistlock.enabled .Values.alloy.enabled (eq (include "ambientEnabled" .) "true") }}
   restrictedTaint:
     parameters:
       excludedResources:
@@ -221,7 +221,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- if .Values.alloy.enabled }}
       - alloy/alloy-alloy-logs-.*
       {{- end }}
-      {{- if eq (include "ztunnelEnabled" .) "true" }}
+      {{- if eq (include "ambientEnabled" .) "true" }}
       - istio-system/ztunnel-.*
       {{- end }}
   {{- end }}
@@ -244,7 +244,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.monitoring.enabled .Values.neuvector.enabled .Values.alloy.enabled (eq (include "ztunnelEnabled" .) "true") (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent) }}
+  {{- if or .Values.fluentbit.enabled .Values.twistlock.enabled .Values.monitoring.enabled .Values.neuvector.enabled .Values.alloy.enabled (eq (include "ambientEnabled" .) "true") (and .Values.addons.velero.enabled .Values.addons.velero.values.deployNodeAgent) }}
   volumeTypes:
     parameters:
       excludedResources:
@@ -278,7 +278,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # alloy requires hostpath volume types
       - alloy/alloy-alloy-logs-.*
       {{- end }}
-      {{- if eq (include "ztunnelEnabled" .) "true" }}
+      {{- if eq (include "ambientEnabled" .) "true" }}
       # ztunnel requires hostpath volume types for certificates and cni integration
       - istio-system/ztunnel-.*
       {{- end }}

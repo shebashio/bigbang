@@ -87,9 +87,9 @@ tests:
           path: metadata.namespace
           value: custom-metrics
 
-  - it: should not duplicate the registry secret owned by istio-cni when ztunnel is enabled
+  - it: should not duplicate the registry secret when istio-cni owns it
     set:
-      ztunnel:
+      istioCNI:
         enabled: true
       registryCredentials:
         registry: registry1.dso.mil

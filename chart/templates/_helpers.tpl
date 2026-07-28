@@ -758,14 +758,16 @@ valuesFrom:
 {{ .Values.istio.ambient.enabled }}
 {{- end -}}
 
-{{- /* Returns true when ztunnel infrastructure should be deployed. */ -}}
-{{- define "ztunnelEnabled" -}}
-{{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- /* Reject standalone ztunnel because it is supported only as part of the ambient bundle. */ -}}
+{{- define "validateZtunnelConfiguration" -}}
+{{- if and .Values.ztunnel.enabled (ne (include "ambientEnabled" .) "true") -}}
+{{- fail "ztunnel cannot be enabled independently; set istio.ambient.enabled=true" -}}
+{{- end -}}
 {{- end -}}
 
-{{- /* Returns true when Istio CNI should be deployed. Ztunnel requires ambient CNI support. */ -}}
+{{- /* Returns true when Istio CNI should be deployed explicitly or by the ambient bundle. */ -}}
 {{- define "istioCNIEnabled" -}}
-{{ or .Values.istioCNI.enabled (eq (include "ztunnelEnabled" .) "true") }}
+{{ or .Values.istioCNI.enabled .Values.istio.ambient.enabled }}
 {{- end -}}
 
 {{- /* Returns true when the Gateway API CRDs should be deployed. */ -}}

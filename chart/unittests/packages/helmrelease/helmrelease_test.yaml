@@ -549,27 +549,17 @@ tests:
         name: gateway-api
       any: true
 
-- it: standalone ztunnel should not make authservice depend on gateway-api
+- it: standalone ztunnel should fail with a clear configuration error
   set:
     ztunnel:
       enabled: true
-    addons:
-      authservice:
-        enabled: true
-    monitoring:
-      enabled: false
-  template: authservice/helmrelease.yaml
+    istio:
+      ambient:
+        enabled: false
+  template: ztunnel/helmrelease.yaml
   asserts:
-  - notContains:
-      path: spec.dependsOn
-      content:
-        name: gateway-api
-      any: true
-  - notContains:
-      path: spec.dependsOn
-      content:
-        name: ztunnel
-      any: true
+  - failedTemplate:
+      errorMessage: "ztunnel cannot be enabled independently; set istio.ambient.enabled=true"
 
 - it: standalone gateway-api should not make sidecar authservice depend on it
   set:
@@ -588,10 +578,11 @@ tests:
         name: gateway-api
       any: true
 
-- it: standalone ztunnel should render with its required istio-cni dependency
+- it: ambient bundle should render ztunnel with its istio-cni dependency
   set:
-    ztunnel:
-      enabled: true
+    istio:
+      ambient:
+        enabled: true
   template: ztunnel/helmrelease.yaml
   asserts:
   - isKind:
@@ -605,10 +596,11 @@ tests:
         name: istio-cni
       any: true
 
-- it: standalone ztunnel should automatically render istio-cni
+- it: ambient bundle should automatically render istio-cni
   set:
-    ztunnel:
-      enabled: true
+    istio:
+      ambient:
+        enabled: true
   template: istio-cni/helmrelease.yaml
   asserts:
   - isKind:
@@ -617,14 +609,42 @@ tests:
       path: metadata.name
       value: istio-cni
 
-- it: standalone ztunnel should not render gateway-api
+- it: ambient bundle should automatically render gateway-api
   set:
-    ztunnel:
-      enabled: true
+    istio:
+      ambient:
+        enabled: true
   template: gateway-api/helmrelease.yaml
+  asserts:
+  - isKind:
+      of: HelmRelease
+  - equal:
+      path: metadata.name
+      value: gateway-api
+
+- it: explicit istio-cni should not render ztunnel
+  set:
+    istioCNI:
+      enabled: true
+  template: ztunnel/helmrelease.yaml
   asserts:
   - hasDocuments:
       count: 0
+
+- it: explicit gateway-api should render outside ambient mode
+  set:
+    gatewayAPI:
+      enabled: true
+    istio:
+      ambient:
+        enabled: false
+  template: gateway-api/helmrelease.yaml
+  asserts:
+  - isKind:
+      of: HelmRelease
+  - equal:
+      path: metadata.name
+      value: gateway-api
 
 - it: other Istio-integrated packages should not depend on gateway-api in ambient mode
   set:

@@ -8,10 +8,10 @@ postRenderer:
     - "-c"
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
-  - it: should include the ztunnel policy exception when ztunnel is installed standalone
+  - it: should include the ztunnel policy exception when ambient is enabled
     set:
       kyvernoPolicies.enabled: true
-      ztunnel.enabled: true
+      istio.ambient.enabled: true
     asserts:
       - equal:
           path: additionalPolicyExceptions.ztunnel.enabled
