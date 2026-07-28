@@ -35,18 +35,17 @@ Ztunnel is part of the Istio project and is open source, licensed under the [Apa
 
 ### Installation
 
-Ztunnel is deployed to the `istio-system` namespace. It can be enabled explicitly or is automatically enabled when `istio.ambient.enabled: true` is set in Big Bang values:
+Ztunnel is deployed to the `istio-system` namespace as part of Big Bang's ambient infrastructure bundle. Enable the complete bundle with:
 
 ```yaml
-# Explicit enable
-ztunnel:
-  enabled: true
-
-# Or via ambient mode (auto-enables ztunnel)
 istio:
   ambient:
     enabled: true
 ```
+
+This automatically deploys and configures Istio CNI, Gateway API, and ztunnel. Standalone ztunnel deployment is not supported because it would not provide a complete ambient mesh configuration.
+
+The legacy `ztunnel.enabled` setting is deprecated. Setting it to `true` without enabling `istio.ambient.enabled` causes chart rendering to fail with guidance to use the global ambient toggle.
 
 ### Storage
 
@@ -96,14 +95,14 @@ Ztunnel runs as a DaemonSet, ensuring one instance per node. This architecture p
 
 ### Dependent Packages
 
-Ztunnel requires the following packages:
+The ambient infrastructure bundle deploys the following required packages:
 
 - **istiod**: The Istio control plane that configures ztunnel
 - **istio-cni**: Required for traffic interception in ambient mode
+- **Gateway API**: Provides the CRDs used for ambient traffic routing and waypoint configuration
 
-Optional but recommended:
+Related optional packages include:
 
-- **Gateway API**: Provides the CRDs for configuring traffic routing in ambient mode
 - **Kiali**: Visualization and management of the ambient mesh
 - **Monitoring**: Metrics collection and dashboards
 
@@ -113,7 +112,6 @@ Values can be passed through to the ztunnel chart:
 
 ```yaml
 ztunnel:
-  enabled: true
   values:
     # Upstream chart values go here
     upstream:

@@ -133,7 +133,7 @@ Kubernetes: `>=1.34.0-0`
 | istioGateway.values | object | `{}` | Values to passthrough to the gateway chart(s) |
 | istioGateway.flux | object | `{"driftDetection":{"ignore":[{"paths":[""],"target":{"kind":"PeerAuthentication","namespace":"istio-gateway"}},{"paths":[""],"target":{"kind":"AuthorizationPolicy","namespace":"istio-gateway"}},{"paths":[""],"target":{"kind":"NetworkPolicy","namespace":"istio-gateway"}}]}}` | Flux reconciliation overrides specifically for the Istio Gateway Package |
 | istioGateway.postRenderers | list | `[]` | Post Renderers.  See docs/postrenders.md The istioGateway package supports advanced postRenderer definitions. If an array of postRenderers is provided, the postRenderers will be applied to all gateways. If a map of postRenderers is provided, the postRenderers will be applied only to their respective gateways. The map key must match the gateway name for the postRenderers to be applied to that gateway. You cannot mix array and map postRenderers. |
-| ztunnel.enabled | bool | `false` | Toggle deployment of ztunnel (required for Istio ambient mode) |
+| ztunnel.enabled | bool | `false` | Deprecated standalone toggle. Ztunnel is deployed by `istio.ambient.enabled` and cannot be enabled independently. |
 | ztunnel.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | ztunnel.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/ztunnel.git"` |  |
 | ztunnel.git.path | string | `"./chart"` |  |

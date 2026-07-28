@@ -17,10 +17,9 @@ tests:
           path: additionalPolicyExceptions.ztunnel.enabled
           value: true
 
-  - it: should not include the ztunnel policy exception when ztunnel is disabled
+  - it: should not include the ztunnel policy exception when ambient is disabled
     set:
       kyvernoPolicies.enabled: true
-      ztunnel.enabled: false
       istio.ambient.enabled: false
     asserts:
       - notExists:
