@@ -22,17 +22,35 @@ deployment. Applied when Istio is enabled and monitoring is enabled.
 {{- end }}
 
 {{/*
-Patches the upstream garage ServiceMonitor to set scheme: https, inject Istio
-prom-certs into tlsConfig, and fix the jobLabel.
+Patches the upstream garage ServiceMonitor to set jobLabel: app.kubernetes.io/name.
+
+The upstream chart hardcodes jobLabel to the Helm release name (e.g. "garage-garage"),
+which is not a label key on the metrics Service. Prometheus falls back to
+job="garage-metrics", breaking all 11 Grafana dashboard expressions that filter on
+job="garage". The correct label key is "app.kubernetes.io/name", whose value on the
+Service is "garage".
+
+Applied whenever monitoring is enabled, regardless of Istio mode.
+*/}}
+{{- define "garage.serviceMonitorJobLabelPostRenderer" }}
+- kustomize:
+    patches:
+      - patch: |
+          - op: replace
+            path: /spec/jobLabel
+            value: app.kubernetes.io/name
+        target:
+          kind: ServiceMonitor
+{{- end }}
+
+{{/*
+Patches the upstream garage ServiceMonitor to set scheme: https and inject Istio
+prom-certs into tlsConfig.
 
 The upstream chart's tlsConfig rendering has an nindent bug that places fields as
 siblings of tlsConfig rather than children, causing Prometheus Operator CRD validation
 to fail. By not passing tlsConfig through upstream values and instead injecting it here
 via JSON Patch, the bug is bypassed entirely.
-
-The upstream chart sets jobLabel to the Helm release name (e.g. "garage"), which is
-not a label that exists on the metrics Service. The correct label key is
-"app.kubernetes.io/name", whose value ("garage") becomes the Prometheus job label.
 
 Targets by kind only since there is exactly one ServiceMonitor in the garage release
 and the name varies with the Flux release name. Applied when Istio is enabled, ambient
@@ -52,9 +70,6 @@ is not active, and mTLS mode is STRICT.
               certFile: /etc/prom-certs/cert-chain.pem
               keyFile: /etc/prom-certs/key.pem
               insecureSkipVerify: true
-          - op: replace
-            path: /spec/jobLabel
-            value: app.kubernetes.io/name
         target:
           kind: ServiceMonitor
 {{- end }}

@@ -2,6 +2,7 @@
 {{- if .Values.addons.garage.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $installMetricsPostRenderer := and .Values.monitoring.enabled $istioEnabled }}
+{{- $installServiceMonitorJobLabelPostRenderer := .Values.monitoring.enabled }}
 {{- $installServiceMonitorPostRenderer := and .Values.monitoring.enabled $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.garage.values) "STRICT") }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -20,10 +21,13 @@ spec:
 
   {{- toYaml $fluxSettingsGarage | nindent 2 }}
 
-  {{- if or .Values.addons.garage.postRenderers $installMetricsPostRenderer $installServiceMonitorPostRenderer }}
+  {{- if or .Values.addons.garage.postRenderers $installMetricsPostRenderer $installServiceMonitorJobLabelPostRenderer $installServiceMonitorPostRenderer }}
   postRenderers:
   {{- if $installMetricsPostRenderer }}
   {{ include "garage.metricsServicePostRenderer" . | nindent 2 }}
+  {{- end }}
+  {{- if $installServiceMonitorJobLabelPostRenderer }}
+  {{ include "garage.serviceMonitorJobLabelPostRenderer" . | nindent 2 }}
   {{- end }}
   {{- if $installServiceMonitorPostRenderer }}
   {{ include "garage.serviceMonitorPostRenderer" . | nindent 2 }}
