@@ -72,11 +72,9 @@ networkPolicies:
 
 openshift: {{ .Values.openshift }}
 
-global:
-  {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
-
 upstream:
-
+  global:
+    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
   fullnameOverride: kyverno-kyverno
 
   replicaCount: 3
