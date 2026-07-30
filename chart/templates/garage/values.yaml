@@ -41,6 +41,11 @@ bb-common:
               tempo/tempo:9411: {{ .Values.tempo.enabled }}
     ingress:
       definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
+      to:
+        garage:3903:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
   routes:
     inbound:
       s3-api:

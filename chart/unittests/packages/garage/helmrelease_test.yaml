@@ -2,17 +2,42 @@
 suite: Package - Garage - HelmRelease PostRenderer Gates
 tests:
 
-- it: should not render postRenderers when monitoring is disabled
+- it: should not render postRenderers when metric scraping is disabled
   set:
     addons:
       garage:
         enabled: true
     monitoring:
       enabled: false
+    alloy:
+      enabled: false
   template: garage/helmrelease.yaml
   asserts:
   - notExists:
       path: spec.postRenderers
+
+- it: should render only the jobLabel renderer when alloy metrics are enabled and istio is disabled
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: false
+    alloy:
+      enabled: true
+      alloyMetrics:
+        enabled: true
+    istiod:
+      enabled: false
+  template: garage/helmrelease.yaml
+  asserts:
+  - exists:
+      path: spec.postRenderers
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - notExists:
+      path: spec.postRenderers[1]
 
 - it: should render only the jobLabel renderer when monitoring is enabled and istio is disabled
   set:
