@@ -57,6 +57,91 @@
   {{- end }}
 {{- end }}
 
+{{/*
+Render the standard private registry Secret used by integrated packages.
+The caller is responsible for package-specific enablement and ownership checks.
+
+Args (dict):
+  - root: root chart context ($ or .)
+  - namespace: namespace that receives the Secret
+  - appName: app.kubernetes.io/name label value (optional)
+  - component: app.kubernetes.io/component label value (optional)
+  - commonLabels: include common labels when no appName/component is supplied (optional)
+*/}}
+{{- define "bigbang.imagePullSecret" -}}
+{{- if (include "imagePullSecret" .root) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: private-registry
+  namespace: {{ .namespace }}
+  {{- if or .appName .component .commonLabels }}
+  labels:
+    {{- with .appName }}
+    app.kubernetes.io/name: {{ . }}
+    {{- end }}
+    {{- with .component }}
+    app.kubernetes.io/component: {{ . | quote }}
+    {{- end }}
+    {{- include "commonLabels" .root | nindent 4 }}
+  {{- end }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ include "imagePullSecret" .root }}
+{{- end }}
+{{- end }}
+
+{{/*
+Render a Namespace for an integrated package.
+The caller resolves package-specific enablement and passes the package values used
+to determine sidecar injection. Special namespaces with user-provided metadata or
+multiple resources remain in their package templates.
+
+Args (dict):
+  - root: root chart context ($ or .)
+  - name: Namespace metadata.name
+  - appName: app.kubernetes.io/name label value
+  - component: app.kubernetes.io/component label value (optional)
+  - package: package values containing istio.injection.enabled
+  - extraLabels: additional labels to render (optional)
+  - meshMode: "standard" (default), "disabled", or "none"
+  - ambientAware: honor ambient mode; defaults to true
+  - istioEnabled: override the global Istio enabled calculation (optional)
+*/}}
+{{- define "bigbang.namespace" -}}
+{{- $ambientAware := true -}}
+{{- if hasKey . "ambientAware" -}}
+{{- $ambientAware = .ambientAware -}}
+{{- end -}}
+{{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
+{{- if hasKey . "istioEnabled" -}}
+{{- $istioEnabled = .istioEnabled -}}
+{{- end -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- with .extraLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    app.kubernetes.io/name: {{ .appName }}
+    {{- with .component }}
+    app.kubernetes.io/component: {{ . | quote }}
+    {{- end }}
+    {{- include "commonLabels" .root | nindent 4 }}
+    {{- if eq .meshMode "disabled" }}
+    istio-injection: disabled
+    {{- else if eq .meshMode "none" }}
+    istio-injection: disabled
+    istio.io/dataplane-mode: none
+    {{- else if and $ambientAware (eq (include "ambientEnabled" .root) "true") }}
+    istio.io/dataplane-mode: ambient
+    {{- else }}
+    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled")) }}
+    {{- end }}
+{{- end }}
+
 {{- define "multipleCreds" -}}
 {
   "auths": {
