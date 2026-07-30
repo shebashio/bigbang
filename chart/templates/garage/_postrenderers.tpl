@@ -21,17 +21,6 @@ deployment. Applied when Istio is enabled and monitoring is enabled.
           name: ^.*-metrics$
 {{- end }}
 
-{{/*
-Patches the upstream garage ServiceMonitor to set jobLabel: app.kubernetes.io/name.
-
-The upstream chart hardcodes jobLabel to the Helm release name (e.g. "garage-garage"),
-which is not a label key on the metrics Service. Prometheus falls back to
-job="garage-metrics", breaking all 11 Grafana dashboard expressions that filter on
-job="garage". The correct label key is "app.kubernetes.io/name", whose value on the
-Service is "garage".
-
-Applied whenever monitoring is enabled, regardless of Istio mode.
-*/}}
 {{- define "garage.serviceMonitorJobLabelPostRenderer" }}
 - kustomize:
     patches:

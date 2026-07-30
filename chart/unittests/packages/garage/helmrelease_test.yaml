@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Garage - HelmRelease PostRenderer Gates
+tests:
+
+- it: should not render postRenderers when monitoring is disabled
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: false
+  template: garage/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.postRenderers
+
+- it: should render only the jobLabel renderer when monitoring is enabled and istio is disabled
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: false
+  template: garage/helmrelease.yaml
+  asserts:
+  - exists:
+      path: spec.postRenderers
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - notExists:
+      path: spec.postRenderers[1]
+
+- it: should render metrics renderer at index 0 when monitoring and istio are both enabled
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: Service
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.name
+      value: ^.*-metrics$
+
+- it: should render jobLabel renderer at index 1 when monitoring and istio are both enabled
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: "jobLabel"
+
+- it: should render mTLS ServiceMonitor renderer at index 2 when monitoring and istio enabled with STRICT mTLS
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: "tlsConfig"
+
+- it: should not render mTLS ServiceMonitor renderer when mtls mode is PERMISSIVE
+  set:
+    addons:
+      garage:
+        enabled: true
+        values:
+          bb-common:
+            istio:
+              mtls:
+                mode: PERMISSIVE
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - exists:
+      path: spec.postRenderers
+  - notExists:
+      path: spec.postRenderers[2]
