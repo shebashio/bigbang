@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Templates - Common Namespace and Registry Secret Resources
+tests:
+  - it: should not render a registry Secret without credentials
+    template: argocd/imagepullsecret.yaml
+    set:
+      addons:
+        argocd:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should preserve a package registry Secret metadata and type
+    template: tempo/imagepullsecret.yaml
+    set:
+      registryCredentials:
+        registry: registry1.dso.mil
+        username: test
+        password: test
+      tempo:
+        enabled: true
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.name
+          value: private-registry
+      - equal:
+          path: metadata.namespace
+          value: tempo
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: tempo
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: core
+      - equal:
+          path: type
+          value: kubernetes.io/dockerconfigjson
+      - exists:
+          path: data[".dockerconfigjson"]
+
+  - it: should preserve standard Namespace sidecar-injection labels
+    template: argocd/namespace.yaml
+    set:
+      istiod:
+        enabled: true
+      addons:
+        argocd:
+          enabled: true
+          istio:
+            injection: enabled
+    asserts:
+      - isKind:
+          of: Namespace
+      - equal:
+          path: metadata.name
+          value: argocd
+      - equal:
+          path: metadata.labels["istio-injection"]
+          value: enabled
+
+  - it: should preserve standard Namespace ambient labels
+    template: argocd/namespace.yaml
+    set:
+      istio:
+        ambient:
+          enabled: true
+      addons:
+        argocd:
+          enabled: true
+    asserts:
+      - equal:
+          path: metadata.labels["istio.io/dataplane-mode"]
+          value: ambient
+      - notExists:
+          path: metadata.labels["istio-injection"]
+
+  - it: should preserve forced mesh labels and additional labels
+    template: gatekeeper/namespace.yaml
+    set:
+      gatekeeper:
+        enabled: true
+    asserts:
+      - equal:
+          path: metadata.labels["istio-injection"]
+          value: disabled
+      - equal:
+          path: metadata.labels["admission.gatekeeper.sh/ignore"]
+          value: no-self-managing
+      - equal:
+          path: metadata.labels["gatekeeper.sh/system"]
+          value: "yes"
