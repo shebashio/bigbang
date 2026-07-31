@@ -27,7 +27,6 @@ bb-common:
       enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
     authorizationPolicies:
       enabled: {{ $istioHardened }}
-      generateFromNetpol: {{ $istioHardened }}
   networkPolicies:
     enabled: {{ .Values.networkPolicies.enabled }}
     hbonePortInjection:
