@@ -14,7 +14,7 @@
 
 {{- define "bigbang.defaults.garage" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.garage.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 
@@ -24,11 +24,12 @@ bb-common:
     ambient:
       enabled: {{ include "ambientEnabled" . }}
     sidecar:
-      enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+      enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
     authorizationPolicies:
-      enabled: {{ $istioHardened }}
+      enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.garage.values .) }}
+      generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.garage.values .) }}
   networkPolicies:
-    enabled: {{ .Values.networkPolicies.enabled }}
+    enabled: {{ include "networkPoliciesEnabled" . }}
     hbonePortInjection:
       enabled: {{ include "ambientEnabled" . }}
     egress:
