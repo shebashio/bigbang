@@ -985,12 +985,12 @@ addons:
       bbtests:
         enabled: true
         cypress:
-          resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              memory: 12Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
         istio:
           sidecar:
             resources:
