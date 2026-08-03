@@ -291,8 +291,8 @@ kyverno:
               cpu: 1
               memory: 768Mi
             requests:
-              cpu: 1
-              memory: 768Mi
+              cpu: 500m
+              memory: 384Mi
     bbtests:
       enabled: true
 
@@ -756,7 +756,7 @@ elasticsearchKibana:
           min: 1g
           max: 1g
       data:
-        count: 2
+        count: 1
         persistence:
           size: 256Mi
         resources:
@@ -807,6 +807,9 @@ loki:
     # MinIO required for Loki Scalable
     minio:
       enabled: true
+    loki:
+      commonConfig:
+        replication_factor: 1
     # Re-enable VirtualService for CI tests (alloy script test queries via VS)
     routes:
       inbound:
@@ -818,11 +821,11 @@ loki:
         envs:
           LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
     read:
-      replicas: 3
+      replicas: 1
     write:
-      replicas: 3
+      replicas: 1
     backend:
-      replicas: 3
+      replicas: 1
 
 tempo:
   values:
@@ -964,7 +967,7 @@ addons:
         controller:
           resources:
             requests:
-              memory: 2Gi
+              memory: 1Gi
         redis:
           resources:
             requests:
@@ -983,6 +986,9 @@ addons:
         enabled: true
         cypress:
           resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
             limits:
               memory: 12Gi
         istio:
@@ -1323,16 +1329,16 @@ addons:
             - name: velero
           pools:
           - name: pool-0
-            servers: 3
+            servers: 1
             volumesPerServer: 4
             size: 256Mi
             resources:
               requests:
                 cpu: 250m
-                memory: 2Gi
+                memory: 1Gi
               limits:
                 cpu: 250m
-                memory: 2Gi
+                memory: 1Gi
             securityContext:
               runAsUser: 1001
               runAsGroup: 1001
@@ -1410,10 +1416,10 @@ addons:
               resources:
                 requests:
                   cpu: 250m
-                  memory: 2Gi
+                  memory: 1Gi
                 limits:
                   cpu: 250m
-                  memory: 2Gi
+                  memory: 1Gi
               securityContext:
                 runAsUser: 1001
                 runAsGroup: 1001
@@ -1726,11 +1732,11 @@ addons:
           enabled: false
         externalURL: https://harbor.dev.bigbang.mil
         nginx:
-          replicas: 2
+          replicas: 1
         portal:
-          replicas: 2
+          replicas: 1
         core:
-          replicas: 2
+          replicas: 1
           secretName: "ci-only"
         #jobservice:
         #registry:
@@ -1811,10 +1817,10 @@ addons:
               resources:
                 requests:
                   cpu: 250m
-                  memory: 2Gi
+                  memory: 1Gi
                 limits:
                   cpu: 250m
-                  memory: 2Gi
+                  memory: 1Gi
               securityContext:
                 runAsUser: 1001
                 runAsGroup: 1001
