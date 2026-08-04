@@ -28,6 +28,12 @@ podAnnotations:
 
 upstream:
   operator:
+    {{- if $istioEnabled }}
+    # The upstream operator chart has no podAnnotations support, so use additionalLabels to
+    # force a rollout on Istio dataplane changes (a pod-template label change rolls pods too).
+    additionalLabels:
+      {{ include "istioAnnotation" . }}
+    {{- end }}
     image:
       pullPolicy: {{ .Values.imagePullPolicy}}
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
@@ -71,11 +77,6 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.minioOperator.values }}
       hosts:
       - repo1.dso.mil
-
-{{- if $istioEnabled }}
-annotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

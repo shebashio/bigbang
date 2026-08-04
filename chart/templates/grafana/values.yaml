@@ -98,7 +98,7 @@ upstream:
   {{- if eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: true
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -127,7 +127,7 @@ upstream:
   sidecar:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
     {{- if $gitlabRedis }}
