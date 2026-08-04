@@ -913,10 +913,13 @@ twistlock:
   values:
     resources:
       limits:
-        memory: 5Gi
+        memory: 8Gi
       requests:
-        memory: 5Gi
+        memory: 8Gi
     console:
+      extraEnv:
+        - name: CORE_MIN_LOG_LEVEL
+          value: "DEBUG"
       persistence:
         size: 5Gi
       localVolumeUpgrade: true
