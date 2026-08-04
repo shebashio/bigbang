@@ -72,7 +72,9 @@ upstream:
       PILOT_ENABLE_AMBIENT: "true"
   {{- end }}
 
+  {{- if or (eq (include "ambientEnabled" .) "true") $authserviceEnabled .Values.tempo.enabled }}
   meshConfig:
+    {{- if or (eq (include "ambientEnabled" .) "true") .Values.tempo.enabled }}
     defaultConfig:
       {{- if eq (include "ambientEnabled" .) "true" }}
       proxyMetadata:
@@ -82,6 +84,7 @@ upstream:
       tracing:
         sampling: 10
       {{- end }}
+    {{- end }}
     {{- if .Values.tempo.enabled }}
     accessLogFormat: |
       [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS% %RESPONSE_CODE_DETAILS% %CONNECTION_TERMINATION_DETAILS% "%UPSTREAM_TRANSPORT_FAILURE_REASON%" %BYTES_RECEIVED% %BYTES_SENT% %DURATION% %RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)% "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%" %UPSTREAM_CLUSTER% %UPSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_REMOTE_ADDRESS% %REQUESTED_SERVER_NAME% %ROUTE_NAME% traceID=%REQ(x-b3-traceid)%
@@ -107,6 +110,7 @@ upstream:
           port: 4317
     {{- end }}
     {{- end }}
+  {{- end }}
 {{ if and $authserviceEnabled .Values.sso.certificateAuthority.cert }}
   jwksResolverExtraRootCA: {{ .Values.sso.certificateAuthority.cert  | quote }}
 {{- end }}
