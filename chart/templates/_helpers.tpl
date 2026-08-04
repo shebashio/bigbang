@@ -107,9 +107,17 @@ Args (dict):
   - meshMode: "standard" (default), "sidecar-only", "disabled", or "none"
 */}}
 {{- define "bigbang.namespace" -}}
-{{- $meshMode := .meshMode | default "standard" -}}
-{{- if not (has $meshMode (list "standard" "sidecar-only" "disabled" "none")) -}}
-{{- fail (printf "bigbang.namespace: unsupported meshMode %q" $meshMode) -}}
+{{- $meshMode := "standard" -}}
+{{- if hasKey . "meshMode" -}}
+{{- $candidate := get . "meshMode" -}}
+{{- if not (kindIs "string" $candidate) -}}
+{{- fail (printf "bigbang.namespace: meshMode for namespace %q must be a string, got %s" .name (kindOf $candidate)) -}}
+{{- end -}}
+{{- $meshMode = $candidate -}}
+{{- end -}}
+{{- $validMeshModes := list "standard" "sidecar-only" "disabled" "none" -}}
+{{- if not (has $meshMode $validMeshModes) -}}
+{{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode .name (join ", " $validMeshModes)) -}}
 {{- end -}}
 {{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
 {{- $labels := include "commonLabels" .root | fromYaml -}}
