@@ -104,42 +104,38 @@ Args (dict):
   - component: app.kubernetes.io/component label value (optional)
   - package: package values containing istio.injection.enabled
   - extraLabels: additional labels to render (optional)
-  - meshMode: "standard" (default), "disabled", or "none"
-  - ambientAware: honor ambient mode; defaults to true
-  - istioEnabled: override the global Istio enabled calculation (optional)
+  - meshMode: "standard" (default), "sidecar-only", "disabled", or "none"
 */}}
 {{- define "bigbang.namespace" -}}
-{{- $ambientAware := true -}}
-{{- if hasKey . "ambientAware" -}}
-{{- $ambientAware = .ambientAware -}}
+{{- $meshMode := .meshMode | default "standard" -}}
+{{- if not (has $meshMode (list "standard" "sidecar-only" "disabled" "none")) -}}
+{{- fail (printf "bigbang.namespace: unsupported meshMode %q" $meshMode) -}}
 {{- end -}}
 {{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
-{{- if hasKey . "istioEnabled" -}}
-{{- $istioEnabled = .istioEnabled -}}
+{{- $labels := include "commonLabels" .root | fromYaml -}}
+{{- with .extraLabels -}}
+{{- $labels = mustMergeOverwrite $labels . -}}
+{{- end -}}
+{{- $labels = set $labels "app.kubernetes.io/name" .appName -}}
+{{- with .component -}}
+{{- $labels = set $labels "app.kubernetes.io/component" . -}}
+{{- end -}}
+{{- if eq $meshMode "disabled" -}}
+{{- $labels = set $labels "istio-injection" "disabled" -}}
+{{- else if eq $meshMode "none" -}}
+{{- $labels = set $labels "istio-injection" "disabled" -}}
+{{- $labels = set $labels "istio.io/dataplane-mode" "none" -}}
+{{- else if and (eq $meshMode "standard") (eq (include "ambientEnabled" .root) "true") -}}
+{{- $labels = set $labels "istio.io/dataplane-mode" "ambient" -}}
+{{- else -}}
+{{- $labels = set $labels "istio-injection" (ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled"))) -}}
 {{- end -}}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .name }}
   labels:
-    {{- with .extraLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-    app.kubernetes.io/name: {{ .appName }}
-    {{- with .component }}
-    app.kubernetes.io/component: {{ . | quote }}
-    {{- end }}
-    {{- include "commonLabels" .root | nindent 4 }}
-    {{- if eq .meshMode "disabled" }}
-    istio-injection: disabled
-    {{- else if eq .meshMode "none" }}
-    istio-injection: disabled
-    istio.io/dataplane-mode: none
-    {{- else if and $ambientAware (eq (include "ambientEnabled" .root) "true") }}
-    istio.io/dataplane-mode: ambient
-    {{- else }}
-    istio-injection: {{ ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled")) }}
-    {{- end }}
+    {{- toYaml $labels | nindent 4 }}
 {{- end }}
 
 {{- define "multipleCreds" -}}

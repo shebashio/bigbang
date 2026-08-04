@@ -61,6 +61,23 @@ tests:
           path: metadata.labels["istio-injection"]
           value: enabled
 
+  - it: should disable standard Namespace sidecar injection when Istio is globally disabled
+    template: argocd/namespace.yaml
+    set:
+      istiod:
+        enabled: false
+      addons:
+        argocd:
+          enabled: true
+          istio:
+            injection: enabled
+    asserts:
+      - equal:
+          path: metadata.labels["istio-injection"]
+          value: disabled
+      - notExists:
+          path: metadata.labels["istio.io/dataplane-mode"]
+
   - it: should preserve standard Namespace ambient labels
     template: argocd/namespace.yaml
     set:
@@ -92,3 +109,22 @@ tests:
       - equal:
           path: metadata.labels["gatekeeper.sh/system"]
           value: "yes"
+
+  - it: should keep a sidecar-only Namespace out of ambient mode
+    template: renovate/namespace.yaml
+    set:
+      istiod:
+        enabled: true
+      istio:
+        ambient:
+          enabled: true
+      renovate:
+        enabled: true
+        istio:
+          injection: enabled
+    asserts:
+      - equal:
+          path: metadata.labels["istio-injection"]
+          value: enabled
+      - notExists:
+          path: metadata.labels["istio.io/dataplane-mode"]
