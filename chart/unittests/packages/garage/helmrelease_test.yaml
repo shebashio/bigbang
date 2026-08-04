@@ -2,6 +2,88 @@
 suite: Package - Garage - HelmRelease PostRenderer Gates
 tests:
 
+- it: should use the stable integrated Helm release name
+  set:
+    addons:
+      garage:
+        enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.releaseName
+      value: garage
+
+- it: should honor an explicit Garage Helm release name override
+  set:
+    addons:
+      garage:
+        enabled: true
+        releaseName: object-store
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.releaseName
+      value: object-store
+
+- it: should preserve false and zero Garage Flux overrides
+  set:
+    flux:
+      timeout: 7m
+      rollback:
+        cleanupOnFail: true
+      upgrade:
+        force: true
+        remediation:
+          remediateLastFailure: true
+          retries: 5
+    addons:
+      garage:
+        enabled: true
+        flux:
+          rollback:
+            cleanupOnFail: false
+          upgrade:
+            force: false
+            remediation:
+              remediateLastFailure: false
+              retries: 0
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.rollback.cleanupOnFail
+      value: false
+  - equal:
+      path: spec.upgrade.force
+      value: false
+  - equal:
+      path: spec.upgrade.remediation.retries
+      value: 0
+  - equal:
+      path: spec.upgrade.remediation.remediateLastFailure
+      value: false
+  - equal:
+      path: spec.timeout
+      value: 7m
+
+- it: should render a schema-valid Helm repository source
+  set:
+    addons:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.9.3-bb.1
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.chart.spec.sourceRef.kind
+      value: HelmRepository
+  - equal:
+      path: spec.chart.spec.version
+      value: 0.9.3-bb.1
+
 - it: should not render postRenderers when metric scraping is disabled
   set:
     addons:
@@ -57,6 +139,33 @@ tests:
       value: ServiceMonitor
   - notExists:
       path: spec.postRenderers[1]
+
+- it: should keep HTTP service metadata without adding mTLS when Garage injection is disabled
+  set:
+    addons:
+      garage:
+        enabled: true
+        istio:
+          injection: disabled
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - exists:
+      path: spec.postRenderers
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: Service
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: "jobLabel"
+  - notExists:
+      path: spec.postRenderers[2]
 
 - it: should render metrics renderer at index 0 when monitoring and istio are both enabled
   set:

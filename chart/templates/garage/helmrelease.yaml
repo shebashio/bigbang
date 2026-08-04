@@ -1,10 +1,12 @@
-{{- $fluxSettingsGarage := merge .Values.addons.garage.flux .Values.flux -}}
+{{- $fluxSettingsGarage := mergeOverwrite (deepCopy .Values.flux) (default (dict) .Values.addons.garage.flux) -}}
 {{- if .Values.addons.garage.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
+{{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
+{{- $garageSidecarInjected := and $istioEnabled (not $ambientEnabled) (eq (dig "istio" "injection" "enabled" .Values.addons.garage) "enabled") }}
 {{- $installMetricsPostRenderer := and $metricScrapingEnabled $istioEnabled }}
 {{- $installServiceMonitorJobLabelPostRenderer := $metricScrapingEnabled }}
-{{- $installServiceMonitorPostRenderer := and $metricScrapingEnabled $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "bb-common" "istio" "mtls" "mode" "STRICT" .Values.addons.garage.values) "STRICT") }}
+{{- $installServiceMonitorPostRenderer := and $metricScrapingEnabled $garageSidecarInjected (eq (dig "bb-common" "istio" "mtls" "mode" "STRICT" .Values.addons.garage.values) "STRICT") }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

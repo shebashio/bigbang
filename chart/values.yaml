@@ -1495,6 +1495,9 @@ addons:
     # -- Toggle deployment of Garage.
     enabled: false
 
+    # -- Stable Helm release name for the integrated Garage addon.
+    releaseName: "garage"
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
@@ -1502,12 +1505,11 @@ addons:
       repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
       path: "./chart"
       tag: ""
-      branch: "integrated-path"
+      branch: "23-integration-blockers-mv"
     helmRepo:
       repoName: "registry1"
       chartName: "garage"
       tag: ""
-      branch: "integrated-path"
 
     # -- Flux reconciliation overrides specifically for the Garage package
     flux: {}
