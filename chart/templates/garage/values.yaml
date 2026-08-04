@@ -45,6 +45,7 @@ bb-common:
         garage:3903:
           from:
             k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
               alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
   routes:
     inbound:
