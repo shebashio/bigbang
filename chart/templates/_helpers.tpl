@@ -91,61 +91,6 @@ data:
 {{- end }}
 {{- end }}
 
-{{/*
-Render a Namespace for an integrated package.
-The caller resolves package-specific enablement and passes the package values used
-to determine sidecar injection. Special namespaces with user-provided metadata or
-multiple resources remain in their package templates.
-
-Args (dict):
-  - root: root chart context ($ or .)
-  - name: Namespace metadata.name
-  - appName: app.kubernetes.io/name label value
-  - component: app.kubernetes.io/component label value (optional)
-  - package: package values containing istio.injection.enabled
-  - extraLabels: additional labels to render (optional)
-  - meshMode: "standard" (default), "sidecar-only", "disabled", or "none"
-*/}}
-{{- define "bigbang.namespace" -}}
-{{- $meshMode := "standard" -}}
-{{- if hasKey . "meshMode" -}}
-{{- $candidate := get . "meshMode" -}}
-{{- if not (kindIs "string" $candidate) -}}
-{{- fail (printf "bigbang.namespace: meshMode for namespace %q must be a string, got %s" .name (kindOf $candidate)) -}}
-{{- end -}}
-{{- $meshMode = $candidate -}}
-{{- end -}}
-{{- $validMeshModes := list "standard" "sidecar-only" "disabled" "none" -}}
-{{- if not (has $meshMode $validMeshModes) -}}
-{{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode .name (join ", " $validMeshModes)) -}}
-{{- end -}}
-{{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
-{{- $labels := include "commonLabels" .root | fromYaml -}}
-{{- with .extraLabels -}}
-{{- $labels = mustMergeOverwrite $labels . -}}
-{{- end -}}
-{{- $labels = set $labels "app.kubernetes.io/name" .appName -}}
-{{- with .component -}}
-{{- $labels = set $labels "app.kubernetes.io/component" . -}}
-{{- end -}}
-{{- if eq $meshMode "disabled" -}}
-{{- $labels = set $labels "istio-injection" "disabled" -}}
-{{- else if eq $meshMode "none" -}}
-{{- $labels = set $labels "istio-injection" "disabled" -}}
-{{- $labels = set $labels "istio.io/dataplane-mode" "none" -}}
-{{- else if and (eq $meshMode "standard") (eq (include "ambientEnabled" .root) "true") -}}
-{{- $labels = set $labels "istio.io/dataplane-mode" "ambient" -}}
-{{- else -}}
-{{- $labels = set $labels "istio-injection" (ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled"))) -}}
-{{- end -}}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .name }}
-  labels:
-    {{- toYaml $labels | nindent 4 }}
-{{- end }}
-
 {{- define "multipleCreds" -}}
 {
   "auths": {
