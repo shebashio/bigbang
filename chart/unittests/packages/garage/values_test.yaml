@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Garage - Values
+templates:
+  - templates/garage/values.yaml
+tests:
+  - it: should preserve custom environment entries and enforce the umbrella admin token
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      addons:
+        garage:
+          enabled: true
+          garageInit:
+            enabled: true
+            credentials:
+              accessKeyId: GK000000000000000000000000
+              secretAccessKey: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+            buckets:
+              - unit-test
+            adminToken: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          values:
+            upstream:
+              deployment:
+                kind: DaemonSet
+              environment:
+                - name: GARAGE_ADMIN_TOKEN
+                  value: user-value-must-not-win
+                - name: EXTRA_SETTING
+                  value: preserve-me
+    asserts:
+      - equal:
+          path: upstream.deployment.kind
+          value: DaemonSet
+      - lengthEqual:
+          path: upstream.environment
+          count: 2
+      - equal:
+          path: upstream.environment[0].name
+          value: EXTRA_SETTING
+      - equal:
+          path: upstream.environment[0].value
+          value: preserve-me
+      - equal:
+          path: upstream.environment[1].name
+          value: GARAGE_ADMIN_TOKEN
+      - equal:
+          path: upstream.environment[1].value
+          value: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+  - it: should add the required admin token when the user has no environment entries
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      addons:
+        garage:
+          enabled: true
+          garageInit:
+            enabled: true
+            credentials:
+              accessKeyId: GK000000000000000000000000
+              secretAccessKey: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+            buckets:
+              - unit-test
+            adminToken: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    asserts:
+      - lengthEqual:
+          path: upstream.environment
+          count: 1
+      - equal:
+          path: upstream.environment[0].name
+          value: GARAGE_ADMIN_TOKEN
+
+  - it: should leave custom environment entries unchanged when init is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      addons:
+        garage:
+          enabled: true
+          garageInit:
+            enabled: false
+          values:
+            upstream:
+              environment:
+                - name: EXTRA_SETTING
+                  value: preserve-me
+    asserts:
+      - lengthEqual:
+          path: upstream.environment
+          count: 1
+      - equal:
+          path: upstream.environment[0].name
+          value: EXTRA_SETTING
+      - equal:
+          path: upstream.environment[0].value
+          value: preserve-me

@@ -1495,19 +1495,21 @@ addons:
     # -- Toggle deployment of Garage.
     enabled: false
 
+    # -- Stable Helm release name for the integrated Garage addon.
+    releaseName: "garage"
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
       path: "./chart"
-      tag: ""
-      branch: "integrated-path"
+      tag: null
+      branch: "23-integration-blockers-mv"
     helmRepo:
       repoName: "registry1"
       chartName: "garage"
       tag: ""
-      branch: "integrated-path"
 
     # -- Flux reconciliation overrides specifically for the Garage package
     flux: {}
@@ -1520,11 +1522,12 @@ addons:
     # S3 access key, and creates one or more buckets on post-install/post-upgrade. All steps
     # are idempotent.
     #
-    # Credential management (applies to credentials.accessKeyId, credentials.secretAccessKey,
-    # and adminToken):
-    # - Treat all three as write-once. Rotating any of them after initial install requires
-    #   coordinating a Garage pod rollout with the init Job. See docs/credential-rotation.md
-    #   in the garage package repo for the safe rotation procedure.
+    # Credential management:
+    # - credentials.accessKeyId and credentials.secretAccessKey are write-once through
+    #   the init Job. Follow docs/credential-rotation.md in the Garage package repo to
+    #   import a new S3 key before retiring the old one.
+    # - Updating adminToken through this umbrella updates the Garage pod environment and
+    #   triggers the coordinated pod rollout automatically.
     # - Do not store plaintext credentials in values.yaml for production; use SOPS or ESO.
     garageInit:
       # -- Enable the garageInit Job. Credentials and at least one bucket are required when true.

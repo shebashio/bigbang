@@ -1,10 +1,13 @@
-{{- $fluxSettingsGarage := merge .Values.addons.garage.flux .Values.flux -}}
+{{- $fluxSettingsGarage := mergeOverwrite (deepCopy .Values.flux) (default (dict) .Values.addons.garage.flux) -}}
 {{- if .Values.addons.garage.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $metricScrapingEnabled := eq (include "metricScrapingEnabled" .) "true" }}
+{{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
+{{- $garageSidecarInjected := and $istioEnabled (not $ambientEnabled) (eq (dig "istio" "injection" "enabled" .Values.addons.garage) "enabled") }}
+{{- $garageInjectionState := ternary "enabled" "disabled" $garageSidecarInjected }}
 {{- $installMetricsPostRenderer := and $metricScrapingEnabled $istioEnabled }}
 {{- $installServiceMonitorJobLabelPostRenderer := $metricScrapingEnabled }}
-{{- $installServiceMonitorPostRenderer := and $metricScrapingEnabled $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "bb-common" "istio" "mtls" "mode" "STRICT" .Values.addons.garage.values) "STRICT") }}
+{{- $installServiceMonitorPostRenderer := and $metricScrapingEnabled $garageSidecarInjected (eq (dig "bb-common" "istio" "mtls" "mode" "STRICT" .Values.addons.garage.values) "STRICT") }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -22,7 +25,6 @@ spec:
 
   {{- toYaml $fluxSettingsGarage | nindent 2 }}
 
-  {{- if or .Values.addons.garage.postRenderers $installMetricsPostRenderer $installServiceMonitorJobLabelPostRenderer $installServiceMonitorPostRenderer }}
   postRenderers:
   {{- if $installMetricsPostRenderer }}
   {{ include "garage.metricsServicePostRenderer" . | nindent 2 }}
@@ -33,9 +35,9 @@ spec:
   {{- if $installServiceMonitorPostRenderer }}
   {{ include "garage.serviceMonitorPostRenderer" . | nindent 2 }}
   {{- end }}
+  {{ include "garage.sidecarRolloutPostRenderer" (dict "state" $garageInjectionState) | nindent 2 }}
   {{- with .Values.addons.garage.postRenderers }}
   {{ toYaml . | nindent 2 }}
-  {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "garage" "root" .) | nindent 2 }}
 
