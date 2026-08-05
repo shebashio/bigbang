@@ -110,6 +110,18 @@ tests:
   - matchRegex:
       path: spec.postRenderers[0].kustomize.patches[0].patch
       pattern: 'value: "enabled"'
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.group
+      value: apps
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.version
+      value: v1
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[0].kustomize.patches[1].patch
+      pattern: 'value: "enabled"'
   - notExists:
       path: spec.postRenderers[1]
 
@@ -164,6 +176,12 @@ tests:
   - matchRegex:
       path: spec.postRenderers[1].kustomize.patches[0].patch
       pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[1].patch
+      pattern: 'value: "disabled"'
   - notExists:
       path: spec.postRenderers[2]
 
@@ -188,6 +206,12 @@ tests:
       value: StatefulSet
   - matchRegex:
       path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[1].patch
       pattern: 'value: "disabled"'
   - notExists:
       path: spec.postRenderers[2]
@@ -221,6 +245,12 @@ tests:
       value: StatefulSet
   - matchRegex:
       path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[1].patch
       pattern: 'value: "disabled"'
   - notExists:
       path: spec.postRenderers[3]
@@ -296,6 +326,12 @@ tests:
   - matchRegex:
       path: spec.postRenderers[3].kustomize.patches[0].patch
       pattern: 'value: "enabled"'
+  - equal:
+      path: spec.postRenderers[3].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[3].kustomize.patches[1].patch
+      pattern: 'value: "enabled"'
   - notExists:
       path: spec.postRenderers[4]
 
@@ -318,6 +354,12 @@ tests:
       value: StatefulSet
   - matchRegex:
       path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[1].patch
       pattern: 'value: "disabled"'
   - notExists:
       path: spec.postRenderers[3]
