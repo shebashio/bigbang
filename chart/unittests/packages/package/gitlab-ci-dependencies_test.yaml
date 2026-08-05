@@ -40,6 +40,21 @@ tests:
       - notExists:
           path: spec.secretRef
 
+  - it: retains the Registry1 HelmRepository required by Big Bang CI
+    template: helm-repository/helmrepo.yaml
+    documentSelector:
+      path: metadata.name
+      value: registry1
+    asserts:
+      - isKind:
+          of: HelmRepository
+      - equal:
+          path: spec.url
+          value: oci://registry1.dso.mil/bigbang
+      - equal:
+          path: spec.secretRef.name
+          value: private-registry
+
   - it: gates the PostgreSQL Cluster release on its operator and bootstrap wrapper
     template: package/helmrelease.yaml
     documentSelector:

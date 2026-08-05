@@ -12,6 +12,9 @@ helmRepositories:
         MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIE7v9J6ttQus6itUoyfMCqMjaIqm
         R8XrntaedsdEhPPchOQuFzqTyyAPGifV1SaEu8medVRi6mVICWbVwOteNg==
         -----END PUBLIC KEY-----
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    type: default
 istioCNI:
   sourceType: "helmRepo"
   helmRepo:
