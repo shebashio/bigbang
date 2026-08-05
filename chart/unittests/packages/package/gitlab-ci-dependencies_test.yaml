@@ -3,9 +3,13 @@ suite: Packages - GitLab CI External Dependencies
 templates:
   - templates/helm-repository/helmrepo.yaml
   - templates/package/helmrelease.yaml
+  - templates/package/namespace.yaml
+  - templates/package/values.yaml
   - templates/wrapper/helmrelease.yaml
+  - templates/wrapper/values.yaml
   - templates/gitlab/gitrepository.yaml
   - templates/gitlab/helmrelease.yaml
+  - templates/gitlab/secret-objectstore.yaml
   - templates/gitlab/values.yaml
 values:
   - ../../../../tests/test-values.yaml
@@ -95,6 +99,94 @@ tests:
       - equal:
           path: spec.releaseName
           value: gitlab-garage
+      - equal:
+          path: spec.postRenderers[0].kustomize.patches[0].target.name
+          value: ^gitlab-garage-garage-init$
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: /spec/ttlSecondsAfterFinished
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: /metadata/annotations
+
+  - it: keeps the sidecar CI dependency namespaces unmeshed
+    template: package/namespace.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-dependencies
+    asserts:
+      - equal:
+          path: metadata.labels.istio-injection
+          value: disabled
+      - notExists:
+          path: metadata.labels["istio.io/dataplane-mode"]
+
+  - it: keeps the CloudNativePG operator namespace unmeshed in sidecar CI
+    template: package/namespace.yaml
+    documentSelector:
+      path: metadata.name
+      value: cloudnative-pg
+    asserts:
+      - equal:
+          path: metadata.labels.istio-injection
+          value: disabled
+      - notExists:
+          path: metadata.labels["istio.io/dataplane-mode"]
+
+  - it: disables sidecar mesh resources for Garage while retaining its NetworkPolicies
+    template: package/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-garage-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "mode: PERMISSIVE"
+      - notMatchRegex:
+          path: stringData["values.yaml"]
+          pattern: "mode: STRICT|REGISTRY_ONLY"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)networkPolicies:.*enabled: true.*ingress:"
+
+  - it: supplies the database name required by the official cluster ping test
+    template: wrapper/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-postgresql-wrapper-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "dbname: gitlabhq_production"
+
+  - it: renders a literal all-pods egress policy for the external dependencies
+    template: gitlab/values.yaml
+    asserts:
+      - matchRegex:
+          path: stringData.common
+          pattern: "(?s)name: allow-external-dependencies.*podSelector: \\{\\}"
+      - matchRegex:
+          path: stringData.common
+          pattern: "kubernetes.io/metadata.name: gitlab-dependencies"
+      - notMatchRegex:
+          path: stringData.common
+          pattern: "app.kubernetes.io/name: gitlab-external-dependencies"
+
+  - it: configures path-style s3cmd backups against the Garage service
+    template: gitlab/secret-objectstore.yaml
+    asserts:
+      - matchRegex:
+          path: stringData.backups
+          pattern: "host_base = gitlab-garage.gitlab-dependencies.svc.cluster.local:3900"
+      - matchRegex:
+          path: stringData.backups
+          pattern: "host_bucket = gitlab-garage.gitlab-dependencies.svc.cluster.local:3900"
+      - matchRegex:
+          path: stringData.backups
+          pattern: "use_https = False"
+      - notMatchRegex:
+          path: stringData.backups
+          pattern: "%\\(bucket\\)s\\.gitlab-garage"
 
   - it: gates GitLab on every external CI dependency release
     template: gitlab/helmrelease.yaml

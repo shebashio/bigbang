@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - GitLab CI External Dependencies - Ambient
+templates:
+  - templates/package/namespace.yaml
+  - templates/package/values.yaml
+values:
+  - ../../../../tests/test-values.yaml
+  - ../../../../tests/test-values-ambient.yaml
+tests:
+  - it: enrolls the dependency namespace in ambient instead of sidecar injection
+    template: package/namespace.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-dependencies
+    asserts:
+      - equal:
+          path: metadata.labels["istio.io/dataplane-mode"]
+          value: ambient
+      - notExists:
+          path: metadata.labels.istio-injection
+
+  - it: enrolls the CloudNativePG operator namespace in ambient
+    template: package/namespace.yaml
+    documentSelector:
+      path: metadata.name
+      value: cloudnative-pg
+    asserts:
+      - equal:
+          path: metadata.labels["istio.io/dataplane-mode"]
+          value: ambient
+      - notExists:
+          path: metadata.labels.istio-injection
+
+  - it: retains ambient mTLS and AuthorizationPolicies without a Sidecar resource
+    template: package/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-garage-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "mode: STRICT"
+      - notMatchRegex:
+          path: stringData["values.yaml"]
+          pattern: "REGISTRY_ONLY"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)authorizationPolicies:.*enabled: true.*generateFromNetpol: true"
+
+  - it: enables ambient and HBONE policy port injection in generated common values
+    template: package/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-garage-values
+    asserts:
+      - matchRegex:
+          path: stringData["common.yaml"]
+          pattern: "(?s)ambient:.*enabled: true"
+      - matchRegex:
+          path: stringData["common.yaml"]
+          pattern: "(?s)hbonePortInjection:.*enabled: true"
