@@ -33,7 +33,7 @@ Kubernetes: `>=1.34.0-0`
 | istio.ambient | object | `{"enabled":false}` | Ambient mesh mode configuration |
 | istio.ambient.enabled | bool | `false` | Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars. This automatically enables istioCNI, ztunnel, and gatewayAPI packages. NOTE: Ambient mode is currently in an alpha state. |
 | offline | bool | `false` | Prevent Big Bang from creating GitRepository resources. HelmReleases configured with Git sources will continue to reference those resources, so they must already exist in the expected namespaces. This applies to integrated packages, additional packages, and the package wrapper. |
-| helmRepositories | list | `[]` | List of Helm repositories/credentials to pull helm charts from. OCI Type: Must specify username/password or existingSecret if repository requires auth. Using "private-registry" for existingSecret will reuse credentials from registryCredentials above. Default Type: Must specify existingSecret with auth - see https://fluxcd.io/flux/components/source/helmrepositories/#secret-reference for details on secret data required. |
+| helmRepositories | list | `[]` | List of Helm repositories/credentials to pull helm charts from. OCI Type: Must specify username/password or existingSecret if repository requires auth. Using "private-registry" for existingSecret will reuse credentials from registryCredentials above. Default Type: Public repositories may omit credentials. Private repositories must specify existingSecret with auth - see https://fluxcd.io/flux/components/source/helmrepositories/#secret-reference for details on secret data required. |
 | registryCredentials | string | `nil` | Registry credentials used to pull all images deployed by BigBang. Set to null (or omit) if your environment provides ambient image pull access, e.g. AWS EKS nodes with an IAM role granting ECR access, or GKE Workload Identity for GCR. When null, no private-registry Secret or imagePullSecrets stanzas are created. registryCredentials.username is required to be non-null if registryCredentials is defined registryCredentials.password is required to be non-null if registryCredentials is defined registryCredentials.registry will default to registry1.dso.mil registryCredentials.email will default to "" |
 | openshift | bool | `false` | Single set of registry credentials: registryCredentials:   registry: registry1.dso.mil   username: ""   password: ""   email: "" -- Multiple sets of registry credentials: registryCredentials:   - registry: registry1.dso.mil     username: ""     password: ""     email: ""   - registry: registry.dso.mil     username: ""     password: ""     email: "" Openshift Container Platform Feature Toggle |
 | git | object | `{"credentials":{"caFile":"","knownHosts":"","password":"","privateKey":"","publicKey":"","username":""},"existingSecret":""}` | Git credential settings for accessing private repositories Order of precedence is:   1. existingSecret   2. http credentials (username/password/caFile)   3. ssh credentials (privateKey/publicKey/knownHosts) |
@@ -473,7 +473,8 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | addons.gitlab.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/gitlab.git"` |  |
 | addons.gitlab.git.path | string | `"./chart"` |  |
-| addons.gitlab.git.tag | string | `"9.11.8-bb.0"` |  |
+| addons.gitlab.git.tag | string | `nil` |  |
+| addons.gitlab.git.branch | string | `"gitlab-19-external-ci-dependencies"` |  |
 | addons.gitlab.helmRepo.repoName | string | `"registry1"` |  |
 | addons.gitlab.helmRepo.chartName | string | `"gitlab"` |  |
 | addons.gitlab.helmRepo.tag | string | `"9.11.8-bb.0"` |  |
