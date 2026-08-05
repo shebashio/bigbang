@@ -68,29 +68,31 @@ Args (dict):
   - name: Namespace metadata.name
   - appName: app.kubernetes.io/name label value
   - component: app.kubernetes.io/component label value (optional)
-  - package: package values containing istio.injection.enabled
+  - package: package values containing istio.injection (string; defaults to "enabled")
   - extraLabels: additional labels to render (optional)
   - meshMode: "auto" (default) or "none"
 */}}
 {{- define "bigbang.namespace" -}}
+{{- $name := required "bigbang.namespace: name is required" .name -}}
+{{- $appName := required "bigbang.namespace: appName is required" .appName -}}
 {{- $meshMode := "auto" -}}
 {{- if hasKey . "meshMode" -}}
 {{- $candidate := get . "meshMode" -}}
 {{- if not (kindIs "string" $candidate) -}}
-{{- fail (printf "bigbang.namespace: meshMode for namespace %q must be a string, got %s" .name (kindOf $candidate)) -}}
+{{- fail (printf "bigbang.namespace: meshMode for namespace %q must be a string, got %s" $name (kindOf $candidate)) -}}
 {{- end -}}
 {{- $meshMode = $candidate -}}
 {{- end -}}
 {{- $validMeshModes := list "auto" "none" -}}
 {{- if not (has $meshMode $validMeshModes) -}}
-{{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode .name (join ", " $validMeshModes)) -}}
+{{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode $name (join ", " $validMeshModes)) -}}
 {{- end -}}
 {{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
 {{- $labels := include "commonLabels" .root | fromYaml -}}
 {{- with .extraLabels -}}
 {{- $labels = mustMergeOverwrite $labels . -}}
 {{- end -}}
-{{- $labels = set $labels "app.kubernetes.io/name" .appName -}}
+{{- $labels = set $labels "app.kubernetes.io/name" $appName -}}
 {{- with .component -}}
 {{- $labels = set $labels "app.kubernetes.io/component" . -}}
 {{- end -}}
@@ -105,7 +107,7 @@ Args (dict):
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .name }}
+  name: {{ $name }}
   labels:
     {{- toYaml $labels | nindent 4 }}
 {{- end }}

@@ -54,6 +54,21 @@ tests:
       - notExists:
           path: metadata.labels["istio-injection"]
 
+  - it: should select ambient labels in auto mode when ztunnel is enabled
+    template: argocd/namespace.yaml
+    set:
+      ztunnel:
+        enabled: true
+      addons:
+        argocd:
+          enabled: true
+    asserts:
+      - equal:
+          path: metadata.labels["istio.io/dataplane-mode"]
+          value: ambient
+      - notExists:
+          path: metadata.labels["istio-injection"]
+
   - it: should keep Gatekeeper out of the mesh and preserve additional labels
     template: gatekeeper/namespace.yaml
     set:
@@ -87,3 +102,53 @@ tests:
           value: ambient
       - notExists:
           path: metadata.labels["istio-injection"]
+
+  - it: should fail when the Namespace name is missing
+    template: templates/_self-test/render.yaml
+    set:
+      _selfTest:
+        bigbang.namespace:
+          args:
+            appName: test
+    asserts:
+      - failedTemplate:
+          errorMessage: "bigbang.namespace: name is required"
+
+  - it: should fail when the application name is missing
+    template: templates/_self-test/render.yaml
+    set:
+      _selfTest:
+        bigbang.namespace:
+          args:
+            name: test
+    asserts:
+      - failedTemplate:
+          errorMessage: "bigbang.namespace: appName is required"
+
+  - it: should fail when meshMode is not a string
+    template: templates/_self-test/render.yaml
+    set:
+      _selfTest:
+        bigbang.namespace:
+          args:
+            root: helm:context
+            name: test
+            appName: test
+            meshMode: 1
+    asserts:
+      - failedTemplate:
+          errorMessage: 'bigbang.namespace: meshMode for namespace "test" must be a string, got float64'
+
+  - it: should fail when meshMode is unsupported
+    template: templates/_self-test/render.yaml
+    set:
+      _selfTest:
+        bigbang.namespace:
+          args:
+            root: helm:context
+            name: test
+            appName: test
+            meshMode: invalid
+    asserts:
+      - failedTemplate:
+          errorMessage: 'bigbang.namespace: unsupported meshMode "invalid" for namespace "test"; expected one of: auto, none'
