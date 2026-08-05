@@ -1103,6 +1103,9 @@ addons:
 
   gitlab:
     enabled: true
+    git:
+      tag: null
+      branch: renovate/ironbank
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
