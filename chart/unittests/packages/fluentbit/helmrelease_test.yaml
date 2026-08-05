@@ -29,7 +29,10 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.postRenderers[0].kustomize.patches
-          count: 1
+          count: 2
       - equal:
           path: spec.postRenderers[0].kustomize.patches[0].target.kind
           value: DaemonSet
+      - equal:
+          path: spec.postRenderers[0].kustomize.patches[1].target.kind
+          value: Service
