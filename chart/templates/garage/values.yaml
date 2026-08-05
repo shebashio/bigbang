@@ -1,9 +1,24 @@
 {{- if .Values.addons.garage.enabled }}
 {{- $garagePackage := deepCopy .Values.addons.garage -}}
-{{- if .Values.addons.garage.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.garage.values) | fromYaml -}}
-{{- $garagePackage = set $garagePackage "values" $cleanedValues -}}
+{{- $garageValues := deepCopy (default (dict) .Values.addons.garage.values) -}}
+{{- if $garageValues -}}
+{{- $garageValues = include "mergeLegacyIstioHardenedKeys" (dict "values" $garageValues) | fromYaml -}}
 {{- end -}}
+{{- if .Values.addons.garage.garageInit.enabled -}}
+{{- $garageAdminToken := required "addons.garage.garageInit.adminToken is required when garageInit.enabled is true; generate with: openssl rand -hex 32" .Values.addons.garage.garageInit.adminToken -}}
+{{- $upstreamValues := deepCopy (default (dict) (get $garageValues "upstream")) -}}
+{{- $userEnvironment := default (list) (get $upstreamValues "environment") -}}
+{{- $requiredEnvironment := list -}}
+{{- range $environmentEntry := $userEnvironment -}}
+{{- if not (and (kindIs "map" $environmentEntry) (eq (default "" (get $environmentEntry "name")) "GARAGE_ADMIN_TOKEN")) -}}
+{{- $requiredEnvironment = append $requiredEnvironment $environmentEntry -}}
+{{- end -}}
+{{- end -}}
+{{- $requiredEnvironment = append $requiredEnvironment (dict "name" "GARAGE_ADMIN_TOKEN" "value" $garageAdminToken) -}}
+{{- $_ := set $upstreamValues "environment" $requiredEnvironment -}}
+{{- $_ := set $garageValues "upstream" $upstreamValues -}}
+{{- end -}}
+{{- $garagePackage = set $garagePackage "values" $garageValues -}}
 {{- include "values-secret" (dict
   "root" $
   "package" $garagePackage
@@ -89,11 +104,6 @@ upstream:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       serviceMonitor:
         enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-  {{- if $garageInitEnabled }}
-  environment:
-    - name: GARAGE_ADMIN_TOKEN
-      value: {{ $garageAdminToken | quote }}
-  {{- end }}
 
 garageInit:
   enabled: {{ $garageInitEnabled }}
