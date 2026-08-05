@@ -1,13 +1,25 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Schema - Addons
 tests:
-  - it: should fail validation with invalid addon configuration (git tag null)
+  - it: should pass validation with the pre-release GitLab branch reference
     set:
       addons:
         gitlab:
           sourceType: "git"
           git:
             tag: null
+            branch: renovate/ironbank
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should fail validation without a usable git reference
+    set:
+      addons:
+        gitlab:
+          sourceType: "git"
+          git:
+            tag: null
+            branch: ""
     asserts:
       - failedTemplate:
           errorPattern: ".*"

@@ -1506,7 +1506,8 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.11.8-bb.0"
+      tag: null
+      branch: renovate/ironbank
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"

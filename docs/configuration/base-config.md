@@ -473,7 +473,8 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | addons.gitlab.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/gitlab.git"` |  |
 | addons.gitlab.git.path | string | `"./chart"` |  |
-| addons.gitlab.git.tag | string | `"9.11.8-bb.0"` |  |
+| addons.gitlab.git.tag | string | `nil` |  |
+| addons.gitlab.git.branch | string | `"renovate/ironbank"` |  |
 | addons.gitlab.helmRepo.repoName | string | `"registry1"` |  |
 | addons.gitlab.helmRepo.chartName | string | `"gitlab"` |  |
 | addons.gitlab.helmRepo.tag | string | `"9.11.8-bb.0"` |  |

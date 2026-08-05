@@ -251,6 +251,25 @@ tests:
           path: spec.ref.branch
           value: main
 
+  - it: should set the GitLab pre-release ref from branch
+    template: gitlab/gitrepository.yaml
+    set:
+      addons:
+        gitlab:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
+            path: chart
+            tag: null
+            branch: renovate/ironbank
+    asserts:
+      - equal:
+          path: spec.ref.branch
+          value: renovate/ironbank
+      - notExists:
+          path: spec.ref.tag
+
   ##
   ## Offline guard consistency across packages
   ##

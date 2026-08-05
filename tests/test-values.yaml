@@ -332,6 +332,16 @@ kyvernoPolicies:
     # Parameters are copied from kyverno policies for test vectors
     # Exclusions are for allowing other helm tests to function
     policies:
+      update-automountserviceaccounttokens:
+        namespaces:
+          - namespace: cloudnative-pg
+            pods:
+              allow:
+                - cloudnative-pg-*
+          - namespace: gitlab
+            pods:
+              allow:
+                - gitlab-postgresql-*
       add-default-capability-drop:
         exclude:
           any:
@@ -936,6 +946,24 @@ alloy:
     bbtests:
       enabled: true
 
+# Internal CI dependency for the GitLab bbtests CloudNativePG Cluster operand.
+packages:
+  cloudnative-pg:
+    enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cloudnative-pg.git
+      path: chart
+      tag: "0.29.0-bb.0"
+    helmRelease:
+      namespace: bigbang
+    namespace:
+      name: cloudnative-pg
+    istio:
+      injection: enabled
+    bbCommonValues: true
+    passBigBangValues: true
+
 # Addons are toggled based on labels in CI
 addons:
   argocd:
@@ -1074,17 +1102,64 @@ addons:
         enabled: true
 
   gitlab:
-    enabled: false
+    enabled: true
+    dependsOn:
+      - name: cloudnative-pg
+        namespace: bigbang
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
     flux:
       timeout: 30m
     values:
+      bbtests:
+        enabled: true
+        redis-bb:
+          upstream:
+            master:
+              persistence:
+                size: 256Mi
+        garage:
+          garageInit:
+            credentials:
+              accessKeyId: "GKbb0000000000000000000000"
+              secretAccessKey: "bb00000000000000000000000000000000000000000000000000000000000000"
+            adminToken: "271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c"
+          upstream:
+            environment:
+              - name: GARAGE_ADMIN_TOKEN
+                value: "271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c"
+        postgresql:
+          enabled: true
       global:
         rails:
           bootstrap:
             enabled: false
+        appConfig:
+          artifacts:
+            bucket: gitlab-artifacts
+          lfs:
+            bucket: git-lfs
+          uploads:
+            bucket: gitlab-uploads
+          packages:
+            bucket: gitlab-packages
+          externalDiffs:
+            bucket: gitlab-mr-diffs
+          terraformState:
+            bucket: gitlab-terraform-state
+          ciSecureFiles:
+            bucket: gitlab-ci-secure-files
+          dependencyProxy:
+            bucket: gitlab-dependency-proxy
+          agentPlanContent:
+            bucket: gitlab-agent-plan-content
+          backups:
+            bucket: gitlab-backups
+            tmpBucket: tmp
+        pages:
+          objectStore:
+            bucket: gitlab-pages
       upstream:
         gitlab-runner:
           resources:
@@ -1124,8 +1199,9 @@ addons:
           hpa:
             minReplicas: 1
             maxReplicas: 1
-      bbtests:
-        enabled: true
+          storage:
+            redirect:
+              disable: true
 
   gitlabRunner:
     enabled: false
