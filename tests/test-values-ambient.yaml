@@ -2,3 +2,19 @@
 istio:
   ambient:
     enabled: true
+
+# In ambient CI the dependency namespace is enrolled through its Namespace
+# label, so ztunnel can enforce the generated HBONE AuthorizationPolicies.
+packages:
+  gitlab-garage:
+    values:
+      bb-common:
+        istio:
+          enabled: true
+          mtls:
+            mode: STRICT
+          sidecar:
+            enabled: false
+          authorizationPolicies:
+            enabled: true
+            generateFromNetpol: true

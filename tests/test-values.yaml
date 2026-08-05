@@ -112,7 +112,9 @@ packages:
     namespace:
       name: cloudnative-pg
     istio:
-      injection: enabled
+      # CNPG needs additional status services and DestinationRules before it can
+      # safely run with sidecars. Keep this CI dependency namespace unmeshed.
+      injection: disabled
     bbCommonValues: true
     passBigBangValues: true
 
@@ -128,21 +130,35 @@ packages:
     namespace:
       name: gitlab-dependencies
     istio:
-      injection: enabled
+      injection: disabled
     bbCommonValues: true
+    # Garage 0.9.3-bb.0 deletes this completed Job after five minutes. Clear any
+    # hook annotations and remove its TTL so initialization remains one-shot.
+    postRenderers:
+      - kustomize:
+          patches:
+            - target:
+                kind: Job
+                name: ^gitlab-garage-garage-init$
+              patch: |-
+                - op: add
+                  path: /metadata/annotations
+                  value: {}
+                - op: remove
+                  path: /spec/ttlSecondsAfterFinished
     values:
       fullnameOverride: gitlab-garage
       bb-common:
         istio:
-          enabled: true
+          # The dependency namespace is deliberately unmeshed in sidecar CI.
+          enabled: false
           mtls:
-            mode: STRICT
+            mode: PERMISSIVE
           sidecar:
-            enabled: true
-            outboundTrafficPolicyMode: REGISTRY_ONLY
+            enabled: false
           authorizationPolicies:
-            enabled: true
-            generateFromNetpol: true
+            enabled: false
+            generateFromNetpol: false
         networkPolicies:
           enabled: true
           ingress:
@@ -248,7 +264,7 @@ packages:
       create: false
       createRegistrySecret: false
     istio:
-      injection: enabled
+      injection: disabled
     wrapper:
       enabled: true
     network:
@@ -259,6 +275,7 @@ packages:
         data:
           username: gitlab
           password: gitlab-ci-postgresql-password
+          dbname: gitlabhq_production
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
@@ -360,7 +377,7 @@ packages:
       create: false
       createRegistrySecret: false
     istio:
-      injection: enabled
+      injection: disabled
     bbCommonValues: false
     values:
       networkPolicies:
@@ -1381,6 +1398,9 @@ addons:
 
   gitlab:
     enabled: true
+    git:
+      tag: null
+      branch: gitlab-19-external-ci-dependencies
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
@@ -1412,13 +1432,24 @@ addons:
       timeout: 30m
     values:
       networkPolicies:
-        egress:
-          from:
-            gitlab-external-dependencies:
+        additionalPolicies:
+          - name: allow-external-dependencies
+            spec:
               podSelector: {}
-              to:
-                k8s:
-                  "gitlab-dependencies/*:[3900,5432,6379]": true
+              policyTypes:
+                - Egress
+              egress:
+                - to:
+                    - namespaceSelector:
+                        matchLabels:
+                          kubernetes.io/metadata.name: gitlab-dependencies
+                  ports:
+                    - protocol: TCP
+                      port: 3900
+                    - protocol: TCP
+                      port: 5432
+                    - protocol: TCP
+                      port: 6379
       global:
         redis:
           host: gitlab-redis-master.gitlab-dependencies.svc.cluster.local
