@@ -148,6 +148,18 @@ tests:
       - notExists:
           path: metadata.labels["istio.io/dataplane-mode"]
 
+  - it: orders the unmeshed CloudNativePG operator after Istio is ready
+    template: package/helmrelease.yaml
+    documentSelector:
+      path: metadata.name
+      value: cloudnative-pg
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: istiod
+            namespace: bigbang
+
   - it: disables sidecar mesh resources for Garage while retaining its NetworkPolicies
     template: package/values.yaml
     documentSelector:
