@@ -139,9 +139,12 @@ addons:
       cosignVerify: false
 
   gitlab:
-    sourceType: "helmRepo"
-    helmRepo:
-      cosignVerify: false
+    # This DO NOT MERGE companion branch validates an unpublished GitLab
+    # package revision, so keep GitLab on its CI git ref in the OCI lane.
+    sourceType: "git"
+    git:
+      tag: null
+      branch: gitlab-19-external-ci-dependencies
 
   gitlabRunner:
     sourceType: "helmRepo"
