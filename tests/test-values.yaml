@@ -95,6 +95,13 @@ flux:
 # persistent storage. Consumers must manage external PostgreSQL, Redis/Valkey,
 # and S3 services.
 helmRepositories:
+  - name: registry1
+    repository: oci://registry1.dso.mil/bigbang
+    existingSecret: private-registry
+    type: oci
+    username: ""
+    password: ""
+    email: ""
   - name: cloudnative-pg
     repository: https://cloudnative-pg.github.io/charts
     type: default
