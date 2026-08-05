@@ -89,6 +89,300 @@ flux:
   upgrade:
     cleanupOnFail: false
 
+# GitLab 19 removed its bundled PostgreSQL, Redis, and MinIO charts. These
+# independent releases exist only for Big Bang's internal CI dependency
+# environment. They are not supported as consumer development or production
+# persistent storage. Consumers must manage external PostgreSQL, Redis/Valkey,
+# and S3 services.
+helmRepositories:
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    type: default
+
+packages:
+  cloudnative-pg:
+    enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cloudnative-pg.git
+      path: chart
+      tag: 0.29.0-bb.0
+    helmRelease:
+      namespace: bigbang
+    namespace:
+      name: cloudnative-pg
+    istio:
+      injection: enabled
+    bbCommonValues: true
+    passBigBangValues: true
+
+  gitlab-garage:
+    enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
+      path: chart
+      tag: 0.9.3-bb.0
+    helmRelease:
+      namespace: bigbang
+    namespace:
+      name: gitlab-dependencies
+    istio:
+      injection: enabled
+    bbCommonValues: true
+    values:
+      fullnameOverride: gitlab-garage
+      bb-common:
+        istio:
+          enabled: true
+          mtls:
+            mode: STRICT
+          sidecar:
+            enabled: true
+            outboundTrafficPolicyMode: REGISTRY_ONLY
+          authorizationPolicies:
+            enabled: true
+            generateFromNetpol: true
+        networkPolicies:
+          enabled: true
+          ingress:
+            defaults:
+              enabled: true
+            to:
+              garage-s3:3900:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: garage
+                    app.kubernetes.io/instance: gitlab-garage
+                from:
+                  k8s:
+                    gitlab/*: true
+              postgresql:5432:
+                podSelector:
+                  matchLabels:
+                    cnpg.io/cluster: gitlab-postgresql
+                from:
+                  k8s:
+                    gitlab/*: true
+              postgresql-status:8000:
+                podSelector:
+                  matchLabels:
+                    cnpg.io/cluster: gitlab-postgresql
+                from:
+                  k8s:
+                    cloudnative-pg@cloudnative-pg/cloudnative-pg: true
+              redis:6379:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: gitlab-redis
+                    app.kubernetes.io/component: master
+                from:
+                  k8s:
+                    gitlab/*: true
+          egress:
+            defaults:
+              enabled: true
+            from:
+              cnpg-database:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: database
+                    app.kubernetes.io/managed-by: cloudnative-pg
+                to:
+                  definition:
+                    kubeAPI: true
+      garageInit:
+        enabled: true
+        zone: gitlab
+        capacityBytes: "10000000000"
+        region: garage
+        buckets:
+          - git-lfs
+          - gitlab-agent-plan-content
+          - gitlab-artifacts
+          - gitlab-backups
+          - gitlab-ci-secure-files
+          - gitlab-dependency-proxy
+          - gitlab-mr-diffs
+          - gitlab-packages
+          - gitlab-pages
+          - gitlab-terraform-state
+          - gitlab-uploads
+          - registry
+          - runner-cache
+          - tmp
+        credentials:
+          accessKeyId: GKbb0000000000000000000000
+          secretAccessKey: bb00000000000000000000000000000000000000000000000000000000000000
+        adminToken: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
+      upstream:
+        fullnameOverride: gitlab-garage
+        imagePullSecrets:
+          - name: private-registry
+        deployment:
+          replicaCount: 1
+        garage:
+          replicationFactor: "1"
+        persistence:
+          enabled: true
+          meta:
+            size: 1Gi
+          data:
+            size: 10Gi
+        environment:
+          - name: GARAGE_ADMIN_TOKEN
+            value: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
+
+  gitlab-postgresql:
+    enabled: true
+    sourceType: helmRepo
+    helmRepo:
+      repoName: cloudnative-pg
+      chartName: cluster
+      tag: 0.8.1
+      cosignVerify: false
+    helmRelease:
+      namespace: bigbang
+    namespace:
+      name: gitlab-dependencies
+      create: false
+      createRegistrySecret: false
+    istio:
+      injection: enabled
+    wrapper:
+      enabled: true
+    network:
+      policies: false
+    secrets:
+      - name: gitlab-postgresql-app
+        type: kubernetes.io/basic-auth
+        data:
+          username: gitlab
+          password: gitlab-ci-postgresql-password
+    dependsOn:
+      - name: cloudnative-pg
+        namespace: bigbang
+      - name: gitlab-postgresql-wrapper
+        namespace: bigbang
+    bbCommonValues: false
+    flux:
+      timeout: 20m
+      test:
+        enable: true
+    postRenderers:
+      - kustomize:
+          patches:
+            - target:
+                kind: Job
+                name: ^gitlab-postgresql-ping-test$
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/image
+                  value: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
+                - op: replace
+                  path: /spec/template/spec/containers/0/command
+                  value:
+                    - /bin/bash
+                - op: replace
+                  path: /spec/template/spec/containers/0/args
+                  value:
+                    - -ec
+                    - |
+                      for attempt in $(seq 1 120); do
+                        if PGPASSWORD="${PGPASS}" psql \
+                          --host=gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local \
+                          --port=5432 \
+                          --username="${PGUSER}" \
+                          --dbname="${PGDBNAME:-$PGUSER}" \
+                          --command='SELECT 1'; then
+                          exit 0
+                        fi
+                        sleep 5
+                      done
+                      exit 1
+                - op: add
+                  path: /spec/template/spec/imagePullSecrets
+                  value:
+                    - name: private-registry
+                - op: add
+                  path: /spec/activeDeadlineSeconds
+                  value: 660
+    values:
+      fullnameOverride: gitlab-postgresql
+      type: postgresql
+      version:
+        postgresql: "17"
+      cluster:
+        instances: 1
+        imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
+        imagePullSecrets:
+          - name: private-registry
+        postgresUID: 1001
+        postgresGID: 1001
+        storage:
+          size: 8Gi
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        postgresql:
+          parameters:
+            max_connections: "200"
+            shared_buffers: 256MB
+          shared_preload_libraries:
+            - pg_stat_statements
+        initdb:
+          database: gitlabhq_production
+          owner: gitlab
+          secret:
+            name: gitlab-postgresql-app
+          postInitApplicationSQL:
+            - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+            - CREATE EXTENSION IF NOT EXISTS btree_gist;
+            - CREATE EXTENSION IF NOT EXISTS plpgsql;
+            - CREATE EXTENSION IF NOT EXISTS amcheck;
+            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+
+  gitlab-redis:
+    enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/redis.git
+      path: chart
+      tag: 27.0.14-bb.0
+    helmRelease:
+      namespace: bigbang
+    namespace:
+      name: gitlab-dependencies
+      create: false
+      createRegistrySecret: false
+    istio:
+      injection: enabled
+    bbCommonValues: false
+    values:
+      networkPolicies:
+        enabled: false
+      upstream:
+        nameOverride: redis
+        fullnameOverride: gitlab-redis
+        architecture: standalone
+        auth:
+          enabled: true
+          password: gitlab-ci-redis-password
+          usePasswordFiles: true
+        master:
+          persistence:
+            size: 256Mi
+        replica:
+          replicaCount: 0
+          autoscaling:
+            enabled: false
+        metrics:
+          enabled: false
+
 networkPolicies:
   enabled: true
   #controlPlaneCidr: 172.16.0.0/12
@@ -332,6 +626,18 @@ kyvernoPolicies:
     # Parameters are copied from kyverno policies for test vectors
     # Exclusions are for allowing other helm tests to function
     policies:
+      # CloudNativePG's operator and instance manager require Kubernetes API
+      # credentials; retain their service account tokens in this CI profile.
+      update-automountserviceaccounttokens:
+        namespaces:
+          - namespace: cloudnative-pg
+            pods:
+              allow:
+                - cloudnative-pg-*
+          - namespace: gitlab-dependencies
+            pods:
+              allow:
+                - gitlab-postgresql-*
       add-default-capability-drop:
         exclude:
           any:
@@ -1074,18 +1380,104 @@ addons:
         enabled: true
 
   gitlab:
-    enabled: false
+    enabled: true
+    dependsOn:
+      - name: cloudnative-pg
+        namespace: bigbang
+      - name: gitlab-postgresql
+        namespace: bigbang
+      - name: gitlab-redis
+        namespace: bigbang
+      - name: gitlab-garage
+        namespace: bigbang
+    database:
+      host: gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local
+      port: 5432
+      database: gitlabhq_production
+      username: gitlab
+      password: gitlab-ci-postgresql-password
+    redis:
+      password: gitlab-ci-redis-password
+    objectStorage:
+      type: minio
+      endpoint: http://gitlab-garage.gitlab-dependencies.svc.cluster.local:3900
+      regionendpoint: http://gitlab-garage.gitlab-dependencies.svc.cluster.local:3900
+      region: garage
+      accessKey: GKbb0000000000000000000000
+      accessSecret: bb00000000000000000000000000000000000000000000000000000000000000
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
     flux:
       timeout: 30m
     values:
+      networkPolicies:
+        egress:
+          from:
+            gitlab-external-dependencies:
+              podSelector: {}
+              to:
+                k8s:
+                  "gitlab-dependencies/*:[3900,5432,6379]": true
       global:
+        redis:
+          host: gitlab-redis-master.gitlab-dependencies.svc.cluster.local
+          port: 6379
+          auth:
+            enabled: true
+            secret: gitlab-redis-secret-bb
+            key: secret
+        psql:
+          host: gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local
+          port: 5432
+          database: gitlabhq_production
+          username: gitlab
+          password:
+            secret: gitlab-database
+            key: PGPASSWORD
+        registry:
+          bucket: registry
+        appConfig:
+          artifacts:
+            bucket: gitlab-artifacts
+          lfs:
+            bucket: git-lfs
+          uploads:
+            bucket: gitlab-uploads
+          packages:
+            bucket: gitlab-packages
+          externalDiffs:
+            bucket: gitlab-mr-diffs
+          terraformState:
+            bucket: gitlab-terraform-state
+          ciSecureFiles:
+            bucket: gitlab-ci-secure-files
+          dependencyProxy:
+            bucket: gitlab-dependency-proxy
+          agentPlanContent:
+            bucket: gitlab-agent-plan-content
+          backups:
+            bucket: gitlab-backups
+            tmpBucket: tmp
+        pages:
+          objectStore:
+            bucket: gitlab-pages
         rails:
           bootstrap:
             enabled: false
+      redis-bb:
+        enabled: false
+      garage:
+        enabled: false
+      postgresql:
+        enabled: false
       upstream:
+        redis:
+          install: false
+        postgresql:
+          install: false
+        minio:
+          enabled: false
         gitlab-runner:
           resources:
             requests:
@@ -1121,6 +1513,9 @@ addons:
               requests:
                 cpu: 10m
         registry:
+          storage:
+            redirect:
+              disable: true
           hpa:
             minReplicas: 1
             maxReplicas: 1
