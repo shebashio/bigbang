@@ -289,7 +289,7 @@ upstream:
       presets:
         - deployment
       alloy:
-        {{- if and $istioEnabled $istioHardenedEnabled }}
+        {{- if $istioEnabled }}
         extraAnnotations:
           {{ include "istioAnnotation" . }}
         {{- end }}
@@ -394,7 +394,7 @@ upstream:
   alloy-metrics:
     enabled: true
     alloy:
-      {{- if and $istioEnabled $istioHardenedEnabled }}
+      {{- if $istioEnabled }}
       extraAnnotations:
         {{ include "istioAnnotation" . }}
       {{- end }}
