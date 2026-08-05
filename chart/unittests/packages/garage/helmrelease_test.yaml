@@ -2,7 +2,89 @@
 suite: Package - Garage - HelmRelease PostRenderer Gates
 tests:
 
-- it: should not render postRenderers when metric scraping is disabled
+- it: should use the stable integrated Helm release name
+  set:
+    addons:
+      garage:
+        enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.releaseName
+      value: garage
+
+- it: should honor an explicit Garage Helm release name override
+  set:
+    addons:
+      garage:
+        enabled: true
+        releaseName: object-store
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.releaseName
+      value: object-store
+
+- it: should preserve false and zero Garage Flux overrides
+  set:
+    flux:
+      timeout: 7m
+      rollback:
+        cleanupOnFail: true
+      upgrade:
+        force: true
+        remediation:
+          remediateLastFailure: true
+          retries: 5
+    addons:
+      garage:
+        enabled: true
+        flux:
+          rollback:
+            cleanupOnFail: false
+          upgrade:
+            force: false
+            remediation:
+              remediateLastFailure: false
+              retries: 0
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.rollback.cleanupOnFail
+      value: false
+  - equal:
+      path: spec.upgrade.force
+      value: false
+  - equal:
+      path: spec.upgrade.remediation.retries
+      value: 0
+  - equal:
+      path: spec.upgrade.remediation.remediateLastFailure
+      value: false
+  - equal:
+      path: spec.timeout
+      value: 7m
+
+- it: should render a schema-valid Helm repository source
+  set:
+    addons:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.9.3-bb.1
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.chart.spec.sourceRef.kind
+      value: HelmRepository
+  - equal:
+      path: spec.chart.spec.version
+      value: 0.9.3-bb.1
+
+- it: should render only the sidecar rollout renderer when metric scraping is disabled
   set:
     addons:
       garage:
@@ -13,10 +95,62 @@ tests:
       enabled: false
   template: garage/helmrelease.yaml
   asserts:
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.group
+      value: apps
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.version
+      value: v1
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[0].kustomize.patches[0].patch
+      pattern: 'path: /spec/template/metadata/annotations/bigbang.dev~1istio-injection'
+  - matchRegex:
+      path: spec.postRenderers[0].kustomize.patches[0].patch
+      pattern: 'value: "enabled"'
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.group
+      value: apps
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.version
+      value: v1
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[0].kustomize.patches[1].patch
+      pattern: 'value: "enabled"'
   - notExists:
-      path: spec.postRenderers
+      path: spec.postRenderers[1]
 
-- it: should render only the jobLabel renderer when alloy metrics are enabled and istio is disabled
+- it: should keep user postRenderers after the built-in rollout marker
+  set:
+    addons:
+      garage:
+        enabled: true
+        postRenderers:
+          - kustomize:
+              images:
+                - name: example.invalid/garage
+                  newTag: test
+    monitoring:
+      enabled: false
+    alloy:
+      enabled: false
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - equal:
+      path: spec.postRenderers[1].kustomize.images[0].name
+      value: example.invalid/garage
+  - notExists:
+      path: spec.postRenderers[2]
+
+- it: should render jobLabel then disabled rollout when alloy metrics are enabled and istio is disabled
   set:
     addons:
       garage:
@@ -36,10 +170,22 @@ tests:
   - equal:
       path: spec.postRenderers[0].kustomize.patches[0].target.kind
       value: ServiceMonitor
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[1].patch
+      pattern: 'value: "disabled"'
   - notExists:
-      path: spec.postRenderers[1]
+      path: spec.postRenderers[2]
 
-- it: should render only the jobLabel renderer when monitoring is enabled and istio is disabled
+- it: should render jobLabel then disabled rollout when monitoring is enabled and istio is disabled
   set:
     addons:
       garage:
@@ -55,8 +201,59 @@ tests:
   - equal:
       path: spec.postRenderers[0].kustomize.patches[0].target.kind
       value: ServiceMonitor
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[1].patch
+      pattern: 'value: "disabled"'
   - notExists:
-      path: spec.postRenderers[1]
+      path: spec.postRenderers[2]
+
+- it: should keep HTTP service metadata without adding mTLS when Garage injection is disabled
+  set:
+    addons:
+      garage:
+        enabled: true
+        istio:
+          injection: disabled
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - exists:
+      path: spec.postRenderers
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: Service
+  - equal:
+      path: spec.postRenderers[1].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - matchRegex:
+      path: spec.postRenderers[1].kustomize.patches[0].patch
+      pattern: "jobLabel"
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[1].patch
+      pattern: 'value: "disabled"'
+  - notExists:
+      path: spec.postRenderers[3]
 
 - it: should render metrics renderer at index 0 when monitoring and istio are both enabled
   set:
@@ -112,6 +309,61 @@ tests:
       path: spec.postRenderers[2].kustomize.patches[0].patch
       pattern: "tlsConfig"
 
+- it: should roll Garage workloads with the effective enabled sidecar state
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[3].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[3].kustomize.patches[0].patch
+      pattern: 'value: "enabled"'
+  - equal:
+      path: spec.postRenderers[3].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[3].kustomize.patches[1].patch
+      pattern: 'value: "enabled"'
+  - notExists:
+      path: spec.postRenderers[4]
+
+- it: should roll Garage workloads without sidecars in ambient mode
+  set:
+    addons:
+      garage:
+        enabled: true
+    monitoring:
+      enabled: true
+    istiod:
+      enabled: true
+    istio:
+      ambient:
+        enabled: true
+  template: garage/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: 'value: "disabled"'
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[1].target.kind
+      value: DaemonSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[1].patch
+      pattern: 'value: "disabled"'
+  - notExists:
+      path: spec.postRenderers[3]
+
 - it: should not render mTLS ServiceMonitor renderer when mtls mode is PERMISSIVE
   set:
     addons:
@@ -130,5 +382,11 @@ tests:
   asserts:
   - exists:
       path: spec.postRenderers
+  - equal:
+      path: spec.postRenderers[2].kustomize.patches[0].target.kind
+      value: StatefulSet
+  - matchRegex:
+      path: spec.postRenderers[2].kustomize.patches[0].patch
+      pattern: 'value: "enabled"'
   - notExists:
-      path: spec.postRenderers[2]
+      path: spec.postRenderers[3]

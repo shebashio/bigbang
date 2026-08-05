@@ -62,3 +62,33 @@ is not active, and mTLS mode is STRICT.
         target:
           kind: ServiceMonitor
 {{- end }}
+
+{{/*
+Patches the Garage workload pod template with the effective sidecar-injection state.
+
+Namespace injection labels only affect newly admitted pods. Without a pod-template
+change, toggling Garage injection can update the ServiceMonitor scheme while existing
+pods keep their previous sidecar state. This annotation changes with effective
+injection (including ambient mode) so either the StatefulSet or DaemonSet rolls and
+converges on the same transport selected for Prometheus scraping.
+*/}}
+{{- define "garage.sidecarRolloutPostRenderer" }}
+- kustomize:
+    patches:
+      - patch: |
+          - op: add
+            path: /spec/template/metadata/annotations/bigbang.dev~1istio-injection
+            value: {{ .state | quote }}
+        target:
+          group: apps
+          version: v1
+          kind: StatefulSet
+      - patch: |
+          - op: add
+            path: /spec/template/metadata/annotations/bigbang.dev~1istio-injection
+            value: {{ .state | quote }}
+        target:
+          group: apps
+          version: v1
+          kind: DaemonSet
+{{- end }}
