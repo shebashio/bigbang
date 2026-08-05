@@ -815,11 +815,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.57.3-bb.1"
+    tag: "0.57.9-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.57.3-bb.1"
+    tag: "0.57.9-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -951,11 +951,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.11.0-bb.1"
+    tag: "2.11.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.11.0-bb.1"
+    tag: "2.11.0-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
   ingress:
@@ -1653,11 +1653,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.3.1-bb.2"
+      tag: "2026.3.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.3.1-bb.2"
+      tag: "2026.3.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
