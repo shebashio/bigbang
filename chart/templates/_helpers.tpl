@@ -70,10 +70,10 @@ Args (dict):
   - component: app.kubernetes.io/component label value (optional)
   - package: package values containing istio.injection.enabled
   - extraLabels: additional labels to render (optional)
-  - meshMode: "standard" (default), "sidecar-only", "disabled", or "none"
+  - meshMode: "auto" (default) or "none"
 */}}
 {{- define "bigbang.namespace" -}}
-{{- $meshMode := "standard" -}}
+{{- $meshMode := "auto" -}}
 {{- if hasKey . "meshMode" -}}
 {{- $candidate := get . "meshMode" -}}
 {{- if not (kindIs "string" $candidate) -}}
@@ -81,7 +81,7 @@ Args (dict):
 {{- end -}}
 {{- $meshMode = $candidate -}}
 {{- end -}}
-{{- $validMeshModes := list "standard" "sidecar-only" "disabled" "none" -}}
+{{- $validMeshModes := list "auto" "none" -}}
 {{- if not (has $meshMode $validMeshModes) -}}
 {{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode .name (join ", " $validMeshModes)) -}}
 {{- end -}}
@@ -94,12 +94,10 @@ Args (dict):
 {{- with .component -}}
 {{- $labels = set $labels "app.kubernetes.io/component" . -}}
 {{- end -}}
-{{- if eq $meshMode "disabled" -}}
-{{- $labels = set $labels "istio-injection" "disabled" -}}
-{{- else if eq $meshMode "none" -}}
+{{- if eq $meshMode "none" -}}
 {{- $labels = set $labels "istio-injection" "disabled" -}}
 {{- $labels = set $labels "istio.io/dataplane-mode" "none" -}}
-{{- else if and (eq $meshMode "standard") (eq (include "ambientEnabled" .root) "true") -}}
+{{- else if eq (include "ambientEnabled" .root) "true" -}}
 {{- $labels = set $labels "istio.io/dataplane-mode" "ambient" -}}
 {{- else -}}
 {{- $labels = set $labels "istio-injection" (ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled"))) -}}

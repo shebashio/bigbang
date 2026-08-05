@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Templates - Common Namespace Resources
 tests:
-  - it: should preserve standard Namespace sidecar-injection labels
+  - it: should select sidecar-injection labels in auto mode
     template: argocd/namespace.yaml
     set:
       istiod:
@@ -21,7 +21,7 @@ tests:
           path: metadata.labels["istio-injection"]
           value: enabled
 
-  - it: should disable standard Namespace sidecar injection when Istio is globally disabled
+  - it: should disable sidecar injection in auto mode when Istio is globally disabled
     template: argocd/namespace.yaml
     set:
       istiod:
@@ -38,7 +38,7 @@ tests:
       - notExists:
           path: metadata.labels["istio.io/dataplane-mode"]
 
-  - it: should preserve standard Namespace ambient labels
+  - it: should select ambient labels in auto mode
     template: argocd/namespace.yaml
     set:
       istio:
@@ -54,7 +54,7 @@ tests:
       - notExists:
           path: metadata.labels["istio-injection"]
 
-  - it: should preserve forced mesh labels and additional labels
+  - it: should keep Gatekeeper out of the mesh and preserve additional labels
     template: gatekeeper/namespace.yaml
     set:
       gatekeeper:
@@ -64,27 +64,26 @@ tests:
           path: metadata.labels["istio-injection"]
           value: disabled
       - equal:
+          path: metadata.labels["istio.io/dataplane-mode"]
+          value: none
+      - equal:
           path: metadata.labels["admission.gatekeeper.sh/ignore"]
           value: no-self-managing
       - equal:
           path: metadata.labels["gatekeeper.sh/system"]
           value: "yes"
 
-  - it: should keep a sidecar-only Namespace out of ambient mode
+  - it: should enroll the Renovate Namespace in ambient mode
     template: renovate/namespace.yaml
     set:
-      istiod:
-        enabled: true
       istio:
         ambient:
           enabled: true
       renovate:
         enabled: true
-        istio:
-          injection: enabled
     asserts:
       - equal:
-          path: metadata.labels["istio-injection"]
-          value: enabled
-      - notExists:
           path: metadata.labels["istio.io/dataplane-mode"]
+          value: ambient
+      - notExists:
+          path: metadata.labels["istio-injection"]

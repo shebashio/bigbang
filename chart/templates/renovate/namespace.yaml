@@ -1,3 +1,3 @@
 {{- if .Values.renovate.enabled }}
-{{- include "bigbang.namespace" (dict "root" . "name" "renovate" "appName" "renovate" "component" "core" "package" .Values.renovate "meshMode" "sidecar-only") }}
+{{- include "bigbang.namespace" (dict "root" . "name" "renovate" "appName" "renovate" "component" "core" "package" .Values.renovate) }}
 {{- end }}
