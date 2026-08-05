@@ -124,6 +124,9 @@ packages:
       injection: disabled
     bbCommonValues: true
     passBigBangValues: true
+    dependsOn:
+      - name: istiod
+        namespace: bigbang
 
   gitlab-garage:
     enabled: true
