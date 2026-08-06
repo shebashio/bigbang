@@ -141,6 +141,12 @@ packages:
       name: gitlab-dependencies
     istio:
       injection: disabled
+    # The Garage chart can render Istio AuthorizationPolicies even though its
+    # workload namespace does not use sidecars. Do not let Flux render those
+    # resources before Istio and its CRDs are ready.
+    dependsOn:
+      - name: istiod
+        namespace: bigbang
     bbCommonValues: true
     # Garage 0.9.3-bb.0 deletes this completed Job after five minutes. Clear any
     # hook annotations and remove its TTL so initialization remains one-shot.
@@ -293,9 +299,20 @@ packages:
         namespace: bigbang
     bbCommonValues: false
     flux:
-      timeout: 20m
+      # The normal connectivity Job can wait up to about twenty minutes for
+      # the CNPG primary. Keep the Helm action comfortably above that bound.
+      timeout: 30m
+      install:
+        # A failed install must leave the Cluster operand in place so the
+        # operator can continue converging it; do not uninstall/retry it.
+        remediation:
+          retries: 0
       test:
-        enable: true
+        # The cluster chart's Helm test can start before the CNPG operand is
+        # ready. Flux remediates a failed test by uninstalling the Cluster,
+        # preventing the database from ever converging. The post-renderer
+        # below turns that hook into a normal, non-destructive readiness Job.
+        enable: false
     postRenderers:
       - kustomize:
           patches:
@@ -303,6 +320,11 @@ packages:
                 kind: Job
                 name: ^gitlab-postgresql-ping-test$
               patch: |-
+                # Clear the Helm test annotations so this is an ordinary
+                # release resource whose completion gates Helm readiness.
+                - op: add
+                  path: /metadata/annotations
+                  value: {}
                 - op: replace
                   path: /spec/template/spec/containers/0/image
                   value: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
@@ -315,7 +337,7 @@ packages:
                   value:
                     - -ec
                     - |
-                      for attempt in $(seq 1 120); do
+                      for attempt in $(seq 1 240); do
                         if PGPASSWORD="${PGPASS}" psql \
                           --host=gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local \
                           --port=5432 \
@@ -333,7 +355,7 @@ packages:
                     - name: private-registry
                 - op: add
                   path: /spec/activeDeadlineSeconds
-                  value: 660
+                  value: 1260
     values:
       fullnameOverride: gitlab-postgresql
       type: postgresql

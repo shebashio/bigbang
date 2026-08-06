@@ -23,5 +23,5 @@ setup() {
         "${REPO_ROOT}/tests/test-values-ambient.yaml"
 
     [ "${status}" -eq 0 ]
-    [ "${output}" = '{"istio":{"ambient":{"enabled":true}},"packages":{"gitlab-garage":{"values":{"bb-common":{"istio":{"enabled":true,"mtls":{"mode":"STRICT"},"sidecar":{"enabled":false},"authorizationPolicies":{"enabled":true,"generateFromNetpol":true}}}}}}}' ]
+    [ "${output}" = '{"istio":{"ambient":{"enabled":true}},"packages":{"gitlab-garage":{"dependsOn":[{"name":"istiod","namespace":"bigbang"},{"name":"istio-cni","namespace":"bigbang"},{"name":"ztunnel","namespace":"bigbang"}],"values":{"bb-common":{"istio":{"enabled":true,"mtls":{"mode":"STRICT"},"sidecar":{"enabled":false},"authorizationPolicies":{"enabled":true,"generateFromNetpol":true}}}}}}}' ]
 }

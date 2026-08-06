@@ -55,7 +55,7 @@ tests:
           path: spec.secretRef.name
           value: private-registry
 
-  - it: gates the PostgreSQL Cluster release on its operator and bootstrap wrapper
+  - it: gates the PostgreSQL Cluster release without destructive Helm-test remediation
     template: package/helmrelease.yaml
     documentSelector:
       path: metadata.name
@@ -74,7 +74,13 @@ tests:
           value: 0.8.1
       - equal:
           path: spec.test.enable
-          value: true
+          value: false
+      - equal:
+          path: spec.timeout
+          value: 30m
+      - equal:
+          path: spec.install.remediation.retries
+          value: 0
       - contains:
           path: spec.dependsOn
           content:
@@ -87,7 +93,13 @@ tests:
             namespace: bigbang
       - matchRegex:
           path: spec.postRenderers[0].kustomize.patches[0].patch
-          pattern: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
+          pattern: "(?s)path: /metadata/annotations.*value: \\{\\}"
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: "seq 1 240"
+      - matchRegex:
+          path: spec.postRenderers[0].kustomize.patches[0].patch
+          pattern: "(?s)activeDeadlineSeconds.*1260"
 
   - it: deploys Redis and Garage independently in the shared dependency namespace
     template: package/helmrelease.yaml
@@ -114,6 +126,13 @@ tests:
       - equal:
           path: spec.releaseName
           value: gitlab-garage
+      - equal:
+          path: spec.dependsOn
+          value:
+            - name: kyverno-policies
+              namespace: bigbang
+            - name: istiod
+              namespace: bigbang
       - equal:
           path: spec.postRenderers[0].kustomize.patches[0].target.name
           value: ^gitlab-garage-garage-init$
