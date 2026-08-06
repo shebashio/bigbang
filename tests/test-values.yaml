@@ -825,7 +825,8 @@ loki:
     write:
       replicas: 1
     backend:
-      replicas: 1
+      # Loki requires at least two backend replicas outside SingleBinary mode.
+      replicas: 2
 
 tempo:
   values:
