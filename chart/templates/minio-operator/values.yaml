@@ -28,12 +28,6 @@ podAnnotations:
 
 upstream:
   operator:
-    {{- if $istioEnabled }}
-    # The upstream operator chart has no podAnnotations support, so use additionalLabels to
-    # force a rollout on Istio dataplane changes (a pod-template label change rolls pods too).
-    additionalLabels:
-      {{ include "istioAnnotation" . }}
-    {{- end }}
     image:
       pullPolicy: {{ .Values.imagePullPolicy}}
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
