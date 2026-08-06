@@ -5,6 +5,9 @@ templates:
   - templates/package/namespace.yaml
   - templates/package/values.yaml
   - templates/wrapper/values.yaml
+release:
+  name: test
+  namespace: bigbang
 values:
   - ../../../../tests/test-values.yaml
   - ../../../../tests/test-values-ambient.yaml
