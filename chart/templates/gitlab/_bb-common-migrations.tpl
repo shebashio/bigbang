@@ -70,6 +70,19 @@ routes:
 
 {{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
 {{- $gitlabUpstreamValues := (get .Values.addons.gitlab.values "upstream") | default dict }}
+{{- $externalObjectStorageConfigured := or (not (empty .Values.addons.gitlab.objectStorage.region)) (not (empty .Values.addons.gitlab.objectStorage.endpoint)) }}
+{{- $externalPostgresConfigured := not (empty .Values.addons.gitlab.database.host) }}
+{{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict }}
+{{- if kindIs "map" $gitlabAppConfigValues }}
+  {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict }}
+  {{- if kindIs "map" $gitlabObjectStoreValues }}
+    {{- $externalObjectStorageConfigured = or $externalObjectStorageConfigured (dig "enabled" false $gitlabObjectStoreValues) }}
+  {{- end }}
+{{- end }}
+{{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict }}
+{{- if kindIs "map" $gitlabPsqlValues }}
+  {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}
+{{- end }}
 {{- $minioEnabled := true }}
 {{- if hasKey $gitlabGlobalValues "minio" }}
   {{- $gitlabMinioValues := get $gitlabGlobalValues "minio" }}
@@ -87,6 +100,12 @@ routes:
   {{- else }}
     {{- $postgresEnabled = false }}
   {{- end }}
+{{- end }}
+{{- if $externalObjectStorageConfigured }}
+  {{- $minioEnabled = false }}
+{{- end }}
+{{- if $externalPostgresConfigured }}
+  {{- $postgresEnabled = false }}
 {{- end }}
 {{- $iamProfileUsed := dig "use_iam_profile" false .Values.addons.gitlab.values }}
 {{- $iamProfileUsed = not (empty .Values.addons.gitlab.objectStorage.iamProfile) | or $iamProfileUsed }}
