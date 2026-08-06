@@ -143,8 +143,9 @@ addons:
     # package revision, so keep GitLab on its CI git ref in the OCI lane.
     sourceType: "git"
     git:
-      tag: null
+      tag: ""
       branch: renovate/ironbank
+      commit: c850bb707569d3a59e2ff69bba623df18874974f
 
   gitlabRunner:
     sourceType: "helmRepo"

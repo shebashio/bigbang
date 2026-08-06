@@ -1104,8 +1104,9 @@ addons:
   gitlab:
     enabled: true
     git:
-      tag: null
+      tag: ""
       branch: renovate/ironbank
+      commit: c850bb707569d3a59e2ff69bba623df18874974f
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
@@ -1117,52 +1118,141 @@ addons:
     values:
       bbtests:
         enabled: true
+        networkPolicies:
+          egress:
+            from:
+              cnpg-database:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: database
+                    app.kubernetes.io/managed-by: cloudnative-pg
+                to:
+                  definition:
+                    kubeAPI: true
+              garage:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: garage
+                to:
+                  definition:
+                    kubeAPI: true
         redis-bb:
+          enabled: true
+          auth:
+            createSecret: true
           upstream:
+            nameOverride: redis
+            fullnameOverride: gitlab-redis
+            architecture: standalone
+            auth:
+              existingSecret: gitlab-redis-secret
+              existingSecretPasswordKey: secret
             master:
               persistence:
                 size: 256Mi
+            metrics:
+              enabled: true
+              image:
+                tag: v1.87.0
+              resources:
+                requests:
+                  memory: 128Mi
+                limits:
+                  cpu: 250m
         garage:
+          enabled: true
+          fullnameOverride: gitlab-garage
           garageInit:
+            zone: gitlab
+            buckets:
+              - git-lfs
+              - gitlab-agent-plan-content
+              - gitlab-artifacts
+              - gitlab-backups
+              - gitlab-ci-secure-files
+              - gitlab-dependency-proxy
+              - gitlab-mr-diffs
+              - gitlab-packages
+              - gitlab-pages
+              - gitlab-terraform-state
+              - gitlab-uploads
+              - registry
+              - runner-cache
+              - tmp
             credentials:
               accessKeyId: "GKbb0000000000000000000000"
               secretAccessKey: "bb00000000000000000000000000000000000000000000000000000000000000"
             adminToken: "271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c"
           upstream:
+            fullnameOverride: gitlab-garage
+            imagePullSecrets:
+              - name: private-registry
+            deployment:
+              replicaCount: 1
+            garage:
+              replicationFactor: "1"
+            persistence:
+              meta:
+                size: 1Gi
+              data:
+                size: 10Gi
             environment:
               - name: GARAGE_ADMIN_TOKEN
                 value: "271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c"
         postgresql:
           enabled: true
+          clusterName: gitlab-postgresql
+          instances: 1
+          image:
+            repository: registry1.dso.mil/ironbank/opensource/postgres/postgresql
+            tag: "17.10"
+          imagePullSecrets:
+            - name: private-registry
+          postgresUID: 1001
+          postgresGID: 1001
+          storage:
+            size: 8Gi
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          parameters:
+            max_connections: "200"
+            shared_buffers: 256MB
+          sharedPreloadLibraries:
+            - pg_stat_statements
+          bootstrap:
+            database: gitlabhq_production
+            owner: gitlab
+            postInitApplicationSQL:
+              - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+              - CREATE EXTENSION IF NOT EXISTS btree_gist;
+              - CREATE EXTENSION IF NOT EXISTS plpgsql;
+              - CREATE EXTENSION IF NOT EXISTS amcheck;
+              - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+          operator:
+            namespace: cloudnative-pg
+            serviceAccount: cloudnative-pg
       global:
+        redis:
+          host: gitlab-redis-master
+        psql:
+          host: gitlab-postgresql-rw
+          password:
+            secret: gitlab-postgresql-app
+            key: password
         rails:
           bootstrap:
             enabled: false
         appConfig:
-          artifacts:
-            bucket: gitlab-artifacts
-          lfs:
-            bucket: git-lfs
-          uploads:
-            bucket: gitlab-uploads
-          packages:
-            bucket: gitlab-packages
-          externalDiffs:
-            bucket: gitlab-mr-diffs
-          terraformState:
-            bucket: gitlab-terraform-state
-          ciSecureFiles:
-            bucket: gitlab-ci-secure-files
-          dependencyProxy:
-            bucket: gitlab-dependency-proxy
-          agentPlanContent:
-            bucket: gitlab-agent-plan-content
-          backups:
-            bucket: gitlab-backups
-            tmpBucket: tmp
-        pages:
-          objectStore:
-            bucket: gitlab-pages
+          object_store:
+            enabled: true
+            connection:
+              secret: gitlab-object-storage
+              key: rails
       upstream:
         gitlab-runner:
           resources:
@@ -1193,6 +1283,11 @@ addons:
               requests:
                 cpu: 10m
           toolbox:
+            backups:
+              objectStorage:
+                config:
+                  secret: gitlab-object-storage-s3cmd
+                  key: config
             persistence:
               size: 256Mi
             resources:
@@ -1203,6 +1298,8 @@ addons:
             minReplicas: 1
             maxReplicas: 1
           storage:
+            secret: gitlab-registry-storage
+            key: config
             redirect:
               disable: true
 
