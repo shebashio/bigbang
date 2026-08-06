@@ -91,7 +91,9 @@ flux:
 
 # GitLab 19 removed its bundled PostgreSQL, Redis, and MinIO charts. These
 # independent releases exist only for Big Bang's internal CI dependency
-# environment. They are not supported as consumer development or production
+# environment. CloudNativePG is the Big Bang maintained operator; the
+# PostgreSQL operand comes from the internal helper under tests/charts. These
+# dependencies are not supported as consumer development or production
 # persistent storage. Consumers must manage external PostgreSQL, Redis/Valkey,
 # and S3 services.
 helmRepositories:
@@ -102,9 +104,6 @@ helmRepositories:
     username: ""
     password: ""
     email: ""
-  - name: cloudnative-pg
-    repository: https://cloudnative-pg.github.io/charts
-    type: default
 
 packages:
   cloudnative-pg:
@@ -128,7 +127,7 @@ packages:
       - name: istiod
         namespace: bigbang
 
-  gitlab-garage:
+  garage:
     enabled: true
     sourceType: git
     git:
@@ -138,7 +137,7 @@ packages:
     helmRelease:
       namespace: bigbang
     namespace:
-      name: gitlab-dependencies
+      name: garage
     istio:
       injection: disabled
     # The Garage chart can render Istio AuthorizationPolicies even though its
@@ -155,7 +154,7 @@ packages:
           patches:
             - target:
                 kind: Job
-                name: ^gitlab-garage-garage-init$
+                name: ^garage-garage-init$
               patch: |-
                 - op: add
                   path: /metadata/annotations
@@ -163,10 +162,10 @@ packages:
                 - op: remove
                   path: /spec/ttlSecondsAfterFinished
     values:
-      fullnameOverride: gitlab-garage
+      fullnameOverride: garage
       bb-common:
         istio:
-          # The dependency namespace is deliberately unmeshed in sidecar CI.
+          # The Garage namespace is deliberately unmeshed in sidecar CI.
           enabled: false
           mtls:
             mode: PERMISSIVE
@@ -185,44 +184,10 @@ packages:
                 podSelector:
                   matchLabels:
                     app.kubernetes.io/name: garage
-                    app.kubernetes.io/instance: gitlab-garage
+                    app.kubernetes.io/instance: garage
                 from:
                   k8s:
                     gitlab/*: true
-              postgresql:5432:
-                podSelector:
-                  matchLabels:
-                    cnpg.io/cluster: gitlab-postgresql
-                from:
-                  k8s:
-                    gitlab/*: true
-              postgresql-status:8000:
-                podSelector:
-                  matchLabels:
-                    cnpg.io/cluster: gitlab-postgresql
-                from:
-                  k8s:
-                    cloudnative-pg@cloudnative-pg/cloudnative-pg: true
-              redis:6379:
-                podSelector:
-                  matchLabels:
-                    app.kubernetes.io/instance: gitlab-redis
-                    app.kubernetes.io/component: master
-                from:
-                  k8s:
-                    gitlab/*: true
-          egress:
-            defaults:
-              enabled: true
-            from:
-              cnpg-database:
-                podSelector:
-                  matchLabels:
-                    app.kubernetes.io/component: database
-                    app.kubernetes.io/managed-by: cloudnative-pg
-                to:
-                  definition:
-                    kubeAPI: true
       garageInit:
         enabled: true
         zone: gitlab
@@ -248,7 +213,7 @@ packages:
           secretAccessKey: bb00000000000000000000000000000000000000000000000000000000000000
         adminToken: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
       upstream:
-        fullnameOverride: gitlab-garage
+        fullnameOverride: garage
         imagePullSecrets:
           - name: private-registry
         deployment:
@@ -265,137 +230,87 @@ packages:
           - name: GARAGE_ADMIN_TOKEN
             value: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
 
-  gitlab-postgresql:
+  postgresql:
     enabled: true
-    sourceType: helmRepo
-    helmRepo:
-      repoName: cloudnative-pg
-      chartName: cluster
-      tag: 0.8.1
-      cosignVerify: false
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/bigbang.git
+      path: tests/charts/postgresql
+      # Draft validation only. If Path 2 is selected, land the helper first and
+      # replace this with master plus the prerequisite merge commit.
+      branch: gitlab-19-external-ci-dependencies
     helmRelease:
       namespace: bigbang
     namespace:
-      name: gitlab-dependencies
-      create: false
-      createRegistrySecret: false
+      name: postgresql
     istio:
       injection: disabled
     wrapper:
       enabled: true
     network:
-      policies: false
-    secrets:
-      - name: gitlab-postgresql-app
-        type: kubernetes.io/basic-auth
-        data:
-          username: gitlab
-          password: gitlab-ci-postgresql-password
-          dbname: gitlabhq_production
+      policies: true
+      defaultDeny: true
+      allowIntraNamespace: true
+      allowDnsEgress: true
+      additionalPolicies:
+        - name: allow-gitlab-postgresql
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: gitlab
+                ports:
+                  - protocol: TCP
+                    port: 5432
+        - name: allow-cloudnative-pg-status
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: cloudnative-pg
+                ports:
+                  - protocol: TCP
+                    port: 8000
+        - name: allow-cnpg-kube-api
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Egress
+            egress:
+              - to:
+                  - ipBlock:
+                      cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
-      - name: gitlab-postgresql-wrapper
+      - name: postgresql-wrapper
         namespace: bigbang
     bbCommonValues: false
     flux:
-      # The normal connectivity Job can wait up to about twenty minutes for
-      # the CNPG primary. Keep the Helm action comfortably above that bound.
+      # The helper's readiness Deployment gates this HelmRelease until the
+      # CNPG primary accepts SQL connections.
       timeout: 30m
       install:
-        # A failed install must leave the Cluster operand in place so the
-        # operator can continue converging it; do not uninstall/retry it.
         remediation:
           retries: 0
-      test:
-        # The cluster chart's Helm test can start before the CNPG operand is
-        # ready. Flux remediates a failed test by uninstalling the Cluster,
-        # preventing the database from ever converging. The post-renderer
-        # below turns that hook into a normal, non-destructive readiness Job.
-        enable: false
-    postRenderers:
-      - kustomize:
-          patches:
-            - target:
-                kind: Job
-                name: ^gitlab-postgresql-ping-test$
-              patch: |-
-                # Clear the Helm test annotations so this is an ordinary
-                # release resource whose completion gates Helm readiness.
-                - op: add
-                  path: /metadata/annotations
-                  value: {}
-                - op: replace
-                  path: /spec/template/spec/containers/0/image
-                  value: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
-                - op: replace
-                  path: /spec/template/spec/containers/0/command
-                  value:
-                    - /bin/bash
-                - op: replace
-                  path: /spec/template/spec/containers/0/args
-                  value:
-                    - -ec
-                    - |
-                      for attempt in $(seq 1 240); do
-                        if PGPASSWORD="${PGPASS}" psql \
-                          --host=gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local \
-                          --port=5432 \
-                          --username="${PGUSER}" \
-                          --dbname="${PGDBNAME:-$PGUSER}" \
-                          --command='SELECT 1'; then
-                          exit 0
-                        fi
-                        sleep 5
-                      done
-                      exit 1
-                - op: add
-                  path: /spec/template/spec/imagePullSecrets
-                  value:
-                    - name: private-registry
-                - op: add
-                  path: /spec/activeDeadlineSeconds
-                  value: 1260
     values:
-      fullnameOverride: gitlab-postgresql
-      type: postgresql
-      version:
-        postgresql: "17"
-      cluster:
-        instances: 1
-        imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
-        imagePullSecrets:
-          - name: private-registry
-        postgresUID: 1001
-        postgresGID: 1001
-        storage:
-          size: 8Gi
-        resources:
-          requests:
-            cpu: 1
-            memory: 1Gi
-          limits:
-            cpu: 1
-            memory: 1Gi
-        postgresql:
-          parameters:
-            max_connections: "200"
-            shared_buffers: 256MB
-          shared_preload_libraries:
-            - pg_stat_statements
-        initdb:
-          database: gitlabhq_production
-          owner: gitlab
-          secret:
-            name: gitlab-postgresql-app
-          postInitApplicationSQL:
-            - CREATE EXTENSION IF NOT EXISTS pg_trgm;
-            - CREATE EXTENSION IF NOT EXISTS btree_gist;
-            - CREATE EXTENSION IF NOT EXISTS plpgsql;
-            - CREATE EXTENSION IF NOT EXISTS amcheck;
-            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+      fullnameOverride: postgresql
 
-  gitlab-redis:
+  redis:
     enabled: true
     sourceType: git
     git:
@@ -405,18 +320,54 @@ packages:
     helmRelease:
       namespace: bigbang
     namespace:
-      name: gitlab-dependencies
-      create: false
-      createRegistrySecret: false
+      name: redis
     istio:
       injection: disabled
+    wrapper:
+      enabled: true
+    network:
+      policies: true
+      defaultDeny: true
+      allowIntraNamespace: true
+      allowDnsEgress: true
+      additionalPolicies:
+        - name: allow-gitlab-redis
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/instance: redis
+                app.kubernetes.io/component: master
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: gitlab
+                ports:
+                  - protocol: TCP
+                    port: 6379
+        - name: allow-redis-upgrade-kube-api
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: bigbang-redis-upgrade-job
+            policyTypes:
+              - Egress
+            egress:
+              - to:
+                  - ipBlock:
+                      cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'
+    dependsOn:
+      - name: redis-wrapper
+        namespace: bigbang
     bbCommonValues: false
     values:
       networkPolicies:
         enabled: false
       upstream:
         nameOverride: redis
-        fullnameOverride: gitlab-redis
+        fullnameOverride: redis
         architecture: standalone
         auth:
           enabled: true
@@ -434,7 +385,7 @@ packages:
 
 networkPolicies:
   enabled: true
-  #controlPlaneCidr: 172.16.0.0/12
+  controlPlaneCidr: 172.16.0.0/12
 
 istiod:
   enabled: true
@@ -683,10 +634,12 @@ kyvernoPolicies:
             pods:
               allow:
                 - cloudnative-pg-*
-          - namespace: gitlab-dependencies
+          - namespace: postgresql
             pods:
               allow:
-                - gitlab-postgresql-*
+                - postgresql-*
+              deny:
+                - postgresql-readiness-*
       add-default-capability-drop:
         exclude:
           any:
@@ -1436,14 +1389,14 @@ addons:
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
-      - name: gitlab-postgresql
+      - name: postgresql
         namespace: bigbang
-      - name: gitlab-redis
+      - name: redis
         namespace: bigbang
-      - name: gitlab-garage
+      - name: garage
         namespace: bigbang
     database:
-      host: gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local
+      host: postgresql-rw.postgresql.svc.cluster.local
       port: 5432
       database: gitlabhq_production
       username: gitlab
@@ -1452,8 +1405,8 @@ addons:
       password: gitlab-ci-redis-password
     objectStorage:
       type: minio
-      endpoint: http://gitlab-garage.gitlab-dependencies.svc.cluster.local:3900
-      regionendpoint: http://gitlab-garage.gitlab-dependencies.svc.cluster.local:3900
+      endpoint: http://garage.garage.svc.cluster.local:3900
+      regionendpoint: http://garage.garage.svc.cluster.local:3900
       region: garage
       accessKey: GKbb0000000000000000000000
       accessSecret: bb00000000000000000000000000000000000000000000000000000000000000
@@ -1474,24 +1427,34 @@ addons:
                 - to:
                     - namespaceSelector:
                         matchLabels:
-                          kubernetes.io/metadata.name: gitlab-dependencies
+                          kubernetes.io/metadata.name: garage
                   ports:
                     - protocol: TCP
                       port: 3900
+                - to:
+                    - namespaceSelector:
+                        matchLabels:
+                          kubernetes.io/metadata.name: postgresql
+                  ports:
                     - protocol: TCP
                       port: 5432
+                - to:
+                    - namespaceSelector:
+                        matchLabels:
+                          kubernetes.io/metadata.name: redis
+                  ports:
                     - protocol: TCP
                       port: 6379
       global:
         redis:
-          host: gitlab-redis-master.gitlab-dependencies.svc.cluster.local
+          host: redis-master.redis.svc.cluster.local
           port: 6379
           auth:
             enabled: true
             secret: gitlab-redis-secret-bb
             key: secret
         psql:
-          host: gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local
+          host: postgresql-rw.postgresql.svc.cluster.local
           port: 5432
           database: gitlabhq_production
           username: gitlab

@@ -3,10 +3,19 @@ istio:
   ambient:
     enabled: true
 
-# In ambient CI the dependency namespace is enrolled through its Namespace
-# label, so ztunnel can enforce the generated HBONE AuthorizationPolicies.
+# In ambient CI the dependency namespaces are enrolled through their Namespace
+# labels, so ztunnel can enforce the generated HBONE AuthorizationPolicies.
 packages:
-  gitlab-garage:
+  cloudnative-pg:
+    dependsOn:
+      - name: istiod
+        namespace: bigbang
+      - name: istio-cni
+        namespace: bigbang
+      - name: ztunnel
+        namespace: bigbang
+
+  garage:
     # Lists replace rather than merge across Helm values files. Repeat the
     # sidecar dependency and add the ambient data-plane components explicitly.
     dependsOn:
@@ -27,3 +36,107 @@ packages:
           authorizationPolicies:
             enabled: true
             generateFromNetpol: true
+
+  postgresql:
+    dependsOn:
+      - name: cloudnative-pg
+        namespace: bigbang
+      - name: postgresql-wrapper
+        namespace: bigbang
+      - name: istio-cni
+        namespace: bigbang
+      - name: ztunnel
+        namespace: bigbang
+    # Wrapper 0.4.15 does not inject the ambient HBONE port into custom raw
+    # NetworkPolicies. Repeat the rules and explicitly permit ztunnel traffic.
+    network:
+      additionalPolicies:
+        - name: allow-gitlab-postgresql
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: gitlab
+                ports:
+                  - protocol: TCP
+                    port: 5432
+                  - protocol: TCP
+                    port: 15008
+        - name: allow-cloudnative-pg-status
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: cloudnative-pg
+                ports:
+                  - protocol: TCP
+                    port: 8000
+                  - protocol: TCP
+                    port: 15008
+        - name: allow-cnpg-kube-api
+          spec:
+            podSelector:
+              matchLabels:
+                cnpg.io/cluster: postgresql
+            policyTypes:
+              - Egress
+            egress:
+              - to:
+                  - ipBlock:
+                      cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'
+
+  redis:
+    dependsOn:
+      - name: redis-wrapper
+        namespace: bigbang
+      - name: istiod
+        namespace: bigbang
+      - name: istio-cni
+        namespace: bigbang
+      - name: ztunnel
+        namespace: bigbang
+    # Wrapper 0.4.15 does not inject the ambient HBONE port into custom raw
+    # NetworkPolicies. Repeat the rule and explicitly permit ztunnel traffic.
+    network:
+      additionalPolicies:
+        - name: allow-gitlab-redis
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/instance: redis
+                app.kubernetes.io/component: master
+            policyTypes:
+              - Ingress
+            ingress:
+              - from:
+                  - namespaceSelector:
+                      matchLabels:
+                        kubernetes.io/metadata.name: gitlab
+                ports:
+                  - protocol: TCP
+                    port: 6379
+                  - protocol: TCP
+                    port: 15008
+        - name: allow-redis-upgrade-kube-api
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: bigbang-redis-upgrade-job
+            policyTypes:
+              - Egress
+            egress:
+              - to:
+                  - ipBlock:
+                      cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'

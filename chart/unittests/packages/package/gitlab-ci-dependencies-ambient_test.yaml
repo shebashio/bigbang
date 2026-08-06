@@ -4,6 +4,7 @@ templates:
   - templates/package/helmrelease.yaml
   - templates/package/namespace.yaml
   - templates/package/values.yaml
+  - templates/wrapper/values.yaml
 values:
   - ../../../../tests/test-values.yaml
   - ../../../../tests/test-values-ambient.yaml
@@ -12,7 +13,7 @@ tests:
     template: package/helmrelease.yaml
     documentSelector:
       path: metadata.name
-      value: gitlab-garage
+      value: garage
     asserts:
       - equal:
           path: spec.dependsOn
@@ -26,51 +27,121 @@ tests:
             - name: ztunnel
               namespace: bigbang
 
-  - it: enrolls the dependency namespace in ambient instead of sidecar injection
-    template: package/namespace.yaml
-    documentSelector:
-      path: metadata.name
-      value: gitlab-dependencies
-    asserts:
-      - equal:
-          path: metadata.labels["istio.io/dataplane-mode"]
-          value: ambient
-      - notExists:
-          path: metadata.labels.istio-injection
-
-  - it: enrolls the CloudNativePG operator namespace in ambient
-    template: package/namespace.yaml
+  - it: waits for the ambient mesh before installing the CloudNativePG operator
+    template: package/helmrelease.yaml
     documentSelector:
       path: metadata.name
       value: cloudnative-pg
     asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: istio-cni
+            namespace: bigbang
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: ztunnel
+            namespace: bigbang
+
+  - it: preserves operand ordering while waiting for ambient
+    template: package/helmrelease.yaml
+    documentSelector:
+      path: metadata.name
+      value: postgresql
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: cloudnative-pg
+            namespace: bigbang
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: postgresql-wrapper
+            namespace: bigbang
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: ztunnel
+            namespace: bigbang
+
+  - it: preserves Redis wrapper ordering while waiting for ambient
+    template: package/helmrelease.yaml
+    documentSelector:
+      path: metadata.name
+      value: redis
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: redis-wrapper
+            namespace: bigbang
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: ztunnel
+            namespace: bigbang
+
+  - it: enrolls each dependency namespace in ambient
+    template: package/namespace.yaml
+    documentSelector:
+      path: metadata.name
+      value: postgresql
+    asserts:
       - equal:
           path: metadata.labels["istio.io/dataplane-mode"]
           value: ambient
       - notExists:
           path: metadata.labels.istio-injection
 
-  - it: retains ambient mTLS and AuthorizationPolicies without a Sidecar resource
+  - it: retains ambient mTLS and generated AuthorizationPolicies for Garage
     template: package/values.yaml
     documentSelector:
       path: metadata.name
-      value: gitlab-garage-values
+      value: garage-values
     asserts:
       - matchRegex:
           path: stringData["values.yaml"]
           pattern: "mode: STRICT"
-      - notMatchRegex:
-          path: stringData["values.yaml"]
-          pattern: "REGISTRY_ONLY"
       - matchRegex:
           path: stringData["values.yaml"]
           pattern: "(?s)authorizationPolicies:.*enabled: true.*generateFromNetpol: true"
+
+  - it: permits ambient HBONE ingress through the PostgreSQL wrapper policies
+    template: wrapper/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: postgresql-wrapper-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)allow-gitlab-postgresql.*port: 5432.*port: 15008"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)allow-cloudnative-pg-status.*port: 8000.*port: 15008"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)allow-cnpg-kube-api.*cnpg.io/cluster: postgresql.*cidr: 172.16.0.0/12"
+
+  - it: permits ambient HBONE ingress through the Redis wrapper policy
+    template: wrapper/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: redis-wrapper-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)allow-gitlab-redis.*port: 6379.*port: 15008"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)allow-redis-upgrade-kube-api.*app.kubernetes.io/name: bigbang-redis-upgrade-job.*cidr: 172.16.0.0/12"
 
   - it: enables ambient and HBONE policy port injection in generated common values
     template: package/values.yaml
     documentSelector:
       path: metadata.name
-      value: gitlab-garage-values
+      value: garage-values
     asserts:
       - matchRegex:
           path: stringData["common.yaml"]
