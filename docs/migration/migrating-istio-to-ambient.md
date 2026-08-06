@@ -14,12 +14,12 @@ enabled`, per-pod Envoy) to **ambient mode** (node-level `ztunnel` for L4/mTLS, 
 waypoints for L7).
 
 Standing up a **new** ambient environment instead? See
-[Configuring Istio Ambient Mode in Big Bang](./ambient.md).
+[Configuring Istio Ambient Mode in Big Bang](../configuration/ambient.md).
 
 ### Related documentation
 
-- [Configuring Istio Ambient Mode in Big Bang](./ambient.md)
-- [Running Mission Applications in Ambient](./ambient-mission-apps.md)
+- [Configuring Istio Ambient Mode in Big Bang](../configuration/ambient.md)
+- [Running Mission Applications in Ambient](../configuration/ambient-mission-apps.md)
 - [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API Package](../packages/core/gateway-api.md)
 - Upstream: [Migrating to Ambient Mode](https://istio.io/latest/docs/ambient/install/)
 
@@ -119,7 +119,7 @@ Re-run `list` afterwards; it should report no sidecar pods.
 
 ### Step 4: Migrate mission apps and non-integrated charts
 
-See [Running Mission Applications in Ambient](./ambient-mission-apps.md)
+See [Running Mission Applications in Ambient](../configuration/ambient-mission-apps.md)
 
 ## Handling Special Cases
 
@@ -211,8 +211,8 @@ kubectl logs -n istio-system $ztunnel
 
 ## References
 
-- [Configuring Istio Ambient Mode in Big Bang](./ambient.md)
-- [Running Mission Applications in Ambient](./ambient-mission-apps.md)
+- [Configuring Istio Ambient Mode in Big Bang](../configuration/ambient.md)
+- [Running Mission Applications in Ambient](../configuration/ambient-mission-apps.md)
 - [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API Package](../packages/core/gateway-api.md)
 - [Istio Ambient Overview](https://istio.io/latest/docs/ambient/overview/) /
   [Migrating to Ambient](https://istio.io/latest/docs/ambient/install/) /
