@@ -166,9 +166,9 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       addons.gitlab.enabled: true
-      addons.gitlab.database.host: gitlab-postgresql-rw.gitlab-dependencies.svc.cluster.local
+      addons.gitlab.database.host: postgresql-rw.postgresql.svc.cluster.local
       addons.gitlab.objectStorage.type: minio
-      addons.gitlab.objectStorage.endpoint: http://gitlab-garage.gitlab-dependencies.svc.cluster.local:3900
+      addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
       addons.gitlab.objectStorage.region: garage
     asserts:
       - equal:

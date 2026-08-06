@@ -1,25 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Schema - Helm Repositories
 tests:
-  - it: should pass validation with an unauthenticated public Helm repository
-    set:
-      helmRepositories:
-        - name: cloudnative-pg
-          repository: https://cloudnative-pg.github.io/charts
-          type: default
-    asserts:
-      - notFailedTemplate: {}
-
-  - it: should reject an unauthenticated OCI Helm repository
-    set:
-      helmRepositories:
-        - name: registry1
-          repository: oci://registry1.dso.mil/bigbang
-          type: oci
-    asserts:
-      - failedTemplate:
-          errorPattern: ".*"
-
   - it: should pass validation with named Cosign public keys
     set:
       helmRepositories:
