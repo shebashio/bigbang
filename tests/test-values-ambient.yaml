@@ -48,7 +48,12 @@ packages:
       - name: ztunnel
         namespace: bigbang
     # Wrapper 0.4.15 does not inject the ambient HBONE port into custom raw
-    # NetworkPolicies. Repeat the rules and explicitly permit ztunnel traffic.
+    # NetworkPolicies or create ambient AuthorizationPolicies. Repeat the
+    # network rules and enable the helper's selector-scoped destination policy.
+    values:
+      istio:
+        ambient:
+          enabled: true
     network:
       additionalPolicies:
         - name: allow-gitlab-postgresql
@@ -108,7 +113,34 @@ packages:
       - name: ztunnel
         namespace: bigbang
     # Wrapper 0.4.15 does not inject the ambient HBONE port into custom raw
-    # NetworkPolicies. Repeat the rule and explicitly permit ztunnel traffic.
+    # NetworkPolicies or create ambient AuthorizationPolicies. Repeat the
+    # network rule and use Redis's native custom destination policy support.
+    values:
+      istio:
+        enabled: true
+        ambient:
+          enabled: true
+        hardened:
+          enabled: true
+          customAuthorizationPolicies:
+            - name: allow-gitlab-redis
+              enabled: true
+              spec:
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/instance: redis
+                    app.kubernetes.io/component: master
+                action: ALLOW
+                rules:
+                  - from:
+                      - source:
+                          namespaces:
+                            - redis
+                            - gitlab
+                    to:
+                      - operation:
+                          ports:
+                            - "6379"
     network:
       additionalPolicies:
         - name: allow-gitlab-redis

@@ -23,7 +23,7 @@ setup() {
         "${REPO_ROOT}/tests/test-values-ambient.yaml"
 
     [ "${status}" -eq 0 ]
-    [ "${output}" = '{"top":["istio","packages"],"packages":["cloudnative-pg","garage","postgresql","redis"],"cloudnative-pg":["dependsOn"],"garage":["dependsOn","values"],"postgresql":["dependsOn","network"],"redis":["dependsOn","network"]}' ]
+    [ "${output}" = '{"top":["istio","packages"],"packages":["cloudnative-pg","garage","postgresql","redis"],"cloudnative-pg":["dependsOn"],"garage":["dependsOn","values"],"postgresql":["dependsOn","network","values"],"redis":["dependsOn","network","values"]}' ]
 
     run yq eval --output-format=json --indent=0 \
         '{"postgresql": ([.packages.postgresql.network.additionalPolicies[].spec.ingress[].ports[]?.port] | sort | unique), "redis": ([.packages.redis.network.additionalPolicies[].spec.ingress[].ports[]?.port] | sort | unique), "policies": ([.packages.postgresql.network.additionalPolicies[].name, .packages.redis.network.additionalPolicies[].name] | flatten | sort | unique)}' \
@@ -31,4 +31,11 @@ setup() {
 
     [ "${status}" -eq 0 ]
     [ "${output}" = '{"postgresql":[5432,8000,15008],"redis":[6379,15008],"policies":["allow-cloudnative-pg-status","allow-cnpg-kube-api","allow-gitlab-postgresql","allow-gitlab-redis","allow-redis-upgrade-kube-api"]}' ]
+
+    run yq eval --output-format=json --indent=0 \
+        '{"postgresqlAmbient": .packages.postgresql.values.istio.ambient.enabled, "redisPolicy": (.packages.redis.values.istio.hardened.customAuthorizationPolicies[0] | {"name": .name, "namespaces": .spec.rules[0].from[0].source.namespaces, "ports": .spec.rules[0].to[0].operation.ports})}' \
+        "${REPO_ROOT}/tests/test-values-ambient.yaml"
+
+    [ "${status}" -eq 0 ]
+    [ "${output}" = '{"postgresqlAmbient":true,"redisPolicy":{"name":"allow-gitlab-redis","namespaces":["redis","gitlab"],"ports":["6379"]}}' ]
 }
