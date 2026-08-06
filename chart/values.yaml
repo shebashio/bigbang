@@ -203,6 +203,19 @@ networkPolicies:
         ports:
           - port: 443
             protocol: TCP
+      # -- Egress definition for Redis or Valkey subnets. Override these CIDRs and ports
+      # to match externally managed Redis, Valkey, or Sentinel endpoints.
+      redis-subnets:
+        to:
+          - ipBlock:
+              cidr: 192.168.0.0/16
+          - ipBlock:
+              cidr: 172.16.0.0/12
+          - ipBlock:
+              cidr: 10.0.0.0/8
+        ports:
+          - port: 6379
+            protocol: TCP
       # -- Egress definition for Kafka broker subnets (i.e. Amazon MSK, Confluent Cloud, Azure Event Hubs, etc.)
       kafka-subnets:
         to:

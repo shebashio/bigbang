@@ -168,4 +168,13 @@ networkPolicies:
           definition:
             storage-subnets: {{ not $minioEnabled }}
             database-subnets: {{ not $postgresEnabled }}
+      {{- if eq (include "metricScrapingEnabled" .) "true" }}
+      gitlab-exporter:
+        podSelector:
+          matchLabels:
+            app: gitlab-exporter
+        to:
+          definition:
+            database-subnets: {{ not $postgresEnabled }}
+      {{- end }}
 {{- end }}

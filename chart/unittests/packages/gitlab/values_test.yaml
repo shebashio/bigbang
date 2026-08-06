@@ -86,6 +86,13 @@ tests:
           path: global.appConfig.packages.connection
       - notExists:
           path: global.appConfig.dependencyProxy.connection
+      - equal:
+          path: networkPolicies.egress.definitions.storage-subnets.ports
+          value:
+            - port: 443
+              protocol: TCP
+            - port: 3900
+              protocol: TCP
 
   - it: preserves an explicit per-bucket object storage configuration
     postRenderer:
@@ -126,6 +133,24 @@ tests:
       - equal:
           path: networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: false
+      - equal:
+          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.sidekiq.to.definition.redis-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.redis-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.toolbox.to.definition.redis-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.gitlab-exporter.to.definition.redis-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
+          value: false
       - notExists:
           path: redis-bb
       - notExists:
@@ -151,6 +176,9 @@ tests:
           value: true
       - equal:
           path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
           value: true
 
   - it: enables external subnet egress for direct upstream GitLab 19 values
