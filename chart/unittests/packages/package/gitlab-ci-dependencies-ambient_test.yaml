@@ -1,12 +1,31 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Packages - GitLab CI External Dependencies - Ambient
 templates:
+  - templates/package/helmrelease.yaml
   - templates/package/namespace.yaml
   - templates/package/values.yaml
 values:
   - ../../../../tests/test-values.yaml
   - ../../../../tests/test-values-ambient.yaml
 tests:
+  - it: waits for the complete ambient mesh before installing Garage
+    template: package/helmrelease.yaml
+    documentSelector:
+      path: metadata.name
+      value: gitlab-garage
+    asserts:
+      - equal:
+          path: spec.dependsOn
+          value:
+            - name: kyverno-policies
+              namespace: bigbang
+            - name: istiod
+              namespace: bigbang
+            - name: istio-cni
+              namespace: bigbang
+            - name: ztunnel
+              namespace: bigbang
+
   - it: enrolls the dependency namespace in ambient instead of sidecar injection
     template: package/namespace.yaml
     documentSelector:

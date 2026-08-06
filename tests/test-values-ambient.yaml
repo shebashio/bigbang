@@ -7,6 +7,15 @@ istio:
 # label, so ztunnel can enforce the generated HBONE AuthorizationPolicies.
 packages:
   gitlab-garage:
+    # Lists replace rather than merge across Helm values files. Repeat the
+    # sidecar dependency and add the ambient data-plane components explicitly.
+    dependsOn:
+      - name: istiod
+        namespace: bigbang
+      - name: istio-cni
+        namespace: bigbang
+      - name: ztunnel
+        namespace: bigbang
     values:
       bb-common:
         istio:
