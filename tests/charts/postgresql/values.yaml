@@ -37,11 +37,6 @@ cluster:
 database:
   name: gitlabhq_production
   owner: gitlab
-  credentials:
-    existingSecret: ""
-    secretName: postgresql-app
-    username: gitlab
-    password: gitlab-ci-postgresql-password
   postInitApplicationSQL:
     - CREATE EXTENSION IF NOT EXISTS pg_trgm;
     - CREATE EXTENSION IF NOT EXISTS btree_gist;

@@ -26,8 +26,6 @@ spec:
     initdb:
       database: {{ .Values.database.name | quote }}
       owner: {{ .Values.database.owner | quote }}
-      secret:
-        name: {{ include "postgresql.credentialsSecret" . }}
       {{- with .Values.database.postInitApplicationSQL }}
       postInitApplicationSQL:
         {{- toYaml . | nindent 8 }}

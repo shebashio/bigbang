@@ -11,7 +11,20 @@ BIG BANG OFFLINE SOURCE NOTICE:
 
 {{ if $.Values.addons.gitlab.enabled }}
 {{- $gitlabValues := $.Values.addons.gitlab.values | default dict }}
-{{- $garageEnabled := dig "garage" "enabled" false $gitlabValues }}
+{{- $gitlabGlobalValues := (get $gitlabValues "global") | default dict }}
+{{- $externalPostgresConfigured := not (empty $.Values.addons.gitlab.database.host) }}
+{{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict }}
+{{- if kindIs "map" $gitlabPsqlValues }}
+  {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}
+{{- end }}
+{{- $externalObjectStorageConfigured := or (not (empty $.Values.addons.gitlab.objectStorage.region)) (not (empty $.Values.addons.gitlab.objectStorage.endpoint)) }}
+{{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict }}
+{{- if kindIs "map" $gitlabAppConfigValues }}
+  {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict }}
+  {{- if kindIs "map" $gitlabObjectStoreValues }}
+    {{- $externalObjectStorageConfigured = or $externalObjectStorageConfigured (dig "enabled" false $gitlabObjectStoreValues) }}
+  {{- end }}
+{{- end }}
 Gitlab is enabled.
 Please follow the Gitlab online documentation for proper configuration.
 This BigBang chart provides convenient enhancements to the Gitlab Package helm chart.
@@ -74,21 +87,13 @@ gitlab-backup-tmp
 {{- end }}
 {{- end }}
 
-{{ if $.Values.addons.gitlab.database.host }}
-{{ else }}
+{{ if not $externalPostgresConfigured }}
 PLATFORM ONE GITLAB WARNING:
-  You have enabled an internal postgres database in the BigBang configuration.
-  Platform One does not support this option for production deployments because your persistent data can be permanently lost.
-  This option should only be used for development or CI pipelines.
-{{- end -}}
+  GitLab PostgreSQL is not configured.
+  GitLab 19 no longer includes bundled PostgreSQL. Configure an independently managed PostgreSQL 17 service before enabling GitLab.
+{{- end }}
 
-{{ if $.Values.addons.gitlab.objectStorage.endpoint }}
-{{ else if $garageEnabled }}
-PLATFORM ONE GITLAB WARNING:
-  You have enabled an internal Garage service in the BigBang configuration.
-  Platform One does not support this option for production deployments because your persistent data can be permanently lost.
-  This option should only be used for development or CI pipelines.
-{{ else }}
+{{ if not $externalObjectStorageConfigured }}
 PLATFORM ONE GITLAB WARNING:
   GitLab object storage is not configured.
   GitLab 19 no longer includes bundled MinIO. Configure independently managed object storage before enabling GitLab.
@@ -98,8 +103,8 @@ PLATFORM ONE GITLAB WARNING:
 {{- if eq (include "bb.anyRedisEnabled" .Values) "true" }}
 PLATFORM ONE REDIS WARNING:
   You have enabled an internal redis instance in the BigBang configuration.
-  Platform One does not support this option for consumer development or production deployments because persistent data can be permanently lost.
-  This option is intended exclusively for internal Big Bang CI testing.
+  Platform One does not support this option for production deployments because your persistent data can be permanently lost.
+  This option should only be used for development or CI pipelines.
 {{- end }}
 
 {{- if $.Values.addons.anchoreEnterprise.enabled }}

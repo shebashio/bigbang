@@ -15,8 +15,6 @@ spec:
       app.kubernetes.io/component: readiness
   template:
     metadata:
-      annotations:
-        checksum/database-credentials: {{ printf "%s:%s:%s:%s" .Values.database.credentials.existingSecret .Values.database.credentials.username .Values.database.credentials.password .Values.database.name | sha256sum }}
       labels:
         {{- include "postgresql.labels" . | nindent 8 }}
         app.kubernetes.io/component: readiness
@@ -59,12 +57,12 @@ spec:
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "postgresql.credentialsSecret" . }}
+                  name: {{ include "postgresql.applicationSecret" . }}
                   key: username
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "postgresql.credentialsSecret" . }}
+                  name: {{ include "postgresql.applicationSecret" . }}
                   key: password
             - name: PGDATABASE
               value: {{ .Values.database.name | quote }}
