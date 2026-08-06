@@ -1,6 +1,5 @@
 suite: PostgreSQL CI helper
 templates:
-  - templates/secret.yaml
   - templates/cluster.yaml
   - templates/readiness.yaml
   - templates/authorizationpolicy.yaml
@@ -22,45 +21,13 @@ tests:
       - equal:
           path: spec.bootstrap.initdb.owner
           value: gitlab
-      - equal:
-          path: spec.bootstrap.initdb.secret.name
-          value: postgresql-app
+      - notExists:
+          path: spec.bootstrap.initdb.secret
       - contains:
           path: spec.bootstrap.initdb.postInitApplicationSQL
           content: CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-  - it: creates the initdb credentials Secret by default
-    template: templates/secret.yaml
-    asserts:
-      - isKind:
-          of: Secret
-      - equal:
-          path: metadata.name
-          value: postgresql-app
-      - equal:
-          path: type
-          value: kubernetes.io/basic-auth
-      - notExists:
-          path: stringData.dbname
-
-  - it: can reference an existing initdb Secret
-    template: templates/cluster.yaml
-    set:
-      database.credentials.existingSecret: supplied-postgresql-app
-    asserts:
-      - equal:
-          path: spec.bootstrap.initdb.secret.name
-          value: supplied-postgresql-app
-
-  - it: suppresses the generated Secret when an existing Secret is supplied
-    template: templates/secret.yaml
-    set:
-      database.credentials.existingSecret: supplied-postgresql-app
-    asserts:
-      - hasDocuments:
-          count: 0
-
-  - it: gates Flux readiness on live PostgreSQL connectivity
+  - it: gates Flux readiness on live PostgreSQL connectivity with CNPG-generated credentials
     template: templates/readiness.yaml
     asserts:
       - isKind:
@@ -74,17 +41,39 @@ tests:
       - equal:
           path: spec.template.spec.automountServiceAccountToken
           value: false
-      - exists:
-          path: spec.template.metadata.annotations["checksum/database-credentials"]
       - matchRegex:
           path: spec.template.spec.containers[0].args[1]
           pattern: (?s)postgresql-rw.*SELECT 1
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: postgresql-app
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: username
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.name
+          value: postgresql-app
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: password
       - equal:
           path: spec.template.spec.containers[0].env[2].value
           value: gitlabhq_production
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.exec.command[2]
           value: test -f /ready/connected
+
+  - it: follows the CNPG application Secret naming convention for a renamed cluster
+    template: templates/readiness.yaml
+    set:
+      fullnameOverride: gitlab-postgresql
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: gitlab-postgresql-app
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.name
+          value: gitlab-postgresql-app
 
   - it: omits ambient authorization when ambient mode is disabled
     template: templates/authorizationpolicy.yaml

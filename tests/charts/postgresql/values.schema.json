@@ -69,21 +69,10 @@
     "database": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "owner", "credentials", "postInitApplicationSQL"],
+      "required": ["name", "owner", "postInitApplicationSQL"],
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "owner": { "type": "string", "minLength": 1 },
-        "credentials": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["existingSecret", "secretName", "username", "password"],
-          "properties": {
-            "existingSecret": { "type": "string" },
-            "secretName": { "type": "string", "minLength": 1 },
-            "username": { "type": "string", "minLength": 1 },
-            "password": { "type": "string", "minLength": 1 }
-          }
-        },
         "postInitApplicationSQL": { "type": "array", "items": { "type": "string" } }
       }
     },

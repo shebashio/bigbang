@@ -143,8 +143,9 @@ addons:
     # package revision, so keep GitLab on its CI git ref in the OCI lane.
     sourceType: "git"
     git:
-      tag: null
+      tag: ""
       branch: gitlab-19-external-ci-dependencies
+      commit: bdad9923a876a83689bed2cfa9b1e1bd4178764b
 
   gitlabRunner:
     sourceType: "helmRepo"

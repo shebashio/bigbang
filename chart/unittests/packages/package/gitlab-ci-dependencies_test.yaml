@@ -10,7 +10,9 @@ templates:
   - templates/wrapper/values.yaml
   - templates/gitlab/gitrepository.yaml
   - templates/gitlab/helmrelease.yaml
+  - templates/gitlab/secret-database.yaml
   - templates/gitlab/secret-objectstore.yaml
+  - templates/gitlab/secret-redis-bb.yaml
   - templates/gitlab/values.yaml
   - templates/kyverno-policies/values.yaml
 values:
@@ -25,6 +27,9 @@ tests:
       - equal:
           path: spec.ref.branch
           value: gitlab-19-external-ci-dependencies
+      - equal:
+          path: spec.ref.commit
+          value: bdad9923a876a83689bed2cfa9b1e1bd4178764b
       - notExists:
           path: spec.ref.tag
 
@@ -225,21 +230,82 @@ tests:
           path: stringData.overlays
           pattern: "(?s)namespace: postgresql.*allow:.*postgresql-\\*.*deny:.*postgresql-readiness-\\*"
 
-  - it: configures path-style s3cmd backups against the Garage service
+  - it: leaves dependency credential ownership with Redis PostgreSQL and Garage
     template: gitlab/secret-objectstore.yaml
     asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: does not render duplicate database credentials
+    template: gitlab/secret-database.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: does not render duplicate Redis credentials
+    template: gitlab/secret-redis-bb.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: synchronizes dependency-owned credentials into GitLab through Kyverno
+    template: kyverno-policies/values.yaml
+    asserts:
       - matchRegex:
-          path: stringData.backups
-          pattern: "host_base = garage.garage.svc.cluster.local:3900"
+          path: stringData.overlays
+          pattern: "name: sync-redis-credentials"
       - matchRegex:
-          path: stringData.backups
-          pattern: "host_bucket = garage.garage.svc.cluster.local:3900"
+          path: stringData.overlays
+          pattern: "(?s)clone:.*name: redis.*namespace: redis"
       - matchRegex:
-          path: stringData.backups
-          pattern: "use_https = False"
-      - notMatchRegex:
-          path: stringData.backups
-          pattern: "%\\(bucket\\)s\\.garage"
+          path: stringData.overlays
+          pattern: "name: gitlab-redis-secret-bb"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "name: sync-postgresql-credentials"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)clone:.*name: postgresql-app.*namespace: postgresql"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "name: gitlab-database"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "name: sync-garage-credentials"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)names:.*garage-credentials.*namespaces:.*garage"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "name: gitlab-object-storage"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "backups:.*base64_encode"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "rails:.*base64_encode"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "registry:.*base64_encode"
+
+  - it: points GitLab at the synchronized dependency Secrets
+    template: gitlab/values.yaml
+    asserts:
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)redis:.*auth:.*key: redis-password.*secret: gitlab-redis-secret-bb"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)psql:.*password:.*key: password.*secret: gitlab-database"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)object_store:.*connection:.*key: rails.*secret: gitlab-object-storage"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)objectStorage:.*config:.*key: backups.*secret: gitlab-object-storage"
+      - matchRegex:
+          path: stringData.overlays
+          pattern: "(?s)storage:.*key: registry.*secret: gitlab-object-storage"
 
   - it: gates GitLab on every external CI dependency release
     template: gitlab/helmrelease.yaml

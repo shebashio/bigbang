@@ -228,7 +228,10 @@ packages:
             size: 10Gi
         environment:
           - name: GARAGE_ADMIN_TOKEN
-            value: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
+            valueFrom:
+              secretKeyRef:
+                name: garage-credentials
+                key: adminToken
 
   postgresql:
     enabled: true
@@ -236,8 +239,8 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/bigbang.git
       path: tests/charts/postgresql
-      # Draft validation only. If Path 2 is selected, land the helper first and
-      # replace this with master plus the prerequisite merge commit.
+      # Draft validation only. If Path 2 is selected, publish the helper first
+      # and replace this branch with an immutable Big Bang release tag.
       branch: gitlab-19-external-ci-dependencies
     helmRelease:
       namespace: bigbang
@@ -371,7 +374,6 @@ packages:
         architecture: standalone
         auth:
           enabled: true
-          password: gitlab-ci-redis-password
           usePasswordFiles: true
         master:
           persistence:
@@ -605,6 +607,136 @@ kyvernoPolicies:
       chainsawEnabled: false
       kyvernoCliEnabled: false
       legacyEnabled: true
+    # CI-only credential bridge. Dependency charts own the source Secrets;
+    # Kyverno synchronizes only the forms GitLab consumes into its namespace.
+    additionalPolicies:
+      sync-gitlab-ci-credentials:
+        enabled: true
+        kind: ClusterPolicy
+        annotations:
+          policies.kyverno.io/title: Sync GitLab CI dependency credentials
+          policies.kyverno.io/category: GitLab CI
+          policies.kyverno.io/subject: Secret
+        spec:
+          background: true
+          rules:
+            - name: sync-redis-credentials
+              match:
+                any:
+                  - resources:
+                      kinds:
+                        - Secret
+                      names:
+                        - redis
+                      namespaces:
+                        - redis
+                      operations:
+                        - CREATE
+                        - UPDATE
+              generate:
+                generateExisting: true
+                apiVersion: v1
+                kind: Secret
+                name: gitlab-redis-secret-bb
+                namespace: gitlab
+                synchronize: true
+                clone:
+                  namespace: redis
+                  name: redis
+            - name: sync-postgresql-credentials
+              match:
+                any:
+                  - resources:
+                      kinds:
+                        - Secret
+                      names:
+                        - postgresql-app
+                      namespaces:
+                        - postgresql
+                      operations:
+                        - CREATE
+                        - UPDATE
+              generate:
+                generateExisting: true
+                apiVersion: v1
+                kind: Secret
+                name: gitlab-database
+                namespace: gitlab
+                synchronize: true
+                clone:
+                  namespace: postgresql
+                  name: postgresql-app
+            - name: sync-garage-credentials
+              match:
+                any:
+                  - resources:
+                      kinds:
+                        - Secret
+                      names:
+                        - garage-credentials
+                      namespaces:
+                        - garage
+                      operations:
+                        - CREATE
+                        - UPDATE
+              context:
+                - name: garageAccessKey
+                  variable:
+                    jmesPath: request.object.data.accessKeyId | base64_decode(@)
+                - name: garageSecretKey
+                  variable:
+                    jmesPath: request.object.data.secretAccessKey | base64_decode(@)
+                - name: garageRails
+                  variable:
+                    value: |-
+                      provider: AWS
+                      region: garage
+                      aws_access_key_id: {{ garageAccessKey }}
+                      aws_secret_access_key: {{ garageSecretKey }}
+                      endpoint: "http://garage.garage.svc.cluster.local:3900"
+                      aws_signature_version: 4
+                      path_style: true
+                - name: garageRegistry
+                  variable:
+                    value: |-
+                      s3:
+                        bucket: registry
+                        accesskey: {{ garageAccessKey }}
+                        secretkey: {{ garageSecretKey }}
+                        regionendpoint: "http://garage.garage.svc.cluster.local:3900"
+                        secure: false
+                        region: garage
+                        v4auth: true
+                        pathstyle: true
+                - name: garageBackups
+                  variable:
+                    value: |-
+                      [default]
+                      access_key = {{ garageAccessKey }}
+                      secret_key = {{ garageSecretKey }}
+                      host_base = garage.garage.svc.cluster.local:3900
+                      host_bucket = garage.garage.svc.cluster.local:3900
+                      use_https = False
+                      bucket_location = garage
+                      multipart_chunk_size_mb = 128
+              generate:
+                generateExisting: true
+                apiVersion: v1
+                kind: Secret
+                name: gitlab-object-storage
+                namespace: gitlab
+                synchronize: true
+                data:
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: gitlab-object-storage
+                    namespace: gitlab
+                  type: Opaque
+                  data:
+                    rails: '{{ garageRails | base64_encode(@) }}'
+                    registry: '{{ garageRegistry | base64_encode(@) }}'
+                    backups: '{{ garageBackups | base64_encode(@) }}'
     excludeContainers:
     - not-me
     - or-me
@@ -1384,8 +1516,9 @@ addons:
   gitlab:
     enabled: true
     git:
-      tag: null
+      tag: ""
       branch: gitlab-19-external-ci-dependencies
+      commit: bdad9923a876a83689bed2cfa9b1e1bd4178764b
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
@@ -1395,21 +1528,6 @@ addons:
         namespace: bigbang
       - name: garage
         namespace: bigbang
-    database:
-      host: postgresql-rw.postgresql.svc.cluster.local
-      port: 5432
-      database: gitlabhq_production
-      username: gitlab
-      password: gitlab-ci-postgresql-password
-    redis:
-      password: gitlab-ci-redis-password
-    objectStorage:
-      type: minio
-      endpoint: http://garage.garage.svc.cluster.local:3900
-      regionendpoint: http://garage.garage.svc.cluster.local:3900
-      region: garage
-      accessKey: GKbb0000000000000000000000
-      accessSecret: bb00000000000000000000000000000000000000000000000000000000000000
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_gitlab
@@ -1452,7 +1570,7 @@ addons:
           auth:
             enabled: true
             secret: gitlab-redis-secret-bb
-            key: secret
+            key: redis-password
         psql:
           host: postgresql-rw.postgresql.svc.cluster.local
           port: 5432
@@ -1460,10 +1578,16 @@ addons:
           username: gitlab
           password:
             secret: gitlab-database
-            key: PGPASSWORD
+            key: password
         registry:
           bucket: registry
         appConfig:
+          object_store:
+            enabled: true
+            proxy_download: true
+            connection:
+              secret: gitlab-object-storage
+              key: rails
           artifacts:
             bucket: gitlab-artifacts
           lfs:
@@ -1533,6 +1657,12 @@ addons:
               requests:
                 cpu: 10m
           toolbox:
+            backups:
+              objectStorage:
+                backend: s3
+                config:
+                  secret: gitlab-object-storage
+                  key: backups
             persistence:
               size: 256Mi
             resources:
@@ -1540,6 +1670,8 @@ addons:
                 cpu: 10m
         registry:
           storage:
+            secret: gitlab-object-storage
+            key: registry
             redirect:
               disable: true
           hpa:
