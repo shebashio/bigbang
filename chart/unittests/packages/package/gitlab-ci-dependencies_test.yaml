@@ -15,6 +15,9 @@ templates:
   - templates/gitlab/secret-redis-bb.yaml
   - templates/gitlab/values.yaml
   - templates/kyverno-policies/values.yaml
+release:
+  name: test
+  namespace: bigbang
 values:
   - ../../../../tests/test-values.yaml
 tests:
@@ -29,7 +32,7 @@ tests:
           value: gitlab-19-external-ci-dependencies
       - equal:
           path: spec.ref.commit
-          value: bdad9923a876a83689bed2cfa9b1e1bd4178764b
+          value: 98fe819c1b8dba6681da1576518154ebb8a58f53
       - notExists:
           path: spec.ref.tag
 
@@ -73,6 +76,9 @@ tests:
       - equal:
           path: spec.ref.branch
           value: gitlab-19-external-ci-dependencies
+      - equal:
+          path: spec.ref.commit
+          value: e7653f61d77ec424feb34cfa1e4ea122d50d8f2c
 
   - it: gates the PostgreSQL operand on the Big Bang operator and wrapper
     template: package/helmrelease.yaml

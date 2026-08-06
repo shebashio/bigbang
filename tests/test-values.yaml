@@ -123,9 +123,6 @@ packages:
       injection: disabled
     bbCommonValues: true
     passBigBangValues: true
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
 
   garage:
     enabled: true
@@ -140,12 +137,6 @@ packages:
       name: garage
     istio:
       injection: disabled
-    # The Garage chart can render Istio AuthorizationPolicies even though its
-    # workload namespace does not use sidecars. Do not let Flux render those
-    # resources before Istio and its CRDs are ready.
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
     bbCommonValues: true
     # Garage 0.9.3-bb.0 deletes this completed Job after five minutes. Clear any
     # hook annotations and remove its TTL so initialization remains one-shot.
@@ -239,9 +230,10 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/bigbang.git
       path: tests/charts/postgresql
-      # Draft validation only. If Path 2 is selected, publish the helper first
-      # and replace this branch with an immutable Big Bang release tag.
+      # Draft validation only. If Path 2 is selected, land the helper first and
+      # replace this branch with master plus the prerequisite merge commit.
       branch: gitlab-19-external-ci-dependencies
+      commit: e7653f61d77ec424feb34cfa1e4ea122d50d8f2c
     helmRelease:
       namespace: bigbang
     namespace:
@@ -1518,7 +1510,7 @@ addons:
     git:
       tag: ""
       branch: gitlab-19-external-ci-dependencies
-      commit: bdad9923a876a83689bed2cfa9b1e1bd4178764b
+      commit: 98fe819c1b8dba6681da1576518154ebb8a58f53
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang

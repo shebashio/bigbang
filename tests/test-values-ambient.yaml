@@ -6,25 +6,8 @@ istio:
 # In ambient CI the dependency namespaces are enrolled through their Namespace
 # labels, so ztunnel can enforce the generated HBONE AuthorizationPolicies.
 packages:
-  cloudnative-pg:
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
-      - name: istio-cni
-        namespace: bigbang
-      - name: ztunnel
-        namespace: bigbang
-
   garage:
-    # Lists replace rather than merge across Helm values files. Repeat the
-    # sidecar dependency and add the ambient data-plane components explicitly.
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
-      - name: istio-cni
-        namespace: bigbang
-      - name: ztunnel
-        namespace: bigbang
+    # bbCommonValues adds the complete ambient Istio dependency set.
     values:
       bb-common:
         istio:
