@@ -199,6 +199,30 @@ tests:
           path: networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: true
 
+  - it: restores the Redis definition when upgrading with reused pre-existing values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+      networkPolicies.egress.definitions.redis-subnets: null
+    asserts:
+      - equal:
+          path: networkPolicies.egress.definitions.redis-subnets
+          value:
+            to:
+              - ipBlock:
+                  cidr: 192.168.0.0/16
+              - ipBlock:
+                  cidr: 172.16.0.0/12
+              - ipBlock:
+                  cidr: 10.0.0.0/8
+            ports:
+              - port: 6379
+                protocol: TCP
+
   - it: tolerates null GitLab 19 removed service blocks without enabling replacements
     postRenderer:
       cmd: "sh"

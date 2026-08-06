@@ -26,6 +26,16 @@ domain: {{ $domainName }}
 {{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
 {{- $kasEnabled := dig "global" "kas" "enabled" false .Values.addons.gitlab.values }}
 {{- $gitlabEgressDefinitions := deepCopy .Values.networkPolicies.egress.definitions }}
+{{- $redisDefinition := (get $gitlabEgressDefinitions "redis-subnets") | default dict }}
+{{- if or (not (kindIs "map" $redisDefinition)) (empty $redisDefinition) }}
+  {{- $redisDefinition = dict
+    "to" (list
+      (dict "ipBlock" (dict "cidr" "192.168.0.0/16"))
+      (dict "ipBlock" (dict "cidr" "172.16.0.0/12"))
+      (dict "ipBlock" (dict "cidr" "10.0.0.0/8")))
+    "ports" (list (dict "port" 6379 "protocol" "TCP")) }}
+  {{- $_ := set $gitlabEgressDefinitions "redis-subnets" $redisDefinition }}
+{{- end }}
 {{- if $extObjStorageIsConfigured }}
   {{- $storageDefinition := (get $gitlabEgressDefinitions "storage-subnets") | default dict }}
   {{- if kindIs "map" $storageDefinition }}
