@@ -473,12 +473,12 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | addons.gitlab.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/gitlab.git"` |  |
 | addons.gitlab.git.path | string | `"./chart"` |  |
-| addons.gitlab.git.tag | string | `nil` |  |
-| addons.gitlab.git.branch | string | `"renovate/ironbank"` |  |
+| addons.gitlab.git.tag | string | `"9.11.8-bb.0"` |  |
 | addons.gitlab.helmRepo.repoName | string | `"registry1"` |  |
 | addons.gitlab.helmRepo.chartName | string | `"gitlab"` |  |
 | addons.gitlab.helmRepo.tag | string | `"9.11.8-bb.0"` |  |
 | addons.gitlab.flux | object | `{}` | Flux reconciliation overrides specifically for the Gitlab Package |
+| addons.gitlab.dependsOn | list | `[]` | Additional HelmRelease dependencies for GitLab. Use this for operators that must be Ready before the GitLab chart creates their custom resources. |
 | addons.gitlab.ingress | object | `{"gateway":""}` | Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public". |
 | addons.gitlab.sso.enabled | bool | `false` | Toggle OIDC SSO for Gitlab on and off. Enabling this option will auto-create any required secrets. |
 | addons.gitlab.sso.client_id | string | `""` | Gitlab OIDC client ID |
@@ -491,8 +491,8 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.database.username | string | `""` | Username to connect as to external database, the user must have all privileges on the database. |
 | addons.gitlab.database.password | string | `""` | Database password for the username used to connect to the existing database. |
 | addons.gitlab.objectStorage.type | string | `""` | Type of object storage to use for Gitlab, setting to s3 will assume an external, pre-existing object storage is to be used. Entering connection info will enable this option and will auto-create any required secrets |
-| addons.gitlab.objectStorage.endpoint | string | `""` | S3 compatible endpoint to use for connection information. examples: "https://s3.amazonaws.com" "https://s3.us-gov-west-1.amazonaws.com" "http://minio.minio.svc.cluster.local:9000" |
-| addons.gitlab.objectStorage.regionendpoint | string | `""` | S3 compatible service endpoint for use with Minio or aws S3.  See: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage Setting this allows the registry to use a different endpoint than the global `objectStorage.endpoint` documented above. `objectStorage.endpoint` must be set in order for `objectStorage.regionendpoint` endpoint to be used.  See: https://docs.gitlab.com/administration/object_storage/ Also note rails.s3.yaml and registry.s3.yaml here for implementation parallel: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage examples:  `"https://s3.us-gov-west-1.amazonaws.com"` `"https://minio.example.com:9000"` |
+| addons.gitlab.objectStorage.endpoint | string | `""` | S3 compatible endpoint to use for connection information. GitLab 19 requires the URI scheme for non-AWS S3-compatible endpoints. examples: "https://s3.amazonaws.com" "https://s3.us-gov-west-1.amazonaws.com" "http://minio.minio.svc.cluster.local:9000" |
+| addons.gitlab.objectStorage.regionendpoint | string | `""` | S3 compatible service endpoint for use with Minio or aws S3. The value must include an http:// or https:// URI scheme. See: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage Setting this allows the registry to use a different endpoint than the global `objectStorage.endpoint` documented above. `objectStorage.endpoint` must be set in order for `objectStorage.regionendpoint` endpoint to be used.  See: https://docs.gitlab.com/administration/object_storage/ Also note rails.s3.yaml and registry.s3.yaml here for implementation parallel: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage examples:  `"https://s3.us-gov-west-1.amazonaws.com"` `"https://minio.example.com:9000"` |
 | addons.gitlab.objectStorage.region | string | `""` | S3 compatible region to use for connection information. |
 | addons.gitlab.objectStorage.accessKey | string | `""` | Access key for connecting to object storage endpoint. -- If using accessKey and accessSecret, the iamProfile must be left as an empty string: "" |
 | addons.gitlab.objectStorage.accessSecret | string | `""` | Secret key for connecting to object storage endpoint. Unencoded string data. This should be placed in the secret values and then encrypted |
