@@ -19,11 +19,11 @@ setup() {
 
 @test "ambient overlay contains only ambient-specific configuration" {
     run yq eval --output-format=json --indent=0 \
-        '{"top": (keys | sort), "packages": (.packages | keys | sort), "cloudnative-pg": (.packages."cloudnative-pg" | keys | sort), "garage": (.packages.garage | keys | sort), "postgresql": (.packages.postgresql | keys | sort), "redis": (.packages.redis | keys | sort)}' \
+        '{"top": (keys | sort), "packages": (.packages | keys | sort), "garage": (.packages.garage | keys | sort), "postgresql": (.packages.postgresql | keys | sort), "redis": (.packages.redis | keys | sort)}' \
         "${REPO_ROOT}/tests/test-values-ambient.yaml"
 
     [ "${status}" -eq 0 ]
-    [ "${output}" = '{"top":["istio","packages"],"packages":["cloudnative-pg","garage","postgresql","redis"],"cloudnative-pg":["dependsOn"],"garage":["dependsOn","values"],"postgresql":["dependsOn","network","values"],"redis":["dependsOn","network","values"]}' ]
+    [ "${output}" = '{"top":["istio","packages"],"packages":["garage","postgresql","redis"],"garage":["values"],"postgresql":["dependsOn","network","values"],"redis":["dependsOn","network","values"]}' ]
 
     run yq eval --output-format=json --indent=0 \
         '{"postgresql": ([.packages.postgresql.network.additionalPolicies[].spec.ingress[].ports[]?.port] | sort | unique), "redis": ([.packages.redis.network.additionalPolicies[].spec.ingress[].ports[]?.port] | sort | unique), "policies": ([.packages.postgresql.network.additionalPolicies[].name, .packages.redis.network.additionalPolicies[].name] | flatten | sort | unique)}' \
