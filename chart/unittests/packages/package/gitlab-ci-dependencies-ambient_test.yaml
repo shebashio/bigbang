@@ -124,6 +124,16 @@ tests:
           path: stringData["values.yaml"]
           pattern: "(?s)allow-cnpg-kube-api.*cnpg.io/cluster: postgresql.*cidr: 172.16.0.0/12"
 
+  - it: enables the helper's selector-scoped ambient authorization policy
+    template: package/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: postgresql-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)istio:.*ambient:.*enabled: true"
+
   - it: permits ambient HBONE ingress through the Redis wrapper policy
     template: wrapper/values.yaml
     documentSelector:
@@ -136,6 +146,19 @@ tests:
       - matchRegex:
           path: stringData["values.yaml"]
           pattern: "(?s)allow-redis-upgrade-kube-api.*app.kubernetes.io/name: bigbang-redis-upgrade-job.*cidr: 172.16.0.0/12"
+
+  - it: authorizes only GitLab and Redis identities to the ambient Redis port
+    template: package/values.yaml
+    documentSelector:
+      path: metadata.name
+      value: redis-values
+    asserts:
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)customAuthorizationPolicies:.*name: allow-gitlab-redis.*namespaces:.*- redis.*- gitlab.*ports:.*- ['\"]?6379['\"]?"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)name: allow-gitlab-redis.*selector:.*app.kubernetes.io/component: master.*app.kubernetes.io/instance: redis"
 
   - it: enables ambient and HBONE policy port injection in generated common values
     template: package/values.yaml

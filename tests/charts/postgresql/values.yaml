@@ -5,6 +5,14 @@ fullnameOverride: postgresql
 imagePullSecrets:
   - name: private-registry
 
+istio:
+  ambient:
+    enabled: false
+    gitlabNamespace: gitlab
+    operator:
+      namespace: cloudnative-pg
+      serviceAccount: cloudnative-pg
+
 cluster:
   instances: 1
   imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
