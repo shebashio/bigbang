@@ -230,10 +230,10 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/bigbang.git
       path: tests/charts/postgresql
-      # Draft validation only. If Path 2 is selected, land the helper first and
-      # replace this branch with master plus the prerequisite merge commit.
+      # Draft validation only. Path 2 is selected; land the helper first and
+      # replace this feature branch with master plus the prerequisite merge commit.
       branch: gitlab-19-external-ci-dependencies
-      commit: e7653f61d77ec424feb34cfa1e4ea122d50d8f2c
+      commit: f0478e05f3a279b4f15d9b9aadb2eed242768e3b
     helmRelease:
       namespace: bigbang
     namespace:
