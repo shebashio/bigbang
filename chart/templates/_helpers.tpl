@@ -12,6 +12,10 @@
       {{- /* For network policies, we need all of its values. */ -}}
       {{- if eq $bbpkg "networkPolicies" -}}
         {{- toYaml $bbvals | nindent 2}}
+      {{- else if eq $bbpkg "istio" }}
+  enabled: {{ $bbvals.enabled }}
+  ambient:
+    enabled: {{ dig "ambient" "enabled" false $bbvals }}
       {{- else }}
   enabled: {{ $bbvals.enabled }}
       {{- end -}}
