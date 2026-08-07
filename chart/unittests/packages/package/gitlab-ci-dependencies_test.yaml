@@ -78,7 +78,7 @@ tests:
           value: gitlab-19-external-ci-dependencies
       - equal:
           path: spec.ref.commit
-          value: e7653f61d77ec424feb34cfa1e4ea122d50d8f2c
+          value: f0478e05f3a279b4f15d9b9aadb2eed242768e3b
 
   - it: gates the PostgreSQL operand on the Big Bang operator and wrapper
     template: package/helmrelease.yaml
