@@ -21,7 +21,7 @@ release:
 values:
   - ../../../../tests/test-values.yaml
 tests:
-  - it: points GitLab at the guarded Path 2 package candidate branch
+  - it: points GitLab at the selected Renovate package candidate
     template: gitlab/gitrepository.yaml
     documentSelector:
       path: metadata.name
@@ -29,10 +29,10 @@ tests:
     asserts:
       - equal:
           path: spec.ref.branch
-          value: gitlab-19-external-ci-dependencies
+          value: renovate/ironbank
       - equal:
           path: spec.ref.commit
-          value: d1f26bfeea15690c10902ac51d8c47591555a09c
+          value: 2f8486004f3b708466d44618313bbcd179084f5f
       - notExists:
           path: spec.ref.tag
 
