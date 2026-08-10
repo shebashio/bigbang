@@ -89,11 +89,33 @@ case "$ACTION" in
       exit 1
     fi
 
-    echo "Restarting workloads with sidecar pods in $NS_LABEL:"
-    printf '%s\n' "$owners" | column -t
+    # kubectl rollout restart only supports Deployment/StatefulSet/DaemonSet. Other owners
+    # (e.g. Jobs) can carry a sidecar but cannot be rolled -- report them so they can be
+    # handled manually instead of silently skipping or aborting the loop.
+    restartable=""
+    unsupported=""
     while IFS=$'\t' read -r ns res; do
-      kubectl rollout restart "$res" -n "$ns"
+      case "${res%%/*}" in
+        Deployment|StatefulSet|DaemonSet) restartable+="$ns"$'\t'"$res"$'\n' ;;
+        *) unsupported+="$ns"$'\t'"$res"$'\n' ;;
+      esac
     done <<< "$owners"
+    restartable="$(printf '%s' "$restartable" | sed '/^$/d')"
+    unsupported="$(printf '%s' "$unsupported" | sed '/^$/d')"
+
+    if [ -n "$restartable" ]; then
+      echo "Restarting workloads with sidecar pods in $NS_LABEL:"
+      printf '%s\n' "$restartable" | column -t
+      while IFS=$'\t' read -r ns res; do
+        kubectl rollout restart "$res" -n "$ns"
+      done <<< "$restartable"
+    fi
+
+    if [ -n "$unsupported" ]; then
+      echo >&2
+      echo "Skipped owners that cannot be rolling-restarted (restart or recreate manually):" >&2
+      printf '%s\n' "$unsupported" | column -t >&2
+    fi
     ;;
 
   *)

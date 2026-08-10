@@ -91,11 +91,16 @@ helm upgrade --install bigbang <chart> -n bigbang \
 
 > [!IMPORTANT]
 > **Most pods roll into ambient automatically.** Enabling ambient changes the
-> `bigbang.dev/istioDataplane` annotation Big Bang stamps onto nearly every package, so the
-> pod-template hash changes and Flux recreates those pods without sidecars.
+> `bigbang.dev/istioDataplane` annotation Big Bang stamps onto nearly every package. When Flux
+> applies the Helm upgrade, the changed pod template makes Kubernetes roll those pods, and they
+> restart without sidecars. This only applies to Big Bang managed pods.
 >
 
-This Helm upgrade should reconcile without any manual intervention in most circumstances.
+This Helm upgrade should reconcile without any manual intervention in most circumstances. As
+the namespace rolls through the mixed sidecar/ambient window, clustered workloads can lose
+member-to-member connectivity under STRICT mTLS — see
+[Clustered workloads that break under STRICT mTLS during the mixed window](#clustered-workloads-that-break-under-strict-mtls-during-the-mixed-window)
+for why this happens and the temporary bridge that addresses it.
 
 ### Step 3: Find and restart any pods still on a sidecar
 
@@ -139,32 +144,11 @@ identity and passes STRICT.
 
 **Bridge.** Relax both layers through the package's `values` so bb-common owns the objects:
 set `istio.mtls.mode: PERMISSIVE` and add an allow-all custom authz policy (the default
-allow-in-namespace matches on identity, which passthrough lacks). For neuvector:
-
-```yaml
-# TEMP: sidecar -> ambient migration only. Remove this whole block once every
-# neuvector pod is ambient, to restore full STRICT enforcement.
-neuvector:
-  values:
-    istio:
-      mtls:
-        mode: PERMISSIVE
-      authorizationPolicies:
-        custom:
-          - name: neuvector-migration-allow-all
-            spec:
-              action: ALLOW
-              rules:
-                - {}
-```
-
-`rules: [{}]` matches any source/port, blunt but reliable. Apply the same shape to any
-other clustered package.
+allow-in-namespace matches on identity, which passthrough lacks). This is the issue addressed in the neuvector block shown in [Step 1](#step-1-enable-ambient-mode). 
 
 **Follow-up (required).** Once every pod in the package is ambient, remove the block:
 dropping `istio.mtls.mode` reverts to the default (**STRICT**) and dropping the custom
-policy restores default-deny; the HelmRelease prunes both on reconcile. Don't leave
-`PERMISSIVE` in place, it disables mTLS enforcement for the package.
+policy restores default-deny; the HelmRelease prunes both on reconcile.
 
 ### Workloads that need Authservice
 
