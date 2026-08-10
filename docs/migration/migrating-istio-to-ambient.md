@@ -1,9 +1,9 @@
 # Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode
 
 > [!WARNING]
-> Ambient mode is **beta** in Big Bang: not fully integrated and **not recommended for
-> production** until it is promoted to stable (after Big Bang 4.0). Treat this as a staged,
-> reversible migration and validate in a lower environment first.
+> Ambient mode is currently **beta** in Big Bang. It is planned to be promoted to stable ahead of Big Bang 4.0, giving
+> users time to test prior to it becoming the default in 4.0. It is advisable to test the migration
+> in a dev or test environment first.
 
 [[_TOC_]]
 
