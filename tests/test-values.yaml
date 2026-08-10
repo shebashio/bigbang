@@ -92,10 +92,10 @@ flux:
 # GitLab 19 removed its bundled PostgreSQL, Redis, and MinIO charts. These
 # independent releases exist only for Big Bang's internal CI dependency
 # environment. CloudNativePG is the Big Bang maintained operator; the
-# PostgreSQL operand comes from the internal helper under tests/charts. These
-# dependencies are not supported as consumer development or production
-# persistent storage. Consumers must manage external PostgreSQL, Redis/Valkey,
-# and S3 services.
+# PostgreSQL operand is one CNPG Cluster CR owned by a wrapper HelmRelease
+# after Flux post-rendering. These dependencies are not supported as consumer
+# development or production persistent storage. Consumers must manage external
+# PostgreSQL, Redis/Valkey, and S3 services.
 helmRepositories:
   - name: registry1
     repository: oci://registry1.dso.mil/bigbang
@@ -226,84 +226,145 @@ packages:
 
   postgresql:
     enabled: true
-    sourceType: git
-    git:
-      repo: https://repo1.dso.mil/big-bang/bigbang.git
-      path: tests/charts/postgresql
-      # Draft validation only. Path 2 is selected; land the helper first and
-      # replace this feature branch with master plus the prerequisite merge commit.
-      branch: gitlab-19-external-ci-dependencies
-      commit: f0478e05f3a279b4f15d9b9aadb2eed242768e3b
+    # The Big Bang wrapper is the package chart for this one-resource operand.
+    # Flux replaces its placeholder ConfigMap with the CNPG Cluster CR before
+    # Helm applies or records the release manifest.
+    sourceType: helmRepo
+    helmRepo:
+      repoName: registry1
+      chartName: wrapper
+      tag: 0.4.15
     helmRelease:
       namespace: bigbang
     namespace:
       name: postgresql
     istio:
       injection: disabled
-    wrapper:
-      enabled: true
-    network:
-      policies: true
-      defaultDeny: true
-      allowIntraNamespace: true
-      allowDnsEgress: true
-      additionalPolicies:
-        - name: allow-gitlab-postgresql
-          spec:
-            podSelector:
-              matchLabels:
-                cnpg.io/cluster: postgresql
-            policyTypes:
-              - Ingress
-            ingress:
-              - from:
-                  - namespaceSelector:
-                      matchLabels:
-                        kubernetes.io/metadata.name: gitlab
-                ports:
-                  - protocol: TCP
-                    port: 5432
-        - name: allow-cloudnative-pg-status
-          spec:
-            podSelector:
-              matchLabels:
-                cnpg.io/cluster: postgresql
-            policyTypes:
-              - Ingress
-            ingress:
-              - from:
-                  - namespaceSelector:
-                      matchLabels:
-                        kubernetes.io/metadata.name: cloudnative-pg
-                ports:
-                  - protocol: TCP
-                    port: 8000
-        - name: allow-cnpg-kube-api
-          spec:
-            podSelector:
-              matchLabels:
-                cnpg.io/cluster: postgresql
-            policyTypes:
-              - Egress
-            egress:
-              - to:
-                  - ipBlock:
-                      cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'
+    passBigBangValues: true
+    bbCommonValues: false
     dependsOn:
       - name: cloudnative-pg
         namespace: bigbang
-      - name: postgresql-wrapper
-        namespace: bigbang
-    bbCommonValues: false
     flux:
-      # The helper's readiness Deployment gates this HelmRelease until the
-      # CNPG primary accepts SQL connections.
       timeout: 30m
-      install:
-        remediation:
-          retries: 0
+      waitStrategy:
+        name: poller
+      healthCheckExprs:
+        - apiVersion: postgresql.cnpg.io/v1
+          kind: Cluster
+          current: status.conditions.exists(e, e.type == 'Ready' && e.status == 'True')
+    postRenderers:
+      - kustomize:
+          patches:
+            - target:
+                group: ""
+                version: v1
+                kind: ConfigMap
+                name: ^postgresql$
+              patch: |-
+                - op: replace
+                  path: ""
+                  value:
+                    apiVersion: postgresql.cnpg.io/v1
+                    kind: Cluster
+                    metadata:
+                      name: postgresql
+                      namespace: postgresql
+                      labels:
+                        app.kubernetes.io/name: postgresql
+                        app.kubernetes.io/instance: postgresql
+                        app.kubernetes.io/managed-by: Helm
+                        app.kubernetes.io/version: "17"
+                    spec:
+                      instances: 1
+                      imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
+                      imagePullSecrets:
+                        - name: private-registry
+                      postgresUID: 1001
+                      postgresGID: 1001
+                      storage:
+                        size: 8Gi
+                      resources:
+                        requests:
+                          cpu: "1"
+                          memory: 1Gi
+                        limits:
+                          cpu: "1"
+                          memory: 1Gi
+                      postgresql:
+                        parameters:
+                          max_connections: "200"
+                          shared_buffers: 256MB
+                        shared_preload_libraries:
+                          - pg_stat_statements
+                      bootstrap:
+                        initdb:
+                          database: gitlabhq_production
+                          owner: gitlab
+                          postInitApplicationSQL:
+                            - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+                            - CREATE EXTENSION IF NOT EXISTS btree_gist;
+                            - CREATE EXTENSION IF NOT EXISTS plpgsql;
+                            - CREATE EXTENSION IF NOT EXISTS amcheck;
+                            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
     values:
-      fullnameOverride: postgresql
+      package:
+        name: postgresql
+        namespace:
+          name: postgresql
+        istio:
+          injection: disabled
+        network:
+          policies: true
+          defaultDeny: true
+          allowIntraNamespace: true
+          allowDnsEgress: true
+          additionalPolicies:
+            - name: allow-gitlab-postgresql
+              spec:
+                podSelector:
+                  matchLabels:
+                    cnpg.io/cluster: postgresql
+                policyTypes:
+                  - Ingress
+                ingress:
+                  - from:
+                      - namespaceSelector:
+                          matchLabels:
+                            kubernetes.io/metadata.name: gitlab
+                    ports:
+                      - protocol: TCP
+                        port: 5432
+            - name: allow-cloudnative-pg-status
+              spec:
+                podSelector:
+                  matchLabels:
+                    cnpg.io/cluster: postgresql
+                policyTypes:
+                  - Ingress
+                ingress:
+                  - from:
+                      - namespaceSelector:
+                          matchLabels:
+                            kubernetes.io/metadata.name: cloudnative-pg
+                    ports:
+                      - protocol: TCP
+                        port: 8000
+            - name: allow-cnpg-kube-api
+              spec:
+                podSelector:
+                  matchLabels:
+                    cnpg.io/cluster: postgresql
+                policyTypes:
+                  - Egress
+                egress:
+                  - to:
+                      - ipBlock:
+                          cidr: '{{ .Values.networkPolicies.controlPlaneCidr }}'
+        configMaps:
+          - name: postgresql
+            data:
+              placeholder: replaced-by-flux-post-renderer
 
   redis:
     enabled: true
@@ -762,8 +823,6 @@ kyvernoPolicies:
             pods:
               allow:
                 - postgresql-*
-              deny:
-                - postgresql-readiness-*
       add-default-capability-drop:
         exclude:
           any:
@@ -1510,10 +1569,8 @@ addons:
     git:
       tag: ""
       branch: renovate/ironbank
-      commit: 2f8486004f3b708466d44618313bbcd179084f5f
+      commit: 8537b30c37fd1c5233b3c4c2b7f6e45a97d6e2d5
     dependsOn:
-      - name: cloudnative-pg
-        namespace: bigbang
       - name: postgresql
         namespace: bigbang
       - name: redis

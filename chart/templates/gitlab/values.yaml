@@ -22,14 +22,16 @@ domain: {{ $domainName }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.gitlab) "enabled") }}
 {{- $extObjStorageIsConfigured := (or .Values.addons.gitlab.objectStorage.region .Values.addons.gitlab.objectStorage.endpoint) }}
-{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" $extObjStorageIsConfigured .Values.addons.gitlab.values }}
+{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values }}
 {{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
 {{- $kasEnabled := dig "global" "kas" "enabled" false .Values.addons.gitlab.values }}
 {{- $externalRedisConfigured := false }}
 {{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
+{{- $gitlabRedisValues := dict }}
 {{- if kindIs "map" $gitlabGlobalValues }}
-  {{- $gitlabRedisValues := (get $gitlabGlobalValues "redis") | default dict }}
-  {{- if kindIs "map" $gitlabRedisValues }}
+  {{- $configuredRedisValues := (get $gitlabGlobalValues "redis") | default dict }}
+  {{- if kindIs "map" $configuredRedisValues }}
+    {{- $gitlabRedisValues = $configuredRedisValues }}
     {{- $externalRedisConfigured = or (not (empty (get $gitlabRedisValues "host"))) (not (empty (get $gitlabRedisValues "sentinels"))) }}
   {{- end }}
 {{- end }}
@@ -43,37 +45,35 @@ domain: {{ $domainName }}
         (dict "ipBlock" (dict "cidr" "172.16.0.0/12"))
         (dict "ipBlock" (dict "cidr" "10.0.0.0/8")))
       "ports" (list (dict "port" 6379 "protocol" "TCP")) }}
-    {{- $_ := set $gitlabEgressDefinitions "redis-subnets" $redisDefinition }}
   {{- end }}
+  {{- $redisPorts := (get $redisDefinition "ports") | default list }}
+  {{- $redisPortNumbers := list }}
+  {{- range $entry := $redisPorts }}
+    {{- if kindIs "map" $entry }}
+      {{- $redisPortNumbers = append $redisPortNumbers ((get $entry "port") | int) }}
+    {{- end }}
+  {{- end }}
+  {{- $configuredRedisPort := get $gitlabRedisValues "port" }}
+  {{- if not (empty $configuredRedisPort) }}
+    {{- $configuredRedisPort = int $configuredRedisPort }}
+    {{- if not (has $configuredRedisPort $redisPortNumbers) }}
+      {{- $redisPorts = append $redisPorts (dict "port" $configuredRedisPort "protocol" "TCP") }}
+      {{- $redisPortNumbers = append $redisPortNumbers $configuredRedisPort }}
+    {{- end }}
+  {{- end }}
+  {{- range $sentinel := (get $gitlabRedisValues "sentinels") | default list }}
+    {{- if kindIs "map" $sentinel }}
+      {{- $sentinelPort := (get $sentinel "port") | default 26379 | int }}
+      {{- if not (has $sentinelPort $redisPortNumbers) }}
+        {{- $redisPorts = append $redisPorts (dict "port" $sentinelPort "protocol" "TCP") }}
+        {{- $redisPortNumbers = append $redisPortNumbers $sentinelPort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- $_ := set $redisDefinition "ports" $redisPorts }}
+  {{- $_ := set $gitlabEgressDefinitions "redis-subnets" $redisDefinition }}
 {{- else }}
   {{- $_ := unset $gitlabEgressDefinitions "redis-subnets" }}
-{{- end }}
-{{- if $extObjStorageIsConfigured }}
-  {{- $storageDefinition := (get $gitlabEgressDefinitions "storage-subnets") | default dict }}
-  {{- if kindIs "map" $storageDefinition }}
-    {{- $storagePorts := (get $storageDefinition "ports") | default list }}
-    {{- $storagePortNumbers := list }}
-    {{- range $entry := $storagePorts }}
-      {{- if kindIs "map" $entry }}
-        {{- $storagePortNumbers = append $storagePortNumbers ((get $entry "port") | int) }}
-      {{- end }}
-    {{- end }}
-    {{- range $endpoint := list .Values.addons.gitlab.objectStorage.endpoint .Values.addons.gitlab.objectStorage.regionendpoint }}
-      {{- if not (empty $endpoint) }}
-        {{- $port := ternary 80 443 (hasPrefix "http://" $endpoint) }}
-        {{- $explicitPort := regexFind ":[0-9]+($|/)" $endpoint }}
-        {{- if $explicitPort }}
-          {{- $port = atoi (trimAll ":/" $explicitPort) }}
-        {{- end }}
-        {{- if not (has $port $storagePortNumbers) }}
-          {{- $storagePorts = append $storagePorts (dict "port" $port "protocol" "TCP") }}
-          {{- $storagePortNumbers = append $storagePortNumbers $port }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
-    {{- $_ := set $storageDefinition "ports" $storagePorts }}
-    {{- $_ := set $gitlabEgressDefinitions "storage-subnets" $storageDefinition }}
-  {{- end }}
 {{- end }}
 
 openshift: {{ .Values.openshift }}

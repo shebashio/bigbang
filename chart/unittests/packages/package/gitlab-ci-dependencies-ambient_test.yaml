@@ -4,6 +4,7 @@ templates:
   - templates/package/helmrelease.yaml
   - templates/package/namespace.yaml
   - templates/package/values.yaml
+  - templates/wrapper/helmrelease.yaml
   - templates/wrapper/values.yaml
 release:
   name: test
@@ -47,12 +48,15 @@ tests:
             name: ztunnel
             namespace: bigbang
 
-  - it: preserves operand ordering while waiting for ambient
+  - it: waits for the operator and ambient mesh before installing PostgreSQL
     template: package/helmrelease.yaml
     documentSelector:
       path: metadata.name
       value: postgresql
     asserts:
+      - equal:
+          path: spec.targetNamespace
+          value: postgresql
       - contains:
           path: spec.dependsOn
           content:
@@ -61,13 +65,24 @@ tests:
       - contains:
           path: spec.dependsOn
           content:
-            name: postgresql-wrapper
+            name: istiod
+            namespace: bigbang
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: istio-cni
             namespace: bigbang
       - contains:
           path: spec.dependsOn
           content:
             name: ztunnel
             namespace: bigbang
+      - equal:
+          path: spec.waitStrategy.name
+          value: poller
+      - equal:
+          path: spec.healthCheckExprs[0].kind
+          value: Cluster
 
   - it: preserves Redis wrapper ordering while waiting for ambient
     template: package/helmrelease.yaml
@@ -112,10 +127,10 @@ tests:
           pattern: "(?s)authorizationPolicies:.*enabled: true.*generateFromNetpol: true"
 
   - it: permits ambient HBONE ingress through the PostgreSQL wrapper policies
-    template: wrapper/values.yaml
+    template: package/values.yaml
     documentSelector:
       path: metadata.name
-      value: postgresql-wrapper-values
+      value: postgresql-values
     asserts:
       - matchRegex:
           path: stringData["values.yaml"]
@@ -125,9 +140,9 @@ tests:
           pattern: "(?s)allow-cloudnative-pg-status.*port: 8000.*port: 15008"
       - matchRegex:
           path: stringData["values.yaml"]
-          pattern: "(?s)allow-cnpg-kube-api.*cnpg.io/cluster: postgresql.*cidr: 172.16.0.0/12"
+          pattern: "(?s)allow-cnpg-kube-api.*cidr: ['\"]?172.16.0.0/12['\"]?.*cnpg.io/cluster: postgresql"
 
-  - it: enables the helper's selector-scoped ambient authorization policy
+  - it: enables the wrapper's selector-scoped ambient authorization policy
     template: package/values.yaml
     documentSelector:
       path: metadata.name
@@ -135,7 +150,10 @@ tests:
     asserts:
       - matchRegex:
           path: stringData["values.yaml"]
-          pattern: "(?s)istio:.*ambient:.*enabled: true"
+          pattern: "(?s)customAuthorizationPolicies:.*name: allow-gitlab-postgresql.*namespaces:.*- postgresql.*- gitlab.*ports:.*- ['\"]?5432['\"]?.*cnpg.io/cluster: postgresql"
+      - matchRegex:
+          path: stringData["values.yaml"]
+          pattern: "(?s)principals:.*cluster.local/ns/cloudnative-pg/sa/cloudnative-pg.*ports:.*- ['\"]?8000['\"]?"
 
   - it: permits ambient HBONE ingress through the Redis wrapper policy
     template: wrapper/values.yaml

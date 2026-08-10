@@ -98,13 +98,25 @@
         },
         {
             "customType": "regex",
-            "description": "Update the PostgreSQL 17 image used by the GitLab CI database helper",
+            "description": "Update the PostgreSQL 17 image used by the GitLab CI operand",
             "managerFilePatterns": [
-                "/^tests/charts/postgresql/values\\.yaml$/"
+                "/^tests/test-values\\.yaml$/"
             ],
             "matchStrings": [
-                "(?<depName>registry1\\.dso\\.mil/ironbank/opensource/postgres/postgresql):(?<currentValue>[^\\s\"']+)"
+                "imageName:\\s+(?<depName>registry1\\.dso\\.mil/ironbank/opensource/postgres/postgresql):(?<currentValue>[^\\s\"']+)"
             ],
+            "datasourceTemplate": "docker"
+        },
+        {
+            "customType": "regex",
+            "description": "Update the Big Bang wrapper chart used by the GitLab CI PostgreSQL operand",
+            "managerFilePatterns": [
+                "/^tests/test-values\\.yaml$/"
+            ],
+            "matchStrings": [
+                "chartName:\\s+wrapper\\s+tag:\\s+[\"']?(?<currentValue>[^\\s\"']+)"
+            ],
+            "depNameTemplate": "registry1.dso.mil/bigbang/wrapper",
             "datasourceTemplate": "docker"
         },
         {
