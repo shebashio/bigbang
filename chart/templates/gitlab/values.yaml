@@ -25,16 +25,28 @@ domain: {{ $domainName }}
 {{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" $extObjStorageIsConfigured .Values.addons.gitlab.values }}
 {{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
 {{- $kasEnabled := dig "global" "kas" "enabled" false .Values.addons.gitlab.values }}
+{{- $externalRedisConfigured := false }}
+{{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
+{{- if kindIs "map" $gitlabGlobalValues }}
+  {{- $gitlabRedisValues := (get $gitlabGlobalValues "redis") | default dict }}
+  {{- if kindIs "map" $gitlabRedisValues }}
+    {{- $externalRedisConfigured = or (not (empty (get $gitlabRedisValues "host"))) (not (empty (get $gitlabRedisValues "sentinels"))) }}
+  {{- end }}
+{{- end }}
 {{- $gitlabEgressDefinitions := deepCopy .Values.networkPolicies.egress.definitions }}
-{{- $redisDefinition := (get $gitlabEgressDefinitions "redis-subnets") | default dict }}
-{{- if or (not (kindIs "map" $redisDefinition)) (empty $redisDefinition) }}
-  {{- $redisDefinition = dict
-    "to" (list
-      (dict "ipBlock" (dict "cidr" "192.168.0.0/16"))
-      (dict "ipBlock" (dict "cidr" "172.16.0.0/12"))
-      (dict "ipBlock" (dict "cidr" "10.0.0.0/8")))
-    "ports" (list (dict "port" 6379 "protocol" "TCP")) }}
-  {{- $_ := set $gitlabEgressDefinitions "redis-subnets" $redisDefinition }}
+{{- if $externalRedisConfigured }}
+  {{- $redisDefinition := (get $gitlabEgressDefinitions "redis-subnets") | default dict }}
+  {{- if or (not (kindIs "map" $redisDefinition)) (empty $redisDefinition) }}
+    {{- $redisDefinition = dict
+      "to" (list
+        (dict "ipBlock" (dict "cidr" "192.168.0.0/16"))
+        (dict "ipBlock" (dict "cidr" "172.16.0.0/12"))
+        (dict "ipBlock" (dict "cidr" "10.0.0.0/8")))
+      "ports" (list (dict "port" 6379 "protocol" "TCP")) }}
+    {{- $_ := set $gitlabEgressDefinitions "redis-subnets" $redisDefinition }}
+  {{- end }}
+{{- else }}
+  {{- $_ := unset $gitlabEgressDefinitions "redis-subnets" }}
 {{- end }}
 {{- if $extObjStorageIsConfigured }}
   {{- $storageDefinition := (get $gitlabEgressDefinitions "storage-subnets") | default dict }}
@@ -255,22 +267,30 @@ networkPolicies:
         to:
           definition:
             storage-subnets: true
+            {{- if $externalRedisConfigured }}
             redis-subnets: true
+            {{- end }}
       webservice:
         to:
           definition:
             sso: true
             database-subnets: true
+            {{- if $externalRedisConfigured }}
             redis-subnets: true
+            {{- end }}
       migrations:
         to:
           definition:
             database-subnets: true
+            {{- if $externalRedisConfigured }}
             redis-subnets: true
+            {{- end }}
+      {{- if $externalRedisConfigured }}
       toolbox:
         to:
           definition:
             redis-subnets: true
+      {{- end }}
       {{- if eq (include "metricScrapingEnabled" .) "true" }}
       gitlab-exporter:
         podSelector:
@@ -278,15 +298,17 @@ networkPolicies:
             app: gitlab-exporter
         to:
           definition:
+            {{- if $externalRedisConfigured }}
             redis-subnets: true
+            {{- end }}
       {{- end }}
-      {{- if $kasEnabled }}
+      {{- if and $externalRedisConfigured $kasEnabled }}
       kas:
         to:
           definition:
             redis-subnets: true
       {{- end }}
-      {{- if (dig "upstream" "gitlab" "mailroom" "enabled" false .Values.addons.gitlab.values) }}
+      {{- if and $externalRedisConfigured (dig "upstream" "gitlab" "mailroom" "enabled" false .Values.addons.gitlab.values) }}
       mailroom:
         podSelector:
           matchLabels:
