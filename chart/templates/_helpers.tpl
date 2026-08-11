@@ -7,15 +7,18 @@
 {{- /* For every top level map, if it has the enable key, pass it through. */ -}}
 {{- range $bbpkg, $bbvals := $ -}}
   {{- if kindIs "map" $bbvals -}}
-    {{- if hasKey $bbvals "enabled" }}
+    {{- if eq $bbpkg "istio" }}
+{{ $bbpkg }}:
+      {{- if hasKey $bbvals "enabled" }}
+  enabled: {{ $bbvals.enabled }}
+      {{- end }}
+  ambient:
+    enabled: {{ include "ambientEnabled" (dict "Values" $) }}
+    {{- else if hasKey $bbvals "enabled" }}
 {{ $bbpkg }}:
       {{- /* For network policies, we need all of its values. */ -}}
       {{- if eq $bbpkg "networkPolicies" -}}
         {{- toYaml $bbvals | nindent 2}}
-      {{- else if eq $bbpkg "istio" }}
-  enabled: {{ $bbvals.enabled }}
-  ambient:
-    enabled: {{ dig "ambient" "enabled" false $bbvals }}
       {{- else }}
   enabled: {{ $bbvals.enabled }}
       {{- end -}}

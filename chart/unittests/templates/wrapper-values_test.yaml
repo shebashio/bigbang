@@ -5,10 +5,6 @@ templates:
 release:
   name: test
 set:
-  istio:
-    enabled: true
-    ambient:
-      enabled: true
   packages:
     example:
       enabled: true
@@ -25,11 +21,33 @@ postRenderer:
     - "-c"
     - "yq eval '.stringData[\"values.yaml\"]' - | yq eval '.'"
 tests:
-  - it: passes Istio enabled and ambient mode to wrapper values
+  - it: passes ambient mode to wrapper values
+    set:
+      istio:
+        ambient:
+          enabled: true
+    asserts:
+      - equal:
+          path: bigbang.istio.ambient.enabled
+          value: true
+
+  - it: passes calculated ambient mode when ztunnel is enabled
+    set:
+      istio:
+        ambient:
+          enabled: false
+      ztunnel:
+        enabled: true
+    asserts:
+      - equal:
+          path: bigbang.istio.ambient.enabled
+          value: true
+
+  - it: retains the existing Istio enabled passdown
+    set:
+      istio:
+        enabled: true
     asserts:
       - equal:
           path: bigbang.istio.enabled
-          value: true
-      - equal:
-          path: bigbang.istio.ambient.enabled
           value: true
