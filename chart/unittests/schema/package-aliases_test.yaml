@@ -1,10 +1,13 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Schema - Unified Built-in Package Paths
 templates:
+  - templates/_self-test/render.yaml
   - templates/kiali/helmrelease.yaml
   - templates/kiali/values.yaml
   - templates/gitlab/helmrelease.yaml
   - templates/gitlab/values.yaml
+  - templates/metrics-server/helmrelease.yaml
+  - templates/metrics-server/values.yaml
   - templates/package/helmrelease.yaml
 release:
   name: test
@@ -73,3 +76,120 @@ tests:
       - hasDocuments:
           count: 0
         template: templates/package/helmrelease.yaml
+
+  - it: should reject string booleans for built-in packages
+    set:
+      packages:
+        kiali:
+          enabled: "false"
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*got string, want boolean.*"
+
+  - it: should preserve the metrics server auto enablement mode
+    set:
+      packages:
+        metricsServer:
+          enabled: auto
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should reject unsupported metrics server enablement strings
+    set:
+      packages:
+        metricsServer:
+          enabled: sometimes
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*value must be one of true, false, 'auto'.*"
+
+  - it: should accept partial package-specific and source overrides
+    set:
+      packages:
+        kiali:
+          git:
+            tag: test-tag
+          sso:
+            client_id: canonical-client
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should allow arbitrary child chart values
+    set:
+      packages:
+        kiali:
+          values:
+            upstream:
+              featureAddedByChildChart:
+                enabled: true
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should reject unknown fields on a built-in package
+    set:
+      packages:
+        kiali:
+          enabeld: false
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*additional properties 'enabeld' not allowed.*"
+
+  - it: should reject unknown nested source fields
+    set:
+      packages:
+        kiali:
+          git:
+            repository: https://example.com/kiali.git
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*additional properties 'repository' not allowed.*"
+
+  - it: should reject unknown package-specific fields
+    set:
+      packages:
+        kiali:
+          sso:
+            clientID: canonical-client
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*additional properties 'clientID' not allowed.*"
+
+  - it: should reject a custom package name that collides with a built-in package
+    set:
+      packages:
+        istio-cni:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://example.com/istio-cni.git
+            tag: test
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*packages.istio-cni conflicts with built-in package packages.istioCNI.*"
+        template: templates/package/helmrelease.yaml
+
+  - it: should reject custom package names that normalize to the same identity
+    set:
+      packages:
+        examplePackage:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://example.com/example-package.git
+            tag: test
+        example-package:
+          enabled: false
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*normalize to the same package identity.*"
+        template: templates/package/helmrelease.yaml
+
+  - it: should allow custom names whose rendered resource identities are distinct
+    set:
+      packages:
+        examplePackage:
+          enabled: false
+        examplepackage:
+          enabled: false
+    asserts:
+      - notFailedTemplate: {}

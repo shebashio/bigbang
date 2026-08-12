@@ -32,7 +32,7 @@ Global configuration such as `domain`, registry credentials, network policy sett
 
 ### Package metadata catalog
 
-Before removing the compatibility layer, add a repository-owned catalog at `chart/package-metadata.yaml`. The catalog is build-time project metadata, not part of `values.yaml` and not configuration passed to a Helm release. Its initial shape is expected to be:
+A repository-owned catalog at `chart/package-metadata.yaml` defines built-in package identity and legacy-path metadata. The catalog is project metadata, not part of `values.yaml` and not configuration passed to a Helm release. Its shape is:
 
 ```yaml
 apiVersion: bigbang.dev/v1alpha1
@@ -53,14 +53,17 @@ packages:
 
 The package map key is the stable configuration identity. `category` is informational and may change without moving user values. `legacyPath` exists only for the 3.x-to-4.x transition and will be removed after the compatibility window. `templateDirectory` connects the public identity to the current chart implementation. `documentation` and `displayName` support generated navigation and user-facing output.
 
-The initial catalog will deliberately not duplicate package versions, Git sources, namespaces, enablement defaults, Flux dependencies, or child-chart values. Those remain in `values.yaml` or package templates until a separate decision establishes one authoritative source for them.
+The catalog deliberately does not duplicate package versions, Git sources, namespaces, enablement defaults, Flux dependencies, or child-chart values. Those remain in `values.yaml` or package templates until a separate decision establishes one authoritative source for them.
 
-A generator will validate uniqueness and required fields, then produce or check in sync the following derived artifacts:
+The Helm compatibility helper consumes the catalog directly to identify built-in packages and their legacy paths. A generator validates uniqueness, required fields, legacy schema paths, and template directories. It then produces or keeps in sync the following derived artifacts:
 
-- the Helm template map used to identify built-in packages and their legacy paths;
-- built-in `packages` properties in `values.schema.json`;
+- built-in `packages` properties and partial schemas in `values.schema.json`;
 - the package mappings embedded in the standalone migration script;
 - package documentation navigation or indexes where practical.
+
+Canonical schemas are deep partials of the legacy package schemas because Helm validates user values before the compatibility helper merges canonical overrides over legacy defaults. Required constraints are removed from recursively merged objects, while types, enums, patterns, known properties, and array-item requirements are retained. Child-chart overrides under `values` remain intentionally open-ended. Package-level keys present in maintained defaults but not yet described by the legacy schema remain accepted so the compatibility path does not reject supported 3.x configurations.
+
+Unknown package names continue to use the custom-package schema. Names that case-fold or normalize to a built-in package identity or template directory are rejected to prevent a custom package from masquerading as, or rendering resources that collide with, a built-in package.
 
 CI will fail when generated artifacts differ from the catalog. Generated files will be checked into the repository so Helm rendering and the user-facing migration script do not require a runtime parser or an additional chart dependency. The catalog format is `v1alpha1` so fields can be revised as implementation experience develops.
 
