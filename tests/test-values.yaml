@@ -1367,12 +1367,6 @@ addons:
 
     minioObjectStorage:
       enabled: true
-    imagePullSecrets:
-      - name: private-registry
-    console:
-      persistence:
-        size: 5Gi
-      localVolumeUpgrade: true
 
   mattermostOperator:
     enabled: false

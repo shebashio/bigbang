@@ -49,43 +49,68 @@ generic additional-package templates do not deploy them a second time. Unknown
 entries remain in .Values.packages and continue to be treated as custom
 packages. New-path values take precedence over legacy-path values.
 
-This compatibility layer is temporary and can be replaced by the unified
-package catalog in Big Bang 4.x.
+This compatibility layer is temporary. Its package identities and legacy paths
+come from the package metadata catalog and can be removed with the legacy paths
+in Big Bang 4.x.
 */}}
 {{- define "bigbang.normalizePackageAliases" -}}
 {{- $packages := .Values.packages | default dict -}}
-{{- $rootPackages := list
-  "istioCNI" "istioCRDs" "gatewayAPI" "istiod" "istioGateway" "ztunnel"
-  "kiali" "gatekeeper" "kyverno" "kyvernoPolicies" "kyvernoReporter"
-  "elasticsearchKibana" "eckOperator" "fluentbit" "alloy" "loki"
-  "neuvector" "tempo" "prometheusOperatorCRDs" "monitoring" "grafana"
-  "twistlock" "bbctl" "renovate"
--}}
-{{- $addonPackages := list
-  "argocd" "authservice" "minioOperator" "minio" "gitlab" "gitlabRunner"
-  "sonarqube" "fortify" "anchoreEnterprise" "mattermostOperator"
-  "mattermost" "velero" "keycloak" "vault" "metricsServer" "harbor"
-  "headlamp" "thanos" "externalSecrets" "mimir"
--}}
+{{- $metadata := .Files.Get "package-metadata.yaml" | fromYaml -}}
+{{- $catalog := get $metadata "packages" | default dict -}}
+{{- if not $catalog -}}
+  {{- fail "chart/package-metadata.yaml must define built-in packages" -}}
+{{- end -}}
 {{- $migrations := .Values._packageAliasMigrations | default list -}}
 
-{{- range $name := $rootPackages -}}
-  {{- if hasKey $packages $name -}}
-    {{- $legacy := get $.Values $name | default dict -}}
-    {{- $alias := get $packages $name | default dict -}}
-    {{- $_ := set $.Values $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
-    {{- $_ := unset $packages $name -}}
-    {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $name) -}}
+{{- /* Reserve canonical identities and rendered resource names. */ -}}
+{{- $reservedNames := dict -}}
+{{- range $name, $package := $catalog -}}
+  {{- $identities := uniq (list (lower $name) (include "resourceName" $name) (lower $package.templateDirectory)) -}}
+  {{- range $identity := $identities -}}
+    {{- if and (hasKey $reservedNames $identity) (ne (get $reservedNames $identity) $name) -}}
+      {{- fail (printf "built-in packages %s and %s share reserved identity %s" (get $reservedNames $identity) $name $identity) -}}
+    {{- end -}}
+    {{- $_ := set $reservedNames $identity $name -}}
   {{- end -}}
 {{- end -}}
 
-{{- range $name := $addonPackages -}}
+{{- /* Unknown entries remain custom packages, but cannot masquerade as a built-in
+      or normalize to the same resource identity as another custom package. */ -}}
+{{- $customResourceNames := dict -}}
+{{- range $name := keys $packages | sortAlpha -}}
+  {{- if not (hasKey $catalog $name) -}}
+    {{- $identities := uniq (list (lower $name) (include "resourceName" $name)) -}}
+    {{- range $identity := $identities -}}
+      {{- if hasKey $reservedNames $identity -}}
+        {{- $owner := get $reservedNames $identity -}}
+        {{- if hasKey $catalog $owner -}}
+          {{- fail (printf "packages.%s conflicts with built-in package packages.%s; use the canonical name packages.%s" $name $owner $owner) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $resourceName := include "resourceName" $name -}}
+    {{- if hasKey $customResourceNames $resourceName -}}
+      {{- fail (printf "packages.%s and packages.%s normalize to the same package identity" (get $customResourceNames $resourceName) $name) -}}
+    {{- end -}}
+    {{- $_ := set $customResourceNames $resourceName $name -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $name, $package := $catalog -}}
   {{- if hasKey $packages $name -}}
-    {{- $legacy := get $.Values.addons $name | default dict -}}
     {{- $alias := get $packages $name | default dict -}}
-    {{- $_ := set $.Values.addons $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
+    {{- $legacyPath := splitList "." $package.legacyPath -}}
+    {{- if eq (len $legacyPath) 1 -}}
+      {{- $legacy := get $.Values $name | default dict -}}
+      {{- $_ := set $.Values $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
+    {{- else if and (eq (len $legacyPath) 2) (eq (first $legacyPath) "addons") -}}
+      {{- $legacy := get $.Values.addons $name | default dict -}}
+      {{- $_ := set $.Values.addons $name (mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias)) -}}
+    {{- else -}}
+      {{- fail (printf "unsupported legacyPath %s for package %s" $package.legacyPath $name) -}}
+    {{- end -}}
     {{- $_ := unset $packages $name -}}
-    {{- $migrations = append $migrations (printf "packages.%s replaces addons.%s" $name $name) -}}
+    {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $package.legacyPath) -}}
   {{- end -}}
 {{- end -}}
 
