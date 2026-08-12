@@ -1,8 +1,7 @@
 {
   "$id": "http://bigbang.dev/bigbang.json",
   "type": "object",
-  "default": {
-  },
+  "default": {},
   "title": "Big Bang Root Schema",
   "required": [
     "domain",
@@ -120,9 +119,7 @@
               "type": "string"
             }
           },
-          "required": [
-
-          ],
+          "required": [],
           "anyOf": [
             {
               "required": [
@@ -1497,16 +1494,14 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "default": {
-                  }
+                  "default": {}
                 },
                 "annotations": {
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "default": {
-                  }
+                  "default": {}
                 }
               },
               "additionalProperties": false
@@ -2113,13 +2108,9 @@
     },
     "values": {
       "type": "object",
-      "default": {
-      },
-      "required": [
-
-      ],
-      "properties": {
-      }
+      "default": {},
+      "required": [],
+      "properties": {}
     },
     "flux": {
       "type": "object",
@@ -2612,9 +2603,7 @@
               "type": "string"
             }
           },
-          "required": [
-
-          ],
+          "required": [],
           "anyOf": [
             {
               "required": [
@@ -2983,153 +2972,155 @@
       }
     },
     "packageAliasPartials": {
-      "git": {
-        "type": "object",
-        "anyOf": [
-          {
-            "properties": {
-              "branch": {
-                "maxLength": 0
-              },
-              "commit": {
-                "maxLength": 0
-              }
-            }
-          },
-          {
-            "properties": {
-              "tag": {
-                "maxLength": 0
-              }
-            }
-          },
-          {
-            "properties": {
-              "branch": {
-                "maxLength": 0
-              },
-              "commit": {
-                "maxLength": 0
-              },
-              "tag": {
-                "maxLength": 0
-              }
-            }
-          }
-        ],
-        "properties": {
-          "repo": {
-            "type": "string",
-            "examples": [
-              "https://repo1.dso.mil/big-bang/product/packages/loki.git"
-            ]
-          },
-          "path": {
-            "type": "string",
-            "examples": [
-              "./chart"
-            ]
-          },
-          "tag": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "nullable": false,
-            "examples": [
-              "4.8.0-bb.0"
-            ]
-          },
-          "branch": {
-            "minLength": 1,
-            "type": [
-              "string",
-              "null"
-            ],
-            "nullable": false,
-            "examples": [
-              "feature-branch"
-            ]
-          },
-          "commit": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "semver": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "existingSecret": {
-            "type": "string"
-          },
-          "credentials": {
-            "type": "object",
-            "properties": {
-              "username": {
-                "type": "string"
-              },
-              "password": {
-                "type": "string"
-              },
-              "caFile": {
-                "type": "string"
-              },
-              "privateKey": {
-                "type": "string"
-              },
-              "publicKey": {
-                "type": "string"
-              },
-              "knownHosts": {
-                "type": "string"
-              }
-            },
-            "anyOf": [
-              {
-              },
-              {
-              }
-            ],
-            "additionalProperties": false
-          }
-        },
-        "additionalProperties": false,
-        "examples": [
-          {
-            "repo": "https://repo1.dso.mil/big-bang/product/packages/loki.git",
-            "path": "./chart",
-            "tag": "4.8.0-bb.0"
-          }
-        ]
-      },
-      "helmRepo": {
+      "registryCredential": {
         "type": "object",
         "properties": {
-          "repoName": {
+          "registry": {
             "type": "string"
           },
-          "chartName": {
+          "username": {
             "type": "string"
           },
-          "tag": {
+          "password": {
             "type": "string"
           },
-          "cosignVerify": {
-            "type": "boolean"
+          "email": {
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "enabled": {
-        "type": "boolean",
-        "default": false,
-        "examples": [
-          false
-        ]
+      "helmRepositories": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string",
+              "format": "uri"
+            },
+            "existingSecret": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string",
+              "enum": [
+                "generic",
+                "aws",
+                "azure",
+                "gcp"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "oci",
+                "default"
+              ]
+            },
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "cosignPublicKeys": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "existingSecret"
+              ]
+            },
+            {
+              "required": [
+                "username",
+                "password"
+              ]
+            },
+            {
+              "required": [
+                "provider"
+              ],
+              "not": {
+                "properties": {
+                  "provider": {
+                    "const": "generic"
+                  }
+                }
+              }
+            }
+          ],
+          "required": [
+            "name",
+            "repository"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "basePackage": {
+        "type": "object",
+        "if": {
+          "properties": {
+            "sourceType": {
+              "const": "git"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "git": {
+              "$ref": "#/$defs/packageAliasPartials/git"
+            }
+          }
+        },
+        "else": {
+          "properties": {
+            "helmRepo": {
+              "$ref": "#/$defs/packageAliasPartials/helmRepo"
+            }
+          }
+        },
+        "properties": {
+          "enabled": {
+            "$ref": "#/$defs/packageAliasPartials/enabled"
+          },
+          "sourceType": {
+            "enum": [
+              "git",
+              "helmRepo"
+            ]
+          },
+          "releaseName": {
+            "type": "string",
+            "description": "Optional Helm releaseName override for this package."
+          },
+          "flux": {
+            "$ref": "#/$defs/packageAliasPartials/flux"
+          },
+          "values": {
+            "$ref": "#/$defs/packageAliasPartials/values"
+          },
+          "postRenderers": {
+            "$ref": "#/$defs/packageAliasPartials/postRenderers"
+          }
+        }
+      },
+      "values": {
+        "type": "object",
+        "default": {},
+        "properties": {}
       },
       "flux": {
         "type": "object",
@@ -3494,12 +3485,201 @@
           }
         }
       },
-      "values": {
+      "git": {
         "type": "object",
-        "default": {
-        },
+        "anyOf": [
+          {
+            "properties": {
+              "branch": {
+                "maxLength": 0
+              },
+              "commit": {
+                "maxLength": 0
+              }
+            }
+          },
+          {
+            "properties": {
+              "tag": {
+                "maxLength": 0
+              }
+            }
+          },
+          {
+            "properties": {
+              "branch": {
+                "maxLength": 0
+              },
+              "commit": {
+                "maxLength": 0
+              },
+              "tag": {
+                "maxLength": 0
+              }
+            }
+          }
+        ],
         "properties": {
-        }
+          "repo": {
+            "type": "string",
+            "examples": [
+              "https://repo1.dso.mil/big-bang/product/packages/loki.git"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "examples": [
+              "./chart"
+            ]
+          },
+          "tag": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "nullable": false,
+            "examples": [
+              "4.8.0-bb.0"
+            ]
+          },
+          "branch": {
+            "minLength": 1,
+            "type": [
+              "string",
+              "null"
+            ],
+            "nullable": false,
+            "examples": [
+              "feature-branch"
+            ]
+          },
+          "commit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "semver": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "existingSecret": {
+            "type": "string"
+          },
+          "credentials": {
+            "type": "object",
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              },
+              "caFile": {
+                "type": "string"
+              },
+              "privateKey": {
+                "type": "string"
+              },
+              "publicKey": {
+                "type": "string"
+              },
+              "knownHosts": {
+                "type": "string"
+              }
+            },
+            "anyOf": [
+              {},
+              {}
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false,
+        "examples": [
+          {
+            "repo": "https://repo1.dso.mil/big-bang/product/packages/loki.git",
+            "path": "./chart",
+            "tag": "4.8.0-bb.0"
+          }
+        ]
+      },
+      "additionalPackageGit": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/packageAliasPartials/git"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "repo": {
+                "type": "null"
+              },
+              "path": {
+                "type": "null"
+              },
+              "commit": {
+                "type": "null"
+              },
+              "semver": {
+                "type": "null"
+              },
+              "tag": {
+                "type": "null"
+              },
+              "branch": {
+                "type": "null"
+              },
+              "existingSecret": {
+                "type": "string"
+              },
+              "credentials": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "additionalPackageHelmRepo": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/packageAliasPartials/helmRepo"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "repoName": {
+                "type": "null"
+              },
+              "chartName": {
+                "type": "null"
+              },
+              "tag": {
+                "type": "null"
+              },
+              "cosignVerify": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "postRenderers": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/postRenderersArray"
+            }
+          },
+          {
+            "$ref": "#/$defs/packageAliasPartials/postRenderersArray"
+          }
+        ]
       },
       "postRenderersArray": {
         "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
@@ -3690,77 +3870,12 @@
           }
         }
       },
-      "postRenderers": {
-        "oneOf": [
-          {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/$defs/postRenderersArray"
-            }
-          },
-          {
-            "$ref": "#/$defs/packageAliasPartials/postRenderersArray"
-          }
+      "enabled": {
+        "type": "boolean",
+        "default": false,
+        "examples": [
+          false
         ]
-      },
-      "basePackage": {
-        "type": "object",
-        "if": {
-          "properties": {
-            "sourceType": {
-              "const": "git"
-            }
-          }
-        },
-        "then": {
-          "properties": {
-            "git": {
-              "$ref": "#/$defs/packageAliasPartials/git"
-            }
-          }
-        },
-        "else": {
-          "properties": {
-            "helmRepo": {
-              "$ref": "#/$defs/packageAliasPartials/helmRepo"
-            }
-          }
-        },
-        "properties": {
-          "enabled": {
-            "$ref": "#/$defs/packageAliasPartials/enabled"
-          },
-          "sourceType": {
-            "enum": [
-              "git",
-              "helmRepo"
-            ]
-          },
-          "releaseName": {
-            "type": "string",
-            "description": "Optional Helm releaseName override for this package."
-          },
-          "flux": {
-            "$ref": "#/$defs/packageAliasPartials/flux"
-          },
-          "values": {
-            "$ref": "#/$defs/packageAliasPartials/values"
-          },
-          "postRenderers": {
-            "$ref": "#/$defs/packageAliasPartials/postRenderers"
-          }
-        }
-      },
-      "istio": {
-        "type": "object",
-        "properties": {
-          "injection": {
-            "enum": [
-              "enabled",
-              "disabled"
-            ]
-          }
-        }
       },
       "sso": {
         "type": "object",
@@ -3786,11 +3901,40 @@
         },
         "additionalProperties": false
       },
+      "helmRepo": {
+        "type": "object",
+        "properties": {
+          "repoName": {
+            "type": "string"
+          },
+          "chartName": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "cosignVerify": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "sourceType": {
         "enum": [
           "helmRepo",
           "git"
         ]
+      },
+      "istio": {
+        "type": "object",
+        "properties": {
+          "injection": {
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          }
+        }
       },
       "aliases": {
         "istioCNI": {
@@ -5377,8 +5521,8 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "ingress": true,
             "accesskey": true,
+            "ingress": true,
             "secretkey": true
           },
           "type": "object",
@@ -5423,14 +5567,14 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
+            "database": true,
             "hostnames": true,
             "ingress": true,
-            "sso": true,
-            "database": true,
             "objectStorage": true,
-            "smtp": true,
+            "railsSecret": true,
             "redis": true,
-            "railsSecret": true
+            "smtp": true,
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5517,9 +5661,9 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
+            "database": true,
             "ingress": true,
-            "sso": true,
-            "database": true
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5627,11 +5771,11 @@
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
             "adminPassword": true,
+            "database": true,
             "enterprise": true,
             "ingress": true,
-            "sso": true,
-            "database": true,
-            "redis": true
+            "redis": true,
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5718,12 +5862,12 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
+            "database": true,
+            "elasticsearch": true,
             "enterprise": true,
             "ingress": true,
-            "sso": true,
-            "database": true,
             "objectStorage": true,
-            "elasticsearch": true
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5947,16 +6091,14 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "default": {
-                  }
+                  "default": {}
                 },
                 "annotations": {
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "default": {
-                  }
+                  "default": {}
                 }
               },
               "additionalProperties": false
@@ -6104,9 +6246,9 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "sso": true,
+            "ingress": true,
             "objectStorage": true,
-            "ingress": true
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -6190,9 +6332,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "enterprise": true,
+            "kafkaIngestStorage": true,
             "minioObjectStorage": true,
             "s3ObjectStorage": true,
-            "kafkaIngestStorage": true,
             "serviceAccountAnnotations": true
           },
           "additionalProperties": false,
