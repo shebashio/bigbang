@@ -404,9 +404,10 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
 {{- define "values-secret" -}}
-{{- $defaults := default (dict) (fromYaml .defaults) | toYaml }}
+{{- $defaultsMap := default (dict) (fromYaml .defaults) -}}
+{{- $defaults := $defaultsMap | toYaml }}
 {{- $packageValues := default dict .package.values -}}
-{{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
+{{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy $defaultsMap) }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -415,10 +416,52 @@ metadata:
 type: generic
 stringData:
   common: |
+    {{- if .common }}
+    {{- .common | nindent 4 }}
+    {{- else }}
     {{- toYaml (pick $commonValues "bbtests" "istio" "networkPolicies" "sso" "waitJob") | nindent 4 }}
+    {{- end }}
   defaults: {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
+{{- end -}}
+
+{{/*
+Render common values shared by integrated packages.
+
+Args (dict):
+  - root: root chart context ($ or .)
+  - package: package values containing the package's values map
+*/}}
+{{- define "bigbang.commonPackageValues" -}}
+{{- $root := .root -}}
+{{- $packageValues := default dict .package.values -}}
+{{- $authorizationPoliciesEnabled := include "authorizationPoliciesEnabled" (list $packageValues $root) -}}
+istio:
+  enabled: {{ eq (include "istioEnabled" $root) "true" }}
+  sidecar:
+    enabled: {{ and (eq (include "istioEnabled" $root) "true") (ne (include "ambientEnabled" $root) "true") }}
+  ambient:
+    enabled: {{ include "ambientEnabled" $root }}
+  authorizationPolicies:
+    enabled: {{ $authorizationPoliciesEnabled }}
+    generateFromNetpol: {{ $authorizationPoliciesEnabled }}
+
+networkPolicies:
+  enabled: {{ include "networkPoliciesEnabled" $root }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" $root }}
+  ingress:
+    definitions:
+      {{- $root.Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+  egress:
+    definitions:
+      {{- $root.Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+
+waitJob:
+  enableImagePullSecrets: {{ ne $root.Values.registryCredentials nil }}
+bbtests:
+  enableImagePullSecrets: {{ ne $root.Values.registryCredentials nil }}
 {{- end -}}
 
 {{- define "enabledGateways" -}}

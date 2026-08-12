@@ -9,13 +9,13 @@
   "root" $ 
   "package" $kialiPackage 
   "name" "kiali" 
+  "common" (include "bigbang.commonPackageValues" (dict "root" . "package" $kialiPackage))
   "defaults" ((mergeOverwrite (include "bigbang.defaults.kiali" . | fromYaml) (include "bigbang.kiali.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.kiali" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kiali.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $grafanaUrl := first (dig "routes" "inbound" "grafana" "hosts" list .Values.grafana.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -31,19 +31,6 @@ tracing:
   enabled: {{ .Values.tempo.enabled }}
 
 openshift: {{ .Values.openshift}}
-
-istio:
-  enabled: {{ $istioEnabled }}
-
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
-  ambient:
-    enabled: {{ include "ambientEnabled" . }}
-
-  authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.kiali.values .) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.kiali.values .) }}
 
 routes:
   inbound:
@@ -65,16 +52,11 @@ routes:
       - {{ include "sso.host" . }}
 
 networkPolicies:
-  enabled: {{ include "networkPoliciesEnabled" . }}
-  hbonePortInjection:
-    enabled: {{ include "ambientEnabled" . }}
   ingress:
-    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6}}
     defaults:
       allowPrometheusToIstioSidecar:
         enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
   egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6}}
     defaults:
       allowIstiod:
         enabled: {{ .Values.istiod.enabled }}
@@ -89,10 +71,7 @@ networkPolicies:
           definition:
             sso: {{ .Values.kiali.sso.enabled }}
 
-waitJob:
-  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
 bbtests:
-  enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
       cypress_url: {{ printf "https://kiali.%s" $domainName | quote }}
