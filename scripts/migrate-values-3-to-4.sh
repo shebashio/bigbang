@@ -63,7 +63,9 @@ usage() {
 Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT
 
 Move Big Bang 3.x built-in package configuration from top-level and
-addons.<name> paths to the Big Bang 4.x packages.<name> paths.
+addons.<name> paths to the Big Bang 4.x packages.<name> paths. The output sets
+packageConfiguration.version to v1 so Big Bang 3.x interprets catalog package
+names as canonical built-ins rather than existing custom packages.
 
 By default, migrated YAML is written to standard output and INPUT is unchanged.
 
@@ -137,10 +139,27 @@ yq -e '(.packages == null) or (.packages | tag == "!!map")' "$INPUT_FILE" >/dev/
   || fail "packages must be a YAML mapping"
 yq -e '(.addons == null) or (.addons | tag == "!!map")' "$INPUT_FILE" >/dev/null 2>&1 \
   || fail "addons must be a YAML mapping"
+yq -e '(.packageConfiguration == null) or (.packageConfiguration | tag == "!!map")' "$INPUT_FILE" >/dev/null 2>&1 \
+  || fail "packageConfiguration must be a YAML mapping"
+yq -e '(.packageConfiguration.version == null) or (.packageConfiguration.version == "v1")' "$INPUT_FILE" >/dev/null 2>&1 \
+  || fail "packageConfiguration.version must be v1"
 
 WORK_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-migration.XXXXXX")
 trap 'rm -f "$WORK_FILE"' EXIT
 cp "$INPUT_FILE" "$WORK_FILE"
+
+# Before v1 is enabled, every packages.<name> entry has the 3.x custom-package
+# meaning. Refuse to reinterpret an exact built-in name without explicit user
+# intent; schema shape cannot reliably distinguish the two contracts.
+if ! yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    if PACKAGE_NAME="$package_name" yq -e '.packages | has(strenv(PACKAGE_NAME))' "$WORK_FILE" >/dev/null 2>&1; then
+      fail "packages.${package_name} is an existing 3.x custom package that conflicts with a canonical built-in name; rename it or explicitly set packageConfiguration.version to v1 before migrating"
+    fi
+  done
+fi
+
+yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
 
 MIGRATED_PATHS=()
 

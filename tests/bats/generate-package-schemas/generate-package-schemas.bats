@@ -16,7 +16,7 @@ setup() {
 
 @test "every catalog package has a generated canonical schema" {
   expected=$(yq -o=json '.packages | keys' "${REPO_ROOT}/chart/package-metadata.yaml" | jq -c 'sort')
-  actual=$(jq -c '.properties.packages.properties | keys | sort' "${REPO_ROOT}/chart/values.schema.json")
+  actual=$(jq -c '.["$defs"].canonicalPackages.properties | keys | sort' "${REPO_ROOT}/chart/values.schema.json")
 
   [ "$actual" = "$expected" ]
 }

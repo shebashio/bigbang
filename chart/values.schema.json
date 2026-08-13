@@ -46,6 +46,18 @@
     "comments": {
       "type": "string"
     },
+    "packageConfiguration": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": [
+            "v1"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "domain": {
       "type": "string"
     },
@@ -1572,365 +1584,7 @@
       },
       "additionalProperties": false
     },
-    "packages": {
-      "type": "object",
-      "properties": {
-        "istioCNI": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/istioCNI"
-        },
-        "istioCRDs": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/istioCRDs"
-        },
-        "gatewayAPI": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/gatewayAPI"
-        },
-        "istiod": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/istiod"
-        },
-        "istioGateway": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/istioGateway"
-        },
-        "ztunnel": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/ztunnel"
-        },
-        "kiali": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/kiali"
-        },
-        "gatekeeper": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/gatekeeper"
-        },
-        "kyverno": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/kyverno"
-        },
-        "kyvernoPolicies": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/kyvernoPolicies"
-        },
-        "kyvernoReporter": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/kyvernoReporter"
-        },
-        "elasticsearchKibana": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/elasticsearchKibana"
-        },
-        "eckOperator": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/eckOperator"
-        },
-        "fluentbit": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/fluentbit"
-        },
-        "alloy": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/alloy"
-        },
-        "loki": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/loki"
-        },
-        "neuvector": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/neuvector"
-        },
-        "tempo": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/tempo"
-        },
-        "prometheusOperatorCRDs": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/prometheusOperatorCRDs"
-        },
-        "monitoring": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/monitoring"
-        },
-        "grafana": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/grafana"
-        },
-        "twistlock": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/twistlock"
-        },
-        "bbctl": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/bbctl"
-        },
-        "renovate": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/renovate"
-        },
-        "argocd": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/argocd"
-        },
-        "authservice": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/authservice"
-        },
-        "minioOperator": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/minioOperator"
-        },
-        "minio": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/minio"
-        },
-        "gitlab": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/gitlab"
-        },
-        "gitlabRunner": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/gitlabRunner"
-        },
-        "sonarqube": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/sonarqube"
-        },
-        "fortify": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/fortify"
-        },
-        "anchoreEnterprise": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/anchoreEnterprise"
-        },
-        "mattermostOperator": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/mattermostOperator"
-        },
-        "mattermost": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/mattermost"
-        },
-        "velero": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/velero"
-        },
-        "keycloak": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/keycloak"
-        },
-        "vault": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/vault"
-        },
-        "metricsServer": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/metricsServer"
-        },
-        "harbor": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/harbor"
-        },
-        "headlamp": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/headlamp"
-        },
-        "thanos": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/thanos"
-        },
-        "externalSecrets": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/externalSecrets"
-        },
-        "mimir": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/mimir"
-        }
-      },
-      "additionalProperties": {
-        "type": "object",
-        "allOf": [
-          {
-            "if": {
-              "not": {
-                "properties": {
-                  "enabled": {
-                    "const": false
-                  }
-                },
-                "required": [
-                  "enabled"
-                ]
-              }
-            },
-            "then": {
-              "required": [
-                "sourceType"
-              ],
-              "if": {
-                "properties": {
-                  "sourceType": {
-                    "const": "git"
-                  }
-                },
-                "required": [
-                  "sourceType"
-                ]
-              },
-              "then": {
-                "properties": {
-                  "git": {
-                    "$ref": "#/$defs/git"
-                  }
-                },
-                "required": [
-                  "git"
-                ]
-              },
-              "else": {
-                "properties": {
-                  "helmRepo": {
-                    "$ref": "#/$defs/helmRepo"
-                  }
-                },
-                "required": [
-                  "helmRepo"
-                ]
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "kustomize": {
-                  "const": true
-                }
-              },
-              "required": [
-                "kustomize"
-              ]
-            },
-            "then": {
-              "properties": {
-                "sourceType": {
-                  "const": "git"
-                },
-                "git": {
-                  "type": "object",
-                  "required": [
-                    "path"
-                  ]
-                }
-              }
-            }
-          }
-        ],
-        "properties": {
-          "enabled": {
-            "type": "boolean",
-            "default": true
-          },
-          "namespace": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "create": {
-                "type": "boolean",
-                "default": true
-              },
-              "createRegistrySecret": {
-                "type": "boolean",
-                "default": true
-              },
-              "labels": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              },
-              "annotations": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              }
-            },
-            "additionalProperties": false
-          },
-          "helmRelease": {
-            "type": "object",
-            "properties": {
-              "namespace": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          },
-          "sourceType": {
-            "$ref": "#/$defs/sourceType"
-          },
-          "releaseName": {
-            "type": "string"
-          },
-          "wrapper": {
-            "type": "object",
-            "properties": {
-              "enabled": {
-                "type": "boolean",
-                "default": false
-              },
-              "postRenderers": {
-                "$ref": "#/$defs/postRenderers"
-              }
-            },
-            "additionalProperties": false
-          },
-          "kustomize": {
-            "type": "boolean",
-            "default": false
-          },
-          "passBigBangValues": {
-            "type": "boolean",
-            "default": false
-          },
-          "bbCommonValues": {
-            "type": "boolean",
-            "default": true
-          },
-          "includeDefaultDependsOn": {
-            "type": "boolean",
-            "default": true
-          },
-          "helmRepo": {
-            "$ref": "#/$defs/additionalPackageHelmRepo"
-          },
-          "git": {
-            "$ref": "#/$defs/additionalPackageGit"
-          },
-          "flux": {
-            "$ref": "#/$defs/flux"
-          },
-          "postRenderers": {
-            "$ref": "#/$defs/postRenderers"
-          },
-          "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "namespace": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "istio": {
-            "$ref": "#/$defs/istio"
-          },
-          "sso": {
-            "type": "object",
-            "properties": {
-              "enabled": {
-                "type": "boolean"
-              }
-            },
-            "additionalProperties": false
-          },
-          "monitor": {
-            "type": "object"
-          },
-          "network": {
-            "type": "object"
-          },
-          "secrets": {
-            "type": [
-              "object",
-              "array"
-            ]
-          },
-          "configMaps": {
-            "type": [
-              "object",
-              "array"
-            ]
-          },
-          "values": {
-            "$ref": "#/$defs/values"
-          }
-        },
-        "additionalProperties": false
-      }
-    }
+    "packages": {}
   },
   "$defs": {
     "registryCredential": {
@@ -6309,6 +5963,626 @@
           "description": "Partial override merged over the built-in package's legacy defaults."
         }
       }
+    },
+    "customPackages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "allOf": [
+          {
+            "if": {
+              "not": {
+                "properties": {
+                  "enabled": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "then": {
+              "required": [
+                "sourceType"
+              ],
+              "if": {
+                "properties": {
+                  "sourceType": {
+                    "const": "git"
+                  }
+                },
+                "required": [
+                  "sourceType"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "git": {
+                    "$ref": "#/$defs/git"
+                  }
+                },
+                "required": [
+                  "git"
+                ]
+              },
+              "else": {
+                "properties": {
+                  "helmRepo": {
+                    "$ref": "#/$defs/helmRepo"
+                  }
+                },
+                "required": [
+                  "helmRepo"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kustomize": {
+                  "const": true
+                }
+              },
+              "required": [
+                "kustomize"
+              ]
+            },
+            "then": {
+              "properties": {
+                "sourceType": {
+                  "const": "git"
+                },
+                "git": {
+                  "type": "object",
+                  "required": [
+                    "path"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "namespace": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "create": {
+                "type": "boolean",
+                "default": true
+              },
+              "createRegistrySecret": {
+                "type": "boolean",
+                "default": true
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "annotations": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "helmRelease": {
+            "type": "object",
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "sourceType": {
+            "$ref": "#/$defs/sourceType"
+          },
+          "releaseName": {
+            "type": "string"
+          },
+          "wrapper": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "postRenderers": {
+                "$ref": "#/$defs/postRenderers"
+              }
+            },
+            "additionalProperties": false
+          },
+          "kustomize": {
+            "type": "boolean",
+            "default": false
+          },
+          "passBigBangValues": {
+            "type": "boolean",
+            "default": false
+          },
+          "bbCommonValues": {
+            "type": "boolean",
+            "default": true
+          },
+          "includeDefaultDependsOn": {
+            "type": "boolean",
+            "default": true
+          },
+          "helmRepo": {
+            "$ref": "#/$defs/additionalPackageHelmRepo"
+          },
+          "git": {
+            "$ref": "#/$defs/additionalPackageGit"
+          },
+          "flux": {
+            "$ref": "#/$defs/flux"
+          },
+          "postRenderers": {
+            "$ref": "#/$defs/postRenderers"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "namespace": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "istio": {
+            "$ref": "#/$defs/istio"
+          },
+          "sso": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "monitor": {
+            "type": "object"
+          },
+          "network": {
+            "type": "object"
+          },
+          "secrets": {
+            "type": [
+              "object",
+              "array"
+            ]
+          },
+          "configMaps": {
+            "type": [
+              "object",
+              "array"
+            ]
+          },
+          "values": {
+            "$ref": "#/$defs/values"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "canonicalPackages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "allOf": [
+          {
+            "if": {
+              "not": {
+                "properties": {
+                  "enabled": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "then": {
+              "required": [
+                "sourceType"
+              ],
+              "if": {
+                "properties": {
+                  "sourceType": {
+                    "const": "git"
+                  }
+                },
+                "required": [
+                  "sourceType"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "git": {
+                    "$ref": "#/$defs/git"
+                  }
+                },
+                "required": [
+                  "git"
+                ]
+              },
+              "else": {
+                "properties": {
+                  "helmRepo": {
+                    "$ref": "#/$defs/helmRepo"
+                  }
+                },
+                "required": [
+                  "helmRepo"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kustomize": {
+                  "const": true
+                }
+              },
+              "required": [
+                "kustomize"
+              ]
+            },
+            "then": {
+              "properties": {
+                "sourceType": {
+                  "const": "git"
+                },
+                "git": {
+                  "type": "object",
+                  "required": [
+                    "path"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "namespace": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "create": {
+                "type": "boolean",
+                "default": true
+              },
+              "createRegistrySecret": {
+                "type": "boolean",
+                "default": true
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "annotations": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "helmRelease": {
+            "type": "object",
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "sourceType": {
+            "$ref": "#/$defs/sourceType"
+          },
+          "releaseName": {
+            "type": "string"
+          },
+          "wrapper": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "postRenderers": {
+                "$ref": "#/$defs/postRenderers"
+              }
+            },
+            "additionalProperties": false
+          },
+          "kustomize": {
+            "type": "boolean",
+            "default": false
+          },
+          "passBigBangValues": {
+            "type": "boolean",
+            "default": false
+          },
+          "bbCommonValues": {
+            "type": "boolean",
+            "default": true
+          },
+          "includeDefaultDependsOn": {
+            "type": "boolean",
+            "default": true
+          },
+          "helmRepo": {
+            "$ref": "#/$defs/additionalPackageHelmRepo"
+          },
+          "git": {
+            "$ref": "#/$defs/additionalPackageGit"
+          },
+          "flux": {
+            "$ref": "#/$defs/flux"
+          },
+          "postRenderers": {
+            "$ref": "#/$defs/postRenderers"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "namespace": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "istio": {
+            "$ref": "#/$defs/istio"
+          },
+          "sso": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "monitor": {
+            "type": "object"
+          },
+          "network": {
+            "type": "object"
+          },
+          "secrets": {
+            "type": [
+              "object",
+              "array"
+            ]
+          },
+          "configMaps": {
+            "type": [
+              "object",
+              "array"
+            ]
+          },
+          "values": {
+            "$ref": "#/$defs/values"
+          }
+        },
+        "additionalProperties": false
+      },
+      "properties": {
+        "istioCNI": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istioCNI"
+        },
+        "istioCRDs": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istioCRDs"
+        },
+        "gatewayAPI": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/gatewayAPI"
+        },
+        "istiod": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istiod"
+        },
+        "istioGateway": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istioGateway"
+        },
+        "ztunnel": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/ztunnel"
+        },
+        "kiali": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/kiali"
+        },
+        "gatekeeper": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/gatekeeper"
+        },
+        "kyverno": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/kyverno"
+        },
+        "kyvernoPolicies": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/kyvernoPolicies"
+        },
+        "kyvernoReporter": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/kyvernoReporter"
+        },
+        "elasticsearchKibana": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/elasticsearchKibana"
+        },
+        "eckOperator": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/eckOperator"
+        },
+        "fluentbit": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/fluentbit"
+        },
+        "alloy": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/alloy"
+        },
+        "loki": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/loki"
+        },
+        "neuvector": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/neuvector"
+        },
+        "tempo": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/tempo"
+        },
+        "prometheusOperatorCRDs": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/prometheusOperatorCRDs"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/monitoring"
+        },
+        "grafana": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/grafana"
+        },
+        "twistlock": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/twistlock"
+        },
+        "bbctl": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/bbctl"
+        },
+        "renovate": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/renovate"
+        },
+        "argocd": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/argocd"
+        },
+        "authservice": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/authservice"
+        },
+        "minioOperator": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/minioOperator"
+        },
+        "minio": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/minio"
+        },
+        "gitlab": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/gitlab"
+        },
+        "gitlabRunner": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/gitlabRunner"
+        },
+        "sonarqube": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/sonarqube"
+        },
+        "fortify": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/fortify"
+        },
+        "anchoreEnterprise": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/anchoreEnterprise"
+        },
+        "mattermostOperator": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/mattermostOperator"
+        },
+        "mattermost": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/mattermost"
+        },
+        "velero": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/velero"
+        },
+        "keycloak": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/keycloak"
+        },
+        "vault": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/vault"
+        },
+        "metricsServer": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/metricsServer"
+        },
+        "harbor": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/harbor"
+        },
+        "headlamp": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/headlamp"
+        },
+        "thanos": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/thanos"
+        },
+        "externalSecrets": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/externalSecrets"
+        },
+        "mimir": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/mimir"
+        }
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "$comment": "Generated canonical package configuration gate.",
+      "if": {
+        "properties": {
+          "packageConfiguration": {
+            "properties": {
+              "version": {
+                "const": "v1"
+              }
+            },
+            "required": [
+              "version"
+            ]
+          }
+        },
+        "required": [
+          "packageConfiguration"
+        ]
+      },
+      "then": {
+        "properties": {
+          "packages": {
+            "$ref": "#/$defs/canonicalPackages"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "packages": {
+            "$ref": "#/$defs/customPackages"
+          }
+        }
+      }
+    }
+  ]
 }

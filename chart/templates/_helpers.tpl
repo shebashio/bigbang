@@ -48,8 +48,10 @@
 {{- end }}
 
 {{/*
-Normalize the backwards-compatible packages.<name> configuration for built-in
-packages onto the legacy values paths consumed by the existing templates.
+When packageConfiguration.version is v1, normalize the backwards-compatible
+packages.<name> configuration for built-ins onto the legacy values paths
+consumed by the existing templates. Without that explicit opt-in, every entry
+under packages retains the Big Bang 3.x custom-package meaning.
 
 Explicitly supplied built-ins remain under .Values.packages as resolved values
 so templates can use the canonical path. Unknown entries are copied into the
@@ -70,7 +72,9 @@ in Big Bang 4.x.
 {{- end -}}
 {{- $migrations := .Values._packageAliasMigrations | default list -}}
 {{- $customPackages := dict -}}
+{{- $canonicalPackagesEnabled := eq (default "" .Values.packageConfiguration.version) "v1" -}}
 
+{{- if $canonicalPackagesEnabled -}}
 {{- /* Reserve canonical identities and rendered resource names. */ -}}
 {{- $reservedNames := dict -}}
 {{- range $name, $package := $catalog -}}
@@ -124,6 +128,13 @@ in Big Bang 4.x.
       {{- fail (printf "unsupported legacyPath %s for package %s" $package.legacyPath $name) -}}
     {{- end -}}
     {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $package.legacyPath) -}}
+  {{- end -}}
+{{- end -}}
+{{- else -}}
+  {{- /* Preserve the pre-existing 3.x contract unless canonical package names
+        have been explicitly enabled. */ -}}
+  {{- range $name, $package := $packages -}}
+    {{- $_ := set $customPackages $name $package -}}
   {{- end -}}
 {{- end -}}
 

@@ -12,6 +12,9 @@ templates:
   - templates/wrapper/helmrelease.yaml
 release:
   name: test
+set:
+  packageConfiguration:
+    version: v1
 tests:
   - it: should disable a top-level built-in package through packages
     set:

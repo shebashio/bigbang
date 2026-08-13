@@ -24,8 +24,8 @@ The canonical package configuration path is `packages.<name>` for built-in and u
 
 The migration will be delivered in phases:
 
-1. During Big Bang 3.x, the chart accepts both the canonical and legacy built-in paths. A render-time compatibility layer recursively merges `packages.<name>` over the corresponding top-level or `addons.<name>` defaults. The canonical path wins when both paths set the same field. Explicitly supplied built-ins remain available as resolved values under `packages.<name>` so `tpl` expressions can use the canonical path, while a filtered internal map keeps them out of the generic user-supplied package renderer. Legacy-only built-ins are not copied into `packages`.
-2. Documentation and examples use only `packages.<name>`. Chart notes identify canonical aliases that were used, and a migration script is provided so users can update stored values before 4.x.
+1. During Big Bang 3.x, canonical built-in names are an explicit preview enabled by `packageConfiguration.version: v1`. Without that setting, every `packages.<name>` entry retains the existing custom-package contract, including names that overlap the built-in catalog. In v1 mode, a render-time compatibility layer recursively merges `packages.<name>` over the corresponding top-level or `addons.<name>` defaults. The canonical path wins when both paths set the same field. Explicitly supplied built-ins remain available as resolved values under `packages.<name>` so `tpl` expressions can use the canonical path, while a filtered internal map keeps them out of the generic user-supplied package renderer. Legacy-only built-ins are not copied into `packages`.
+2. Canonical documentation and examples include `packageConfiguration.version: v1`. Chart notes identify canonical aliases that were used, and the migration script enables v1 while moving stored values before 4.x.
 3. In Big Bang 4.x, built-in defaults move to `packages.<name>`, templates read those paths directly, and the legacy top-level and `addons` package paths, schemas, and compatibility normalizer are removed. Unknown entries under `packages` continue to use the generic package deployment contract.
 
 Global configuration such as `domain`, registry credentials, network policy settings, and shared Istio configuration remains at the top level. A package's raw child-chart overrides remain nested under `packages.<name>.values`; this decision does not flatten child-chart values into the Big Bang configuration surface.
@@ -61,9 +61,9 @@ The Helm compatibility helper consumes the catalog directly to identify built-in
 - the package mappings embedded in the standalone migration script;
 - package documentation navigation or indexes where practical.
 
-Canonical schemas are deep partials of the legacy package schemas because Helm validates user values before the compatibility helper merges canonical overrides over legacy defaults. Required constraints are removed from recursively merged objects, while types, enums, patterns, known properties, and array-item requirements are retained. Child-chart overrides under `values` remain intentionally open-ended. Package-level keys present in maintained defaults but not yet described by the legacy schema remain accepted so the compatibility path does not reject supported 3.x configurations.
+When `packageConfiguration.version` is absent, all entries under `packages` use the existing custom-package schema. In v1 mode, built-in schemas are deep partials of the legacy package schemas because Helm validates user values before the compatibility helper merges canonical overrides over legacy defaults. Required constraints are removed from recursively merged objects, while types, enums, patterns, known properties, and array-item requirements are retained. Child-chart overrides under `values` remain intentionally open-ended. Package-level keys present in maintained defaults but not yet described by the legacy schema remain accepted so the compatibility path does not reject supported 3.x configurations.
 
-Unknown package names continue to use the custom-package schema. Names that case-fold or normalize to a built-in package identity or template directory are rejected to prevent a custom package from masquerading as, or rendering resources that collide with, a built-in package.
+In v1 mode, unknown package names continue to use the custom-package schema. Names that case-fold or normalize to a built-in package identity or template directory are rejected to prevent a custom package from masquerading as, or rendering resources that collide with, a built-in package.
 
 CI will fail when generated artifacts differ from the catalog. Generated files will be checked into the repository so Helm rendering and the user-facing migration script do not require a runtime parser or an additional chart dependency. The catalog format is `v1alpha1` so fields can be revised as implementation experience develops.
 
@@ -80,6 +80,8 @@ addons:
     enabled: true
 
 # Big Bang 4.x
+packageConfiguration:
+  version: v1
 packages:
   monitoring:
     enabled: true
@@ -106,11 +108,11 @@ packages:
       interval: 5m
 ```
 
-The script leaves global values, unknown `addons` entries, and existing user-supplied `packages` entries in place. Its default mode writes to standard output without changing the input. In-place operation creates a backup, and repeated execution has no additional effect.
+The script sets `packageConfiguration.version: v1`, leaves other global values, unknown `addons` entries, and existing user-supplied `packages` entries in place. It refuses to enable v1 when an unversioned input already contains an exact built-in name under `packages`, because that entry has the existing 3.x custom-package meaning and cannot be distinguished safely by shape. Its default mode writes to standard output without changing the input. In-place operation creates a backup, and repeated execution has no additional effect.
 
 ## Consequences
 
-Users gain one predictable location for every deployable package and can migrate incrementally during 3.x. Existing deployments remain valid throughout the compatibility window, and precedence is deterministic when both paths are present.
+Users gain one predictable location for every deployable package and can migrate incrementally during 3.x. Existing deployments retain their custom-package interpretation until they explicitly enable v1 or run the migration tool. Precedence is deterministic when both paths are present in v1 mode.
 
 Maintainers temporarily carry a normalization layer and duplicate package lists. Rendering must normalize aliases before templates inspect package values. The metadata catalog and generated artifacts will remove that duplication before or as part of the 4.x migration.
 

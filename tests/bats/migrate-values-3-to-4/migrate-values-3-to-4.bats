@@ -27,6 +27,7 @@ EOF
   run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
+  [ "$(yq '.packageConfiguration.version' "$OUTPUT_FILE")" = "v1" ]
   [ "$(yq '.packages.monitoring.enabled' "$OUTPUT_FILE")" = "true" ]
   [ "$(yq '.packages.gitlab.enabled' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.packages.podinfo.enabled' "$OUTPUT_FILE")" = "true" ]
@@ -37,6 +38,8 @@ EOF
 
 @test "deep merges legacy values while the unified path takes precedence" {
   cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v1
 monitoring:
   enabled: true
   flux:
@@ -59,6 +62,24 @@ EOF
   [ "$(yq '.packages.monitoring.flux.timeout' "$OUTPUT_FILE")" = "20m" ]
   [ "$(yq '.packages.monitoring.flux.interval' "$OUTPUT_FILE")" = "5m" ]
   [ "$(yq '.packages.monitoring.values.serviceMonitor.enabled' "$OUTPUT_FILE")" = "true" ]
+}
+
+@test "refuses to reinterpret an existing custom package with a built-in name" {
+  cat >"$INPUT_FILE" <<'EOF'
+packages:
+  kiali:
+    enabled: true
+    sourceType: git
+    git:
+      repo: https://example.com/custom-kiali.git
+      path: chart
+      tag: v1
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"packages.kiali is an existing 3.x custom package"* ]]
 }
 
 @test "stdout mode leaves the input unchanged and migration is idempotent" {
@@ -94,6 +115,7 @@ EOF
   [ -f "${INPUT_FILE}.bak" ]
   [ "$(yq '.kiali.enabled' "${INPUT_FILE}.bak")" = "false" ]
   [ "$(yq '.packages.kiali.enabled' "$INPUT_FILE")" = "false" ]
+  [ "$(yq '.packageConfiguration.version' "$INPUT_FILE")" = "v1" ]
 }
 
 @test "rejects a non-mapping packages value" {
@@ -106,6 +128,18 @@ EOF
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packages must be a YAML mapping"* ]]
+}
+
+@test "rejects an unsupported package configuration version" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v2
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"packageConfiguration.version must be v1"* ]]
 }
 
 @test "migrated maintained values remain idempotent and render with the chart" {

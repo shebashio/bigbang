@@ -20,7 +20,11 @@ To replace the input, use `--in-place`. This mode first creates `values.yaml.bak
 scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
-The script moves known top-level built-in packages and packages under `addons` into the unified map. Existing custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+The script enables the 3.x canonical-package preview by setting `packageConfiguration.version: v1`, then moves known top-level built-in packages and packages under `addons` into the unified map. Existing custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+
+Without `packageConfiguration.version: v1`, Big Bang 3.x continues treating every entry under `packages` as a custom package—even when its name matches a built-in package. This opt-in prevents a minor release from silently reinterpreting an existing custom package.
+
+For the same reason, the migration script stops if an unversioned input already contains a `packages.<name>` entry whose name exactly matches a built-in. Rename that custom package before migrating. If the entry was deliberately prepared as a canonical built-in, explicitly set `packageConfiguration.version: v1` first.
 
 For example:
 
@@ -40,6 +44,8 @@ becomes:
 
 ```yaml
 # After
+packageConfiguration:
+  version: v1
 packages:
   monitoring:
     enabled: true

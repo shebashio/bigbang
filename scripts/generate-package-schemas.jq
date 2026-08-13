@@ -102,11 +102,42 @@ def validate_metadata($metadata):
 validate_metadata($metadata[0]) as $validated_metadata
 | . as $schema
 | $values[0] as $chart_values
+| ($schema["$defs"].customPackages // {
+    "type": "object",
+    "additionalProperties": $schema.properties.packages.additionalProperties
+  }) as $custom_packages
 | (reduce ($validated_metadata.packages | to_entries[]) as $package
     ({}; .[$package.key] = package_alias($schema; $chart_values; $package))) as $aliases
 | (reduce ($validated_metadata.packages | keys_unsorted[]) as $name
     ({}; .[$name] = {"$ref": "#/$defs/packageAliasPartials/aliases/\($name)"})) as $package_properties
-| ($schema["$defs"] | del(.packageAlias, .packageAliasPartials) | with_entries(.value |= partialize(true))) as $partial_definitions
-| .properties.packages.properties = $package_properties
+| ($schema["$defs"] | del(.packageAlias, .packageAliasPartials, .customPackages, .canonicalPackages)
+   | with_entries(.value |= partialize(true))) as $partial_definitions
+| ($custom_packages + {"properties": $package_properties}) as $canonical_packages
+| .properties.packages = {}
 | del(.["$defs"].packageAlias)
+| .["$defs"].customPackages = $custom_packages
+| .["$defs"].canonicalPackages = $canonical_packages
 | .["$defs"].packageAliasPartials = ($partial_definitions + {aliases: $aliases})
+| .allOf = (((.allOf // [])
+    | map(select(."$comment" != "Generated canonical package configuration gate."))) + [{
+      "$comment": "Generated canonical package configuration gate.",
+      "if": {
+        "properties": {
+          "packageConfiguration": {
+            "properties": {"version": {"const": "v1"}},
+            "required": ["version"]
+          }
+        },
+        "required": ["packageConfiguration"]
+      },
+      "then": {
+        "properties": {
+          "packages": {"$ref": "#/$defs/canonicalPackages"}
+        }
+      },
+      "else": {
+        "properties": {
+          "packages": {"$ref": "#/$defs/customPackages"}
+        }
+      }
+    }])
