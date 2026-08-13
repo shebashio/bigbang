@@ -108,7 +108,7 @@ packages:
       interval: 5m
 ```
 
-The script sets `packageConfiguration.version: v1`, leaves other global values, unknown `addons` entries, and existing user-supplied `packages` entries in place. It refuses to enable v1 when an unversioned input already contains an exact built-in name under `packages`, because that entry has the existing 3.x custom-package meaning and cannot be distinguished safely by shape. Its default mode writes to standard output without changing the input. In-place operation creates a backup, and repeated execution has no additional effect.
+The script sets `packageConfiguration.version: v1`, leaves other global values, unknown `addons` entries, and existing user-supplied `packages` entries in place. It refuses to enable v1 when an unversioned input already contains an exact built-in name under `packages`, because that entry has the existing 3.x custom-package meaning and cannot be distinguished safely by shape. It accepts ordered values inputs and composes them before migration so legacy and canonical settings retain their effective Helm precedence. The deprecated `addons.mattermostoperator` spelling is normalized below `addons.mattermostOperator` and `packages.mattermostOperator` in precedence order. Inputs containing SOPS metadata, multiple YAML documents, or YAML anchors and aliases are rejected with remediation guidance. Its default mode writes to standard output without changing the inputs. In-place operation is limited to one input, creates a backup, and repeated execution has no additional effect. Output paths that resolve to an input through a symlink or hardlink are rejected.
 
 ## Consequences
 

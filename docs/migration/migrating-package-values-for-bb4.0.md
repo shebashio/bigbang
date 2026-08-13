@@ -14,6 +14,17 @@ You can also select an output file explicitly:
 scripts/migrate-values-3-to-4.sh --output values-4.x.yaml values.yaml
 ```
 
+For a GitOps deployment that supplies multiple values files, pass every file in
+the same order used by Helm. The script composes the inputs first, with later
+files taking precedence, and writes one consolidated migrated document. This
+preserves the effective values when legacy and canonical paths occur in
+different layers.
+
+```shell
+scripts/migrate-values-3-to-4.sh \
+  base.yaml environment.yaml secrets.yaml > values-4.x.yaml
+```
+
 To replace the input, use `--in-place`. This mode first creates `values.yaml.bak` and refuses to overwrite an existing backup:
 
 ```shell
@@ -21,6 +32,11 @@ scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
 The script enables the 3.x canonical-package preview by setting `packageConfiguration.version: v1`, then moves known top-level built-in packages and packages under `addons` into the unified map. Existing custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+
+The deprecated `addons.mattermostoperator` spelling is also migrated. When more
+than one spelling is present, precedence is
+`addons.mattermostoperator`, then `addons.mattermostOperator`, then
+`packages.mattermostOperator`.
 
 Without `packageConfiguration.version: v1`, Big Bang 3.x continues treating every entry under `packages` as a custom package—even when its name matches a built-in package. This opt-in prevents a minor release from silently reinterpreting an existing custom package.
 
@@ -60,5 +76,27 @@ Review the output and render it with the 3.x chart before adopting it. Because t
 ```shell
 helm template bigbang ./chart -f values-4.x.yaml > /dev/null
 ```
+
+The script rejects inputs that it cannot transform safely:
+
+- For SOPS-encrypted values, decrypt to a protected temporary plaintext file,
+  migrate it, review it, and re-encrypt it according to your repository's SOPS
+  policy. For example:
+
+  ```shell
+  sops --decrypt values.enc.yaml > values.decrypted.yaml
+  scripts/migrate-values-3-to-4.sh values.decrypted.yaml > values.migrated.yaml
+  sops --encrypt values.migrated.yaml > values.enc.yaml
+  ```
+
+  Securely remove the temporary plaintext files after reviewing the encrypted
+  result.
+- Split multi-document YAML into individual values files and pass them in their
+  original order.
+- Expand YAML anchors and aliases before migration. Automated rewriting can
+  otherwise change their sharing and merge semantics.
+- `--output` cannot name a symlink or hardlink that resolves to an input file.
+  Use `--in-place` for a single input when replacement is intended; it creates
+  a backup first.
 
 The script is idempotent: after all known legacy paths have moved, running it again leaves the values unchanged.

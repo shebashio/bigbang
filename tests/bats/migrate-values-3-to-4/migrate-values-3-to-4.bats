@@ -64,6 +64,73 @@ EOF
   [ "$(yq '.packages.monitoring.values.serviceMonitor.enabled' "$OUTPUT_FILE")" = "true" ]
 }
 
+@test "composes ordered inputs before migration and preserves canonical precedence" {
+  OVERLAY_FILE="${BATS_TEST_TMPDIR}/production.yaml"
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v1
+packages:
+  kiali:
+    enabled: false
+    flux:
+      interval: 5m
+compositionTest:
+  entries:
+    - base-one
+    - base-two
+EOF
+  cat >"$OVERLAY_FILE" <<'EOF'
+kiali:
+  enabled: true
+  flux:
+    timeout: 10m
+domain: production.bigbang.mil
+compositionTest:
+  entries:
+    - production
+EOF
+
+  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE" "$OVERLAY_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.enabled' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.kiali.flux.interval' "$OUTPUT_FILE")" = "5m" ]
+  [ "$(yq '.packages.kiali.flux.timeout' "$OUTPUT_FILE")" = "10m" ]
+  [ "$(yq '.domain' "$OUTPUT_FILE")" = "production.bigbang.mil" ]
+  [ "$(yq -o=json -I=0 '.compositionTest.entries' "$OUTPUT_FILE")" = '["production"]' ]
+  [ "$(yq 'has("kiali")' "$OUTPUT_FILE")" = "false" ]
+}
+
+@test "migrates both mattermost operator spellings with documented precedence" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v1
+addons:
+  mattermostoperator:
+    enabled: true
+    flux:
+      interval: 5m
+      timeout: 5m
+  mattermostOperator:
+    enabled: false
+    flux:
+      timeout: 10m
+packages:
+  mattermostOperator:
+    flux:
+      timeout: 20m
+EOF
+
+  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.mattermostOperator.enabled' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.mattermostOperator.flux.interval' "$OUTPUT_FILE")" = "5m" ]
+  [ "$(yq '.packages.mattermostOperator.flux.timeout' "$OUTPUT_FILE")" = "20m" ]
+  [ "$(yq '.addons | has("mattermostoperator")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.addons | has("mattermostOperator")' "$OUTPUT_FILE")" = "false" ]
+}
+
 @test "refuses to reinterpret an existing custom package with a built-in name" {
   cat >"$INPUT_FILE" <<'EOF'
 packages:
@@ -140,6 +207,86 @@ EOF
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packageConfiguration.version must be v1"* ]]
+}
+
+@test "rejects SOPS-encrypted input with remediation guidance" {
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  enabled: ENC[AES256_GCM,data:abc,type:bool]
+sops:
+  mac: ENC[AES256_GCM,data:def,type:str]
+  version: 3.9.0
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"SOPS-encrypted input is not supported"* ]]
+  [[ "$output" == *"decrypt it with sops, migrate the plaintext, then re-encrypt it"* ]]
+}
+
+@test "rejects multi-document YAML" {
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  enabled: true
+---
+monitoring:
+  enabled: true
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"multiple YAML documents are not supported"* ]]
+}
+
+@test "rejects YAML anchors and aliases" {
+  cat >"$INPUT_FILE" <<'EOF'
+defaults: &packageDefaults
+  enabled: true
+kiali:
+  <<: *packageDefaults
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"YAML anchors and aliases are not supported"* ]]
+}
+
+@test "rejects output symlinks and hardlinks that refer to the input" {
+  SYMLINK_OUTPUT="${BATS_TEST_TMPDIR}/values-symlink.yaml"
+  HARDLINK_OUTPUT="${BATS_TEST_TMPDIR}/values-hardlink.yaml"
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  enabled: true
+EOF
+  cp "$INPUT_FILE" "${INPUT_FILE}.original"
+  ln -s "$INPUT_FILE" "$SYMLINK_OUTPUT"
+
+  run "$SCRIPT_PATH" -o "$SYMLINK_OUTPUT" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"output refers to an input file"* ]]
+  cmp "$INPUT_FILE" "${INPUT_FILE}.original"
+
+  ln "$INPUT_FILE" "$HARDLINK_OUTPUT"
+  run "$SCRIPT_PATH" -o "$HARDLINK_OUTPUT" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"output refers to an input file"* ]]
+  cmp "$INPUT_FILE" "${INPUT_FILE}.original"
+}
+
+@test "rejects in-place mode with multiple inputs" {
+  OVERLAY_FILE="${BATS_TEST_TMPDIR}/production.yaml"
+  printf '%s\n' 'domain: dev.bigbang.mil' >"$INPUT_FILE"
+  printf '%s\n' 'domain: production.bigbang.mil' >"$OVERLAY_FILE"
+
+  run "$SCRIPT_PATH" --in-place "$INPUT_FILE" "$OVERLAY_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--in-place requires exactly one input file"* ]]
 }
 
 @test "migrated maintained values remain idempotent and render with the chart" {

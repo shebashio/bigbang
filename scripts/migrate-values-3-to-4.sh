@@ -60,18 +60,20 @@ ADDON_PACKAGES=(
 
 usage() {
   cat <<'EOF'
-Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT
+Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
 addons.<name> paths to the Big Bang 4.x packages.<name> paths. The output sets
 packageConfiguration.version to v1 so Big Bang 3.x interprets catalog package
 names as canonical built-ins rather than existing custom packages.
 
-By default, migrated YAML is written to standard output and INPUT is unchanged.
+Inputs are composed in order using Helm values precedence (later files win),
+then migrated into one consolidated document. By default, migrated YAML is
+written to standard output and the inputs are unchanged.
 
 Options:
   -o, --output FILE  Write migrated values to FILE.
-  -i, --in-place     Replace INPUT after creating INPUT.bak.
+  -i, --in-place     Replace a single INPUT after creating INPUT.bak.
   -h, --help         Show this help.
 
 If both a legacy path and packages.<name> exist, they are recursively merged
@@ -80,6 +82,7 @@ unchanged. The migration is idempotent.
 
 Examples:
   scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
+  scripts/migrate-values-3-to-4.sh base.yaml production.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml
   scripts/migrate-values-3-to-4.sh --in-place values.yaml
 EOF
@@ -92,7 +95,7 @@ fail() {
 
 OUTPUT_FILE=""
 IN_PLACE=false
-INPUT_FILE=""
+INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -113,40 +116,63 @@ while [[ $# -gt 0 ]]; do
       fail "unknown option: $1"
       ;;
     *)
-      [[ -z "$INPUT_FILE" ]] || fail "only one input file may be provided"
-      INPUT_FILE=$1
+      INPUT_FILES+=("$1")
       shift
       ;;
   esac
 done
 
-[[ -n "$INPUT_FILE" ]] || fail "an input values file is required"
-[[ -f "$INPUT_FILE" ]] || fail "input file does not exist: $INPUT_FILE"
-[[ -r "$INPUT_FILE" ]] || fail "input file is not readable: $INPUT_FILE"
+[[ ${#INPUT_FILES[@]} -gt 0 ]] || fail "at least one input values file is required"
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
 
 if [[ "$IN_PLACE" == true && -n "$OUTPUT_FILE" ]]; then
   fail "--in-place and --output cannot be used together"
 fi
-if [[ -n "$OUTPUT_FILE" && "$OUTPUT_FILE" == "$INPUT_FILE" ]]; then
-  fail "use --in-place to replace the input file"
+if [[ "$IN_PLACE" == true && ${#INPUT_FILES[@]} -ne 1 ]]; then
+  fail "--in-place requires exactly one input file"
 fi
 
-yq -e 'tag == "!!map"' "$INPUT_FILE" >/dev/null 2>&1 \
-  || fail "the values document root must be a YAML mapping"
-yq -e '(.packages == null) or (.packages | tag == "!!map")' "$INPUT_FILE" >/dev/null 2>&1 \
-  || fail "packages must be a YAML mapping"
-yq -e '(.addons == null) or (.addons | tag == "!!map")' "$INPUT_FILE" >/dev/null 2>&1 \
-  || fail "addons must be a YAML mapping"
-yq -e '(.packageConfiguration == null) or (.packageConfiguration | tag == "!!map")' "$INPUT_FILE" >/dev/null 2>&1 \
-  || fail "packageConfiguration must be a YAML mapping"
-yq -e '(.packageConfiguration.version == null) or (.packageConfiguration.version == "v1")' "$INPUT_FILE" >/dev/null 2>&1 \
-  || fail "packageConfiguration.version must be v1"
+for input_file in "${INPUT_FILES[@]}"; do
+  [[ -f "$input_file" ]] || fail "input file does not exist: $input_file"
+  [[ -r "$input_file" ]] || fail "input file is not readable: $input_file"
+
+  document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+    || fail "input is not valid YAML: $input_file"
+  [[ "$document_count" == "1" ]] \
+    || fail "multiple YAML documents are not supported: $input_file"
+  yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
+    || fail "the values document root must be a YAML mapping: $input_file"
+  yq -e 'has("sops") and (.sops | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+    && fail "SOPS-encrypted input is not supported: $input_file; decrypt it with sops, migrate the plaintext, then re-encrypt it"
+  yq -e '[.. | anchor] | map(select(. != "")) | length == 0' "$input_file" >/dev/null 2>&1 \
+    || fail "YAML anchors and aliases are not supported: $input_file; expand them before migrating"
+  yq -e '(.packages == null) or (.packages | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+    || fail "packages must be a YAML mapping: $input_file"
+  yq -e '(.addons == null) or (.addons | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+    || fail "addons must be a YAML mapping: $input_file"
+  yq -e '(.packageConfiguration == null) or (.packageConfiguration | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+    || fail "packageConfiguration must be a YAML mapping: $input_file"
+  yq -e '(.packageConfiguration.version == null) or (.packageConfiguration.version == "v1")' "$input_file" >/dev/null 2>&1 \
+    || fail "packageConfiguration.version must be v1: $input_file"
+done
+
+if [[ -n "$OUTPUT_FILE" ]]; then
+  for input_file in "${INPUT_FILES[@]}"; do
+    if [[ "$OUTPUT_FILE" == "$input_file" ]] \
+      || [[ -e "$OUTPUT_FILE" && "$OUTPUT_FILE" -ef "$input_file" ]]; then
+      fail "output refers to an input file; use --in-place with a single input to replace it safely"
+    fi
+  done
+fi
 
 WORK_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-migration.XXXXXX")
 trap 'rm -f "$WORK_FILE"' EXIT
-cp "$INPUT_FILE" "$WORK_FILE"
+if [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
+  cp "${INPUT_FILES[0]}" "$WORK_FILE"
+else
+  yq eval-all '. as $item ireduce ({}; . * $item)' "${INPUT_FILES[@]}" >"$WORK_FILE"
+fi
 
 # Before v1 is enabled, every packages.<name> entry has the 3.x custom-package
 # meaning. Refuse to reinterpret an exact built-in name without explicit user
@@ -175,6 +201,18 @@ for package_name in "${ROOT_PACKAGES[@]}"; do
   fi
 done
 
+# The deprecated lowercase spelling is still accepted by the 3.x templates.
+# Normalize it first so the supported spelling, and then the canonical package
+# path, retain their existing precedence.
+if yq -e '.addons | has("mattermostoperator")' "$WORK_FILE" >/dev/null 2>&1; then
+  yq -i '
+    .addons.mattermostOperator =
+      ((.addons.mattermostoperator // {}) * (.addons.mattermostOperator // {})) |
+    del(.addons.mattermostoperator)
+  ' "$WORK_FILE"
+  MIGRATED_PATHS+=("addons.mattermostoperator -> packages.mattermostOperator")
+fi
+
 for package_name in "${ADDON_PACKAGES[@]}"; do
   if PACKAGE_NAME="$package_name" yq -e '.addons | has(strenv(PACKAGE_NAME))' "$WORK_FILE" >/dev/null 2>&1; then
     PACKAGE_NAME="$package_name" yq -i '
@@ -192,6 +230,7 @@ if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >
 fi
 
 if [[ "$IN_PLACE" == true ]]; then
+  INPUT_FILE=${INPUT_FILES[0]}
   BACKUP_FILE="${INPUT_FILE}.bak"
   [[ ! -e "$BACKUP_FILE" ]] || fail "backup already exists: $BACKUP_FILE"
   cp -p "$INPUT_FILE" "$BACKUP_FILE"
