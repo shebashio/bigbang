@@ -3,6 +3,39 @@ suite: Packages - HelmRelease - Shared Helpers and Bug Fixes
 tests:
 
 ###############################################################################
+# cert-manager integrated package
+###############################################################################
+
+- it: should render cert-manager HelmRelease when enabled
+  set:
+    certManager:
+      enabled: true
+  template: cert-manager/helmrelease.yaml
+  asserts:
+  - isKind:
+      of: HelmRelease
+  - equal:
+      path: metadata.name
+      value: cert-manager
+  - equal:
+      path: spec.targetNamespace
+      value: cert-manager
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: istiod
+        namespace: NAMESPACE
+
+- it: should not render cert-manager HelmRelease when disabled
+  set:
+    certManager:
+      enabled: false
+  template: cert-manager/helmrelease.yaml
+  asserts:
+  - hasDocuments:
+      count: 0
+
+###############################################################################
 # Enable / Disable - Core packages
 ###############################################################################
 

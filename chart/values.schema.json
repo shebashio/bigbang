@@ -34,6 +34,7 @@
     "twistlock",
     "bbctl",
     "renovate",
+    "certManager",
     "addons"
   ],
   "additionalProperties": false,
@@ -1035,6 +1036,42 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
+        }
+      },
+      "additionalProperties": false
+    },
+    "certManager": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "releaseName": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
+        "postRenderers": true,
+        "namespace": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "create": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "object"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

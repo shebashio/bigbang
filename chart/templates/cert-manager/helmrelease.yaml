@@ -1,0 +1,29 @@
+{{- if .Values.certManager.enabled }}
+{{- $fluxSettings := merge .Values.certManager.flux .Values.flux -}}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: "core"
+    {{- include "commonLabels" . | nindent 4}}
+  annotations:
+    checksum/bigbang-values: {{ include (print $.Template.BasePath "/cert-manager/values.yaml") . | sha256sum }}
+spec:
+  targetNamespace: {{ .Values.certManager.namespace.name }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "cert-manager" "package" .Values.certManager "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- toYaml $fluxSettings | nindent 2 }}
+  {{- if .Values.certManager.postRenderers }}
+  postRenderers:
+  {{- toYaml .Values.certManager.postRenderers | nindent 4 }}
+  {{- end }}
+  {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
+  dependsOn:
+  {{- include "istioHelmReleases" . | nindent 4 }}
+  {{- if .Values.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+{{- end }}
