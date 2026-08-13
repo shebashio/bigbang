@@ -9,6 +9,7 @@ templates:
   - templates/metrics-server/helmrelease.yaml
   - templates/metrics-server/values.yaml
   - templates/package/helmrelease.yaml
+  - templates/wrapper/helmrelease.yaml
 release:
   name: test
 tests:
@@ -76,6 +77,111 @@ tests:
       - hasDocuments:
           count: 0
         template: templates/package/helmrelease.yaml
+
+  - it: should preserve explicitly supplied built-ins as resolved canonical values
+    set:
+      kiali:
+        enabled: false
+      packages:
+        kiali:
+          enabled: true
+          git:
+            tag: canonical-tag
+      _selfTest:
+        bigbang.self-test.package-alias-state:
+          args: helm:context
+          resultIsYaml: true
+    asserts:
+      - equal:
+          path: result.packages.kiali.enabled
+          value: true
+        template: templates/_self-test/render.yaml
+      - equal:
+          path: result.packages.kiali.git.tag
+          value: canonical-tag
+        template: templates/_self-test/render.yaml
+      - equal:
+          path: result.packages.kiali.git.repo
+          value: https://repo1.dso.mil/big-bang/product/packages/kiali.git
+        template: templates/_self-test/render.yaml
+      - notExists:
+          path: result.customPackages.kiali
+        template: templates/_self-test/render.yaml
+
+  - it: should make preserved canonical built-ins available to tpl expressions
+    set:
+      packages:
+        kiali:
+          git:
+            tag: canonical-tag
+      _selfTest:
+        resourceName:
+          args: '{{ .Values.packages.kiali.git.repo }}@{{ .Values.packages.kiali.git.tag }}'
+    asserts:
+      - equal:
+          path: args
+          value: https://repo1.dso.mil/big-bang/product/packages/kiali.git@canonical-tag
+        template: templates/_self-test/render.yaml
+
+  - it: should keep built-ins out of generic rendering while retaining custom packages
+    set:
+      packages:
+        kiali:
+          enabled: true
+        podinfo:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://github.com/stefanprodan/podinfo.git
+            path: charts/podinfo
+            tag: "6.3.4"
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: templates/package/helmrelease.yaml
+      - equal:
+          path: metadata.name
+          value: podinfo
+        template: templates/package/helmrelease.yaml
+
+  - it: should keep built-ins out of generic wrapper rendering
+    set:
+      packages:
+        kiali:
+          enabled: true
+        podinfo:
+          enabled: true
+          wrapper:
+            enabled: true
+          sourceType: git
+          git:
+            repo: https://github.com/stefanprodan/podinfo.git
+            path: charts/podinfo
+            tag: "6.3.4"
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: templates/wrapper/helmrelease.yaml
+      - equal:
+          path: metadata.name
+          value: podinfo-wrapper
+        template: templates/wrapper/helmrelease.yaml
+
+  - it: should not populate canonical packages from legacy-only built-ins
+    set:
+      kiali:
+        enabled: true
+      _selfTest:
+        bigbang.self-test.package-alias-state:
+          args: helm:context
+          resultIsYaml: true
+    asserts:
+      - notExists:
+          path: result.packages.kiali
+        template: templates/_self-test/render.yaml
+      - notExists:
+          path: result.customPackages.kiali
+        template: templates/_self-test/render.yaml
 
   - it: should reject string booleans for built-in packages
     set:
@@ -166,7 +272,7 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: ".*packages.istio-cni conflicts with built-in package packages.istioCNI.*"
-        template: templates/package/helmrelease.yaml
+        template: templates/wrapper/helmrelease.yaml
 
   - it: should reject custom package names that normalize to the same identity
     set:
@@ -182,7 +288,7 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: ".*normalize to the same package identity.*"
-        template: templates/package/helmrelease.yaml
+        template: templates/wrapper/helmrelease.yaml
 
   - it: should allow custom names whose rendered resource identities are distinct
     set:

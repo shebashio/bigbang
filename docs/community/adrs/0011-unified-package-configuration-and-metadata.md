@@ -24,7 +24,7 @@ The canonical package configuration path is `packages.<name>` for built-in and u
 
 The migration will be delivered in phases:
 
-1. During Big Bang 3.x, the chart accepts both the canonical and legacy built-in paths. A render-time compatibility layer recursively merges `packages.<name>` over the corresponding top-level or `addons.<name>` defaults. The canonical path wins when both paths set the same field. Built-in entries are excluded from the generic user-supplied package renderer so they cannot be deployed twice.
+1. During Big Bang 3.x, the chart accepts both the canonical and legacy built-in paths. A render-time compatibility layer recursively merges `packages.<name>` over the corresponding top-level or `addons.<name>` defaults. The canonical path wins when both paths set the same field. Explicitly supplied built-ins remain available as resolved values under `packages.<name>` so `tpl` expressions can use the canonical path, while a filtered internal map keeps them out of the generic user-supplied package renderer. Legacy-only built-ins are not copied into `packages`.
 2. Documentation and examples use only `packages.<name>`. Chart notes identify canonical aliases that were used, and a migration script is provided so users can update stored values before 4.x.
 3. In Big Bang 4.x, built-in defaults move to `packages.<name>`, templates read those paths directly, and the legacy top-level and `addons` package paths, schemas, and compatibility normalizer are removed. Unknown entries under `packages` continue to use the generic package deployment contract.
 
