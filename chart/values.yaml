@@ -1385,8 +1385,6 @@ certManager:
     upstream:
       crds:
         enabled: true
-      extraArgs:
-        - --controllers=*,-certificaterequests-approver
     issuers:
       selfSigned:
         enabled: false
