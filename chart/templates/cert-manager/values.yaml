@@ -19,7 +19,7 @@ bb-common:
     ambient:
       enabled: {{ include "ambientEnabled" . }}
     sidecar:
-      enabled: {{ and $istioEnabled (ne (include "ambientEnabled" .) "true") }}
+      enabled: false
     authorizationPolicies:
       enabled: {{ include "authorizationPoliciesEnabled" (list .Values.certManager.values .) }}
       generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.certManager.values .) }}
@@ -31,5 +31,13 @@ bb-common:
       definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
     egress:
       definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
+
+upstream:
+  prometheus:
+    servicemonitor:
+      endpointAdditionalProperties:
+        scheme: http
+        enableHttp2: false
+        tlsConfig: null
 
 {{- end -}}
