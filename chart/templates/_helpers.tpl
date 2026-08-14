@@ -77,6 +77,7 @@ Args (dict):
   - component: app.kubernetes.io/component label value (optional)
   - package: package values containing istio.injection (string; defaults to "enabled")
   - extraLabels: additional labels to render (optional)
+  - annotations: additional annotations to render (optional)
   - meshMode: "auto" (default) or "none"
 */}}
 {{- define "bigbang.namespace" -}}
@@ -115,6 +116,10 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ $name }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- toYaml $labels | nindent 4 }}
 {{- end }}

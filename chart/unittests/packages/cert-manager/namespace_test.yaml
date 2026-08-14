@@ -6,9 +6,13 @@ tests:
   - it: keeps cert-manager outside Istio injection and ambient enrollment
     set:
       certManager.enabled: true
+      certManager.namespace.annotations.review-test: expected
       istiod.enabled: true
       istio.ambient.enabled: true
     asserts:
+      - equal:
+          path: metadata.annotations["review-test"]
+          value: expected
       - equal:
           path: metadata.labels["istio-injection"]
           value: disabled
