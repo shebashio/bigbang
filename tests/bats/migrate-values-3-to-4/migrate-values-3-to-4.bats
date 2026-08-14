@@ -9,6 +9,13 @@ setup() {
   OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x.yaml"
 }
 
+@test "documents v1 as the retained Big Bang 4.x package contract" {
+  run "$SCRIPT_PATH" --help
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Big Bang 4.x retains v1 as the default unified package contract"* ]]
+}
+
 @test "moves root and addon packages into the unified package map" {
   cat >"$INPUT_FILE" <<'EOF'
 domain: dev.bigbang.mil

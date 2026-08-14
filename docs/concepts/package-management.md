@@ -13,8 +13,9 @@ Big Bang organizes packages into three main categories:
 All built-in packages can be configured through the unified `packages.<name>`
 path. Existing top-level and `addons.<name>` paths remain supported until Big
 Bang 4.x. In Big Bang 3.x, set `packageConfiguration.version` to `v1` to opt in
-to the unified built-in package paths. When both paths are present,
-`packages.<name>` takes precedence.
+to the unified built-in package paths. The v1 discriminator remains supported
+and becomes the default package contract in Big Bang 4.x. When both paths are
+present, `packages.<name>` takes precedence.
 
 ```yaml
 packageConfiguration:

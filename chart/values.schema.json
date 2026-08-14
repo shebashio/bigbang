@@ -48,9 +48,11 @@
     },
     "packageConfiguration": {
       "type": "object",
+      "description": "Selects the package configuration contract. In Big Bang 3.x, v1 opts into canonical built-in package paths; Big Bang 4.x retains v1 as its default unified package contract.",
       "properties": {
         "version": {
           "type": "string",
+          "description": "Package configuration contract version.",
           "enum": [
             "v1"
           ]

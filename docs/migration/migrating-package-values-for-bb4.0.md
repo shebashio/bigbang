@@ -1,6 +1,6 @@
 # Migrating package values for Big Bang 4.0
 
-Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Big Bang 3.x accepts both the old and new paths so you can migrate values before upgrading.
+Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Big Bang 3.x accepts both the old and new paths so you can migrate values before upgrading. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
 
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
@@ -31,12 +31,9 @@ To replace the input, use `--in-place`. This mode first creates `values.yaml.bak
 scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
-The script enables the 3.x canonical-package preview by setting `packageConfiguration.version: v1`, then moves known top-level built-in packages and packages under `addons` into the unified map. Existing custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in 3.x, then moves known top-level built-in packages and packages under `addons` into the unified map. Existing custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
 
-The deprecated `addons.mattermostoperator` spelling is also migrated. When more
-than one spelling is present, precedence is
-`addons.mattermostoperator`, then `addons.mattermostOperator`, then
-`packages.mattermostOperator`.
+For backward compatibility, the migration utility also recognizes the historical addons.mattermostoperator key, which was renamed to addons.mattermostOperator in Big Bang 1.53. When multiple forms configure the same package, precedence is packages.mattermostOperator, then addons.mattermostOperator, then the historical addons.mattermostoperator key.
 
 Without `packageConfiguration.version: v1`, Big Bang 3.x continues treating every entry under `packages` as a custom package—even when its name matches a built-in package. This opt-in prevents a minor release from silently reinterpreting an existing custom package.
 
@@ -71,7 +68,7 @@ packages:
     enabled: true
 ```
 
-Review the output and render it with the 3.x chart before adopting it. Because the migration is supported by 3.x, you can commit and deploy the migrated values independently of the 4.0 chart upgrade.
+Review the output and render it with the 3.x chart before adopting it. Because the migration is supported by 3.x, you can commit and deploy the migrated values independently of the 4.0 chart upgrade. Keep `packageConfiguration.version: v1` when upgrading; 4.x retains it as the unified package contract discriminator.
 
 ```shell
 helm template bigbang ./chart -f values-4.x.yaml > /dev/null
