@@ -12,9 +12,14 @@ Big Bang organizes packages into three main categories:
 
 All built-in packages can be configured through the unified `packages.<name>`
 path. Existing top-level and `addons.<name>` paths remain supported until Big
-Bang 4.x. When both paths are present, `packages.<name>` takes precedence.
+Bang 4.x. In Big Bang 3.x, set `packageConfiguration.version` to `v1` to opt in
+to the unified built-in package paths. When both paths are present,
+`packages.<name>` takes precedence.
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   monitoring:
     enabled: true
@@ -29,6 +34,9 @@ packages:
 Core packages are enabled by default but can be disabled:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   # Disable monitoring stack
   monitoring:
@@ -48,6 +56,9 @@ packages:
 Add-on packages are disabled by default and must be explicitly enabled:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   # Enable GitLab
   gitlab:
@@ -67,6 +78,9 @@ Big Bang supports both Git and OCI (Open Container Initiative) sources for packa
 Most packages use Git repositories by default:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   gitlab:
     enabled: true
@@ -89,6 +103,9 @@ helmRepositories:
     type: oci
     existingSecret: private-registry
 
+packageConfiguration:
+  version: v1
+
 packages:
   gitlab:
     enabled: true
@@ -106,6 +123,9 @@ packages:
 Pass values directly to packages using the `values` key:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   gitlab:
     enabled: true
@@ -124,6 +144,9 @@ Use YAML anchors and references for complex configurations:
 # Anchors can be attached to schema-supported values.
 domain: &domain "example.com"
 
+packageConfiguration:
+  version: v1
+
 packages:
   gitlab:
     enabled: true
@@ -140,6 +163,9 @@ packages:
 Configure Flux-specific behavior for packages:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   gitlab:
     enabled: true
