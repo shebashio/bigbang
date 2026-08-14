@@ -13,6 +13,15 @@ Each package will include its own recommended minimum hardware requirements, typ
 
 It is also recommended to have a minimum of 3 nodes in the cluster to ensure high availability and fault tolerance. This allows for redundancy in case one or more nodes fail or require maintenance. If possible, those nodes should be distributed across multiple availability zones to further enhance resilience. Given that some of the nodes may fail, it is important to have enough resources available to handle the workload even when one or more nodes are down.
 
+### cert-manager
+
+cert-manager has no additional package-specific hardware, database, or object
+storage prerequisite beyond the default cluster requirements above. Its
+controller, webhook, cainjector, and startup check workloads use the resource
+settings defined in the package values. Review those settings when enabling
+cert-manager alongside other integrated packages or when changing replica
+counts.
+
 ## OS Configuration
 
 ### Disable Swap (Kubernetes Best Practice)
