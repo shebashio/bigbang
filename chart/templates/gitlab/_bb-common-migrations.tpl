@@ -1,3 +1,31 @@
+{{- define "bigbang.gitlab.externalObjectStorageConfigured" -}}
+{{- $configured := or (not (empty .Values.addons.gitlab.objectStorage.region)) (not (empty .Values.addons.gitlab.objectStorage.endpoint)) -}}
+{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $gitlabGlobalValues := dict -}}
+{{- if kindIs "map" $gitlabValues -}}
+  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
+{{- end -}}
+{{- if kindIs "map" $gitlabGlobalValues -}}
+  {{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict -}}
+  {{- if kindIs "map" $gitlabAppConfigValues -}}
+    {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict -}}
+    {{- if kindIs "map" $gitlabObjectStoreValues -}}
+      {{- $configured = or $configured (dig "enabled" false $gitlabObjectStoreValues) -}}
+    {{- end -}}
+    {{- range $storeName := list "lfs" "artifacts" "uploads" "packages" "externalDiffs" "terraformState" "ciSecureFiles" "agentPlanContent" "dependencyProxy" -}}
+      {{- $storeValues := (get $gitlabAppConfigValues $storeName) | default dict -}}
+      {{- if kindIs "map" $storeValues -}}
+        {{- $connectionValues := (get $storeValues "connection") | default dict -}}
+        {{- if kindIs "map" $connectionValues -}}
+          {{- $configured = or $configured (not (empty $connectionValues)) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $configured -}}
+{{- end }}
+
 {{- define "bigbang.gitlab.bb-common-migrations" }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
 routes:
@@ -70,15 +98,8 @@ routes:
 
 {{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
 {{- $gitlabUpstreamValues := (get .Values.addons.gitlab.values "upstream") | default dict }}
-{{- $externalObjectStorageConfigured := or (not (empty .Values.addons.gitlab.objectStorage.region)) (not (empty .Values.addons.gitlab.objectStorage.endpoint)) }}
+{{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
 {{- $externalPostgresConfigured := not (empty .Values.addons.gitlab.database.host) }}
-{{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict }}
-{{- if kindIs "map" $gitlabAppConfigValues }}
-  {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict }}
-  {{- if kindIs "map" $gitlabObjectStoreValues }}
-    {{- $externalObjectStorageConfigured = or $externalObjectStorageConfigured (dig "enabled" false $gitlabObjectStoreValues) }}
-  {{- end }}
-{{- end }}
 {{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict }}
 {{- if kindIs "map" $gitlabPsqlValues }}
   {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}

@@ -17,14 +17,7 @@ BIG BANG OFFLINE SOURCE NOTICE:
 {{- if kindIs "map" $gitlabPsqlValues }}
   {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}
 {{- end }}
-{{- $externalObjectStorageConfigured := or (not (empty $.Values.addons.gitlab.objectStorage.region)) (not (empty $.Values.addons.gitlab.objectStorage.endpoint)) }}
-{{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict }}
-{{- if kindIs "map" $gitlabAppConfigValues }}
-  {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict }}
-  {{- if kindIs "map" $gitlabObjectStoreValues }}
-    {{- $externalObjectStorageConfigured = or $externalObjectStorageConfigured (dig "enabled" false $gitlabObjectStoreValues) }}
-  {{- end }}
-{{- end }}
+{{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
 Gitlab is enabled.
 Please follow the Gitlab online documentation for proper configuration.
 This BigBang chart provides convenient enhancements to the Gitlab Package helm chart.

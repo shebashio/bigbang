@@ -216,6 +216,22 @@ tests:
             port: 6380
             protocol: TCP
 
+  - it: enables external storage subnet egress for direct per-feature object storage values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.values.global.appConfig.artifacts.connection:
+        secret: gitlab-object-storage
+        key: rails
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          value: true
+
   - it: enables external Redis subnet egress for upstream Sentinel values
     postRenderer:
       cmd: "sh"
