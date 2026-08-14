@@ -15,12 +15,7 @@ It is also recommended to have a minimum of 3 nodes in the cluster to ensure hig
 
 ### cert-manager
 
-cert-manager has no additional package-specific hardware, database, or object
-storage prerequisite beyond the default cluster requirements above. Its
-controller, webhook, cainjector, and startup check workloads use the resource
-settings defined in the package values. Review those settings when enabling
-cert-manager alongside other integrated packages or when changing replica
-counts.
+cert-manager has no additional package-specific hardware, database, or object storage prerequisite beyond the default cluster requirements above. Its controller, webhook, cainjector, and startup check workloads use the resource settings defined in the package values. Review those settings when enabling cert-manager alongside other integrated packages or when changing replica counts.
 
 ## OS Configuration
 
