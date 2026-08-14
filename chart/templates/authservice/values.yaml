@@ -100,8 +100,6 @@ networkPolicies:
                   gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
             {{- end }}
             {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-            # ext_authz calls originate from the thanos package's own waypoint pod,
-            # which fronts query-frontend for authservice in ambient mode.
             thanos/waypoint:
               podSelector:
                 matchLabels:
