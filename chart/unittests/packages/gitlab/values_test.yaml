@@ -3,6 +3,31 @@ suite: Package - Gitlab - Values Tests
 templates:
   - templates/gitlab/values.yaml
 tests:
+  - it: rejects an object storage endpoint without an HTTP URI scheme
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
+    asserts:
+      - failedTemplate:
+          errorMessage: "addons.gitlab.objectStorage.endpoint must begin with http:// or https:// when set"
+
+  - it: rejects a registry object storage endpoint without an HTTP URI scheme
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
+      addons.gitlab.objectStorage.regionendpoint: garage.garage.svc.cluster.local:3900
+    asserts:
+      - failedTemplate:
+          errorMessage: "addons.gitlab.objectStorage.regionendpoint must begin with http:// or https:// when set"
+
+  - it: does not validate dormant object storage values when GitLab is disabled
+    set:
+      addons.gitlab.enabled: false
+      addons.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
+    asserts:
+      - hasDocuments:
+          count: 0
+
   - it: sets the registry host from addons.gitlab.hostnames.registry
     postRenderer:
       cmd: "sh"

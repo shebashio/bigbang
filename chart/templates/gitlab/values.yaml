@@ -1,4 +1,11 @@
 {{- if .Values.addons.gitlab.enabled }}
+{{- $objectStorageValues := .Values.addons.gitlab.objectStorage -}}
+{{- range $endpointName := list "endpoint" "regionendpoint" -}}
+  {{- $endpointValue := get $objectStorageValues $endpointName -}}
+  {{- if and (not (empty $endpointValue)) (not (regexMatch "^https?://" ($endpointValue | toString))) -}}
+    {{- fail (printf "addons.gitlab.objectStorage.%s must begin with http:// or https:// when set" $endpointName) -}}
+  {{- end -}}
+{{- end -}}
 {{- $gitlabPackage := deepCopy .Values.addons.gitlab -}}
 {{- if .Values.addons.gitlab.values -}}
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.gitlab.values) | fromYaml -}}
