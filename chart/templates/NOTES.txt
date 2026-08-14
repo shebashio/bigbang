@@ -10,13 +10,7 @@ BIG BANG OFFLINE SOURCE NOTICE:
 {{ end }}
 
 {{ if $.Values.addons.gitlab.enabled }}
-{{- $gitlabValues := $.Values.addons.gitlab.values | default dict }}
-{{- $gitlabGlobalValues := (get $gitlabValues "global") | default dict }}
-{{- $externalPostgresConfigured := not (empty $.Values.addons.gitlab.database.host) }}
-{{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict }}
-{{- if kindIs "map" $gitlabPsqlValues }}
-  {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}
-{{- end }}
+{{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
 {{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
 Gitlab is enabled.
 Please follow the Gitlab online documentation for proper configuration.

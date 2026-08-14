@@ -26,6 +26,26 @@
 {{- $configured -}}
 {{- end }}
 
+{{- define "bigbang.gitlab.externalPostgresConfigured" -}}
+{{- $configured := not (empty .Values.addons.gitlab.database.host) -}}
+{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $gitlabGlobalValues := dict -}}
+{{- if kindIs "map" $gitlabValues -}}
+  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
+{{- end -}}
+{{- if kindIs "map" $gitlabGlobalValues -}}
+  {{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict -}}
+  {{- if kindIs "map" $gitlabPsqlValues -}}
+    {{- $configured = or $configured (not (empty (get $gitlabPsqlValues "host"))) -}}
+    {{- $gitlabMainPsqlValues := (get $gitlabPsqlValues "main") | default dict -}}
+    {{- if kindIs "map" $gitlabMainPsqlValues -}}
+      {{- $configured = or $configured (not (empty (get $gitlabMainPsqlValues "host"))) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $configured -}}
+{{- end }}
+
 {{- define "bigbang.gitlab.bb-common-migrations" }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
 routes:
@@ -99,11 +119,7 @@ routes:
 {{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
 {{- $gitlabUpstreamValues := (get .Values.addons.gitlab.values "upstream") | default dict }}
 {{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
-{{- $externalPostgresConfigured := not (empty .Values.addons.gitlab.database.host) }}
-{{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict }}
-{{- if kindIs "map" $gitlabPsqlValues }}
-  {{- $externalPostgresConfigured = or $externalPostgresConfigured (not (empty (get $gitlabPsqlValues "host"))) }}
-{{- end }}
+{{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
 {{- $minioEnabled := true }}
 {{- if hasKey $gitlabGlobalValues "minio" }}
   {{- $gitlabMinioValues := get $gitlabGlobalValues "minio" }}

@@ -162,6 +162,7 @@ tests:
     set:
       addons.gitlab.enabled: true
       addons.gitlab.database.host: postgresql-rw.postgresql.svc.cluster.local
+      addons.gitlab.database.port: 6432
       addons.gitlab.objectStorage.type: minio
       addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
       addons.gitlab.objectStorage.region: garage
@@ -175,6 +176,11 @@ tests:
       - equal:
           path: networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
           value: true
+      - contains:
+          path: networkPolicies.egress.definitions.database-subnets.ports
+          content:
+            port: 6432
+            protocol: TCP
 
   - it: enables external subnet egress for direct upstream GitLab 19 values
     postRenderer:
@@ -185,6 +191,7 @@ tests:
     set:
       addons.gitlab.enabled: true
       addons.gitlab.values.global.psql.host: postgres.example.internal
+      addons.gitlab.values.global.psql.port: 7432
       addons.gitlab.values.global.redis.host: redis.example.internal
       addons.gitlab.values.global.redis.port: 6380
       addons.gitlab.values.global.appConfig.object_store.enabled: true
@@ -195,6 +202,11 @@ tests:
       - equal:
           path: networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: true
+      - contains:
+          path: networkPolicies.egress.definitions.database-subnets.ports
+          content:
+            port: 7432
+            protocol: TCP
       - equal:
           path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
           value: true
@@ -214,6 +226,32 @@ tests:
           path: networkPolicies.egress.definitions.redis-subnets.ports
           content:
             port: 6380
+            protocol: TCP
+
+  - it: enables database subnet egress for decomposed upstream PostgreSQL values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.values.global.psql.main.host: postgres.example.internal
+      addons.gitlab.values.global.psql.main.port: 8432
+      addons.gitlab.values.global.psql.ci.port: 9432
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          value: true
+      - contains:
+          path: networkPolicies.egress.definitions.database-subnets.ports
+          content:
+            port: 8432
+            protocol: TCP
+      - contains:
+          path: networkPolicies.egress.definitions.database-subnets.ports
+          content:
+            port: 9432
             protocol: TCP
 
   - it: enables external storage subnet egress for direct per-feature object storage values
