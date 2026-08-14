@@ -1369,13 +1369,13 @@ certManager:
       istio.io/dataplane-mode: none
 
   git:
-    repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager.git
+    repo: https://repo1.dso.mil/big-bang/product/packages/cert-manager.git
     path: "./chart"
-    tag: "v1.20.3-bb.1"
+    tag: "v1.20.3-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "cert-manager"
-    tag: "v1.20.3-bb.1"
+    tag: "v1.20.3-bb.2"
 
   # -- Flux reconciliation overrides specifically for cert-manager
   flux: {}
