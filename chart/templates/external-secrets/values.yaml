@@ -11,8 +11,12 @@
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-    
+
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -58,11 +62,6 @@ networkPolicies:
         to:
           definition:
             kubeAPI: {{ $certControllerEnabled }}
-
-{{- if $istioEnabled }}
-annotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
 
 openshift: {{ .Values.openshift }}
 {{- end -}}
