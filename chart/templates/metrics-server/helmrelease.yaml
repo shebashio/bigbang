@@ -34,5 +34,9 @@ spec:
   {{- end }}
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "metrics" "root" .) | nindent 2 }}
+  {{- if .Values.addons.metricsServer.extraDependsOn }}
+  dependsOn:
+    {{- toYaml .Values.addons.metricsServer.extraDependsOn | nindent 4 }}
+  {{- end }}
 
 {{- end }}

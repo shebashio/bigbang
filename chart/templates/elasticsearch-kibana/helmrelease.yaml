@@ -40,4 +40,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.elasticsearchKibana.extraDependsOn | nindent 4 }}
 {{- end }}

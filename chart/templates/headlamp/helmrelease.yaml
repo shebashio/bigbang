@@ -24,7 +24,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "headlamp" "root" .) | nindent 2 }}
 
-  {{- if or (eq (include "istioEnabled" . ) "true") .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or (eq (include "istioEnabled" . ) "true") .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.headlamp.extraDependsOn }}
   dependsOn:
   {{- if (eq (include "istioEnabled" .) "true") }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -37,5 +37,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.addons.headlamp.extraDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

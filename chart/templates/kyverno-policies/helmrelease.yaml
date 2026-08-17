@@ -26,4 +26,5 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
+    {{- include "bigbang.extraDependsOn" (get .Values $pkg).extraDependsOn | nindent 4 }}
 {{- end }}

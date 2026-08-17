@@ -41,4 +41,5 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.istiod.extraDependsOn | nindent 4 }}
 {{- end }}

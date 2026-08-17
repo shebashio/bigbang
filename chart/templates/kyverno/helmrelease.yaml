@@ -23,7 +23,7 @@ spec:
   {{ toYaml .Values.kyverno.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno" "root" .) | nindent 2 }}
-  {{- if or .Values.gatekeeper.enabled .Values.prometheusOperatorCRDs.enabled }}
+  {{- if or .Values.gatekeeper.enabled .Values.prometheusOperatorCRDs.enabled .Values.kyverno.extraDependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -33,5 +33,6 @@ spec:
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.kyverno.extraDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

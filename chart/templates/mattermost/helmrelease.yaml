@@ -38,4 +38,5 @@ spec:
     - name: ek
       namespace: {{ $.Release.Namespace }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.addons.mattermost.extraDependsOn | nindent 4 }}
 {{- end }}

@@ -31,7 +31,7 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "grafana" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.grafana.extraDependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -48,5 +48,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.grafana.extraDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

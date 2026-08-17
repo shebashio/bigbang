@@ -70,4 +70,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.ztunnel.extraDependsOn | nindent 4 }}
 {{- end }}
