@@ -25,6 +25,15 @@ tests:
       content:
         name: istiod
         namespace: NAMESPACE
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.kind
+      value: ServiceMonitor
+  - equal:
+      path: spec.postRenderers[0].kustomize.patches[0].target.name
+      value: cert-manager
+  - matchRegex:
+      path: spec.postRenderers[0].kustomize.patches[0].patch
+      pattern: "(?s).*remove.*tlsConfig.*"
 
 - it: should not render cert-manager HelmRelease when disabled
   set:

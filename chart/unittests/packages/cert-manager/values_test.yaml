@@ -20,9 +20,8 @@ tests:
       - equal:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.scheme
           value: http
-      - equal:
+      - notExists:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.tlsConfig
-          value: null
 
   - it: keeps metrics TLS disabled for the integrated ambient path
     set:
@@ -44,9 +43,8 @@ tests:
       - equal:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.scheme
           value: http
-      - equal:
+      - notExists:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.tlsConfig
-          value: null
 
   - it: keeps metrics TLS disabled when Istio is disabled
     set:
@@ -68,6 +66,5 @@ tests:
       - equal:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.scheme
           value: http
-      - equal:
+      - notExists:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.tlsConfig
-          value: null

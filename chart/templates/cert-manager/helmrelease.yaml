@@ -15,8 +15,21 @@ spec:
   targetNamespace: {{ .Values.certManager.namespace.name }}
   {{- include "bigbang.helmRelease.chartSpec" (dict "name" "cert-manager" "package" .Values.certManager "root" . "emitReleaseName" true) | nindent 2 }}
   {{- toYaml $fluxSettings | nindent 2 }}
-  {{- if .Values.certManager.postRenderers }}
   postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: monitoring.coreos.com
+              version: v1
+              kind: ServiceMonitor
+              name: cert-manager
+            patch: |-
+              - op: replace
+                path: /spec/endpoints/0/scheme
+                value: http
+              - op: remove
+                path: /spec/endpoints/0/tlsConfig
+  {{- if .Values.certManager.postRenderers }}
   {{- toYaml .Values.certManager.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
