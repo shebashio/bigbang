@@ -6,6 +6,7 @@ tests:
   - it: disables sidecars and metrics TLS for the integrated namespace
     set:
       certManager.enabled: true
+      monitoring.enabled: false
       istiod.enabled: true
       istio.ambient.enabled: false
     postRenderer:
@@ -14,6 +15,9 @@ tests:
         - -c
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     asserts:
+      - equal:
+          path: upstream.prometheus.servicemonitor.enabled
+          value: false
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: false
@@ -26,6 +30,7 @@ tests:
   - it: keeps metrics TLS disabled for the integrated ambient path
     set:
       certManager.enabled: true
+      monitoring.enabled: true
       istiod.enabled: true
       istio.ambient.enabled: true
     postRenderer:
@@ -34,6 +39,9 @@ tests:
         - -c
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     asserts:
+      - equal:
+          path: upstream.prometheus.servicemonitor.enabled
+          value: true
       - equal:
           path: bb-common.istio.ambient.enabled
           value: true

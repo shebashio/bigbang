@@ -35,6 +35,7 @@ bb-common:
 upstream:
   prometheus:
     servicemonitor:
+      enabled: {{ .Values.monitoring.enabled }}
       endpointAdditionalProperties:
         scheme: http
         enableHttp2: false

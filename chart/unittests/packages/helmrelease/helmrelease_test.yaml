@@ -10,6 +10,8 @@ tests:
   set:
     certManager:
       enabled: true
+    monitoring:
+      enabled: true
   template: cert-manager/helmrelease.yaml
   asserts:
   - isKind:
@@ -24,6 +26,11 @@ tests:
       path: spec.dependsOn
       content:
         name: istiod
+        namespace: NAMESPACE
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: monitoring
         namespace: NAMESPACE
   - equal:
       path: spec.postRenderers[0].kustomize.patches[0].target.kind
