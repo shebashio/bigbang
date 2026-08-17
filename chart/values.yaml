@@ -530,11 +530,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.29.0-bb.0"
+    tag: "2.30.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.29.0-bb.0"
+    tag: "2.30.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -1126,11 +1126,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "88.2.0-bb.0"
+    tag: "88.3.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "88.2.0-bb.0"
+    tag: "88.3.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1333,11 +1333,11 @@ renovate:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
     path: "./chart"
-    tag: "46.31.6-bb.5"
+    tag: "46.251.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "renovate"
-    tag: "46.31.6-bb.5"
+    tag: "46.251.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Renovate Package
   flux: {}
@@ -1521,11 +1521,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.22"
+      tag: "7.1.1-bb.23"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.22"
+      tag: "7.1.1-bb.23"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1897,11 +1897,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.7-bb.2"
+      tag: "1.25.7-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.7-bb.2"
+      tag: "1.25.7-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -1922,11 +1922,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.9.0-bb.5"
+      tag: "11.9.0-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.9.0-bb.5"
+      tag: "11.9.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2123,11 +2123,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.33.0-bb.4"
+      tag: "0.34.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.33.0-bb.4"
+      tag: "0.34.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
@@ -2213,12 +2213,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.19.1-bb.2"
+      tag: "1.19.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.19.1-bb.2"
+      tag: "1.19.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
