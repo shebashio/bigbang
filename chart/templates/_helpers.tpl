@@ -947,6 +947,15 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- end }}
 {{- end -}}
 
+{{- /* Renders user-supplied extraDependsOn entries for a package HelmRelease.
+       Use this to depend on packages deployed via the `packages` template
+       (e.g. a custom storage backend) that are not in BB core/addons/integrated. */ -}}
+{{- define "bigbang.extraDependsOn" -}}
+{{- if . }}
+{{- toYaml . }}
+{{- end }}
+{{- end -}}
+
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
 ingress: istio-gateway

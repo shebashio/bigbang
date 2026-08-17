@@ -55,6 +55,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ $.Release.Namespace }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" $.Values.istioGateway.extraDependsOn | nindent 4 }}
 status: {}
 {{- end }}
 {{- end }}

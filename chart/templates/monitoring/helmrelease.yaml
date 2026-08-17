@@ -49,4 +49,5 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.monitoring.extraDependsOn | nindent 4 }}
 {{- end }}

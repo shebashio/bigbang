@@ -33,4 +33,5 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}      
+    {{- include "bigbang.extraDependsOn" .Values.addons.minio.extraDependsOn | nindent 4 }}
 {{- end }}

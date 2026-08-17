@@ -46,4 +46,5 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" (get .Values $pkg).extraDependsOn | nindent 4 }}
 {{- end }}

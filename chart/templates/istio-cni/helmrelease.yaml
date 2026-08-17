@@ -38,4 +38,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.istioCNI.extraDependsOn | nindent 4 }}
 {{- end }}

@@ -781,6 +781,77 @@ tests:
       path: spec.dependsOn
 
 ###############################################################################
+# extraDependsOn - operator-supplied additional HelmRelease dependencies
+###############################################################################
+
+- it: monitoring extraDependsOn should appear in spec.dependsOn
+  set:
+    monitoring:
+      enabled: true
+      extraDependsOn:
+        - name: garage
+          namespace: default
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: garage
+        namespace: default
+      any: true
+
+- it: mimir extraDependsOn should appear in spec.dependsOn when no other deps enabled
+  set:
+    addons:
+      mimir:
+        enabled: true
+        extraDependsOn:
+          - name: garage
+            namespace: default
+    kyvernoPolicies:
+      enabled: false
+  template: mimir/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: garage
+        namespace: default
+      any: true
+
+- it: gatekeeper extraDependsOn should render spec.dependsOn block (gatekeeper has no built-in deps)
+  set:
+    gatekeeper:
+      enabled: true
+      extraDependsOn:
+        - name: vault
+          namespace: vault
+  template: gatekeeper/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: vault
+        namespace: vault
+      any: true
+
+- it: prometheus-operator-crds extraDependsOn should render spec.dependsOn block
+  set:
+    prometheusOperatorCRDs:
+      enabled: true
+      extraDependsOn:
+        - name: vault
+          namespace: vault
+  template: prometheus-operator-crds/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: vault
+        namespace: vault
+      any: true
+
+###############################################################################
 # Compound enable conditions
 ###############################################################################
 

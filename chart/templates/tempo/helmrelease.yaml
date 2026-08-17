@@ -32,7 +32,7 @@ spec:
   {{ include "tempo.objectStoragePostRenderers" . | nindent 2 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "tempo" "root" .) | nindent 2 }}
-  {{- if or .Values.monitoring.enabled .Values.tempo.sso.enabled $istioEnabled }}
+  {{- if or .Values.monitoring.enabled .Values.tempo.sso.enabled $istioEnabled .Values.tempo.extraDependsOn }}
   dependsOn:
     {{- if  .Values.monitoring.enabled }}
     - name: monitoring
@@ -45,5 +45,6 @@ spec:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.tempo.extraDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

@@ -289,6 +289,10 @@ istioCNI:
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 istioCRDs:
   # -- Toggle deployment of Istio CRDs
@@ -322,6 +326,10 @@ istioCRDs:
             kind: StatefulSet
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 gatewayAPI:
   # -- Toggle deployment of Gateway API CRDs
@@ -342,6 +350,10 @@ gatewayAPI:
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 istiod:
   # -- Toggle deployment of istiod
@@ -380,6 +392,10 @@ istiod:
             kind: StatefulSet
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 istioGateway:
   # -- Toggle deployment of Istio Gateway(s)
@@ -491,6 +507,10 @@ istioGateway:
   # will be applied only to their respective gateways. The map key must match the gateway name for the postRenderers
   # to be applied to that gateway. You cannot mix array and map postRenderers.
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
   # EXAMPLE: Use a post-renderer to add an annotation (bigbang.dev/example=example) to all gateway deployments
   # - kustomize:
   #     patches:
@@ -532,6 +552,10 @@ ztunnel:
   flux: {}
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 kiali:
   # -- Toggle deployment of Kiali.
@@ -576,6 +600,10 @@ kiali:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 # ----------------------------------------------------------------------------------------------------------------------
 # OPA Gatekeeper
@@ -610,6 +638,10 @@ gatekeeper:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -654,6 +686,10 @@ kyverno:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 kyvernoPolicies:
   # -- Toggle deployment of Kyverno policies
@@ -690,6 +726,10 @@ kyvernoPolicies:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 kyvernoReporter:
   # -- Toggle deployment of Kyverno Reporter
@@ -729,6 +769,10 @@ kyvernoReporter:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -801,6 +845,10 @@ elasticsearchKibana:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 eckOperator:
   # -- Toggle deployment of ECK Operator.
@@ -826,6 +874,10 @@ eckOperator:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 fluentbit:
   # -- Toggle deployment of Fluent-Bit.
@@ -851,6 +903,10 @@ fluentbit:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Alloy / Loki Logging stack
@@ -889,6 +945,10 @@ alloy:
   values: {}
 
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
   # -- Flux reconciliation overrides specifically for the alloy package
   flux: {}
@@ -958,6 +1018,10 @@ loki:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -1027,6 +1091,10 @@ neuvector:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -1096,6 +1164,10 @@ tempo:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1124,6 +1196,10 @@ prometheusOperatorCRDs:
       mode: warn
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 monitoring:
   # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
@@ -1195,6 +1271,10 @@ monitoring:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1247,6 +1327,10 @@ grafana:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1294,6 +1378,10 @@ twistlock:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1335,6 +1423,10 @@ bbctl:
   values: {}
 
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 
 renovate:
   # -- Toggle deployment of Renovate
@@ -1360,6 +1452,10 @@ renovate:
 
   # -- Post Renderers.  See docs/postrenders.md
   postRenderers: []
+  # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+  #    deployed via the `packages` template that are not in BB core/addons/integrated
+  #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+  extraDependsOn: []
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1414,6 +1510,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   authservice:
     # -- Toggle deployment of Authservice.
@@ -1442,6 +1542,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
     # -- Additional authservice chain configurations.
     chains: {}
@@ -1477,6 +1581,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   minio:
     # -- Toggle deployment of minio.
@@ -1512,6 +1620,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   gitlab:
     # -- Toggle deployment of Gitlab
@@ -1642,6 +1754,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   gitlabRunner:
     # -- Toggle deployment of Gitlab Runner
@@ -1668,6 +1784,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   sonarqube:
     # -- Toggle deployment of SonarQube.
@@ -1733,6 +1853,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   fortify:
     # -- Toggle deployment of Fortify.
@@ -1771,6 +1895,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   anchoreEnterprise:
     # -- Toggle deployment of Anchore.
@@ -1854,6 +1982,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Mattermost Operator and Instance
@@ -1882,6 +2014,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   mattermost:
     # -- Toggle deployment of Mattermost.
@@ -1988,6 +2124,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   velero:
     # -- Toggle deployment of Velero.
@@ -2013,6 +2153,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
   #
   # ----------------------------------------------------------------------------------------------------------------------
 
@@ -2080,6 +2224,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Vault
@@ -2127,6 +2275,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Metrics Server
@@ -2171,6 +2323,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   # ----------------------------------------------------------------------------------------------------------------------
   # Harbor
@@ -2203,6 +2359,10 @@ addons:
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   # ----------------------------------------------------------------------------------------------------------------------
   # thanos
@@ -2278,6 +2438,10 @@ addons:
     values: {}
 
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   externalSecrets:
     # -- Toggle deployment of external secrets
@@ -2305,6 +2469,10 @@ addons:
     values: {}
 
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
   mimir:
     # -- Toggle deployment of Mimir
@@ -2398,6 +2566,10 @@ addons:
     values: {}
 
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
     # -- Flux reconciliation overrides specifically for the Mimir Package
     flux: {}
@@ -2442,6 +2614,10 @@ addons:
     values: {}
 
     postRenderers: []
+    # -- Additional HelmRelease dependencies for this package. Use to depend on packages
+    #    deployed via the `packages` template that are not in BB core/addons/integrated
+    #    (e.g. a custom storage backend). See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies for reference.
+    extraDependsOn: []
 
 # -- Wrapper chart for integrating Big Bang components alongside a package
 wrapper:

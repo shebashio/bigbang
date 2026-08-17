@@ -30,7 +30,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "sonarqube" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.keycloak.enabled $istioEnabled }}
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.keycloak.enabled $istioEnabled .Values.addons.sonarqube.extraDependsOn }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -51,5 +51,6 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- include "bigbang.extraDependsOn" .Values.addons.sonarqube.extraDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}
