@@ -1630,9 +1630,7 @@ addons:
       password: ""
 
     redis:
-      # -- Redis plain text password to connect to the redis server.  If empty (""), the gitlab charts will create the gitlab-redis-secret
-      # with a random password.
-      # -- This needs to be set to a non-empty value in order for the Grafana Redis Datasource and Dashboards to be installed.
+      # -- Plain text password for an externally managed Redis or Valkey service. When set, Big Bang creates `gitlab-redis-secret-bb` and configures GitLab to use it. Configure the external endpoint with `addons.gitlab.values.global.redis.host` or `addons.gitlab.values.global.redis.redisYmlOverride`. Leave this empty only when authentication is disabled or supplied entirely through passthrough values. A non-empty value is also required for the Grafana Redis datasource and dashboards.
       password: ""
 
     # -- Rails plain text secret to define. If empty (""), the gitlab charts will create the gitlab-rails-secret with randomized data.

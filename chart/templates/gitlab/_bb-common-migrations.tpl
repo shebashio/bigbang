@@ -26,6 +26,24 @@
 {{- $configured -}}
 {{- end }}
 
+{{- define "bigbang.gitlab.externalRedisConfigured" -}}
+{{- $configured := false -}}
+{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $gitlabGlobalValues := dict -}}
+{{- if kindIs "map" $gitlabValues -}}
+  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
+{{- end -}}
+{{- if kindIs "map" $gitlabGlobalValues -}}
+  {{- $gitlabRedisValues := (get $gitlabGlobalValues "redis") | default dict -}}
+  {{- if kindIs "map" $gitlabRedisValues -}}
+    {{- $configured = or
+      (not (empty (get $gitlabRedisValues "host")))
+      (not (empty (get $gitlabRedisValues "redisYmlOverride"))) -}}
+  {{- end -}}
+{{- end -}}
+{{- $configured -}}
+{{- end }}
+
 {{- define "bigbang.gitlab.externalPostgresConfigured" -}}
 {{- $configured := not (empty .Values.addons.gitlab.database.host) -}}
 {{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}

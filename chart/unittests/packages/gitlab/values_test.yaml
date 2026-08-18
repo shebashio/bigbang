@@ -303,6 +303,7 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       addons.gitlab.enabled: true
+      addons.gitlab.values.global.redis.host: redis-sentinel.example.internal
       addons.gitlab.values.global.redis.sentinels:
         - host: sentinel.example.internal
           port: 26379
@@ -317,6 +318,45 @@ tests:
           content:
             port: 26379
             protocol: TCP
+
+  - it: enables external Redis subnet egress for an upstream redis.yml override
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.values.global.redis.redisYmlOverride:
+        cache:
+          secret: gitlab-redis-yml
+          key: redis.yml
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          value: true
+      - contains:
+          path: networkPolicies.egress.definitions.redis-subnets.ports
+          content:
+            port: 6379
+            protocol: TCP
+
+  - it: enables external Redis subnet egress when password authentication is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.gitlab.enabled: true
+      addons.gitlab.values.global.redis.host: redis.example.internal
+      addons.gitlab.values.global.redis.auth.enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          value: true
+      - exists:
+          path: networkPolicies.egress.definitions.redis-subnets
 
   - it: restores the Redis definition when upgrading with reused pre-existing values
     postRenderer:

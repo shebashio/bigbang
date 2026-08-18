@@ -474,10 +474,10 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | addons.gitlab.git.repo | string | `"https://repo1.dso.mil/big-bang/product/packages/gitlab.git"` |  |
 | addons.gitlab.git.path | string | `"./chart"` |  |
-| addons.gitlab.git.tag | string | `"9.11.8-bb.0"` |  |
+| addons.gitlab.git.tag | string | `"10.1.3-bb.0"` |  |
 | addons.gitlab.helmRepo.repoName | string | `"registry1"` |  |
 | addons.gitlab.helmRepo.chartName | string | `"gitlab"` |  |
-| addons.gitlab.helmRepo.tag | string | `"9.11.8-bb.0"` |  |
+| addons.gitlab.helmRepo.tag | string | `"10.1.3-bb.0"` |  |
 | addons.gitlab.flux | object | `{}` | Flux reconciliation overrides specifically for the Gitlab Package |
 | addons.gitlab.dependsOn | list | `[]` | Additional HelmRelease dependencies for GitLab. Use this for operators that must be Ready before the GitLab chart creates their custom resources. |
 | addons.gitlab.ingress | object | `{"gateway":""}` | Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public". |
@@ -500,7 +500,7 @@ Kubernetes: `>=1.34.0-0`
 | addons.gitlab.objectStorage.bucketPrefix | string | `""` | Bucket prefix to use for identifying buckets. Example: "prod" will produce "prod-gitlab-bucket" |
 | addons.gitlab.objectStorage.iamProfile | string | `""` | NOTE: Current bug with AWS IAM Profiles and Object Storage where only artifacts are stored. Fixed in Gitlab 14.5 -- Name of AWS IAM profile to use. -- If using an AWS IAM profile, the accessKey and accessSecret values must be left as empty strings eg: "" |
 | addons.gitlab.smtp.password | string | `""` | Passwords should be placed in an encrypted file. Example: environment-bb-secret.enc.yaml If a value is provided BigBang will create a k8s secret named gitlab-smtp-password in the gitlab namespace |
-| addons.gitlab.redis.password | string | `""` | Redis plain text password to connect to the redis server.  If empty (""), the gitlab charts will create the gitlab-redis-secret with a random password. -- This needs to be set to a non-empty value in order for the Grafana Redis Datasource and Dashboards to be installed. |
+| addons.gitlab.redis.password | string | `""` | Plain text password for an externally managed Redis or Valkey service. When set, Big Bang creates `gitlab-redis-secret-bb` and configures GitLab to use it. Configure the external endpoint with `addons.gitlab.values.global.redis.host` or `addons.gitlab.values.global.redis.redisYmlOverride`. Leave this empty only when authentication is disabled or supplied entirely through passthrough values. A non-empty value is also required for the Grafana Redis datasource and dashboards. |
 | addons.gitlab.railsSecret | string | `""` | Rails plain text secret to define. If empty (""), the gitlab charts will create the gitlab-rails-secret with randomized data. Read the following for more information on setting Gitlab rails secrets: https://docs.gitlab.com/charts/installation/secrets#gitlab-rails-secret |
 | addons.gitlab.values | object | `{}` | Values to passthrough to the gitlab chart: https://repo1.dso.mil/big-bang/product/packages/gitlab.git |
 | addons.gitlab.postRenderers | list | `[]` | Post Renderers.  See docs/postrenders.md |
