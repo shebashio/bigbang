@@ -49,6 +49,19 @@ tests:
           path: spec.ref.tag
           value: 0.29.0-bb.0
 
+  - it: sources Garage from the updated Big Bang maintained package
+    template: package/gitrepository.yaml
+    documentSelector:
+      path: metadata.name
+      value: garage
+    asserts:
+      - equal:
+          path: spec.url
+          value: https://repo1.dso.mil/big-bang/product/maintained/garage.git
+      - equal:
+          path: spec.ref.tag
+          value: 0.9.3-bb.2
+
   - it: uses only the Registry1 HelmRepository
     template: helm-repository/helmrepo.yaml
     asserts:
@@ -151,12 +164,8 @@ tests:
       - equal:
           path: spec.releaseName
           value: garage
-      - equal:
-          path: spec.postRenderers[0].kustomize.patches[0].target.name
-          value: ^garage-garage-init$
-      - matchRegex:
-          path: spec.postRenderers[0].kustomize.patches[0].patch
-          pattern: /spec/ttlSecondsAfterFinished
+      - notExists:
+          path: spec.postRenderers
 
   - it: creates distinct dependency namespaces
     template: package/namespace.yaml
@@ -293,10 +302,10 @@ tests:
           pattern: "name: gitlab-database"
       - matchRegex:
           path: stringData.overlays
-          pattern: "name: sync-garage-credentials"
+          pattern: "name: sync-garage-gitlab-credentials"
       - matchRegex:
           path: stringData.overlays
-          pattern: "(?s)names:.*garage-credentials.*namespaces:.*garage"
+          pattern: "(?s)names:.*garage-gitlab-credentials.*namespaces:.*garage"
       - matchRegex:
           path: stringData.overlays
           pattern: "name: gitlab-object-storage"
