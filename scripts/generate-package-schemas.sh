@@ -26,7 +26,9 @@ command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 TASK_TMP=$(mktemp -d "${TMPDIR:-/tmp}/bigbang-package-schemas.XXXXXX")
 cleanup() {
   rm -f "${TASK_TMP}/metadata.json" "${TASK_TMP}/values.json" \
-    "${TASK_TMP}/values.schema.json" "${TASK_TMP}/migrate-values-3-to-4.sh"
+    "${TASK_TMP}/values.schema.json" "${TASK_TMP}/migrate-values-3-to-4.sh" \
+    "${TASK_TMP}/catalog-template-directories" \
+    "${TASK_TMP}/integrated-template-directories"
   rmdir "$TASK_TMP"
 }
 trap cleanup EXIT
@@ -34,14 +36,36 @@ trap cleanup EXIT
 yq -o=json '.' "$METADATA_PATH" >"${TASK_TMP}/metadata.json"
 yq -o=json '.' "$VALUES_PATH" >"${TASK_TMP}/values.json"
 
-while IFS= read -r template_directory; do
-  [[ -d "${REPO_ROOT}/chart/templates/${template_directory}" ]] \
-    || fail "template directory chart/templates/${template_directory} does not exist"
-done < <(yq -r '.packages[].templateDirectory' "$METADATA_PATH")
-
+# Validate metadata before using its identifiers as filesystem paths or
+# emitting its package keys into the generated Bash arrays.
 jq --slurpfile metadata "${TASK_TMP}/metadata.json" \
   --slurpfile values "${TASK_TMP}/values.json" \
   -f "$JQ_PROGRAM" "$SCHEMA_PATH" >"${TASK_TMP}/values.schema.json"
+
+yq -r '.packages[].templateDirectory' "$METADATA_PATH" \
+  | sort -u >"${TASK_TMP}/catalog-template-directories"
+
+while IFS= read -r template_directory; do
+  [[ -d "${REPO_ROOT}/chart/templates/${template_directory}" ]] \
+    || fail "template directory chart/templates/${template_directory} does not exist"
+done <"${TASK_TMP}/catalog-template-directories"
+
+# Package-specific template directories contain a HelmRelease. The package and
+# wrapper directories contain generic renderers rather than integrated packages.
+while IFS= read -r helmrelease_path; do
+  template_directory=${helmrelease_path%/helmrelease.yaml}
+  template_directory=${template_directory##*/}
+  if [[ "$template_directory" != "package" && "$template_directory" != "wrapper" ]]; then
+    printf '%s\n' "$template_directory"
+  fi
+done < <(find "${REPO_ROOT}/chart/templates" -mindepth 2 -maxdepth 2 \
+  -type f -name helmrelease.yaml -print) \
+  | sort -u >"${TASK_TMP}/integrated-template-directories"
+
+while IFS= read -r template_directory; do
+  fail "integrated package template directory chart/templates/${template_directory} is missing from chart/package-metadata.yaml"
+done < <(comm -23 "${TASK_TMP}/integrated-template-directories" \
+  "${TASK_TMP}/catalog-template-directories")
 
 {
   sed -n '1,/^# BEGIN GENERATED PACKAGE METADATA$/p' "$MIGRATION_PATH" | sed '$d'

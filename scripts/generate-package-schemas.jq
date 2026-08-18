@@ -86,6 +86,11 @@ def validate_metadata($metadata):
                   | ($package.value[$field]? // "") as $value
                   | ($value | type) != "string" or ($value | length) == 0)) then
     error("package metadata contains a missing or invalid required field")
+  elif any($metadata.packages | keys[]; test("^[a-z][A-Za-z0-9]*$") | not) then
+    error("package metadata package keys must use camelCase identifiers")
+  elif any($metadata.packages[].templateDirectory;
+           test("^[a-z0-9]+(-[a-z0-9]+)*$") | not) then
+    error("package metadata templateDirectory values must use kebab-case directory names")
   elif any($metadata.packages[]; .category != "core" and .category != "addon") then
     error("package metadata category must be core or addon")
   elif any($metadata.packages | to_entries[];

@@ -2,6 +2,8 @@
 
 Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Big Bang 3.x accepts both the old and new paths so you can migrate values before upgrading. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
 
+This guide and `scripts/migrate-values-3-to-4.sh` cover only the package-path migration. The script preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname`, SSO, Istio hardening, and bb-common compatibility values. Follow the applicable release notes and deprecation notices for those migrations.
+
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
 ```shell
