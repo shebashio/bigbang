@@ -130,7 +130,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/garage.git
       path: chart
-      tag: 0.9.3-bb.0
+      tag: 0.9.3-bb.2
     helmRelease:
       namespace: bigbang
     namespace:
@@ -138,20 +138,6 @@ packages:
     istio:
       injection: disabled
     bbCommonValues: true
-    # Garage 0.9.3-bb.0 deletes this completed Job after five minutes. Clear any
-    # hook annotations and remove its TTL so initialization remains one-shot.
-    postRenderers:
-      - kustomize:
-          patches:
-            - target:
-                kind: Job
-                name: ^garage-garage-init$
-              patch: |-
-                - op: add
-                  path: /metadata/annotations
-                  value: {}
-                - op: remove
-                  path: /spec/ttlSecondsAfterFinished
     values:
       fullnameOverride: garage
       bb-common:
@@ -184,24 +170,26 @@ packages:
         zone: gitlab
         capacityBytes: "10000000000"
         region: garage
-        buckets:
-          - git-lfs
-          - gitlab-agent-plan-content
-          - gitlab-artifacts
-          - gitlab-backups
-          - gitlab-ci-secure-files
-          - gitlab-dependency-proxy
-          - gitlab-mr-diffs
-          - gitlab-packages
-          - gitlab-pages
-          - gitlab-terraform-state
-          - gitlab-uploads
-          - registry
-          - runner-cache
-          - tmp
-        credentials:
-          accessKeyId: GKbb0000000000000000000000
-          secretAccessKey: bb00000000000000000000000000000000000000000000000000000000000000
+        consumers:
+          - name: gitlab
+            buckets:
+              - git-lfs
+              - gitlab-agent-plan-content
+              - gitlab-artifacts
+              - gitlab-backups
+              - gitlab-ci-secure-files
+              - gitlab-dependency-proxy
+              - gitlab-mr-diffs
+              - gitlab-packages
+              - gitlab-pages
+              - gitlab-terraform-state
+              - gitlab-uploads
+              - registry
+              - runner-cache
+              - tmp
+            credentials:
+              accessKeyId: GKbb0000000000000000000000
+              secretAccessKey: bb00000000000000000000000000000000000000000000000000000000000000
         adminToken: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
       upstream:
         fullnameOverride: garage
@@ -219,10 +207,8 @@ packages:
             size: 10Gi
         environment:
           - name: GARAGE_ADMIN_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: garage-credentials
-                key: adminToken
+            # Consumer credential Secrets intentionally exclude this admin token.
+            value: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
 
   postgresql:
     enabled: true
@@ -719,14 +705,14 @@ kyvernoPolicies:
                 clone:
                   namespace: postgresql
                   name: postgresql-app
-            - name: sync-garage-credentials
+            - name: sync-garage-gitlab-credentials
               match:
                 any:
                   - resources:
                       kinds:
                         - Secret
                       names:
-                        - garage-credentials
+                        - garage-gitlab-credentials
                       namespaces:
                         - garage
                       operations:
