@@ -10,6 +10,8 @@ BIG BANG OFFLINE SOURCE NOTICE:
 {{ end }}
 
 {{ if $.Values.addons.gitlab.enabled }}
+{{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
+{{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
 Gitlab is enabled.
 Please follow the Gitlab online documentation for proper configuration.
 This BigBang chart provides convenient enhancements to the Gitlab Package helm chart.
@@ -72,20 +74,16 @@ gitlab-backup-tmp
 {{- end }}
 {{- end }}
 
-{{ if $.Values.addons.gitlab.database.host }}
-{{ else }}
+{{ if not $externalPostgresConfigured }}
 PLATFORM ONE GITLAB WARNING:
-  You have enabled an internal postgres database in the BigBang configuration.
-  Platform One does not support this option for production deployments because your persistent data can be permanently lost.
-  This option should only be used for development or CI pipelines.
-{{- end -}}
+  GitLab PostgreSQL is not configured.
+  GitLab 19 no longer includes bundled PostgreSQL. Configure an independently managed PostgreSQL 17 service before enabling GitLab.
+{{- end }}
 
-{{ if $.Values.addons.gitlab.objectStorage.endpoint }}
-{{ else }}
+{{ if not $externalObjectStorageConfigured }}
 PLATFORM ONE GITLAB WARNING:
-  You have enabled a MinIO internal service in the BigBang configuration.
-  Platform One does not support this option for production deployments because your persistent data can be permanently lost.
-  This option should only be used for development or CI pipelines.
+  GitLab object storage is not configured.
+  GitLab 19 no longer includes bundled MinIO. Configure independently managed object storage before enabling GitLab.
 {{- end }}
 {{- end }}
 
