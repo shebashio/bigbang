@@ -48,8 +48,25 @@ tests:
       enabled: false
   template: cert-manager/helmrelease.yaml
   asserts:
-  - hasDocuments:
-      count: 0
+   - hasDocuments:
+       count: 0
+
+- it: should not require Istio or monitoring when both are disabled
+  set:
+    certManager:
+      enabled: true
+    istiod:
+      enabled: false
+    monitoring:
+      enabled: false
+    kyvernoPolicies:
+      enabled: false
+  template: cert-manager/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.dependsOn
+  - notExists:
+      path: spec.postRenderers
 
 ###############################################################################
 # Enable / Disable - Core packages

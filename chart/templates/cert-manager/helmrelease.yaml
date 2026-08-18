@@ -1,5 +1,6 @@
 {{- if .Values.certManager.enabled }}
 {{- $fluxSettings := merge .Values.certManager.flux .Values.flux -}}
+{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,7 +16,9 @@ spec:
   targetNamespace: {{ .Values.certManager.namespace.name }}
   {{- include "bigbang.helmRelease.chartSpec" (dict "name" "cert-manager" "package" .Values.certManager "root" . "emitReleaseName" true) | nindent 2 }}
   {{- toYaml $fluxSettings | nindent 2 }}
+  {{- if or .Values.monitoring.enabled .Values.certManager.postRenderers }}
   postRenderers:
+  {{- if .Values.monitoring.enabled }}
     - kustomize:
         patches:
           - target:
@@ -29,12 +32,17 @@ spec:
                 value: http
               - op: remove
                 path: /spec/endpoints/0/tlsConfig
+  {{- end }}
   {{- if .Values.certManager.postRenderers }}
   {{- toYaml .Values.certManager.postRenderers | nindent 4 }}
   {{- end }}
+  {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
   dependsOn:
+  {{- if $istioEnabled }}
   {{- include "istioHelmReleases" . | nindent 4 }}
+  {{- end }}
   {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
@@ -42,5 +50,6 @@ spec:
   {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
+  {{- end }}
   {{- end }}
 {{- end }}
