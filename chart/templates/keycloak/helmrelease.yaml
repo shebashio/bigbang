@@ -29,7 +29,8 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "keycloak" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.keycloak.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "keycloak" "root" .) | trim }}
+  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $pkgDeps }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
   - name: gatekeeper
@@ -46,6 +47,6 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- include "bigbang.extraDependsOn" .Values.addons.keycloak.extraDependsOn | nindent 2 }}
+  {{- $pkgDeps | nindent 2 }}
   {{- end }}
 {{- end }}

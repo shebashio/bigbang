@@ -25,7 +25,8 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "eck-operator" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.eckOperator.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "eckOperator" "root" .) | trim }}
+  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $pkgDeps }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -42,6 +43,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.eckOperator.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

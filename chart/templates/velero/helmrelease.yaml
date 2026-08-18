@@ -24,7 +24,8 @@ spec:
   {{ toYaml .Values.addons.velero.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "velero" "root" .) | nindent 2 }}
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.velero.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "velero" "root" .) | trim }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $pkgDeps }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -37,6 +38,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.addons.velero.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

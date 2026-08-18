@@ -24,7 +24,8 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "bbctl" "root" .) | nindent 2 }}
 
-  {{- if or .Values.loki.enabled (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) .Values.monitoring.enabled .Values.grafana.enabled .Values.bbctl.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "bbctl" "root" .) | trim }}
+  {{- if or .Values.loki.enabled (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) .Values.monitoring.enabled .Values.grafana.enabled $pkgDeps }}
   dependsOn:
     {{- if .Values.loki.enabled }}
     - name: loki
@@ -42,6 +43,6 @@ spec:
     - name: grafana
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.bbctl.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

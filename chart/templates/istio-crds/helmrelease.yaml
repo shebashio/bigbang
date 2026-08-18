@@ -25,7 +25,8 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istio-crds" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.istioCRDs.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "istioCRDs" "root" .) | trim }}
+  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled $pkgDeps }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -35,6 +36,6 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.istioCRDs.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

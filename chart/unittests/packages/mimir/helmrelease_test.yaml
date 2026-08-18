@@ -172,6 +172,93 @@ tests:
       path: stringData.defaults
       pattern: "172\\.31\\.0\\.0/16"
 
+- it: a package with dependencyOf mimir should appear in mimir dependsOn
+  set:
+    addons:
+      mimir:
+        enabled: true
+      minioOperator:
+        enabled: false
+    packages:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - mimir
+  template: mimir/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: garage-wrapper
+      any: true
+
+- it: a package not listing mimir in dependencyOf should not appear in mimir dependsOn
+  set:
+    addons:
+      mimir:
+        enabled: true
+      minioOperator:
+        enabled: false
+    istiod:
+      enabled: false
+    monitoring:
+      enabled: false
+    kyvernoPolicies:
+      enabled: false
+    packages:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - loki
+  template: mimir/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.dependsOn
+
+- it: a disabled package with dependencyOf mimir should not appear in mimir dependsOn
+  set:
+    addons:
+      mimir:
+        enabled: true
+      minioOperator:
+        enabled: false
+    istiod:
+      enabled: false
+    monitoring:
+      enabled: false
+    kyvernoPolicies:
+      enabled: false
+    packages:
+      garage:
+        enabled: false
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - mimir
+  template: mimir/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.dependsOn
+
 - it: should scope kafka egress to distributor and ingester pod selectors only
   set:
     addons:

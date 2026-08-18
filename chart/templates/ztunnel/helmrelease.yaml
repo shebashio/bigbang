@@ -57,6 +57,7 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "ztunnel" "root" .) | trim }}
   dependsOn:
     - name: istiod
       namespace: {{ .Release.Namespace }}
@@ -70,5 +71,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.ztunnel.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

@@ -29,6 +29,7 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno-reporter" "root" .) | nindent 2 }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "kyvernoReporter" "root" .) | trim }}
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
@@ -47,5 +48,5 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" (get .Values $pkg).extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

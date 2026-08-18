@@ -283,8 +283,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -302,8 +301,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -321,8 +319,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -340,8 +337,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -402,8 +398,7 @@
           },
           "additionalProperties": false
         },
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -421,8 +416,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -453,8 +447,7 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        },
-        "extraDependsOn": true
+        }
       },
       "allOf": [
         {
@@ -472,8 +465,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -491,8 +483,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -510,8 +501,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -558,8 +548,7 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        },
-        "extraDependsOn": true
+        }
       },
       "allOf": [
         {
@@ -607,8 +596,7 @@
             "elasticsearch": true,
             "kibana": true
           }
-        },
-        "extraDependsOn": true
+        }
       },
       "allOf": [
         {
@@ -629,8 +617,7 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        },
-        "extraDependsOn": true
+        }
       },
       "allOf": [
         {
@@ -651,8 +638,7 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        },
-        "extraDependsOn": true
+        }
       },
       "allOf": [
         {
@@ -719,8 +705,7 @@
               "type": "object"
             }
           }
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -787,8 +772,7 @@
             }
           },
           "additionalProperties": false
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -857,8 +841,7 @@
               "type": "boolean"
             }
           }
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -871,8 +854,7 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true,
-        "extraDependsOn": true
+        "postRenderers": true
       },
       "allOf": [
         {
@@ -988,8 +970,7 @@
             }
           },
           "additionalProperties": false
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -1045,8 +1026,7 @@
               "type": "string"
             }
           }
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -1067,8 +1047,7 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -1183,8 +1162,7 @@
             }
           },
           "additionalProperties": false
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -1246,8 +1224,7 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },
@@ -1279,8 +1256,7 @@
         },
         "istio": {
           "$ref": "#/$defs/istio"
-        },
-        "extraDependsOn": true
+        }
       },
       "additionalProperties": false
     },

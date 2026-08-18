@@ -23,8 +23,9 @@ spec:
   {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno-policies" "root" .) | nindent 2 }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "kyvernoPolicies" "root" .) | trim }}
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-    {{- include "bigbang.extraDependsOn" (get .Values $pkg).extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}
