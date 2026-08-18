@@ -56,6 +56,53 @@ ADDON_PACKAGES=(
   externalSecrets
   mimir
 )
+
+BUILTIN_PACKAGE_METADATA=(
+  "istioCNI|istio-cni"
+  "istioCRDs|istio-crds"
+  "gatewayAPI|gateway-api"
+  "istiod|istiod"
+  "istioGateway|istio-gateway"
+  "ztunnel|ztunnel"
+  "kiali|kiali"
+  "gatekeeper|gatekeeper"
+  "kyverno|kyverno"
+  "kyvernoPolicies|kyverno-policies"
+  "kyvernoReporter|kyverno-reporter"
+  "elasticsearchKibana|elasticsearch-kibana"
+  "eckOperator|eck-operator"
+  "fluentbit|fluentbit"
+  "alloy|alloy"
+  "loki|loki"
+  "neuvector|neuvector"
+  "tempo|tempo"
+  "prometheusOperatorCRDs|prometheus-operator-crds"
+  "monitoring|monitoring"
+  "grafana|grafana"
+  "twistlock|twistlock"
+  "bbctl|bbctl"
+  "renovate|renovate"
+  "argocd|argocd"
+  "authservice|authservice"
+  "minioOperator|minio-operator"
+  "minio|minio"
+  "gitlab|gitlab"
+  "gitlabRunner|gitlab-runner"
+  "sonarqube|sonarqube"
+  "fortify|fortify"
+  "anchoreEnterprise|anchore-enterprise"
+  "mattermostOperator|mattermost-operator"
+  "mattermost|mattermost"
+  "velero|velero"
+  "keycloak|keycloak"
+  "vault|vault"
+  "metricsServer|metrics-server"
+  "harbor|harbor"
+  "headlamp|headlamp"
+  "thanos|thanos"
+  "externalSecrets|external-secrets"
+  "mimir|mimir"
+)
 # END GENERATED PACKAGE METADATA
 
 usage() {
@@ -93,6 +140,30 @@ EOF
 fail() {
   printf 'Error: %s\n' "$*" >&2
   exit 1
+}
+
+lower_package_name() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+# Mirror the chart's resourceName helper for package-name collision checks:
+# replace non-word runs, trim and truncate, then apply Sprig's kebab casing.
+package_resource_name() {
+  printf '%s' "$1" \
+    | sed -E 's/[^[:alnum:]_]+/-/g; s/^-//' \
+    | cut -c 1-63 \
+    | sed -E 's/-$//; s/([[:upper:]]+)([[:upper:]][[:lower:]])/\1-\2/g; s/([[:lower:][:digit:]])([[:upper:]])/\1-\2/g; s/_/-/g' \
+    | tr '[:upper:]' '[:lower:]'
+}
+
+is_builtin_package() {
+  local candidate=$1
+  local package_name
+
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    [[ "$candidate" == "$package_name" ]] && return 0
+  done
+  return 1
 }
 
 OUTPUT_FILE=""
@@ -133,6 +204,9 @@ if [[ "$IN_PLACE" == true && -n "$OUTPUT_FILE" ]]; then
 fi
 if [[ "$IN_PLACE" == true && ${#INPUT_FILES[@]} -ne 1 ]]; then
   fail "--in-place requires exactly one input file"
+fi
+if [[ -n "$OUTPUT_FILE" && -d "$OUTPUT_FILE" ]]; then
+  fail "output path must be a file, not a directory: $OUTPUT_FILE"
 fi
 
 for input_file in "${INPUT_FILES[@]}"; do
@@ -177,15 +251,52 @@ else
 fi
 
 # Before v1 is enabled, every packages.<name> entry has the 3.x custom-package
-# meaning. Refuse to reinterpret an exact built-in name without explicit user
-# intent; schema shape cannot reliably distinguish the two contracts.
-if ! yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
-  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
-    if PACKAGE_NAME="$package_name" yq -e '.packages | has(strenv(PACKAGE_NAME))' "$WORK_FILE" >/dev/null 2>&1; then
+# meaning. Refuse both exact and normalized collisions before enabling v1 so
+# migration cannot produce values that the chart will reject. Values already
+# using v1 receive the same normalized collision validation as chart rendering.
+CANONICAL_PACKAGES_ENABLED=false
+if yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
+  CANONICAL_PACKAGES_ENABLED=true
+fi
+
+CUSTOM_PACKAGE_NAMES=()
+CUSTOM_PACKAGE_RESOURCE_NAMES=()
+while IFS= read -r package_name; do
+  if is_builtin_package "$package_name"; then
+    if [[ "$CANONICAL_PACKAGES_ENABLED" != true ]]; then
       fail "packages.${package_name} is an existing 3.x custom package that conflicts with a canonical built-in name; rename it or explicitly set packageConfiguration.version to v1 before migrating"
     fi
+    continue
+  fi
+
+  package_lower=$(lower_package_name "$package_name")
+  package_resource_identity=$(package_resource_name "$package_name")
+
+  for package_metadata in "${BUILTIN_PACKAGE_METADATA[@]}"; do
+    builtin_name=${package_metadata%%|*}
+    template_directory=${package_metadata#*|}
+    builtin_lower=$(lower_package_name "$builtin_name")
+    builtin_resource_name=$(package_resource_name "$builtin_name")
+    template_directory_lower=$(lower_package_name "$template_directory")
+
+    if [[ "$package_lower" == "$builtin_lower" \
+      || "$package_lower" == "$builtin_resource_name" \
+      || "$package_lower" == "$template_directory_lower" \
+      || "$package_resource_identity" == "$builtin_lower" \
+      || "$package_resource_identity" == "$builtin_resource_name" \
+      || "$package_resource_identity" == "$template_directory_lower" ]]; then
+      fail "packages.${package_name} conflicts with built-in package packages.${builtin_name}; use the canonical name packages.${builtin_name}"
+    fi
   done
-fi
+
+  for custom_index in "${!CUSTOM_PACKAGE_RESOURCE_NAMES[@]}"; do
+    if [[ "$package_resource_identity" == "${CUSTOM_PACKAGE_RESOURCE_NAMES[$custom_index]}" ]]; then
+      fail "packages.${CUSTOM_PACKAGE_NAMES[$custom_index]} and packages.${package_name} normalize to the same package identity"
+    fi
+  done
+  CUSTOM_PACKAGE_NAMES+=("$package_name")
+  CUSTOM_PACKAGE_RESOURCE_NAMES+=("$package_resource_identity")
+done < <(yq -r '.packages // {} | keys | .[]' "$WORK_FILE")
 
 yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
 

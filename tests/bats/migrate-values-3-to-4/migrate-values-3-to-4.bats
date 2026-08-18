@@ -156,6 +156,36 @@ EOF
   [[ "$output" == *"packages.kiali is an existing 3.x custom package"* ]]
 }
 
+@test "rejects a custom package whose normalized identity matches a built-in" {
+  cat >"$INPUT_FILE" <<'EOF'
+packages:
+  istio-cni:
+    enabled: true
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"packages.istio-cni conflicts with built-in package packages.istioCNI"* ]]
+}
+
+@test "rejects custom packages that normalize to the same identity" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v1
+packages:
+  examplePackage:
+    enabled: true
+  example-package:
+    enabled: false
+EOF
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"packages.examplePackage and packages.example-package normalize to the same package identity"* ]]
+}
+
 @test "stdout mode leaves the input unchanged and migration is idempotent" {
   cat >"$INPUT_FILE" <<'EOF'
 addons:
@@ -283,6 +313,21 @@ EOF
   [ "$status" -ne 0 ]
   [[ "$output" == *"output refers to an input file"* ]]
   cmp "$INPUT_FILE" "${INPUT_FILE}.original"
+}
+
+@test "rejects a directory as the output path" {
+  OUTPUT_DIRECTORY="${BATS_TEST_TMPDIR}/output"
+  mkdir "$OUTPUT_DIRECTORY"
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  enabled: true
+EOF
+
+  run "$SCRIPT_PATH" --output "$OUTPUT_DIRECTORY" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"output path must be a file, not a directory"* ]]
+  [ -z "$(find "$OUTPUT_DIRECTORY" -mindepth 1 -maxdepth 1 -print -quit)" ]
 }
 
 @test "rejects in-place mode with multiple inputs" {

@@ -76,6 +76,9 @@ done < <(comm -23 "${TASK_TMP}/integrated-template-directories" \
   printf '%s\n\n' ')'
   printf '%s\n' 'ADDON_PACKAGES=('
   yq -r '.packages | to_entries[] | select(.value.category == "addon") | "  " + .key' "$METADATA_PATH"
+  printf '%s\n\n' ')'
+  printf '%s\n' 'BUILTIN_PACKAGE_METADATA=('
+  yq -r '.packages | to_entries[] | "  \"" + .key + "|" + .value.templateDirectory + "\""' "$METADATA_PATH"
   printf '%s\n' ')'
   printf '%s\n' '# END GENERATED PACKAGE METADATA'
   sed -n '/^# END GENERATED PACKAGE METADATA$/,$p' "$MIGRATION_PATH" | sed '1d'
