@@ -7,6 +7,12 @@ templates:
 release:
   name: test
 tests:
+  - it: should treat a null package configuration as unversioned
+    set:
+      packageConfiguration:
+    asserts:
+      - notFailedTemplate: {}
+
   - it: should preserve the 3.x custom-package meaning without an explicit version
     set:
       kiali:

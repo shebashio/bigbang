@@ -72,7 +72,7 @@ in Big Bang 4.x.
 {{- end -}}
 {{- $migrations := .Values._packageAliasMigrations | default list -}}
 {{- $customPackages := dict -}}
-{{- $canonicalPackagesEnabled := eq (default "" .Values.packageConfiguration.version) "v1" -}}
+{{- $canonicalPackagesEnabled := eq (dig "version" "" (.Values.packageConfiguration | default dict)) "v1" -}}
 
 {{- if $canonicalPackagesEnabled -}}
 {{- /* Reserve canonical identities and rendered resource names. */ -}}
