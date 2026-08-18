@@ -538,6 +538,7 @@ kiali:
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
+    timeout: 20m
     driftDetection:
       ignore:
         - paths: [""] # The Kiali kind is updated during runtime
