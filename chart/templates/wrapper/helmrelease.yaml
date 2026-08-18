@@ -66,7 +66,8 @@ spec:
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
-  {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" $pkgKey "root" $) | trim }}
+  {{- if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep $pkgDeps }}
   dependsOn:
     {{- if $gatekeeperDep }}
     - name: gatekeeper
@@ -82,7 +83,10 @@ spec:
     {{- if $monitoringDep }}
     - name: monitoring
       namespace: {{ $.Release.Namespace }}
-    {{- end -}}
+    {{- end }}
+    {{- if $pkgDeps }}
+    {{- $pkgDeps | nindent 4 }}
+    {{- end }}
   {{- end }}
 ---
 {{ end -}}

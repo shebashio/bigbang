@@ -46,6 +46,8 @@ spec:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
+    {{- if $pkgDeps }}
     {{- $pkgDeps | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}

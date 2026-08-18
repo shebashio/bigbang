@@ -50,5 +50,7 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
+    {{- if $pkgDeps }}
     {{- $pkgDeps | nindent 4 }}
+    {{- end }}
 {{- end }}

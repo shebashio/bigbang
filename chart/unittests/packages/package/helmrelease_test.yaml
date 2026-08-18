@@ -167,3 +167,129 @@ tests:
           content:
             name: gatekeeper
             namespace: bigbang
+
+###############################################################################
+# dependencyOf - packages-to-packages injection
+###############################################################################
+
+  - it: non-wrapper package declaring dependencyOf should inject bare name into target dependsOn
+    set:
+      gatekeeper:
+        enabled: false
+      packages:
+        backstage:
+          enabled: true
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: backstage
+            tag: 1.0.0
+        garage:
+          enabled: true
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: garage
+            tag: 0.1.0
+          dependencyOf:
+            - backstage
+    documentSelector:
+      path: metadata.name
+      value: backstage
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: garage
+          any: true
+
+  - it: wrapper package declaring dependencyOf should inject name-wrapper into target dependsOn
+    set:
+      gatekeeper:
+        enabled: false
+      packages:
+        backstage:
+          enabled: true
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: backstage
+            tag: 1.0.0
+        garage:
+          enabled: true
+          wrapper:
+            enabled: true
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: garage
+            tag: 0.1.0
+          dependencyOf:
+            - backstage
+    documentSelector:
+      path: metadata.name
+      value: backstage
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: garage-wrapper
+          any: true
+
+  - it: disabled package with dependencyOf should not appear in target dependsOn
+    set:
+      gatekeeper:
+        enabled: false
+      packages:
+        backstage:
+          enabled: true
+          includeDefaultDependsOn: false
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: backstage
+            tag: 1.0.0
+        garage:
+          enabled: false
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: garage
+            tag: 0.1.0
+          dependencyOf:
+            - backstage
+    documentSelector:
+      path: metadata.name
+      value: backstage
+    asserts:
+      - notExists:
+          path: spec.dependsOn
+
+  - it: package declaring dependencyOf for a different target should not appear in unrelated package dependsOn
+    set:
+      gatekeeper:
+        enabled: false
+      packages:
+        backstage:
+          enabled: true
+          includeDefaultDependsOn: false
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: backstage
+            tag: 1.0.0
+        garage:
+          enabled: true
+          sourceType: helmRepo
+          helmRepo:
+            repoName: registry1
+            chartName: garage
+            tag: 0.1.0
+          dependencyOf:
+            - mimir
+    documentSelector:
+      path: metadata.name
+      value: backstage
+    asserts:
+      - notExists:
+          path: spec.dependsOn
