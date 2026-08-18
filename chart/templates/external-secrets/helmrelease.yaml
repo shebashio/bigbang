@@ -29,7 +29,8 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "external-secrets" "root" .) | nindent 2 }}
 
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.externalSecrets.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "externalSecrets" "root" .) | trim }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $pkgDeps }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -42,6 +43,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.addons.externalSecrets.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

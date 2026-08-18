@@ -947,12 +947,16 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- end }}
 {{- end -}}
 
-{{- /* Renders user-supplied extraDependsOn entries for a package HelmRelease.
-       Use this to depend on packages deployed via the `packages` template
-       (e.g. a custom storage backend) that are not in BB core/addons/integrated. */ -}}
-{{- define "bigbang.extraDependsOn" -}}
-{{- if . }}
-{{- toYaml . }}
+{{- /* Renders dependsOn entries for a core/addon HelmRelease derived from packages that
+       declare themselves a dependency of this package via `dependencyOf`.
+       Usage: include "bigbang.packageDependsOn" (dict "pkg" "mimir" "root" .) */ -}}
+{{- define "bigbang.packageDependsOn" -}}
+{{- range $name, $vals := .root.Values.packages }}
+{{- if and (dig "enabled" true $vals) (has $.pkg (dig "dependencyOf" list $vals)) }}
+{{- $suffix := ternary "-wrapper" "" (dig "wrapper" "enabled" false $vals) }}
+- name: {{ include "resourceName" $name }}{{ $suffix }}
+  namespace: {{ $.root.Release.Namespace }}
+{{- end }}
 {{- end }}
 {{- end -}}
 

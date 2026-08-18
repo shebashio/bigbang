@@ -29,6 +29,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "monitoring" "root" .) | nindent 2 }}
 
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "monitoring" "root" .) | trim }}
   dependsOn:
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
@@ -49,5 +50,5 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.monitoring.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

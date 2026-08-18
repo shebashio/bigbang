@@ -27,6 +27,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istio-cni" "root" .) | nindent 2 }}
 
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "istioCNI" "root" .) | trim }}
   dependsOn:
     - name: istiod
       namespace: {{ .Release.Namespace }}
@@ -38,5 +39,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.istioCNI.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

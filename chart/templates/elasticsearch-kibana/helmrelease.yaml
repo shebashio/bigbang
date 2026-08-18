@@ -24,6 +24,7 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "ek" "root" .) | nindent 2 }}
 
   {{/* ECK and Logging _always_ depend on .Values.elasticsearchKibana being enabled, so can assume they exist here */}}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "elasticsearchKibana" "root" .) | trim }}
   dependsOn:
     - name: eck-operator
       namespace: {{ .Release.Namespace }}
@@ -39,5 +40,5 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.elasticsearchKibana.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

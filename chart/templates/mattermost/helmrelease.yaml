@@ -24,6 +24,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mattermost" "root" .) | nindent 2 }}
 
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "mattermost" "root" .) | trim }}
   dependsOn:
     - name: mattermost-operator
       namespace: {{ .Release.Namespace }}
@@ -37,5 +38,5 @@ spec:
     - name: ek
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.addons.mattermost.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
 {{- end }}

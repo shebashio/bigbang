@@ -33,9 +33,10 @@ spec:
   {{- end }}
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "metrics" "root" .) | nindent 2 }}
-  {{- if .Values.addons.metricsServer.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "metricsServer" "root" .) | trim }}
+  {{- if $pkgDeps }}
   dependsOn:
-    {{- toYaml .Values.addons.metricsServer.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 
 {{- end }}

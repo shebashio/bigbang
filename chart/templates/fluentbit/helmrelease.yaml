@@ -27,7 +27,8 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "fluentbit" "root" .) | nindent 2 }}
 
   {{/* To support a "standalone" fluentbit for shipping to central location we conditionally depend on logging enabled */}}
-  {{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.kyverno.enabled .Values.monitoring.enabled .Values.fluentbit.extraDependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "fluentbit" "root" .) | trim }}
+  {{- if or .Values.elasticsearchKibana.enabled .Values.loki.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.kyverno.enabled .Values.monitoring.enabled $pkgDeps }}
   dependsOn:
     {{- if .Values.elasticsearchKibana.enabled }}
     - name: ek
@@ -56,6 +57,6 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- include "bigbang.extraDependsOn" .Values.fluentbit.extraDependsOn | nindent 4 }}
+    {{- $pkgDeps | nindent 4 }}
   {{- end }}
 {{- end }}

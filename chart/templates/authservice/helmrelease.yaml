@@ -24,6 +24,7 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "authservice" "root" .) | nindent 2 }}
 
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "authservice" "root" .) | trim }}
   dependsOn:
   {{- include "istioHelmReleases" . | nindent 2 }}
   {{- if eq (include "ambientEnabled" .) "true" }}
@@ -34,5 +35,5 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- include "bigbang.extraDependsOn" .Values.addons.authservice.extraDependsOn | nindent 2 }}
+  {{- $pkgDeps | nindent 2 }}
 {{- end }}

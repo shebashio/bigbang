@@ -781,74 +781,81 @@ tests:
       path: spec.dependsOn
 
 ###############################################################################
-# extraDependsOn - operator-supplied additional HelmRelease dependencies
+# dependencyOf - packages declaring themselves prerequisites for core packages
 ###############################################################################
 
-- it: monitoring extraDependsOn should appear in spec.dependsOn
+- it: package with dependencyOf monitoring should appear in monitoring spec.dependsOn
   set:
     monitoring:
       enabled: true
-      extraDependsOn:
-        - name: garage
-          namespace: default
+    istiod:
+      enabled: false
+    packages:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - monitoring
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
       path: spec.dependsOn
       content:
-        name: garage
-        namespace: default
+        name: garage-wrapper
       any: true
 
-- it: mimir extraDependsOn should appear in spec.dependsOn when no other deps enabled
-  set:
-    addons:
-      mimir:
-        enabled: true
-        extraDependsOn:
-          - name: garage
-            namespace: default
-    kyvernoPolicies:
-      enabled: false
-  template: mimir/helmrelease.yaml
-  asserts:
-  - contains:
-      path: spec.dependsOn
-      content:
-        name: garage
-        namespace: default
-      any: true
-
-- it: gatekeeper extraDependsOn should render spec.dependsOn block (gatekeeper has no built-in deps)
+- it: package with dependencyOf gatekeeper should render spec.dependsOn block (gatekeeper has no built-in deps)
   set:
     gatekeeper:
       enabled: true
-      extraDependsOn:
-        - name: vault
-          namespace: vault
+    packages:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - gatekeeper
   template: gatekeeper/helmrelease.yaml
   asserts:
   - contains:
       path: spec.dependsOn
       content:
-        name: vault
-        namespace: vault
+        name: garage-wrapper
       any: true
 
-- it: prometheus-operator-crds extraDependsOn should render spec.dependsOn block
+- it: package with dependencyOf prometheusOperatorCRDs should render spec.dependsOn block
   set:
     prometheusOperatorCRDs:
       enabled: true
-      extraDependsOn:
-        - name: vault
-          namespace: vault
+    packages:
+      garage:
+        enabled: true
+        sourceType: helmRepo
+        helmRepo:
+          repoName: registry1
+          chartName: garage
+          tag: 0.1.0
+        wrapper:
+          enabled: true
+        dependencyOf:
+          - prometheusOperatorCRDs
   template: prometheus-operator-crds/helmrelease.yaml
   asserts:
   - contains:
       path: spec.dependsOn
       content:
-        name: vault
-        namespace: vault
+        name: garage-wrapper
       any: true
 
 ###############################################################################
