@@ -27,5 +27,7 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
+    {{- if $pkgDeps }}
     {{- $pkgDeps | nindent 4 }}
+    {{- end }}
 {{- end }}

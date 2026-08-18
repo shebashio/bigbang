@@ -83,7 +83,8 @@ spec:
   {{- $sidecarIstioDep := and $istioEnabled (eq "enabled" (dig "istio" "injection" "enabled" $vals)) -}}
   {{- $istioDep := or $bbCommonIstioDep $sidecarIstioDep -}}
   {{- $defaultDependsOn := and $includeDefaultDependsOn (or $gatekeeperDep $kyvernoDep $istioDep) -}}
-  {{- if or $defaultDependsOn $vals.dependsOn }}
+  {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" $pkgKey "root" $) | trim }}
+  {{- if or $defaultDependsOn $vals.dependsOn $pkgDeps }}
   dependsOn:
     {{- if and $includeDefaultDependsOn $gatekeeperDep }}
     - name: gatekeeper
@@ -98,6 +99,9 @@ spec:
     {{- end }}
     {{- if $vals.dependsOn }}
     {{- toYaml $vals.dependsOn | nindent 4 }}
+    {{- end }}
+    {{- if $pkgDeps }}
+    {{- $pkgDeps | nindent 4 }}
     {{- end }}
   {{- end }}
 ---

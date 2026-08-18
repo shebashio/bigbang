@@ -53,6 +53,8 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- if $pkgDeps }}
     {{- $pkgDeps | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}

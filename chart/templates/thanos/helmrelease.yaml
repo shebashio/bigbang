@@ -47,6 +47,8 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
+    {{- if $pkgDeps }}
     {{- $pkgDeps | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}
