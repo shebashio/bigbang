@@ -117,7 +117,7 @@ packages:
       namespace: bigbang
     namespace:
       name: cloudnative-pg
-    dependencyOf::
+    dependencyOf:
       - gitlab
     istio:
       # CNPG needs additional status services and DestinationRules before it can
@@ -137,7 +137,7 @@ packages:
       namespace: bigbang
     namespace:
       name: garage
-    dependencyOf::
+    dependencyOf:
       - gitlab
     istio:
       injection: disabled
@@ -228,7 +228,7 @@ packages:
       namespace: bigbang
     namespace:
       name: postgresql
-    dependencyOf::
+    dependencyOf:
       - gitlab
     istio:
       injection: disabled
