@@ -137,6 +137,8 @@ packages:
       name: garage
     istio:
       injection: disabled
+    dependencyFor:
+      - gitlab
     bbCommonValues: true
     values:
       fullnameOverride: garage
