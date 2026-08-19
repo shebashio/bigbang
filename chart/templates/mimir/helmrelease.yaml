@@ -32,7 +32,7 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mimir" "root" .) | nindent 2 }}
 
   {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "mimir" "root" .) | trim }}
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.minioOperator.enabled $pkgDeps }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.minioOperator.enabled $pkgDeps }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
