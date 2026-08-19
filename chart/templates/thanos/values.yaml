@@ -119,6 +119,13 @@ networkPolicies:
         to:
           k8s:
             monitoring/prometheus:10901: {{ .Values.monitoring.enabled }}
+      thanos-query-frontend:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: thanos
+            app.kubernetes.io/component: query-frontend
+        to:
+          k8s:
             authservice/authservice:10003: {{ $thanosUsesAuthservice }}
       thanos-storegateway:
         podSelector:
