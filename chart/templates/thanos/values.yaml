@@ -146,7 +146,7 @@ networkPolicies:
           definition:
             gateway: {{ .Values.istioGateway.enabled }}
           k8s:
-            authservice/authservice:10003: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
+            authservice/authservice: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       thanos-query:10902:
         podSelector:
