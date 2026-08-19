@@ -117,6 +117,8 @@ packages:
       namespace: bigbang
     namespace:
       name: cloudnative-pg
+    dependencyFor:
+      - gitlab
     istio:
       # CNPG needs additional status services and DestinationRules before it can
       # safely run with sidecars. Keep this CI dependency namespace unmeshed.
@@ -135,10 +137,10 @@ packages:
       namespace: bigbang
     namespace:
       name: garage
-    istio:
-      injection: disabled
     dependencyFor:
       - gitlab
+    istio:
+      injection: disabled
     bbCommonValues: true
     values:
       fullnameOverride: garage
@@ -226,6 +228,8 @@ packages:
       namespace: bigbang
     namespace:
       name: postgresql
+    dependencyFor:
+      - gitlab
     istio:
       injection: disabled
     passBigBangValues: true
@@ -365,6 +369,8 @@ packages:
       namespace: bigbang
     namespace:
       name: redis
+    dependencyFor:
+      - gitlab
     istio:
       injection: disabled
     wrapper:
