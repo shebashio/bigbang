@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $fluxSettingsEckOperator := mergeOverwrite (deepCopy .Values.flux) .Values.eckOperator.flux -}}
 {{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}

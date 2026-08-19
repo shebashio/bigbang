@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $fluxSettingsAnchore := mergeOverwrite (deepCopy .Values.flux) .Values.addons.anchoreEnterprise.flux -}}
 {{- if .Values.addons.anchoreEnterprise.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}

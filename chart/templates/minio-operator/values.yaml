@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
   {{- $minioOperatorPackage := deepCopy .Values.addons.minioOperator -}}
 
@@ -71,11 +72,6 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.minioOperator.values }}
       hosts:
       - repo1.dso.mil
-
-{{- if $istioEnabled }}
-annotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

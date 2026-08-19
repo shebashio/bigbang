@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.addons.sonarqube.enabled }}
 {{- /* Create a cleaned copy of sonarqube config and merge deprecated paths into current paths */ -}}
 {{- $sonarqubePackage := deepCopy .Values.addons.sonarqube -}}
@@ -129,7 +130,7 @@ bbtests:
       cypress_url: {{ printf "https://sonarqube.%s" $domainName | quote }}
       cypress_url_setup: {{ printf "https://sonarqube.%s/setup" $domainName | quote }}
 
-{{- if $istioInjection }}
+{{- if $istioEnabled }}
 annotations:
   {{ include "istioAnnotation" . }}
 {{- end }}

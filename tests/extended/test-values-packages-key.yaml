@@ -11,7 +11,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
       path: chart
-      tag: 6.14.0-bb.1
+      tag: 6.14.1-bb.0
     bbCommonValues: true
     values:
       bb-common:
@@ -31,6 +31,15 @@ packages:
                   resolution: DNS
       bbtests:
         enabled: true
+
+gatekeeper:
+  values:
+    violations:
+      allowedDockerRegistries:
+        parameters:
+          excludedResources:
+            # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
+            - podinfo/curl
 
 kyvernoPolicies:
   values:
@@ -98,3 +107,30 @@ kyvernoPolicies:
                     - podinfo
                   names:
                     - podinfo*
+
+#########################
+# Disable Core Packages #
+#########################
+bbctl:
+  enabled: false
+renovate:
+  enabled: false
+monitoring:
+  enabled: false
+grafana:
+  enabled: false
+neuvector:
+  enabled: false
+loki:
+  enabled: false
+tempo:
+  enabled: false
+kyvernoReporter:
+  enabled: false
+kiali:
+  enabled: false
+alloy:
+  enabled: false
+addons:
+  minioOperator:
+    enabled: false

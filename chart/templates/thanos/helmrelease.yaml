@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "thanos" }}
 {{- $fluxSettingsThanos := mergeOverwrite (deepCopy .Values.flux) .Values.addons.thanos.flux -}}
 {{- if (get .Values.addons $pkg).enabled }}

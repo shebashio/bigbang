@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
 {{- if .Values.alloy.enabled }}
 {{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
@@ -126,7 +127,16 @@ networkPolicies:
           definition:
             kubeAPI: true
           k8s:
+            {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
+            # Prometheus is enrolled on the monitoring package's own waypoint for authservice;
+            # in-mesh remote-write egress targets the waypoint pod over HBONE (15008).
+            monitoring/waypoint:15008:
+              podSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+            {{- else }}
             monitoring/monitoring-monitoring-kube-prometheus:9090: {{ .Values.monitoring.enabled }}
+            {{- end }}
             mimir/mimir-mimir-gateway:8080: {{ $mimirEnabled }}
       {{- end }}
 istio:
@@ -151,6 +161,19 @@ routes:
       - loki.{{ $domainName }}
 
 upstream:
+  {{- if $istioEnabled }}
+  # Force every Alloy collector to roll when the Istio dataplane changes (sidecar <-> ambient).
+  # collectorCommon.alloy is merged into every collector, so this annotates all their pod templates.
+  collectorCommon:
+    alloy:
+      controller:
+        podAnnotations:
+          {{ include "istioAnnotation" . }}
+  # The alloy-operator is a separate Deployment (not a collector), so annotate it directly.
+  alloy-operator:
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+  {{- end }}
   {{- if .Values.kiali.enabled }}
   alloy:
     extraLabels:
@@ -267,7 +290,7 @@ upstream:
       presets:
         - deployment
       alloy:
-        {{- if and $istioEnabled $istioHardenedEnabled }}
+        {{- if $istioEnabled }}
         extraAnnotations:
           {{ include "istioAnnotation" . }}
         {{- end }}
@@ -372,7 +395,7 @@ upstream:
   alloy-metrics:
     enabled: true
     alloy:
-      {{- if and $istioEnabled $istioHardenedEnabled }}
+      {{- if $istioEnabled }}
       extraAnnotations:
         {{ include "istioAnnotation" . }}
       {{- end }}

@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
 {{- $mattermostPackage := deepCopy .Values.addons.mattermost -}}
 {{- if .Values.addons.mattermost.values -}}
@@ -11,6 +12,7 @@
 {{- define "bigbang.defaults.mattermost" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mattermost.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $sentryEnabled := dig "mattermostEnvs" "MM_LOGSETTINGS_ENABLESENTRY" true .Values.addons.mattermost.values }}
 {{- /* External postgres is enabled when all database connection fields are provided */ -}}
 {{- $externalPostgresEnabled := and
     (ne .Values.addons.mattermost.database.username "")
@@ -42,7 +44,7 @@ istio:
     enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mattermost.values .) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.mattermost.values .) }}
 
-{{- if $istioInjection }}
+{{- if $istioEnabled }}
 podAnnotations:
   {{ include "istioAnnotation" . }}
 updateJob:
@@ -94,6 +96,7 @@ networkPolicies:
             kubeAPI: true
             database-subnets: {{ $externalPostgresEnabled }}
             sso: {{ .Values.addons.mattermost.sso.enabled }}
+            sentry-subnets: {{ $sentryEnabled }}
       {{- if dig "waitJob" "enabled" true .Values.addons.mattermost.values }}
       wait-job:
         to:
@@ -118,6 +121,8 @@ routes:
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.addons.mattermost.ingress.gateway "root" .) }}
   outbound:
+    mattermost-sentry:
+      enabled: {{ $sentryEnabled }}
     sso:
       enabled: {{ .Values.addons.mattermost.sso.enabled }}
       {{- if $ssoHost }}
@@ -173,7 +178,7 @@ postgresql:
   {{- end }}
   install: true
   primary:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" $ }}
     {{- end }}
@@ -195,7 +200,7 @@ postgresql:
         capabilities:
           drop:
             - ALL
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   readReplicas:
     podAnnotations:
       {{ include "istioAnnotation" $ }}
@@ -221,7 +226,7 @@ minio:
       configSecret:
         accessKey: {{ .accessKey | default "minio" }}
         secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     annotations:
       {{ include "istioAnnotation" $ }}
   {{- end }}

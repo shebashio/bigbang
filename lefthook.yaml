@@ -20,9 +20,15 @@ pre-commit:
     bats-quickstart:
       glob: "{docs/reference/scripts/quickstart.sh,tests/bats/quickstart/**/*.bats}"
       run: bats tests/bats/quickstart/quickstart.bats
+    bats-values-overlays:
+      glob: "{tests/test-values.yaml,tests/test-values-ambient.yaml,chart/ingress-certs.yaml,tests/bats/values-overlays/**/*.bats}"
+      run: bats tests/bats/values-overlays/values-overlays.bats
     bats-gitlab-triage:
       glob: "{scripts/gitlab-triage/*.sh,tests/bats/gitlab-triage/**/*.bats}"
       run: bats tests/bats/gitlab-triage/
+    generated-package-schemas:
+      glob: "{chart/package-metadata.yaml,chart/values.schema.json,scripts/generate-package-schemas.jq,scripts/generate-package-schemas.sh,scripts/migrate-values-3-to-4.sh}"
+      run: scripts/generate-package-schemas.sh --check
 
 # Runs when you `git push` — only if any .sh or .bats files changed.
 pre-push:
@@ -31,3 +37,6 @@ pre-push:
     bats-shell-scripts:
       glob: "**/*.{sh,bats}"
       run: bats --jobs 4 --recursive tests/bats/
+    generated-package-schemas:
+      glob: "{chart/package-metadata.yaml,chart/values.schema.json,scripts/generate-package-schemas.jq,scripts/generate-package-schemas.sh,scripts/migrate-values-3-to-4.sh}"
+      run: scripts/generate-package-schemas.sh --check

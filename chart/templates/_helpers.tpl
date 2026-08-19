@@ -7,7 +7,14 @@
 {{- /* For every top level map, if it has the enable key, pass it through. */ -}}
 {{- range $bbpkg, $bbvals := $ -}}
   {{- if kindIs "map" $bbvals -}}
-    {{- if hasKey $bbvals "enabled" }}
+    {{- if eq $bbpkg "istio" }}
+{{ $bbpkg }}:
+      {{- if hasKey $bbvals "enabled" }}
+  enabled: {{ $bbvals.enabled }}
+      {{- end }}
+  ambient:
+    enabled: {{ include "ambientEnabled" (dict "Values" $) }}
+    {{- else if hasKey $bbvals "enabled" }}
 {{ $bbpkg }}:
       {{- /* For network policies, we need all of its values. */ -}}
       {{- if eq $bbpkg "networkPolicies" -}}
@@ -40,6 +47,101 @@
 {{- end -}}
 {{- end }}
 
+{{/*
+When packageConfiguration.version is v1, normalize the backwards-compatible
+packages.<name> configuration for built-ins onto the legacy values paths
+consumed by the existing templates. Without that explicit opt-in, every entry
+under packages retains the Big Bang 3.x custom-package meaning.
+
+Explicitly supplied built-ins remain under .Values.packages as resolved values
+so templates can use the canonical path. Unknown entries are copied into the
+internal .Values._customPackages map consumed by generic package renderers.
+New-path values take precedence over legacy-path values. Legacy-only built-ins
+are not populated under .Values.packages.
+
+This compatibility layer is temporary. Its package identities and legacy paths
+come from the package metadata catalog and can be removed with the legacy paths
+in Big Bang 4.x.
+*/}}
+{{- define "bigbang.normalizePackageAliases" -}}
+{{- $packages := .Values.packages | default dict -}}
+{{- $metadata := .Files.Get "package-metadata.yaml" | fromYaml -}}
+{{- $catalog := get $metadata "packages" | default dict -}}
+{{- if not $catalog -}}
+  {{- fail "chart/package-metadata.yaml must define built-in packages" -}}
+{{- end -}}
+{{- $migrations := .Values._packageAliasMigrations | default list -}}
+{{- $customPackages := dict -}}
+{{- $canonicalPackagesEnabled := eq (dig "version" "" (.Values.packageConfiguration | default dict)) "v1" -}}
+
+{{- if $canonicalPackagesEnabled -}}
+{{- /* Reserve canonical identities and rendered resource names. */ -}}
+{{- $reservedNames := dict -}}
+{{- range $name, $package := $catalog -}}
+  {{- $identities := uniq (list (lower $name) (include "resourceName" $name) (lower $package.templateDirectory)) -}}
+  {{- range $identity := $identities -}}
+    {{- if and (hasKey $reservedNames $identity) (ne (get $reservedNames $identity) $name) -}}
+      {{- fail (printf "built-in packages %s and %s share reserved identity %s" (get $reservedNames $identity) $name $identity) -}}
+    {{- end -}}
+    {{- $_ := set $reservedNames $identity $name -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Unknown entries remain custom packages, but cannot masquerade as a built-in
+      or normalize to the same resource identity as another custom package. */ -}}
+{{- $customResourceNames := dict -}}
+{{- range $name := keys $packages | sortAlpha -}}
+  {{- if not (hasKey $catalog $name) -}}
+    {{- $identities := uniq (list (lower $name) (include "resourceName" $name)) -}}
+    {{- range $identity := $identities -}}
+      {{- if hasKey $reservedNames $identity -}}
+        {{- $owner := get $reservedNames $identity -}}
+        {{- if hasKey $catalog $owner -}}
+          {{- fail (printf "packages.%s conflicts with built-in package packages.%s; use the canonical name packages.%s" $name $owner $owner) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $resourceName := include "resourceName" $name -}}
+    {{- if hasKey $customResourceNames $resourceName -}}
+      {{- fail (printf "packages.%s and packages.%s normalize to the same package identity" (get $customResourceNames $resourceName) $name) -}}
+    {{- end -}}
+    {{- $_ := set $customResourceNames $resourceName $name -}}
+    {{- $_ := set $customPackages $name (get $packages $name) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $name, $package := $catalog -}}
+  {{- if hasKey $packages $name -}}
+    {{- $alias := get $packages $name | default dict -}}
+    {{- $legacyPath := splitList "." $package.legacyPath -}}
+    {{- if eq (len $legacyPath) 1 -}}
+      {{- $legacy := get $.Values $name | default dict -}}
+      {{- $resolved := mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias) -}}
+      {{- $_ := set $.Values $name (deepCopy $resolved) -}}
+      {{- $_ := set $packages $name $resolved -}}
+    {{- else if and (eq (len $legacyPath) 2) (eq (first $legacyPath) "addons") -}}
+      {{- $legacy := get $.Values.addons $name | default dict -}}
+      {{- $resolved := mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias) -}}
+      {{- $_ := set $.Values.addons $name (deepCopy $resolved) -}}
+      {{- $_ := set $packages $name $resolved -}}
+    {{- else -}}
+      {{- fail (printf "unsupported legacyPath %s for package %s" $package.legacyPath $name) -}}
+    {{- end -}}
+    {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $package.legacyPath) -}}
+  {{- end -}}
+{{- end -}}
+{{- else -}}
+  {{- /* Preserve the pre-existing 3.x contract unless canonical package names
+        have been explicitly enabled. */ -}}
+  {{- range $name, $package := $packages -}}
+    {{- $_ := set $customPackages $name $package -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $_ := set .Values "_packageAliasMigrations" (uniq $migrations) -}}
+{{- $_ := set .Values "_customPackages" $customPackages -}}
+{{- end -}}
+
 {{- define "imagePullSecret" }}
   {{- if .Values.registryCredentials -}}
     {{- $credType := typeOf .Values.registryCredentials -}}
@@ -55,6 +157,95 @@
       {{- end }}
     {{- end -}}
   {{- end }}
+{{- end }}
+
+{{/*
+Render a Namespace for an integrated package.
+The caller resolves package-specific enablement and passes the package values used
+to determine sidecar injection. Special namespaces with user-provided metadata or
+multiple resources remain in their package templates.
+
+Args (dict):
+  - root: root chart context ($ or .)
+  - name: Namespace metadata.name
+  - appName: app.kubernetes.io/name label value
+  - component: app.kubernetes.io/component label value (optional)
+  - package: package values containing istio.injection (string; defaults to "enabled")
+  - extraLabels: additional labels to render (optional)
+  - meshMode: "auto" (default) or "none"
+*/}}
+{{- define "bigbang.namespace" -}}
+{{- $name := required "bigbang.namespace: name is required" .name -}}
+{{- $appName := required "bigbang.namespace: appName is required" .appName -}}
+{{- $meshMode := "auto" -}}
+{{- if hasKey . "meshMode" -}}
+{{- $candidate := get . "meshMode" -}}
+{{- if not (kindIs "string" $candidate) -}}
+{{- fail (printf "bigbang.namespace: meshMode for namespace %q must be a string, got %s" $name (kindOf $candidate)) -}}
+{{- end -}}
+{{- $meshMode = $candidate -}}
+{{- end -}}
+{{- $validMeshModes := list "auto" "none" -}}
+{{- if not (has $meshMode $validMeshModes) -}}
+{{- fail (printf "bigbang.namespace: unsupported meshMode %q for namespace %q; expected one of: %s" $meshMode $name (join ", " $validMeshModes)) -}}
+{{- end -}}
+{{- $istioEnabled := eq (include "istioEnabled" .root) "true" -}}
+{{- $labels := include "commonLabels" .root | fromYaml -}}
+{{- with .extraLabels -}}
+{{- $labels = mustMergeOverwrite $labels . -}}
+{{- end -}}
+{{- $labels = set $labels "app.kubernetes.io/name" $appName -}}
+{{- with .component -}}
+{{- $labels = set $labels "app.kubernetes.io/component" . -}}
+{{- end -}}
+{{- if eq $meshMode "none" -}}
+{{- $labels = set $labels "istio-injection" "disabled" -}}
+{{- $labels = set $labels "istio.io/dataplane-mode" "none" -}}
+{{- else if eq (include "ambientEnabled" .root) "true" -}}
+{{- $labels = set $labels "istio.io/dataplane-mode" "ambient" -}}
+{{- else -}}
+{{- $labels = set $labels "istio-injection" (ternary "enabled" "disabled" (and $istioEnabled (eq (dig "istio" "injection" "enabled" (default dict .package)) "enabled"))) -}}
+{{- end -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- toYaml $labels | nindent 4 }}
+{{- end }}
+
+{{/*
+Render the standard private registry Secret used by integrated packages.
+The caller is responsible for package-specific enablement and ownership checks.
+
+Args (dict):
+  - root: root chart context ($ or .)
+  - namespace: namespace that receives the Secret
+  - appName: app.kubernetes.io/name label value (optional)
+  - component: app.kubernetes.io/component label value (optional)
+  - commonLabels: include common labels when no appName/component is supplied (optional)
+*/}}
+{{- define "bigbang.imagePullSecret" -}}
+{{- if (include "imagePullSecret" .root) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: private-registry
+  namespace: {{ .namespace }}
+  {{- if or .appName .component .commonLabels }}
+  labels:
+    {{- with .appName }}
+    app.kubernetes.io/name: {{ . }}
+    {{- end }}
+    {{- with .component }}
+    app.kubernetes.io/component: {{ . | quote }}
+    {{- end }}
+    {{- include "commonLabels" .root | nindent 4 }}
+  {{- end }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ include "imagePullSecret" .root }}
+{{- end }}
 {{- end }}
 
 {{- define "multipleCreds" -}}
@@ -189,7 +380,7 @@ secretRef:
 {{- else if and (.packageGitScope.credentials) (coalesce .packageGitScope.credentials.username .packageGitScope.credentials.password .packageGitScope.credentials.caFile .packageGitScope.credentials.privateKey .packageGitScope.credentials.publicKey .packageGitScope.credentials.knownHosts "") -}}
 {{- /* Input validation happens in git-credentials.yaml template */ -}}
 secretRef:
-  name: {{ .releaseName }}-{{ .name }}-git-credentials
+  name: {{ .releaseName }}-{{ include "resourceName" .name }}-git-credentials
 {{- else -}}
 {{/* If no credentials are specified, use the global credentials in the rootScope */}}
 {{- include "gitCredsGlobal" .rootScope }}
@@ -308,24 +499,9 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
 {{- define "values-secret" -}}
-{{/* This is a workaround for passthrough charts */}}
-{{/* This is temporary and will be removed in a future release */}}
-{{ $origDefaults := default (dict) (fromYaml .defaults) }}
-{{- $defaults := deepCopy $origDefaults }}
-{{- if and (not .root.Values.disableAutomaticPassthroughValues) (not .package.disableAutomaticPassthroughValues) }}
-{{- $origUpstream := dig "upstream" (dict) $defaults -}}
-{{- $upstream := deepCopy $origDefaults }}
-{{- if $origUpstream }}
-{{- $upstream = mustMergeOverwrite (deepCopy $origDefaults) (deepCopy $origUpstream) }}
-{{- end -}}
-{{- $newDefaults := dict "upstream" $upstream }}
-{{- $defaults = mustMergeOverwrite (deepCopy $origDefaults) $newDefaults | toYaml }}
-{{- else }}
-{{ $defaults = $origDefaults | toYaml }}
-{{- end -}}
-{{/* This is the end of the workaround */}}
+{{- $defaults := default (dict) (fromYaml .defaults) | toYaml }}
 {{- $packageValues := default dict .package.values -}}
-{{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) -}}
+{{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -342,6 +518,8 @@ stringData:
 
 {{- define "enabledGateways" -}}
   {{- $userGateways := deepCopy ($.Values.istioGateway.values.gateways | default dict) -}}
+  {{- $sharedGatewayValues := deepCopy ($.Values.istioGateway.values.shared | default dict) -}}
+  {{- $userGatewayOverrides := deepCopy $userGateways -}}
   {{- $defaults := include "bigbang.defaults.istio-gateway" $ | fromYaml -}}
   {{- $istioPodAnnotations := (include "istioAnnotation" $ | fromYaml) | default dict -}}
 
@@ -354,7 +532,11 @@ stringData:
   
   {{- range $name, $mergedGW := merge $userGateways $defaults.gateways }}
     {{- if and $name $mergedGW }}
-      {{- $gwType := dig "upstream" "labels" "istio" "" $mergedGW -}}
+      {{- $defaultGW := deepCopy (get $defaults.gateways $name | default dict) -}}
+      {{- $userGW := deepCopy (get $userGatewayOverrides $name | default dict) -}}
+      {{- $effectiveGW := mergeOverwrite $defaultGW (deepCopy $sharedGatewayValues) -}}
+      {{- $effectiveGW = mergeOverwrite $effectiveGW $userGW -}}
+      {{- $gwType := dig "upstream" "labels" "istio" "" $effectiveGW -}}
       
       {{- if not (has $gwType (list "ingressgateway" "egressgateway")) }}
         {{- fail (printf "istio-gateway: Gateway '%s' does not have a valid type; upstream.labels.istio must be one of 'ingressgateway' or 'egressgateway'" $name) -}}
@@ -364,7 +546,7 @@ stringData:
       {{- $gwRecord = set $gwRecord "serviceName" (printf "%s-%s" $name $gwType) -}}
       {{- $gwRecord = set $gwRecord "type" $gwType -}}
       
-      {{- $gwDefaults := get $defaults.gateways $name | default dict -}}
+      {{- $gwDefaults := deepCopy (get $defaults.gateways $name | default dict) -}}
       {{- /*
         Give every gateway the same upstream.serviceAccount default that
         `public` and `passthrough` get out of the box. bb-common assumes a
@@ -384,13 +566,13 @@ stringData:
         {{- $gwRecord = set $gwRecord "defaults" $gwDefaults -}}
       {{ end -}}
       
-      {{- $gwOverlays := dig "gateways" $name dict $.Values.istioGateway.values -}}
+      {{- $gwOverlays := mustMergeOverwrite (deepCopy $sharedGatewayValues) (deepCopy (dig "gateways" $name dict $.Values.istioGateway.values)) -}}
       {{- if $gwOverlays }}
-        {{- $gwOverlays = deepCopy $gwOverlays -}}
+        {{- $gwOverlays = mustMergeOverwrite (dict "upstream" (deepCopy $defaultImagePullConfig)) $gwOverlays -}}
         {{- if $istioPodAnnotations }}
           {{- $gwOverlays = mergeOverwrite $gwOverlays (dict "upstream" (dict "podAnnotations" $istioPodAnnotations)) -}}
         {{- end }}
-        {{- $gwRecord = set $gwRecord "overlays" (merge $gwOverlays (dict "upstream" $defaultImagePullConfig)) -}}
+        {{- $gwRecord = set $gwRecord "overlays" $gwOverlays -}}
       {{ end -}}
       
       {{- $enabledGateways = set $enabledGateways $name $gwRecord -}}
@@ -454,9 +636,14 @@ bigbang.addValueIfSet can be used to nil check parameters before adding them to 
 {{- end -}}
 
 {{/*
-Annotation for Istio version
+Annotation to force pods to restart on Istio dataplane changes.
+In ambient mode emits the dataplane annotation so pods roll when ambient is
+toggled; otherwise emits the Istio version so sidecar pods roll on upgrade.
 */}}
 {{- define "istioAnnotation" -}}
+{{- if eq (include "ambientEnabled" .) "true" -}}
+bigbang.dev/istioDataplane: ambient
+{{- else -}}
 {{- $istiod := .Values.istiod | default dict -}}
 {{- if (eq ($istiod.sourceType | default "git") "git") -}}
 {{- $git := $istiod.git | default dict -}}
@@ -474,6 +661,7 @@ bigbang.dev/istioVersion: {{ $helmRepo.tag }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
 
 {{- /* Helpers below this line are in support of the Big Bang extensibility feature */ -}}
 
@@ -488,7 +676,7 @@ bigbang.dev/istioVersion: {{ $helmRepo.tag }}
 {{- /* To use: $ns := compact (splitList " " (include "uniqueNamespaces" (merge (dict "constraint" "some.boolean" "default" true) .))) */ -}}
 {{- define "uniqueNamespaces" -}}
   {{- $namespaces := list -}}
-  {{- range $pkg, $vals := .Values.packages -}}
+  {{- range $pkg, $vals := (.Values._customPackages | default dict) -}}
     {{- if (dig "enabled" true $vals) -}}
       {{- $constraint := $vals -}}
       {{- range $key := split "." (default "" $.constraint) -}}
@@ -622,11 +810,15 @@ bigbang.dev/istioVersion: {{ $helmRepo.tag }}
 Returns the git credentails secret for the given scope and name
 */ -}}
 {{- define "gitCredsSecret" -}}
-{{- $name := .name }}
+{{- $name := include "resourceName" .name }}
 {{- $releaseName := .releaseName }}
 {{- $releaseNamespace := .releaseNamespace }}
+{{- $enabled := .targetScope.enabled }}
+{{- if hasKey . "enabled" }}
+{{- $enabled = .enabled }}
+{{- end }}
 {{- with .targetScope -}}
-{{- if and (eq .sourceType "git") .enabled }}
+{{- if and (eq .sourceType "git") $enabled }}
 {{- if .git }}
 {{- with .git -}}
 {{- if not .existingSecret }}
@@ -771,6 +963,22 @@ valuesFrom:
 {{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
 {{- define "ambientEnabled" -}}
 {{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- end -}}
+
+{{- /*
+Returns "true" when Monitoring's prometheus/alertmanager should be protected by
+authservice via the monitoring package's own ambient waypoint (the bb-common
+per-route authservice model). This replaces the legacy model that enrolled the
+Services onto the shared authservice-namespace waypoint. Only applies in ambient
+mode; sidecar-mode SSO keeps the legacy pod-label ext_authz path.
+*/ -}}
+{{- define "monitoring.authservice.waypointEnabled" -}}
+{{- and
+  (eq (include "ambientEnabled" .) "true")
+  (eq (include "authserviceEnabled" .) "true")
+  .Values.monitoring.enabled
+  .Values.monitoring.sso.enabled
+-}}
 {{- end -}}
 
 {{- /* Returns "true" if networkPolicies should be enabled for a package.

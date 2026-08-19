@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.addons.keycloak.enabled }}
 {{- /* Create a cleaned copy of keycloak config and merge deprecated paths into current paths */ -}}
 {{- $keycloakPackage := deepCopy .Values.addons.keycloak -}}
@@ -110,7 +111,7 @@ upstream:
     password: {{ coalesce .password "keycloak" | quote }}
   {{- end }}
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
@@ -158,8 +159,8 @@ upstream:
 
   serviceMonitor:
     enabled: {{ $monitoringEnabled }}
-    scheme: https
     {{- if eq (include "metricsSidecarMtls" (list .Values.addons.keycloak .)) "true" }}
+    scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
       certFile: /etc/prom-certs/cert-chain.pem
@@ -226,14 +227,14 @@ postgresql:
         database: keycloak
   {{- end }}
 
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   primary:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}
   readReplicas:
-    {{- if $istioInjection }}
+    {{- if $istioEnabled }}
     annotations:
       {{- include "istioAnnotation" . | nindent 6 }}
     {{- end }}

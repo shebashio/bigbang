@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.loki.enabled }}
 {{- /* Create a cleaned copy of loki config and merge deprecated paths into current paths */ -}}
 {{- $lokiPackage := deepCopy .Values.loki -}}
@@ -241,6 +242,10 @@ backend:
           fieldPath: status.podIP
 gateway:
   enabled: true
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
   extraArgs:
     - -config.expand-env=true
   extraEnv:
@@ -264,6 +269,10 @@ backend:
 
 gateway:
   enabled: true
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
   extraArgs:
     - -config.expand-env=true
   extraEnv:

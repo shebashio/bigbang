@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "gitlab-runner" }}
 
 {{- if .Values.addons.gitlabRunner.enabled }}
@@ -106,7 +107,7 @@ upstream:
   {{- end }}
 
   # When istio injected, add an annotation with the istio version to the manager pods only
-  {{- if $istioInjection }}
+  {{- if $istioEnabled }}
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}

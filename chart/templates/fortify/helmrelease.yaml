@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "fortify" }}
 {{- $fluxSettingsFortify := mergeOverwrite (deepCopy .Values.flux) .Values.addons.fortify.flux -}}
 {{- if (get .Values.addons $pkg).enabled }}

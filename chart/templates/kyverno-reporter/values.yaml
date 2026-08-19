@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoReporter" }}
 {{- if (get .Values $pkg).enabled }}
 {{- /* Create a cleaned copy of kyvernoReporter config and merge deprecated paths into current paths */ -}}
@@ -96,6 +97,10 @@ upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  {{- end }}
   ui:
     enabled: true
     image:

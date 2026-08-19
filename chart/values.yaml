@@ -203,6 +203,19 @@ networkPolicies:
         ports:
           - port: 443
             protocol: TCP
+      # -- Egress definition for Redis or Valkey subnets. Override these CIDRs and ports
+      # to match externally managed Redis, Valkey, or Sentinel endpoints.
+      redis-subnets:
+        to:
+          - ipBlock:
+              cidr: 192.168.0.0/16
+          - ipBlock:
+              cidr: 172.16.0.0/12
+          - ipBlock:
+              cidr: 10.0.0.0/8
+        ports:
+          - port: 6379
+            protocol: TCP
       # -- Egress definition for Kafka broker subnets (i.e. Amazon MSK, Confluent Cloud, Azure Event Hubs, etc.)
       kafka-subnets:
         to:
@@ -253,12 +266,6 @@ networkPolicies:
 # Permitted values are: Never, Always, IfNotPresent
 imagePullPolicy: IfNotPresent
 
-# -- Flag for temporary workaround for passthrough chart migrations
-# This is the global flag to disable automatic passthrough values for all packages.
-# Alternatively, you can set this flag to `false` (enabling automatic passthrough globally), and then per package set `disableAutomaticPassthroughValues` to `true` to disable automatic passthrough for that package.
-# This will be removed in a future release (as will all references to `disableAutomaticPassthroughValues`).
-disableAutomaticPassthroughValues: true
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Istio
 #
@@ -271,11 +278,11 @@ istioCNI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni.git
     path: "./chart"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-cni"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   # -- Values to passthrough to the Istio CNI chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CNI Package
@@ -291,11 +298,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -324,11 +331,11 @@ gatewayAPI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/gateway-api.git
     path: "./chart"
-    tag: 1.5.1-bb.1
+    tag: 1.6.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway-api"
-    tag: 1.5.1-bb.1
+    tag: 1.6.1-bb.0
   # -- Values to passthrough to the Gateway API chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Gateway API Package
@@ -344,11 +351,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -382,13 +389,22 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.30.2-bb.2
+    tag: 1.30.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.30.2-bb.2
-  # -- Values to passthrough to the gateway chart(s)
+    tag: 1.30.3-bb.0
+  # -- Gateway chart values. Values under shared apply to every gateway; values under gateways.<name> override them.
   values: {}
+  # EXAMPLE: Disable the wait job for every gateway except public
+  #   shared:
+  #     waitJob:
+  #       enabled: false
+  #   gateways:
+  #     public:
+  #       waitJob:
+  #         enabled: true
+  #
   # EXAMPLE: Set the tls key/cert for the existing public gateway
   #   gateways:
   #     public:
@@ -448,11 +464,11 @@ istioGateway:
   #             number: 443
   #             name: tls
   #             protocol: TLS
-  #         hosts:
-  #         - '*'
-  #         tls:
-  #           mode: ISTIO_MUTUAL
-
+  #           hosts:
+  #           - '*'
+  #           tls:
+  #             mode: ISTIO_MUTUAL
+  #
   # -- Flux reconciliation overrides specifically for the Istio Gateway Package
   flux:
     driftDetection:
@@ -505,11 +521,11 @@ ztunnel:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/ztunnel.git
     path: "./chart"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "ztunnel"
-    tag: 1.30.2-bb.0
+    tag: 1.30.3-bb.0
   # -- Values to passthrough to the ztunnel chart
   values: {}
   # -- Flux reconciliation overrides specifically for the ztunnel Package
@@ -527,11 +543,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.28.0-bb.1"
+    tag: "2.30.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.28.0-bb.1"
+    tag: "2.30.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -574,11 +590,11 @@ gatekeeper:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/policy.git
     path: "./chart"
-    tag: "3.22.2-bb.2"
+    tag: "3.23.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "gatekeeper"
-    tag: "3.22.2-bb.2"
+    tag: "3.23.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the OPA Gatekeeper Package
   flux:
@@ -609,11 +625,11 @@ kyverno:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
     path: "./chart"
-    tag: "3.8.1-bb.5"
+    tag: "3.8.2-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno"
-    tag: "3.8.1-bb.5"
+    tag: "3.8.2-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Package
   flux:
@@ -695,11 +711,11 @@ kyvernoReporter:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
     path: ./chart
-    tag: "3.7.4-bb.3"
+    tag: "3.9.0-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "kyverno-reporter"
-    tag: "3.7.4-bb.3"
+    tag: "3.9.0-bb.1"
 
   # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
   flux: {}
@@ -729,11 +745,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.39.0-bb.0"
+    tag: "1.41.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.39.0-bb.0"
+    tag: "1.41.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -796,11 +812,11 @@ eckOperator:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/eck-operator.git
     path: "./chart"
-    tag: "3.4.1-bb.0"
+    tag: "3.4.1-bb.1"
   helmRepo:
     repoName: "registry1"
     chartName: "eck-operator"
-    tag: "3.4.1-bb.0"
+    tag: "3.4.1-bb.1"
 
   # -- Flux reconciliation overrides specifically for the ECK Operator Package
   flux: {}
@@ -821,11 +837,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.57.3-bb.0"
+    tag: "0.57.9-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.57.3-bb.0"
+    tag: "0.57.9-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -848,12 +864,12 @@ alloy:
 
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "4.2.2-bb.0"
+    tag: "4.3.2-bb.0"
     path: "./chart"
   helmRepo:
     repoName: "registry1"
     chartName: "k8s-monitoring"
-    tag: "4.2.2-bb.0"
+    tag: "4.3.2-bb.0"
 
   # -- Toggle Alloy to collect logs
   alloyLogs:
@@ -957,11 +973,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.10.3-bb.1"
+    tag: "2.11.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.10.3-bb.1"
+    tag: "2.11.0-bb.2"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
   ingress:
@@ -1095,11 +1111,11 @@ prometheusOperatorCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
     path: "./chart"
-    tag: 30.0.1-bb.0
+    tag: 31.0.1-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "prometheus-operator-crds"
-    tag: 30.0.1-bb.0
+    tag: 31.0.1-bb.0
   # -- Values to passthrough to the Prometheus Operator CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1123,11 +1139,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "87.10.1-bb.1"
+    tag: "88.3.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "87.10.1-bb.1"
+    tag: "88.3.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1195,11 +1211,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "10.5.15-bb.4"
+    tag: "10.5.15-bb.6"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "10.5.15-bb.4"
+    tag: "10.5.15-bb.6"
 
   # -- Flux reconciliation overrides specifically for the Grafana Package
   flux: {}
@@ -1246,11 +1262,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.28.0-bb.0"
+    tag: "0.30.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.28.0-bb.0"
+    tag: "0.30.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1330,11 +1346,11 @@ renovate:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
     path: "./chart"
-    tag: "46.31.6-bb.5"
+    tag: "46.251.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "renovate"
-    tag: "46.31.6-bb.5"
+    tag: "46.251.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Renovate Package
   flux: {}
@@ -1359,11 +1375,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "10.1.4-bb.0"
+      tag: "10.2.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "10.1.4-bb.0"
+      tag: "10.2.1-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1412,11 +1428,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.5-bb.5"
+      tag: "1.1.8-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.5-bb.5"
+      tag: "1.1.8-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1443,11 +1459,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.1.1-bb.7"
+      tag: "7.1.1-bb.9"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.1.1-bb.7"
+      tag: "7.1.1-bb.9"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1472,11 +1488,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.20"
+      tag: "7.1.1-bb.23"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.20"
+      tag: "7.1.1-bb.23"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1512,14 +1528,20 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "9.11.8-bb.0"
+      tag: "10.1.3-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "9.11.8-bb.0"
+      tag: "10.1.3-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
+
+    # -- Additional HelmRelease dependencies for GitLab. Use this for operators
+    # that must be Ready before the GitLab chart creates their custom resources.
+    dependsOn: []
+    # - name: cloudnative-pg
+    #   namespace: bigbang
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
@@ -1571,11 +1593,11 @@ addons:
       # Entering connection info will enable this option and will auto-create any required secrets
       type: "" # supported types are "s3" or "minio"
 
-      # -- S3 compatible endpoint to use for connection information.
+      # -- S3 compatible endpoint to use for connection information. GitLab 19 requires the URI scheme for non-AWS S3-compatible endpoints.
       # examples: "https://s3.amazonaws.com" "https://s3.us-gov-west-1.amazonaws.com" "http://minio.minio.svc.cluster.local:9000"
       endpoint: ""
 
-      # -- S3 compatible service endpoint for use with Minio or aws S3.  See: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage
+      # -- S3 compatible service endpoint for use with Minio or aws S3. The value must include an http:// or https:// URI scheme. See: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage
       # Setting this allows the registry to use a different endpoint than the global `objectStorage.endpoint` documented above.
       # `objectStorage.endpoint` must be set in order for `objectStorage.regionendpoint` endpoint to be used.  See: https://docs.gitlab.com/administration/object_storage/
       # Also note rails.s3.yaml and registry.s3.yaml here for implementation parallel: https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/objectstorage
@@ -1608,9 +1630,7 @@ addons:
       password: ""
 
     redis:
-      # -- Redis plain text password to connect to the redis server.  If empty (""), the gitlab charts will create the gitlab-redis-secret
-      # with a random password.
-      # -- This needs to be set to a non-empty value in order for the Grafana Redis Datasource and Dashboards to be installed.
+      # -- Plain text password for an externally managed Redis or Valkey service. When set, Big Bang creates `gitlab-redis-secret-bb` and configures GitLab to use it. Configure the external endpoint with `addons.gitlab.values.global.redis.host` or `addons.gitlab.values.global.redis.redisYmlOverride`. Leave this empty only when authentication is disabled or supplied entirely through passthrough values. A non-empty value is also required for the Grafana Redis datasource and dashboards.
       password: ""
 
     # -- Rails plain text secret to define. If empty (""), the gitlab charts will create the gitlab-rails-secret with randomized data.
@@ -1659,11 +1679,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.3.1-bb.2"
+      tag: "2026.4.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.3.1-bb.2"
+      tag: "2026.4.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1724,11 +1744,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "26.2.0-bb.0"
+      tag: "26.2.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "26.2.0-bb.0"
+      tag: "26.2.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1736,16 +1756,6 @@ addons:
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
       gateway: ""
-
-    sso:
-      # -- Toggle SSO for Fortify on and off
-      enabled: false
-
-      # -- SAML Client ID to use for Fortify
-      client_id: ""
-
-      # -- SAML Client Secret to use for Fortify
-      client_secret: ""
 
     externalDatabase:
       # -- External MySQL host used to generate Fortify's outbound bb-common route/ServiceEntry when `values.mysql.enabled=false`.
@@ -1858,11 +1868,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.7-bb.1"
+      tag: "1.25.7-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.7-bb.1"
+      tag: "1.25.7-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -1883,11 +1893,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.9.0-bb.0"
+      tag: "11.10.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.9.0-bb.0"
+      tag: "11.10.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -1989,18 +1999,14 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "12.1.0-bb.1"
+      tag: "12.1.0-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "12.1.0-bb.1"
+      tag: "12.1.0-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
-
-    # -- Plugin provider for Velero - requires at least one plugin installed. Current supported values: aws, azure, csi
-    plugins: []
-    # - aws
 
     # -- Values to passthrough to the Velero chart: https://repo1.dso.mil/big-bang/product/packages/velero.git
     values: {}
@@ -2023,11 +2029,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.2.2-bb.0"
+      tag: "7.2.2-bb.1"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2088,11 +2094,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.33.0-bb.3"
+      tag: "0.34.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.33.0-bb.3"
+      tag: "0.34.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
@@ -2137,11 +2143,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.13.1-bb.0"
+      tag: "3.13.1-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.13.1-bb.0"
+      tag: "3.13.1-bb.1"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
@@ -2178,12 +2184,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.19.1-bb.1"
+      tag: "1.19.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.19.1-bb.1"
+      tag: "1.19.2-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
@@ -2244,12 +2250,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "17.4.0-bb.2"
+      tag: "17.6.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "17.4.0-bb.2"
+      tag: "17.6.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux:
@@ -2282,12 +2288,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/external-secrets.git
-      tag: "2.7.0-bb.2"
+      tag: "2.8.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "external-secrets"
-      tag: "2.7.0-bb.2"
+      tag: "2.8.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2309,12 +2315,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.0.6-bb.4"
+      tag: "6.1.0-bb.1"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.0.6-bb.4"
+      tag: "6.1.0-bb.1"
 
     # -- Enable Mimir Enterprise
     enterprise:
@@ -2408,12 +2414,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.40.0-bb.2"
+      tag: "0.44.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.40.0-bb.2"
+      tag: "0.44.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
@@ -2457,8 +2463,19 @@ wrapper:
     # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference), example: 0.0.2
     tag: "0.4.15"
 
-# -- Packages to deploy with Big Bang
+# -- Packages to deploy with Big Bang.
+# Built-in packages can be configured here using their existing package name,
+# for example `packages.monitoring` or `packages.gitlab`. These overrides take
+# precedence over the corresponding legacy top-level or `addons.<name>` values.
+# Unrecognized names continue to deploy custom packages using the contract below.
+# Legacy built-in paths remain supported until Big Bang 4.x.
 # @default - '{}'
+# -- Select the package configuration contract. Leave `version` unset to retain
+# the Big Bang 3.x custom-package behavior for every entry under `packages`.
+# Set `version: v1` to opt into canonical built-in package names in 3.x. The v1
+# discriminator remains part of the public contract and becomes the default in 4.x.
+packageConfiguration: {}
+
 packages:
   # -- Package name.  Each package will be independently wrapped for Big Bang integration.
   sample:
