@@ -156,7 +156,6 @@ networkPolicies:
         from:
           k8s:
             monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            authservice/authservice:10003: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       thanos-storegateway:10902:
         podSelector:
