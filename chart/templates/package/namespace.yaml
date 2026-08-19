@@ -1,7 +1,8 @@
 {{- /* Used for creating namespaces that package's use. */ -}}
 {{- /* If two packages reside in the same namespace, set namespace.create=false in one of them. */ -}}
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- range $pkg, $vals := .Values.packages -}}
+{{- range $pkg, $vals := .Values._customPackages -}}
 {{- if and (dig "enabled" true $vals) (dig "namespace" "create" true $vals) -}}
 {{- $pkg = include "resourceName" $pkg -}}
 {{- $labels := include "commonLabels" $ | fromYaml -}}

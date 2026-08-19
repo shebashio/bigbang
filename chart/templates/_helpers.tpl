@@ -47,6 +47,36 @@
 {{- end -}}
 {{- end }}
 
+{{/* Resolve canonical package aliases before package templates render. */}}
+{{- define "bigbang.normalizePackageAliases" -}}
+{{- $packages := .Values.packages | default dict -}}
+{{- $metadata := .Files.Get "package-metadata.yaml" | fromYaml -}}
+{{- $catalog := get $metadata "packages" | default dict -}}
+{{- $customPackages := dict -}}
+{{- $canonical := eq (dig "version" "" (.Values.packageConfiguration | default dict)) "v1" -}}
+{{- range $name, $vals := $packages -}}
+  {{- if or (not $canonical) (not (hasKey $catalog $name)) -}}
+    {{- $_ := set $customPackages $name $vals -}}
+  {{- end -}}
+{{- end -}}
+{{- if $canonical -}}
+  {{- range $name, $package := $catalog -}}
+    {{- if hasKey $packages $name -}}
+      {{- $legacyPath := splitList "." $package.legacyPath -}}
+      {{- if eq (len $legacyPath) 1 -}}
+        {{- $legacy := get $.Values $name | default dict -}}
+        {{- $resolved := mustMergeOverwrite (deepCopy $legacy) (deepCopy (get $packages $name)) -}}
+        {{- $_ := set $.Values $name $resolved -}}
+        {{- $_ := set $packages $name $resolved -}}
+      {{- else -}}
+        {{- fail (printf "unsupported legacyPath %s for package %s" $package.legacyPath $name) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $_ := set .Values "_customPackages" $customPackages -}}
+{{- end }}
+
 {{- define "imagePullSecret" }}
   {{- if .Values.registryCredentials -}}
     {{- $credType := typeOf .Values.registryCredentials -}}

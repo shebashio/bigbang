@@ -1,5 +1,6 @@
 {{- /* Used for Helm chart deployment of Big Bang wrapper.  One per package. */ -}}
-{{- range $pkgKey, $vals := .Values.packages -}}
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- range $pkgKey, $vals := .Values._customPackages -}}
 {{- if and (dig "enabled" true $vals) (dig "wrapper" "enabled" false $vals) -}}
 {{- $pkg := include "resourceName" $pkgKey -}}
 {{- $fluxSettings := mergeOverwrite (deepCopy $.Values.flux) (dig "flux" dict $vals) -}}

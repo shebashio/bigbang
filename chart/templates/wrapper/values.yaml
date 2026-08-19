@@ -1,5 +1,6 @@
 {{- /* Used for creating values to use for Helm wrapper and package Helm charts. */ -}}
-{{- range $pkgKey, $vals := .Values.packages -}}
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- range $pkgKey, $vals := .Values._customPackages -}}
 {{- if and (dig "enabled" true $vals) (dig "wrapper" "enabled" false $vals) -}}
 {{- $pkg := include "resourceName" $pkgKey -}}
 apiVersion: v1

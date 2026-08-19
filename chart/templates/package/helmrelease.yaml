@@ -1,5 +1,6 @@
 {{- /* Used for deploying a package using a Helm chart */ -}}
-{{- range $pkgKey, $vals := .Values.packages -}}
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- range $pkgKey, $vals := .Values._customPackages -}}
 {{- if and (dig "enabled" true $vals) (not $vals.kustomize) -}}
 {{- $pkg := include "resourceName" $pkgKey -}}
 {{- $sourceType := dig "sourceType" "git" $vals -}}

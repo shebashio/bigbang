@@ -69,6 +69,16 @@
     "offline": {
       "type": "boolean"
     },
+    "packageConfiguration": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": ["v1"]
+        }
+      },
+      "additionalProperties": false
+    },
     "registryCredentials": {
       "oneOf": [
         {

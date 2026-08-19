@@ -1,5 +1,6 @@
 {{- /* Used for creating values for the package's Helm chart */ -}}
-{{- range $pkgKey, $vals := .Values.packages -}}
+{{- include "bigbang.normalizePackageAliases" . -}}
+{{- range $pkgKey, $vals := .Values._customPackages -}}
 {{- if (dig "enabled" true $vals) -}}
 {{- $pkg := include "resourceName" $pkgKey -}}
 apiVersion: v1

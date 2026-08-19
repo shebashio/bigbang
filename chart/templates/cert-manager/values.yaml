@@ -1,3 +1,4 @@
+{{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.certManager.enabled }}
 {{- include "values-secret" (dict
   "root" $
