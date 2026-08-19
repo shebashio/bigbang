@@ -31,7 +31,7 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gitlab" "root" .) | nindent 2 }}
 
   {{- $pkgDeps := include "bigbang.packageDependsOn" (dict "pkg" "gitlab" "root" .) | trim }}
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled $pkgDeps }}
+  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.gitlab.dependsOn $pkgDeps }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
   - name: gatekeeper
@@ -47,6 +47,9 @@ spec:
   {{- if .Values.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- with .Values.addons.gitlab.dependsOn }}
+  {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- if $pkgDeps }}
   {{- $pkgDeps | nindent 2 }}
