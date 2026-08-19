@@ -111,8 +111,9 @@ Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
 addons.<name> paths to the Big Bang 4.x packages.<name> paths. The output sets
-packageConfiguration.version to v1. Big Bang 3.x uses it to interpret catalog
-package names as canonical built-ins rather than existing custom packages.
+packageConfiguration.version to v1. Starting with Big Bang 3.32, the 3.x chart
+uses it to interpret catalog package names as canonical built-ins rather than
+existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
 it from the migrated output when upgrading.
 
@@ -130,9 +131,9 @@ and packages.<name> takes precedence. Unrecognized package entries are left
 unchanged. The migration is idempotent.
 
 Examples:
-  scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
-  scripts/migrate-values-3-to-4.sh base.yaml production.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml
+  scripts/migrate-values-3-to-4.sh -o values-4.x.yaml base.yaml production.yaml
+  scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh --in-place values.yaml
 EOF
 }
