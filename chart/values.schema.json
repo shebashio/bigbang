@@ -49,11 +49,9 @@
     },
     "packageConfiguration": {
       "type": "object",
-      "description": "Selects the package configuration contract. In Big Bang 3.x, v1 opts into canonical built-in package paths; Big Bang 4.x retains v1 as its default unified package contract.",
       "properties": {
         "version": {
           "type": "string",
-          "description": "Package configuration contract version.",
           "enum": [
             "v1"
           ]
@@ -82,16 +80,6 @@
     },
     "offline": {
       "type": "boolean"
-    },
-    "packageConfiguration": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string",
-          "enum": ["v1"]
-        }
-      },
-      "additionalProperties": false
     },
     "registryCredentials": {
       "oneOf": [
@@ -3643,6 +3631,64 @@
         }
       },
       "aliases": {
+        "certManager": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/packageAliasPartials/basePackage"
+            }
+          ],
+          "properties": {
+            "git": {
+              "$ref": "#/$defs/packageAliasPartials/git"
+            },
+            "helmRepo": {
+              "$ref": "#/$defs/packageAliasPartials/helmRepo"
+            },
+            "enabled": {
+              "$ref": "#/$defs/packageAliasPartials/enabled"
+            },
+            "sourceType": {
+              "enum": [
+                "git",
+                "helmRepo"
+              ]
+            },
+            "releaseName": {
+              "type": "string",
+              "description": "Optional Helm releaseName override for this package."
+            },
+            "flux": {
+              "$ref": "#/$defs/packageAliasPartials/flux"
+            },
+            "values": {
+              "$ref": "#/$defs/packageAliasPartials/values"
+            },
+            "postRenderers": {
+              "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "namespace": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "create": {
+                  "type": "boolean"
+                },
+                "labels": {
+                  "type": "object"
+                },
+                "annotations": {
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Partial override merged over the built-in package's legacy defaults."
+        },
         "istioCNI": {
           "properties": {
             "git": {
@@ -5270,6 +5316,24 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -6481,6 +6545,9 @@
         "additionalProperties": false
       },
       "properties": {
+        "certManager": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/certManager"
+        },
         "istioCNI": {
           "$ref": "#/$defs/packageAliasPartials/aliases/istioCNI"
         },
