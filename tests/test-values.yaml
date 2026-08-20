@@ -617,29 +617,6 @@ kyvernoPolicies:
         spec:
           background: true
           rules:
-            - name: sync-redis-credentials
-              match:
-                any:
-                  - resources:
-                      kinds:
-                        - Secret
-                      names:
-                        - redis
-                      namespaces:
-                        - redis
-                      operations:
-                        - CREATE
-                        - UPDATE
-              generate:
-                generateExisting: true
-                apiVersion: v1
-                kind: Secret
-                name: gitlab-redis-secret-bb
-                namespace: gitlab
-                synchronize: true
-                clone:
-                  namespace: redis
-                  name: redis
             - name: sync-postgresql-credentials
               match:
                 any:
