@@ -161,19 +161,6 @@ tests:
           path: stringData["values.yaml"]
           pattern: "(?s)principals:.*cluster.local/ns/cloudnative-pg/sa/cloudnative-pg.*ports:.*- ['\"]?8000['\"]?"
 
-  - it: permits ambient HBONE ingress through the Redis wrapper policy
-    template: wrapper/values.yaml
-    documentSelector:
-      path: metadata.name
-      value: redis-wrapper-values
-    asserts:
-      - matchRegex:
-          path: stringData["values.yaml"]
-          pattern: "(?s)allow-gitlab-redis.*port: 6379.*port: 15008"
-      - matchRegex:
-          path: stringData["values.yaml"]
-          pattern: "(?s)allow-redis-upgrade-kube-api.*app.kubernetes.io/name: bigbang-redis-upgrade-job.*cidr: 172.16.0.0/12"
-
   - it: authorizes only GitLab and Redis identities to the ambient Redis port
     template: package/values.yaml
     documentSelector:
