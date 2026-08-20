@@ -15,10 +15,6 @@ Before an installation or upgrade:
 3. Confirm that affinity, topology-spread, and storage requirements can be satisfied during a node or availability-zone failure.
 4. Validate the result in an environment representative of production.
 
-### cert-manager
-
-cert-manager has no additional package-specific hardware, database, or object storage prerequisite beyond the default cluster requirements above. Its controller, webhook, cainjector, and startup check workloads use the resource settings defined in the package values. Review those settings when enabling cert-manager alongside other integrated packages or when changing replica counts.
-
 The local [quickstart](../installation/environments/quick-start.md) provides workstation guidance for evaluation only; it is not a production sizing baseline.
 
 ## Kubernetes Version
