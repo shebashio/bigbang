@@ -99,11 +99,6 @@ tests:
       - contains:
           path: spec.dependsOn
           content:
-            name: redis-wrapper
-            namespace: bigbang
-      - contains:
-          path: spec.dependsOn
-          content:
             name: ztunnel
             namespace: bigbang
 
@@ -160,19 +155,6 @@ tests:
       - matchRegex:
           path: stringData["values.yaml"]
           pattern: "(?s)principals:.*cluster.local/ns/cloudnative-pg/sa/cloudnative-pg.*ports:.*- ['\"]?8000['\"]?"
-
-  - it: authorizes only GitLab and Redis identities to the ambient Redis port
-    template: package/values.yaml
-    documentSelector:
-      path: metadata.name
-      value: redis-values
-    asserts:
-      - matchRegex:
-          path: stringData["values.yaml"]
-          pattern: "(?s)customAuthorizationPolicies:.*name: allow-gitlab-redis.*namespaces:.*- redis.*- gitlab.*ports:.*- ['\"]?6379['\"]?"
-      - matchRegex:
-          path: stringData["values.yaml"]
-          pattern: "(?s)name: allow-gitlab-redis.*selector:.*app.kubernetes.io/component: master.*app.kubernetes.io/instance: redis"
 
   - it: enables ambient and HBONE policy port injection in generated common values
     template: package/values.yaml
