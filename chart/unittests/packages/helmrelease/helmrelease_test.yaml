@@ -30,7 +30,7 @@ tests:
   - contains:
       path: spec.dependsOn
       content:
-        name: monitoring
+        name: prometheus-operator-crds
         namespace: NAMESPACE
   - equal:
       path: spec.postRenderers[0].kustomize.patches[0].target.kind
@@ -115,6 +115,8 @@ tests:
   set:
     monitoring:
       enabled: true
+    certManager:
+      enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - isKind:
@@ -122,6 +124,11 @@ tests:
   - equal:
       path: metadata.name
       value: monitoring
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: cert-manager
+        namespace: NAMESPACE
 
 - it: should not render monitoring HelmRelease when disabled
   set:
