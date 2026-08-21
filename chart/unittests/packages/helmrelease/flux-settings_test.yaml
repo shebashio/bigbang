@@ -5,6 +5,8 @@ templates:
   - templates/grafana/values.yaml
   - templates/monitoring/helmrelease.yaml
   - templates/monitoring/values.yaml
+  - templates/cert-manager/helmrelease.yaml
+  - templates/cert-manager/values.yaml
 tests:
   - it: should preserve falsey package overrides and inherit global defaults
     template: grafana/helmrelease.yaml
@@ -74,3 +76,38 @@ tests:
       - equal:
           path: spec.upgrade.remediation.remediateLastFailure
           value: true
+
+  - it: should preserve integrated cert-manager falsey package overrides
+    template: cert-manager/helmrelease.yaml
+    set:
+      flux:
+        timeout: 10m
+        upgrade:
+          cleanupOnFail: true
+          remediation:
+            retries: 3
+            remediateLastFailure: true
+      certManager:
+        enabled: true
+        flux:
+          upgrade:
+            cleanupOnFail: false
+            remediation:
+              retries: 0
+              remediateLastFailure: false
+    documentSelector:
+      path: metadata.name
+      value: cert-manager
+    asserts:
+      - equal:
+          path: spec.timeout
+          value: 10m
+      - equal:
+          path: spec.upgrade.cleanupOnFail
+          value: false
+      - equal:
+          path: spec.upgrade.remediation.retries
+          value: 0
+      - equal:
+          path: spec.upgrade.remediation.remediateLastFailure
+          value: false
