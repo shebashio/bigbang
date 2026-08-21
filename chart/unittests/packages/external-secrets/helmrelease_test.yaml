@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - external-secrets - HelmRelease Tests
+templates:
+  - templates/external-secrets/helmrelease.yaml
+  - templates/external-secrets/values.yaml
+tests:
+  - it: renders when external-secrets values are empty
+    template: external-secrets/helmrelease.yaml
+    set:
+      addons:
+        externalSecrets:
+          enabled: true
+          values: {}
+    asserts:
+      - equal:
+          path: metadata.name
+          value: external-secrets
+
+  - it: renders when external-secrets values are omitted
+    template: external-secrets/helmrelease.yaml
+    set:
+      addons:
+        externalSecrets:
+          enabled: true
+    asserts:
+      - equal:
+          path: metadata.name
+          value: external-secrets
