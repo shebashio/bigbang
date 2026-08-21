@@ -263,7 +263,7 @@ packages:
                         app.kubernetes.io/version: "17"
                     spec:
                       instances: 1
-                      imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.10
+                      imageName: registry1.dso.mil/ironbank/opensource/postgres/postgresql:17.11
                       imagePullSecrets:
                         - name: private-registry
                       postgresUID: 1001
