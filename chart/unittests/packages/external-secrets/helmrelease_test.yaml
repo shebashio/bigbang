@@ -19,21 +19,47 @@ tests:
       - notExists:
           path: spec.postRenderers
 
-  - it: renders when the upstream webhook is enabled with istio disabled
+  - it: preserves the upstream webhook default with istio enabled
     template: external-secrets/helmrelease.yaml
     set:
-      istio.enabled: false
-      istiod.enabled: false
+      istio.enabled: true
+      istiod.enabled: true
+      addons:
+        externalSecrets:
+          enabled: true
+    asserts:
+      - equal:
+          path: metadata.name
+          value: external-secrets
+      - exists:
+          path: spec.postRenderers
+
+  - it: allows explicitly disabling the upstream webhook with istio enabled
+    template: external-secrets/helmrelease.yaml
+    set:
+      istio.enabled: true
+      istiod.enabled: true
       addons:
         externalSecrets:
           enabled: true
           values:
             upstream:
               webhook:
-                create: true
+                create: false
     asserts:
-      - equal:
-          path: metadata.name
-          value: external-secrets
       - notExists:
           path: spec.postRenderers
+
+  - it: renders defaults when external-secrets values are empty
+    template: external-secrets/values.yaml
+    set:
+      istio.enabled: true
+      istiod.enabled: true
+      addons:
+        externalSecrets:
+          enabled: true
+          values: {}
+    asserts:
+      - matchRegex:
+          path: stringData.defaults
+          pattern: "kubeAPI: true"
