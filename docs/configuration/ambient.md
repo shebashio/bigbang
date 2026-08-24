@@ -75,6 +75,8 @@ istioCNI:
 
 ### Big Bang Documentation
 
+- [Running Mission Applications in Big Bang with Istio Ambient Mode](../tutorials/ambient-mission-apps.md)
+- [Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode](../migration/migrating-istio-to-ambient.md)
 - [ztunnel Package](../packages/core/ztunnel.md)
 - [Gateway API Package](../packages/core/gateway-api.md)
 

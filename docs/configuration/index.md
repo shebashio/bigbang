@@ -102,7 +102,8 @@ Verify workload health and application behavior after Flux reports Ready. See [T
 - [Network policies](network-policies.md)
 - [Post-renderers](postrenderers.md)
 - [Istio ambient mode](ambient.md)
-- [Mission applications in ambient mode](ambient-mission-apps.md)
 - [Package credentials](default-credentials.md)
 
-The existing [Production Configuration](sample-prod-config.md) page contains package-specific considerations for GitLab, Vault, and Keycloak; it is not a complete production baseline.
+For a worked application-integration example, follow the tutorial for [running mission applications with Istio ambient mode](../tutorials/ambient-mission-apps.md).
+
+[Production Considerations for GitLab, Vault, and Keycloak](production-package-considerations.md) contains package-specific guidance; it is not a complete production baseline.
