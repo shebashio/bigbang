@@ -5,10 +5,9 @@
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $externalSecretsValues := .Values.addons.externalSecrets.values | default dict }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $webhookEnabled := dig "upstream" "webhook" "create" false $externalSecretsValues }}
-{{- $certControllerEnabled := dig "upstream" "certController" "create" false $externalSecretsValues }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.externalSecrets.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $webhookEnabled := dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values }}
+{{- $certControllerEnabled := dig "upstream" "certController" "create" false .Values.addons.externalSecrets.values }}
 
 upstream:
   image:
@@ -28,8 +27,8 @@ istio:
   ambient:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list $externalSecretsValues .) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $externalSecretsValues .) }}
+    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
     additionalPolicies:
       allow-ingress-to-external-secrets-webhook-tcp-port-10250-from-kube-api:
         enabled: {{ $webhookEnabled }}

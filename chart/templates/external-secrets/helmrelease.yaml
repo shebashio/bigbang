@@ -2,7 +2,7 @@
 {{- $fluxSettings := merge .Values.addons.externalSecrets.flux .Values.flux -}}
 {{- if .Values.addons.externalSecrets.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $externalSecretsValues := .Values.addons.externalSecrets.values | default dict }}
+{{- $istioWebhookPatch := and $istioEnabled (dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values) }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -20,9 +20,9 @@ spec:
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if or .Values.addons.externalSecrets.postRenderers $istioEnabled (dig "upstream" "webhook" "create" false $externalSecretsValues) }}
+  {{- if or .Values.addons.externalSecrets.postRenderers $istioWebhookPatch }}
   postRenderers:
-  {{- if $istioEnabled }}
+  {{- if $istioWebhookPatch }}
   {{- include "externalSecrets.istioPostRenderers" . | nindent 2 }}
   {{- end }}
   {{- with .Values.addons.externalSecrets.postRenderers }}
