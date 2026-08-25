@@ -44,9 +44,6 @@ enterprise:
   license: {{ .Values.grafana.enterprise.license | quote }}
 {{- end }}
 
-istio:
-  injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" .Values.grafana) (eq (include "ambientEnabled" .) "true") }}
-
 networkPolicies:
   prependReleaseName: true
   ingress:

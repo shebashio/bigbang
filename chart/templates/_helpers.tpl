@@ -522,7 +522,7 @@ Args (dict):
 {{- $explicitDefaults := default (dict) (fromYaml .defaults) -}}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
@@ -1059,12 +1059,16 @@ keeps the legacy pod-label ext_authz path.
        maps key-by-key rather than replacing them wholesale, a package adding one extra
        definitions entry doesn't need to restate the global ones.
        Args (positional list):
-         0 - pkg:  the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
-         1 - root: the root context (.)
+         0 - pkg:    the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
+         1 - pkgTop: the package's top-level dict (e.g. .Values.loki, .Values.addons.argocd) — used
+                     only for istio.injection, which is a top-level user knob, unlike the rest of
+                     this block which reads from `.values`
+         2 - root:   the root context (.)
     */ -}}
 {{- define "bigbang.commonPackageDefaults" -}}
-{{- $pkg  := index . 0 -}}
-{{- $root := index . 1 -}}
+{{- $pkg    := index . 0 -}}
+{{- $pkgTop := index . 1 -}}
+{{- $root   := index . 2 -}}
 {{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
@@ -1072,6 +1076,7 @@ istio:
     enabled: {{ and $hardened (ne (include "ambientEnabled" $root) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" $root }}
+  injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" $pkgTop) (eq (include "ambientEnabled" $root) "true") }}
   authorizationPolicies:
     enabled: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
     generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
