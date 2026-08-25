@@ -61,6 +61,21 @@ create_generator_fixture() {
     "${REPO_ROOT}/chart/package-metadata.yaml")
 }
 
+@test "package metadata groups categories and alphabetizes canonical keys" {
+  category_order=$(yq -r '.packages[].category' \
+    "${REPO_ROOT}/chart/package-metadata.yaml" | awk '!seen[$0]++')
+  [ "$category_order" = $'core\naddon' ]
+
+  for category in core addon; do
+    actual=$(CATEGORY="$category" yq -r \
+      '.packages | to_entries[] | select(.value.category == strenv(CATEGORY)) | .key' \
+      "${REPO_ROOT}/chart/package-metadata.yaml")
+    expected=$(printf '%s\n' "$actual" | LC_ALL=C sort -f)
+
+    [ "$actual" = "$expected" ]
+  done
+}
+
 @test "generated package navigation is alphabetical by displayed title" {
   for navigation_path in \
     "${REPO_ROOT}/docs/packages/core/.pages" \

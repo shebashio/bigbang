@@ -14,57 +14,57 @@ Core packages provide the platform capabilities that other packages commonly dep
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
+| Alloy | `packages.alloy` | [Guide](core/alloy.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
+| BBCTL | `packages.bbctl` | [Guide](core/bbctl.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/bbctl) |
 | cert-manager | `packages.certManager` | [Guide](core/cert-manager.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
+| ECK Operator | `packages.eckOperator` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
+| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
+| Fluent Bit | `packages.fluentbit` | [Guide](core/fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
+| Gatekeeper | `packages.gatekeeper` | [Guide](core/opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
+| Gateway API | `packages.gatewayAPI` | [Guide](core/gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
+| Grafana | `packages.grafana` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
 | Istio CNI | `packages.istioCNI` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
 | Istio CRDs | `packages.istioCRDs` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
-| Gateway API | `packages.gatewayAPI` | [Guide](core/gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
-| Istiod | `packages.istiod` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Istio Gateway | `packages.istioGateway` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
-| Ztunnel | `packages.ztunnel` | [Guide](core/ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+| Istiod | `packages.istiod` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Kiali | `packages.kiali` | [Guide](core/kiali.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
-| Gatekeeper | `packages.gatekeeper` | [Guide](core/opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Kyverno | `packages.kyverno` | [Guide](core/kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](core/kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |
 | Kyverno Reporter | `packages.kyvernoReporter` | [Guide](core/kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter) |
-| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
-| ECK Operator | `packages.eckOperator` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
-| Fluent Bit | `packages.fluentbit` | [Guide](core/fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
-| Alloy | `packages.alloy` | [Guide](core/alloy.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
 | Loki | `packages.loki` | [Guide](core/loki.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |
-| NeuVector | `packages.neuvector` | [Guide](core/neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
-| Tempo | `packages.tempo` | [Guide](core/tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
-| Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Monitoring | `packages.monitoring` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/monitoring) |
-| Grafana | `packages.grafana` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
-| Twistlock | `packages.twistlock` | [Guide](core/twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
-| BBCTL | `packages.bbctl` | [Guide](core/bbctl.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/bbctl) |
+| NeuVector | `packages.neuvector` | [Guide](core/neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
+| Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Renovate | `packages.renovate` | [Guide](core/renovate.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
+| Tempo | `packages.tempo` | [Guide](core/tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
+| Twistlock | `packages.twistlock` | [Guide](core/twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
+| Ztunnel | `packages.ztunnel` | [Guide](core/ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
 ## Add-on packages
 
 Add-on packages provide optional platform and application capabilities.
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
+| Anchore Enterprise | `packages.anchoreEnterprise` | [Guide](addons/anchore.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |
 | Argo CD | `packages.argocd` | [Guide](addons/argocd.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/argocd) |
 | Authservice | `packages.authservice` | [Guide](addons/authservice.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/authservice) |
-| MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
-| MinIO | `packages.minio` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
+| External Secrets | `packages.externalSecrets` | [Guide](addons/external-secrets-operator.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |
+| Fortify | `packages.fortify` | [Guide](addons/fortify.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
 | GitLab | `packages.gitlab` | [Guide](addons/gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab) |
 | GitLab Runner | `packages.gitlabRunner` | [Guide](addons/gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner) |
-| SonarQube | `packages.sonarqube` | [Guide](addons/sonarqube.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
-| Fortify | `packages.fortify` | [Guide](addons/fortify.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
-| Anchore Enterprise | `packages.anchoreEnterprise` | [Guide](addons/anchore.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |
-| Mattermost Operator | `packages.mattermostOperator` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
-| Mattermost | `packages.mattermost` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
-| Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
-| Keycloak | `packages.keycloak` | [Guide](addons/keycloak.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/keycloak) |
-| Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
-| Metrics Server | `packages.metricsServer` | [Guide](addons/metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
 | Harbor | `packages.harbor` | [Guide](addons/harbor.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/harbor) |
 | Headlamp | `packages.headlamp` | [Guide](addons/headlamp.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/headlamp) |
-| Thanos | `packages.thanos` | [Guide](addons/thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
-| External Secrets | `packages.externalSecrets` | [Guide](addons/external-secrets-operator.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |
+| Keycloak | `packages.keycloak` | [Guide](addons/keycloak.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/keycloak) |
+| Mattermost | `packages.mattermost` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
+| Mattermost Operator | `packages.mattermostOperator` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
+| Metrics Server | `packages.metricsServer` | [Guide](addons/metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
 | Mimir | `packages.mimir` | [Guide](addons/mimir.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
+| MinIO | `packages.minio` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
+| MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
+| SonarQube | `packages.sonarqube` | [Guide](addons/sonarqube.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
+| Thanos | `packages.thanos` | [Guide](addons/thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
+| Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
+| Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
 ## Other package collections
 
 - [Maintained packages](https://repo1.dso.mil/groups/big-bang/product/maintained) are maintained and tested independently but are not rendered directly by the umbrella chart.

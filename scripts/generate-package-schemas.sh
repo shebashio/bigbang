@@ -105,7 +105,8 @@ generate_package_table() {
 
   package_rows=$(jq -r --arg category "$category" \
     --slurpfile values "${TASK_TMP}/values.json" \
-    '.packages | to_entries[] | select(.value.category == $category) | . as $package |
+    '.packages | to_entries | map(select(.value.category == $category))
+     | sort_by(.value.displayName | ascii_downcase)[] | . as $package |
      ($values[0] | getpath($package.value.legacyPath | split(".")) | .git.repo | sub("\\.git$"; "")) as $repository |
      [$package.key, $package.value.displayName, $repository, $package.value.documentation] | @tsv' \
     "${TASK_TMP}/metadata.json")

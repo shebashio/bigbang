@@ -8,28 +8,28 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
+| Alloy | `packages.alloy` | [Guide](alloy.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
+| BBCTL | `packages.bbctl` | [Guide](bbctl.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/bbctl) |
 | cert-manager | `packages.certManager` | [Guide](cert-manager.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
+| ECK Operator | `packages.eckOperator` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
+| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
+| Fluent Bit | `packages.fluentbit` | [Guide](fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
+| Gatekeeper | `packages.gatekeeper` | [Guide](opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
+| Gateway API | `packages.gatewayAPI` | [Guide](gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
+| Grafana | `packages.grafana` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
 | Istio CNI | `packages.istioCNI` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
 | Istio CRDs | `packages.istioCRDs` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
-| Gateway API | `packages.gatewayAPI` | [Guide](gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
-| Istiod | `packages.istiod` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Istio Gateway | `packages.istioGateway` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
-| Ztunnel | `packages.ztunnel` | [Guide](ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+| Istiod | `packages.istiod` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Kiali | `packages.kiali` | [Guide](kiali.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
-| Gatekeeper | `packages.gatekeeper` | [Guide](opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Kyverno | `packages.kyverno` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |
 | Kyverno Reporter | `packages.kyvernoReporter` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter) |
-| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
-| ECK Operator | `packages.eckOperator` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
-| Fluent Bit | `packages.fluentbit` | [Guide](fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
-| Alloy | `packages.alloy` | [Guide](alloy.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
 | Loki | `packages.loki` | [Guide](loki.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |
-| NeuVector | `packages.neuvector` | [Guide](neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
-| Tempo | `packages.tempo` | [Guide](tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
-| Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Monitoring | `packages.monitoring` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/monitoring) |
-| Grafana | `packages.grafana` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
-| Twistlock | `packages.twistlock` | [Guide](twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
-| BBCTL | `packages.bbctl` | [Guide](bbctl.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/bbctl) |
+| NeuVector | `packages.neuvector` | [Guide](neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
+| Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Renovate | `packages.renovate` | [Guide](renovate.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
+| Tempo | `packages.tempo` | [Guide](tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
+| Twistlock | `packages.twistlock` | [Guide](twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
+| Ztunnel | `packages.ztunnel` | [Guide](ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
