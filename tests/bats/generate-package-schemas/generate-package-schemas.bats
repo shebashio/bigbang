@@ -9,7 +9,8 @@ setup() {
 
 create_generator_fixture() {
   FIXTURE_ROOT="${BATS_TEST_TMPDIR}/repo"
-  mkdir -p "${FIXTURE_ROOT}/chart/templates" "${FIXTURE_ROOT}/scripts"
+  mkdir -p "${FIXTURE_ROOT}/chart/templates" "${FIXTURE_ROOT}/scripts" \
+    "${FIXTURE_ROOT}/docs/packages/core" "${FIXTURE_ROOT}/docs/packages/addons"
   cp "${REPO_ROOT}/chart/package-metadata.yaml" \
     "${REPO_ROOT}/chart/values.schema.json" \
     "${REPO_ROOT}/chart/values.yaml" \
@@ -18,10 +19,24 @@ create_generator_fixture() {
     "${REPO_ROOT}/scripts/generate-package-schemas.sh" \
     "${REPO_ROOT}/scripts/migrate-values-3-to-4.sh" \
     "${FIXTURE_ROOT}/scripts/"
+  cp "${REPO_ROOT}/docs/packages/index.md" "${FIXTURE_ROOT}/docs/packages/"
+  cp "${REPO_ROOT}/docs/packages/core/index.md" \
+    "${REPO_ROOT}/docs/packages/core/.pages" \
+    "${FIXTURE_ROOT}/docs/packages/core/"
+  cp "${REPO_ROOT}/docs/packages/addons/index.md" \
+    "${REPO_ROOT}/docs/packages/addons/.pages" \
+    "${FIXTURE_ROOT}/docs/packages/addons/"
 
   while IFS= read -r template_directory; do
     mkdir -p "${FIXTURE_ROOT}/chart/templates/${template_directory}"
   done < <(yq -r '.packages[].templateDirectory' "${FIXTURE_ROOT}/chart/package-metadata.yaml")
+
+  while IFS= read -r documentation_path; do
+    mkdir -p "${FIXTURE_ROOT}/$(dirname "$documentation_path")"
+    cp "${REPO_ROOT}/${documentation_path}" \
+      "${FIXTURE_ROOT}/${documentation_path}"
+  done < <(yq -r '.packages[].documentation' \
+    "${FIXTURE_ROOT}/chart/package-metadata.yaml" | sort -u)
 }
 
 @test "generated canonical package schemas are current" {
@@ -36,6 +51,14 @@ create_generator_fixture() {
   actual=$(jq -c '.["$defs"].canonicalPackages.properties | keys | sort' "${REPO_ROOT}/chart/values.schema.json")
 
   [ "$actual" = "$expected" ]
+}
+
+@test "every catalog package has a generated documentation entry" {
+  while IFS=$'\t' read -r package_name documentation_path; do
+    grep -Fq "packages.${package_name}" "${REPO_ROOT}/docs/packages/index.md"
+    [ -f "${REPO_ROOT}/${documentation_path}" ]
+  done < <(yq -r '.packages | to_entries[] | [.key, .value.documentation] | @tsv' \
+    "${REPO_ROOT}/chart/package-metadata.yaml")
 }
 
 @test "rejects an integrated package template directory omitted from the catalog" {
@@ -69,4 +92,25 @@ create_generator_fixture() {
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"package metadata templateDirectory values must use kebab-case directory names"* ]]
+}
+
+@test "rejects package documentation outside its category" {
+  create_generator_fixture
+  yq -i '.packages.kiali.documentation = "docs/packages/addons/kiali.md"' \
+    "${FIXTURE_ROOT}/chart/package-metadata.yaml"
+
+  run "${FIXTURE_ROOT}/scripts/generate-package-schemas.sh" --check
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"package metadata documentation paths must match the package category"* ]]
+}
+
+@test "rejects a package documentation path that does not exist" {
+  create_generator_fixture
+  rm "${FIXTURE_ROOT}/docs/packages/core/kiali.md"
+
+  run "${FIXTURE_ROOT}/scripts/generate-package-schemas.sh" --check
+
+  [ "$status" -ne 0 ]
+  [ "$output" = "Error: package documentation docs/packages/core/kiali.md does not exist" ]
 }

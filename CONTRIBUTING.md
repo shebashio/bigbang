@@ -146,3 +146,21 @@ To verify that the committed reference is current without modifying it, run:
 ```shell
 scripts/generate-values-reference.sh --check
 ```
+
+### Generate the Integrated Package Catalog
+
+`chart/package-metadata.yaml` is the source of truth for built-in package identity, category, implementation directory, and Big Bang integration documentation. The package metadata generator maintains the canonical package schemas, migration mappings, package catalog, category indexes, and package navigation files.
+
+After adding, removing, recategorizing, or changing the documentation mapping for an integrated package, run:
+
+```shell
+scripts/generate-package-schemas.sh --write
+```
+
+To verify that every integrated package has valid metadata and documentation and that all generated artifacts are current, run:
+
+```shell
+scripts/generate-package-schemas.sh --check
+```
+
+Do not edit `docs/packages/index.md`, the Core and Add-on `index.md` files, or their `.pages` files directly.
