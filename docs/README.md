@@ -131,6 +131,13 @@ Use these rules when writing links:
 
 Use this checklist before opening a merge request.
 
+Package integration pages under `docs/packages/core/` and
+`docs/packages/addons/` are also registered in
+`chart/package-metadata.yaml`. Their section indexes and `.pages` files are
+generated. Add or move the page, update its package metadata entry, and run
+`scripts/generate-package-schemas.sh --write`; do not edit those generated
+files directly.
+
 1. Decide the intended section and URL.
 2. Place the Markdown file in the matching directory.
 3. If the page is the section landing page, name it `index.md`.
