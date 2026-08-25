@@ -30,6 +30,17 @@ upstream:
         pullPolicy: {{ .Values.imagePullPolicy }}
         {{- include "secretsPullSecretsWithName" . | nindent 8 }}
 
+istio:
+  # Gatekeeper is not in the service mesh
+  enabled: false
+  ambient:
+    enabled: false
+  sidecar:
+    enabled: false
+  authorizationPolicies:
+    enabled: false
+    generateFromNetpol: false
+
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" . }}
   # Setting to false as Gatekeeper is not in the mesh
