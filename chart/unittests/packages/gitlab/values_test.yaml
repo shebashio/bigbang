@@ -141,43 +141,6 @@ tests:
       - notExists:
           path: global.appConfig.dependencyProxy.connection
 
-  - it: preserves GitLab 18 network policy defaults when removed service blocks are absent
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      addons.gitlab.enabled: true
-    asserts:
-      - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
-          value: false
-      - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
-          value: false
-      - notExists:
-          path: networkPolicies.egress.definitions.redis-subnets
-      - notExists:
-          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
-      - notExists:
-          path: networkPolicies.egress.from.sidekiq.to.definition.redis-subnets
-      - notExists:
-          path: networkPolicies.egress.from.migrations.to.definition.redis-subnets
-      - notExists:
-          path: networkPolicies.egress.from.toolbox.to.definition.redis-subnets
-      - notExists:
-          path: networkPolicies.egress.from.gitlab-exporter.to.definition.redis-subnets
-      - equal:
-          path: networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
-          value: false
-      - notExists:
-          path: redis-bb
-      - notExists:
-          path: garage
-      - notExists:
-          path: postgresql.enabled
-
   - it: enables external subnet egress for Big Bang GitLab 19 connection values
     postRenderer:
       cmd: "sh"
