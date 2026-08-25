@@ -516,6 +516,14 @@ Args (dict):
                          Set to false for packages with no running workload that shouldn't get
                          istio/networkPolicies values at all (e.g. CRD-only packages like
                          istio-crds, prometheus-operator-crds).
+  bbCommonSubchart:      optional, default false. bb-common is currently consumed as a library
+                         chart, which reads its istio/networkPolicies/etc. values from the top
+                         level of the values passed to the HelmRelease. Once a package's bb-common
+                         dependency moves to being a regular subchart, those same values need to
+                         be nested under a `bb-common` key instead (Helm's normal subchart value
+                         scoping). Set to true for a package that has made that switch. Once every
+                         package has migrated, this condition should be made unconditional and the
+                         parameter removed from every values-secret call site.
 */ -}}
 {{- define "values-secret" -}}
 {{- $packageValues := default dict .package.values -}}
@@ -526,6 +534,13 @@ Args (dict):
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
+{{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
+{{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
+       regular subchart, drop this condition (always nest under bb-common) and remove the
+       "bbCommonSubchart" arg from every values-secret call site. */ -}}
+{{- if dig "bbCommonSubchart" false . }}
+{{- $commonBlock = dict "bb-common" $commonBlock }}
+{{- end }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -534,7 +549,7 @@ metadata:
 type: generic
 stringData:
   common: |
-    {{- toYaml (pick $commonValues "bbtests" "istio" "networkPolicies" "sso" "waitJob") | nindent 4 }}
+    {{- toYaml $commonBlock | nindent 4 }}
   defaults: {{- toYaml $defaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
