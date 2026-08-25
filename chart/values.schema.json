@@ -6204,6 +6204,13 @@
               "additionalProperties": false
             }
           },
+          "dependencyOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
           "istio": {
             "$ref": "#/$defs/istio"
           },
@@ -6428,6 +6435,13 @@
               ],
               "additionalProperties": false
             }
+          },
+          "dependencyOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           },
           "istio": {
             "$ref": "#/$defs/istio"
