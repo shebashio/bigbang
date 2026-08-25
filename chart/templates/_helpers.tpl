@@ -503,9 +503,28 @@ app.kubernetes.io/part-of: "bigbang"
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
+{{- /*
+values-secret builds the <package>-values Secret consumed by a package's HelmRelease.
+Args (dict):
+  root:                 root context ($)
+  package:               the package's resolved values (e.g. .Values.kiali)
+  name:                  the rendered resource name (e.g. "kiali")
+  defaults:              rendered YAML text of the package's own bigbang.defaults.<name> template
+  injectCommonDefaults:  optional, default true. When true, the istio/networkPolicies bb-common
+                         scaffolding (see bigbang.commonPackageDefaults) is deep-merged in
+                         underneath `defaults`, so packages don't need to declare it themselves.
+                         Set to false for packages with no running workload that shouldn't get
+                         istio/networkPolicies values at all (e.g. CRD-only packages like
+                         istio-crds, prometheus-operator-crds).
+*/ -}}
 {{- define "values-secret" -}}
-{{- $defaults := default (dict) (fromYaml .defaults) | toYaml }}
 {{- $packageValues := default dict .package.values -}}
+{{- $explicitDefaults := default (dict) (fromYaml .defaults) -}}
+{{- $defaults := $explicitDefaults | toYaml -}}
+{{- if dig "injectCommonDefaults" true . }}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .root) | fromYaml -}}
+{{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
+{{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
 apiVersion: v1
 kind: Secret
@@ -1025,6 +1044,45 @@ keeps the legacy pod-label ext_authz path.
 {{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
 {{ or $hardened $ambient }}
+{{- end -}}
+
+{{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly
+       every package (istio.enabled/sidecar/ambient/authorizationPolicies,
+       networkPolicies.enabled/hbonePortInjection, and the ingress/egress definitions
+       passthrough of the globally-configured network-policy definitions). Called from
+       `values-secret`, which deep-merges this baseline underneath each package's own
+       `defaults`, so a package only needs to declare the fields that diverge from the
+       baseline (e.g. gatekeeper and kyverno hardcode hbonePortInjection.enabled: false
+       to opt out of ambient's HBONE injection) or that extend it (e.g. vault adds an
+       extra entry alongside the global ingress definitions; kiali/grafana add
+       ingress/egress `defaults`, `from`, `to` siblings). Because values-secret merges
+       maps key-by-key rather than replacing them wholesale, a package adding one extra
+       definitions entry doesn't need to restate the global ones.
+       Args (positional list):
+         0 - pkg:  the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
+         1 - root: the root context (.)
+    */ -}}
+{{- define "bigbang.commonPackageDefaults" -}}
+{{- $pkg  := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
+istio:
+  enabled: {{ eq (include "istioEnabled" $root) "true" }}
+  sidecar:
+    enabled: {{ and $hardened (ne (include "ambientEnabled" $root) "true") }}
+  ambient:
+    enabled: {{ include "ambientEnabled" $root }}
+  authorizationPolicies:
+    enabled: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
+networkPolicies:
+  enabled: {{ include "networkPoliciesEnabled" $root }}
+  hbonePortInjection:
+    enabled: {{ include "ambientEnabled" $root }}
+  ingress:
+    definitions: {{ $root.Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
+  egress:
+    definitions: {{ $root.Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 {{- end -}}
 
 {{- /*
