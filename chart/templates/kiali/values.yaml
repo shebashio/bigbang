@@ -52,14 +52,7 @@ routes:
       - {{ include "sso.host" . }}
 
 networkPolicies:
-  ingress:
-    defaults:
-      allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
   egress:
-    defaults:
-      allowIstiod:
-        enabled: {{ .Values.istiod.enabled }}
     from:
       kiali:
         to:
