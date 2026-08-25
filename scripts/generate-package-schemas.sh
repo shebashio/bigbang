@@ -141,22 +141,29 @@ generate_category_nav() {
   local category=$1
   local output_path=$2
   local documentation_paths
+  local navigation_rows
 
   documentation_paths=$(jq -r --arg category "$category" '
     [.packages | to_entries[] | select(.value.category == $category) | .value.documentation]
     | (reduce .[] as $path ([]; if index($path) then . else . + [$path] end))[]' \
     "${TASK_TMP}/metadata.json")
 
+  navigation_rows=$(
+    while IFS= read -r documentation_path; do
+      local source_path="${REPO_ROOT}/${documentation_path}"
+      local filename=${documentation_path##*/}
+      local label
+      label=$(sed -n 's/^# //p' "$source_path" | sed -n '1p')
+      printf '%s\t%s\n' "$label" "$filename"
+    done <<<"$documentation_paths" | LC_ALL=C sort -f -t $'\t' -k1,1 -k2,2
+  )
+
   printf '%s\n' 'nav:' >"$output_path"
   printf '%s\n' '  - Overview: index.md' >>"$output_path"
-  while IFS= read -r documentation_path; do
-    local source_path="${REPO_ROOT}/${documentation_path}"
-    local filename=${documentation_path##*/}
-    local label
-    label=$(sed -n 's/^# //p' "$source_path" | sed -n '1p')
+  while IFS=$'\t' read -r label filename; do
     label=${label//\"/\\\"}
     printf '  - "%s": %s\n' "$label" "$filename" >>"$output_path"
-  done <<<"$documentation_paths"
+  done <<<"$navigation_rows"
 }
 
 {

@@ -61,6 +61,17 @@ create_generator_fixture() {
     "${REPO_ROOT}/chart/package-metadata.yaml")
 }
 
+@test "generated package navigation is alphabetical by displayed title" {
+  for navigation_path in \
+    "${REPO_ROOT}/docs/packages/core/.pages" \
+    "${REPO_ROOT}/docs/packages/addons/.pages"; do
+    actual=$(sed -n 's/^  - "\([^"]*\)":.*$/\1/p' "$navigation_path")
+    expected=$(printf '%s\n' "$actual" | LC_ALL=C sort -f)
+
+    [ "$actual" = "$expected" ]
+  done
+}
+
 @test "rejects an integrated package template directory omitted from the catalog" {
   create_generator_fixture
   mkdir -p "${FIXTURE_ROOT}/chart/templates/example-package"
