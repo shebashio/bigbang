@@ -18,7 +18,6 @@ istio:
     enabled: false
   authorizationPolicies:
     enabled: false
-    generateFromNetpol: false
 
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" . }}
