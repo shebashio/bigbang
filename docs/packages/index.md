@@ -39,6 +39,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | Tempo | `packages.tempo` | [Guide](core/tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
 | Twistlock | `packages.twistlock` | [Guide](core/twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
 | Ztunnel | `packages.ztunnel` | [Guide](core/ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+
 ## Add-on packages
 
 Add-on packages provide optional platform and application capabilities.
@@ -65,8 +66,22 @@ Add-on packages provide optional platform and application capabilities.
 | Thanos | `packages.thanos` | [Guide](addons/thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
+
 ## Other package collections
 
 - [Maintained packages](https://repo1.dso.mil/groups/big-bang/product/maintained) are maintained and tested independently but are not rendered directly by the umbrella chart.
 - [Community packages](https://repo1.dso.mil/groups/big-bang/product/community) are owned by community maintainers and are not supported as built-in integrations.
 - Use [Extra Package Deployment](../installation/environments/extra-package-deployment.md) to deploy a package that is not integrated directly.
+
+## Building Big Bang packages
+
+Package authors use shared charts and delivery tooling that are not independently deployable Big Bang applications. They are intentionally excluded from the integrated package catalog above.
+
+- Start with [Build a Big Bang Package](package-development/index.md) for the package-authoring entry point.
+- Follow the [Package Integration workflow](../community/development/package-integration/index.md) for lifecycle and technical integration requirements.
+- Use the [Big Bang Common Library](../community/development/package-integration/bb-common.md) for standardized security, networking, routing, and Istio templates.
+- Use [Testing with Gluon](../community/development/package-integration/testing.md) for package test jobs, Cypress tests, and script tests.
+- Configure [Pipeline Integration](../community/development/package-integration/pipeline.md) for package build, validation, and release workflows.
+- Use the [Reference Package](ref-package.md) when reviewing package architecture and Big Bang integration touch points.
+
+Big Bang documentation explains when and why to use these tools. The [bb-common integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md), [Gluon test documentation](https://repo1.dso.mil/big-bang/product/packages/gluon/-/blob/master/docs/bb-tests.md), and [Gluon README documentation](https://repo1.dso.mil/big-bang/product/packages/gluon/-/blob/master/docs/bb-package-readme.md) are authoritative for their detailed APIs and templates.

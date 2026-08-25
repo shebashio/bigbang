@@ -61,6 +61,14 @@ create_generator_fixture() {
     "${REPO_ROOT}/chart/package-metadata.yaml")
 }
 
+@test "package-authoring libraries are discoverable but excluded from the integrated catalog" {
+  grep -Fq "## Building Big Bang packages" "${REPO_ROOT}/docs/packages/index.md"
+  grep -Fq "[Big Bang Common Library]" "${REPO_ROOT}/docs/packages/index.md"
+  grep -Fq "[Testing with Gluon]" "${REPO_ROOT}/docs/packages/index.md"
+  ! grep -Fq '`packages.bb-common`' "${REPO_ROOT}/docs/packages/index.md"
+  ! grep -Fq '`packages.gluon`' "${REPO_ROOT}/docs/packages/index.md"
+}
+
 @test "package metadata groups categories and alphabetizes canonical keys" {
   category_order=$(yq -r '.packages[].category' \
     "${REPO_ROOT}/chart/package-metadata.yaml" | awk '!seen[$0]++')

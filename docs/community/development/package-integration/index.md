@@ -6,6 +6,15 @@ For process-oriented onboarding, start with [Onboarding](../package-lifecycle/on
 
 For package deprecation and downward/high-impact track changes, use [Package Lifecycle: Offboarding](../package-lifecycle/offboarding.md).
 
+## Shared Package-Authoring Libraries
+
+Shared charts support package development but are not independently deployable Big Bang applications. They do not belong in the integrated package catalog and are not configured under `packages.<name>`.
+
+- **bb-common** provides standardized security, networking, routing, and Istio Helm templates. Follow the [Big Bang Common Library integration guide](bb-common.md) to adopt it; use the repository's [integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md) and [documentation index](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md) as the source of truth for its values, templates, and resource behavior.
+- **Gluon** provides package test jobs, Cypress and script test helpers, and package README generation. Follow [Testing with Gluon](testing.md) for Big Bang integration guidance; use the repository's [test documentation](https://repo1.dso.mil/big-bang/product/packages/gluon/-/blob/master/docs/bb-tests.md) and [README-generation documentation](https://repo1.dso.mil/big-bang/product/packages/gluon/-/blob/master/docs/bb-package-readme.md) as the source of truth.
+
+## Integration Workflow
+
 - [ ] 1. [Complete Track Change Governance](https://repo1.dso.mil/big-bang/product/bbtoc/-/blob/master/process/Package%20Maintenance%20Tracks.md): Follow the Package Maintenance Tracks governance process (BBTOC issue, Big Bang value stream review, Jedi/Big Rocks review as needed, communications planning, and Cyber review approvals), set external status to `in process`, and document the final decision in ADR/BBTOC records.
 - [ ] 2. Confirm Sponsor (Maintained only): Packages entering or remaining Big Bang Maintained require an explicit stakeholder sponsor recorded in BBTOC and ADR updates. For Big Bang Integrated packages, Big Bang is the sponsor.
 - [ ] 3. [Upstream Helm Chart](upstream.md): Initialize package workspace using an upstream Helm chart
