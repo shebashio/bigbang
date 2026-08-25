@@ -155,7 +155,6 @@ networkPolicies:
   hbonePortInjection:
     enabled: {{ include "ambientEnabled" . }}
   ingress:
-    definitions: {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
     to:
       redis:9121: 
         from:
@@ -228,7 +227,6 @@ networkPolicies:
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
   egress:
-    definitions: {{ toYaml $gitlabEgressDefinitions | nindent 6 }}
     from:
       "*":
         to:
