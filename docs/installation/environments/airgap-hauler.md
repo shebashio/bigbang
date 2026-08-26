@@ -68,6 +68,172 @@ running `hauler store copy`, or the pushes will fail with permission errors.
 hauler store copy registry://<your-registry> --insecure
 ```
 
+## Deploying Big Bang from the archive
+
+Getting the archive into your registry is only half the job. Big Bang will not use it
+until you tell it to, and **images and charts reach the registry by two different
+routes**. Getting this wrong is the most common failure, so it is worth understanding
+before copying any YAML:
+
+| | Fetched by | Reference stays | Configured with |
+|---|---|---|---|
+| **Images** | containerd, on each node | `registry1.dso.mil/...` | a registry **mirror** |
+| **Charts** | Flux source-controller, over HTTP | rewritten to your registry | Big Bang **values** |
+
+Neither substitutes for the other.
+
+> **`registryCredentials` does not rewrite image references.** It only builds the
+> imagePullSecret. Setting `registryCredentials.registry` to your mirror will not move a
+> single image pull, and the pods will sit in `ImagePullBackOff` while every rendered
+> manifest looks correct.
+
+### Images: a containerd registry mirror
+
+Image references stay `registry1.dso.mil/...` and containerd redirects them. On k3s or
+RKE2, `/etc/rancher/k3s/registries.yaml`:
+
+```yaml
+mirrors:
+  "registry1.dso.mil":
+    endpoint:
+      - "https://registry.example.mil"
+
+configs:
+  "registry.example.mil":
+    tls:
+      ca_file: /etc/ssl/certs/your-ca.crt
+```
+
+This works because the mirror and hauler are two halves of one convention. Hauler strips
+the source registry host on push and keeps the repository path; the mirror substitutes
+the host back and appends that same path. So
+
+```
+registry1.dso.mil/ironbank/big-bang/base:2.1.0
+```
+
+is served from `registry.example.mil/ironbank/big-bang/base:2.1.0` — exactly where
+`hauler store copy` put it. No path fixing, no reference rewriting.
+
+A useful side effect: because references are unchanged, Kyverno's
+`restrict-image-registries` policy keeps working with its default allowlist. Rewriting
+references would require you to amend that policy too.
+
+### Charts: Big Bang values
+
+Charts never touch containerd, so the mirror does not apply. Point the Helm repository at
+your registry and switch the packages onto it:
+
+```yaml
+helmRepositories:
+  - name: "registry1"
+    repository: "oci://registry.example.mil/bigbang"
+    type: "oci"
+    username: ""
+    password: ""
+
+istiod:
+  sourceType: "helmRepo"
+# ...and every other package you enable
+```
+
+Two things that will trip you up:
+
+- **Every package defaults to `sourceType: "git"`.** Without flipping them the OCI charts
+  in the archive go unused and you still need `repositories.tar.gz` plus a git server.
+- **An unauthenticated registry is not directly expressible.** The values schema requires
+  `existingSecret`, or `username` **and** `password`, or a non-generic `provider`. Empty
+  strings satisfy the schema and stay falsy in the template, so no `secretRef` is
+  rendered — that is the `username: ""` / `password: ""` above.
+
+### TLS is required for the chart registry
+
+Big Bang cannot emit `insecure` or `certSecretRef` on the `HelmRepository`, so a
+plain-HTTP registry will not work for charts. The registry needs a real certificate, and
+Flux's **source-controller needs the CA** — it runs as a pod, so the node trust store
+does not reach it. Patch it in when you install Flux from `base/flux`:
+
+```yaml
+patches:
+  - target:
+      kind: Deployment
+      name: source-controller
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: source-controller
+      spec:
+        template:
+          spec:
+            containers:
+            - name: manager
+              env:
+              - name: SSL_CERT_FILE
+                value: /etc/ssl/certs/your-ca.crt
+              volumeMounts:
+              - name: registry-ca
+                mountPath: /etc/ssl/certs/your-ca.crt
+                subPath: ca.crt
+                readOnly: true
+            volumes:
+            - name: registry-ca
+              configMap:
+                name: registry-ca
+```
+
+Mount it read-only; `base/flux` sets `readOnlyRootFilesystem: true`. Note `SSL_CERT_FILE`
+replaces Go's trust store rather than adding to it, which is fine in a disconnected
+environment. The symptom of getting this wrong is a `HelmRepository` stuck on an x509
+error.
+
+Flux's own controller images are in the archive at the versions `base/flux` pins, and the
+mirror covers them, so no image changes are needed there.
+
+### Harbor under a single project
+
+Endpoint substitution appends the original path, so a mirror pointing at
+`https://harbor.example.mil` yields `harbor.example.mil/ironbank/...` and needs an
+`ironbank` project. If you require everything under one project instead
+(`harbor.example.mil/bigbang/ironbank/...`), a plain endpoint will not do it — k3s
+exposes a `rewrite` option taking regular expressions for that case.
+
+### AWS: EKS and ECR
+
+The mirror approach does not fit here, and ECR needs preparation before the archive will
+even push.
+
+- **ECR does not create repositories on push.** Unless a repository creation template
+  matches, the push fails. Before `hauler store copy`, either pre-create every repository
+  or add a repository creation template with **Applied for: `CREATE_ON_PUSH`** and prefix
+  `ROOT`. This is a one-time registry setting and the archive contains roughly 190
+  repositories.
+- **Mirrors need node-level containerd configuration**, available on managed node groups
+  through launch template user data and on Bottlerocket through settings, but
+  **impossible on Fargate**.
+- **A mirror pointed at ECR needs static credentials.** The kubelet's ambient ECR
+  credential provider matches the *image reference's* registry — `registry1.dso.mil` —
+  not the mirror endpoint, and ECR authorization tokens are short-lived.
+
+On EKS the practical path is therefore to **rewrite** references to ECR rather than mirror
+them, which lets the node's IAM role authenticate naturally; Big Bang documents that case
+as `registryCredentials: null`. Rewriting is per-package today, using a `postRenderers`
+kustomize `images:` transformer — see [Post Renderers](../../configuration/postrenderers.md).
+
+### Verifying it actually came from your registry
+
+Because image references still say `registry1.dso.mil`, a running pod proves nothing on
+its own. Check that your registry served the pulls:
+
+```shell
+kubectl get helmrepository -n bigbang    # should be Ready
+kubectl get hr -A                        # HelmReleases reconciling
+```
+
+then confirm the pulls in your registry's access log. If a pod is Running and your
+registry logged nothing for that image, it reached upstream and your mirror is not doing
+its job.
+
 ## Without the hauler CLI
 
 The archive is not a proprietary format — it is a zstd-compressed tar of a standard
