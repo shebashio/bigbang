@@ -15,25 +15,6 @@
 global:
   domain: {{ $domainName }}
 
-bb-common:
-  istio:
-    enabled: {{ $istioEnabled }}
-    ambient:
-      enabled: {{ include "ambientEnabled" . }}
-    sidecar:
-      enabled: false
-    authorizationPolicies:
-      enabled: {{ include "authorizationPoliciesEnabled" (list .Values.certManager.values .) }}
-      generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.certManager.values .) }}
-  networkPolicies:
-    enabled: {{ include "networkPoliciesEnabled" . }}
-    hbonePortInjection:
-      enabled: {{ include "ambientEnabled" . }}
-    ingress:
-      definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
-    egress:
-      definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
-
 upstream:
   prometheus:
     servicemonitor:
