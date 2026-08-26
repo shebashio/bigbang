@@ -200,6 +200,13 @@ spec:
 Keep the `startsWith` guard. It confines the rewrite to Big Bang images and leaves the
 cluster's own components — cloud CNI plugins, CoreDNS, kube-proxy — untouched.
 
+A pod spec has three container fields, and the two above are the two that matter.
+Native sidecars are `initContainers` with `restartPolicy: Always`, so they are already
+covered. `ephemeralContainers` are not, and cannot be: they are only settable through the
+`pods/ephemeralcontainers` subresource on **update**, which a `CREATE` rule never sees.
+The practical effect is that `kubectl debug --image registry1.dso.mil/...` will not be
+rewritten — name your registry explicitly when you debug.
+
 #### Apply the policy before anything else
 
 The rule matches `CREATE` only, so it never touches pods that already exist, and a pod
@@ -337,12 +344,35 @@ Two things that will trip you up:
   strings satisfy the schema and stay falsy in the template, so no `secretRef` is
   rendered — that is the `username: ""` / `password: ""` above.
 
-#### TLS is required for the chart registry
+#### TLS is required for an OCI chart registry
 
-Big Bang cannot emit `insecure` or `certSecretRef` on the `HelmRepository`, so a
-plain-HTTP registry will not work for charts. The registry needs a real certificate, and
-Flux's **source-controller needs the CA** — it runs as a pod, so the node trust store
-does not reach it. Patch it in when you install Flux from `base/flux`:
+Flux's `insecure` field — the one that allows a non-TLS registry — is only honoured when
+`.spec.type` is `oci`, and Big Bang's `helmRepositories` template emits neither `insecure`
+nor `certSecretRef`. The archive ships OCI charts, so that is the path you are on: the
+chart registry needs a real certificate. (A classic `type: "default"` HTTP chart
+repository is unaffected by this, but the archive does not give you one.)
+
+If the certificate is signed by a private CA, **source-controller needs that CA** — it
+runs as a pod, so the node trust store does not reach it. Two ways to get it there.
+
+**With values only.** Create an `Opaque` Secret in the `bigbang` namespace holding the CA
+under `ca.crt`, and reference it as `existingSecret`. Source-controller reads TLS material
+out of the auth secret and *extends* the system pool with it. If the registry also needs
+credentials, put `ca.crt` alongside `.dockerconfigjson` in one secret:
+
+```yaml
+helmRepositories:
+  - name: "registry1"
+    repository: "oci://registry.example.mil/bigbang"
+    type: "oci"
+    existingSecret: "registry1-ca"
+```
+
+Flux logs this as deprecated (`certSecretRef` is the supported field), so it works today
+but is worth watching. Big Bang has no `certSecretRef` passthrough, which is what forces
+the choice.
+
+**With a patch to Flux.** Longer-lived, at the cost of editing `base/flux`:
 
 ```yaml
 patches:
