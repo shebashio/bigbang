@@ -217,8 +217,36 @@ even push.
 
 On EKS the practical path is therefore to **rewrite** references to ECR rather than mirror
 them, which lets the node's IAM role authenticate naturally; Big Bang documents that case
-as `registryCredentials: null`. Rewriting is per-package today, using a `postRenderers`
-kustomize `images:` transformer — see [Post Renderers](../../configuration/postrenderers.md).
+as `registryCredentials: null`.
+
+Rewriting is per-package today, using a `postRenderers` kustomize `images:` transformer —
+see [Post Renderers](../../configuration/postrenderers.md). Be aware of what that involves
+before committing to it:
+
+- **Flux's own controllers cannot be rewritten this way.** They are installed from
+  `base/flux` by kustomize, not as HelmReleases, so no post-renderer ever sees them.
+  Rewrite those with a kustomize `images:` transformer in your `base/flux` overlay, and do
+  it first — helm-controller has to be running before it can apply anyone else's
+  post-renderer.
+- **You must also widen the Kyverno allowlist.** A post-renderer runs inside
+  helm-controller *before* the manifests are applied, so what reaches the API server
+  carries your ECR references — and `restrict-image-registries` permits only
+  `registry1.dso.mil` and `registry.dso.mil` by default. Without an override, every
+  rewritten pod is rejected at admission:
+
+  ```yaml
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-image-registries:
+          parameters:
+            allow:
+              - <account>.dkr.ecr.<region>.amazonaws.com
+  ```
+
+- **It is per package and per image**, roughly 190 repositories across the packages you
+  enable. This is the main reason to prefer a registry mirror anywhere node-level
+  containerd configuration is available.
 
 ### Verifying it actually came from your registry
 
