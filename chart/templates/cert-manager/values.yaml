@@ -4,6 +4,7 @@
   "root" $
   "package" .Values.certManager
   "name" "cert-manager"
+  "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.cert-manager" .)
 ) }}
 {{- end }}
