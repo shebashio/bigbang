@@ -75,22 +75,157 @@ until you tell it to, and **images and charts reach the registry by two differen
 routes**. Getting this wrong is the most common failure, so it is worth understanding
 before copying any YAML:
 
-| | Fetched by | Reference stays | Configured with |
-|---|---|---|---|
-| **Images** | containerd, on each node | `registry1.dso.mil/...` | a registry **mirror** |
-| **Charts** | Flux source-controller, over HTTP | rewritten to your registry | Big Bang **values** |
+| | Fetched by | Configured with |
+|---|---|---|
+| **Images** | kubelet/containerd, per node | admission-time rewriting, or a registry mirror |
+| **Charts** | Flux source-controller, over HTTP | Big Bang **values** |
 
 Neither substitutes for the other.
 
 > **`registryCredentials` does not rewrite image references.** It only builds the
-> imagePullSecret. Setting `registryCredentials.registry` to your mirror will not move a
-> single image pull, and the pods will sit in `ImagePullBackOff` while every rendered
+> imagePullSecret. Setting `registryCredentials.registry` to your registry will not move
+> a single image pull, and the pods will sit in `ImagePullBackOff` while every rendered
 > manifest looks correct.
 
-### Images: a containerd registry mirror
+### Images: rewrite at admission (recommended)
 
-Image references stay `registry1.dso.mil/...` and containerd redirects them. On k3s or
-RKE2, `/etc/rancher/k3s/registries.yaml`:
+`MutatingAdmissionPolicy` is stable and enabled by default in **Kubernetes 1.36+**. It
+runs inside the API server, so there is no webhook to operate and no policy engine to
+install, and it rewrites at pod admission — which is downstream of *every* way an image
+reference is produced, including istio sidecar injection and operator-spawned pods.
+
+```yaml
+apiVersion: admissionregistration.k8s.io/v1   # v1beta1 on Kubernetes 1.34-1.35
+kind: MutatingAdmissionPolicy
+metadata:
+  name: rewrite-image-registry
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  failurePolicy: Fail
+  # Required. Sidecars are injected by another webhook after this policy first runs;
+  # without IfNeeded the injected containers are never rewritten.
+  reinvocationPolicy: IfNeeded
+  variables:
+    - name: src
+      expression: '"registry1.dso.mil/"'
+    - name: dst
+      expression: '"registry.example.mil/"'
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(c,
+                Object.spec.containers{
+                  name: c.name,
+                  image: c.image.startsWith(variables.src)
+                    ? variables.dst + c.image.substring(size(variables.src))
+                    : c.image
+                })
+            }
+          }
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              initContainers: object.spec.?initContainers.orValue([]).map(c,
+                Object.spec.initContainers{
+                  name: c.name,
+                  image: c.image.startsWith(variables.src)
+                    ? variables.dst + c.image.substring(size(variables.src))
+                    : c.image
+                })
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: rewrite-image-registry
+spec:
+  policyName: rewrite-image-registry
+  matchResources:
+    namespaceSelector: {}
+```
+
+Keep the `startsWith` guard. It confines the rewrite to Big Bang images and leaves the
+cluster's own components — cloud CNI plugins, CoreDNS, kube-proxy — untouched.
+
+**Apply the policy before anything else.** The rule matches `CREATE` only, so it never
+touches pods that already exist, and a pod admitted before the policy is in place keeps
+its original reference and fails to pull. Kubernetes does not re-admit pods, so that pod
+stays broken until its owner recreates it. The order is:
+
+```shell
+# 1. create the cluster
+# 2. apply the policy
+kubectl apply -f rewrite-image-registry.yaml
+# 3. install Flux from base/flux -- its manifests still say registry1.dso.mil
+# 4. install Big Bang
+```
+
+Because the policy is live first, Flux's own controllers are rewritten as they are
+admitted. Nothing needs pre-rewriting, including `base/flux`.
+
+#### On Kubernetes 1.34 and 1.35
+
+The feature exists but is beta and off by default. **Both** API-server flags are needed,
+and they fail differently:
+
+```
+--runtime-config=admissionregistration.k8s.io/v1beta1=true
+--feature-gates=MutatingAdmissionPolicy=true
+```
+
+With only the first, the API accepts the policy and `kubectl get mutatingadmissionpolicy`
+reports it live with `MUTATIONS: 2` — and it silently rewrites nothing. If mutation
+appears to do nothing, check the feature gate before debugging the CEL. Managed control
+planes that do not expose API-server flags cannot use the beta version at all.
+
+#### Kyverno: allowlist the destination, not the source
+
+If you run `kyvernoPolicies`, its `restrict-image-registries` policy permits only
+`registry1.dso.mil` and `registry.dso.mil`. `MutatingAdmissionPolicy` is a *mutating*
+plugin and therefore runs **before** Kyverno's *validating* webhook, so Kyverno inspects
+the image **after** rewriting. You must allowlist the registry you rewrote **to**, even
+though every manifest you authored names `registry1.dso.mil`:
+
+```yaml
+kyvernoPolicies:
+  values:
+    policies:
+      restrict-image-registries:
+        parameters:
+          allow:
+            - registry.example.mil
+```
+
+Without it, every pod is refused at admission:
+
+```
+admission webhook "validate.kyverno.svc-fail" denied the request:
+restrict-image-registries: 'Image registry is not in the approved list.'
+```
+
+**This failure is delayed and easy to misread.** Pods admitted before Kyverno started
+keep running, so a cluster that already looks healthy stays healthy until something
+churns — the breakage surfaces on the next upgrade, node drain, or rollout, as workloads
+that will not reschedule. If you enable Kyverno after rewriting is already in place,
+apply this override in the same change.
+
+### Images: a containerd registry mirror (alternative)
+
+Where you control node configuration and would rather not run an admission policy, a
+registry mirror achieves the same result at the pull layer. Image references stay
+`registry1.dso.mil/...` and containerd redirects them. On k3s or RKE2,
+`/etc/rancher/k3s/registries.yaml`:
 
 ```yaml
 mirrors:
@@ -106,22 +241,23 @@ configs:
 
 This works because the mirror and hauler are two halves of one convention. Hauler strips
 the source registry host on push and keeps the repository path; the mirror substitutes
-the host back and appends that same path. So
+the host back and appends that same path, so
+`registry1.dso.mil/ironbank/big-bang/base:2.1.0` is served from
+`registry.example.mil/ironbank/big-bang/base:2.1.0` — exactly where `hauler store copy`
+put it.
 
-```
-registry1.dso.mil/ironbank/big-bang/base:2.1.0
-```
+Two consequences worth knowing. Because references are unchanged, Kyverno's
+`restrict-image-registries` keeps working with its default allowlist and needs no
+override. And because the redirect happens below Kubernetes entirely, it covers every
+image regardless of how it was referenced, with nothing to apply in the right order.
 
-is served from `registry.example.mil/ironbank/big-bang/base:2.1.0` — exactly where
-`hauler store copy` put it. No path fixing, no reference rewriting.
-
-A useful side effect: because references are unchanged, Kyverno's
-`restrict-image-registries` policy keeps working with its default allowlist. Rewriting
-references would require you to amend that policy too.
+The trade-off is reach: it requires node-level configuration on every node, which rules
+it out on managed control planes and on Fargate.
 
 ### Charts: Big Bang values
 
-Charts never touch containerd, so the mirror does not apply. Point the Helm repository at
+Charts are fetched by Flux over HTTP, so neither admission rewriting nor a registry
+mirror touches them -- both operate on pods. Point the Helm repository at
 your registry and switch the packages onto it:
 
 ```yaml
@@ -200,67 +336,57 @@ exposes a `rewrite` option taking regular expressions for that case.
 
 ### AWS: EKS and ECR
 
-The mirror approach does not fit here, and ECR needs preparation before the archive will
-even push.
+ECR needs preparation before the archive will push at all, and the choice of rewriting
+mechanism is decided for you.
 
 - **ECR does not create repositories on push.** Unless a repository creation template
   matches, the push fails. Before `hauler store copy`, either pre-create every repository
   or add a repository creation template with **Applied for: `CREATE_ON_PUSH`** and prefix
-  `ROOT`. This is a one-time registry setting and the archive contains roughly 190
+  `ROOT`. This is a one-time registry setting, and the archive contains roughly 190
   repositories.
-- **Mirrors need node-level containerd configuration**, available on managed node groups
-  through launch template user data and on Bottlerocket through settings, but
-  **impossible on Fargate**.
-- **A mirror pointed at ECR needs static credentials.** The kubelet's ambient ECR
-  credential provider matches the *image reference's* registry — `registry1.dso.mil` —
-  not the mirror endpoint, and ECR authorization tokens are short-lived.
+- **A registry mirror is not available.** It needs node-level containerd configuration,
+  which managed node groups allow only through launch template user data and Bottlerocket
+  through settings — and Fargate not at all.
+- **Use `MutatingAdmissionPolicy`.** On Kubernetes 1.36+ it is stable and on by default,
+  so it needs no API-server flags and works on managed control planes. On 1.34-1.35 it is
+  beta and requires flags EKS does not expose, so it is unavailable there.
 
-On EKS the practical path is therefore to **rewrite** references to ECR rather than mirror
-them, which lets the node's IAM role authenticate naturally; Big Bang documents that case
-as `registryCredentials: null`.
+Rewriting to ECR has a further advantage: the node's IAM role authenticates to ECR
+natively, so no pull secret is required. Big Bang documents that case as
+`registryCredentials: null`.
 
-Rewriting is per-package today, using a `postRenderers` kustomize `images:` transformer —
-see [Post Renderers](../../configuration/postrenderers.md). Be aware of what that involves
-before committing to it:
-
-- **Flux's own controllers cannot be rewritten this way.** They are installed from
-  `base/flux` by kustomize, not as HelmReleases, so no post-renderer ever sees them.
-  Rewrite those with a kustomize `images:` transformer in your `base/flux` overlay, and do
-  it first — helm-controller has to be running before it can apply anyone else's
-  post-renderer.
-- **You must also widen the Kyverno allowlist.** A post-renderer runs inside
-  helm-controller *before* the manifests are applied, so what reaches the API server
-  carries your ECR references — and `restrict-image-registries` permits only
-  `registry1.dso.mil` and `registry.dso.mil` by default. Without an override, every
-  rewritten pod is rejected at admission:
-
-  ```yaml
-  kyvernoPolicies:
-    values:
-      policies:
-        restrict-image-registries:
-          parameters:
-            allow:
-              - <account>.dkr.ecr.<region>.amazonaws.com
-  ```
-
-- **It is per package and per image**, roughly 190 repositories across the packages you
-  enable. This is the main reason to prefer a registry mirror anywhere node-level
-  containerd configuration is available.
+If you are on a Kubernetes version below 1.36 on EKS, neither a mirror nor an in-tree
+policy is available, and the remaining option is a Kyverno mutating `ClusterPolicy`.
+Note the bootstrap cost: Kyverno cannot mutate the pods that install Kyverno, so its own
+images and the `kubectl` image in the `kyverno-policies` wait-job must be rewritten with
+`postRenderers` first, and Flux's four controller images with a kustomize `images:`
+transformer in your `base/flux` overlay.
 
 ### Verifying it actually came from your registry
-
-Because image references still say `registry1.dso.mil`, a running pod proves nothing on
-its own. Check that your registry served the pulls:
 
 ```shell
 kubectl get helmrepository -n bigbang    # should be Ready
 kubectl get hr -A                        # HelmReleases reconciling
+kubectl get po -A                        # no ImagePullBackOff
 ```
 
-then confirm the pulls in your registry's access log. If a pod is Running and your
-registry logged nothing for that image, it reached upstream and your mirror is not doing
-its job.
+**If you rewrote at admission**, the pod specs are the evidence — they should name your
+registry, not the one in the manifests you applied. This should return zero:
+
+```shell
+kubectl get po -A -o json \
+  | jq '[.items[].spec | (.containers[]?, .initContainers[]?) | .image]
+        | map(select(startswith("registry1.dso.mil"))) | length'
+```
+
+Check a pod in an istio-injected namespace specifically. The sidecar is added by a
+separate webhook, so it is the case most likely to be missed — if `istio-proxy` still
+names `registry1.dso.mil`, `reinvocationPolicy: IfNeeded` is not set.
+
+**If you used a mirror**, pod specs still say `registry1.dso.mil` by design, so a running
+pod proves nothing on its own. The registry's access log is the only evidence: if a pod
+is Running and your registry logged nothing for that image, it reached upstream and the
+mirror is not doing its job.
 
 ## Without the hauler CLI
 
