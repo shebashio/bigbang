@@ -1,12 +1,20 @@
-# Airgap w/Hauler
+# Disconnected Environments with Hauler
+
+[[_TOC_]]
 
 Big Bang releases ship `bb-<tag>-images-charts.tar.zst`, a
 [Hauler](https://github.com/hauler-dev/hauler) content archive holding every
 container image Big Bang needs plus the OCI-published Big Bang Helm charts. It is
 an alternative to `images.tar.gz`, which remains available and unchanged.
 
-Use this if your environment already has a registry (Harbor, Artifactory, Nexus,
-or any OCI registry) to import into.
+Use this guide if your environment already has a registry (Harbor, Artifactory, Nexus,
+or any OCI registry) to import into. For the general disconnected picture — what has to
+exist inside the boundary before any of this matters — see
+[Disconnected Environments](airgap.md).
+
+The work is in three parts: [import the archive](#1-import-the-archive-into-your-registry),
+[point Big Bang at your registry](#2-point-big-bang-at-your-registry), and
+[verify what the cluster actually pulled](#3-verify-it-came-from-your-registry).
 
 ## Prerequisites
 
@@ -16,7 +24,9 @@ or any OCI registry) to import into.
 - A registry you can push to, and credentials for it
 - Roughly 2x the archive size in free disk for the unpacked store
 
-## Import
+## 1. Import the archive into your registry
+
+### Download and verify
 
 Download `bb-<tag>-images-charts.tar.zst` and the release checksums file from
 the [release page](https://repo1.dso.mil/big-bang/bigbang/-/releases).
@@ -26,17 +36,23 @@ build, that link returns 404. Confirm the file actually appears in the checksums
 manifest before trusting it — `--ignore-missing` reports success for a file it
 never checked.
 
+```shell
+grep images-charts bigbang-<tag>_checksums.txt
+sha256sum -c bigbang-<tag>_checksums.txt --ignore-missing
+```
+
+### Load and push
+
 The archive is named for its release, so `-f` is required — `hauler store load`
 on its own looks for hauler's default `haul.tar.zst` and will not find it.
 
 ```shell
-grep images-charts bigbang-<tag>_checksums.txt
-sha256sum -c bigbang-<tag>_checksums.txt --ignore-missing
-
 hauler store load -f bb-<tag>-images-charts.tar.zst
 hauler login <your-registry> -u <username> -p <password>
 hauler store copy registry://<your-registry>
 ```
+
+### Where the images land
 
 Hauler strips the source registry host and preserves the rest of the repository
 path, so an image published as
@@ -55,12 +71,28 @@ Set your Big Bang registry overrides to `<your-registry>` and the `ironbank/...`
 paths resolve as published. If you are migrating from the older `images.tar.gz`
 flow, compare a few entries against your current registry before switching over.
 
-### Harbor
+### Harbor: create the projects first
 
 Harbor treats the first path segment as a **project** and will not create one
 automatically. Create the projects matching the top-level path segments in
-`images-v2-with-dependencies.txt` — at minimum `ironbank` and `bigbang` — before
+`images-v2-with-dependencies.txt` and `oci_package_list.txt` — `ironbank` and
+`bigbang` always, plus `gitlab` if you enable the GitLab package — before
 running `hauler store copy`, or the pushes will fail with permission errors.
+
+If you need everything under a *single* Harbor project instead, see
+[Harbor under a single project](#harbor-under-a-single-project); that layout only
+works with the registry-mirror approach.
+
+### ECR: create the repositories first
+
+ECR does not create repositories on push. Unless a repository creation template
+matches, the push fails. Before `hauler store copy`, either pre-create every repository
+or add a repository creation template with **Applied for: `CREATE_ON_PUSH`** and prefix
+`ROOT`. This is a one-time registry setting, and the archive contains roughly 190
+repositories.
+
+ECR also constrains which rewriting mechanism you can use later — see
+[AWS: EKS and ECR](#aws-eks-and-ecr).
 
 ### Self-signed registry certificates
 
@@ -68,7 +100,7 @@ running `hauler store copy`, or the pushes will fail with permission errors.
 hauler store copy registry://<your-registry> --insecure
 ```
 
-## Deploying Big Bang from the archive
+## 2. Point Big Bang at your registry
 
 Getting the archive into your registry is only half the job. Big Bang will not use it
 until you tell it to, and **images and charts reach the registry by two different
@@ -87,7 +119,17 @@ Neither substitutes for the other.
 > a single image pull, and the pods will sit in `ImagePullBackOff` while every rendered
 > manifest looks correct.
 
-### Images: rewrite at admission (recommended)
+### Choosing an image mechanism
+
+| | Admission policy | Registry mirror |
+|---|---|---|
+| Node-level configuration | none | required, on every node |
+| Managed control planes, Fargate | works (Kubernetes 1.36+) | not available |
+| Kyverno allowlist override | required | not needed |
+| Image refs in pod specs | rewritten to your registry | unchanged |
+| Apply order matters | yes — before any workload is admitted | no |
+
+### Images, option A: rewrite at admission (recommended)
 
 `MutatingAdmissionPolicy` is stable and enabled by default in **Kubernetes 1.36+**. It
 runs inside the API server, so there is no webhook to operate and no policy engine to
@@ -145,7 +187,7 @@ spec:
             }
           }
 ---
-apiVersion: admissionregistration.k8s.io/v1
+apiVersion: admissionregistration.k8s.io/v1   # v1beta1 on Kubernetes 1.34-1.35
 kind: MutatingAdmissionPolicyBinding
 metadata:
   name: rewrite-image-registry
@@ -158,10 +200,12 @@ spec:
 Keep the `startsWith` guard. It confines the rewrite to Big Bang images and leaves the
 cluster's own components — cloud CNI plugins, CoreDNS, kube-proxy — untouched.
 
-**Apply the policy before anything else.** The rule matches `CREATE` only, so it never
-touches pods that already exist, and a pod admitted before the policy is in place keeps
-its original reference and fails to pull. Kubernetes does not re-admit pods, so that pod
-stays broken until its owner recreates it. The order is:
+#### Apply the policy before anything else
+
+The rule matches `CREATE` only, so it never touches pods that already exist, and a pod
+admitted before the policy is in place keeps its original reference and fails to pull.
+Kubernetes does not re-admit pods, so that pod stays broken until its owner recreates it.
+The order is:
 
 ```shell
 # 1. create the cluster
@@ -207,6 +251,9 @@ kyvernoPolicies:
             - registry.example.mil
 ```
 
+If you have enabled the CEL-based policies, apply the same override to
+`restrict-image-registries-cel`.
+
 Without it, every pod is refused at admission:
 
 ```
@@ -220,7 +267,7 @@ churns — the breakage surfaces on the next upgrade, node drain, or rollout, as
 that will not reschedule. If you enable Kyverno after rewriting is already in place,
 apply this override in the same change.
 
-### Images: a containerd registry mirror (alternative)
+### Images, option B: a containerd registry mirror
 
 Where you control node configuration and would rather not run an admission policy, a
 registry mirror achieves the same result at the pull layer. Image references stay
@@ -254,10 +301,18 @@ image regardless of how it was referenced, with nothing to apply in the right or
 The trade-off is reach: it requires node-level configuration on every node, which rules
 it out on managed control planes and on Fargate.
 
+#### Harbor under a single project
+
+Endpoint substitution appends the original path, so a mirror pointing at
+`https://harbor.example.mil` yields `harbor.example.mil/ironbank/...` and needs an
+`ironbank` project. If you require everything under one project instead
+(`harbor.example.mil/bigbang/ironbank/...`), a plain endpoint will not do it — k3s
+exposes a `rewrite` option taking regular expressions for that case.
+
 ### Charts: Big Bang values
 
 Charts are fetched by Flux over HTTP, so neither admission rewriting nor a registry
-mirror touches them -- both operate on pods. Point the Helm repository at
+mirror touches them — both operate on pods. Point the Helm repository at
 your registry and switch the packages onto it:
 
 ```yaml
@@ -282,7 +337,7 @@ Two things that will trip you up:
   strings satisfy the schema and stay falsy in the template, so no `secretRef` is
   rendered — that is the `username: ""` / `password: ""` above.
 
-### TLS is required for the chart registry
+#### TLS is required for the chart registry
 
 Big Bang cannot emit `insecure` or `certSecretRef` on the `HelmRepository`, so a
 plain-HTTP registry will not work for charts. The registry needs a real certificate, and
@@ -326,24 +381,12 @@ error.
 Flux's own controller images are in the archive at the versions `base/flux` pins, and the
 mirror covers them, so no image changes are needed there.
 
-### Harbor under a single project
-
-Endpoint substitution appends the original path, so a mirror pointing at
-`https://harbor.example.mil` yields `harbor.example.mil/ironbank/...` and needs an
-`ironbank` project. If you require everything under one project instead
-(`harbor.example.mil/bigbang/ironbank/...`), a plain endpoint will not do it — k3s
-exposes a `rewrite` option taking regular expressions for that case.
-
 ### AWS: EKS and ECR
 
-ECR needs preparation before the archive will push at all, and the choice of rewriting
-mechanism is decided for you.
+On EKS the choice of rewriting mechanism is made for you. (For getting the archive into
+ECR in the first place, see [ECR: create the repositories
+first](#ecr-create-the-repositories-first).)
 
-- **ECR does not create repositories on push.** Unless a repository creation template
-  matches, the push fails. Before `hauler store copy`, either pre-create every repository
-  or add a repository creation template with **Applied for: `CREATE_ON_PUSH`** and prefix
-  `ROOT`. This is a one-time registry setting, and the archive contains roughly 190
-  repositories.
 - **A registry mirror is not available.** It needs node-level containerd configuration,
   which managed node groups allow only through launch template user data and Bottlerocket
   through settings — and Fargate not at all.
@@ -362,7 +405,7 @@ images and the `kubectl` image in the `kyverno-policies` wait-job must be rewrit
 `postRenderers` first, and Flux's four controller images with a kustomize `images:`
 transformer in your `base/flux` overlay.
 
-### Verifying it actually came from your registry
+## 3. Verify it came from your registry
 
 ```shell
 kubectl get helmrepository -n bigbang    # should be Ready
@@ -398,12 +441,12 @@ tooling if you cannot install `hauler` on the high side.
 mkdir haul && tar --zstd -xf bb-<tag>-images-charts.tar.zst -C haul
 ```
 
-That yields `index.json`, `manifest.json`, and `blobs/sha256/`. Note the layout does
-not include an `oci-layout` marker file; tools that validate the layout strictly
-will want one, and it is a single line to add:
+That yields `index.json`, `manifest.json`, and `blobs/sha256/`. Older hauler versions
+did not write an `oci-layout` marker file, and tools that validate the layout strictly
+will want one. Check, and add it if it is missing — it is a single line:
 
 ```shell
-printf '{"imageLayoutVersion":"1.0.0"}' > haul/oci-layout
+[ -f haul/oci-layout ] || printf '{"imageLayoutVersion":"1.0.0"}' > haul/oci-layout
 ```
 
 Each image is addressable by the ref name recorded in `index.json`, so a push loop
