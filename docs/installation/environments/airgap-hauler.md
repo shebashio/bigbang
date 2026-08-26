@@ -16,6 +16,9 @@ The work is in three parts: [import the archive](#1-import-the-archive-into-your
 [point Big Bang at your registry](#2-point-big-bang-at-your-registry), and
 [verify what the cluster actually pulled](#3-verify-it-came-from-your-registry).
 
+Throughout, `registry.example.mil` stands for your registry and `<tag>` for the Big Bang
+release you are installing. Substitute your own.
+
 ## Prerequisites
 
 - The [`hauler` CLI](https://github.com/hauler-dev/hauler/releases) on the high side.
@@ -23,6 +26,15 @@ The work is in three parts: [import the archive](#1-import-the-archive-into-your
   install it and would rather use `skopeo`.
 - A registry you can push to, and credentials for it
 - Roughly 2x the archive size in free disk for the unpacked store
+
+On the cluster side, how you get images out of that registry depends on what you can
+change — decide this before you start, because it affects the install order:
+
+- **Kubernetes 1.36+**, and you can rewrite image references at admission. This is the
+  recommended path and the only one available on managed control planes.
+- **Root access to every node**, and you can configure a containerd registry mirror
+  instead. Works on any Kubernetes version; not available on EKS managed node groups
+  without launch template user data, or on Fargate at all.
 
 ## 1. Import the archive into your registry
 
@@ -48,9 +60,11 @@ on its own looks for hauler's default `haul.tar.zst` and will not find it.
 
 ```shell
 hauler store load -f bb-<tag>-images-charts.tar.zst
-hauler login <your-registry> -u <username> -p <password>
-hauler store copy registry://<your-registry>
+hauler login registry.example.mil -u <username> --password-stdin < token.txt
+hauler store copy registry://registry.example.mil
 ```
+
+`-p <password>` works too, but puts the credential in your shell history.
 
 ### Where the images land
 
@@ -64,12 +78,13 @@ registry1.dso.mil/ironbank/big-bang/base:2.1.0
 lands in your registry as
 
 ```
-<your-registry>/ironbank/big-bang/base:2.1.0
+registry.example.mil/ironbank/big-bang/base:2.1.0
 ```
 
-Set your Big Bang registry overrides to `<your-registry>` and the `ironbank/...`
-paths resolve as published. If you are migrating from the older `images.tar.gz`
-flow, compare a few entries against your current registry before switching over.
+Nothing in Big Bang points at that path yet — that is what
+[part 2](#2-point-big-bang-at-your-registry) does. If you are migrating from the older
+`images.tar.gz` flow, compare a few entries against your current registry before
+switching over.
 
 ### Harbor: create the projects first
 
@@ -97,15 +112,14 @@ ECR also constrains which rewriting mechanism you can use later — see
 ### Self-signed registry certificates
 
 ```shell
-hauler store copy registry://<your-registry> --insecure
+hauler store copy registry://registry.example.mil --insecure
 ```
 
 ## 2. Point Big Bang at your registry
 
 Getting the archive into your registry is only half the job. Big Bang will not use it
 until you tell it to, and **images and charts reach the registry by two different
-routes**. Getting this wrong is the most common failure, so it is worth understanding
-before copying any YAML:
+routes**. Getting this wrong is the most common failure here:
 
 | | Fetched by | Configured with |
 |---|---|---|
@@ -200,12 +214,11 @@ spec:
 Keep the `startsWith` guard. It confines the rewrite to Big Bang images and leaves the
 cluster's own components — cloud CNI plugins, CoreDNS, kube-proxy — untouched.
 
-A pod spec has three container fields, and the two above are the two that matter.
-Native sidecars are `initContainers` with `restartPolicy: Always`, so they are already
-covered. `ephemeralContainers` are not, and cannot be: they are only settable through the
+The two mutations cover both container fields you need. Native sidecars are
+`initContainers` with `restartPolicy: Always`, so they are handled by the second one.
+Ephemeral containers are not, and cannot be — they are only settable through the
 `pods/ephemeralcontainers` subresource on **update**, which a `CREATE` rule never sees.
-The practical effect is that `kubectl debug --image registry1.dso.mil/...` will not be
-rewritten — name your registry explicitly when you debug.
+So name your registry explicitly when you run `kubectl debug`.
 
 #### Apply the policy before anything else
 
@@ -435,6 +448,51 @@ images and the `kubectl` image in the `kyverno-policies` wait-job must be rewrit
 `postRenderers` first, and Flux's four controller images with a kustomize `images:`
 transformer in your `base/flux` overlay.
 
+### The values, all together
+
+The pieces above are described where they matter; this is what they look like in one
+file. For the admission-policy path:
+
+```yaml
+# Pull credentials for the registry the images were rewritten TO. This does not
+# rewrite anything -- it only builds the imagePullSecret -- but without it a private
+# registry answers the rewritten pulls with 401.
+registryCredentials:
+  registry: registry.example.mil
+  username: <username>
+  password: <password>
+
+# Charts. Flux fetches these itself, so they are configured here rather than rewritten.
+helmRepositories:
+  - name: "registry1"
+    repository: "oci://registry.example.mil/bigbang"
+    type: "oci"
+    username: ""
+    password: ""
+
+# Kyverno validates AFTER the rewrite, so allow the destination.
+kyvernoPolicies:
+  values:
+    policies:
+      restrict-image-registries:
+        parameters:
+          allow:
+            - registry.example.mil
+
+# Every package defaults to sourceType "git". Flip each one you enable.
+istiod:
+  sourceType: "helmRepo"
+istioGateway:
+  sourceType: "helmRepo"
+# ...and so on
+```
+
+With a registry mirror instead, drop the `kyvernoPolicies` override, leave
+`registryCredentials` pointed at `registry1.dso.mil` (references are unchanged, so that
+is the host the kubelet authenticates to), and give containerd the mirror's own
+credentials under `configs:` in `registries.yaml`. The `helmRepositories` and
+`sourceType` values are the same either way — charts never go through the mirror.
+
 ## 3. Verify it came from your registry
 
 ```shell
@@ -486,7 +544,7 @@ the image they cover), hence the `sort -u`:
 ```shell
 jq -r '.manifests[].annotations."org.opencontainers.image.ref.name" | select(. != null)' \
   haul/index.json | sort -u \
-  | xargs -P4 -I{} skopeo copy --retry-times 3 oci:haul:{} docker://<your-registry>/{}
+  | xargs -P4 -I{} skopeo copy --retry-times 3 oci:haul:{} docker://registry.example.mil/{}
 ```
 
 Two notes if you go this route:
