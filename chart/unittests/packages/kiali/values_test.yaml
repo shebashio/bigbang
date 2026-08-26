@@ -15,8 +15,17 @@ tests:
       - equal:
           path: domain
           value: "dev.bigbang.mil"
+  - it: nests istio under bb-common in common, since kiali uses bb-common as a subchart
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      istiod.values.hardened.enabled: true
+    asserts:
       - equal:
-          path: istio.enabled
+          path: bb-common.istio.enabled
           value: true
   - it: should map customServiceEntries to istio.serviceEntries.custom
     postRenderer:

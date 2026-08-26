@@ -517,17 +517,24 @@ Args (dict):
                          istio/networkPolicies values at all (e.g. CRD-only packages like
                          istio-crds, prometheus-operator-crds).
   bbCommonSubchart:      optional, default false. bb-common is currently consumed as a library
-                         chart, which reads its istio/networkPolicies/etc. values from the top
+                         chart, which reads its istio/networkPolicies/routes values from the top
                          level of the values passed to the HelmRelease. Once a package's bb-common
                          dependency moves to being a regular subchart, those same values need to
                          be nested under a `bb-common` key instead (Helm's normal subchart value
-                         scoping). Set to true for a package that has made that switch. Once every
-                         package has migrated, this condition should be made unconditional and the
-                         parameter removed from every values-secret call site.
+                         scoping). Set to true for a package that has made that switch. Note routes
+                         is picked only when present, since not every package declares one. Once
+                         every package has migrated, this condition should be made unconditional
+                         and the parameter removed from every values-secret call site.
 */ -}}
 {{- define "values-secret" -}}
 {{- $packageValues := default dict .package.values -}}
 {{- $explicitDefaults := default (dict) (fromYaml .defaults) -}}
+{{- /* A package's own defaults may declare istio/networkPolicies/routes either flat or nested 
+       under bb-common when used as a sub-chart. Normalize to flat here so everything below 
+       only has to handle one shape, regardless of usage or use of the bbCommonSubchart flag. */ -}}
+{{- if hasKey $explicitDefaults "bb-common" }}
+{{- $explicitDefaults = mustMergeOverwrite (omit $explicitDefaults "bb-common") (deepCopy (index $explicitDefaults "bb-common")) -}}
+{{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
 {{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
@@ -535,11 +542,24 @@ Args (dict):
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
 {{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
+{{- $remainingDefaults := $defaults }}
 {{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
-       regular subchart, drop this condition (always nest under bb-common) and remove the
+       regular subchart, drop this condition (always nest under bb-common, always omit
+       injection, always strip istio/networkPolicies from defaults) and remove the
        "bbCommonSubchart" arg from every values-secret call site. */ -}}
 {{- if dig "bbCommonSubchart" false . }}
+{{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
+{{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
+{{- if hasKey $commonBlock "istio" }}
+{{- /* injection is a library-chart-era concept; drop it once bb-common is a real subchart. */ -}}
+{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection") }}
+{{- end }}
 {{- $commonBlock = dict "bb-common" $commonBlock }}
+{{- /* istio/networkPolicies/routes are fully captured above (common already reflects
+       overlay+defaults merged), so strip them out of defaults to avoid re-flattening them
+       there. Left untouched in library-chart mode, since defaults is relied on there as the
+       full effective picture (e.g. by unittests asserting against stringData.defaults). */ -}}
+{{- $remainingDefaults = omit ($defaults | fromYaml) "istio" "networkPolicies" "routes" | toYaml }}
 {{- end }}
 apiVersion: v1
 kind: Secret
@@ -550,7 +570,7 @@ type: generic
 stringData:
   common: |
     {{- toYaml $commonBlock | nindent 4 }}
-  defaults: {{- toYaml $defaults | nindent 4 }}
+  defaults: {{- toYaml $remainingDefaults | nindent 4 }}
   overlays: |
     {{- toYaml .package.values | nindent 4 }}
 {{- end -}}
