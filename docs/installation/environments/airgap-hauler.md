@@ -1,9 +1,9 @@
 # Airgap w/Hauler
 
-Big Bang releases ship `haul.tar.zst`, a [Hauler](https://github.com/hauler-dev/hauler)
-content archive holding every container image Big Bang needs plus the OCI-published
-Big Bang Helm charts. It is an alternative to `images.tar.gz`, which remains
-available and unchanged.
+Big Bang releases ship `bb-<tag>-images-charts.tar.zst`, a
+[Hauler](https://github.com/hauler-dev/hauler) content archive holding every
+container image Big Bang needs plus the OCI-published Big Bang Helm charts. It is
+an alternative to `images.tar.gz`, which remains available and unchanged.
 
 Use this if your environment already has a registry (Harbor, Artifactory, Nexus,
 or any OCI registry) to import into.
@@ -18,19 +18,22 @@ or any OCI registry) to import into.
 
 ## Import
 
-Download `haul.tar.zst` and the release checksums file from the
-[release page](https://repo1.dso.mil/big-bang/bigbang/-/releases).
+Download `bb-<tag>-images-charts.tar.zst` and the release checksums file from
+the [release page](https://repo1.dso.mil/big-bang/bigbang/-/releases).
 
-The release page always lists a `haul.tar.zst` link; on the rare release where the
-archive failed to build, that link returns 404. Confirm the file actually appears
-in the checksums manifest before trusting it — `--ignore-missing` reports success
-for a file it never checked.
+The release page always lists the archive; on the rare release where it failed to
+build, that link returns 404. Confirm the file actually appears in the checksums
+manifest before trusting it — `--ignore-missing` reports success for a file it
+never checked.
+
+The archive is named for its release, so `-f` is required — `hauler store load`
+on its own looks for hauler's default `haul.tar.zst` and will not find it.
 
 ```shell
-grep haul.tar.zst bigbang-<tag>_checksums.txt
+grep images-charts bigbang-<tag>_checksums.txt
 sha256sum -c bigbang-<tag>_checksums.txt --ignore-missing
 
-hauler store load -f haul.tar.zst
+hauler store load -f bb-<tag>-images-charts.tar.zst
 hauler login <your-registry> -u <username> -p <password>
 hauler store copy registry://<your-registry>
 ```
@@ -68,11 +71,11 @@ hauler store copy registry://<your-registry> --insecure
 ## Without the hauler CLI
 
 The archive is not a proprietary format — it is a zstd-compressed tar of a standard
-OCI image layout, so `haul.tar.zst` can be unpacked and pushed with any OCI-aware
+OCI image layout, so the archive can be unpacked and pushed with any OCI-aware
 tooling if you cannot install `hauler` on the high side.
 
 ```shell
-mkdir haul && tar --zstd -xf haul.tar.zst -C haul
+mkdir haul && tar --zstd -xf bb-<tag>-images-charts.tar.zst -C haul
 ```
 
 That yields `index.json`, `manifest.json`, and `blobs/sha256/`. Note the layout does
@@ -112,7 +115,7 @@ internal registry without reaching back to the source.
 
 ## What is not included
 
-`haul.tar.zst` contains images and OCI Helm charts only. If you deploy Big Bang
+The archive contains images and OCI Helm charts only. If you deploy Big Bang
 packages from **git** sources rather than the `helmRepo` (OCI) sources, you also
 need `repositories.tar.gz` from the same release and a git server to host it.
 Hauler has no git repository content type and does not replace that artifact.
