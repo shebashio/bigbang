@@ -7,10 +7,11 @@ Big Bang releases ship `bb-<tag>-images-charts.tar.zst`, a
 container image Big Bang needs plus the OCI-published Big Bang Helm charts. It is
 an alternative to `images.tar.gz`, which remains available and unchanged.
 
-Use this guide if your environment already has a registry (Harbor, Artifactory, Nexus,
-or any OCI registry) to import into. For the general disconnected picture — what has to
-exist inside the boundary before any of this matters — see
-[Disconnected Environments](airgap.md).
+Use this guide if your environment has a registry (Harbor, Artifactory, Nexus, or any
+OCI registry) to import into — or if it has none, since hauler can
+[serve the archive as a registry itself](#no-registry-serve-one-from-the-archive). For
+the general disconnected picture — what has to exist inside the boundary before any of
+this matters — see [Disconnected Environments](airgap.md).
 
 The work is in three parts: [import the archive](#1-import-the-archive-into-your-registry),
 [point Big Bang at your registry](#2-point-big-bang-at-your-registry), and
@@ -24,7 +25,8 @@ release you are installing. Substitute your own.
 - The [`hauler` CLI](https://github.com/hauler-dev/hauler/releases) on the high side.
   Optional — see [Without the hauler CLI](#without-the-hauler-cli) if you cannot
   install it and would rather use `skopeo`.
-- A registry you can push to, and credentials for it
+- A registry you can push to, and credentials for it — or none, if you serve the
+  archive with `hauler store serve registry` instead
 - Roughly 2x the archive size in free disk for the unpacked store
 
 On the cluster side, how you get images out of that registry depends on what you can
@@ -114,6 +116,39 @@ ECR also constrains which rewriting mechanism you can use later — see
 ```shell
 hauler store copy registry://registry.example.mil --insecure
 ```
+
+### No registry? Serve one from the archive
+
+If there is no registry to import into, hauler will run one over the store it just
+loaded. `hauler store serve registry` copies the store into a
+[distribution](https://github.com/distribution/distribution) registry and serves it on
+port 5000, read-only:
+
+```shell
+hauler store load -f bb-<tag>-images-charts.tar.zst
+hauler store serve registry \
+  --tls-cert /etc/ssl/certs/registry.crt \
+  --tls-key /etc/ssl/private/registry.key
+```
+
+The repository paths are identical to those in
+[Where the images land](#where-the-images-land) — it is the same `registry://` copy — so
+everything in [part 2](#2-point-big-bang-at-your-registry) applies unchanged, with the
+serving host in place of `registry.example.mil`.
+
+Four things to know before you rely on it:
+
+- **Pass the TLS flags for charts.** They are optional, and without them the registry is
+  plain HTTP, which Flux will not use for OCI charts. See
+  [TLS is required for an OCI chart registry](#tls-is-required-for-an-oci-chart-registry).
+  Images are less picky — a containerd mirror can be pointed at an HTTP endpoint.
+- **There is no authentication.** Anything that can reach the port can pull the whole
+  archive. Put it where only the cluster can, and leave `registryCredentials: null`.
+- **It must be reachable from every node**, so it belongs on a host inside the boundary
+  rather than on the workstation you unpacked the archive on.
+- **It is one process serving local disk** — no replication, no failover, and the store
+  has to stay on that disk. That suits an appliance or edge install; for a long-lived
+  cluster, import into a real registry.
 
 ## 2. Point Big Bang at your registry
 
