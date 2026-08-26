@@ -9,8 +9,9 @@
 {{- include "values-secret" (dict 
   "root" $ 
   "package" $kialiPackage 
-  "name" "kiali" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.kiali" . | fromYaml) (include "bigbang.kiali.bb-common-migrations" . | fromYaml)) | toYaml)
+  "name" "kiali"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.kiali" .)
 )}}
 {{- end }}
 
@@ -32,37 +33,38 @@ tracing:
 
 openshift: {{ .Values.openshift}}
 
-routes:
-  inbound:
-    kiali:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kiali.values }}
-      hosts:
-      - repo1.dso.mil
-    grafana:
-      enabled: {{ .Values.grafana.enabled }}
-      hosts:
-      - {{ $grafanaUrl | default (printf "%s.%s" "grafana" $domainName) }}
-    sso:
-      enabled: {{ .Values.kiali.sso.enabled }}
-      hosts:
-      - {{ include "sso.host" . }}
-
-networkPolicies:
-  egress:
-    from:
+bb-common:
+  routes:
+    inbound:
       kiali:
-        to:
-          k8s:
-            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
-            tempo/tempo:3200: {{ .Values.tempo.enabled }}
-            istio-system/istiod:15014: {{ .Values.istiod.enabled }}
-          definition:
-            sso: {{ .Values.kiali.sso.enabled }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.kiali.values }}
+        hosts:
+        - repo1.dso.mil
+      grafana:
+        enabled: {{ .Values.grafana.enabled }}
+        hosts:
+        - {{ $grafanaUrl | default (printf "%s.%s" "grafana" $domainName) }}
+      sso:
+        enabled: {{ .Values.kiali.sso.enabled }}
+        hosts:
+        - {{ include "sso.host" . }}
+  
+  networkPolicies:
+    egress:
+      from:
+        kiali:
+          to:
+            k8s:
+              monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+              monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+              tempo/tempo:3200: {{ .Values.tempo.enabled }}
+              istio-system/istiod:15014: {{ .Values.istiod.enabled }}
+            definition:
+              sso: {{ .Values.kiali.sso.enabled }}
 
 waitJob:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
