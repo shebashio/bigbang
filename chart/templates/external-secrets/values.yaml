@@ -5,15 +5,27 @@
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.externalSecrets.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $webhookEnabled := dig "upstream" "webhook" "create" false .Values.addons.externalSecrets.values }}
-{{- $certControllerEnabled := dig "upstream" "certController" "create" false .Values.addons.externalSecrets.values }}
+{{- $externalSecretsValues := .Values.addons.externalSecrets.values | default dict }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $webhookEnabled := dig "upstream" "webhook" "create" false $externalSecretsValues }}
+{{- $certControllerEnabled := dig "upstream" "certController" "create" false $externalSecretsValues }}
+{{- $authorizationPoliciesEnabled := include "authorizationPoliciesEnabled" (list $externalSecretsValues .) }}
 
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
-    
+
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
+  {{- if $istioEnabled }}
+  podAnnotations:
+    {{ include "istioAnnotation" . }}
+  webhook:
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+  certController:
+    podAnnotations:
+      {{ include "istioAnnotation" . }}
+  {{- end }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}
@@ -27,8 +39,8 @@ istio:
   ambient:
     enabled: {{ include "ambientEnabled" . }}
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list .Values.addons.externalSecrets.values .) }}
+    enabled: {{ $authorizationPoliciesEnabled }}
+    generateFromNetpol: {{ $authorizationPoliciesEnabled }}
     additionalPolicies:
       allow-ingress-to-external-secrets-webhook-tcp-port-10250-from-kube-api:
         enabled: {{ $webhookEnabled }}
@@ -59,11 +71,6 @@ networkPolicies:
         to:
           definition:
             kubeAPI: {{ $certControllerEnabled }}
-
-{{- if $istioEnabled }}
-annotations:
-  {{ include "istioAnnotation" . }}
-{{- end }}
 
 openshift: {{ .Values.openshift }}
 {{- end -}}
