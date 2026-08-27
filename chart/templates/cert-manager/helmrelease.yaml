@@ -39,7 +39,7 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.prometheusOperatorCRDs.enabled }}
   dependsOn:
   {{- if $istioEnabled }}
   {{- include "istioHelmReleases" . | nindent 4 }}
@@ -48,7 +48,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.prometheusOperatorCRDs.enabled }}
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
   {{- end }}
