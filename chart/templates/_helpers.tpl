@@ -431,8 +431,15 @@ Returns cleaned values with hardened key removed.
 {{- $_ := set $cleanedIstio "authorizationPolicies" (dict "custom" $mergedAuthzPolicies) }}
 {{- end }}
 
-{{- /* Remove deprecated hardened key */ -}}
+{{- /* Drop only the two sub-fields that were migrated above; anything else under
+       hardened (notably hardened.enabled, still read by commonPackageDefaults and
+       authorizationPoliciesEnabled) must survive. */ -}}
+{{- $hardenedRemaining := omit (dig "hardened" dict $values.istio) "customServiceEntries" "customAuthorizationPolicies" -}}
+{{- if $hardenedRemaining -}}
+{{- $_ := set $cleanedIstio "hardened" $hardenedRemaining -}}
+{{- else -}}
 {{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
+{{- end -}}
 
 {{- $values = set $values "istio" $cleanedIstio -}}
 {{- end -}}

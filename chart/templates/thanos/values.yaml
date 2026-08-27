@@ -77,10 +77,10 @@ routes:
       hosts:
       - thanos-minio.{{ .Values.domain }}
 
+{{- if $thanosAuthserviceWaypoint }}
 istio:
-  {{- if $thanosAuthserviceWaypoint }}
   prependReleaseName: true
-  {{- end }}
+{{- end }}
 
 minio:
   enabled: {{ $shouldEnableMinio }}
