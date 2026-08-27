@@ -20,12 +20,10 @@ istio:
     enabled: false
 
 networkPolicies:
-  enabled: {{ include "networkPoliciesEnabled" . }}
   # Setting to false as Kyverno is not in the mesh
   hbonePortInjection:
     enabled: false
   ingress:
-    definitions: {{ .Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
     to:
       kyverno:8000:
         podSelector:
@@ -35,7 +33,7 @@ networkPolicies:
           k8s:
             monitoring/prometheus: {{ .Values.monitoring.enabled }}
   egress:
-    definitions: {{ .Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+    definitions:
       private-registry:
         to:
           - ipBlock:

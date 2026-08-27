@@ -10,7 +10,6 @@
 {{- end }}
 
 {{- define "bigbang.defaults.cert-manager" -}}
-{{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $domainName := default .Values.domain .Values.hostname }}
 global:
   domain: {{ $domainName }}

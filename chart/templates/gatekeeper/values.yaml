@@ -41,7 +41,6 @@ istio:
     enabled: false
 
 networkPolicies:
-  enabled: {{ include "networkPoliciesEnabled" . }}
   # Setting to false as Gatekeeper is not in the mesh
   hbonePortInjection:
     enabled: false
@@ -50,8 +49,6 @@ networkPolicies:
       # Gatekeeper is not in the service mesh
       allowPrometheusToIstioSidecar:
         enabled: false
-    definitions:
-      {{ toYaml .Values.networkPolicies.ingress.definitions | nindent 6 }}
     to:
       gatekeeper:8443:
         from:
@@ -68,7 +65,6 @@ networkPolicies:
       allowIstiod:
         enabled: false
     definitions:
-      {{ toYaml .Values.networkPolicies.egress.definitions | nindent 6 }}
       kubeAPI:
         to:
           - ipBlock:
