@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Every active Big Bang repository must contain an accurate, repository-specific `AGENTS.md` at its root. The file is a concise operating guide for AI-assisted contributors. It explains where a change belongs, which local sources are authoritative, how to validate work, and which actions require caution.
+Every active Big Bang repository must contain an accurate, repository-specific `AGENTS.md` at its root. The file is a concise context guide for AI-assisted contributors. It explains what the repository owns, where a change belongs, which local sources are authoritative, and where relevant implementation, validation, and integration guidance lives.
 
 `AGENTS.md` complements human-facing README and contribution documentation. It must not become another copy of Big Bang user guidance or upstream product documentation.
 
@@ -12,15 +12,13 @@ This document is the source of truth for the Big Bang `AGENTS.md` structure. It 
 
 ## Design Rules
 
-1. **Local over global:** Include only facts needed to change this repository. Link to central architecture and operations guidance.
-2. **Authority over repetition:** Point to code, schemas, metadata, and maintained policy documents instead of copying versions, defaults, configuration tables, or runbooks.
-3. **Exact over generic:** Name real paths, working directories, prerequisites, commands, expected output, and side effects.
-4. **Safe by default:** Put read-only and narrow validation first. Clearly label commands that modify files, GitLab, clusters, registries, or infrastructure.
-5. **Progressive disclosure:** Keep the root file concise. Link detailed local documents and use nested instruction files only for materially different subprojects.
-6. **Repository ownership:** The shared standard defines structure. Repository CODEOWNERS own the correctness of local content.
-7. **Tool neutrality:** Use standard Markdown without vendor-specific frontmatter or commands that only one coding agent can interpret.
+`AGENTS.md` should help contributors build relevant context quickly. It should answer:
 
-Do not add manually maintained metadata for chart versions, supported Big Bang versions, package categories, owners, or default branches when those facts are already available in repository files or GitLab. Derived metadata drifts. The hidden standard revision marker is the only required machine-readable metadata.
+- What does this repository own, and where are its boundaries with the umbrella repository, package repositories, and upstream projects?
+- Which local files and external settings are authoritative?
+- Where can contributors find the implementation, validation, integration, and maintenance guidance relevant to a change?
+
+Keep the file concise, repository-specific, source-grounded, and tool-neutral. Link to maintained local, central, and upstream documentation instead of copying it. Do not use `AGENTS.md` to define generic agent behavior or duplicate metadata already available in repository files or GitLab. The hidden standard revision marker is the only required machine-readable metadata.
 
 ## Required Structure
 
