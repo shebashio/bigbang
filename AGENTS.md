@@ -1,84 +1,48 @@
 # AGENTS.md
+
 <!-- big-bang-agents-standard: 1 -->
 
 ## Repository Purpose
 
-This repository owns the Big Bang umbrella Helm chart, its bootstrap manifests,
-integrated-package orchestration, configuration schema, migration utilities, and
-central documentation. The chart renders Flux sources and reconciliation
-resources; it does not contain the independently versioned package charts it
-deploys.
+This repository owns the Big Bang umbrella Helm chart, its bootstrap manifests, integrated-package orchestration, configuration schema, migration utilities, and central documentation. The chart renders Flux sources and reconciliation resources; it does not contain the independently versioned package charts it deploys.
 
-Make umbrella-wide configuration, package wiring, dependency, generation, and
-documentation changes here. Make workload templates, package defaults, and
-package-specific tests in the corresponding package repository. General product
-behavior remains owned by the upstream project.
+Make umbrella-wide configuration, package wiring, dependency, generation, and documentation changes here. Make workload templates, package defaults, and package-specific tests in the corresponding package repository. General product behavior remains owned by the upstream project.
 
 ## Sources of Truth
 
-- `chart/package-metadata.yaml` defines built-in package identity, category,
-  legacy path, implementation directory, and integration documentation.
-- `chart/values.yaml` defines source pins, defaults, and user-facing value
-  documentation.
+- `chart/package-metadata.yaml` defines built-in package identity, category, legacy path, implementation directory, and integration documentation.
+- `chart/values.yaml` defines source pins, defaults, and user-facing value documentation.
 - `chart/values.schema.json` defines the public values contract and valid types.
-- `chart/templates/` defines rendered behavior. `_helpers.tpl` contains shared
-  source, values, alias, dependency, ambient, and network-policy contracts.
+- `chart/templates/` defines rendered behavior. `_helpers.tpl` contains shared source, values, alias, dependency, ambient, and network-policy contracts.
 - `base/` defines the Kustomize and Flux bootstrap path for the umbrella chart.
-- `chart/unittests/` contains Helm unit tests; `tests/bats/` contains shell,
-  generator, migration, and overlay tests.
-- `CONTRIBUTING.md`, `docs/README.md`, and
-  `docs/community/development/` define current contribution and documentation
-  practices.
+- `chart/unittests/` contains Helm unit tests; `tests/bats/` contains shell, generator, migration, and overlay tests.
+- `CONTRIBUTING.md`, `docs/README.md`, and `docs/community/development/` define current contribution and documentation practices.
 - `CODEOWNERS` defines review ownership for repository paths.
-- `.markdown-link-check.json` and `.markdown-link-check.yaml` configure the CI
-  documentation link checker.
-- CI is configured through the GitLab project setting
-  `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`;
-  there is no repository-local `.gitlab-ci.yml`.
+- `.markdown-link-check.json` and `.markdown-link-check.yaml` configure the CI documentation link checker.
+- CI is configured through the GitLab project setting `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`; there is no repository-local `.gitlab-ci.yml`.
 
-When prose conflicts with the selected release's chart, schema, templates, or
-tests, verify the intended policy and correct the stale documentation in the
-same change.
+When prose conflicts with the selected release's chart, schema, templates, or tests, verify the intended policy and correct the stale documentation in the same change.
 
 ## Repository Layout
 
-- `chart/`: umbrella chart, values contract, generated package metadata, Helm
-  templates, and unit tests.
+- `chart/`: umbrella chart, values contract, generated package metadata, Helm templates, and unit tests.
 - `base/`: GitOps bootstrap resources and pinned Flux installation manifests.
 - `docs/`: published user, operator, package-integration, and contributor docs.
-- `scripts/`: generators, migration tools, rendering tools, and cluster
-  operations.
+- `scripts/`: generators, migration tools, rendering tools, and cluster operations.
 - `tests/`: shared deployment values and Bats suites.
 - `blog/`: release and feature articles, including historical material.
 
 ## Working Rules
 
-- Treat each `chart/templates/<package>/` family atomically. Inspect its source,
-  credentials, values, namespace, image-pull Secret, HelmRelease, migrations,
-  post-renderers, special Secrets, and tests before changing gates or names.
-- Preserve `bigbang.normalizePackageAliases` at rendering entry points. Test
-  both legacy configuration and `packageConfiguration.version: v1` when changing
-  package normalization or schema behavior.
-- Under v1, canonical built-in values override legacy values. Without v1,
-  `packages.<name>` retains the legacy custom-package meaning. Unknown names
-  remain custom packages in both modes.
-- Preserve values precedence: `common`, then generated `defaults`, then user
-  `overlays`. Sprig merge operations mutate their first argument, so deep-copy
-  values before using `set`, `unset`, `merge`, or `mergeOverwrite`.
-- Treat Flux names, namespaces, source references, values Secret names,
-  HelmRelease names, and `dependsOn` entries as an API. Do not infer them only
-  from directory names.
-- `offline: true` suppresses package GitRepository creation only. It does not
-  mirror artifacts, rewrite URLs, block network access, or remove source
-  references from HelmReleases.
-- Ambient mode is effective when global ambient mode or ztunnel enables it.
-  Preserve Istio CNI, ztunnel, Gateway API, policy, HBONE, and dependency
-  behavior together.
-- `_bb-common-migrations.tpl` and deprecated aliases are compatibility code.
-  Remove them only at the documented major-version boundary with focused
-  legacy and canonical tests.
-- Prefer package values, `bb-common`, or a focused post-renderer over copying
-  package workload templates into this chart.
+- Treat each `chart/templates/<package>/` family atomically. Inspect its source, credentials, values, namespace, image-pull Secret, HelmRelease, migrations, post-renderers, special Secrets, and tests before changing gates or names.
+- Preserve `bigbang.normalizePackageAliases` at rendering entry points. Test both legacy configuration and `packageConfiguration.version: v1` when changing package normalization or schema behavior.
+- Under v1, canonical built-in values override legacy values. Without v1, `packages.<name>` retains the legacy custom-package meaning. Unknown names remain custom packages in both modes.
+- Preserve values precedence: `common`, then generated `defaults`, then user `overlays`. Sprig merge operations mutate their first argument, so deep-copy values before using `set`, `unset`, `merge`, or `mergeOverwrite`.
+- Treat Flux names, namespaces, source references, values Secret names, HelmRelease names, and `dependsOn` entries as an API. Do not infer them only from directory names.
+- `offline: true` suppresses package GitRepository creation only. It does not mirror artifacts, rewrite URLs, block network access, or remove source references from HelmReleases.
+- Ambient mode is effective when global ambient mode or ztunnel enables it. Preserve Istio CNI, ztunnel, Gateway API, policy, HBONE, and dependency behavior together.
+- `_bb-common-migrations.tpl` and deprecated aliases are compatibility code. Remove them only at the documented major-version boundary with focused legacy and canonical tests.
+- Prefer package values, `bb-common`, or a focused post-renderer over copying package workload templates into this chart.
 - Do not manually bump the umbrella chart version in a normal merge request.
 
 ## Commands
@@ -123,7 +87,7 @@ lefthook run pre-push
 ## Validation
 
 | Change area | Required focused checks | Additional validation |
-|---|---|---|
+| --- | --- | --- |
 | `AGENTS.md` or its standard | `scripts/validate-agents.sh`; `bats tests/bats/validate-agents/` | Require the CI link check and manually verify referenced commands and link applicability. |
 | Package metadata, canonical schema, or migration mappings | `scripts/generate-package-schemas.sh --check`; focused generator and migration Bats | Review every generated diff. |
 | Chart values or generated values documentation | `scripts/generate-values-reference.sh --check`; `helm lint ./chart` | Render relevant legacy and v1 overlays. |
@@ -132,89 +96,49 @@ lefthook run pre-push
 | Shell scripts | Focused Bats suite | `bats --jobs 4 --recursive tests/bats/`; run ShellCheck locally on changed scripts. |
 | Bootstrap resources or Flux manifests | `kubectl kustomize ./base`; `kubectl kustomize ./base/flux` | Test the exact release/bootstrap path in a disposable environment. |
 
-Package integration, clean-install, upgrade, and infrastructure tests run in
-external CI and may require protected credentials. Do not substitute a local
-chart-only render for required cross-package evidence.
+Package integration, clean-install, upgrade, and infrastructure tests run in external CI and may require protected credentials. Do not substitute a local chart-only render for required cross-package evidence.
 
 ## Big Bang Integration
 
-The bootstrap Kustomization installs this chart as a Flux HelmRelease. The chart
-then creates separately pinned sources and releases for enabled packages. A
-package change can therefore require coordinated work in three places:
+The bootstrap Kustomization installs this chart as a Flux HelmRelease. The chart then creates separately pinned sources and releases for enabled packages. A package change can therefore require coordinated work in three places:
 
-- The package repository owns its chart implementation, package values, tests,
-  upgrade notes, and Big Bang-specific package additions.
-- This repository owns package enablement, source pins, dependency ordering,
-  global-to-package value mapping, and umbrella integration.
-- The upstream project owns the complete product and upstream chart
-  configuration surface.
+- The package repository owns its chart implementation, package values, tests, upgrade notes, and Big Bang-specific package additions.
+- This repository owns package enablement, source pins, dependency ordering, global-to-package value mapping, and umbrella integration.
+- The upstream project owns the complete product and upstream chart configuration surface.
 
-For upstream passthrough configuration, document only the parent entry point and
-link to version-appropriate upstream values. Do not copy nested upstream keys
-into umbrella or package documentation.
+For upstream passthrough configuration, document only the parent entry point and link to version-appropriate upstream values. Do not copy nested upstream keys into umbrella or package documentation.
 
 ## Upgrade and Release Workflow
 
-- Do not manually change `chart/Chart.yaml`'s `version` for a normal merge
-  request. Umbrella releases are versioned separately according to the
-  [release schedule](README.md#release-schedule).
-- Merge request CI validates a clean install and an upgrade from `master`.
-  Changes to public values, rendered resource names, dependencies, or migration
-  behavior must preserve both paths or document the required migration.
-- Protected tags trigger the external package and release stages, which prepare,
-  sign, and publish artifacts. Do not create tags or invoke release jobs merely
-  to validate a change; follow the [CI workflow](docs/community/development/ci-workflow.md).
+- Do not manually change `chart/Chart.yaml`'s `version` for a normal merge request. Umbrella releases are versioned separately according to the [release schedule](README.md#release-schedule).
+- Merge request CI validates a clean install and an upgrade from `master`. Changes to public values, rendered resource names, dependencies, or migration behavior must preserve both paths or document the required migration.
+- Protected tags trigger the external package and release stages, which prepare, sign, and publish artifacts. Do not create tags or invoke release jobs merely to validate a change; follow the [CI workflow](docs/community/development/ci-workflow.md).
 
 ## Integration Test Environment
 
-- The external merge request pipeline creates an ephemeral k3d cluster and
-  validates installation, upgrade, reconciliation, and endpoint health. These
-  jobs require project runners and protected resources and are the authoritative
-  evidence for umbrella integration behavior.
-- When coordinating a package branch, point the relevant test values at that
-  branch and use a clearly marked test-only umbrella merge request. Preserve the
-  resulting pipeline as cross-repository evidence; follow the
-  [package branch test workflow](docs/community/development/test-package-against-bb.md).
-- Add the `test-ci::infra` label only when a change affects infrastructure CI or
-  is likely to behave differently on a real cluster. The jobs are manually
-  authorized by maintainers and create cloud resources.
+- The external merge request pipeline creates an ephemeral k3d cluster and validates installation, upgrade, reconciliation, and endpoint health. These jobs require project runners and protected resources and are the authoritative evidence for umbrella integration behavior.
+- When coordinating a package branch, point the relevant test values at that branch and use a clearly marked test-only umbrella merge request. Preserve the resulting pipeline as cross-repository evidence; follow the [package branch test workflow](docs/community/development/test-package-against-bb.md).
+- Add the `test-ci::infra` label only when a change affects infrastructure CI or is likely to behave differently on a real cluster. The jobs are manually authorized by maintainers and create cloud resources.
 
 ## Safety and Credentials
 
-- Never add real credentials, certificates, private keys, license data, or
-  production endpoints to defaults, fixtures, rendered output, logs, or commits.
-- `scripts/template-all.sh` is networked. It clones or fetches package sources,
-  hard-resets its local source cache, adds Helm repositories, and may log in to
-  registries. Review its cache and credential context before running:
+- Never add real credentials, certificates, private keys, license data, or production endpoints to defaults, fixtures, rendered output, logs, or commits.
+- `scripts/template-all.sh` is networked. It clones or fetches package sources, hard-resets its local source cache, adds Helm repositories, and may log in to registries. Review its cache and credential context before running:
 
   ```shell
   ./scripts/template-all.sh ./chart
   ```
 
-- `scripts/install_flux.sh`, `scripts/sync.sh`,
-  `scripts/remove-ns-finalizer.sh`, and restart modes in
-  `scripts/istio-sidecars.sh` mutate a cluster. Run them only with explicit
-  authorization and after confirming the active kubeconfig and cluster.
-- GitLab triage scripts can create or modify issues. Use their documented dry-run
-  modes first and verify the target project or group.
-- Do not weaken policy, mesh, TLS, or network controls merely to make a render or
-  deployment pass. Diagnose the owning integration and test the intended fix.
+- `scripts/install_flux.sh`, `scripts/sync.sh`, `scripts/remove-ns-finalizer.sh`, and restart modes in `scripts/istio-sidecars.sh` mutate a cluster. Run them only with explicit authorization and after confirming the active kubeconfig and cluster.
+- GitLab triage scripts can create or modify issues. Use their documented dry-run modes first and verify the target project or group.
+- Do not weaken policy, mesh, TLS, or network controls merely to make a render or deployment pass. Diagnose the owning integration and test the intended fix.
 
 ## Generated Files
 
-- Edit `chart/package-metadata.yaml`, then run
-  `scripts/generate-package-schemas.sh --write` to update canonical schema
-  blocks in `chart/values.schema.json` and generated package metadata in
-  `scripts/migrate-values-3-to-4.sh`. Run the same command with `--check`
-  afterward.
-- Edit `chart/Chart.yaml`, `chart/values.yaml`, or
-  `docs/configuration/base-config.md.gotmpl`, then run
-  `scripts/generate-values-reference.sh --write`. Do not edit
-  `docs/configuration/base-config.md` directly.
-- `base/flux/gotk-components.yaml` is generated by Flux. Follow the regeneration
-  instructions maintained in `renovate.json`; do not hand-edit it.
-- Review generated output before committing. A successful generator is not proof
-  that the semantic change is correct.
+- Edit `chart/package-metadata.yaml`, then run `scripts/generate-package-schemas.sh --write` to update canonical schema blocks in `chart/values.schema.json` and generated package metadata in `scripts/migrate-values-3-to-4.sh`. Run the same command with `--check` afterward.
+- Edit `chart/Chart.yaml`, `chart/values.yaml`, or `docs/configuration/base-config.md.gotmpl`, then run `scripts/generate-values-reference.sh --write`. Do not edit `docs/configuration/base-config.md` directly.
+- `base/flux/gotk-components.yaml` is generated by Flux. Follow the regeneration instructions maintained in `renovate.json`; do not hand-edit it.
+- Review generated output before committing. A successful generator is not proof that the semantic change is correct.
 
 ## Authoritative References
 
