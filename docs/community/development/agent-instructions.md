@@ -261,12 +261,18 @@ The checker verifies:
 - required headings and relative order
 - non-empty required sections
 - unresolved template placeholders
-- local relative-link targets
+
+Markdown link validation is deliberately separate because correct parsing
+requires a standards-aware Markdown tool and external links require network
+access. Use the repository's established documentation link check. The umbrella
+pipeline runs `markdown_link_check` in its `link check` job with
+the repository's `.markdown-link-check.json` and `.markdown-link-check.yaml`;
+do not add a partial Markdown parser to the structural checker.
 
 These checks do not prove that a command works or that prose is current.
-Repository CODEOWNERS must verify every path, command, side effect, external
-link, and ownership statement. AI-assisted documentation-accuracy review may
-supplement this review but must not be the compliance gate.
+Repository CODEOWNERS must verify every path, command, side effect, link
+applicability, and ownership statement. AI-assisted documentation-accuracy
+review may supplement this review but must not be the compliance gate.
 
 New enforcement should begin in warning-only mode. Make structural compliance a
 required pipeline check only after repositories in the agreed scope have had a

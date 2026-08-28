@@ -30,6 +30,8 @@ behavior remains owned by the upstream project.
   `docs/community/development/` define current contribution and documentation
   practices.
 - `CODEOWNERS` defines review ownership for repository paths.
+- `.markdown-link-check.json` and `.markdown-link-check.yaml` configure the CI
+  documentation link checker.
 - CI is configured through the GitLab project setting
   `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`;
   there is no repository-local `.gitlab-ci.yml`.
@@ -122,7 +124,7 @@ lefthook run pre-push
 
 | Change area | Required focused checks | Additional validation |
 |---|---|---|
-| `AGENTS.md` or its standard | `scripts/validate-agents.sh`; `bats tests/bats/validate-agents/` | Verify referenced commands and external links manually. |
+| `AGENTS.md` or its standard | `scripts/validate-agents.sh`; `bats tests/bats/validate-agents/` | Require the CI link check and manually verify referenced commands and link applicability. |
 | Package metadata, canonical schema, or migration mappings | `scripts/generate-package-schemas.sh --check`; focused generator and migration Bats | Review every generated diff. |
 | Chart values or generated values documentation | `scripts/generate-values-reference.sh --check`; `helm lint ./chart` | Render relevant legacy and v1 overlays. |
 | Shared helpers, package gates, values merge, names, or dependencies | Focused `helm unittest` suite | Run the full Helm unit suite and render enabled/disabled, Git/Helm, and online/offline cases that changed. |
@@ -153,8 +155,9 @@ into umbrella or package documentation.
 
 ## Upgrade and Release Workflow
 
-- Do not change `chart/Chart.yaml` for a normal merge request. Umbrella releases
-  are versioned separately according to the [release schedule](README.md#release-schedule).
+- Do not manually change `chart/Chart.yaml`'s `version` for a normal merge
+  request. Umbrella releases are versioned separately according to the
+  [release schedule](README.md#release-schedule).
 - Merge request CI validates a clean install and an upgrade from `master`.
   Changes to public values, rendered resource names, dependencies, or migration
   behavior must preserve both paths or document the required migration.

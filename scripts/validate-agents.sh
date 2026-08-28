@@ -15,42 +15,6 @@ error() {
   failures=$((failures + 1))
 }
 
-markdown_without_fences() {
-  awk '
-    /^[[:space:]]*```/ || /^[[:space:]]*~~~/ { in_fence = !in_fence; next }
-    !in_fence { print }
-  ' "$agents_file"
-}
-
-normalize_reference_label() {
-  printf '%s\n' "$1" | tr '[:upper:]' '[:lower:]' | awk '{$1 = $1; print}'
-}
-
-validate_link_target() {
-  local raw_target=$1
-  local target
-
-  raw_target=${raw_target#"${raw_target%%[![:space:]]*}"}
-  if [[ "$raw_target" == \<* ]]; then
-    target=${raw_target#<}
-    target=${target%%>*}
-  else
-    target=${raw_target%%[[:space:]]*}
-  fi
-
-  case "$target" in
-    '' | \#* | /* | *://* | mailto:*)
-      return
-      ;;
-  esac
-
-  target=${target%%#*}
-  target=${target%%\?*}
-  if [[ ! -e "${agents_dir}/${target}" ]]; then
-    error "$agents_file links to missing local target '$target'."
-  fi
-}
-
 if [[ ! -f "$agents_file" ]]; then
   printf 'Error: %s does not exist.\n' "$agents_file" >&2
   exit 1
@@ -122,45 +86,6 @@ done
 if grep -En -- '(CHANGEME|REPLACEME|<repository-name>|<path-to-[^>]+>|<command>)' "$agents_file" >/dev/null; then
   error "$agents_file contains an unresolved template placeholder."
 fi
-
-while IFS= read -r markdown_link; do
-  validate_link_target "${markdown_link:2:${#markdown_link}-3}"
-done < <(markdown_without_fences | grep -Eo '\]\([^)]+\)' || true)
-
-reference_labels=()
-while IFS=$'\t' read -r label raw_target; do
-  [[ -n "$label" ]] || continue
-  reference_labels+=("$(normalize_reference_label "$label")")
-  validate_link_target "$raw_target"
-done < <(markdown_without_fences | awk '
-  /^[[:space:]]*\[[^]]+\]:[[:space:]]*/ {
-    line = $0
-    sub(/^[[:space:]]*\[/, "", line)
-    label = line
-    sub(/\].*$/, "", label)
-    sub(/^[^]]+\]:[[:space:]]*/, "", line)
-    print label "\t" line
-  }
-')
-
-while IFS= read -r reference_link; do
-  reference=${reference_link:1:${#reference_link}-2}
-  text=${reference%%\]\[*}
-  label=${reference#*\]\[}
-  [[ -n "$label" ]] || label=$text
-  label=$(normalize_reference_label "$label")
-
-  found=false
-  for reference_label in "${reference_labels[@]}"; do
-    if [[ "$label" == "$reference_label" ]]; then
-      found=true
-      break
-    fi
-  done
-  if [[ "$found" == false ]]; then
-    error "$agents_file uses undefined reference-style link '$label'."
-  fi
-done < <(markdown_without_fences | grep -Eo '\[[^][]+\]\[[^][]*\]' || true)
 
 if [[ "$failures" -ne 0 ]]; then
   exit 1
