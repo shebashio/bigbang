@@ -547,7 +547,7 @@ Args (dict):
 {{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
-{{- $commonValues := mustMergeOverwrite (deepCopy $packageValues) (deepCopy ($defaults | fromYaml)) }}
+{{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValues) }}
 {{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
 {{- $remainingDefaults := $defaults }}
 {{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
