@@ -192,13 +192,7 @@ Do not store the canonical template as a nested file literally named `AGENTS.md`
 
 ## Validation
 
-Repositories adopting revision 1 should use the structural checker in the umbrella repository:
-
-```shell
-scripts/validate-agents.sh
-```
-
-The checker verifies:
+Structural validation and enforcement are owned by the shared [pipeline-templates repository](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates). Its `validate_agent_instructions` function verifies:
 
 - root file presence and ignore status
 - revision marker
@@ -206,7 +200,9 @@ The checker verifies:
 - non-empty required sections
 - unresolved template placeholders
 
-Markdown link validation is deliberately separate because correct parsing requires a standards-aware Markdown tool and external links require network access. Use the repository's established documentation link check. The umbrella pipeline runs `markdown_link_check` in its `link check` job with the repository's `.markdown-link-check.json` and `.markdown-link-check.yaml`; do not add a partial Markdown parser to the structural checker.
+The umbrella pipeline invokes this function in its blocking `agent instructions` job when `AGENTS.md` or this standard changes. Reuse the shared function when adding enforcement to another pipeline; do not copy the validator into consuming repositories.
+
+Markdown link validation is deliberately separate because correct parsing requires a standards-aware Markdown tool and external links require network access. Use the repository's established documentation link check. The umbrella pipeline runs `markdown_link_check` in its `link check` job with the repository's `.markdown-link-check.json` and `.markdown-link-check.yaml`; do not add a partial Markdown parser to structural validation.
 
 These checks do not prove that a command works or that prose is current. Repository CODEOWNERS must verify every path, command, side effect, link applicability, and ownership statement. AI-assisted documentation-accuracy review may supplement this review but must not be the compliance gate.
 

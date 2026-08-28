@@ -26,12 +26,6 @@ pre-commit:
     bats-gitlab-triage:
       glob: "{scripts/gitlab-triage/*.sh,tests/bats/gitlab-triage/**/*.bats}"
       run: bats tests/bats/gitlab-triage/
-    bats-validate-agents:
-      glob: "{AGENTS.md,docs/community/development/agent-instructions.md,scripts/validate-agents.sh,tests/bats/validate-agents/**/*.bats}"
-      run: bats tests/bats/validate-agents/
-    validate-agents:
-      glob: "{AGENTS.md,docs/community/development/agent-instructions.md,scripts/validate-agents.sh}"
-      run: scripts/validate-agents.sh
     generated-package-schemas:
       glob: "{chart/package-metadata.yaml,chart/values.schema.json,scripts/generate-package-schemas.jq,scripts/generate-package-schemas.sh,scripts/migrate-values-3-to-4.sh}"
       run: scripts/generate-package-schemas.sh --check

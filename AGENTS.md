@@ -19,7 +19,7 @@ Make umbrella-wide configuration, package wiring, dependency, generation, and do
 - `CONTRIBUTING.md`, `docs/README.md`, and `docs/community/development/` define current contribution and documentation practices.
 - `CODEOWNERS` defines review ownership for repository paths.
 - `.markdown-link-check.json` and `.markdown-link-check.yaml` configure the CI documentation link checker.
-- CI is configured through the GitLab project setting `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`; there is no repository-local `.gitlab-ci.yml`.
+- CI is configured through the GitLab project setting `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`; there is no repository-local `.gitlab-ci.yml`. That shared pipeline owns structural `AGENTS.md` enforcement.
 
 When prose conflicts with the selected release's chart, schema, templates, or tests, verify the intended policy and correct the stale documentation in the same change.
 
@@ -52,7 +52,6 @@ Run commands from the repository root.
 Fast, read-only checks:
 
 ```shell
-scripts/validate-agents.sh
 scripts/generate-package-schemas.sh --check
 scripts/generate-values-reference.sh --check
 helm lint ./chart
@@ -88,7 +87,7 @@ lefthook run pre-push
 
 | Change area | Required focused checks | Additional validation |
 | --- | --- | --- |
-| `AGENTS.md` or its standard | `scripts/validate-agents.sh`; `bats tests/bats/validate-agents/` | Require the CI link check and manually verify referenced commands and link applicability. |
+| `AGENTS.md` or its standard | Review against the [repository agent-instruction standard](docs/community/development/agent-instructions.md) | Require the external CI `agent instructions` and `link check` jobs; manually verify referenced commands and link applicability. |
 | Package metadata, canonical schema, or migration mappings | `scripts/generate-package-schemas.sh --check`; focused generator and migration Bats | Review every generated diff. |
 | Chart values or generated values documentation | `scripts/generate-values-reference.sh --check`; `helm lint ./chart` | Render relevant legacy and v1 overlays. |
 | Shared helpers, package gates, values merge, names, or dependencies | Focused `helm unittest` suite | Run the full Helm unit suite and render enabled/disabled, Git/Helm, and online/offline cases that changed. |
