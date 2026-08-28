@@ -10,21 +10,15 @@ Make umbrella-wide configuration, package wiring, dependency, generation, and do
 
 ## Sources of Truth
 
-- `chart/package-metadata.yaml` defines built-in package identity, category, legacy path, implementation directory, and integration documentation.
-- `chart/values.yaml` defines source pins, defaults, and user-facing value documentation.
-- `chart/values.schema.json` defines the public values contract and valid types.
-- `chart/templates/` defines rendered behavior. `_helpers.tpl` contains shared source, values, alias, dependency, ambient, and network-policy contracts.
-- `base/` defines the Kustomize and Flux bootstrap path for the umbrella chart.
-- `chart/unittests/` contains Helm unit tests; `tests/bats/` contains shell, generator, migration, and overlay tests.
-- [Repository agent-instruction standard](docs/community/development/agent-instructions.md) defines the required `AGENTS.md` structure and maintenance process.
-- [Contributing](CONTRIBUTING.md) and [documentation structure](docs/README.md) define contribution, generated-document, and navigation practices.
-- [Passthrough chart ADR](docs/community/adrs/0005-passthrough-chart.md) and [upstream values documentation ADR](docs/community/adrs/0010-upstream-values-readme-documentation.md) define upstream integration and documentation boundaries.
-- [Unified package configuration ADR](docs/community/adrs/0011-unified-package-configuration-and-metadata.md) defines canonical package identity and v1 behavior.
+- `chart/package-metadata.yaml`, `chart/values.yaml`, and `chart/values.schema.json` define built-in packages, source pins, defaults, and the public values contract.
+- `chart/templates/` defines rendered behavior; `_helpers.tpl` contains shared package, values, dependency, ambient, and network-policy contracts.
+- `base/` defines the Kustomize and Flux bootstrap path.
+- `chart/unittests/` and `tests/bats/` define chart, generator, migration, script, and overlay behavior.
+- [Repository agent instructions](docs/community/development/agent-instructions.md), [Contributing](CONTRIBUTING.md), and the [documentation guide](docs/README.md) define repository and documentation practices.
+- [ADR 5](docs/community/adrs/0005-passthrough-chart.md), [ADR 10](docs/community/adrs/0010-upstream-values-readme-documentation.md), and [ADR 11](docs/community/adrs/0011-unified-package-configuration-and-metadata.md) define upstream and package-configuration boundaries.
 - `CODEOWNERS` defines review ownership for repository paths.
 - `.markdown-link-check.json` and `.markdown-link-check.yaml` configure the CI documentation link checker.
-- CI is configured through the GitLab project setting `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`; there is no repository-local `.gitlab-ci.yml`. That shared pipeline owns structural `AGENTS.md` enforcement, and the [CI workflow](docs/community/development/ci-workflow.md) explains the external package and umbrella pipelines.
-
-When prose conflicts with the selected release's chart, schema, templates, or tests, verify the intended policy and correct the stale documentation in the same change.
+- CI uses `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master` through the GitLab project setting; the [CI workflow](docs/community/development/ci-workflow.md) explains the external pipeline.
 
 ## Repository Layout
 
@@ -37,66 +31,36 @@ When prose conflicts with the selected release's chart, schema, templates, or te
 
 ## Working Rules
 
-- Treat each `chart/templates/<package>/` family atomically. Inspect its source, credentials, values, namespace, image-pull Secret, HelmRelease, migrations, post-renderers, special Secrets, and tests before changing gates or names.
-- Preserve `bigbang.normalizePackageAliases` at rendering entry points. Test both legacy configuration and `packageConfiguration.version: v1` when changing package normalization or schema behavior.
-- Under v1, canonical built-in values override legacy values. Without v1, `packages.<name>` retains the legacy custom-package meaning. Unknown names remain custom packages in both modes.
+- A `chart/templates/<package>/` family includes its source, credentials, values, namespace, Secrets, HelmRelease, migrations, post-renderers, and tests. Package values or `bb-common` normally own workload behavior rather than copied workload templates here.
+- `bigbang.normalizePackageAliases` preserves legacy and `packageConfiguration.version: v1` behavior. Under v1, canonical built-in values override legacy values; unknown names remain custom packages.
 - Preserve values precedence: `common`, then generated `defaults`, then user `overlays`. Sprig merge operations mutate their first argument, so deep-copy values before using `set`, `unset`, `merge`, or `mergeOverwrite`.
-- Treat Flux names, namespaces, source references, values Secret names, HelmRelease names, and `dependsOn` entries as an API. Do not infer them only from directory names.
-- `offline: true` suppresses package GitRepository creation only. It does not mirror artifacts, rewrite URLs, block network access, or remove source references from HelmReleases.
-- Ambient mode is effective when global ambient mode or ztunnel enables it. Preserve Istio CNI, ztunnel, Gateway API, policy, HBONE, and dependency behavior together.
-- `_bb-common-migrations.tpl` and deprecated aliases are compatibility code. Remove them only at the documented major-version boundary with focused legacy and canonical tests.
-- Prefer package values, `bb-common`, or a focused post-renderer over copying package workload templates into this chart.
-- Do not manually bump the umbrella chart version in a normal merge request.
+- Flux names, namespaces, source references, values Secret names, HelmRelease names, and `dependsOn` entries are compatibility interfaces. `offline: true` suppresses package GitRepository creation only.
+- Ambient mode is effective when global ambient mode or ztunnel enables it; Istio CNI, ztunnel, Gateway API, policy, HBONE, and dependency behavior are coupled.
+- `_bb-common-migrations.tpl` and deprecated aliases remain compatibility code until their documented major-version removal boundary.
 
 ## Commands
 
-Run commands from the repository root.
-
-Fast, read-only checks:
+Run from the repository root:
 
 ```shell
 scripts/generate-package-schemas.sh --check
 scripts/generate-values-reference.sh --check
 helm lint ./chart
-```
-
-Helm unit tests:
-
-```shell
 helm unittest chart -f 'unittests/**/*_test.yaml'
-```
-
-Shell and generator tests:
-
-```shell
 bats --jobs 4 --recursive tests/bats/
-```
-
-Bootstrap rendering checks:
-
-```shell
 kubectl kustomize ./base >/dev/null
 kubectl kustomize ./base/flux >/dev/null
-```
-
-Install hooks with `lefthook install`, or run the configured checks manually:
-
-```shell
-lefthook run pre-commit
-lefthook run pre-push
 ```
 
 ## Validation
 
 | Change area | Required focused checks | Additional validation |
 | --- | --- | --- |
-| `AGENTS.md` or its standard | Review against the [repository agent-instruction standard](docs/community/development/agent-instructions.md) | Require the external CI `agent instructions` and `link check` jobs; manually verify referenced commands and link applicability. |
-| Package metadata, canonical schema, or migration mappings | `scripts/generate-package-schemas.sh --check`; focused generator and migration Bats | Review every generated diff. |
-| Chart values or generated values documentation | `scripts/generate-values-reference.sh --check`; `helm lint ./chart` | Render relevant legacy and v1 overlays. |
-| Shared helpers, package gates, values merge, names, or dependencies | Focused `helm unittest` suite | Run the full Helm unit suite and render enabled/disabled, Git/Helm, and online/offline cases that changed. |
-| Ambient, Istio, network policy, or authorization behavior | Relevant Helm unit tests; `tests/bats/values-overlays/values-overlays.bats` | Render both ordinary and ambient test values; use an umbrella integration environment for cross-package behavior. |
-| Shell scripts | Focused Bats suite | `bats --jobs 4 --recursive tests/bats/`; run ShellCheck locally on changed scripts. |
-| Bootstrap resources or Flux manifests | `kubectl kustomize ./base`; `kubectl kustomize ./base/flux` | Test the exact release/bootstrap path in a disposable environment. |
+| Agent or documentation guidance | External `agent instructions` and `link check` jobs | Verify local paths, commands, and links. |
+| Package metadata, schema, values, or migrations | Relevant generator check and focused Bats | Review generated diffs and render legacy plus v1 values when applicable. |
+| Templates, helpers, names, or dependencies | Focused and full Helm unit tests | Render changed enabled, disabled, source, and offline cases. |
+| Ambient, Istio, or policy behavior | Relevant Helm tests and `tests/bats/values-overlays/values-overlays.bats` | Render ordinary and ambient overlays; use external integration CI for cross-package behavior. |
+| Scripts or bootstrap resources | Focused Bats or `kubectl kustomize` | Run the full applicable suite. |
 
 Package integration, clean-install, upgrade, and infrastructure tests run in external CI and may require protected credentials. Do not substitute a local chart-only render for required cross-package evidence.
 
@@ -112,32 +76,23 @@ For upstream passthrough configuration, document only the parent entry point and
 
 ## Upgrade and Release Workflow
 
-- Do not manually change `chart/Chart.yaml`'s `version` for a normal merge request. Umbrella releases are versioned separately according to the [release schedule](README.md#release-schedule).
-- Merge request CI validates a clean install and an upgrade from `master`. Changes to public values, rendered resource names, dependencies, or migration behavior must preserve both paths or document the required migration.
-- Protected tags trigger the external package and release stages, which prepare, sign, and publish artifacts. Do not create tags or invoke release jobs merely to validate a change; follow the [CI workflow](docs/community/development/ci-workflow.md).
+- Normal merge requests do not change `chart/Chart.yaml`'s version; umbrella releases follow the [release schedule](README.md#release-schedule).
+- Merge request CI tests clean install and upgrade from `master`. Protected tags trigger artifact preparation, signing, and publication through the [CI workflow](docs/community/development/ci-workflow.md).
 
 ## Integration Test Environment
 
-- The external merge request pipeline creates an ephemeral k3d cluster and validates installation, upgrade, reconciliation, and endpoint health. These jobs require project runners and protected resources and are the authoritative evidence for umbrella integration behavior.
-- When coordinating a package branch, point the relevant test values at that branch and use a clearly marked test-only umbrella merge request. Preserve the resulting pipeline as cross-repository evidence; follow the [package branch test workflow](docs/community/development/test-package-against-bb.md).
-- Add the `test-ci::infra` label only when a change affects infrastructure CI or is likely to behave differently on a real cluster. The jobs are manually authorized by maintainers and create cloud resources.
+- The external merge request pipeline uses an ephemeral k3d cluster for install, upgrade, reconciliation, and endpoint checks; it is the authoritative umbrella integration evidence.
+- Cross-repository branches use the [package branch test workflow](docs/community/development/test-package-against-bb.md). The `test-ci::infra` label enables manually authorized jobs that create cloud resources.
 
 ## Safety and Credentials
 
-- Never add real credentials, certificates, private keys, license data, or production endpoints to defaults, fixtures, rendered output, logs, or commits.
-- `scripts/template-all.sh` is networked. It clones or fetches package sources, hard-resets its local source cache, adds Helm repositories, and may log in to registries. Review its cache and credential context before running:
-
-  ```shell
-  ./scripts/template-all.sh ./chart
-  ```
-
-- `scripts/install_flux.sh`, `scripts/sync.sh`, `scripts/remove-ns-finalizer.sh`, and restart modes in `scripts/istio-sidecars.sh` mutate a cluster. Run them only with explicit authorization and after confirming the active kubeconfig and cluster.
-- GitLab triage scripts can create or modify issues. Use their documented dry-run modes first and verify the target project or group.
-- Do not weaken policy, mesh, TLS, or network controls merely to make a render or deployment pass. Diagnose the owning integration and test the intended fix.
+- Defaults, fixtures, rendered output, logs, and commits must not contain real credentials, private keys, license data, or production endpoints.
+- `scripts/template-all.sh` is networked, hard-resets its source cache, adds Helm repositories, and may authenticate to registries.
+- `scripts/install_flux.sh`, `scripts/sync.sh`, `scripts/remove-ns-finalizer.sh`, and restart modes in `scripts/istio-sidecars.sh` mutate the cluster selected by the active kubeconfig.
+- GitLab triage scripts can create or modify issues and provide dry-run modes.
 
 ## Generated Files
 
-- Edit `chart/package-metadata.yaml`, then run `scripts/generate-package-schemas.sh --write` to update canonical schema blocks in `chart/values.schema.json` and generated package metadata in `scripts/migrate-values-3-to-4.sh`. Run the same command with `--check` afterward.
-- Edit `chart/Chart.yaml`, `chart/values.yaml`, or `docs/configuration/base-config.md.gotmpl`, then run `scripts/generate-values-reference.sh --write`. Do not edit `docs/configuration/base-config.md` directly.
-- `base/flux/gotk-components.yaml` is generated by Flux. Follow the regeneration instructions maintained in `renovate.json`; do not hand-edit it.
-- Review generated output before committing. A successful generator is not proof that the semantic change is correct.
+- `chart/package-metadata.yaml` generates canonical schema blocks in `chart/values.schema.json` and package metadata in `scripts/migrate-values-3-to-4.sh` through `scripts/generate-package-schemas.sh --write`.
+- `chart/Chart.yaml`, `chart/values.yaml`, and `docs/configuration/base-config.md.gotmpl` generate `docs/configuration/base-config.md` through `scripts/generate-values-reference.sh --write`.
+- `base/flux/gotk-components.yaml` is generated by Flux according to `renovate.json`.
