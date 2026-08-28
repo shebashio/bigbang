@@ -162,8 +162,11 @@ The required structure is shared. Use these profile prompts to decide what local
 
 - State whether the chart is an upstream passthrough, Big Bang-authored chart, or legacy package layout.
 - Identify the upstream alias, Big Bang-owned templates and values, vendored dependencies, image metadata, and generated README inputs.
+- Keep package documentation focused on Big Bang-owned modifications and integration. Link to version-appropriate upstream documentation for understanding the package and its Helm chart rather than duplicating upstream content.
+- Before changing a package, understand how Big Bang implements it by reviewing its source, values mapping, dependencies, and release wiring in the [umbrella repository](https://repo1.dso.mil/big-bang/bigbang).
+- Optimize package integration for maintainability and compatibility with upstream behavior and the Big Bang umbrella. A bespoke solution that changes upstream behavior requires explicit approval from a human operator before implementation.
 - Document package-local tests and when an umbrella test branch is required.
-- Link upstream values and release notes rather than copying them.
+- Treat any change that requires end users to modify their configuration or operational process as breaking. Document the required action in the merge request's `## Upgrade Notices` section as described by the [CI workflow](ci-workflow.md#validate-mr).
 
 ### Maintained or Community Package
 
