@@ -198,7 +198,7 @@ Structural validation and enforcement are owned by the shared [pipeline-template
 - revision marker
 - required headings and relative order
 - non-empty required sections
-- unresolved template placeholders
+- known unresolved template placeholder tokens
 
 The umbrella pipeline invokes this function in its blocking `agent instructions` job when `AGENTS.md` or this standard changes. Reuse the shared function when adding enforcement to another pipeline; do not copy the validator into consuming repositories.
 
@@ -206,7 +206,7 @@ Markdown link validation is deliberately separate because correct parsing requir
 
 These checks do not prove that a command works or that prose is current. Repository CODEOWNERS must verify every path, command, side effect, link applicability, and ownership statement. AI-assisted documentation-accuracy review may supplement this review but must not be the compliance gate.
 
-New enforcement should begin in warning-only mode. Make structural compliance a required pipeline check only after repositories in the agreed scope have had a migration window.
+Group-wide enforcement should begin in warning-only mode. A repository may make structural validation required when it introduces a compliant `AGENTS.md` or after it has adopted the current standard. Make validation required for a broader repository scope only after that scope has had a migration window.
 
 ## Source and Maintenance
 
