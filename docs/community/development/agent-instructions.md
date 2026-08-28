@@ -42,8 +42,6 @@ Use this heading order:
 ## Validation
 
 ## Big Bang Integration
-
-## Authoritative References
 ```
 
 Conditional sections may appear where they are most useful, but the required headings must retain this relative order. Do not include empty sections, `N/A` filler, generic advice, or unresolved placeholders.
@@ -64,8 +62,11 @@ List the local files and external project settings that authoritatively define:
 - generated content and source inputs
 - tests and CI
 - ownership
+- contribution and maintenance guidance
+- current Big Bang standards and ADRs
+- version-appropriate upstream documentation
 
-Identify generated files explicitly. If CI is configured through a GitLab project setting rather than `.gitlab-ci.yml`, name the exact external config.
+Identify generated files explicitly. If CI is configured through a GitLab project setting rather than `.gitlab-ci.yml`, name the exact external config. Give each documentation reference a short label explaining what it owns rather than providing an undifferentiated list of links.
 
 ### Repository Layout
 
@@ -104,12 +105,6 @@ Explain the local Big Bang entry point and only the integrations that apply. Dep
 - package-to-umbrella release handoff
 
 Link detailed behavior rather than copying its complete configuration.
-
-### Authoritative References
-
-Link local contribution and maintenance guidance, current Big Bang standards or ADRs, and version-appropriate upstream sources. Add a short label explaining what each reference owns.
-
-Do not provide an undifferentiated list of links.
 
 ## Conditional Sections
 
