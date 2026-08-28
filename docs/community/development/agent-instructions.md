@@ -19,7 +19,6 @@ This document is the source of truth for the Big Bang `AGENTS.md` structure. It 
 5. **Progressive disclosure:** Keep the root file concise. Link detailed local documents and use nested instruction files only for materially different subprojects.
 6. **Repository ownership:** The shared standard defines structure. Repository CODEOWNERS own the correctness of local content.
 7. **Tool neutrality:** Use standard Markdown without vendor-specific frontmatter or commands that only one coding agent can interpret.
-8. **No hard wrapping:** Keep each prose paragraph and list item on one source line. Let editors and rendered views wrap long lines.
 
 Do not add manually maintained metadata for chart versions, supported Big Bang versions, package categories, owners, or default branches when those facts are already available in repository files or GitLab. Derived metadata drifts. The hidden standard revision marker is the only required machine-readable metadata.
 
