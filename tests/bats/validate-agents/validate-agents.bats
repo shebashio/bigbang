@@ -48,7 +48,7 @@ This is a Big Bang test fixture.
 
 ## Authoritative References
 
-Read [Contributing](CONTRIBUTING.md).
+Read [Contributing](CONTRIBUTING.md "contribution guide").
 EOF
 }
 
@@ -92,6 +92,26 @@ EOF
   [[ "$output" == *"is ignored by Git"* ]]
 }
 
+@test "rejects an AGENTS.md outside the repository root" {
+  mkdir -p "${FIXTURE_ROOT}/docs"
+  cp "${FIXTURE_ROOT}/AGENTS.md" "${FIXTURE_ROOT}/docs/AGENTS.md"
+
+  run "$VALIDATOR" "${FIXTURE_ROOT}/docs/AGENTS.md"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"must be the repository-root AGENTS.md"* ]]
+}
+
+@test "rejects an AGENTS.md outside a Git repository" {
+  mkdir -p "${BATS_TEST_TMPDIR}/not-a-repo"
+  cp "${FIXTURE_ROOT}/AGENTS.md" "${BATS_TEST_TMPDIR}/not-a-repo/AGENTS.md"
+
+  run "$VALIDATOR" "${BATS_TEST_TMPDIR}/not-a-repo/AGENTS.md"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"is not inside a Git repository"* ]]
+}
+
 @test "rejects unresolved template placeholders" {
   printf '\nUse CHANGEME before committing.\n' >>"${FIXTURE_ROOT}/AGENTS.md"
 
@@ -108,4 +128,32 @@ EOF
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"missing local target 'docs/missing.md'"* ]]
+}
+
+@test "accepts a valid reference-style link" {
+  printf '\nRead [the guide][contributing].\n\n[contributing]: CONTRIBUTING.md "guide"\n' \
+    >>"${FIXTURE_ROOT}/AGENTS.md"
+
+  run "$VALIDATOR" "${FIXTURE_ROOT}/AGENTS.md"
+
+  [ "$status" -eq 0 ]
+}
+
+@test "rejects a missing reference-style link target" {
+  printf '\nRead [the guide][missing].\n\n[missing]: docs/missing.md\n' \
+    >>"${FIXTURE_ROOT}/AGENTS.md"
+
+  run "$VALIDATOR" "${FIXTURE_ROOT}/AGENTS.md"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"missing local target 'docs/missing.md'"* ]]
+}
+
+@test "rejects an undefined reference-style link" {
+  printf '\nRead [the guide][missing].\n' >>"${FIXTURE_ROOT}/AGENTS.md"
+
+  run "$VALIDATOR" "${FIXTURE_ROOT}/AGENTS.md"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"undefined reference-style link 'missing'"* ]]
 }

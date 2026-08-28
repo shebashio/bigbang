@@ -29,6 +29,7 @@ behavior remains owned by the upstream project.
 - `CONTRIBUTING.md`, `docs/README.md`, and
   `docs/community/development/` define current contribution and documentation
   practices.
+- `CODEOWNERS` defines review ownership for repository paths.
 - CI is configured through the GitLab project setting
   `pipelines/bigbang.yaml@big-bang/pipeline-templates/pipeline-templates:master`;
   there is no repository-local `.gitlab-ci.yml`.
@@ -126,7 +127,7 @@ lefthook run pre-push
 | Chart values or generated values documentation | `scripts/generate-values-reference.sh --check`; `helm lint ./chart` | Render relevant legacy and v1 overlays. |
 | Shared helpers, package gates, values merge, names, or dependencies | Focused `helm unittest` suite | Run the full Helm unit suite and render enabled/disabled, Git/Helm, and online/offline cases that changed. |
 | Ambient, Istio, network policy, or authorization behavior | Relevant Helm unit tests; `tests/bats/values-overlays/values-overlays.bats` | Render both ordinary and ambient test values; use an umbrella integration environment for cross-package behavior. |
-| Shell scripts | Focused Bats suite | `bats --jobs 4 --recursive tests/bats/` and ShellCheck in CI. |
+| Shell scripts | Focused Bats suite | `bats --jobs 4 --recursive tests/bats/`; run ShellCheck locally on changed scripts. |
 | Bootstrap resources or Flux manifests | `kubectl kustomize ./base`; `kubectl kustomize ./base/flux` | Test the exact release/bootstrap path in a disposable environment. |
 
 Package integration, clean-install, upgrade, and infrastructure tests run in
@@ -149,6 +150,31 @@ package change can therefore require coordinated work in three places:
 For upstream passthrough configuration, document only the parent entry point and
 link to version-appropriate upstream values. Do not copy nested upstream keys
 into umbrella or package documentation.
+
+## Upgrade and Release Workflow
+
+- Do not change `chart/Chart.yaml` for a normal merge request. Umbrella releases
+  are versioned separately according to the [release schedule](README.md#release-schedule).
+- Merge request CI validates a clean install and an upgrade from `master`.
+  Changes to public values, rendered resource names, dependencies, or migration
+  behavior must preserve both paths or document the required migration.
+- Protected tags trigger the external package and release stages, which prepare,
+  sign, and publish artifacts. Do not create tags or invoke release jobs merely
+  to validate a change; follow the [CI workflow](docs/community/development/ci-workflow.md).
+
+## Integration Test Environment
+
+- The external merge request pipeline creates an ephemeral k3d cluster and
+  validates installation, upgrade, reconciliation, and endpoint health. These
+  jobs require project runners and protected resources and are the authoritative
+  evidence for umbrella integration behavior.
+- When coordinating a package branch, point the relevant test values at that
+  branch and use a clearly marked test-only umbrella merge request. Preserve the
+  resulting pipeline as cross-repository evidence; follow the
+  [package branch test workflow](docs/community/development/test-package-against-bb.md).
+- Add the `test-ci::infra` label only when a change affects infrastructure CI or
+  is likely to behave differently on a real cluster. The jobs are manually
+  authorized by maintainers and create cloud resources.
 
 ## Safety and Credentials
 
@@ -175,8 +201,9 @@ into umbrella or package documentation.
 
 - Edit `chart/package-metadata.yaml`, then run
   `scripts/generate-package-schemas.sh --write` to update canonical schema
-  blocks, migration metadata, package indexes, and generated navigation. Run
-  the same command with `--check` afterward.
+  blocks in `chart/values.schema.json` and generated package metadata in
+  `scripts/migrate-values-3-to-4.sh`. Run the same command with `--check`
+  afterward.
 - Edit `chart/Chart.yaml`, `chart/values.yaml`, or
   `docs/configuration/base-config.md.gotmpl`, then run
   `scripts/generate-values-reference.sh --write`. Do not edit
