@@ -148,7 +148,9 @@ Four things to know before you rely on it:
   rather than on the workstation you unpacked the archive on.
 - **It is one process serving local disk** — no replication, no failover, and the store
   has to stay on that disk. That suits an appliance or edge install; for a long-lived
-  cluster, import into a real registry.
+  cluster, import into a real registry — see
+  [Migrating to a Permanent Registry](airgap-registry-migration.md) for moving to the
+  Harbor Big Bang ships once the cluster is up.
 
 ## 2. Point Big Bang at your registry
 
