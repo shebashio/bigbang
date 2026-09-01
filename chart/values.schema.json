@@ -1563,7 +1563,27 @@
             {
               "$ref": "#/$defs/basePackage"
             }
-          ]
+          ],
+          "properties": {
+            "dependsOn": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
         }
       }
     },
