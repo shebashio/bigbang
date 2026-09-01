@@ -165,6 +165,7 @@ packages:
                 from:
                   k8s:
                     gitlab/*: true
+                    mimir/mimir: true
       garageInit:
         enabled: true
         zone: gitlab
@@ -190,6 +191,12 @@ packages:
             credentials:
               accessKeyId: GKbb0000000000000000000000
               secretAccessKey: bb00000000000000000000000000000000000000000000000000000000000000
+          - name: mimir
+            buckets:
+              - mimir
+            credentials:
+              accessKeyId: GKa08462d1dc99f9fa5d1d4ae4
+              secretAccessKey: 5422400e79b7633aa63a51bbfcea3f39dc670163c7b026b36459c9cbf4c4752b
         adminToken: 271f33f02bf4a98f414d6c986ce51fb364eb6f4d249976097b72afee84b6802c
       upstream:
         fullnameOverride: garage
@@ -1829,20 +1836,47 @@ addons:
 
   mimir:
     enabled: false
+    git:
+      tag: ""
+      branch: 133-garage-smoke-test
+    dependsOn:
+      - name: garage
+        namespace: bigbang
+    minioObjectStorage:
+      enabled: false
+    s3ObjectStorage:
+      enabled: true
+      endpoint: "garage.garage.svc.cluster.local:3900"
+      region: "garage"
+      accessKey: "GKa08462d1dc99f9fa5d1d4ae4"
+      accessSecret: "5422400e79b7633aa63a51bbfcea3f39dc670163c7b026b36459c9cbf4c4752b"
+      bucketName: "mimir"
+      insecure: true
     values:
       bbtests:
         enabled: true
-      upstream:
         global:
           podLabels:
             kyverno-policies-bbtest/required: "true"
+      minio-tenant:
+        enabled: false
+      networkPolicies:
+        egress:
+          from:
+            mimir:
+              to:
+                k8s:
+                  garage/garage:3900: true
+      upstream:
         mimir:
           structuredConfig:
             limits:
               max_global_series_per_user: 0
-
-    minioObjectStorage:
-      enabled: true
+            blocks_storage:
+              tsdb:
+                block_ranges_period:
+                  - 1m0s
+                head_compaction_interval: 1m
 
   mattermostOperator:
     enabled: false
