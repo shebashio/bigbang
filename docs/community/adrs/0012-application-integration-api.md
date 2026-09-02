@@ -655,3 +655,7 @@ the umbrella Helm release rather than representing it in the application namespa
 This would make the API appear flexible while freezing implementation-specific schemas
 inside the public contract. Native resources beside the custom resource provide the same
 escape path with clearer ownership and validation.
+
+### Release with 5.0
+
+The Big Bang team will form a strategy for implementation and release with a 5.0 major release of the Big Bang platform in FY27
