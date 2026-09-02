@@ -40,17 +40,14 @@ Make umbrella-wide configuration, package wiring, dependency, generation, and do
 
 ## Commands
 
-Run from the repository root:
+Run these local, read-only checks from the repository root. They do not contact a cluster or intentionally change tracked files.
 
-```shell
-scripts/generate-package-schemas.sh --check
-scripts/generate-values-reference.sh --check
-helm lint ./chart
-helm unittest chart -f 'unittests/**/*_test.yaml'
-bats --jobs 4 --recursive tests/bats/
-kubectl kustomize ./base >/dev/null
-kubectl kustomize ./base/flux >/dev/null
-```
+- `scripts/generate-package-schemas.sh --check` requires `jq` and Mike Farah `yq` v4. It validates `chart/package-metadata.yaml` and compares temporary output with `chart/values.schema.json` and the generated metadata block in `scripts/migrate-values-3-to-4.sh`. If stale, run the reported `--write` command and review both files.
+- `scripts/generate-values-reference.sh --check` requires `helm-docs` v1.14.2, or `HELM_DOCS_BIN` pointing to that version. It renders into a temporary directory and compares the result with `docs/configuration/base-config.md`. If stale, run the reported `--write` command and review that generated file.
+- `helm lint ./chart` requires Helm and validates the umbrella chart and its vendored dependencies without rendering every test scenario.
+- `helm unittest chart -f 'unittests/**/*_test.yaml'` requires Helm plus the `helm-unittest` plugin. It renders and tests the full chart unit-test suite without deploying resources; add `-d` only when needed because debug mode creates `.debug/` output.
+- `bats --jobs 4 --recursive tests/bats/` requires Bats with parallel-runner support and runs the complete shell, migration, generator, and overlay suite. Use the matching focused Bats file while iterating.
+- `kubectl kustomize ./base >/dev/null` and `kubectl kustomize ./base/flux >/dev/null` require `kubectl` and verify that both bootstrap overlays render locally. Despite using `kubectl`, these commands do not access the active kubeconfig or apply resources.
 
 ## Validation
 
