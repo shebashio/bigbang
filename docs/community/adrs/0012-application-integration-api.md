@@ -41,7 +41,7 @@ Bang application integration controller.
 
 Big Bang will evaluate the API through a phased dual-path adoption. Existing
 team-maintained packages continue to use direct `bb-common` resource generation while
-the API and controller are incubating. Mission applications and arbitrary packages are
+the API and controller are incubating. Mission applications or "user defined" packages are
 the first controller consumers. After the controller satisfies the graduation gates in
 this ADR, maintained application packages may migrate by having `bb-common` emit an
 `ApplicationIntegration` instead of directly rendering overlapping platform resources.
