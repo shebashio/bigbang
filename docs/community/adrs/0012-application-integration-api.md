@@ -39,6 +39,17 @@ Kubernetes APIs.
 Big Bang will introduce an `ApplicationIntegration` custom resource reconciled by a Big
 Bang application integration controller.
 
+Big Bang will evaluate the API through a phased dual-path adoption. Existing
+team-maintained packages continue to use direct `bb-common` resource generation while
+the API and controller are incubating. Mission applications and arbitrary packages are
+the first controller consumers. After the controller satisfies the graduation gates in
+this ADR, maintained application packages may migrate by having `bb-common` emit an
+`ApplicationIntegration` instead of directly rendering overlapping platform resources.
+
+Direct rendering remains supported for the platform substrate and approved exceptions.
+The phased model is intended to converge application-layer integrations on one semantic
+contract; it is not intended to establish two unrelated permanent integration standards.
+
 The initial API is:
 
 ```yaml
@@ -544,6 +555,143 @@ The following rules apply independently of the selected integration class:
 10. External reachability is established only after the requested network and
     authentication controls are ready.
 
+## Adoption strategies
+
+The custom resource can be adopted through several strategies. The API shape does not
+depend on which strategy is selected.
+
+### Immediate convergence
+
+All application packages could migrate from direct `bb-common` resource generation to
+`ApplicationIntegration` in one coordinated release. This would establish one mechanism
+quickly, but it would require near-complete feature parity before the controller had
+production experience. It would also give the new controller a large privilege and
+application scope from its first release.
+
+### Phased convergence
+
+Existing packages can remain on direct `bb-common` while the operator is introduced for
+mission applications in explicitly authorized namespaces. Representative maintained
+packages can then migrate after the API demonstrates equivalent security behavior.
+
+This is the proposed adoption strategy. It reduces initial migration and privilege risk
+while retaining convergence on a common application contract as the long-term goal.
+
+### Permanent separation
+
+Maintained packages could always use direct `bb-common` while arbitrary applications
+always use the controller. This provides a simple organizational boundary, but it would
+create two permanent integration dialects. Defaults, ambient behavior, authentication,
+and security fixes could diverge, and platform changes would require two implementations
+and test suites. Permanent separation is not the intended outcome.
+
+## Integration ownership modes
+
+During phased adoption, Big Bang supports three mutually exclusive ownership modes:
+
+| Mode | Intent owner | Generated-resource owner | Initial consumers |
+| --- | --- | --- | --- |
+| `Direct` | Helm values | Helm and Flux through `bb-common` | Existing and bootstrap packages |
+| `EmittedCR` | Helm owns the CR | Integration controller | Migrated maintained packages |
+| `NativeCR` | Mission GitOps owner | Integration controller | Mission and arbitrary applications |
+
+In `Direct` mode, `bb-common` renders platform resources and Helm owns them. No
+`ApplicationIntegration` is created.
+
+In `EmittedCR` mode, the application chart or `bb-common` renders an
+`ApplicationIntegration`. Helm owns the custom resource, and the integration controller
+exclusively owns its generated resources.
+
+In `NativeCR` mode, a mission application's GitOps repository owns the
+`ApplicationIntegration`, and the integration controller owns its generated resources.
+
+An application must not use more than one mode for the same integration feature.
+Admission checks, ownership labels, and conformance tests prevent Helm and the controller
+from managing the same resource. The exact `bb-common` configuration used to select a
+mode will be finalized through implementation experience. A candidate interface is:
+
+```yaml
+bb-common:
+  applicationIntegration:
+    mode: Direct # Direct or EmittedCR
+```
+
+## Phased adoption plan
+
+### Phase 0: Contract and conformance
+
+Before deploying the controller:
+
+1. define the CRDs and structural schemas;
+2. create fixtures expressing equivalent intent through `bb-common` values and an
+   `ApplicationIntegration`;
+3. establish expected generated resources and security behavior;
+4. define resource names, field ownership, and controller RBAC;
+5. test fail-closed reconciliation ordering.
+
+Phase 0 is complete when network, routing, authentication, and monitoring conformance
+fixtures exist; the API and RBAC have completed security review; and no ambiguous
+resource-ownership cases remain.
+
+### Phase 1: Mission applications
+
+Deploy the controller for explicitly authorized mission namespaces while maintained
+packages remain in `Direct` mode. The first supported surface should be limited to HTTP
+exposure, default-deny policy, explicit network flows, mesh enrollment, and metrics.
+Proxy authentication is included only when its fail-closed behavior is ready.
+
+Phase 1 is complete when:
+
+- at least one application outside the Big Bang umbrella uses the API;
+- controller upgrade and outage tests pass;
+- generated protections remain effective while the controller is unavailable;
+- Flux and controller ownership-conflict tests pass;
+- controller metrics, alerts, and operational runbooks are available.
+
+### Phase 2: Representative maintained packages
+
+Allow selected packages to enter `EmittedCR` mode. The group must cover a simple HTTP
+application, Authservice, ambient mode, multiple workloads or stateful traffic, metrics,
+and endpoint probes.
+
+Phase 2 is complete when:
+
+- direct and controller-managed configurations pass equivalent security tests;
+- package upgrade tests cover the transition between ownership modes;
+- rollback to direct management is documented and tested;
+- no overlapping Helm and controller ownership remains after migration.
+
+### Phase 3: Application-layer convergence
+
+New application packages prefer `ApplicationIntegration`, and existing application
+packages migrate during normal releases. Direct rendering becomes a compatibility path,
+overlapping `bb-common` fields may begin deprecation, and the API can be evaluated for
+beta graduation.
+
+### Phase 4: Permanent substrate boundary
+
+Direct Helm or native resource management remains appropriate for components needed to
+bootstrap or provide the integration controller:
+
+- Flux;
+- the integration CRDs, conversion webhooks, and controller;
+- Istio control plane and gateways;
+- policy engines;
+- monitoring operators and CRDs;
+- identity-provider infrastructure.
+
+This boundary avoids a circular dependency:
+
+```text
+Flux and Helm
+  -> install the platform substrate
+    -> install the integration controller
+      -> reconcile application integrations
+```
+
+Application-layer packages should converge on `EmittedCR` or `NativeCR`. Continued
+`Direct` use outside the substrate requires an explicit, documented exception.
+
 ## Relationship to `bb-common`
 
 `bb-common` remains the supported Helm integration mechanism during incubation and
@@ -555,21 +703,47 @@ chart in the controller. Runtime reconciliation must use a typed implementation 
 and Kubernetes clients. Helm rendering inside a controller would preserve the current
 coupling and make field ownership and upgrades difficult to reason about.
 
-During migration:
+For packages in `EmittedCR` mode, `bb-common` acts as a compatibility and authoring layer:
+it translates supported existing values into an `ApplicationIntegration` instead of
+rendering the overlapping resources. This lets maintained packages adopt the runtime API
+without requiring every package to change its public values immediately.
 
-1. define conformance fixtures that express the same intent in `bb-common` values and an
-   `ApplicationIntegration`;
-2. verify that both paths provide equivalent security behavior;
-3. migrate a small package with a simple route and metrics endpoint;
-4. migrate packages covering native OIDC, Authservice proxying, ambient mode, stateful
-   traffic, and multiple workloads;
-5. keep `bb-common` for resource types not yet represented by the API;
-6. deprecate overlapping `bb-common` keys only after the replacement API reaches beta
-   and supported package migrations are available.
+Resource types not yet represented by the API remain under direct `bb-common` management.
+An application must not use both mechanisms to manage the same feature. Overlapping
+`bb-common` keys may be deprecated only after the replacement API reaches beta and
+supported package migrations are available.
 
-An application must not use `bb-common` and `ApplicationIntegration` to manage the same
-resource. Validation and documentation will require explicit ownership boundaries during
-the transition.
+## Ownership transition
+
+Migration from `Direct` to `EmittedCR` is an explicit package upgrade operation. It must
+ensure that:
+
+1. equivalent controller-managed protections are ready before Helm deletes directly
+   rendered protections;
+2. externally reachable routes are never left without requested authentication or
+   authorization;
+3. the controller does not forcibly adopt Helm-managed resources;
+4. matching resource names do not imply permission to transfer ownership;
+5. rollback restores direct protections before deleting controller-managed protections;
+6. Flux drift detection does not treat expected controller changes as unauthorized
+   drift.
+
+Where an ownership change cannot be proven safe in one Helm operation, migration uses
+two releases:
+
+```text
+Release N:
+  Direct resources remain authoritative.
+  The ApplicationIntegration runs in observe-only mode and reports equivalence.
+
+Release N+1:
+  Controller-managed protections become authoritative.
+  Direct resources are removed only after controller readiness is confirmed.
+```
+
+Observe-only mode never creates externally reachable routes or claims ownership of
+enforcement resources. It compares intended and existing behavior and reports conditions
+needed to approve the next migration step.
 
 ## API evolution
 
@@ -591,8 +765,8 @@ The API follows Kubernetes compatibility conventions:
 
 Graduation from alpha to beta requires:
 
-- successful use by at least one core package, one supported add-on, and one mission
-  application not deployed by the Big Bang umbrella;
+- successful use by at least one team-maintained application package, one supported
+  add-on, and one mission application not deployed by the Big Bang umbrella;
 - sidecar and ambient mesh coverage;
 - external OIDC and Authservice proxy coverage;
 - upgrade testing across two consecutive Big Bang releases;
@@ -626,6 +800,11 @@ conformance suite. Reconciliation ownership must be coordinated carefully with F
 Helm. Some `bb-common` features will remain outside the API, and maintainers will support
 both mechanisms during a multi-release migration.
 
+Phased adoption reduces initial migration and controller-privilege risk, but temporarily
+requires two rendering paths and equivalent conformance coverage for both. Each duplicated
+feature must have a graduation gate, migration owner, and exit condition so that the
+incubation path does not become an unplanned permanent compatibility burden.
+
 The API deliberately favors a small portable contract over exposing every capability of
 Istio, Prometheus Operator, or `bb-common`. Applications with advanced needs continue to
 use native resources alongside the integration resource.
@@ -656,6 +835,8 @@ This would make the API appear flexible while freezing implementation-specific s
 inside the public contract. Native resources beside the custom resource provide the same
 escape path with clearer ownership and validation.
 
-### Release with 5.0
+## Delivery target
 
-The Big Bang team will form a strategy for implementation and target release with a 5.0 major release of the Big Bang platform in FY27
+Initial availability of the alpha API and controller is targeted for Big Bang 5.0 in
+FY27. Advancement through the adoption phases is governed by the security, conformance,
+operational, and migration gates in this ADR rather than by the release number alone.
