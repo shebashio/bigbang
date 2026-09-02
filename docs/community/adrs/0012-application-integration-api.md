@@ -658,4 +658,4 @@ escape path with clearer ownership and validation.
 
 ### Release with 5.0
 
-The Big Bang team will form a strategy for implementation and release with a 5.0 major release of the Big Bang platform in FY27
+The Big Bang team will form a strategy for implementation and target release with a 5.0 major release of the Big Bang platform in FY27
