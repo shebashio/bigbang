@@ -22,6 +22,7 @@ TERMINATE_INSTANCE=true
 QUIET=false
 K3D_TIMEOUT=300
 EXTERNAL_DEPENDENCIES=false
+EXTERNAL_DEPENDENCIES_ONLY=false
 K3D_DEV_POSTGRES_DATABASES="${K3D_DEV_POSTGRES_DATABASES:-gitlabhq_production,mattermost}"
 K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-ci-gitlab-lfs,ci-gitlab-artifacts,ci-gitlab-uploads,ci-gitlab-packages,ci-gitlab-mr-diffs,ci-gitlab-terraform-state,ci-gitlab-dependency-proxy,ci-gitlab-pseudo,ci-gitlab-backup,ci-gitlab-backup-tmp,ci-gitlab-registry,gitlab-uploads,mattermost}"
 TMPDIR=$(mktemp -d)
@@ -1436,7 +1437,7 @@ function cloud_aws_assign_ip_addresses
 function cluster_mgmt_select_action_for_existing {
   echo "💣 Big Bang Cluster Management 💣"
   PS3="Please select an option: "
-  options=("Re-create K3D cluster" "Recreate the cloud instance from scratch" "Do Nothing")
+  options=("Re-create K3D cluster" "Recreate the cloud instance from scratch" "Do Nothing" "Re-create external dependencies")
 
   select opt in "${options[@]}"; do
     case $opt in
@@ -1462,6 +1463,11 @@ function cluster_mgmt_select_action_for_existing {
     "Do Nothing")
       echo "Doing nothing..."
       exit 0
+      ;;
+    "Re-create external dependencies")
+      EXTERNAL_DEPENDENCIES=true
+      EXTERNAL_DEPENDENCIES_ONLY=true
+      break
       ;;
     *)
       echo "Invalid option. Please try again."
@@ -1497,6 +1503,7 @@ function cloud_aws_create_instances {
     if [[ "${CLOUD_RECREATE_INSTANCE}" == "true" ]]; then
       destroy_instances
     fi
+    [[ "${EXTERNAL_DEPENDENCIES_ONLY}" == "true" ]] && return
   fi
 
   if [[ "${RESET_K3D}" == false ]] ; then
@@ -1590,6 +1597,10 @@ function check_for_existing_instances {
 function create_instances {
   if [[ "${PROVISION_CLOUD_INSTANCE}" == "true" ]]; then
     cloud_${CLOUDPROVIDER}_create_instances
+  fi
+  if [[ "${EXTERNAL_DEPENDENCIES_ONLY}" == "true" ]]; then
+    install_external_dependencies
+    return
   fi
   initialize_instance
   install_k3d
