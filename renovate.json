@@ -110,6 +110,17 @@
         },
         {
             "customType": "regex",
+            "description": "Update developer external dependency images",
+            "managerFilePatterns": [
+                "/^docs/reference/scripts/developer/dependencies/manage\\.sh$/"
+            ],
+            "matchStrings": [
+                "(?:POSTGRES|GARAGE|VALKEY)_IMAGE=\\\"(?<depName>registry1\\.dso\\.mil/ironbank/[^:\\\"]+):(?<currentValue>[^\\\"]+)\\\""
+            ],
+            "datasourceTemplate": "docker"
+        },
+        {
+            "customType": "regex",
             "description": "Update the Big Bang wrapper chart used by the GitLab CI PostgreSQL operand",
             "managerFilePatterns": [
                 "/^tests/test-values\\.yaml$/"
