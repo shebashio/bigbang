@@ -48,7 +48,7 @@ Most package images come from [Iron Bank](https://p1.dso.mil/ironbank), but you 
 
 Big Bang can run on supported Kubernetes environments in public or government clouds, on-premises, and disconnected environments — but it requires a conformant Kubernetes cluster and can't be installed directly on a standalone VM. If your organization can't support a full Kubernetes environment, consider [Party Bus](https://p1.dso.mil/partybus) (Platform One's managed PaaS) instead.
 
-Compatibility depends on the Big Bang release and your cluster's networking, storage, DNS, load-balancing, and registry capabilities — don't assume support based on the provider name alone. See [Prerequisites](prerequisites.md) and test in a representative non-production environment first.
+Compatibility depends on the Big Bang release and your cluster's networking, storage, DNS, load-balancing, and registry capabilities — don't assume support based on the provider name alone. See [Prerequisites](getting-started/prerequisites.md) and test in a representative non-production environment first.
 
 > Can I deploy an application that isn't already a Big Bang package?
 
