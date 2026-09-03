@@ -76,6 +76,6 @@ Before upgrading production, review the changelogs for every package you use, te
 
 > Where can I get help, report a bug, or contribute a fix?
 
-Search [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/issues) first. If it's not already reported, open one with your Big Bang version, Kubernetes version, affected packages, and reproduction steps — never include credentials or sensitive configuration. To contribute a fix, link your merge request to the work item and follow the [Contributing guide](../CONTRIBUTING.md).
+Search [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/work_items) first. If it's not already reported, open one with your Big Bang version, Kubernetes version, affected packages, and reproduction steps — never include credentials or sensitive configuration. To contribute a fix, link your merge request to the work item and follow the [Contributing guide](../CONTRIBUTING.md).
 
 Community channels don't include a dedicated point of contact or guaranteed response time for every program. If you need hands-on or contractual support, [contact Platform One](https://p1.dso.mil/contact-us) directly.
