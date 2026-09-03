@@ -62,7 +62,7 @@ Yes — use `helm template` and `kustomize build` to render and review your conf
 
 > Can I use cloud-native authentication or an external secret store?
 
-Depending on your environment and selected packages, you may be able to use cloud-native registry authentication instead of a static image pull secret — for example, some configurations support ambient pull access via an AWS EKS node IAM role. You can also use the optional External Secrets Operator package with providers such as AWS Secrets Manager or Vault instead of storing every secret with SOPS. Support and exact configuration vary by provider, registry, package, and release and can change between versions — confirm current behavior for your release before relying on it, and open a [work item](https://repo1.dso.mil/big-bang/bigbang/-/issues) if something doesn't work as documented. See [External Secrets Operator](packages/addons/external-secrets-operator.md).
+Depending on your environment and selected packages, you may be able to use cloud-native registry authentication instead of a static image pull secret — for example, some configurations support ambient pull access via an AWS EKS node IAM role. You can also use the optional External Secrets Operator package with providers such as AWS Secrets Manager or Vault instead of storing every secret with SOPS. Support and exact configuration vary by provider, registry, package, and release and can change between versions — confirm current behavior for your release before relying on it, and open an [issue](https://repo1.dso.mil/big-bang/bigbang/-/work_items) if something doesn't work as documented. See [External Secrets Operator](packages/addons/external-secrets-operator.md).
 
 ## Upgrades and Change Control
 
