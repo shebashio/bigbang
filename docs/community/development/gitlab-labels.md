@@ -4,13 +4,13 @@
 
 ## Scope and source of truth
 
-This document defines labeling policy for the **Repo1 Big Bang workspace**. It applies to issues, merge requests, and epics in the Big Bang group and its projects.
+This document refreshes the labeling guidance for the **Repo1 Big Bang workspace**. It applies to issues, merge requests, and epics in the Big Bang group and its projects.
 
 The live GitLab group and project labels, including their descriptions, are the source of truth for labels currently available in Repo1. This document defines how labels are used; it does not reproduce the complete live label catalog.
 
 - [Repo1 Big Bang group labels](https://repo1.dso.mil/groups/big-bang/-/labels)
 - [Big Bang umbrella repository](https://repo1.dso.mil/big-bang/bigbang)
-- [Tracking work item #3394](https://repo1.dso.mil/big-bang/bigbang/-/work_items/3394)
+
 
 ## Issues
 
@@ -35,8 +35,6 @@ Use one applicable status label to show the current state of the issue. The gene
 - `status::ready-to-work`: work is ready to begin but has not started.
 - `status::review`: work is ready for review.
 
-Do not use `status::waiting-on-upstream-issue` as a separate state. Use `status::blocked` and describe the upstream dependency in the issue.
-
 ### Priority
 
 Priority is required for issues. Use exactly one of the four canonical levels:
@@ -46,8 +44,6 @@ Priority is required for issues. Use exactly one of the four canonical levels:
 - `priority::3`: non-breaking bugs with a viable workaround, including issues that affect runtime but can be worked around.
 - `priority::4`: feature and epic work.
 
-`priority::5` is not part of the canonical policy and is targeted for retirement through the label-hygiene work.
-
 ### Kind
 
 Use exactly one kind label. The canonical categories are:
@@ -56,9 +52,7 @@ Use exactly one kind label. The canonical categories are:
 - `kind::chore`: administrative, onboarding, repository-management, or similar support work.
 - `kind::docs`: documentation-only work.
 - `kind::feature`: a new capability or an improvement to an existing capability.
-- `kind::renovate`: Renovate maintenance work, once the canonical label is established.
-
-The label-hygiene work will consolidate or retire legacy `kind::maintenance`, `kind::enhancement`, and `kind::ci` values. Do not introduce new usage of those legacy categories while the transition is pending.
+- `kind::renovate`: Renovate maintenance work.
 
 ### Team
 
@@ -70,7 +64,7 @@ Use exactly one active team label. The intended active set is:
 - `team::Platform Engineering`
 - `team::Product Improvement`
 
-`team::Big Bang Anchors` may identify umbrella ownership and escalation/support work. The label-hygiene work will reconcile other existing team labels and rename `team::PlatformEngineering` to `team::Platform Engineering`.
+`team::Big Bang Anchors` may identify umbrella ownership and escalation/support work.
 
 ## Merge requests
 
@@ -95,6 +89,4 @@ Epic states mean:
 - `epic::backlog`: the epic is valid work but is not currently prioritized for execution.
 - `epic::blocked`: work cannot proceed because of an external dependency or another blocked prerequisite.
 
-## Label hygiene and transition
 
-The separate label-hygiene work tracked with [work item #3394](https://repo1.dso.mil/big-bang/bigbang/-/work_items/3394) will reconcile group-level and project-level labels, descriptions, duplicates, malformed names, and legacy values. Until that work is approved and completed, treat the canonical policy above as the target state and do not assume every currently visible label is canonical.
