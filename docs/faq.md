@@ -10,7 +10,7 @@ Use this page to understand what Big Bang provides, deploy and configure it, kee
 | Prepare a deployment | [Prerequisites](prerequisites.md) |
 | Deploy a mission application | [Extra Package Deployment](installation/environments/extra-package-deployment.md) |
 | Upgrade an existing deployment | [Upgrades](operations/upgrades.md) |
-| Report a defect or request a feature | [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/issues) |
+| Report a defect or request a feature | [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/work_items) |
 
 ## Understand Big Bang
 
