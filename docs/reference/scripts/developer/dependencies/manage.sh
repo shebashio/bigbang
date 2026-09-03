@@ -57,7 +57,7 @@ start_garage() {
     --ip 172.30.0.11 \
     -e GARAGE_DEFAULT_ACCESS_KEY="${GARAGE_ACCESS_KEY}" \
     -e GARAGE_DEFAULT_SECRET_KEY="${GARAGE_SECRET_KEY}" \
-    -e GARAGE_DEFAULT_BUCKET=dev-default \
+    -e GARAGE_DEFAULT_BUCKET=ci-default \
     -v "${script_dir}/garage.toml:/etc/garage.toml:ro" \
     -v "${name}-meta:/var/lib/garage/meta" -v "${name}-data:/var/lib/garage/data" \
     "${GARAGE_IMAGE}" /garage server --single-node --default-bucket >/dev/null
