@@ -8,6 +8,7 @@ VALKEY_IMAGE="registry1.dso.mil/ironbank/afdco/valkey/valkey:9.0.4"
 PASSWORD="ci-only-password"
 GARAGE_ACCESS_KEY="GKbb0000000000000000000000"
 GARAGE_SECRET_KEY="bb00000000000000000000000000000000000000000000000000000000000000"
+DEFAULT_GARAGE_BUCKETS="ci-gitlab-lfs,ci-gitlab-artifacts,ci-gitlab-uploads,ci-gitlab-packages,ci-gitlab-mr-diffs,ci-gitlab-terraform-state,ci-gitlab-dependency-proxy,ci-gitlab-pseudo,ci-gitlab-backup,ci-gitlab-backup-tmp,ci-gitlab-registry,gitlab-uploads,mattermost"
 NETWORK="k3d-dependencies"
 PREFIX="bigbang-dev"
 
@@ -76,7 +77,7 @@ provision_buckets() {
     docker exec "${name}" /garage bucket create "${bucket}" >/dev/null 2>&1 || true
     docker exec "${name}" /garage bucket allow --key "${GARAGE_ACCESS_KEY}" \
       --read --write --owner "${bucket}" >/dev/null
-  done < <(printf '%s\n' "${K3D_DEV_GARAGE_BUCKETS}" | tr ',' '\n')
+  done < <(printf '%s\n' "${DEFAULT_GARAGE_BUCKETS},${K3D_DEV_GARAGE_BUCKETS:-}" | tr ',' '\n')
 }
 
 start_valkey() {

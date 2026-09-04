@@ -24,7 +24,7 @@ K3D_TIMEOUT=300
 EXTERNAL_DEPENDENCIES=false
 EXTERNAL_DEPENDENCIES_ONLY=false
 K3D_DEV_POSTGRES_DATABASES="${K3D_DEV_POSTGRES_DATABASES:-gitlabhq_production,mattermost}"
-K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-ci-gitlab-lfs,ci-gitlab-artifacts,ci-gitlab-uploads,ci-gitlab-packages,ci-gitlab-mr-diffs,ci-gitlab-terraform-state,ci-gitlab-dependency-proxy,ci-gitlab-pseudo,ci-gitlab-backup,ci-gitlab-backup-tmp,ci-gitlab-registry,gitlab-uploads,mattermost}"
+K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-}"
 TMPDIR=$(mktemp -d)
 BASE_DOMAIN="dev.bigbang.mil"
 PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
@@ -248,7 +248,7 @@ function process_arguments {
       echo "                                  instance before configuring it"
       echo " --external-dependencies          start PostgreSQL, Garage, and Valkey"
       echo "                                  beside k3d on a dedicated Docker network"
-      echo "                                  configure databases and buckets with"
+      echo "                                  configure databases and add buckets with"
       echo "                                  K3D_DEV_POSTGRES_DATABASES and"
       echo "                                  K3D_DEV_GARAGE_BUCKETS"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
