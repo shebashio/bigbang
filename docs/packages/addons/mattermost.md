@@ -82,7 +82,7 @@ Optional Enterprise Feature: Mattermost can make use of Elastic for improved per
 
 ### Monitoring
 
-Monitoring is available within Mattermost as a paid (E20) feature. If you have both `addons.mattermost.enterprise` and `monitoring` enabled within Big Bang values a service monitor will be deployed to automatically ship metrics data to Prometheus for consumption.
+Monitoring is available within Mattermost as a paid feature — see [Licensing](#licensing) for current tier details. If you have both `addons.mattermost.enterprise` and `monitoring` enabled within Big Bang values a service monitor will be deployed to automatically ship metrics data to Prometheus for consumption.
 
 ### Health Checks
 
@@ -134,29 +134,7 @@ addons:
 
 ## Licensing
 
-Big Bang deploys the free version of Mattermost by default, but there are two additional tiers of paid licenses for additional features. Pricing for these licenses is typically based upon number of users. Full details can be viewed on [Mattermost's tier page](https://docs.mattermost.com/overview/product.html). If you want to trial the E20 features you can request a trial via Mattermost's [request page](https://mattermost.com/trial/) or after deploying via the System Console you can begin a 30 day trial under the "Edition and License" page.
-
-### Mattermost E10 Additional Features
-
-- Active Directory/LDAP Single Sign-on
-- OAuth 2.0 authentication for team creation, account creation, and user sign-in
-- Encrypted push notifications with service level agreements (SLAs) via HPNS
-- Advanced access control policy
-- Next business day support via online ticketing system
-- Scale to handle hundreds of users per team
-
-### Mattermost E20 Additional Features
-
-- Advanced SAML 2.0 authentication with Okta, OneLogin, and Active Directory Federation Services
-- Active Directory/LDAP group sync
-- OpenID Connect authentication for team creation, account creation, and user sign-in
-- Compliance exports of message histories with oversight protection
-- Custom retention policies for messages and files
-- High Availability support with multi-node database deployment
-- Horizontal scaling through cluster-based deployment
-- Elasticsearch support for highly efficient database searches in a cluster environment
-- Advanced performance monitoring
-- Eligibility for Premier Support add-on
+Big Bang deploys the free version of Mattermost by default, but there are additional tiers of paid licenses for additional features. Pricing for these licenses is typically based upon number of users. Full details can be viewed on [Mattermost's pricing page](https://mattermost.com/pricing/). If you want to trial premium features you can request a trial via Mattermost's [request page](https://mattermost.com/trial/) or after deploying via the System Console you can begin a trial under the "Edition and License" page.
 
 ### License Values
 
