@@ -147,7 +147,12 @@ in the same 3-to-4 migration script used for the unified package configuration
 changes described below. BYO packages and mission applications remain under
 their owners' control: packages already using `bb-common` as a subchart do not
 need this consumption-model migration, while owners using the library pattern
-can decide how and when to update their integration.
+remain responsible for updating their package and values. Big Bang recommends
+subchart consumption when an owner can modify or wrap the application chart.
+The
+[`bb-common` integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md?ref_type=heads)
+also documents Argo CD and Kustomize alternatives for applications where adding
+the subchart is not possible.
 
 ## One Consistent Way to Configure Every Package
 

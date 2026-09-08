@@ -102,14 +102,20 @@ values handling, and library-era `istio.injection` translation will be removed.
 
 This decision does not prescribe how independently owned BYO packages or
 mission applications consume `bb-common`. Their owners remain responsible for
-their package integration and may already use `bb-common` as a subchart or may
-continue using its library interfaces according to the compatibility offered
-by `bb-common`.
+their package integration. Big Bang recommends using `bb-common` as a subchart
+when an owner can modify the application chart or place an upstream chart
+behind a passthrough wrapper. When that is not possible, the
+[`bb-common` integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md?ref_type=heads)
+documents alternative Argo CD multi-source and Kustomize with Helm integration
+patterns.
 
 The Big Bang migration utility will not infer or rewrite the internal values
 contract of an unknown user-supplied package. Owners using the library pattern
-must decide whether to migrate their package and values; owners already using
-the subchart pattern do not need a consumption-model migration.
+remain responsible for deciding how to migrate their package and values and
+should evaluate the recommended subchart model. Owners already using the
+subchart pattern do not need a consumption-model migration. Any continued
+availability of the library interfaces is governed by the `bb-common` project
+rather than this decision.
 
 ## Alternatives Considered
 
@@ -166,4 +172,5 @@ performing any package-specific migration.
 - [ADR 11: Unified Package Configuration and Package Metadata](./0011-unified-package-configuration-and-metadata.md)
 - [ADR 12: Standard Big Bang Package Architecture](./0012-standard-package-architecture.md)
 - [`bb-common` integration overview](../../../blog/streamlining-integration-with-bb-common.md)
+- [`bb-common` integration guide for application owners](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md?ref_type=heads)
 - [Migrating package values for Big Bang 4.0](../../migration/migrating-package-values-for-bb4.0.md)
