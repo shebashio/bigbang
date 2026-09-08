@@ -830,6 +830,9 @@ fluentbit:
 
 loki:
   strategy: scalable
+  git:
+    tag: null
+    branch: fix/grafana-prometheus-datasource
   values:
     # MinIO required for Loki Scalable
     minio:
