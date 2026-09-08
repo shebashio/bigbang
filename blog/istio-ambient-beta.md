@@ -1,5 +1,10 @@
 # Ambient Mode on Big Bang is now in Beta
 
+> **Update:** Istio Ambient Mesh reached General Availability in Big Bang 3.32.
+> It remains opt-in throughout Big Bang 3.x and becomes the default Istio
+> configuration in Big Bang 4.0. Users are encouraged to begin migrating and
+> validating their mission environments before the 4.0 upgrade.
+
 Big Bang 3.23 introduces support for **Istio Ambient Mesh** as an opt-in (beta) feature. With BB 3.23, Ambient Mode defaults to **disabled**, allowing existing deployments to continue operating using the existing sidecar pattern without disruption. Users can explicitly enable Ambient Mode to begin evaluating its benefits and tradeoffs in controlled environments.
 
 This post provides a high-level overview of the Ambient Mesh capability, how this capability impacts cluster networking traffic, and the changes that were made in the Big Bang product to support it.

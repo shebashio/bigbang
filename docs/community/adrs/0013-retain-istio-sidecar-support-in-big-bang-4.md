@@ -14,12 +14,13 @@ node-level `ztunnel` proxies for Layer 4 connectivity, identity, and mutual TLS.
 Optional waypoint proxies provide Layer 7 capabilities when applications need
 them.
 
-Ambient support was introduced as an opt-in beta during the Big Bang 3.x
-lifecycle so package maintainers and users could evaluate the new data-plane
-model before it became the default. Big Bang-managed packages have since added
-Ambient-specific namespace enrollment, HBONE network-policy behavior, Layer 4
-authorization policies, and waypoint integration for Layer 7 use cases such as
-Authservice.
+Ambient support was introduced as an opt-in beta in Big Bang 3.23 and reached
+General Availability in Big Bang 3.32. It remains opt-in for the rest of the
+3.x lifecycle so package maintainers and users can migrate and evaluate the new
+data-plane model before it becomes the default. Big Bang-managed packages have
+added Ambient-specific namespace enrollment, HBONE network-policy behavior,
+Layer 4 authorization policies, and waypoint integration for Layer 7 use cases
+such as Authservice.
 
 Mission environments can contain workloads, network paths, and application
 behaviors that are not represented fully in Big Bang's integration test
@@ -40,6 +41,9 @@ Big Bang 4.0 will support both Istio Ambient and sidecar mesh configurations.
 Ambient will be the default for new 4.0 deployments, but an existing user may
 upgrade to Big Bang 4.0 while continuing to use the sidecar configuration.
 Migration to Ambient is not a prerequisite for adopting Big Bang 4.0.
+Users are nevertheless encouraged to begin migrating on Big Bang 3.32 or later
+so they can validate mission-specific behavior independently from the 4.0
+platform upgrade.
 
 Sidecar support serves as a compatibility path and a temporary escape hatch for
 mission environments that encounter an Ambient issue that would otherwise

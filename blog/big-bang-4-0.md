@@ -47,8 +47,14 @@ to account for traffic carried over the HBONE tunnel. Together, these changes
 preserve secure-by-default traffic controls as the data plane moves away from
 sidecars.
 
-Ambient first became available as an opt-in beta in Big Bang 3.23, giving the
-community time to evaluate the new model before it became the 4.0 default.
+Ambient first became available as an opt-in beta in Big Bang 3.23 and reached
+General Availability in Big Bang 3.32. It remains opt-in for the rest of the
+3.x lifecycle before becoming the default in 4.0. We recommend that users begin
+migrating now with Big Bang 3.32 or later, starting in a development or test
+environment and validating mission-specific traffic and integrations before
+production. Migrating ahead of 4.0 lets teams evaluate the mesh change
+independently from the major-version platform upgrade.
+
 Making Ambient the default does not remove sidecar mode: Big Bang 4.0 continues
 to support sidecar configuration so users can upgrade the platform without
 also being required to migrate their service mesh. If a mission environment
@@ -66,10 +72,7 @@ namespace along with the route's JWT validation, external-authorization, deny
 backstop, and required network policies. The consuming package enrolls the
 protected Service onto that waypoint so both ingress and in-mesh traffic follow
 the intended policy path. Big Bang's Monitoring and Thanos integrations use
-this route-scoped waypoint model for SSO-protected services. A gateway-only
-Authservice pattern is also available for Ambient environments that do not use
-a waypoint, but it protects traffic at the ingress gateway rather than traffic
-that bypasses the gateway inside the mesh.
+this route-scoped waypoint model for SSO-protected services.
 
 Read the [Ambient Mesh beta overview](./istio-ambient-beta.md) to learn more
 about the architecture, or consult the
