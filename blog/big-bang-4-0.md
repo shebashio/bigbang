@@ -17,10 +17,7 @@ release and upgrade information, visit the
 
 ## Istio Ambient Mesh Becomes the Default
 
-Big Bang 3.0 replaced the Istio Operator with direct Helm deployments, adopting
-Istio's recommended installation model and laying the foundation for a simpler
-service mesh. Big Bang 4.0 takes the next step by making **Istio Ambient Mesh
-the default Istio configuration**.
+Big Bang 4.0 makes **Istio Ambient Mesh the default Istio configuration**.
 
 Ambient Mesh provides service-mesh security without requiring an Envoy sidecar
 in every application pod. Instead, a shared, node-level proxy called `ztunnel`
