@@ -177,6 +177,11 @@ monitoring:
 addons:
   gitlab:
     enabled: true
+packages:
+  confluence:
+    enabled: true
+  bringYourOwnPackage:
+    enabled: true
 ```
 
 to one consistent package map:
@@ -189,6 +194,10 @@ packages:
   monitoring:
     enabled: true
   gitlab:
+    enabled: true
+  confluence:
+    enabled: true
+  bringYourOwnPackage:
     enabled: true
 ```
 
