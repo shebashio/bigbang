@@ -142,14 +142,21 @@ Bang integrated and team-maintained package will complete this migration for
 the standard subchart model consistently.
 
 This transition changes the values shape for these packages, so existing users
-will need to migrate their package overrides. Big Bang will include that rewrite
-in the same 3-to-4 migration script used for the unified package configuration
-changes described below. Bring your own packages and mission applications remain under
-their owners' control: packages already using `bb-common` as a subchart do not
-need this consumption-model migration, while owners using the library pattern
-remain responsible for updating their package and values. Big Bang recommends
-subchart consumption when an owner can modify or wrap the application chart.
-The
+will need to migrate their package overrides. For the 4.0 upgrade, users will be
+able to use Big Bang's
+[3-to-4 values migration script](../scripts/migrate-values-3-to-4.sh) for both
+breaking configuration changes. In one migration, the script will move legacy
+top-level and `addons.<name>` package configuration into the consistent
+`packages.<name>` map and rewrite integrated and team-maintained package
+overrides from the Helm library-chart values shape to the scoped `bb-common`
+subchart shape. Users should review and validate the generated values before
+deployment.
+
+Bring your own packages and mission applications remain under their owners'
+control: packages already using `bb-common` as a subchart do not need this
+consumption-model migration, while owners using the library pattern remain
+responsible for updating their package and values. Big Bang recommends subchart
+consumption when an owner can modify or wrap the application chart. The
 [`bb-common` integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md?ref_type=heads)
 also documents Argo CD and Kustomize alternatives for applications where adding
 the subchart is not possible.
