@@ -98,7 +98,7 @@ they have migrated, the umbrella chart will always supply the nested
 `bb-common` values block. The temporary `bbCommonSubchart` argument, legacy flat
 values handling, and library-era `istio.injection` translation will be removed.
 
-### BYO packages and mission applications
+### Bring your own packages (BYO) and mission applications
 
 This decision does not prescribe how independently owned BYO packages or
 mission applications consume `bb-common`. Their owners remain responsible for

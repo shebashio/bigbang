@@ -88,7 +88,7 @@ override behavior depending on the package. That duplication made package
 integration harder to understand, test, and maintain.
 
 `bb-common` provides a shared Big Bang integration layer for these cross-cutting
-concerns. Its initial focus is network policy, where it provides reusable
+concerns. The bb-common implementation focused on network policy, reusable
 definitions, consistent default-deny behavior, and a concise domain-specific
 language for expressing communication between workloads. Policy configuration
 remains visible in package values, making the intended security boundaries
@@ -147,7 +147,7 @@ the standard subchart model consistently.
 This transition changes the values shape for these packages, so existing users
 will need to migrate their package overrides. Big Bang will include that rewrite
 in the same 3-to-4 migration script used for the unified package configuration
-changes described below. BYO packages and mission applications remain under
+changes described below. Bring your own packages and mission applications remain under
 their owners' control: packages already using `bb-common` as a subchart do not
 need this consumption-model migration, while owners using the library pattern
 remain responsible for updating their package and values. Big Bang recommends
