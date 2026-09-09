@@ -74,6 +74,7 @@ For upstream passthrough configuration, document only the parent entry point and
 ## Upgrade and Release Workflow
 
 - Normal merge requests do not change `chart/Chart.yaml`'s version; umbrella releases follow the [release schedule](README.md#release-schedule).
+- Do not update `CHANGELOG.md` in a merge request; the release process manages changelog entries.
 - Merge request CI tests clean install and upgrade from `master`. Protected tags trigger artifact preparation, signing, and publication through the [CI workflow](docs/community/development/ci-workflow.md).
 
 ## Integration Test Environment
