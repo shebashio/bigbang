@@ -71,7 +71,7 @@ protected Service onto that waypoint so both ingress and in-mesh traffic follow
 the intended policy path. Big Bang's Monitoring and Thanos integrations use
 this route-scoped waypoint model for SSO-protected services.
 
-Read the [Ambient Mesh beta overview](./istio-ambient-beta.md) to learn more
+Read the [Ambient Mesh adoption overview](./istio-ambient-beta.md) to learn more
 about the architecture, or consult the
 [Ambient migration guide](../docs/migration/migrating-istio-to-ambient.md) for
 detailed preparation and compatibility information.

@@ -41,9 +41,9 @@ Package is the term we use for an application that has been prepared to be deplo
               image: registry1.dso.mil/ironbank/path/to/your-app:6.9.0
         ```
 
-3. Add bb-common as a helm dependency and create the required include files as referenced [here](https://repo1.dso.mil/big-bang/product/packages/bb-common#as-a-library-chart).
+3. Add `bb-common` as a regular Helm subchart dependency and configure its values under the `bb-common` key. Do not create thin wrapper templates that call the legacy library-chart render interfaces. This is the standard model for integrated and team-maintained packages established by [ADR 14](../../community/adrs/0014-consume-bb-common-as-a-helm-subchart.md). See the [`bb-common` integration guide](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/INTEGRATION_GUIDE.md?ref_type=heads) for dependency and configuration examples.
 
-4. Run a helm dependency update that will download the upstream chart as a dependency as well as any external sub-chart and library chart dependencies. Commit any *.tgz files that are downloaded into the "charts" directory. The reason for doing this is that BigBang Packages must be able to be installed in an air-gap without any internet connectivity.
+4. Run a helm dependency update that will download the upstream chart, `bb-common`, and any other external chart dependencies. Commit any *.tgz files that are downloaded into the "charts" directory. The reason for doing this is that BigBang Packages must be able to be installed in an air-gap without any internet connectivity.
     ```shell
     helm dependency update ./chart
     ```
@@ -60,32 +60,33 @@ Package is the term we use for an application that has been prepared to be deplo
     # list images from the upstream chart
     helm template <releasename> ./chart -n <namespace> -f chart/values.yaml | grep image:
     ```
-    Add the image overrides, **do not** copy the upstream defaults, in your package's `values.yaml` using the `upstream` key to pass values to the upstream chart. Also add the "imagePullSecrets" tag if not already there along with the "Big Bang specific values" that get used by the bb-common library chart. Here is an example:
+    Add the image overrides, **do not** copy the upstream defaults, in your package's `values.yaml` using the `upstream` key to pass values to the upstream chart. Also add the "imagePullSecrets" tag if not already there and configure Big Bang security and networking values under the `bb-common` subchart key. Here is an example:
     ```yaml
     # Big Bang specific values
-    networkPolicies:
-      enabled: true
+    bb-common:
+      networkPolicies:
+        enabled: true
 
-    istio:
-      enabled: false
-    
-      sidecar:
+      istio:
         enabled: false
-        outboundTrafficPolicyMode: "REGISTRY_ONLY"
-    
-      serviceEntries:
-        custom: []
-    
-      authorizationPolicies:
-        enabled: false
-        generateFromNetpol: true
-        custom: []
-    
-      # Default peer authentication
-      mtls:
-        # STRICT = Allow only mutual TLS traffic
-        # PERMISSIVE = Allow both plain text and mutual TLS traffic
-        mode: STRICT
+
+        sidecar:
+          enabled: false
+          outboundTrafficPolicyMode: "REGISTRY_ONLY"
+
+        serviceEntries:
+          custom: []
+
+        authorizationPolicies:
+          enabled: false
+          generateFromNetpol: true
+          custom: []
+
+        # Default peer authentication
+        mtls:
+          # STRICT = Allow only mutual TLS traffic
+          # PERMISSIVE = Allow both plain text and mutual TLS traffic
+          mode: STRICT
     
     # Values passed to upstream chart
     upstream:
@@ -99,9 +100,9 @@ Package is the term we use for an application that has been prepared to be deplo
             - private-registry
     ```
 
-7. Add any specific network policies that will be needed to allow the package to function as normal. The bb-common library will automatically generate a [default set](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/network-policies?ref_type=heads#default-policies) of network policies if `networkPolicies.enabled` is set to `true` which provides a great starting point. The [bb-common network policy documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md) can be referenced for guidance on this portion. It is recommended to include the service accounts for any ingress network policies as shown [here](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/network-policies?ref_type=heads#authorization-policy-generation) as this will allow authorization policies to get automatically generated if the `istio.authorizationPolicies.enabled` value gets set to `true`.
+7. Add any specific network policies that will be needed to allow the package to function as normal. The `bb-common` subchart will automatically generate a [default set](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/network-policies?ref_type=heads#default-policies) of network policies if `bb-common.networkPolicies.enabled` is set to `true`, which provides a starting point. The [bb-common network policy documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md) can be referenced for guidance on this portion. It is recommended to include the service accounts for any ingress network policies as shown [here](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/network-policies?ref_type=heads#authorization-policy-generation), as this allows authorization policies to be generated when `bb-common.istio.authorizationPolicies.enabled` is set to `true`.
 
-8. If your application has a back-end API or a front-end GUI please refer to the [bb-common docs](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/routes?ref_type=heads#inbound-routes) for instructions on how to create the virtual service.
+8. If your application has a back-end API or a front-end GUI, refer to the [bb-common route documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/tree/main/docs/routes?ref_type=heads#inbound-routes) and configure the route under `bb-common.routes`.
 
 9. Add a Continuous Integration (CI) pipeline to the Package and configure Renovate for automated dependency updates. A Package should be able to be deployed by itself, independently from the Big Bang chart. The Package pipeline takes advantage of this to run a Package pipeline test. The package testing is done with a helm test library. Reference the [pipeline documentation](https://repo1.dso.mil/big-bang/pipeline-templates/pipeline-templates#setting-up-your-project-with-pipelines) for how to create a pipeline and also [detailed instructions](https://repo1.dso.mil/big-bang/apps/library-charts/gluon/-/blob/master/docs/bb-tests.md) in the gluon library.
     Configure Renovate to automatically update the upstream chart dependency by adding a `renovate.json` file:
@@ -181,12 +182,11 @@ Package is the term we use for an application that has been prepared to be deplo
     packageRepo/
     ├── chart/
     │   ├── charts/
+    │   │ ├── bb-common-*.tgz
     │   │ └── upstream-chart-*.tgz
     │   ├── templates/
     │   │ └── bigbang/
-    │   │     ├── network-policies.yaml
-    │   │     ├── istio.yaml
-    │   │     └── routes.yaml
+    │   │     └── package-specific-resources.yaml
     │   ├── tests/
     │   │ ├── cypress/
     │   │ └── scripts/
