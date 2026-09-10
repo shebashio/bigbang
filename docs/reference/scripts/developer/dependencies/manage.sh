@@ -3,7 +3,7 @@ set -euo pipefail
 
 POSTGRES_IMAGE="registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.4"
 POSTGRES_CRON_DATABASE="anchore"
-GARAGE_IMAGE="registry1.dso.mil/ironbank/opensource/deuxfleurs-org/garage:2.3.0"
+GARAGE_IMAGE="registry1.dso.mil/ironbank/opensource/deuxfleurs-org/garage:2.4.1"
 VALKEY_IMAGE="registry1.dso.mil/ironbank/afdco/valkey/valkey:9.0.4"
 
 PASSWORD="ci-only-password"
