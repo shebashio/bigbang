@@ -5222,7 +5222,8 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "ingress": true
+            "ingress": true,
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5378,7 +5379,8 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "ingress": true
+            "ingress": true,
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
@@ -5947,7 +5949,8 @@
             },
             "kms_key_id": {
               "type": "string"
-            }
+            },
+            "sso": true
           },
           "type": "object",
           "additionalProperties": false,
