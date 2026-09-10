@@ -266,6 +266,49 @@
         "enabled"
       ]
     },
+    "routes": {
+      "type": "object",
+      "properties": {
+        "defaults": {
+          "type": "object",
+          "properties": {
+            "inbound": {
+              "type": "object",
+              "properties": {
+                "gateways": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^/]+/[^/]+$"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "outbound": {
+              "type": "object",
+              "properties": {
+                "egressGateway": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[^/]+/[^/]+$"
+                    },
+                    {
+                      "type": "boolean",
+                      "const": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "imagePullPolicy": {
       "type": "string",
       "enum": [
@@ -398,6 +441,24 @@
           },
           "additionalProperties": false
         },
+        "postRenderers": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePackage"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "istioEgressGateway": {
+      "properties": {
+        "enabled": true,
+        "sourceType": true,
+        "releaseName": true,
+        "git": true,
+        "helmRepo": true,
+        "flux": true,
+        "values": true,
         "postRenderers": true
       },
       "allOf": [
@@ -4986,6 +5047,46 @@
           "type": "object",
           "description": "Partial override merged over the built-in package's legacy defaults."
         },
+        "istioEgressGateway": {
+          "properties": {
+            "git": {
+              "$ref": "#/$defs/packageAliasPartials/git"
+            },
+            "helmRepo": {
+              "$ref": "#/$defs/packageAliasPartials/helmRepo"
+            },
+            "enabled": {
+              "$ref": "#/$defs/packageAliasPartials/enabled"
+            },
+            "sourceType": {
+              "enum": [
+                "git",
+                "helmRepo"
+              ]
+            },
+            "releaseName": {
+              "type": "string",
+              "description": "Optional Helm releaseName override for this package."
+            },
+            "flux": {
+              "$ref": "#/$defs/packageAliasPartials/flux"
+            },
+            "values": {
+              "$ref": "#/$defs/packageAliasPartials/values"
+            },
+            "postRenderers": {
+              "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/$defs/packageAliasPartials/basePackage"
+            }
+          ],
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Partial override merged over the built-in package's legacy defaults."
+        },
         "anchoreEnterprise": {
           "allOf": [
             {
@@ -6519,6 +6620,9 @@
         },
         "ztunnel": {
           "$ref": "#/$defs/packageAliasPartials/aliases/ztunnel"
+        },
+        "istioEgressGateway": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istioEgressGateway"
         },
         "anchoreEnterprise": {
           "$ref": "#/$defs/packageAliasPartials/aliases/anchoreEnterprise"
