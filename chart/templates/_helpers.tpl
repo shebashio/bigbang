@@ -1132,6 +1132,24 @@ networkPolicies:
     definitions: {{ $root.Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 {{- end -}}
 
+{{- /* Top-level routes.defaults passthrough, nested under a package's routes block.
+       Included per-package (kiali only for now) until every bb-common package supports
+       routes.defaults; then fold this into bigbang.commonPackageDefaults.
+       outbound.egressGateway is blanked unless ambient and the egress gateway package
+       are both enabled, so ServiceEntries are never bound to a waypoint that will not
+       exist (Istio fails open and traffic would egress directly). */ -}}
+{{- define "bigbang.routeDefaults" -}}
+{{- $routeDefaults := dig "defaults" dict (.Values.routes | default dict) }}
+{{- $egressGatewayActive := and (eq (include "ambientEnabled" .) "true") .Values.istioEgressGateway.enabled }}
+defaults:
+  {{- with dig "inbound" "gateways" list $routeDefaults }}
+  inbound:
+    gateways: {{ . | toYaml | nindent 6 }}
+  {{- end }}
+  outbound:
+    egressGateway: {{ ternary (dig "outbound" "egressGateway" false $routeDefaults) false $egressGatewayActive }}
+{{- end -}}
+
 {{- /*
 Returns "true" if ServiceMonitor should use mTLS for scraping Istio-injected pods.
 Checks: global istio enabled, package istio enabled, injection enabled, not ambient mode, and mTLS STRICT mode.

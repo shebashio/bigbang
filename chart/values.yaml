@@ -262,6 +262,19 @@ networkPolicies:
           - ipBlock:
               cidr: 10.0.0.0/8
 
+# bb-common route defaults passed through to every package; per-route values always win.
+# See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
+routes:
+  defaults:
+    inbound:
+      # -- Default Istio gateways for package inbound routes that do not define their own
+      gateways:
+        - istio-gateway/public-ingressgateway
+    outbound:
+      # -- Default egress waypoint binding ('<namespace>/<name>') for package outbound routes.
+      # Automatically blanked when ambient mode or the istioEgressGateway package is disabled.
+      egressGateway: istio-egress/egress-waypoint
+
 # -- Global ImagePullPolicy value for all packages
 # Permitted values are: Never, Always, IfNotPresent
 imagePullPolicy: IfNotPresent
@@ -514,6 +527,28 @@ istioGateway:
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
 
+istioEgressGateway:
+  # -- Toggle deployment of the shared egress waypoint gateway (requires ambient mode)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    # NOTE: this package currently lives in the sandbox, not the typical
+    # big-bang/product/packages location
+    repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-egress-gateway.git
+    path: "./chart"
+    branch: initial-work
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-egress-gateway"
+    tag: 0.1.0
+  # -- Values to passthrough to the istio-egress-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Egress Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 ztunnel:
   # -- Toggle deployment of ztunnel (required for Istio ambient mode)
   enabled: false
@@ -544,7 +579,7 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.30.0-bb.1"
+    branch: bb-common-test
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
