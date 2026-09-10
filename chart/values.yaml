@@ -1757,6 +1757,11 @@ addons:
     # -- Toggle deployment of Fortify.
     enabled: false
 
+    sso:
+      # -- Enable Keycloak SSO Cypress tests when the bundled Keycloak is enabled.
+      # Application SSO must be configured separately through fortify package values.
+      enabled: false
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
@@ -2110,6 +2115,11 @@ addons:
     # -- Toggle deployment of Vault.
     enabled: false
 
+    sso:
+      # -- Enable Keycloak SSO Cypress tests when the bundled Keycloak is enabled.
+      # Application SSO must be configured separately through vault package values.
+      enabled: false
+
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
 
@@ -2202,6 +2212,11 @@ addons:
   harbor:
     # -- Toggle deployment of harbor
     enabled: false
+
+    sso:
+      # -- Enable Keycloak SSO Cypress tests when the bundled Keycloak is enabled.
+      # Application SSO must be configured separately through harbor package values.
+      enabled: false
 
     # -- Choose source type of "git" or "helmRepo"
     sourceType: "git"
