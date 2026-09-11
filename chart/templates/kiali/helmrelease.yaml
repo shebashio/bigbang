@@ -35,4 +35,7 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.kiali) }}
+  {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}

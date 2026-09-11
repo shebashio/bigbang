@@ -30,7 +30,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "harbor" "root" .) | nindent 2 }}
 
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or (or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled) .Values.addons.harbor.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -42,6 +42,9 @@ spec:
   {{- if .Values.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.harbor) }}
+  {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
 {{- end }}

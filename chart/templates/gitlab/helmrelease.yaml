@@ -48,8 +48,8 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with .Values.addons.gitlab.dependsOn }}
-  {{- toYaml . | nindent 2 }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.gitlab) }}
+  {{- . | nindent 2 }}
   {{- end }}
   {{- end }}
 {{- end }}

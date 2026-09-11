@@ -203,7 +203,19 @@ packages:
 
 ### Dependency Management
 
-Control a custom Helm package's installation order with dependencies:
+Control a built-in or custom Helm package's installation order with additional
+Flux HelmRelease dependencies. Big Bang appends these entries to any dependencies
+it generates for the package:
+
+```yaml
+addons:
+  argocd:
+    dependsOn:
+      - name: external-operator
+        namespace: operators
+```
+
+Custom packages use the same field:
 
 ```yaml
 packages:

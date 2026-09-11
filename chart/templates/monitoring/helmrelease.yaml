@@ -54,4 +54,7 @@ spec:
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.monitoring) }}
+  {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}

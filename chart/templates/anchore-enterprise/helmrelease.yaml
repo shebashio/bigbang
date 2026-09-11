@@ -26,7 +26,7 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "anchore-enterprise" "root" .) | nindent 2 }}
 
-  {{- if or $istioEnabled .Values.monitoring.enabled }}
+  {{- if or (or $istioEnabled .Values.monitoring.enabled) .Values.addons.anchoreEnterprise.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -35,5 +35,8 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.anchoreEnterprise) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

@@ -25,7 +25,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "renovate" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.gitlab.enabled }}
+  {{- if or (or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.gitlab.enabled) .Values.renovate.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -45,6 +45,9 @@ spec:
   {{- if .Values.addons.gitlab.enabled }}
     - name: gitlab
       namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.renovate) }}
+  {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
 {{- end }}

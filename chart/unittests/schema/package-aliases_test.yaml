@@ -43,6 +43,22 @@ tests:
           value: 22m
         template: templates/gitlab/helmrelease.yaml
 
+  - it: should apply additional dependencies through the unified package path
+    set:
+      packages:
+        kiali:
+          enabled: true
+          dependsOn:
+            - name: external-operator
+              namespace: operators
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: external-operator
+            namespace: operators
+        template: templates/kiali/helmrelease.yaml
+
   - it: should prefer the unified package path over the legacy path
     set:
       kiali:
@@ -70,6 +86,29 @@ tests:
           path: metadata.name
           value: podinfo
         template: templates/package/helmrelease.yaml
+
+  - it: should apply additional dependencies to wrapped custom packages
+    set:
+      packages:
+        podinfo:
+          enabled: true
+          sourceType: git
+          wrapper:
+            enabled: true
+          git:
+            repo: https://github.com/stefanprodan/podinfo.git
+            path: charts/podinfo
+            tag: "6.3.4"
+          dependsOn:
+            - name: external-operator
+              namespace: operators
+    asserts:
+      - contains:
+          path: spec.dependsOn
+          content:
+            name: external-operator
+            namespace: operators
+        template: templates/wrapper/helmrelease.yaml
 
   - it: should not render a built-in alias as a custom package
     set:
