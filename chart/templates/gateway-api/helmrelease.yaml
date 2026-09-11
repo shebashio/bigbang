@@ -25,7 +25,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gateway-api" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if or (or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled) .Values.gatewayAPI.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -35,5 +35,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.gatewayAPI) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

@@ -691,6 +691,41 @@ tests:
         name: istiod
         namespace: NAMESPACE
 
+- it: argocd should render a custom HelmRelease dependency without default dependencies
+  set:
+    addons:
+      argocd:
+        enabled: true
+        dependsOn:
+          - name: external-operator
+            namespace: operators
+    istiod:
+      enabled: false
+    monitoring:
+      enabled: false
+  template: argocd/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: external-operator
+          namespace: operators
+
+- it: gatekeeper should render a custom HelmRelease dependency
+  set:
+    gatekeeper:
+      enabled: true
+      dependsOn:
+        - name: external-operator
+          namespace: operators
+  template: gatekeeper/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: external-operator
+          namespace: operators
+
 ###############################################################################
 # DependsOn correctness
 ###############################################################################

@@ -39,4 +39,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.istioCNI) }}
+  {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}

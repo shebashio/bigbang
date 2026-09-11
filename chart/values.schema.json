@@ -336,7 +336,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -354,7 +355,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -372,7 +374,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -390,7 +393,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -451,7 +455,8 @@
           },
           "additionalProperties": false
         },
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -487,7 +492,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -518,7 +524,8 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -536,7 +543,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -554,7 +562,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -572,7 +581,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -619,7 +629,8 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -667,7 +678,8 @@
             "elasticsearch": true,
             "kibana": true
           }
-        }
+        },
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -688,7 +700,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -709,7 +722,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -776,7 +790,8 @@
               "type": "object"
             }
           }
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -843,7 +858,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -912,7 +928,8 @@
               "type": "boolean"
             }
           }
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -925,7 +942,8 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -1041,7 +1059,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1062,7 +1081,8 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1098,7 +1118,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1177,7 +1198,8 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1239,7 +1261,8 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1271,7 +1294,8 @@
         },
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1334,24 +1358,6 @@
             }
           ],
           "properties": {
-            "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
-            },
             "istio": {
               "$ref": "#/$defs/istio"
             }
@@ -1635,26 +1641,7 @@
               "$ref": "#/$defs/basePackage"
             }
           ],
-          "properties": {
-            "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
+          "properties": {}
         }
       }
     },
@@ -1831,6 +1818,9 @@
         },
         "postRenderers": {
           "$ref": "#/$defs/postRenderers"
+        },
+        "dependsOn": {
+          "$ref": "#/$defs/dependsOn"
         }
       }
     },
@@ -2434,6 +2424,26 @@
         }
       ]
     },
+    "dependsOn": {
+      "description": "Additional Flux HelmRelease dependencies.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
     "postRenderersArray": {
       "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
       "type": "array",
@@ -2842,6 +2852,9 @@
           },
           "postRenderers": {
             "$ref": "#/$defs/packageAliasPartials/postRenderers"
+          },
+          "dependsOn": {
+            "$ref": "#/$defs/packageAliasPartials/dependsOn"
           }
         }
       },
@@ -3409,6 +3422,26 @@
           }
         ]
       },
+      "dependsOn": {
+        "description": "Additional Flux HelmRelease dependencies.",
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
       "postRenderersArray": {
         "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
         "type": "array",
@@ -3693,7 +3726,8 @@
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
-            }
+            },
+            "dependsOn": true
           },
           "additionalProperties": false,
           "type": "object",
@@ -3733,6 +3767,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "namespace": {
               "type": "object",
@@ -3787,6 +3824,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3829,6 +3869,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -3896,6 +3939,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3938,6 +3984,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -3978,6 +4027,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4023,6 +4075,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "enterprise": true,
             "istio": {
@@ -4119,6 +4174,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4159,6 +4217,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4199,6 +4260,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4320,6 +4384,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4360,6 +4427,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -4409,6 +4479,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4449,6 +4522,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4489,6 +4565,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "sso": {
               "type": "object",
@@ -4558,6 +4637,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "clusterName": {
               "type": "string"
@@ -4632,6 +4714,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "prometheusMetrics": {
               "type": "object",
@@ -4766,6 +4851,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -4844,6 +4932,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4890,6 +4981,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -4932,6 +5026,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5013,6 +5110,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5086,6 +5186,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -5131,6 +5234,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5181,6 +5287,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5227,6 +5336,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5272,6 +5384,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "ingress": true
           },
           "additionalProperties": false,
@@ -5311,6 +5426,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "externalDatabase": {
               "type": "object",
@@ -5375,22 +5493,7 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5443,6 +5546,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -5485,6 +5591,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5529,6 +5638,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5575,6 +5687,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5619,6 +5734,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5668,6 +5786,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5788,22 +5909,7 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "enterprise": true,
             "kafkaIngestStorage": true,
@@ -5849,6 +5955,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5896,6 +6005,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5939,6 +6051,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5986,6 +6101,9 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -6031,6 +6149,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -6098,6 +6219,9 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -6280,22 +6404,7 @@
             "$ref": "#/$defs/postRenderers"
           },
           "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "namespace": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name"
-              ],
-              "additionalProperties": false
-            }
+            "$ref": "#/$defs/dependsOn"
           },
           "istio": {
             "$ref": "#/$defs/istio"
@@ -6505,22 +6614,7 @@
             "$ref": "#/$defs/postRenderers"
           },
           "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "namespace": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name"
-              ],
-              "additionalProperties": false
-            }
+            "$ref": "#/$defs/dependsOn"
           },
           "istio": {
             "$ref": "#/$defs/istio"
