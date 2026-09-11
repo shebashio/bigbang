@@ -31,4 +31,7 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.authservice) }}
+  {{- . | nindent 2 }}
+  {{- end }}
 {{- end }}

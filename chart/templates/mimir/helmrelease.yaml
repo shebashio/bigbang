@@ -37,8 +37,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with .Values.addons.mimir.dependsOn }}
-  {{- toYaml . | nindent 4 }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.mimir) }}
+  {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
 {{- end }}

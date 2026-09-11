@@ -40,4 +40,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.elasticsearchKibana) }}
+  {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}

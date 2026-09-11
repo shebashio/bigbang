@@ -29,7 +29,7 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "keycloak" "root" .) | nindent 2 }}
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or (or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled) .Values.addons.keycloak.dependsOn }}
   dependsOn:
   {{- if .Values.gatekeeper.enabled }}
   - name: gatekeeper
@@ -45,6 +45,9 @@ spec:
   {{- if .Values.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.keycloak) }}
+  {{- . | nindent 2 }}
   {{- end }}
   {{- end }}
 {{- end }}

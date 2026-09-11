@@ -47,4 +47,7 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.kyvernoReporter) }}
+  {{- . | nindent 4 }}
+  {{- end }}
 {{- end }}
