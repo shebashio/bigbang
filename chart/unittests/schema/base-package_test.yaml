@@ -30,6 +30,24 @@ tests:
     asserts:
       - notFailedTemplate: {}
 
+  - it: should pass validation with additional HelmRelease dependencies
+    set:
+      kiali:
+        dependsOn:
+          - name: external-operator
+            namespace: operators
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should reject a HelmRelease dependency without a name
+    set:
+      kiali:
+        dependsOn:
+          - namespace: operators
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
   - it: should fail validation with extra key in base package
     set:
       kiali:
