@@ -25,7 +25,7 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kiali" "root" .) | nindent 2 }}
 
-  {{ if or $istioEnabled .Values.monitoring.enabled }}
+  {{ if or $istioEnabled .Values.monitoring.enabled .Values.kiali.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -34,8 +34,8 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- end }}
   {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.kiali) }}
   {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
