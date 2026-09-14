@@ -1,6 +1,6 @@
 # Maintenance
 
-Today, Renovate is the only maintenance task covered here. Bug fixes are tracked and labeled separately — see [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/issues).
+Today, Renovate is the only maintenance task covered here. Bug fixes are tracked and labeled separately — see [Big Bang work items](https://repo1.dso.mil/big-bang/bigbang/-/work_items).
 
 Every Big Bang package repository is created from a shared template containing a default `renovate.json`, so Renovate is on by default for any repository with that file — it's automatically included in the nightly Renovate run. New packages still need package-specific configuration added on top of the template's defaults.
 
