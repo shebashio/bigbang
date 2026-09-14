@@ -39,7 +39,7 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.anchoreEnterprise) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.anchoreEnterprise) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
