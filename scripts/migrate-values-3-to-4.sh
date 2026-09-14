@@ -110,10 +110,11 @@ usage() {
 Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
-addons.<name> paths to the Big Bang 4.x packages.<name> paths. The output sets
-packageConfiguration.version to v1. Starting with Big Bang 3.32, the 3.x chart
-uses it to interpret catalog package names as canonical built-ins rather than
-existing custom packages.
+addons.<name> paths to the Big Bang 4.x packages.<name> paths. For built-in
+packages, istio, networkPolicies, and routes values are also moved under the
+bb-common subchart key. The output sets packageConfiguration.version to v1.
+Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
+names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
 it from the migrated output when upgrading.
 
@@ -337,6 +338,32 @@ for package_name in "${ADDON_PACKAGES[@]}"; do
     ' "$WORK_FILE"
     MIGRATED_PATHS+=("addons.$package_name -> packages.$package_name")
   fi
+done
+
+# Big Bang 4.x packages consume bb-common as a subchart. Move the values that
+# belonged to the former library chart into the subchart's values scope after
+# legacy and canonical package paths have been merged.
+for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+  for value_key in istio networkPolicies routes; do
+    if PACKAGE_NAME="$package_name" VALUE_KEY="$value_key" yq -e '
+      (.packages[strenv(PACKAGE_NAME)].values | tag == "!!map") and
+      (.packages[strenv(PACKAGE_NAME)].values | has(strenv(VALUE_KEY)))
+    ' "$WORK_FILE" >/dev/null 2>&1; then
+      PACKAGE_NAME="$package_name" VALUE_KEY="$value_key" yq -i '
+        .packages[strenv(PACKAGE_NAME)].values |= (
+          ."bb-common" = (."bb-common" // {}) |
+          ."bb-common"[strenv(VALUE_KEY)] =
+            ((.[strenv(VALUE_KEY)] // {}) *
+             (."bb-common"[strenv(VALUE_KEY)] // {})) |
+          del(.[strenv(VALUE_KEY)])
+        )
+      ' "$WORK_FILE"
+
+      MIGRATED_PATHS+=(
+        "packages.$package_name.values.$value_key -> packages.$package_name.values.bb-common.$value_key"
+      )
+    fi
+  done
 done
 
 if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >/dev/null 2>&1; then

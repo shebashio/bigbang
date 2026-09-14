@@ -2,7 +2,7 @@
 
 Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Starting with Big Bang 3.32, Big Bang 3.x accepts both the old and new paths so you can migrate values before upgrading. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
 
-This guide and `scripts/migrate-values-3-to-4.sh` cover only the package-path migration. The script preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname`, SSO, Istio hardening, and bb-common compatibility values. Follow the applicable release notes and deprecation notices for those migrations.
+This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migration and the related `bb-common` values migration. For known built-in packages, the script moves `istio`, `networkPolicies`, and `routes` beneath the `bb-common` subchart key. It preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname`, SSO, and Istio hardening values. Follow the applicable release notes and deprecation notices for those migrations.
 
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
@@ -36,7 +36,7 @@ To replace the input, use `--in-place`. This mode first creates `values.yaml.bak
 scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
-The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. It also moves each built-in package's `values.istio`, `values.networkPolicies`, and `values.routes` configuration beneath `values.bb-common`. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior. If both flat and already-nested `bb-common` values exist, they are recursively merged and the nested values take precedence.
 
 For backward compatibility, the migration utility also recognizes the historical addons.mattermostoperator key, which was renamed to addons.mattermostOperator in Big Bang 1.53. When multiple forms configure the same package, precedence is packages.mattermostOperator, then addons.mattermostOperator, then the historical addons.mattermostoperator key.
 
@@ -87,6 +87,30 @@ packages:
   podinfo:
     enabled: true
 ```
+
+Package values that previously configured the `bb-common` library at the root
+of a built-in package's values are scoped to the subchart dependency:
+
+```yaml
+# Before
+kiali:
+  values:
+    istio: {}
+    networkPolicies: {}
+    routes: {}
+
+# After
+packages:
+  kiali:
+    values:
+      bb-common:
+        istio: {}
+        networkPolicies: {}
+        routes: {}
+```
+
+Unknown custom packages are not rewritten because their `bb-common`
+consumption model is owned by the package author.
 
 Review the output and render it with the Big Bang 3.32 or later 3.x chart before adopting it. Because the migration is supported before 4.0, you can commit and deploy the migrated values independently of the 4.0 chart upgrade. Keep `packageConfiguration.version: v1` when upgrading; 4.x retains it as the unified package contract discriminator.
 

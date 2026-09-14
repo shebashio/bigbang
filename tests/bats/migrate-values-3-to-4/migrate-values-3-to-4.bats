@@ -71,6 +71,59 @@ EOF
   [ "$(yq '.packages.monitoring.values.serviceMonitor.enabled' "$OUTPUT_FILE")" = "true" ]
 }
 
+@test "moves built-in bb-common values into the subchart scope" {
+  SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  values:
+    istio:
+      enabled: true
+    networkPolicies:
+      enabled: true
+    routes:
+      outbound:
+        legacy:
+          hosts:
+            - legacy.example.com
+        shared:
+          hosts:
+            - legacy.example.com
+    bb-common:
+      routes:
+        outbound:
+          shared:
+            hosts:
+              - canonical.example.com
+          canonical:
+            hosts:
+              - canonical.example.com
+    cr:
+      create: true
+packages:
+  podinfo:
+    values:
+      routes:
+        outbound: {}
+EOF
+
+  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.values.bb-common.istio.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values.bb-common.networkPolicies.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values.bb-common.routes.outbound.legacy.hosts[0]' "$OUTPUT_FILE")" = "legacy.example.com" ]
+  [ "$(yq '.packages.kiali.values.bb-common.routes.outbound.shared.hosts[0]' "$OUTPUT_FILE")" = "canonical.example.com" ]
+  [ "$(yq '.packages.kiali.values.bb-common.routes.outbound.canonical.hosts[0]' "$OUTPUT_FILE")" = "canonical.example.com" ]
+  [ "$(yq '.packages.kiali.values.cr.create' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values | has("istio") or has("networkPolicies") or has("routes")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.podinfo.values | has("routes")' "$OUTPUT_FILE")" = "true" ]
+
+  run "$SCRIPT_PATH" -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
+}
+
 @test "composes ordered inputs before migration and preserves canonical precedence" {
   OVERLAY_FILE="${BATS_TEST_TMPDIR}/production.yaml"
   cat >"$INPUT_FILE" <<'EOF'
