@@ -1,6 +1,6 @@
 # Renovate Package Maintenance
 
-This page describes how the Big Bang team internally processes a Renovate-triggered package update, from issue to merged release — it's for CODEOWNERS and contributors working an update, not for deploying or configuring Renovate in your own environment. For that, see [Renovate](renovate.md).**
+This page describes how the Big Bang team internally processes a Renovate-triggered package update, from issue to merged release — it's for CODEOWNERS and contributors working an update, not for deploying or configuring Renovate in your own environment. For that, see [Renovate](renovate.md).
 
 Most Big Bang-maintained Helm charts are based on upstream vendor charts (check for a `chart/Kptfile` to confirm). The full lifecycle for a Renovate-triggered update:
 
