@@ -9,10 +9,12 @@ packageConfiguration:
   version: v1
 ```
 
-This guide covers only that package-path migration. The script does not migrate
-other deprecated Big Bang settings, child-chart values, or the upcoming
-`bb-common` subchart values changes. Follow the applicable release notes for
-those migrations.
+This guide covers the package-path migration and the related `bb-common`
+values migration. For built-in packages, the script moves `values.istio`,
+`values.networkPolicies`, and `values.routes` beneath `values.bb-common`.
+Already-nested values take precedence. Unknown custom packages are not rewritten.
+Other deprecated Big Bang settings and child-chart values require separate
+migration according to the applicable release notes.
 
 Use this guide to choose and run a migration workflow. For complete option
 semantics, safeguards, and troubleshooting, see the
