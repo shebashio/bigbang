@@ -842,11 +842,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.57.9-bb.1"
+    tag: "0.58.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.57.9-bb.1"
+    tag: "0.58.2-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1221,11 +1221,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "12.7.2-bb.0"
+    tag: "12.10.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "12.7.2-bb.0"
+    tag: "12.10.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Grafana Package
   flux: {}
@@ -1394,11 +1394,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "10.2.1-bb.1"
+      tag: "10.2.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "10.2.1-bb.1"
+      tag: "10.2.1-bb.2"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1447,11 +1447,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.8-bb.2"
+      tag: "1.1.8-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.8-bb.2"
+      tag: "1.1.8-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1889,11 +1889,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.7-bb.4"
+      tag: "1.25.9-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.7-bb.4"
+      tag: "1.25.9-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2167,11 +2167,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.13.1-bb.1"
+      tag: "3.14.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.13.1-bb.1"
+      tag: "3.14.0-bb.0"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
@@ -2447,12 +2447,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.44.0-bb.1"
+      tag: "0.45.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.44.0-bb.1"
+      tag: "0.45.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}
