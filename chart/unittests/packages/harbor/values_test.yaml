@@ -49,7 +49,6 @@ tests:
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       addons.harbor.enabled: true
-      addons.harbor.values.redis.type: external
       addons.harbor.values.redis.external.addr: redis.example.internal:6380
     asserts:
       - equal:

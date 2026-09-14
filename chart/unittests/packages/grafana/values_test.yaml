@@ -143,7 +143,6 @@ tests:
     set:
       addons.argocd.enabled: true
       addons.argocd.redis.host: redis.argocd.example.internal
-      addons.argocd.redis.port: 6380
     asserts:
       - notExists:
           path: routes.outbound["external-argocd-redis"]
@@ -152,7 +151,7 @@ tests:
           value: Argo External
       - notEqual:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[0].url
-          value: redis.argocd.example.internal:6380
+          value: redis.argocd.example.internal:6379
       - notEqual:
           path: networkPolicies.egress.from.grafana.to.definition.redis-subnets
           value: true

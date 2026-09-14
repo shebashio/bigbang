@@ -23,12 +23,42 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $authserviceValues := .Values.addons.authservice.values | default dict }}
 {{- $internalRedisEnabled := dig "redis" "enabled" false $authserviceValues }}
-{{- $externalRedisUri := dig "global" "redis_server_uri" "" $authserviceValues }}
-{{- $externalRedisEnabled := and (not $internalRedisEnabled) (not (empty $externalRedisUri)) }}
+{{- $externalRedisUris := list }}
+{{- $globalRedisUri := dig "global" "redis_server_uri" "" $authserviceValues }}
+{{- if not (empty $globalRedisUri) }}
+{{- $externalRedisUris = append $externalRedisUris $globalRedisUri }}
+{{- end }}
+{{- range $_, $chain := (.Values.addons.authservice.chains | default dict) }}
+{{- if kindIs "map" $chain }}
+{{- $chainRedisUri := get $chain "redis_server_uri" | default "" }}
+{{- if not (empty $chainRedisUri) }}
+{{- $externalRedisUris = append $externalRedisUris $chainRedisUri }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- range $_, $chain := (dig "chains" dict $authserviceValues) }}
+{{- if kindIs "map" $chain }}
+{{- $chainRedisUri := get $chain "redis_server_uri" | default "" }}
+{{- if not (empty $chainRedisUri) }}
+{{- $externalRedisUris = append $externalRedisUris $chainRedisUri }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- $externalRedisEnabled := gt (len $externalRedisUris) 0 }}
+{{- $externalRedisHosts := list }}
+{{- $externalRedisPorts := list }}
+{{- range $externalRedisUri := $externalRedisUris }}
 {{- $externalRedisAddress := regexReplaceAll "^[a-zA-Z][a-zA-Z0-9+.-]*://" $externalRedisUri "" }}
 {{- $externalRedisAddress = regexReplaceAll "^.*@" $externalRedisAddress "" }}
 {{- $externalRedisHost := regexReplaceAll ":\\d+(/.*)?$" $externalRedisAddress "" }}
 {{- $externalRedisPort := default "6379" (regexFind ":[0-9]+" $externalRedisAddress | trimPrefix ":") }}
+{{- if and (not (empty $externalRedisHost)) (not (has $externalRedisHost $externalRedisHosts)) }}
+{{- $externalRedisHosts = append $externalRedisHosts $externalRedisHost }}
+{{- end }}
+{{- if and (not (empty $externalRedisPort)) (not (has $externalRedisPort $externalRedisPorts)) }}
+{{- $externalRedisPorts = append $externalRedisPorts $externalRedisPort }}
+{{- end }}
+{{- end }}
 {{- $istioHardenedEnabled := or
     (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
     (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
@@ -51,11 +81,15 @@ routes:
       enabled: {{ $externalRedisEnabled }}
       {{- if $externalRedisEnabled }}
       hosts:
-      - {{ $externalRedisHost | quote }}
+      {{- range $host := $externalRedisHosts }}
+      - {{ $host | quote }}
+      {{- end }}
       ports:
-      - number: {{ $externalRedisPort }}
-        name: redis
+      {{- range $port := $externalRedisPorts }}
+      - number: {{ $port }}
+        name: {{ ternary "redis" (printf "redis-%v" $port) (eq (len $externalRedisPorts) 1) }}
         protocol: TCP
+      {{- end }}
       {{- end }}
     bb-tests:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.authservice.values }}

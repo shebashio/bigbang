@@ -28,3 +28,23 @@ tests:
       - equal:
           path: networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
           value: false
+  - it: should account for chain-level external Redis in routes and network policies
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      addons.authservice.enabled: true
+      addons.authservice.values.redis.enabled: true
+      addons.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
+    asserts:
+      - equal:
+          path: routes.outbound["external-redis"].enabled
+          value: true
+      - equal:
+          path: routes.outbound["external-redis"].hosts[0]
+          value: chain-redis.example.internal
+      - equal:
+          path: networkPolicies.egress.from.authservice.to.definition.redis-subnets
+          value: true

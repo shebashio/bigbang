@@ -26,7 +26,7 @@ domain: {{ $domainName }}
 {{- $gitlabRedisHost := default "gitlab-redis-master.gitlab.svc.cluster.local" $gitlabExternalRedisHost }}
 {{- $gitlabRedisPort := dig "global" "redis" "port" 6379 .Values.addons.gitlab.values }}
 {{- $gitlabExternalRedisEnabled := and $gitlabRedis (not (empty $gitlabExternalRedisHost)) }}
-{{- $argocdExternalRedisEnabled := and .Values.addons.argocd.enabled (not (empty .Values.addons.argocd.redis.host)) (not (empty .Values.addons.argocd.redis.port)) }}
+{{- $argocdExternalRedisEnabled := and .Values.addons.argocd.enabled (not (empty .Values.addons.argocd.redis.host)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
 {{- $enterpriseEnabled := (dig "enterprise" "enabled" false .Values.grafana) }}
 

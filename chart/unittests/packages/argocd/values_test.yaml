@@ -12,7 +12,6 @@ tests:
     set:
       addons.argocd.enabled: true
       addons.argocd.redis.host: redis.example.internal
-      addons.argocd.redis.port: 6380
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled
@@ -22,11 +21,13 @@ tests:
           value: redis.example.internal
       - equal:
           path: routes.outbound["external-redis"].ports[0].number
-          value: 6380
+          value: 6379
+      - equal:
+          path: upstream.externalRedis.port
+          value: 6379
       - equal:
           path: networkPolicies.egress.from["*"].to.definition.redis-subnets
           value: true
       - equal:
           path: networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
           value: false
-

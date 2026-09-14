@@ -15,7 +15,8 @@
 
 {{- define "bigbang.defaults.argocd" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $externalRedisEnabled := and (not (empty .Values.addons.argocd.redis.host)) (not (empty .Values.addons.argocd.redis.port)) }}
+{{- $externalRedisEnabled := not (empty .Values.addons.argocd.redis.host) }}
+{{- $externalRedisPort := default 6379 .Values.addons.argocd.redis.port }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -119,7 +120,7 @@ routes:
       hosts:
       - {{ .Values.addons.argocd.redis.host | quote }}
       ports:
-      - number: {{ .Values.addons.argocd.redis.port }}
+      - number: {{ $externalRedisPort }}
         name: redis
         protocol: TCP
       {{- end }}

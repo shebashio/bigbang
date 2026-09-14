@@ -20,7 +20,7 @@
 {{- define "bigbang.defaults.harbor" -}}
 {{- $postgresEnabled := dig "postgresql" "enabled" true .Values.addons.harbor.values }}
 {{- $externalRedisAddr := dig "redis" "external" "addr" "" .Values.addons.harbor.values }}
-{{- $externalRedisEnabled := and (eq (dig "redis" "type" "" .Values.addons.harbor.values) "external") (not (empty $externalRedisAddr)) }}
+{{- $externalRedisEnabled := and (eq (dig "redis" "type" "external" .Values.addons.harbor.values) "external") (not (empty $externalRedisAddr)) }}
 {{- $externalRedisAddress := regexReplaceAll "^[a-zA-Z][a-zA-Z0-9+.-]*://" $externalRedisAddr "" }}
 {{- $externalRedisAddress = regexReplaceAll "^.*@" $externalRedisAddress "" }}
 {{- $externalRedisHost := regexReplaceAll ":\\d+(/.*)?$" $externalRedisAddress "" }}

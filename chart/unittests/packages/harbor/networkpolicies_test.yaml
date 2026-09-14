@@ -28,7 +28,6 @@ tests:
   - it: should create redis-subnets egress NetworkPolicy when external Redis is configured
     set:
       addons.harbor.enabled: true
-      addons.harbor.values.redis.type: external
       addons.harbor.values.redis.external.addr: redis.example.internal:6380
       networkPolicies.enabled: true
     documentSelector:
