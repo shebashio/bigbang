@@ -30,15 +30,15 @@ renovate:
       schedule: '0 1 * * *'
     renovate:
       config: |
-      {
-          "platform": "gitlab",
-          "endpoint": "https://gitlab.example.com/api/v4",
-          "token": "your-gitlab-renovate-user-token",
-          "autodiscover": "false",
-          "dryRun": true,
-          "printConfig": true,
-          "repositories": ["username/repo", "orgname/repo"]
-      }
+          {
+              "platform": "gitlab",
+              "endpoint": "https://gitlab.example.com/api/v4",
+              "token": "your-gitlab-renovate-user-token",
+              "autodiscover": "false",
+              "dryRun": true,
+              "printConfig": true,
+              "repositories": ["username/repo", "orgname/repo"]
+          }
 ```
 
 ### Config
