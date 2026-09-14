@@ -35,7 +35,7 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.argocd) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.argocd) }}
   {{- . | nindent 2 }}
   {{- end }}
   {{- end }}

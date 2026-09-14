@@ -26,7 +26,7 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "prometheus-operator-crds" "root" .) | nindent 2 }}
   {{- if .Values.prometheusOperatorCRDs.dependsOn }}
   dependsOn:
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.prometheusOperatorCRDs) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.prometheusOperatorCRDs) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
