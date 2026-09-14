@@ -41,7 +41,7 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.istiod) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.istiod) }}
   {{- . | nindent 4 }}
   {{- end }}
 {{- end }}

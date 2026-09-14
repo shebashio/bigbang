@@ -42,7 +42,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.eckOperator) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.eckOperator) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

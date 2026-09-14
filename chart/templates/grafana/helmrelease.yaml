@@ -48,7 +48,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.grafana) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.grafana) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

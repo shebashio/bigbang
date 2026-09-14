@@ -46,7 +46,7 @@ spec:
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.keycloak) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.keycloak) }}
   {{- . | nindent 2 }}
   {{- end }}
   {{- end }}

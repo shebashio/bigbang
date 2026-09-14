@@ -36,7 +36,7 @@ spec:
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}      
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.vault) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.vault) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

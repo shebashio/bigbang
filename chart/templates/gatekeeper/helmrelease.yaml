@@ -27,7 +27,7 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gatekeeper" "root" .) | nindent 2 }}
   {{- if .Values.gatekeeper.dependsOn }}
   dependsOn:
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.gatekeeper) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.gatekeeper) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
