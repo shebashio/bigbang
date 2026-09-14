@@ -35,7 +35,7 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.gatewayAPI) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.gatewayAPI) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

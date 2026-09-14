@@ -96,7 +96,7 @@ spec:
     {{- if and $includeDefaultDependsOn $istioDep }}
     {{- include "istioHelmReleases" $ | nindent 4 }}
     {{- end }}
-    {{- with (include "bigbang.helmRelease.customDependsOn" $vals) }}
+    {{- with (include "bigbang.helmRelease.extendedDependsOn" $vals) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}

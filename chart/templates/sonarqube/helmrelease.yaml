@@ -52,7 +52,7 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.sonarqube) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.sonarqube) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

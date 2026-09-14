@@ -85,7 +85,7 @@ spec:
     - name: monitoring
       namespace: {{ $.Release.Namespace }}
     {{- end -}}
-    {{- with (include "bigbang.helmRelease.customDependsOn" $vals) }}
+    {{- with (include "bigbang.helmRelease.extendedDependsOn" $vals) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}

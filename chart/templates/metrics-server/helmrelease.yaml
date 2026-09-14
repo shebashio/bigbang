@@ -37,7 +37,7 @@ spec:
 
   {{- if .Values.addons.metricsServer.dependsOn }}
   dependsOn:
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.metricsServer) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.metricsServer) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

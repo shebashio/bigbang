@@ -46,7 +46,7 @@ spec:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.tempo) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.tempo) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

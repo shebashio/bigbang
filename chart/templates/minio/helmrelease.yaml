@@ -34,7 +34,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}      
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.minio) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.minio) }}
   {{- . | nindent 4 }}
   {{- end }}
 {{- end }}

@@ -51,7 +51,7 @@ spec:
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.loki) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.loki) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

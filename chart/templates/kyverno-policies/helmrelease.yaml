@@ -26,7 +26,7 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.kyvernoPolicies) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.kyvernoPolicies) }}
   {{- . | nindent 4 }}
   {{- end }}
 {{- end }}

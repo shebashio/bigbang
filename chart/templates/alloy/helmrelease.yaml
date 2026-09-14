@@ -47,7 +47,7 @@ spec:
     - name: loki
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.alloy) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.alloy) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
