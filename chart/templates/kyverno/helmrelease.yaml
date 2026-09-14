@@ -33,7 +33,7 @@ spec:
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.kyverno) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.kyverno) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

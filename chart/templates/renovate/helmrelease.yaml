@@ -46,7 +46,7 @@ spec:
     - name: gitlab
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.renovate) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.renovate) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

@@ -44,7 +44,7 @@ spec:
     - name: minio-operator
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.customDependsOn" .Values.addons.mimir) }}
+  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.mimir) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
