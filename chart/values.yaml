@@ -7,7 +7,7 @@ istio:
   ambient:
     # -- Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars.
     # This automatically enables istioCNI, ztunnel, and gatewayAPI packages.
-    # NOTE: Ambient mode is currently in an alpha state.
+    # NOTE: Ambient mode is generally available as of Big Bang 3.32. It remains opt-in in 3.x and becomes the default in 4.0.
     enabled: false
 
 # -- Prevent Big Bang from creating GitRepository resources. HelmReleases configured with Git sources
@@ -181,7 +181,7 @@ networkPolicies:
   # Please review https://docs.aws.amazon.com/kms/latest/developerguide/kms-vpc-endpoint.html to setup routing to AWS services that never leave the AWS network.
   # Once created update `networkPolicies.vpcCidr` to match the CIDR of your VPC so Vault will be able to reach your VPCs DNS and new KMS endpoint.
   vpcCidr: 0.0.0.0/0
-  # bb-common-related values below; See [the documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md?ref_type=heads#definition-rules-definition)
+  # bb-common-related values below; See [the documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies.md#definition-rules-definition)
   # for more details.
   egress:
     # -- Egress definitions; create definitions here that you want to re-use globally across
@@ -583,10 +583,11 @@ kiali:
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.30.0-bb.1"
+    tag: "2.31.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
+    timeout: 20m
     driftDetection:
       ignore:
         - paths: [""] # The Kiali kind is updated during runtime
@@ -876,11 +877,11 @@ fluentbit:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
     path: "./chart"
-    tag: "0.57.9-bb.1"
+    tag: "0.58.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "fluentbit"
-    tag: "0.57.9-bb.1"
+    tag: "0.58.2-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
   flux: {}
@@ -1255,11 +1256,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "12.7.2-bb.0"
+    tag: "12.10.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "12.7.2-bb.0"
+    tag: "12.10.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Grafana Package
   flux: {}
@@ -1428,11 +1429,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "10.2.1-bb.1"
+      tag: "10.2.1-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "10.2.1-bb.1"
+      tag: "10.2.1-bb.2"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1481,11 +1482,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.8-bb.2"
+      tag: "1.1.8-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.8-bb.2"
+      tag: "1.1.8-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1582,11 +1583,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "10.2.4-bb.1"
+      tag: "10.3.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "10.2.4-bb.1"
+      tag: "10.3.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1798,11 +1799,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "26.2.0-bb.2"
+      tag: "26.2.0-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "26.2.0-bb.2"
+      tag: "26.2.0-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1923,11 +1924,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.7-bb.4"
+      tag: "1.25.9-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.7-bb.4"
+      tag: "1.25.9-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2201,11 +2202,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/metrics-server.git
       path: "./chart"
-      tag: "3.13.1-bb.1"
+      tag: "3.14.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "metrics-server"
-      tag: "3.13.1-bb.1"
+      tag: "3.14.0-bb.0"
 
     # -- Enabled automount Service Account Token so that metrics-server fetches resource metrics from the kubelets
     automountServiceAccountToken: true
@@ -2481,12 +2482,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.44.0-bb.1"
+      tag: "0.45.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.44.0-bb.1"
+      tag: "0.45.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}

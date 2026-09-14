@@ -1,9 +1,10 @@
 # Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode
 
-> [!WARNING]
-> Ambient mode is currently **beta** in Big Bang. It is planned to be promoted to stable ahead of Big Bang 4.0, giving
-> users time to test prior to it becoming the default in 4.0. It is advisable to test the migration
-> in a dev or test environment first.
+> [!NOTE]
+> Ambient mode is generally available as of Big Bang 3.32. It remains opt-in
+> throughout Big Bang 3.x and becomes the default Istio configuration in Big
+> Bang 4.0. Users should begin migrating before 4.0 and test mission-specific
+> traffic and integrations in a development or test environment first.
 
 [[_TOC_]]
 
@@ -155,7 +156,7 @@ policy restores default-deny; the HelmRelease prunes both on reconcile.
 ztunnel is L4 only, so L7 SSO enforcement (Authservice OIDC ext_authz) moves to a
 **waypoint**. bb-common auto-creates one per package when a route enables authservice in
 ambient mode. See
-[bb-common: Protecting a route with Authservice](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/routes/README.md#protecting-a-route-with-authservice-oidc-ext_authz).
+[bb-common: Protecting a route with Authservice](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/routes.md#protecting-a-route-with-authservice-oidc-ext_authz).
 
 ### `hostNetwork` workloads
 

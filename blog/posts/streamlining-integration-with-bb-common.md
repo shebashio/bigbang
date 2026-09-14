@@ -1,3 +1,11 @@
+---
+title: Streamlining Package Integration with bb-common
+date: 2025-10-21
+description: Learn how bb-common standardizes secure network-policy integration across Big Bang packages.
+tags:
+  - blog
+---
+
 # Streamlining Integration with [`bb-common`](https://repo1.dso.mil/big-bang/product/packages/bb-common)
 
 ## Setting the stage
@@ -10,6 +18,8 @@ policies**.
 Until now, each Big Bang package tended to define its own policies in slightly
 different ways. The result? Inconsistency, duplication, and confusion — both for
 contributors and for engineers trying to consume Big Bang downstream.
+
+<!-- more -->
 
 ## The Problem with Inconsistency
 
@@ -60,7 +70,7 @@ For downstream Big Bang consumers, `bb-common` means:
 ### Some examples
 
 These examples come from the
-[`bb-common` `NetworkPolicy` documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md?ref_type=heads).
+[`bb-common` `NetworkPolicy` documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies.md).
 You're encouraged to check out the full documentation for more details and
 examples.
 
@@ -234,10 +244,10 @@ For `bb-common`, we wanted to be flexible with how it could be integrated into a
 package, so we designed it as a **hybrid library chart**. This means:
 
 - It can be used as
-  [a traditional library chart](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md?ref_type=heads#using-bb-common-as-a-library-chart),
+  [a traditional library chart](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/README.md#as-a-library-chart),
   providing templates that our packages can include and use as needed.
 - It can also be used as a standalone chart or
-  [subchart](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies/README.md?ref_type=heads#using-bb-common-as-a-subchart),
+  [subchart](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/README.md#as-a-subchart),
   allowing packages to deploy it directly if they want to leverage its full
   capabilities without needing to include individual templates.
 
@@ -306,7 +316,7 @@ plan to extend `bb-common` to handle other cross-cutting concerns, like
 If you’re a Big Bang consumer or contributor, we encourage you to:
 
 - Explore the
-  [`bb-common` documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md?ref_type=heads).
+  [`bb-common` documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/index.md).
 - Try out the new network policy framework in the packages where `bb-common` is
   already in use, like `kiali` and `monitoring`.
 - [Provide feedback](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/issues/new)
