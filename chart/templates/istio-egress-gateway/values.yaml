@@ -2,7 +2,7 @@
 {{- $pkg := "istioEgressGateway" }}
 
 {{- /* Create secret */ -}}
-{{- if and .Values.istioEgressGateway.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- if and (eq (include "egressGatewayEnabled" .) "true") (eq (include "ambientEnabled" .) "true") }}
 {{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-egress-gateway" "defaults" (include "bigbang.defaults.istio-egress-gateway" .) "injectCommonDefaults" false) }}
 {{- end }}
 

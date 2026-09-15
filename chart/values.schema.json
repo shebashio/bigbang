@@ -74,6 +74,16 @@
               "description": "Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars."
             }
           }
+        },
+        "egressGateway": {
+          "type": "object",
+          "description": "Egress gateway configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable the shared egress waypoint gateway (requires ambient mode). Automatically enables the istioEgressGateway package."
+            }
+          }
         }
       }
     },
