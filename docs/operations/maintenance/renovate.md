@@ -240,4 +240,4 @@ Use [regex named groups](https://www.regular-expressions.info/refext.html) to ca
 
 #### Package Configuration Options
 
-These configuration options are generic Renovate features, not Big Bang-specific behavior, and they change with Renovate releases — see Renovate's configuration reference for what each one does.
+See [Renovate's configuration options](https://docs.renovatebot.com/configuration-options/) for details on available package configuration options.
