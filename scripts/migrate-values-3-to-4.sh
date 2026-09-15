@@ -18,6 +18,7 @@ ROOT_PACKAGES=(
   grafana
   istioCNI
   istioCRDs
+  istioEgressGateway
   istiod
   istioGateway
   kiali
@@ -68,6 +69,7 @@ BUILTIN_PACKAGE_METADATA=(
   "grafana|grafana"
   "istioCNI|istio-cni"
   "istioCRDs|istio-crds"
+  "istioEgressGateway|istio-egress-gateway"
   "istiod|istiod"
   "istioGateway|istio-gateway"
   "kiali|kiali"
