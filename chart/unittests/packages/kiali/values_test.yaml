@@ -15,73 +15,137 @@ tests:
       - equal:
           path: domain
           value: "dev.bigbang.mil"
+
+  - it: nests bb-common defaults for Kiali
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      istiod.values.hardened.enabled: true
+    asserts:
       - equal:
-          path: istio.enabled
+          path: bb-common.istio.enabled
           value: true
-  - it: should map customServiceEntries to istio.serviceEntries.custom
+      - exists:
+          path: bb-common.routes.inbound.kiali
+      - exists:
+          path: bb-common.networkPolicies.egress.from.kiali
+      - notExists:
+          path: istio
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies
+
+  - it: enables authorization policies and network policies under bb-common in ambient mode
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      networkPolicies.enabled: false
+      istio.ambient.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+
+  - it: enables network policies under bb-common when ztunnel is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      networkPolicies.enabled: false
+      ztunnel.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+
+  - it: disables network policies under bb-common when network policies and ambient mode are disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      networkPolicies.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: false
+
+  - it: should map customServiceEntries to bb-common.istio.serviceEntries.custom
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customServiceEntries:
+      kiali.values.bb-common.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
           hosts:
             - "example.com"
     asserts:
       - equal:
-          path: istio.serviceEntries.custom[0].name
+          path: bb-common.istio.serviceEntries.custom[0].name
           value: "test-service-entry"
       - equal:
-          path: istio.serviceEntries.custom[0].hosts[0]
+          path: bb-common.istio.serviceEntries.custom[0].hosts[0]
           value: "example.com"
-  - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
+  - it: should map customAuthorizationPolicies to bb-common.istio.authorizationPolicies.custom
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customAuthorizationPolicies:
+      kiali.values.bb-common.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
           labels:
             app: "kiali"
     asserts:
       - equal:
-          path: istio.authorizationPolicies.custom[0].name
+          path: bb-common.istio.authorizationPolicies.custom[0].name
           value: "test-authz-policy"
       - equal:
-          path: istio.authorizationPolicies.custom[0].labels.app
+          path: bb-common.istio.authorizationPolicies.custom[0].labels.app
           value: "kiali"
-  - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
+  - it: should merge both bb-common istio service entry paths
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customServiceEntries:
+      kiali.values.bb-common.istio.hardened.customServiceEntries:
         - name: "hardened-entry"
           spec:
             hosts:
               - "hardened.example.com"
-      kiali.values.istio.serviceEntries.custom:
+      kiali.values.bb-common.istio.serviceEntries.custom:
         - name: "custom-entry"
           spec:
             hosts:
               - "custom.example.com"
     asserts:
       - equal:
-          path: istio.serviceEntries.custom[0].name
+          path: bb-common.istio.serviceEntries.custom[0].name
           value: "hardened-entry"
       - equal:
-          path: istio.serviceEntries.custom[0].spec.hosts[0]
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
           value: "hardened.example.com"
       - equal:
-          path: istio.serviceEntries.custom[1].name
+          path: bb-common.istio.serviceEntries.custom[1].name
           value: "custom-entry"
       - equal:
-          path: istio.serviceEntries.custom[1].spec.hosts[0]
+          path: bb-common.istio.serviceEntries.custom[1].spec.hosts[0]
           value: "custom.example.com"
-

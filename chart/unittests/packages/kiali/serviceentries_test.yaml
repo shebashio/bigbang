@@ -10,12 +10,12 @@ postRenderer:
         | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
         | yq 'select(.kind == "ServiceEntry")'
 tests:
-- it: should create ServiceEntry from kiali.values.istio.hardened.customServiceEntries
+- it: should create ServiceEntry from kiali.values.bb-common.istio.hardened.customServiceEntries
   set:
     istiod.enabled: true
     kiali.enabled: true
-    kiali.values.istio.enabled: true
-    kiali.values.istio.hardened.customServiceEntries:
+    kiali.values.bb-common.istio.enabled: true
+    kiali.values.bb-common.istio.hardened.customServiceEntries:
       - name: "test-hardened-service-entry"
         spec:
           hosts:
@@ -47,12 +47,12 @@ tests:
             name: https
             protocol: TLS
         resolution: DNS
-- it: should create ServiceEntry from kiali.values.istio.serviceEntries.custom
+- it: should create ServiceEntry from kiali.values.bb-common.istio.serviceEntries.custom
   set:
     istiod.enabled: true
     kiali.enabled: true
-    kiali.values.istio.enabled: true
-    kiali.values.istio.serviceEntries.custom:
+    kiali.values.bb-common.istio.enabled: true
+    kiali.values.bb-common.istio.serviceEntries.custom:
       - name: "test-istio-service-entry"
         spec:
           hosts:
@@ -88,12 +88,20 @@ tests:
   set:
     istiod.enabled: true
     kiali.enabled: true
-    kiali.values.istio.enabled: true
-    kiali.values.routes.inbound.kiali.enabled: false # The route creates a service entry too if it's enabled; disable it for this test
-    kiali.values.routes.outbound.bb-tests.enabled: false # Manually disable templated route for test
-    kiali.values.routes.outbound.grafana.enabled: false # Manually disable templated route for test
-    kiali.values.routes.outbound.sso.enabled: false # Manually disable templated route for test
-    kiali.values.istio.hardened.customServiceEntries:
+    kiali.values.bb-common.istio.enabled: true
+    kiali.values.bb-common.routes.inbound.kiali.enabled: false # The route creates a service entry too if it's enabled; disable it for this test
+    kiali.values.bb-common.routes.outbound.bb-tests.enabled: false # Manually disable templated route for test
+    kiali.values.bb-common.routes.outbound.grafana.enabled: false # Manually disable templated route for test
+    kiali.values.bb-common.routes.outbound.sso.enabled: false # Manually disable templated route for test
+    # Disable the package's compatibility route too; the bb-common subchart values above
+    # do not override the legacy parent-chart value scope.
+    kiali.values.routes.inbound.kiali:
+      enabled: false
+      gateways:
+        - istio-gateway/public-ingressgateway
+      hosts:
+        - kiali.dev.bigbang.mil
+    kiali.values.bb-common.istio.hardened.customServiceEntries:
       - name: "hardened-entry-1"
         spec:
           hosts:
@@ -106,7 +114,7 @@ tests:
             - "service2.example.com"
           location: MESH_EXTERNAL
           resolution: DNS
-    kiali.values.istio.serviceEntries.custom:
+    kiali.values.bb-common.istio.serviceEntries.custom:
       - name: "istio-entry-1"
         spec:
           hosts:
