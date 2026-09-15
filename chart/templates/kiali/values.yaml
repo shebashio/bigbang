@@ -33,7 +33,6 @@ tracing:
 openshift: {{ .Values.openshift}}
 
 routes:
-  {{- include "bigbang.routeDefaults" . | nindent 2 }}
   inbound:
     kiali:
       gateways:

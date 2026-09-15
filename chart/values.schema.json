@@ -4170,7 +4170,7 @@
           "type": "object",
           "description": "Partial override merged over the built-in package's legacy defaults."
         },
-        "istioEgressGateway": {
+        "istiod": {
           "properties": {
             "git": {
               "$ref": "#/$defs/packageAliasPartials/git"
@@ -4210,7 +4210,7 @@
           "type": "object",
           "description": "Partial override merged over the built-in package's legacy defaults."
         },
-        "istiod": {
+        "istioEgressGateway": {
           "properties": {
             "git": {
               "$ref": "#/$defs/packageAliasPartials/git"
@@ -6589,11 +6589,11 @@
         "istioCRDs": {
           "$ref": "#/$defs/packageAliasPartials/aliases/istioCRDs"
         },
-        "istioEgressGateway": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/istioEgressGateway"
-        },
         "istiod": {
           "$ref": "#/$defs/packageAliasPartials/aliases/istiod"
+        },
+        "istioEgressGateway": {
+          "$ref": "#/$defs/packageAliasPartials/aliases/istioEgressGateway"
         },
         "istioGateway": {
           "$ref": "#/$defs/packageAliasPartials/aliases/istioGateway"
