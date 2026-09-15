@@ -10,11 +10,12 @@ These sections follow Flux's reconciliation order — check the earliest applica
 %%{init: {'theme': 'base', 'themeVariables': {'fontSize': '18px', 'primaryColor': '#00758f', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#004d5c', 'lineColor': '#00758f'}, 'flowchart': {'curve': 'basis'}}}%%
 flowchart TB
   A(Iron Bank Authentication) --> B(Flux Install)
-  B --> C(Git Repository)
-  C --> D(Kustomization)
+  B --> C(Git/OCI Repository)
+  C --> D(Customer Template Kustomization)
   D --> E(ConfigMap or Secrets)
-  D --> F(Helm Release)
-  F --> G(Packages / Pods)
+  D --> F(Big Bang Helm Release)
+  F --> G(Packages Git/OCI & Helm Releases)
+  G --> H(Package Resources (Deploy/DS/STS/etc))
   linkStyle default stroke-width:3px
 ```
 
