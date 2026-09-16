@@ -59,7 +59,7 @@ kubectl get events --field-selector involvedObject.kind=GitRepository -A
 | Symptom | Cause | Resolution |
 |--|--|--|
 | `unable to clone ... error: authentication required` | Pull credentials for Git invalid or not provided | Add credentials to a `Secret` and reference it in `GitRepository.spec.secretRef.name`. If possible, encrypt the secret and include it in the Kustomization deployment for your environment. |
-| `auth secret error: Secret ... not found` | `GitRepository` is trying to use credentials but cannot find the `Secret` | Make sure the secret exists and is in the same namespace as the `GitRepository` resource. If possible, encrypt the secret and include it in the Kustomization deployment for your environment. |
+| `auth secret error: Secret ... not found` | `GitRepository` indicates that a Flux controller is looking for credentials but cannot find the `Secret` | Make sure the secret exists and is in the same namespace as the `GitRepository` resource. If possible, encrypt the secret and include it in the Kustomization deployment for your environment. |
 | `unable to clone ... error: repository not found` | Invalid Git url | Fix url for Git repository and redeploy |
 | `unable to clone ... error: couldn't find remote ref` | Invalid branch or tag | Fix branch or tag for Git repository and redeploy |
 
