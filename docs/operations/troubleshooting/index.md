@@ -23,7 +23,7 @@ flowchart TB
 
 | Symptom | Cause | Resolution |
 |--|--|--|
-| Despite entering correct credentials, get `unauthorized: authentication required` from Iron Bank. | Using a non-robot account with an expired token. | Login with the non-robot account manually at `registry1.dso.mil`, then retry. For production, contact the Iron Bank team to obtain a robot account and update pull credentials to use it in your environment. |
+| Despite entering correct credentials, get `unauthorized: authentication required` from Iron Bank. | Using a non-robot account with an expired token. | Login with the non-robot account manually at `registry1.dso.mil`, then retry. Please review [Iron Bank latest guidance](https://docs-ironbank.dso.mil/reference/cso/customer-services-and-onboarding/) on obtaining a service account credential for pulling images from Registry1. |
 
 ## Flux Install
 
