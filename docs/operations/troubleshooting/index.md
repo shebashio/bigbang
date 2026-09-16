@@ -29,7 +29,7 @@ flowchart TB
 
 Please reference [this Flux troubleshooting cheatsheet](https://fluxcd.io/flux/cheatsheets/troubleshooting/) for help with getting basic information about Flux resources.
 
-Helpful debugging commands:
+Below are commands for getting information about controller pods and events in the flux-system namespace:
 
 ```shell
 # Get the status
