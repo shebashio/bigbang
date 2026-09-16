@@ -21,6 +21,14 @@ openshift: {{ .Values.openshift }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
+routes:
+  {{- include "bigbang.routeDefaults" . | nindent 2 }}
+  outbound:
+    bb-tests:
+      enabled: {{ dig "bbtests" "enabled" false .Values.elasticsearchKibana.values }}
+      hosts:
+      - 'repo1.dso.mil'
+
 networkPolicies:
   egress:
     definitions:
