@@ -2,7 +2,7 @@
 
 Changes to Big Bang configuration can take 10-15 minutes to complete the Flux reconciliation of Flux Kustomizations and Flux HelmReleases. Please review upstream [Flux Reconcile command documentation](https://fluxcd.io/flux/cmd/flux_reconcile/) for more information on how to manually trigger or force reconciliation with git repositories.
 
-Big Bang automatically retries failed package installations and upgrades. Give it time to resolve dependencies before concluding something's actually broken.
+Big Bang's default flux configuration for each Big Bang package automatically retries failed package installations and upgrades.
 
 These sections follow Flux's reconciliation order — check the earliest applicable stage first, since failures cascade downstream:
 
