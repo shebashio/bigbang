@@ -25,7 +25,9 @@ flowchart TB
 |--|--|--|
 | Despite entering correct credentials, get `unauthorized: authentication required` from Iron Bank. | Using a non-robot account with an expired token. | Login with the non-robot account manually at `registry1.dso.mil`, then retry. Please review [Iron Bank latest guidance](https://docs-ironbank.dso.mil/reference/cso/customer-services-and-onboarding/) on obtaining a service account credential for pulling images from Registry1. |
 
-## Flux Install
+## Troubleshooting the Flux Controllers and Flux Resource Reconciliation
+
+Please reference [this Flux troubleshooting cheatsheet](https://fluxcd.io/flux/cheatsheets/troubleshooting/) for help with getting basic information about Flux resources.
 
 Helpful debugging commands:
 
