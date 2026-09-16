@@ -1194,9 +1194,9 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- end }}
 {{- end -}}
 
-{{/* Render user-supplied HelmRelease dependency entries. */}}
-{{- define "bigbang.helmRelease.extendedDependsOn" -}}
-{{- with (dig "dependsOn" list .) -}}
+{{/* Render user-supplied additive HelmRelease dependency entries. */}}
+{{- define "bigbang.helmRelease.additionalDependsOn" -}}
+{{- with (dig "additionalDependsOn" list .) -}}
 {{- toYaml . -}}
 {{- end -}}
 {{- end -}}

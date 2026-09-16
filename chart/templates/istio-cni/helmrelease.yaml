@@ -28,6 +28,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istio-cni" "root" .) | nindent 2 }}
 
+  {{- if .Values.istioCNI.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.istioCNI.dependsOn | nindent 4 }}
+  {{- else }}
   dependsOn:
     - name: istiod
       namespace: {{ .Release.Namespace }}
@@ -39,7 +43,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.istioCNI) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.istioCNI) }}
   {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

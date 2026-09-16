@@ -25,13 +25,18 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "authservice" "root" .) | nindent 2 }}
 
+  {{- if .Values.addons.authservice.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.addons.authservice.dependsOn | nindent 4 }}
+  {{- else }}
   dependsOn:
   {{- include "istioHelmReleases" . | nindent 2 }}
   {{- if .Values.monitoring.enabled }}
   - name: monitoring
     namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.authservice) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.authservice) }}
   {{- . | nindent 2 }}
+  {{- end }}
   {{- end }}
 {{- end }}

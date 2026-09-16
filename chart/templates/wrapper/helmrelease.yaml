@@ -68,7 +68,10 @@ spec:
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
-  {{- if or (or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep) $vals.dependsOn }}
+  {{- if $vals.dependsOn }}
+  dependsOn:
+  {{- toYaml $vals.dependsOn | nindent 4 }}
+  {{- else if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep $vals.additionalDependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}
     - name: gatekeeper
@@ -85,7 +88,7 @@ spec:
     - name: monitoring
       namespace: {{ $.Release.Namespace }}
     {{- end -}}
-    {{- with (include "bigbang.helmRelease.extendedDependsOn" $vals) }}
+    {{- with (include "bigbang.helmRelease.additionalDependsOn" $vals) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}

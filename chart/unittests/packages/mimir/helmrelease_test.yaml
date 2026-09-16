@@ -64,7 +64,7 @@ tests:
     addons:
       mimir:
         enabled: true
-        dependsOn:
+        additionalDependsOn:
           - name: garage
             namespace: bigbang
       minioOperator:
@@ -91,7 +91,7 @@ tests:
     addons:
       mimir:
         enabled: true
-        dependsOn:
+        additionalDependsOn:
           - name: garage
             namespace: bigbang
       minioOperator:

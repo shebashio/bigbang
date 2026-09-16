@@ -1593,11 +1593,14 @@ addons:
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
 
-    # -- Additional HelmRelease dependencies for GitLab. Use this for operators
+    # -- Appends additional HelmRelease dependencies to BB's generated defaults. Use this for operators
     # that must be Ready before the GitLab chart creates their custom resources.
-    dependsOn: []
+    additionalDependsOn: []
     # - name: cloudnative-pg
     #   namespace: bigbang
+    # -- Overrides ALL Flux HelmRelease dependencies (BB-generated defaults are dropped). Takes precedence
+    # over additionalDependsOn; both cannot be set simultaneously.
+    dependsOn: []
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
@@ -2461,11 +2464,14 @@ addons:
 
     postRenderers: []
 
-    # -- Additional HelmRelease dependencies. Use this for storage backends or
-    # operators that must be Ready before Mimir creates their custom resources.
-    dependsOn: []
+    # -- Appends additional HelmRelease dependencies to BB's generated defaults. Use this for storage
+    # backends or operators that must be Ready before Mimir creates their custom resources.
+    additionalDependsOn: []
     # - name: garage
     #   namespace: bigbang
+    # -- Overrides ALL Flux HelmRelease dependencies (BB-generated defaults are dropped). Takes precedence
+    # over additionalDependsOn; both cannot be set simultaneously.
+    dependsOn: []
 
     # -- Flux reconciliation overrides specifically for the Mimir Package
     flux: {}
@@ -2625,7 +2631,9 @@ packages:
     # -- After deployment, patch package resources.  [More info](https://fluxcd.io/flux/components/helm/helmreleases/#post-renderers)
     postRenderers: []
 
-    # -- Specify dependencies for the package. Only used for HelmRelease, does not affect Kustomization. See [here](https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies) for a reference.
+    # -- Appends additional HelmRelease dependencies to BB's generated defaults (gatekeeper, kyverno-policies, istio where applicable). Cannot be set simultaneously with dependsOn.
+    additionalDependsOn: []
+    # -- Overrides ALL Flux HelmRelease dependencies (BB-generated defaults are dropped). Takes precedence over additionalDependsOn; both cannot be set simultaneously. Only used for HelmRelease, does not affect Kustomization. See [here](https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies) for a reference.
     dependsOn: []
 
     # -- Include default Big Bang package HelmRelease dependencies (gatekeeper, kyverno-policies, istio where applicable).
