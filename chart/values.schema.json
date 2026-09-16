@@ -284,7 +284,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -303,7 +304,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -322,7 +324,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -341,7 +344,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -403,7 +407,8 @@
           "additionalProperties": false
         },
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -422,7 +427,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -454,7 +460,8 @@
         "ingress": {
           "$ref": "#/$defs/ingress"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -473,7 +480,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -492,7 +500,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -511,7 +520,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -559,7 +569,8 @@
         "ingress": {
           "$ref": "#/$defs/ingress"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -608,7 +619,8 @@
             "kibana": true
           }
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -630,7 +642,8 @@
         "istio": {
           "$ref": "#/$defs/istio"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -652,7 +665,8 @@
         "istio": {
           "$ref": "#/$defs/istio"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -720,7 +734,8 @@
             }
           }
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -788,7 +803,8 @@
           },
           "additionalProperties": false
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -858,7 +874,8 @@
             }
           }
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -872,7 +889,8 @@
         "flux": true,
         "values": true,
         "postRenderers": true,
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "allOf": [
         {
@@ -989,7 +1007,8 @@
           },
           "additionalProperties": false
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1011,7 +1030,8 @@
         "istio": {
           "$ref": "#/$defs/istio"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1048,7 +1068,8 @@
           },
           "additionalProperties": false
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1128,7 +1149,8 @@
           },
           "additionalProperties": false
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1191,7 +1213,8 @@
         "ingress": {
           "$ref": "#/$defs/ingress"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1224,7 +1247,8 @@
         "istio": {
           "$ref": "#/$defs/istio"
         },
-        "dependsOn": true
+        "dependsOn": true,
+        "additionalDependsOn": true
       },
       "additionalProperties": false
     },
@@ -1750,6 +1774,23 @@
         },
         "dependsOn": {
           "$ref": "#/$defs/dependsOn"
+        },
+        "additionalDependsOn": {
+          "$ref": "#/$defs/dependsOn"
+        }
+      },
+      "not": {
+        "required": [
+          "dependsOn",
+          "additionalDependsOn"
+        ],
+        "properties": {
+          "dependsOn": {
+            "minItems": 1
+          },
+          "additionalDependsOn": {
+            "minItems": 1
+          }
         }
       }
     },
@@ -2784,6 +2825,23 @@
           },
           "dependsOn": {
             "$ref": "#/$defs/packageAliasPartials/dependsOn"
+          },
+          "additionalDependsOn": {
+            "$ref": "#/$defs/packageAliasPartials/dependsOn"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOn",
+            "additionalDependsOn"
+          ],
+          "properties": {
+            "dependsOn": {
+              "minItems": 1
+            },
+            "additionalDependsOn": {
+              "minItems": 1
+            }
           }
         }
       },
@@ -3656,7 +3714,8 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "dependsOn": true
+            "dependsOn": true,
+            "additionalDependsOn": true
           },
           "additionalProperties": false,
           "type": "object",
@@ -3698,6 +3757,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "namespace": {
@@ -3756,6 +3818,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3800,6 +3865,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -3871,6 +3939,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3916,6 +3987,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -3958,6 +4032,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
@@ -4006,6 +4083,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "enterprise": true,
@@ -4106,6 +4186,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4149,6 +4232,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4191,6 +4277,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
@@ -4276,6 +4365,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4318,6 +4410,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -4371,6 +4466,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4414,6 +4512,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4456,6 +4557,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "sso": {
@@ -4528,6 +4632,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "clusterName": {
@@ -4605,6 +4712,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "prometheusMetrics": {
@@ -4743,6 +4853,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -4824,6 +4937,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -4873,6 +4989,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -4917,6 +5036,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5002,6 +5124,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5078,6 +5203,9 @@
             },
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
             }
           },
           "allOf": [
@@ -5125,6 +5253,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5179,6 +5310,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5226,6 +5360,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5276,6 +5413,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "ingress": true
           },
           "additionalProperties": false,
@@ -5317,6 +5457,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "externalDatabase": {
@@ -5384,6 +5527,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5438,6 +5584,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -5482,6 +5631,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5529,6 +5681,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5579,6 +5734,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5625,6 +5783,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5677,6 +5838,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5800,6 +5964,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "enterprise": true,
             "kafkaIngestStorage": true,
             "minioObjectStorage": true,
@@ -5846,6 +6013,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5897,6 +6067,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5942,6 +6115,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -5993,6 +6169,9 @@
             "dependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
+            "additionalDependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -6040,6 +6219,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -6110,6 +6292,9 @@
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
             "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOn"
+            },
+            "additionalDependsOn": {
               "$ref": "#/$defs/packageAliasPartials/dependsOn"
             },
             "istio": {
@@ -6295,6 +6480,9 @@
           "dependsOn": {
             "$ref": "#/$defs/dependsOn"
           },
+          "additionalDependsOn": {
+            "$ref": "#/$defs/dependsOn"
+          },
           "istio": {
             "$ref": "#/$defs/istio"
           },
@@ -6327,6 +6515,20 @@
           },
           "values": {
             "$ref": "#/$defs/values"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOn",
+            "additionalDependsOn"
+          ],
+          "properties": {
+            "dependsOn": {
+              "minItems": 1
+            },
+            "additionalDependsOn": {
+              "minItems": 1
+            }
           }
         },
         "additionalProperties": false
@@ -6505,6 +6707,9 @@
           "dependsOn": {
             "$ref": "#/$defs/dependsOn"
           },
+          "additionalDependsOn": {
+            "$ref": "#/$defs/dependsOn"
+          },
           "istio": {
             "$ref": "#/$defs/istio"
           },
@@ -6537,6 +6742,20 @@
           },
           "values": {
             "$ref": "#/$defs/values"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOn",
+            "additionalDependsOn"
+          ],
+          "properties": {
+            "dependsOn": {
+              "minItems": 1
+            },
+            "additionalDependsOn": {
+              "minItems": 1
+            }
           }
         },
         "additionalProperties": false

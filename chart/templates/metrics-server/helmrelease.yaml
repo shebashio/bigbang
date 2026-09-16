@@ -37,8 +37,9 @@ spec:
 
   {{- if .Values.addons.metricsServer.dependsOn }}
   dependsOn:
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.metricsServer) }}
-  {{- . | nindent 4 }}
-  {{- end }}
+  {{- toYaml .Values.addons.metricsServer.dependsOn | nindent 4 }}
+  {{- else if .Values.addons.metricsServer.additionalDependsOn }}
+  dependsOn:
+  {{- toYaml .Values.addons.metricsServer.additionalDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

@@ -29,6 +29,10 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno-reporter" "root" .) | nindent 2 }}
+  {{- if .Values.kyvernoReporter.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.kyvernoReporter.dependsOn | nindent 4 }}
+  {{- else }}
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
@@ -47,7 +51,8 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.kyvernoReporter) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.kyvernoReporter) }}
   {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

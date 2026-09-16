@@ -83,7 +83,10 @@ spec:
   {{- $sidecarIstioDep := and $istioEnabled (eq "enabled" (dig "istio" "injection" "enabled" $vals)) -}}
   {{- $istioDep := or $bbCommonIstioDep $sidecarIstioDep -}}
   {{- $defaultDependsOn := and $includeDefaultDependsOn (or $gatekeeperDep $kyvernoDep $istioDep) -}}
-  {{- if or $defaultDependsOn $vals.dependsOn }}
+  {{- if $vals.dependsOn }}
+  dependsOn:
+  {{- toYaml $vals.dependsOn | nindent 4 }}
+  {{- else if or $defaultDependsOn $vals.additionalDependsOn }}
   dependsOn:
     {{- if and $includeDefaultDependsOn $gatekeeperDep }}
     - name: gatekeeper
@@ -96,7 +99,7 @@ spec:
     {{- if and $includeDefaultDependsOn $istioDep }}
     {{- include "istioHelmReleases" $ | nindent 4 }}
     {{- end }}
-    {{- with (include "bigbang.helmRelease.extendedDependsOn" $vals) }}
+    {{- with (include "bigbang.helmRelease.additionalDependsOn" $vals) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}

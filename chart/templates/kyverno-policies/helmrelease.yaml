@@ -23,10 +23,15 @@ spec:
   {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno-policies" "root" .) | nindent 2 }}
+  {{- if .Values.kyvernoPolicies.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.kyvernoPolicies.dependsOn | nindent 4 }}
+  {{- else }}
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.kyvernoPolicies) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.kyvernoPolicies) }}
   {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

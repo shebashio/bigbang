@@ -28,6 +28,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istiod" "root" .) | nindent 2 }}
 
+  {{- if .Values.istiod.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.istiod.dependsOn | nindent 4 }}
+  {{- else }}
   dependsOn:
     - name: istio-crds
       namespace: {{ .Release.Namespace }}
@@ -41,7 +45,8 @@ spec:
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.istiod) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.istiod) }}
   {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
