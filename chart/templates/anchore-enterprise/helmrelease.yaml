@@ -26,7 +26,10 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "anchore-enterprise" "root" .) | nindent 2 }}
 
-  {{- if or $istioEnabled .Values.monitoring.enabled .Values.addons.anchoreEnterprise.dependsOn (and .Values.addons.keycloak.enabled .Values.addons.anchoreEnterprise.sso.enabled) }}
+  {{- if .Values.addons.anchoreEnterprise.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.addons.anchoreEnterprise.dependsOn | nindent 4 }}
+  {{- else if or $istioEnabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.addons.anchoreEnterprise.sso.enabled) .Values.addons.anchoreEnterprise.additionalDependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -39,7 +42,7 @@ spec:
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.addons.anchoreEnterprise) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.anchoreEnterprise) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

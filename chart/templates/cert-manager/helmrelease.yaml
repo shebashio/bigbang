@@ -39,7 +39,10 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
-  {{- if or (or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled) .Values.certManager.dependsOn }}
+  {{- if .Values.certManager.dependsOn }}
+  dependsOn:
+  {{- toYaml .Values.certManager.dependsOn | nindent 4 }}
+  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.certManager.additionalDependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
   {{- include "istioHelmReleases" . | nindent 4 }}
@@ -52,7 +55,7 @@ spec:
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.extendedDependsOn" .Values.certManager) }}
+  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.certManager) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

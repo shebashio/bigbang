@@ -635,7 +635,7 @@ tests:
     addons:
       gitlab:
         enabled: true
-        dependsOn:
+        additionalDependsOn:
           - name: cloudnative-pg
             namespace: bigbang
     gatekeeper:
@@ -662,7 +662,7 @@ tests:
     addons:
       gitlab:
         enabled: true
-        dependsOn:
+        additionalDependsOn:
           - name: cloudnative-pg
             namespace: bigbang
     gatekeeper:
@@ -725,6 +725,45 @@ tests:
       value:
         - name: external-operator
           namespace: operators
+
+- it: monitoring dependsOn replaces all BB defaults
+  set:
+    monitoring:
+      enabled: true
+      dependsOn:
+        - name: user-dep
+          namespace: custom
+    istiod:
+      enabled: true
+    certManager:
+      enabled: true
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: user-dep
+          namespace: custom
+
+- it: monitoring additionalDependsOn appends to BB defaults
+  set:
+    monitoring:
+      enabled: true
+      additionalDependsOn:
+        - name: user-dep
+          namespace: custom
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: prometheus-operator-crds
+      any: true
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: user-dep
+        namespace: custom
 
 ###############################################################################
 # DependsOn correctness
