@@ -27,10 +27,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mattermost-operator" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.mattermostOperator.dependsOn }}
+  {{- if .Values.addons.mattermostOperator.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.mattermostOperator.dependsOn | nindent 4 }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.mattermostOperator.additionalDependsOn }}
+  {{- toYaml .Values.addons.mattermostOperator.dependsOnOverride | nindent 4 }}
+  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.mattermostOperator.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -47,7 +47,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.mattermostOperator) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.mattermostOperator) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

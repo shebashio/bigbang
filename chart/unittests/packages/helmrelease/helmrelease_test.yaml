@@ -635,7 +635,7 @@ tests:
     addons:
       gitlab:
         enabled: true
-        additionalDependsOn:
+        dependsOn:
           - name: cloudnative-pg
             namespace: bigbang
     gatekeeper:
@@ -662,7 +662,7 @@ tests:
     addons:
       gitlab:
         enabled: true
-        additionalDependsOn:
+        dependsOn:
           - name: cloudnative-pg
             namespace: bigbang
     gatekeeper:
@@ -696,7 +696,7 @@ tests:
     addons:
       argocd:
         enabled: true
-        dependsOn:
+        dependsOnOverride:
           - name: external-operator
             namespace: operators
     istiod:
@@ -715,7 +715,7 @@ tests:
   set:
     gatekeeper:
       enabled: true
-      dependsOn:
+      dependsOnOverride:
         - name: external-operator
           namespace: operators
   template: gatekeeper/helmrelease.yaml
@@ -726,11 +726,11 @@ tests:
         - name: external-operator
           namespace: operators
 
-- it: monitoring dependsOn replaces all BB defaults
+- it: monitoring dependsOnOverride replaces all BB defaults
   set:
     monitoring:
       enabled: true
-      dependsOn:
+      dependsOnOverride:
         - name: user-dep
           namespace: custom
     istiod:
@@ -745,11 +745,11 @@ tests:
         - name: user-dep
           namespace: custom
 
-- it: monitoring additionalDependsOn appends to BB defaults
+- it: monitoring dependsOn appends to BB defaults
   set:
     monitoring:
       enabled: true
-      additionalDependsOn:
+      dependsOn:
         - name: user-dep
           namespace: custom
   template: monitoring/helmrelease.yaml

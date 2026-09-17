@@ -24,11 +24,11 @@ spec:
   {{ toYaml .Values.prometheusOperatorCRDs.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "prometheus-operator-crds" "root" .) | nindent 2 }}
-  {{- if .Values.prometheusOperatorCRDs.dependsOn }}
+  {{- if .Values.prometheusOperatorCRDs.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml .Values.prometheusOperatorCRDs.dependsOnOverride | nindent 4 }}
+  {{- else if .Values.prometheusOperatorCRDs.dependsOn }}
   dependsOn:
   {{- toYaml .Values.prometheusOperatorCRDs.dependsOn | nindent 4 }}
-  {{- else if .Values.prometheusOperatorCRDs.additionalDependsOn }}
-  dependsOn:
-  {{- toYaml .Values.prometheusOperatorCRDs.additionalDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

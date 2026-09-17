@@ -23,9 +23,9 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "minio" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.minio.dependsOn }}
+  {{- if .Values.addons.minio.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.minio.dependsOn | nindent 4 }}
+  {{- toYaml .Values.addons.minio.dependsOnOverride | nindent 4 }}
   {{- else }}
   dependsOn:
     {{- if .Values.kyvernoPolicies.enabled }}
@@ -38,7 +38,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.minio) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.minio) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
