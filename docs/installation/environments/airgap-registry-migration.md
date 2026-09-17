@@ -91,7 +91,8 @@ The order is the point of this section. Each step assumes the one before it.
 
 ### Kyverno first
 
-Add Harbor to the allowlist **before** anything rewrites to it:
+Add Harbor to the allowlist **before** anything rewrites to it, keeping the bootstrap
+registry allowed until the cutover is complete:
 
 ```yaml
 kyvernoPolicies:
@@ -100,6 +101,7 @@ kyvernoPolicies:
       restrict-image-registries:
         parameters:
           allow:
+            - hauler.example.mil:5000
             - harbor.example.mil
 ```
 
@@ -110,8 +112,9 @@ approved list.'` Big Bang merges this into the default allowlist rather than rep
 it, so the DoD registries stay permitted. See
 [Kyverno: allowlist the destination, not the source](airgap-hauler.md#kyverno-allowlist-the-destination-not-the-source).
 
-You can keep `hauler.example.mil:5000` in the list during the transition and remove it in
-part 4.
+Keep `hauler.example.mil:5000` in the list throughout the transition. Big Bang retains
+the default registries, not previous custom allowlist entries; removing Hauler now
+would deny new pods while the rewrite still targets it. Remove it only in part 4.
 
 ### Then the admission policy
 

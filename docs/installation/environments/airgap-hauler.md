@@ -328,8 +328,11 @@ apply this override in the same change.
 
 Where you control node configuration and would rather not run an admission policy, a
 registry mirror achieves the same result at the pull layer. Image references stay
-`registry1.dso.mil/...` and containerd redirects them. On k3s or RKE2,
-`/etc/rancher/k3s/registries.yaml`:
+`registry1.dso.mil/...` and containerd redirects them. Configure the appropriate file
+on every node that pulls images, including schedulable server nodes:
+
+- K3s: `/etc/rancher/k3s/registries.yaml`
+- RKE2: `/etc/rancher/rke2/registries.yaml`
 
 ```yaml
 mirrors:
@@ -342,6 +345,11 @@ configs:
     tls:
       ca_file: /etc/ssl/certs/your-ca.crt
 ```
+
+Configure this file before starting K3s or RKE2, or restart the corresponding service
+on each already-running node for the changes to take effect. See the
+[K3s](https://docs.k3s.io/installation/private-registry) and
+[RKE2](https://docs.rke2.io/install/private_registry) private registry documentation.
 
 This works because the mirror and hauler are two halves of one convention. Hauler strips
 the source registry host on push and keeps the repository path; the mirror substitutes
@@ -459,8 +467,8 @@ patches:
 
 Mount it read-only; `base/flux` sets `readOnlyRootFilesystem: true`. Note `SSL_CERT_FILE`
 replaces Go's trust store rather than adding to it, which is fine in a disconnected
-environment. The symptom of getting this wrong is a `HelmRepository` stuck on an x509
-error.
+environment. The symptom of getting this wrong is a consuming `HelmChart` reporting an
+x509 error.
 
 Flux's own controller images are in the archive at the versions `base/flux` pins, and the
 mirror covers them, so no image changes are needed there.
@@ -504,12 +512,13 @@ registryCredentials:
   password: <password>
 
 # Charts. Flux fetches these itself, so they are configured here rather than rewritten.
+# Chart-pull credentials are configured separately from registryCredentials above.
 helmRepositories:
   - name: "registry1"
     repository: "oci://registry.example.mil/bigbang"
     type: "oci"
-    username: ""
-    password: ""
+    username: "<username>"
+    password: "<password>"
 
 # Kyverno validates AFTER the rewrite, so allow the destination.
 kyvernoPolicies:
@@ -536,10 +545,15 @@ credentials under `configs:` in `registries.yaml`. The `helmRepositories` and
 
 ## 3. Verify it came from your registry
 
+OCI `HelmRepository` objects are static configuration and do not report a `Ready`
+condition. Check the consuming `HelmChart` and `HelmRelease` conditions instead; both
+should report `Ready=True` once reconciliation succeeds. See
+[Flux's OCI HelmRepository documentation](https://fluxcd.io/flux/components/source/helmrepositories/#working-with-helmrepositories).
+
 ```shell
-kubectl get helmrepository -n bigbang    # should be Ready
-kubectl get hr -A                        # HelmReleases reconciling
-kubectl get po -A                        # no ImagePullBackOff
+kubectl get helmcharts.source.toolkit.fluxcd.io -A       # Ready=True: charts fetched
+kubectl get helmreleases.helm.toolkit.fluxcd.io -A        # Ready=True: releases reconciled
+kubectl get po -A                                       # no ImagePullBackOff
 ```
 
 **If you rewrote at admission**, the pod specs are the evidence — they should name your
