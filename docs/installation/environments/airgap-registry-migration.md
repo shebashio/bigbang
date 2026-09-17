@@ -139,8 +139,9 @@ helmRepositories:
 **Authentication changes here, and it is easy to miss.** `hauler store serve` has no
 authentication at all; Harbor does. The chart path now needs real credentials, and if
 Harbor's certificate is signed by a private CA, source-controller needs that CA too — it
-runs as a pod, so the node trust store does not reach it. Both go in the same secret,
-`ca.crt` alongside the credentials. See
+runs as a pod, so the node trust store does not reach it. Put `ca.crt` alongside the
+credentials in the same secret: use an `Opaque` Secret with `username` and `password`, or
+a `kubernetes.io/dockerconfigjson` Secret with `.dockerconfigjson`. See
 [TLS is required for an OCI chart registry](airgap-hauler.md#tls-is-required-for-an-oci-chart-registry).
 
 Set `registryCredentials` to Harbor as well, so the kubelet can authenticate the rewritten

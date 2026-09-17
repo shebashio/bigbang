@@ -405,10 +405,14 @@ repository is unaffected by this, but the archive does not give you one.)
 If the certificate is signed by a private CA, **source-controller needs that CA** — it
 runs as a pod, so the node trust store does not reach it. Two ways to get it there.
 
-**With values only.** Create an `Opaque` Secret in the `bigbang` namespace holding the CA
-under `ca.crt`, and reference it as `existingSecret`. Source-controller reads TLS material
-out of the auth secret and *extends* the system pool with it. If the registry also needs
-credentials, put `ca.crt` alongside `.dockerconfigjson` in one secret:
+**With values only.** Create a Secret in the `bigbang` namespace and reference it as
+`existingSecret`. Source-controller reads TLS material out of the auth secret and
+*extends* the system pool with it. Use the format that matches the registry:
+
+- For CA trust only, use an `Opaque` Secret containing `ca.crt`.
+- For authentication plus CA trust, either use an `Opaque` Secret containing `username`,
+  `password`, and `ca.crt`, or use a `kubernetes.io/dockerconfigjson` Secret containing
+  `.dockerconfigjson` and `ca.crt`.
 
 ```yaml
 helmRepositories:
