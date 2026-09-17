@@ -366,6 +366,48 @@ for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
   done
 done
 
+# Final legacy cleanup and hardened removal to ensure bb-common usage is schema valid
+SERVICE_ENTRY_REVIEW=()
+for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+  PACKAGE_NAME="$package_name" yq -e \
+    '.packages[strenv(PACKAGE_NAME)].values.bb-common.istio | tag == "!!map"' \
+    "$WORK_FILE" >/dev/null 2>&1 || continue
+
+  # Capture the legacy ServiceEntry names before they are folded in — these stay
+  # cluster-wide under serviceEntries.custom and are flagged for review afterwards.
+  hardened_se_names=$(PACKAGE_NAME="$package_name" yq -r '
+    .packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // []
+    | map(.name // "(unnamed)") | join(", ")
+  ' "$WORK_FILE")
+
+  PACKAGE_NAME="$package_name" yq -i '
+    with(.packages[strenv(PACKAGE_NAME)].values.bb-common.istio;
+        with(select((.hardened.customServiceEntries // []) | length > 0);
+          .serviceEntries.custom =
+            (.hardened.customServiceEntries + (.serviceEntries.custom // [])))
+      | with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
+          .authorizationPolicies.custom =
+            (.hardened.customAuthorizationPolicies + (.authorizationPolicies.custom // [])))
+      | del(.hardened)
+    )
+  ' "$WORK_FILE"
+
+  if [[ -n "$hardened_se_names" ]]; then
+    MIGRATED_PATHS+=("packages.$package_name.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom")
+    # istiod's ServiceEntries were always intended to be global, so don't prompt a review for it.
+    if [[ "$package_name" != "istiod" ]]; then
+      SERVICE_ENTRY_REVIEW+=("packages.$package_name.values.bb-common.istio.serviceEntries.custom: $hardened_se_names")
+    fi
+  fi
+done
+
+# Remove deprecated global hardening key from istiod
+if yq -e '.packages.istiod.values | has("hardened")' "$WORK_FILE" >/dev/null 2>&1; then
+  yq -i 'del(.packages.istiod.values.hardened)' "$WORK_FILE"
+  yq -i 'del(.packages.istiod.values | select(tag == "!!map" and length == 0))' "$WORK_FILE"
+  MIGRATED_PATHS+=("packages.istiod.values.hardened -> removed (hardening deprecated in 4.x)")
+fi
+
 if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >/dev/null 2>&1; then
   yq -i 'del(.addons)' "$WORK_FILE"
 fi
@@ -389,4 +431,12 @@ if [[ ${#MIGRATED_PATHS[@]} -eq 0 ]]; then
 else
   printf 'Migrated package paths:\n' >&2
   printf '  %s\n' "${MIGRATED_PATHS[@]}" >&2
+fi
+
+if [[ ${#SERVICE_ENTRY_REVIEW[@]} -gt 0 ]]; then
+  printf '\nReview: the following ServiceEntries were migrated from hardened.customServiceEntries and\n' >&2
+  printf 'remain cluster-wide (istio.serviceEntries.custom). If namespace-scoped egress is sufficient,\n' >&2
+  printf "consider moving each to that package's bb-common.routes.outbound instead:\n" >&2
+  printf '  %s\n' "${SERVICE_ENTRY_REVIEW[@]}" >&2
+  printf '\nReference: https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/'
 fi
