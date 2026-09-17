@@ -1138,8 +1138,9 @@ networkPolicies:
 {{- end -}}
 
 {{- /* Top-level routes.defaults passthrough, nested under a package's routes block.
-       Included per-package (elasticsearchKibana only for now) until every bb-common
-       package supports routes.defaults; then fold this into bigbang.commonPackageDefaults.
+       Included per-package (only packages on a bb-common release with routes.defaults
+       support) until every bb-common package supports it; then fold this into
+       bigbang.commonPackageDefaults.
        outbound.egressGateway is blanked unless ambient and the egress gateway package
        are both enabled, so ServiceEntries are never bound to a waypoint that will not
        exist (Istio fails open and traffic would egress directly). */ -}}

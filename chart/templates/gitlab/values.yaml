@@ -53,6 +53,7 @@ domain: {{ $domainName }}
 openshift: {{ .Values.openshift }}
 
 routes:
+  {{- include "bigbang.routeDefaults" . | nindent 2 }}
   inbound:
     gitlab:
       enabled: true
@@ -147,8 +148,6 @@ routes:
       - 'registry1.dso.mil'
       - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
       - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-      - registry.{{ $domainName }}
-      - keycloak.{{ $domainName }}
 
 {{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
 istio:
