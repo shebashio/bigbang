@@ -203,9 +203,23 @@ packages:
 
 ### Dependency Management
 
-Control a built-in or custom Helm package's installation order with additional
-Flux HelmRelease dependencies. Big Bang appends these entries to any dependencies
-it generates for the package:
+Control a built-in or custom Helm package's installation order with Flux
+HelmRelease dependencies. Two keys are available with distinct semantics:
+
+**`additionalDependsOn`** - appends entries to Big Bang's generated defaults
+(istio, kyverno-policies, etc.):
+
+```yaml
+addons:
+  argocd:
+    additionalDependsOn:
+      - name: external-operator
+        namespace: operators
+```
+
+**`dependsOn`** - replaces the entire dependency list. Big Bang's defaults are
+dropped; only the provided entries are used. Takes precedence over
+`additionalDependsOn` - both cannot be set simultaneously:
 
 ```yaml
 addons:
@@ -215,7 +229,7 @@ addons:
         namespace: operators
 ```
 
-Custom packages use the same field:
+Custom packages use the same fields:
 
 ```yaml
 packages:
@@ -226,7 +240,7 @@ packages:
       repo: https://github.com/stefanprodan/podinfo.git
       tag: "6.3.4"
       path: charts/podinfo
-    dependsOn:
+    additionalDependsOn:
       - name: monitoring
         namespace: bigbang
     values:
