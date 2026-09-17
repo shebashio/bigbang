@@ -9,8 +9,7 @@ routes to: an
 the `istio-egress` namespace, deployed via the
 [istio-egress-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-egress-gateway)
 package. This document assumes Istio ambient mode is already enabled
-(`istio.ambient.enabled: true`); the egress gateway requires it (see
-[Ambient mode only](#ambient-mode-only)).
+(`istio.ambient.enabled: true`); the egress gateway requires it.
 
 Using an egress gateway provides:
 
