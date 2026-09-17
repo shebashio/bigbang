@@ -1171,8 +1171,8 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- end -}}
 
 {{/* Render user-supplied additive HelmRelease dependency entries. */}}
-{{- define "bigbang.helmRelease.additionalDependsOn" -}}
-{{- with (dig "additionalDependsOn" list .) -}}
+{{- define "bigbang.helmRelease.dependsOn" -}}
+{{- with (dig "dependsOn" list .) -}}
 {{- toYaml . -}}
 {{- end -}}
 {{- end -}}

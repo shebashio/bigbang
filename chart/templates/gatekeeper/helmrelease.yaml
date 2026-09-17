@@ -25,11 +25,11 @@ spec:
   {{ toYaml .Values.gatekeeper.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gatekeeper" "root" .) | nindent 2 }}
-  {{- if .Values.gatekeeper.dependsOn }}
+  {{- if .Values.gatekeeper.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml .Values.gatekeeper.dependsOnOverride | nindent 4 }}
+  {{- else if .Values.gatekeeper.dependsOn }}
   dependsOn:
   {{- toYaml .Values.gatekeeper.dependsOn | nindent 4 }}
-  {{- else if .Values.gatekeeper.additionalDependsOn }}
-  dependsOn:
-  {{- toYaml .Values.gatekeeper.additionalDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}

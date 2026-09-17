@@ -26,10 +26,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "alloy" "root" .) | nindent 2 }}
 
-  {{- if .Values.alloy.dependsOn }}
+  {{- if .Values.alloy.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.alloy.dependsOn | nindent 4 }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled .Values.alloy.additionalDependsOn }}
+  {{- toYaml .Values.alloy.dependsOnOverride | nindent 4 }}
+  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled .Values.alloy.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -50,7 +50,7 @@ spec:
     - name: loki
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.alloy) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.alloy) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

@@ -21,8 +21,8 @@ metadata:
     {{- include "commonLabels" $ | nindent 4 }}
   annotations:
     {{- $merged := dict "bigbang" $.Values "package" $vals }}
-    {{- if (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn") }}
-    checksum/bigbang-values: {{ (toJson (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn")) | sha256sum }}
+    {{- if (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOnOverride") }}
+    checksum/bigbang-values: {{ (toJson (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOnOverride")) | sha256sum }}
     {{- end }}
 spec:
   releaseName: {{ $pkg }}-wrapper
@@ -68,10 +68,10 @@ spec:
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
-  {{- if $vals.dependsOn }}
+  {{- if $vals.dependsOnOverride }}
   dependsOn:
-  {{- toYaml $vals.dependsOn | nindent 4 }}
-  {{- else if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep $vals.additionalDependsOn }}
+  {{- toYaml $vals.dependsOnOverride | nindent 4 }}
+  {{- else if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep $vals.dependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}
     - name: gatekeeper
@@ -88,7 +88,7 @@ spec:
     - name: monitoring
       namespace: {{ $.Release.Namespace }}
     {{- end -}}
-    {{- with (include "bigbang.helmRelease.additionalDependsOn" $vals) }}
+    {{- with (include "bigbang.helmRelease.dependsOn" $vals) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}
