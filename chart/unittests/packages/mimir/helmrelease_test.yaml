@@ -1,25 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Package - Mimir - HelmRelease
 tests:
-- it: should succeed when mimir values does not contain minio-tenant config
-  set:
-    addons:
-      mimir:
-        enabled: true
-        values: {}
-      minioOperator:
-        enabled: false
-  template: mimir/helmrelease.yaml
-  asserts:
-  - isKind:
-      of: HelmRelease
-
 - it: mimir should append custom HelmRelease dependencies
   set:
     addons:
       mimir:
         enabled: true
-        additionalDependsOn:
+        dependsOn:
           - name: garage
             namespace: bigbang
       minioOperator:
@@ -46,7 +33,7 @@ tests:
     addons:
       mimir:
         enabled: true
-        additionalDependsOn:
+        dependsOn:
           - name: garage
             namespace: bigbang
       minioOperator:

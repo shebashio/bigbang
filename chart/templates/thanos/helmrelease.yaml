@@ -33,10 +33,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "thanos" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.thanos.dependsOn }}
+  {{- if .Values.addons.thanos.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.thanos.dependsOn | nindent 4 }}
-  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.thanos.additionalDependsOn }}
+  {{- toYaml .Values.addons.thanos.dependsOnOverride | nindent 4 }}
+  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.thanos.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -49,7 +49,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.thanos) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.thanos) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

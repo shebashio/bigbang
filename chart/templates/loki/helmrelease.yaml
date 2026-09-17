@@ -30,10 +30,10 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "loki" "root" .) | nindent 2 }}
-  {{- if .Values.loki.dependsOn }}
+  {{- if .Values.loki.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.loki.dependsOn | nindent 4 }}
-  {{- else if or .Values.monitoring.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.loki.additionalDependsOn }}
+  {{- toYaml .Values.loki.dependsOnOverride | nindent 4 }}
+  {{- else if or .Values.monitoring.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.loki.dependsOn }}
   dependsOn:
     {{- if  .Values.monitoring.enabled }}
     - name: monitoring
@@ -54,7 +54,7 @@ spec:
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.loki) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.loki) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

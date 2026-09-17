@@ -32,10 +32,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "external-secrets" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.externalSecrets.dependsOn }}
+  {{- if .Values.addons.externalSecrets.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.externalSecrets.dependsOn | nindent 4 }}
-  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.externalSecrets.additionalDependsOn }}
+  {{- toYaml .Values.addons.externalSecrets.dependsOnOverride | nindent 4 }}
+  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.externalSecrets.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -48,7 +48,7 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.externalSecrets) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.externalSecrets) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

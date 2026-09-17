@@ -26,10 +26,10 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "vault" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.vault.dependsOn }}
+  {{- if .Values.addons.vault.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.vault.dependsOn | nindent 4 }}
-  {{- else if or $istioEnabled (dig "values" "minio" "enabled" false .Values.addons.vault) .Values.addons.vault.additionalDependsOn }}
+  {{- toYaml .Values.addons.vault.dependsOnOverride | nindent 4 }}
+  {{- else if or $istioEnabled (dig "values" "minio" "enabled" false .Values.addons.vault) .Values.addons.vault.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -39,7 +39,7 @@ spec:
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.additionalDependsOn" .Values.addons.vault) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.vault) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

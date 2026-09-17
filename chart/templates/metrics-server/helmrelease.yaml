@@ -35,11 +35,11 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "metrics" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.metricsServer.dependsOn }}
+  {{- if .Values.addons.metricsServer.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml .Values.addons.metricsServer.dependsOnOverride | nindent 4 }}
+  {{- else if .Values.addons.metricsServer.dependsOn }}
   dependsOn:
   {{- toYaml .Values.addons.metricsServer.dependsOn | nindent 4 }}
-  {{- else if .Values.addons.metricsServer.additionalDependsOn }}
-  dependsOn:
-  {{- toYaml .Values.addons.metricsServer.additionalDependsOn | nindent 4 }}
   {{- end }}
 {{- end }}
