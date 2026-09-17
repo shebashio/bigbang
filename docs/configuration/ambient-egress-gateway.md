@@ -1,5 +1,8 @@
 # Configuring an Egress Gateway (Ambient Mode)
 
+> **Alpha:** this feature is in alpha. Values, generated resources, and
+> package coverage may change between releases.
+
 Big Bang can deploy a shared egress gateway that packages bind their outbound
 routes to: an
 [ambient waypoint](https://istio.io/latest/docs/ambient/usage/waypoint/) in
@@ -9,7 +12,7 @@ package. This document assumes Istio ambient mode is already enabled
 (`istio.ambient.enabled: true`); the egress gateway requires it (see
 [Ambient mode only](#ambient-mode-only)).
 
-Reasons to enable it:
+Using an egress gateway provides:
 
 - **A single exit point for external traffic:** package egress flows through
   one place instead of every pod reaching the Internet directly.
@@ -33,25 +36,14 @@ istio:
     enabled: true
 ```
 
-`istio.egressGateway.enabled` automatically enables the `istioEgressGateway`
-package (the package can also be enabled directly via
-`istioEgressGateway.enabled: true`).
-
-This deploys:
-
-- The `istio-egress` namespace (labeled for ambient).
-- The `istio-egress-gateway` HelmRelease, whose chart renders:
-  - a Gateway API `Gateway` named `egress-waypoint` (`gatewayClassName:
-    istio-waypoint`), from which istiod creates and manages the waypoint proxy
-    pods; the chart deploys no workloads of its own,
-  - a `ConfigMap` referenced via `infrastructure.parametersRef` that sizes the
-    istiod-generated waypoint Deployment,
-  - a default-deny `AuthorizationPolicy` attached to the Gateway.
+This flag enables:
+- `istioEgressGateway` package which creates the default `egress-waypoint` and  `istio-egress` namespace
+- default egress routing through the `egress-waypoint` for all outbound routes configured by integrated packages
 
 ### Complete example
 
 Once the gateway is deployed, a package routes an external host through it by
-declaring an outbound route in its bb-common values. For integrated Big Bang
+declaring an outbound route in its bb-common values. For supported Big Bang
 packages the umbrella configures the default `egressGateway` (see
 [Default waypoint binding for packages](#default-waypoint-binding-for-packages)):
 
@@ -59,7 +51,7 @@ packages the umbrella configures the default `egressGateway` (see
 routes:
   defaults:
     outbound:
-      # configured by the umbrella for integrated packages
+      # configured by the umbrella for supported packages
       egressGateway: istio-egress/egress-waypoint
   outbound:
     external-host:
@@ -106,47 +98,24 @@ external host.
 The waypoint only governs traffic that reaches it. Even with the egress
 gateway enabled, an overly permissive egress NetworkPolicy (an allow-anywhere
 rule, or a broad `443 → 0.0.0.0/0`) leaves arbitrary external
-hosts reachable: NetworkPolicy matches IPs and ports, not hostnames, so any
-rule wide enough to reach the Internet is a path around the waypoint, and
+hosts reachable: any rule wide enough to reach the Internet is a path around the waypoint, and
 bypassed traffic never meets the default-deny baseline or the per-route
-AuthorizationPolicies.
+AuthorizationPolicies provided by the egress waypoint.
 
 Nothing in the mesh backstops this: sidecar mode's `REGISTRY_ONLY`, which
 refused to route traffic to undeclared hosts, has no ambient equivalent;
-ztunnel passes unregistered destinations through untouched. It was never a
-security boundary anyway: it ran in the client pod's own proxy and could be
-bypassed by a compromised workload (see Istio's
-[security note](https://istio.io/latest/docs/tasks/traffic-management/egress/egress-control/#security-note)).
+ztunnel passes unregistered destinations through untouched.
 
-The enforced boundary is NetworkPolicy. Keep package egress policies scoped so
-external traffic has no path except HBONE (15008) to the waypoint; then its
-default-deny baseline and per-route AuthorizationPolicies provide per-host,
-per-source control stronger than `REGISTRY_ONLY` ever did.
-
-## Ambient mode only
-
-The egress gateway **requires ambient mode** (`istio.ambient.enabled: true`).
-There is no sidecar-mode equivalent:
-
-- The gateway is an ambient waypoint: its pods are created by istiod from a
-  Gateway API resource and receive traffic over HBONE from ztunnel, neither of
-  which exists in sidecar mode.
-- All egress gateway templates are gated on ambient being enabled; with ambient
-  off, nothing is deployed even if the egress gateway is enabled.
-- The default waypoint binding passed to packages
-  (`routes.defaults.outbound.egressGateway`) is automatically blanked when
-  ambient or the egress gateway package is disabled, so ServiceEntries are
-  never bound to a waypoint that does not exist. This matters because Istio
-  fails open: traffic bound to a missing waypoint egresses directly instead of
-  being blocked.
+If your intent is to keep package egress scoped only to enumerated hosts
+you must ensure external traffic has no path except HBONE (15008) to the waypoint.
 
 ## Configuring the default egress gateway
 
 ### Default waypoint binding for packages
 
 `routes.defaults.outbound.egressGateway` is the `<namespace>/<name>` waypoint
-reference passed to every package that supports bb-common route defaults; each
-package's outbound routes bind to it unless they set their own `egressGateway`:
+reference the umbrella passes to packages; a package's outbound routes bind to
+it unless a route sets its own `egressGateway`:
 
 ```yaml
 routes:
@@ -155,15 +124,23 @@ routes:
       egressGateway: istio-egress/egress-waypoint
 ```
 
-The default matches the deployed package, so it normally does not need to be
-changed. To bring your own waypoint managed outside of Big Bang, point this
-reference at it and leave `istio.egressGateway.enabled: false`, but only when
-that waypoint already exists, since a binding to a missing waypoint fails open.
+The default matches the default waypoint deployed by the istio-egress-gateway package, so it normally does not need to be
+changed.
 
-Individual routes can opt out (`egressGateway: false`) or target a different
-waypoint; see
-[Egress Gateway (Waypoint) Binding](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/routes.md#egress-gateway-waypoint-binding)
-in the bb-common docs for the per-route contract.
+To override the Big Bang specified egress gateway set the binding explicitly
+in the package's values, which win over the umbrella default:
+
+```yaml
+<package>:
+  values:
+    routes:
+      defaults:
+        outbound:
+          egressGateway: istio-egress/egress-waypoint
+```
+
+Only set an explicit binding when the waypoint already exists: Istio fails
+open, and a route bound to a missing waypoint egresses directly.
 
 ### Waypoint sizing and behavior
 
