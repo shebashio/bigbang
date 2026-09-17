@@ -48,6 +48,19 @@ tests:
       - failedTemplate:
           errorPattern: ".*"
 
+  - it: should fail when both dependsOn and dependsOnOverride are non-empty
+    set:
+      kiali:
+        dependsOn:
+          - name: foo
+            namespace: bar
+        dependsOnOverride:
+          - name: baz
+            namespace: qux
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
   - it: should fail validation with extra key in base package
     set:
       kiali:

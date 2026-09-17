@@ -29,6 +29,8 @@ spec:
   {{- toYaml .Values.prometheusOperatorCRDs.dependsOnOverride | nindent 4 }}
   {{- else if .Values.prometheusOperatorCRDs.dependsOn }}
   dependsOn:
-  {{- toYaml .Values.prometheusOperatorCRDs.dependsOn | nindent 4 }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.prometheusOperatorCRDs) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
