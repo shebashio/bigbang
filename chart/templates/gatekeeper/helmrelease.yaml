@@ -30,6 +30,8 @@ spec:
   {{- toYaml .Values.gatekeeper.dependsOnOverride | nindent 4 }}
   {{- else if .Values.gatekeeper.dependsOn }}
   dependsOn:
-  {{- toYaml .Values.gatekeeper.dependsOn | nindent 4 }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.gatekeeper) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
