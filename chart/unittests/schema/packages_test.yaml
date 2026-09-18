@@ -197,3 +197,15 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: ".*"
+
+  - it: should reject a malformed packages.alloy HelmRelease dependency (canonical path)
+    set:
+      packageConfiguration:
+        version: v1
+      packages:
+        alloy:
+          dependsOn:
+            - namespace: bigbang
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
