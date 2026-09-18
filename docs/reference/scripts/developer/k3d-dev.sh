@@ -38,6 +38,7 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "grafana"
   "harbor"
   "headlamp"
+  "keycloak"
   "kiali"
   "kibana"
   "loki"
@@ -55,7 +56,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "twistlock"
 )
 PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by default
-  "keycloak"
   "vault"
 )
 
