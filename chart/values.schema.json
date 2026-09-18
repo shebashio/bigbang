@@ -1247,8 +1247,26 @@
         "istio": {
           "$ref": "#/$defs/istio"
         },
-        "dependsOnOverride": true,
-        "dependsOn": true
+        "dependsOnOverride": {
+          "$ref": "#/$defs/dependsOnOverride"
+        },
+        "dependsOn": {
+          "$ref": "#/$defs/dependsOnOverride"
+        }
+      },
+      "not": {
+        "required": [
+          "dependsOnOverride",
+          "dependsOn"
+        ],
+        "properties": {
+          "dependsOnOverride": {
+            "minItems": 1
+          },
+          "dependsOn": {
+            "minItems": 1
+          }
+        }
       },
       "additionalProperties": false
     },
@@ -3714,8 +3732,26 @@
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
-            "dependsOnOverride": true,
-            "dependsOn": true
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            }
+          },
+          "not": {
+            "required": [
+              "dependsOnOverride",
+              "dependsOn"
+            ],
+            "properties": {
+              "dependsOnOverride": {
+                "minItems": 1
+              },
+              "dependsOn": {
+                "minItems": 1
+              }
+            }
           },
           "additionalProperties": false,
           "type": "object",
