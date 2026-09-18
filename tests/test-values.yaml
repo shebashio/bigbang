@@ -131,9 +131,7 @@ istioCRDs:
   enabled: true
 istioGateway:
   enabled: true
-# only deploys when the ambient overlay (tests/test-values-ambient.yaml) is applied
 istioEgressGateway:
-  enabled: true
   values:
     bbtests:
       enabled: true
