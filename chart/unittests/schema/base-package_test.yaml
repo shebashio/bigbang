@@ -61,6 +61,26 @@ tests:
       - failedTemplate:
           errorPattern: ".*"
 
+  - it: should reject an Alloy HelmRelease dependency without a name
+    set:
+      alloy:
+        dependsOn:
+          - namespace: operators
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
+  - it: should reject both Alloy dependency fields when non-empty
+    set:
+      alloy:
+        dependsOn:
+          - name: foo
+        dependsOnOverride:
+          - name: bar
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
   - it: should fail validation with extra key in base package
     set:
       kiali:
