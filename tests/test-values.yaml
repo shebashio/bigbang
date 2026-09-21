@@ -1556,12 +1556,6 @@ addons:
         args:
         - "start"
         - "--import-realm"
-        extraEnv: |-
-          - name: JAVA_OPTS_APPEND
-            value: >-
-              -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-          - name: KC_LOG_LEVEL
-            value: "ALL"
         secrets:
           env:
             stringData:

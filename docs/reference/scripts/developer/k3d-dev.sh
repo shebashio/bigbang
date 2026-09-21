@@ -27,6 +27,7 @@ K3D_DEV_POSTGRES_DATABASES="${K3D_DEV_POSTGRES_DATABASES:-gitlabhq_production,ma
 K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-}"
 TMPDIR=$(mktemp -d)
 BASE_DOMAIN="dev.bigbang.mil"
+KEYCLOAK_TLS_TERMINATED=true
 PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "alertmanager"
   "anchore-api"
@@ -38,7 +39,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "grafana"
   "harbor"
   "headlamp"
-  "keycloak"
   "kiali"
   "kibana"
   "loki"
@@ -58,6 +58,13 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
 PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by default
   "vault"
 )
+
+# Place Keycloak based on the flag
+if [[ "${KEYCLOAK_TLS_TERMINATED}" == "true" ]]; then
+  PUBLIC_SUBDOMAINS+=("keycloak")
+else
+  PASSTHROUGH_SUBDOMAINS+=("keycloak")
+fi
 
 # OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
 ENABLE_OIDC=false
@@ -156,6 +163,10 @@ function process_arguments {
       EXTERNAL_DEPENDENCIES=true
       ;;
 
+    --keycloak-tls-terminate)
+      KEYCLOAK_TLS_TERMINATED=true
+      ;;
+
     -H|--existing-public-ip)
       shift
       PublicIP=$1
@@ -251,6 +262,7 @@ function process_arguments {
       echo "                                  configure databases and add buckets with"
       echo "                                  K3D_DEV_POSTGRES_DATABASES and"
       echo "                                  K3D_DEV_GARAGE_BUCKETS"
+      echo " --keycloak-tls-terminate         set Keycloak to use default public gateway"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
       echo "                                  to existing system in -P (default"
       echo "                                  value depends on cloud provider,"
