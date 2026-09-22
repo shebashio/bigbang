@@ -1,9 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $fluxSettingsMimir := mergeOverwrite (deepCopy .Values.flux) .Values.addons.mimir.flux -}}
 {{- if .Values.addons.mimir.enabled }}
-{{- if and (dig "minio-tenant" "enabled" false .Values.addons.mimir.values) (not .Values.addons.minioOperator.enabled) }}
-{{- fail "mimir with minio-tenant.enabled=true requires addons.minioOperator.enabled to be true" }}
-{{- end }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -31,17 +28,13 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mimir" "root" .) | nindent 2 }}
 
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.minioOperator.enabled .Values.addons.mimir.dependsOn }}
+  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.mimir.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
   {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
-      namespace: {{ .Release.Namespace }}
-  {{- end }}
-  {{- if .Values.addons.minioOperator.enabled }}
-    - name: minio-operator
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- with .Values.addons.mimir.dependsOn }}
