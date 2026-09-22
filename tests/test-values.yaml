@@ -1556,6 +1556,9 @@ addons:
         args:
         - "start"
         - "--import-realm"
+        extraEnv: |-
+          - name: KC_LOG_LEVEL
+            value: "ALL"
         secrets:
           env:
             stringData:
