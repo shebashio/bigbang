@@ -2388,20 +2388,6 @@ addons:
     enterprise:
       enabled: false
 
-    # -- Enable Big Bang MinIO dependency chart for Mimir
-    minioObjectStorage:
-      enabled: false
-      # -- MinIO root credentials
-      configSecret:
-        accessKey: "minio"
-        secretKey: "minio123" # default key, change this!
-      # Configures the Big Bang MinIO Tenant User Credentials
-      defaultUserCredentials:
-        username: "mimir-user"
-        password: "supersecret"
-      # -- Bucket name for the Mimir MinIO tenant bucket
-      bucketName: "mimir"
-
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
       enabled: false

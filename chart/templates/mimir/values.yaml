@@ -19,7 +19,6 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
-{{- $minioEnabled := (.Values.addons.mimir.minioObjectStorage.enabled) }}
 {{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
 {{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
@@ -103,7 +102,7 @@ networkPolicies:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
           definition:
-            storage-subnets: {{ not $minioEnabled }}
+            storage-subnets: {{ not $s3Enabled }}
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
       # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
       # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
@@ -130,11 +129,6 @@ networkPolicies:
         to:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
-      minio:
-        to:
-          definition:
-            kubeAPI: {{ $minioEnabled }}
-
   ingress:
     to:
       mimir:[15020]:
@@ -159,17 +153,6 @@ networkPolicies:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
-      minio:[9000]:
-        from:
-          k8s: 
-            minio-operator@minio-operator/minio-operator: {{ and $minioEnabled .Values.addons.minioOperator.enabled }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
-      minio:[15020]:
-        from:
-          k8s:
-            minio-operator@monitoring/prometheus: {{ and $minioEnabled .Values.monitoring.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ and $minioEnabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
-
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
@@ -178,25 +161,6 @@ bbtests:
   scripts:
     envs:
       MIMIR_URL: 'http://mimir-mimir-distributor.mimir.svc:8080'
-
-{{- if $minioEnabled }}
-minio-tenant:
-  enabled: true
-  bucketInit:
-    enabled: true
-  upstream:
-    tenant:
-      name: mimir-mimir-minio-tenant
-      buckets:
-        - name: {{ .Values.addons.mimir.minioObjectStorage.bucketName }}
-      {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
-      configSecret:
-        accessKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
-        secretKey: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
-      defaultUserCredentials:
-          username: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.username }}
-          password: {{ .Values.addons.mimir.minioObjectStorage.defaultUserCredentials.password }}
-{{- end }}
 
 upstream:
   image:
@@ -221,7 +185,7 @@ upstream:
     structuredConfig:
       limits:
         name_validation_scheme: utf8
-      {{- if or $minioEnabled $s3Enabled }}
+      {{- if $s3Enabled }}
       {{- if $mimirEnterpriseEnabled }}
       admin_client:
       backend: s3
@@ -236,14 +200,6 @@ upstream:
         storage:
           backend: s3
           s3:
-            {{- if $minioEnabled }}
-            access_key_id: {{ .Values.addons.mimir.minioObjectStorage.configSecret.accessKey }}
-            endpoint: minio.mimir.svc.cluster.local
-            insecure: true
-            secret_access_key: {{ .Values.addons.mimir.minioObjectStorage.configSecret.secretKey }}
-            bucket_name: {{ .Values.addons.mimir.minioObjectStorage.bucketName }}
-            {{- else }}
-            {{- if $s3Enabled }}
             {{- if and .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
             access_key_id: "${AWS_ACCESS_KEY_ID}" # This is a secret injected via an environment variable
             secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
@@ -252,8 +208,6 @@ upstream:
             insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
             region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
             bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
-            {{- end }}
-            {{- end }}
       {{- end }}
       {{- if $kafkaEnabled }}
       ingest_storage:
@@ -264,7 +218,7 @@ upstream:
       ingester:
         push_grpc_method_enabled: false
       {{- end }}
-  {{- if and (or $minioEnabled $s3Enabled $kafkaEnabled) .Values.addons.mimir.serviceAccountAnnotations }}
+  {{- if and (or $s3Enabled $kafkaEnabled) .Values.addons.mimir.serviceAccountAnnotations }}
   serviceAccount:
     annotations:
       {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
