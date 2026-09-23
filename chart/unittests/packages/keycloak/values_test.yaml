@@ -61,7 +61,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.upstream.extraEnv' - | yq eval '.'"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.upstream.extraEnv' - | yq eval '{\"env\": .}'"
     set:
       addons.keycloak.enabled: true
       addons.keycloak.values:
@@ -73,17 +73,17 @@ tests:
               value: "false"
     asserts:
       - contains:
-          path: ""
+          path: env
           content:
             name: KC_LOG_LEVEL
             value: "ALL"
       - contains:
-          path: ""
+          path: env
           content:
             name: KC_HOSTNAME_STRICT
             value: "false"
       - contains:
-          path: ""
+          path: env
           content:
             name: KC_TRUSTSTORE_PATHS
             value: "/etc/ssl/certs/"
