@@ -1,0 +1,72 @@
+# Render-only example. Replace the object-store placeholders with encrypted values
+# and create monitoring/monitoring-objstore-secret before deploying.
+packages:
+  thanos:
+    enabled: true
+    namespace:
+      name: thanos
+    helmRelease:
+      namespace: bigbang
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
+      path: chart
+      tag: 17.6.0-bb.1
+    dependsOn:
+      - name: monitoring
+        namespace: bigbang
+    values:
+      domain: dev.bigbang.mil
+      externalURL: https://thanos.dev.bigbang.mil
+      monitoring:
+        enabled: true
+      routes:
+        inbound:
+          query-frontend:
+            enabled: true
+            gateways:
+              - istio-gateway/public-ingressgateway
+            hosts:
+              - thanos.dev.bigbang.mil
+      networkPolicies:
+        egress:
+          from:
+            thanos-query:
+              to:
+                k8s:
+                  monitoring/prometheus:10901: true
+      upstream:
+        query:
+          dnsDiscovery:
+            enabled: false
+          stores:
+            - dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:10901
+            - dns+thanos-storegateway.thanos.svc.cluster.local:10901
+        storegateway:
+          enabled: true
+        compactor:
+          enabled: true
+        objstoreConfig: |-
+          type: s3
+          config:
+            bucket: REPLACE_ME
+            endpoint: REPLACE_ME
+            access_key: REPLACE_ME
+            secret_key: REPLACE_ME
+            insecure: false
+
+monitoring:
+  values:
+    upstream:
+      prometheus:
+        thanosService:
+          enabled: true
+          portName: tcp-grpc
+        thanosServiceMonitor:
+          enabled: true
+        prometheusSpec:
+          thanos:
+            objectStorageConfig:
+              existingSecret:
+                name: monitoring-objstore-secret
+                key: objstore.yml
