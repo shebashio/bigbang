@@ -1,0 +1,62 @@
+# Layer on thanos-values-example.yaml to replace the Prometheus datasource with
+# Thanos while retaining the Loki and Tempo datasources in this base example.
+# Copy any other datasources enabled in your deployment before using this list.
+grafana:
+  values:
+    networkPolicies:
+      egress:
+        from:
+          "*":
+            to:
+              k8s:
+                thanos/thanos:9090: true
+    upstream:
+      datasources:
+        datasourcesbb.yaml:
+          apiVersion: 1
+          datasources:
+            - name: Thanos
+              type: prometheus
+              uid: prometheus
+              access: proxy
+              url: http://thanos-query.thanos.svc:9090
+              editable: true
+            - name: Loki
+              type: loki
+              url: http://logging-loki.logging.svc.cluster.local:3100
+              access: proxy
+              editable: true
+              jsonData:
+                derivedFields:
+                  - datasourceName: Tempo
+                    matcherRegex: 'traceID=(\w+)'
+                    name: TraceID
+                    url: '$${__value.raw}'
+                    datasourceUid: tempo
+            - name: Tempo
+              type: tempo
+              access: proxy
+              orgId: 1
+              uid: tempo
+              url: http://tempo-tempo.tempo.svc:3200
+              isDefault: false
+              editable: true
+              jsonData:
+                httpMethod: GET
+                tracesToLogs:
+                  datasourceUid: Loki
+                  tags: [job, instance, pod, namespace]
+                  mappedTags: [{key: service.name, value: service}]
+                  mapTagNamesEnabled: false
+                  spanStartTimeShift: 1h
+                  spanEndTimeShift: 1h
+                  filterByTraceID: false
+                  filterBySpanID: false
+                serviceMap:
+                  datasourceUid: prometheus
+                search:
+                  hide: false
+                nodeGraph:
+                  enabled: true
+                lokiSearch:
+                  datasourceUid: Loki

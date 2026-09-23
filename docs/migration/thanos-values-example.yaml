@@ -57,6 +57,13 @@ packages:
 
 monitoring:
   values:
+    networkPolicies:
+      ingress:
+        to:
+          prometheus:10901:
+            from:
+              k8s:
+                thanos/thanos: true
     upstream:
       prometheus:
         thanosService:

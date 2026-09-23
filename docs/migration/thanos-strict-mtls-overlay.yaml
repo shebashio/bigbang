@@ -1,0 +1,32 @@
+# Optional: layer on thanos-values-example.yaml only for sidecar-mode STRICT mTLS.
+# Monitoring already creates the istio-certs volume in that mode; its Thanos
+# sidecar needs the additional mount below.
+monitoring:
+  values:
+    upstream:
+      prometheus:
+        prometheusSpec:
+          thanos:
+            volumeMounts:
+              - mountPath: /etc/prom-certs/
+                name: istio-certs
+
+packages:
+  thanos:
+    postRenderers:
+      - kustomize:
+          patches:
+            - patch: |-
+                - op: add
+                  path: /spec/endpoints/0/scheme
+                  value: https
+                - op: add
+                  path: /spec/endpoints/0/tlsConfig
+                  value:
+                    caFile: /etc/prom-certs/root-cert.pem
+                    certFile: /etc/prom-certs/cert-chain.pem
+                    keyFile: /etc/prom-certs/key.pem
+                    insecureSkipVerify: true
+              target:
+                kind: ServiceMonitor
+                name: .*thanos.*
