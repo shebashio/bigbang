@@ -1021,7 +1021,6 @@ valuesFrom:
     .Values.addons.authservice.enabled
     (and .Values.monitoring.enabled .Values.monitoring.sso.enabled)
     (and .Values.tempo.enabled .Values.tempo.sso.enabled)
-    (and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled)
   )
 -}}
 {{- end -}}
@@ -1049,22 +1048,6 @@ mode; sidecar-mode SSO keeps the legacy pod-label ext_authz path.
   (eq (include "authserviceEnabled" .) "true")
   .Values.monitoring.enabled
   .Values.monitoring.sso.enabled
--}}
-{{- end -}}
-
-{{- /*
-Returns "true" when Thanos's query-frontend should be protected by authservice via
-the thanos package's own ambient waypoint (the bb-common per-route authservice
-model). This replaces the legacy model that enrolled the Service onto the shared
-authservice-namespace waypoint. Only applies in ambient mode; sidecar-mode SSO
-keeps the legacy pod-label ext_authz path.
-*/ -}}
-{{- define "thanos.authservice.waypointEnabled" -}}
-{{- and
-  (eq (include "ambientEnabled" .) "true")
-  (eq (include "authserviceEnabled" .) "true")
-  .Values.addons.thanos.enabled
-  .Values.addons.thanos.sso.enabled
 -}}
 {{- end -}}
 

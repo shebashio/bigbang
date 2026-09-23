@@ -53,7 +53,6 @@ ADDON_PACKAGES=(
   minio
   minioOperator
   sonarqube
-  thanos
   vault
   velero
 )
@@ -101,7 +100,6 @@ BUILTIN_PACKAGE_METADATA=(
   "minio|minio"
   "minioOperator|minio-operator"
   "sonarqube|sonarqube"
-  "thanos|thanos"
   "vault|vault"
   "velero|velero"
 )

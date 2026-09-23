@@ -49,8 +49,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "registry"
   "sonarqube"
   "tempo"
-  "thanos"
-  "thanos-minio"
   "tracing"
   "twistlock"
 )

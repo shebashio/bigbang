@@ -167,7 +167,6 @@ flowchart BT
         subgraph Obs[Observability]
           Metrics[Metrics Server]
           Mimir
-          Thanos
           Headlamp
         end
 
@@ -311,7 +310,6 @@ Observability tools include packages for collecting, storing, and visualizing sy
 |[Metrics Server](./addons/metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
 |[Mimir](./addons/mimir.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
 |Headlamp|Cluster management dashboard|[headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)|
-|Thanos|Multi-cluster Prometheus setup|[thanos](https://repo1.dso.mil/big-bang/product/packages/thanos)|
 
 ### Collaboration
 

@@ -1610,18 +1610,6 @@
             }
           }
         },
-        "thanos": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/basePackage"
-            }
-          ],
-          "properties": {
-            "istio": {
-              "$ref": "#/$defs/istio"
-            }
-          }
-        },
         "externalSecrets": {
           "allOf": [
             {
@@ -5951,52 +5939,6 @@
           "additionalProperties": false,
           "description": "Partial override merged over the built-in package's legacy defaults."
         },
-        "thanos": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/packageAliasPartials/basePackage"
-            }
-          ],
-          "properties": {
-            "git": {
-              "$ref": "#/$defs/packageAliasPartials/git"
-            },
-            "helmRepo": {
-              "$ref": "#/$defs/packageAliasPartials/helmRepo"
-            },
-            "enabled": {
-              "$ref": "#/$defs/packageAliasPartials/enabled"
-            },
-            "sourceType": {
-              "enum": [
-                "git",
-                "helmRepo"
-              ]
-            },
-            "releaseName": {
-              "type": "string",
-              "description": "Optional Helm releaseName override for this package."
-            },
-            "flux": {
-              "$ref": "#/$defs/packageAliasPartials/flux"
-            },
-            "values": {
-              "$ref": "#/$defs/packageAliasPartials/values"
-            },
-            "postRenderers": {
-              "$ref": "#/$defs/packageAliasPartials/postRenderers"
-            },
-            "istio": {
-              "$ref": "#/$defs/packageAliasPartials/istio"
-            },
-            "ingress": true,
-            "objectStorage": true,
-            "sso": true
-          },
-          "type": "object",
-          "additionalProperties": false,
-          "description": "Partial override merged over the built-in package's legacy defaults."
-        },
         "vault": {
           "allOf": [
             {
@@ -6684,9 +6626,6 @@
         },
         "sonarqube": {
           "$ref": "#/$defs/packageAliasPartials/aliases/sonarqube"
-        },
-        "thanos": {
-          "$ref": "#/$defs/packageAliasPartials/aliases/thanos"
         },
         "vault": {
           "$ref": "#/$defs/packageAliasPartials/aliases/vault"

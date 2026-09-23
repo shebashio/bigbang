@@ -111,12 +111,6 @@ networkPolicies:
                 matchLabels:
                   gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
             {{- end }}
-            {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-            thanos/waypoint:
-              podSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: thanos-waypoint
-            {{- end }}
       # Grafana redis client connection
       redis-bb:6379:
         from:
@@ -238,27 +232,6 @@ global:
 chains:
   {{- if .Values.addons.authservice.chains }}
   {{ .Values.addons.authservice.chains | toYaml | nindent 2 }}
-  {{- end }}
-
-  {{- if and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled (not (hasKey (.Values.addons.authservice.chains | default dict) "thanos")) }}
-  thanos:
-    match:
-      header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.addons.thanos.values) }}
-    {{- if $thanosHosts }}
-      prefix: {{ tpl ($thanosHosts | first) $ }}
-    callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
-    {{- else }}
-      prefix: {{ printf "thanos.%s" $domainName }}
-    callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
-    {{- end }}
-    client_id: "{{ .Values.addons.thanos.sso.client_id }}"
-    client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
-    {{- if not $legacy }}
-    authorization_uri: {{ include "sso.oidc.auth" . }}
-    token_uri: {{ include "sso.oidc.token" . }}
-    logout_redirect_uri: {{ include "sso.oidc.endsession" . }}
-    {{- end }}
   {{- end }}
 
   {{- if and .Values.monitoring.enabled .Values.monitoring.sso.enabled }}

@@ -59,11 +59,11 @@ Add-on packages provide optional platform and application capabilities.
 | MinIO | `packages.minio` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Guide](addons/sonarqube.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
-| Thanos | `packages.thanos` | [Guide](addons/thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
 ## Other package collections
 
 - [Maintained packages](https://repo1.dso.mil/groups/big-bang/product/maintained) are maintained and tested independently but are not rendered directly by the umbrella chart.
+- [Thanos migration guide](../migration/thanos-maintained.md) covers deploying Thanos as a custom package and restoring its Monitoring and Grafana connections.
 - [Community packages](https://repo1.dso.mil/groups/big-bang/product/community) are owned by community maintainers and are not supported as built-in integrations.
 - Use [Extra Package Deployment](../installation/environments/extra-package-deployment.md) to deploy a package that is not integrated directly.

@@ -1,12 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Package - Authservice - Chain Collision
-# A user-defined chain under addons.authservice.chains must win over the
-# umbrella's prometheus/alertmanager/thanos auto-inject, and must suppress only
-# the colliding name, leaving the other auto-injected chains intact.
 templates:
 - authservice/values.yaml
 tests:
-- it: should auto-inject prometheus, alertmanager, and thanos when the user defines no chains
+- it: should auto-inject prometheus and alertmanager when the user defines no chains
   set:
     istiod:
       enabled: true
@@ -18,12 +15,6 @@ tests:
           client_id: auto-prometheus
         alertmanager:
           client_id: auto-alertmanager
-    addons:
-      thanos:
-        enabled: true
-        sso:
-          enabled: true
-          client_id: auto-thanos
   asserts:
   - matchRegex:
       path: stringData.defaults
@@ -31,11 +22,8 @@ tests:
   - matchRegex:
       path: stringData.defaults
       pattern: "client_id: auto-alertmanager"
-  - matchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-thanos"
 
-- it: should let the user prometheus chain win while alertmanager and thanos still auto-inject
+- it: should let the user prometheus chain win while alertmanager still auto-injects
   set:
     istiod:
       enabled: true
@@ -52,11 +40,6 @@ tests:
         chains:
           prometheus:
             client_id: user-prometheus
-      thanos:
-        enabled: true
-        sso:
-          enabled: true
-          client_id: auto-thanos
   asserts:
   - matchRegex:
       path: stringData.defaults
@@ -67,11 +50,8 @@ tests:
   - matchRegex:
       path: stringData.defaults
       pattern: "client_id: auto-alertmanager"
-  - matchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-thanos"
 
-- it: should let the user alertmanager chain win while prometheus and thanos still auto-inject
+- it: should let the user alertmanager chain win while prometheus still auto-injects
   set:
     istiod:
       enabled: true
@@ -88,11 +68,6 @@ tests:
         chains:
           alertmanager:
             client_id: user-alertmanager
-      thanos:
-        enabled: true
-        sso:
-          enabled: true
-          client_id: auto-thanos
   asserts:
   - matchRegex:
       path: stringData.defaults
@@ -103,42 +78,18 @@ tests:
   - matchRegex:
       path: stringData.defaults
       pattern: "client_id: auto-prometheus"
-  - matchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-thanos"
 
-- it: should let the user thanos chain win while prometheus and alertmanager still auto-inject
+- it: should preserve an explicit Thanos chain without auto-injecting it
   set:
     istiod:
       enabled: true
-    monitoring:
-      enabled: true
-      sso:
-        enabled: true
-        prometheus:
-          client_id: auto-prometheus
-        alertmanager:
-          client_id: auto-alertmanager
     addons:
       authservice:
+        enabled: true
         chains:
           thanos:
             client_id: user-thanos
-      thanos:
-        enabled: true
-        sso:
-          enabled: true
-          client_id: auto-thanos
   asserts:
   - matchRegex:
       path: stringData.defaults
       pattern: "client_id: user-thanos"
-  - notMatchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-thanos"
-  - matchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-prometheus"
-  - matchRegex:
-      path: stringData.defaults
-      pattern: "client_id: auto-alertmanager"
