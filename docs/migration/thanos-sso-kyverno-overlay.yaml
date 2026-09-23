@@ -1,0 +1,60 @@
+# Layer on thanos-values-example.yaml when using sidecar-mode Authservice SSO
+# and the former Thanos Kyverno exceptions. Replace the client placeholders.
+packages:
+  thanos:
+    values:
+      upstream:
+        queryFrontend:
+          podLabels:
+            protect: keycloak
+      networkPolicies:
+        egress:
+          from:
+            thanos-query-frontend:
+              to:
+                k8s:
+                  authservice/authservice:10003: true
+
+addons:
+  authservice:
+    enabled: true
+    chains:
+      thanos:
+        match:
+          header: ":authority"
+          prefix: thanos.dev.bigbang.mil
+        callback_uri: https://thanos.dev.bigbang.mil/login/generic_oauth
+        client_id: REPLACE_ME
+        client_secret: REPLACE_ME
+        authorization_uri: https://login.dso.mil/auth/realms/baby-yoda/protocol/openid-connect/auth
+        token_uri: https://login.dso.mil/auth/realms/baby-yoda/protocol/openid-connect/token
+        logout_redirect_uri: https://login.dso.mil/auth/realms/baby-yoda/protocol/openid-connect/logout
+
+kyvernoPolicies:
+  values:
+    policies:
+      disallow-auto-mount-service-account-token:
+        exclude:
+          any:
+            - resources:
+                namespaces:
+                  - thanos
+                kinds:
+                  - Pod
+                  - Deployment
+                  - StatefulSet
+                names:
+                  - thanos-compactor*
+      update-automountserviceaccounttokens-default:
+        namespaces:
+          - thanos
+      update-automountserviceaccounttokens:
+        namespaces:
+          - namespace: thanos
+            pods:
+              allow:
+                - thanos-minio-*
+              deny:
+                - thanos-query-frontend-*
+                - thanos-storegateway*
+                - thanos-query*

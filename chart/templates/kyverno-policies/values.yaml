@@ -1266,6 +1266,15 @@ istio:
     {{ $_ := set $overlays.exclude "all" (concat $defaults.exclude.all $overlays.exclude.all) -}}
   {{- end -}}
 
+  {{- /* Keep the built-in default ServiceAccount namespaces when adding custom packages. */ -}}
+  {{- $defaultSaPolicy := "update-automountserviceaccounttokens-default" -}}
+  {{- $defaultSaOverlay := dig "policies" $defaultSaPolicy dict $overlays -}}
+  {{- $extraNamespaces := dig "namespaces" list $defaultSaOverlay -}}
+  {{- if and $extraNamespaces (not $defaultSaOverlay.skipOverlayMerge) -}}
+    {{- $namespaces := dig "policies" $defaultSaPolicy "namespaces" list $defaults -}}
+    {{- $_ := set $defaultSaOverlay "namespaces" (uniq (concat $namespaces $extraNamespaces)) -}}
+  {{- end -}}
+
   {{- /* Policy specific merges */ -}}
   {{- range $policy, $default := $defaults.policies -}}
     {{- $overlay := (dig "policies" $policy dict $overlays) -}}
@@ -1305,7 +1314,7 @@ istio:
       {{- end -}}
 
       {{- /* Merge 'namespaces' list by namespace name with deduplication of pods.allow and pods.deny */ -}}
-      {{- if and (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
+      {{- if and (ne $policy $defaultSaPolicy) (hasKey $default "namespaces") (hasKey $overlay "namespaces") -}}
 
         {{- /* Step 1: Create a map to hold merged namespaces keyed by namespace name */ -}}
         {{- $mergedNamespaces := dict -}}
