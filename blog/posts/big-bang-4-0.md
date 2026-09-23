@@ -152,14 +152,20 @@ Bang integrated and team-maintained package will complete this migration for
 the standard subchart model consistently.
 
 This transition changes the values shape for these packages, so existing users
-will need to migrate their package overrides. For the 4.0 upgrade, users will be
-able to use Big Bang's
-[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) for both
-breaking configuration changes. In one migration, the script will move legacy
-top-level and `addons.<name>` package configuration into the consistent
-`packages.<name>` map and rewrite integrated and team-maintained package
-overrides from the Helm library-chart values shape to the scoped `bb-common`
-subchart shape. Users should review and validate the generated values before
+will need to migrate their package overrides. Big Bang's
+[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) is being
+delivered in two phases. The current script migrates the unified package
+configuration change: it moves legacy top-level and `addons.<name>` package
+configuration into the consistent `packages.<name>` map. It does not yet
+rewrite package overrides from the Helm library-chart values shape to the
+scoped `bb-common` subchart shape.
+
+Support for migrating the `bb-common` values shape is planned for the final
+Big Bang 3.x minor release. Users can run the script now to adopt and validate
+the unified package configuration on 3.x. After consuming the final 3.x minor
+release, they can run the script again to apply the `bb-common` migration before
+upgrading to 4.x. The script is designed to support this phased workflow, but
+users should review and validate the generated values after each run and before
 deployment.
 
 Bring your own packages and mission applications remain under their owners'

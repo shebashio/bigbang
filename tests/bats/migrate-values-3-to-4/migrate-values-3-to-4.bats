@@ -14,6 +14,8 @@ setup() {
 
   [ "$status" -eq 0 ]
   [[ "$output" == *"Big Bang 4.x retains v1 as the default unified package contract"* ]]
+  [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
+  [[ "$output" != *"--expand-anchors"* ]]
 }
 
 @test "moves root and addon packages into the unified package map" {
@@ -222,6 +224,148 @@ EOF
   [ "$(yq '.packageConfiguration.version' "$INPUT_FILE")" = "v1" ]
 }
 
+@test "migrates values in a decrypted Secret stringData key" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: environment
+  namespace: bigbang
+stringData:
+  values.yaml: |
+    monitoring:
+      enabled: true
+    addons:
+      gitlab:
+        enabled: false
+  unrelated: preserve-me
+EOF
+
+  run "$SCRIPT_PATH" --secret-key values.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.metadata.name' "$OUTPUT_FILE")" = "environment" ]
+  [ "$(yq '.metadata.namespace' "$OUTPUT_FILE")" = "bigbang" ]
+  [ "$(yq '.stringData.unrelated' "$OUTPUT_FILE")" = "preserve-me" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packageConfiguration.version' -)" = "v1" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.monitoring.enabled' -)" = "true" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.gitlab.enabled' -)" = "false" ]
+
+  SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/secret-4.x-second.yaml"
+  run "$SCRIPT_PATH" --secret-key values.yaml \
+    --output "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
+}
+
+@test "migrates base64 values in a decrypted Secret data key" {
+  printf '%s\n' 'kiali:' '  enabled: true' >"${BATS_TEST_TMPDIR}/plain-values.yaml"
+  base64 <"${BATS_TEST_TMPDIR}/plain-values.yaml" | tr -d '\n' >"${BATS_TEST_TMPDIR}/encoded-values"
+  ENCODED_VALUES_FILE="${BATS_TEST_TMPDIR}/encoded-values" yq -n '
+    .apiVersion = "v1" |
+    .kind = "Secret" |
+    .metadata.name = "environment" |
+    .data."bigbang.yaml" = load_str(strenv(ENCODED_VALUES_FILE))
+  ' >"$INPUT_FILE"
+
+  run "$SCRIPT_PATH" --secret-key bigbang.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  yq -r '.data."bigbang.yaml"' "$OUTPUT_FILE" \
+    | base64 --decode >"${BATS_TEST_TMPDIR}/migrated-values.yaml"
+  [ "$(yq '.packageConfiguration.version' "${BATS_TEST_TMPDIR}/migrated-values.yaml")" = "v1" ]
+  [ "$(yq '.packages.kiali.enabled' "${BATS_TEST_TMPDIR}/migrated-values.yaml")" = "true" ]
+}
+
+@test "automatically expands and reports anchors in decrypted Secret values" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: environment
+stringData:
+  values.yaml: |
+    addons:
+      keycloak:
+        enabled: true
+        values:
+          testPassword: &testPassword placeholder
+          copiedPassword: *testPassword
+EOF
+
+  run --separate-stderr "$SCRIPT_PATH" --secret-key values.yaml \
+    --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [[ "$stderr" == *"Warning: expanded YAML anchors and aliases"* ]]
+  [[ "$stderr" == *"Expanded anchors:"* ]]
+  [[ "$stderr" == *"testPassword"* ]]
+  printf '%s' "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE")" \
+    >"${BATS_TEST_TMPDIR}/expanded-values.yaml"
+  [ "$(yq '.packages.keycloak.values.testPassword' "${BATS_TEST_TMPDIR}/expanded-values.yaml")" = "placeholder" ]
+  [ "$(yq '.packages.keycloak.values.copiedPassword' "${BATS_TEST_TMPDIR}/expanded-values.yaml")" = "placeholder" ]
+  [ "$(yq '[.. | anchor] | map(select(. != "")) | length' "${BATS_TEST_TMPDIR}/expanded-values.yaml")" = "0" ]
+  [ "$(yq '[.. | select(kind == "alias")] | length' "${BATS_TEST_TMPDIR}/expanded-values.yaml")" = "0" ]
+}
+
+@test "decrypted Secret mode creates a backup in place" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: environment
+stringData:
+  values.yaml: |
+    grafana:
+      enabled: true
+EOF
+
+  run "$SCRIPT_PATH" --secret-key values.yaml --in-place "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ -f "${INPUT_FILE}.bak" ]
+  [ "$(yq -r '.stringData."values.yaml"' "${INPUT_FILE}.bak" | yq '.grafana.enabled' -)" = "true" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$INPUT_FILE" | yq '.packages.grafana.enabled' -)" = "true" ]
+}
+
+@test "decrypted Secret mode rejects unsafe envelope inputs" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: ConfigMap
+data:
+  values.yaml: bW9uaXRvcmluZzoKICBlbmFibGVkOiB0cnVlCg==
+EOF
+
+  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"must be a Kubernetes Secret"* ]]
+
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+data:
+  values.yaml: not-base64!
+EOF
+
+  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"data.values.yaml is not valid base64"* ]]
+}
+
+@test "decrypted Secret mode requires exactly one input" {
+  OVERLAY_FILE="${BATS_TEST_TMPDIR}/other-secret.yaml"
+  printf '%s\n' 'kind: Secret' >"$INPUT_FILE"
+  printf '%s\n' 'kind: Secret' >"$OVERLAY_FILE"
+
+  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE" "$OVERLAY_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--secret-key requires exactly one input Secret"* ]]
+}
+
 @test "rejects a non-mapping packages value" {
   cat >"$INPUT_FILE" <<'EOF'
 packages:
@@ -259,7 +403,7 @@ EOF
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"SOPS-encrypted input is not supported"* ]]
-  [[ "$output" == *"decrypt it with sops, migrate the plaintext, then re-encrypt it"* ]]
+  [[ "$output" == *"use scripts/migrate-sops-values-3-to-4.sh"* ]]
 }
 
 @test "rejects multi-document YAML" {
@@ -277,7 +421,7 @@ EOF
   [[ "$output" == *"multiple YAML documents are not supported"* ]]
 }
 
-@test "rejects YAML anchors and aliases" {
+@test "automatically expands and reports YAML anchors and aliases" {
   cat >"$INPUT_FILE" <<'EOF'
 defaults: &packageDefaults
   enabled: true
@@ -285,10 +429,37 @@ kiali:
   <<: *packageDefaults
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [[ "$stderr" == *"Warning: expanded YAML anchors and aliases"* ]]
+  [[ "$stderr" == *"Expanded anchors:"* ]]
+  [[ "$stderr" == *"packageDefaults"* ]]
+  [ "$(yq '.packages.kiali.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '[.. | anchor] | map(select(. != "")) | length' "$OUTPUT_FILE")" = "0" ]
+  [ "$(yq '[.. | select(kind == "alias")] | length' "$OUTPUT_FILE")" = "0" ]
+}
+
+@test "fails if automatic anchor expansion changes the resolved structure" {
+  FAKE_BIN="${BATS_TEST_TMPDIR}/fake-bin"
+  mkdir "$FAKE_BIN"
+  cat >"${FAKE_BIN}/cmp" <<'EOF'
+#!/usr/bin/env bash
+exit 1
+EOF
+  chmod +x "${FAKE_BIN}/cmp"
+  cat >"$INPUT_FILE" <<'EOF'
+defaults: &packageDefaults
+  enabled: true
+kiali: *packageDefaults
+EOF
+
+  run env PATH="${FAKE_BIN}:${PATH}" "$SCRIPT_PATH" \
+    --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
-  [[ "$output" == *"YAML anchors and aliases are not supported"* ]]
+  [[ "$output" == *"expanding YAML anchors changed the resolved values structure"* ]]
+  [ ! -e "$OUTPUT_FILE" ]
 }
 
 @test "rejects output symlinks and hardlinks that refer to the input" {

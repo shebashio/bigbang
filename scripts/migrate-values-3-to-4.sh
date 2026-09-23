@@ -120,11 +120,17 @@ it from the migrated output when upgrading.
 Inputs are composed in order using Helm values precedence (later files win),
 then migrated into one consolidated document. By default, migrated YAML is
 written to standard output and the inputs are unchanged.
+With --secret-key, exactly one decrypted Kubernetes Secret is accepted and its
+envelope is preserved around the migrated values payload.
+YAML anchors and aliases are expanded automatically and their anchor names are
+reported. Expansion must preserve the resolved values structure.
 
 Options:
-  -o, --output FILE  Write migrated values to FILE.
-  -i, --in-place     Replace a single INPUT after creating INPUT.bak.
-  -h, --help         Show this help.
+  -o, --output FILE      Write migrated values to FILE.
+  -i, --in-place         Replace a single INPUT after creating INPUT.bak.
+  -k, --secret-key KEY   Migrate values stored at data[KEY] or stringData[KEY]
+                         in one decrypted Kubernetes Secret.
+  -h, --help             Show this help.
 
 If both a legacy path and packages.<name> exist, they are recursively merged
 and packages.<name> takes precedence. Unrecognized package entries are left
@@ -135,12 +141,24 @@ Examples:
   scripts/migrate-values-3-to-4.sh -o values-4.x.yaml base.yaml production.yaml
   scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh --in-place values.yaml
+  scripts/migrate-values-3-to-4.sh --secret-key values.yaml secret.yaml
+
+For values embedded in a SOPS-encrypted Kubernetes Secret, use
+scripts/migrate-sops-values-3-to-4.sh.
 EOF
 }
 
 fail() {
   printf 'Error: %s\n' "$*" >&2
   exit 1
+}
+
+decode_base64() {
+  if printf '' | base64 --decode >/dev/null 2>&1; then
+    base64 --decode
+  else
+    base64 -D
+  fi
 }
 
 lower_package_name() {
@@ -167,8 +185,32 @@ is_builtin_package() {
   return 1
 }
 
+validate_values_file() {
+  local values_file=$1
+  local display_name=${2:-$1}
+  local document_count
+
+  document_count=$(yq eval-all --no-doc '1' "$values_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+    || fail "input is not valid YAML: $display_name"
+  [[ "$document_count" == "1" ]] \
+    || fail "multiple YAML documents are not supported: $display_name"
+  yq -e 'tag == "!!map"' "$values_file" >/dev/null 2>&1 \
+    || fail "the values document root must be a YAML mapping: $display_name"
+  yq -e 'has("sops") and (.sops | tag == "!!map")' "$values_file" >/dev/null 2>&1 \
+    && fail "SOPS-encrypted input is not supported by this command: $display_name; use scripts/migrate-sops-values-3-to-4.sh"
+  yq -e 'explode(.) | ((.packages == null) or (.packages | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+    || fail "packages must be a YAML mapping: $display_name"
+  yq -e 'explode(.) | ((.addons == null) or (.addons | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+    || fail "addons must be a YAML mapping: $display_name"
+  yq -e 'explode(.) | ((.packageConfiguration == null) or (.packageConfiguration | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+    || fail "packageConfiguration must be a YAML mapping: $display_name"
+  yq -e 'explode(.) | ((.packageConfiguration.version == null) or (.packageConfiguration.version == "v1"))' "$values_file" >/dev/null 2>&1 \
+    || fail "packageConfiguration.version must be v1: $display_name"
+}
+
 OUTPUT_FILE=""
 IN_PLACE=false
+SECRET_VALUES_KEY=""
 INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
@@ -181,6 +223,12 @@ while [[ $# -gt 0 ]]; do
     -i|--in-place)
       IN_PLACE=true
       shift
+      ;;
+    -k|--secret-key)
+      [[ $# -ge 2 ]] || fail "$1 requires a Secret key"
+      [[ -n "$2" ]] || fail "$1 requires a non-empty Secret key"
+      SECRET_VALUES_KEY=$2
+      shift 2
       ;;
     -h|--help)
       usage
@@ -197,6 +245,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ ${#INPUT_FILES[@]} -gt 0 ]] || fail "at least one input values file is required"
+[[ -z "$SECRET_VALUES_KEY" || ${#INPUT_FILES[@]} -eq 1 ]] \
+  || fail "--secret-key requires exactly one input Secret"
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
 
@@ -214,24 +264,24 @@ for input_file in "${INPUT_FILES[@]}"; do
   [[ -f "$input_file" ]] || fail "input file does not exist: $input_file"
   [[ -r "$input_file" ]] || fail "input file is not readable: $input_file"
 
-  document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
-    || fail "input is not valid YAML: $input_file"
-  [[ "$document_count" == "1" ]] \
-    || fail "multiple YAML documents are not supported: $input_file"
-  yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
-    || fail "the values document root must be a YAML mapping: $input_file"
-  yq -e 'has("sops") and (.sops | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
-    && fail "SOPS-encrypted input is not supported: $input_file; decrypt it with sops, migrate the plaintext, then re-encrypt it"
-  yq -e '[.. | anchor] | map(select(. != "")) | length == 0' "$input_file" >/dev/null 2>&1 \
-    || fail "YAML anchors and aliases are not supported: $input_file; expand them before migrating"
-  yq -e '(.packages == null) or (.packages | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
-    || fail "packages must be a YAML mapping: $input_file"
-  yq -e '(.addons == null) or (.addons | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
-    || fail "addons must be a YAML mapping: $input_file"
-  yq -e '(.packageConfiguration == null) or (.packageConfiguration | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
-    || fail "packageConfiguration must be a YAML mapping: $input_file"
-  yq -e '(.packageConfiguration.version == null) or (.packageConfiguration.version == "v1")' "$input_file" >/dev/null 2>&1 \
-    || fail "packageConfiguration.version must be v1: $input_file"
+  if [[ -n "$SECRET_VALUES_KEY" ]]; then
+    document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+      || fail "input is not valid YAML: $input_file"
+    [[ "$document_count" == "1" ]] \
+      || fail "multiple YAML documents are not supported: $input_file"
+    yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
+      || fail "the Secret document root must be a YAML mapping: $input_file"
+    yq -e 'has("sops") and (.sops | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+      && fail "SOPS-encrypted input is not supported by this command: $input_file; use scripts/migrate-sops-values-3-to-4.sh"
+    yq -e '.kind == "Secret"' "$input_file" >/dev/null 2>&1 \
+      || fail "--secret-key input must be a Kubernetes Secret: $input_file"
+    yq -e 'explode(.) | ((.stringData == null) or ((.stringData | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+      || fail "Secret stringData must be a mapping: $input_file"
+    yq -e 'explode(.) | ((.data == null) or ((.data | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+      || fail "Secret data must be a mapping: $input_file"
+  else
+    validate_values_file "$input_file"
+  fi
 done
 
 if [[ -n "$OUTPUT_FILE" ]]; then
@@ -243,13 +293,88 @@ if [[ -n "$OUTPUT_FILE" ]]; then
   done
 fi
 
+umask 077
 WORK_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-migration.XXXXXX")
-trap 'rm -f "$WORK_FILE"' EXIT
-if [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
+SECRET_WORK_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-secret-migration.XXXXXX")
+SECRET_VALUE_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-secret-value.XXXXXX")
+BASE64_INPUT=$(mktemp "${TMPDIR:-/tmp}/bigbang-secret-base64.XXXXXX")
+EXPANDED_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-expanded.XXXXXX")
+BEFORE_EXPANSION_JSON=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-before-expansion.XXXXXX")
+AFTER_EXPANSION_JSON=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-after-expansion.XXXXXX")
+trap 'rm -f "$WORK_FILE" "$SECRET_WORK_FILE" "$SECRET_VALUE_FILE" "$BASE64_INPUT" "$EXPANDED_FILE" "$BEFORE_EXPANSION_JSON" "$AFTER_EXPANSION_JSON"' EXIT
+
+expand_yaml_anchors() {
+  local values_file=$1
+  local display_name=$2
+  local anchor_name
+  local anchor_names_output
+  local anchor_names=()
+
+  anchor_names_output=$(yq -r \
+    '[.. | anchor] | map(select(. != "")) | unique | .[]' "$values_file")
+  while IFS= read -r anchor_name; do
+    [[ -n "$anchor_name" ]] && anchor_names+=("$anchor_name")
+  done <<<"$anchor_names_output"
+
+  [[ ${#anchor_names[@]} -gt 0 ]] || return 0
+
+  yq -o=json -I=0 'sort_keys(..)' "$values_file" >"$BEFORE_EXPANSION_JSON"
+  yq 'explode(.)' "$values_file" >"$EXPANDED_FILE"
+  yq -o=json -I=0 'sort_keys(..)' "$EXPANDED_FILE" >"$AFTER_EXPANSION_JSON"
+  cmp -s "$BEFORE_EXPANSION_JSON" "$AFTER_EXPANSION_JSON" \
+    || fail "expanding YAML anchors changed the resolved values structure: $display_name"
+  cp "$EXPANDED_FILE" "$values_file"
+
+  printf 'Warning: expanded YAML anchors and aliases in %s; they will not be preserved in the output.\n' \
+    "$display_name" >&2
+  printf 'Expanded anchors:\n' >&2
+  printf '  %s\n' "${anchor_names[@]}" >&2
+}
+
+if [[ -n "$SECRET_VALUES_KEY" ]]; then
+  cp "${INPUT_FILES[0]}" "$SECRET_WORK_FILE"
+  expand_yaml_anchors "$SECRET_WORK_FILE" "${INPUT_FILES[0]} Secret envelope"
+  HAS_STRING_DATA=$(SECRET_VALUES_KEY="$SECRET_VALUES_KEY" yq -r \
+    '(.stringData // {}) | has(strenv(SECRET_VALUES_KEY))' "$SECRET_WORK_FILE")
+  HAS_DATA=$(SECRET_VALUES_KEY="$SECRET_VALUES_KEY" yq -r \
+    '(.data // {}) | has(strenv(SECRET_VALUES_KEY))' "$SECRET_WORK_FILE")
+
+  if [[ "$HAS_STRING_DATA" == true && "$HAS_DATA" == true ]]; then
+    fail "Secret key ${SECRET_VALUES_KEY} exists in both data and stringData"
+  elif [[ "$HAS_STRING_DATA" == true ]]; then
+    SECRET_VALUES_FIELD=stringData
+    SECRET_VALUES_KEY="$SECRET_VALUES_KEY" yq -r -0 \
+      '.stringData[strenv(SECRET_VALUES_KEY)]' "$SECRET_WORK_FILE" \
+      | tr -d '\000' >"$WORK_FILE"
+  elif [[ "$HAS_DATA" == true ]]; then
+    SECRET_VALUES_FIELD=data
+    SECRET_VALUES_KEY="$SECRET_VALUES_KEY" yq -r -0 \
+      '.data[strenv(SECRET_VALUES_KEY)]' "$SECRET_WORK_FILE" \
+      | tr -d '\000' \
+      | tr -d '[:space:]' >"$BASE64_INPUT"
+    if ! grep -Eq '^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$' \
+      "$BASE64_INPUT" \
+      || ! decode_base64 <"$BASE64_INPUT" >"$WORK_FILE"; then
+      fail "data.${SECRET_VALUES_KEY} is not valid base64"
+    fi
+  else
+    fail "Secret does not contain ${SECRET_VALUES_KEY} in data or stringData"
+  fi
+  validate_values_file "$WORK_FILE" "${INPUT_FILES[0]}:${SECRET_VALUES_KEY}"
+elif [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
   cp "${INPUT_FILES[0]}" "$WORK_FILE"
 else
   yq eval-all '. as $item ireduce ({}; . * $item)' "${INPUT_FILES[@]}" >"$WORK_FILE"
 fi
+
+if [[ -n "$SECRET_VALUES_KEY" ]]; then
+  ANCHOR_DISPLAY_NAME="${INPUT_FILES[0]}:${SECRET_VALUES_KEY}"
+elif [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
+  ANCHOR_DISPLAY_NAME="${INPUT_FILES[0]}"
+else
+  ANCHOR_DISPLAY_NAME="composed values input"
+fi
+expand_yaml_anchors "$WORK_FILE" "$ANCHOR_DISPLAY_NAME"
 
 # Before v1 is enabled, every packages.<name> entry has the 3.x custom-package
 # meaning. Refuse both exact and normalized collisions before enabling v1 so
@@ -343,18 +468,35 @@ if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >
   yq -i 'del(.addons)' "$WORK_FILE"
 fi
 
+RESULT_FILE=$WORK_FILE
+if [[ -n "$SECRET_VALUES_KEY" ]]; then
+  if [[ "$SECRET_VALUES_FIELD" == data ]]; then
+    base64 <"$WORK_FILE" | tr -d '\n' >"$SECRET_VALUE_FILE"
+  else
+    cp "$WORK_FILE" "$SECRET_VALUE_FILE"
+  fi
+  SECRET_VALUES_FIELD="$SECRET_VALUES_FIELD" \
+  SECRET_VALUES_KEY="$SECRET_VALUES_KEY" \
+  SECRET_VALUE_FILE="$SECRET_VALUE_FILE" \
+    yq -i '
+      .[strenv(SECRET_VALUES_FIELD)][strenv(SECRET_VALUES_KEY)] =
+        load_str(strenv(SECRET_VALUE_FILE))
+    ' "$SECRET_WORK_FILE"
+  RESULT_FILE=$SECRET_WORK_FILE
+fi
+
 if [[ "$IN_PLACE" == true ]]; then
   INPUT_FILE=${INPUT_FILES[0]}
   BACKUP_FILE="${INPUT_FILE}.bak"
   [[ ! -e "$BACKUP_FILE" ]] || fail "backup already exists: $BACKUP_FILE"
   cp -p "$INPUT_FILE" "$BACKUP_FILE"
-  cp "$WORK_FILE" "$INPUT_FILE"
+  cp "$RESULT_FILE" "$INPUT_FILE"
   printf 'Migrated %s; backup written to %s\n' "$INPUT_FILE" "$BACKUP_FILE" >&2
 elif [[ -n "$OUTPUT_FILE" ]]; then
-  cp "$WORK_FILE" "$OUTPUT_FILE"
+  cp "$RESULT_FILE" "$OUTPUT_FILE"
   printf 'Migrated values written to %s\n' "$OUTPUT_FILE" >&2
 else
-  cat "$WORK_FILE"
+  cat "$RESULT_FILE"
 fi
 
 if [[ ${#MIGRATED_PATHS[@]} -eq 0 ]]; then
