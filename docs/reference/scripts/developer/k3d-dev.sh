@@ -27,7 +27,7 @@ K3D_DEV_POSTGRES_DATABASES="${K3D_DEV_POSTGRES_DATABASES:-gitlabhq_production,ma
 K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-}"
 TMPDIR=$(mktemp -d)
 BASE_DOMAIN="dev.bigbang.mil"
-KEYCLOAK_TLS_TERMINATED=true
+KEYCLOAK_TLS_TERMINATED=false
 PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "alertmanager"
   "anchore-api"
@@ -58,13 +58,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
 PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by default
   "vault"
 )
-
-# Place Keycloak based on the flag
-if [[ "${KEYCLOAK_TLS_TERMINATED}" == "true" ]]; then
-  PUBLIC_SUBDOMAINS+=("keycloak")
-else
-  PASSTHROUGH_SUBDOMAINS+=("keycloak")
-fi
 
 # OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
 ENABLE_OIDC=false
@@ -1632,6 +1625,14 @@ function create_instances {
 
 function main {
   process_arguments "$@"
+
+  # Place Keycloak after processing arguments so TLS termination can select the gateway.
+  if [[ "${KEYCLOAK_TLS_TERMINATED}" == "true" ]]; then
+    PUBLIC_SUBDOMAINS+=("keycloak")
+  else
+    PASSTHROUGH_SUBDOMAINS+=("keycloak")
+  fi
+
   set_domains
 
   extratools=""
