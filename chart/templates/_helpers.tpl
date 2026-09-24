@@ -1140,7 +1140,7 @@ networkPolicies:
     definitions: {{ $root.Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
 {{- /* Packages on a bb-common release (>= 1.6.0) whose schema accepts routes.defaults.
        Extend as packages upgrade; once every package is on it, drop the gate. */ -}}
-{{- if has $name (list "keycloak") }}
+{{- if has $name (list "ek" "gitlab" "harbor" "keycloak" "kyverno" "mattermost" "mattermost-operator" "minio" "minio-operator" "neuvector" "renovate" "sonarqube" "twistlock") }}
 routes:
   {{- include "bigbang.routeDefaults" $root | nindent 2 }}
 {{- end }}
