@@ -5807,15 +5807,7 @@
             },
             "enterprise": true,
             "kafkaIngestStorage": true,
-            "minioObjectStorage": {
-              "description": "DEPRECATED: minioObjectStorage has been removed. Use Big Bang Garage for in-cluster S3 storage. See https://repo1.dso.mil/big-bang/product/maintained/garage/-/blob/main/docs/package-integration.md",
-              "properties": {
-                "enabled": {
-                  "enum": [false],
-                  "description": "Must be false. minioObjectStorage has been removed."
-                }
-              }
-            },
+            "minioObjectStorage": false,
             "s3ObjectStorage": true,
             "serviceAccountAnnotations": true
           },
