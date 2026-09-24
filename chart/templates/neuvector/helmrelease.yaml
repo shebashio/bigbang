@@ -28,7 +28,7 @@ spec:
   {{- if .Values.neuvector.dependsOnOverride }}
   dependsOn:
   {{- toYaml .Values.neuvector.dependsOnOverride | nindent 4 }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.neuvector.dependsOn }}
+  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.neuvector.sso.enabled) .Values.neuvector.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -43,6 +43,10 @@ spec:
     {{- end }}
     {{- if .Values.monitoring.enabled }}
     - name: monitoring
+      namespace: {{ .Release.Namespace }}
+    {{- end }}
+    {{- if and .Values.addons.keycloak.enabled .Values.neuvector.sso.enabled }}
+    - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
   {{- with (include "bigbang.helmRelease.dependsOn" .Values.neuvector) }}
