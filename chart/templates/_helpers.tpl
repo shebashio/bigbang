@@ -544,7 +544,7 @@ Args (dict):
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root .name) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValues) }}
@@ -1111,11 +1111,14 @@ keeps the legacy pod-label ext_authz path.
                      only for istio.injection, which is a top-level user knob, unlike the rest of
                      this block which reads from `.values`
          2 - root:   the root context (.)
+         3 - name:   the package's rendered name (e.g. "keycloak") — used to gate blocks
+                     only supported by newer bb-common releases
     */ -}}
 {{- define "bigbang.commonPackageDefaults" -}}
 {{- $pkg    := index . 0 -}}
 {{- $pkgTop := index . 1 -}}
 {{- $root   := index . 2 -}}
+{{- $name   := index . 3 -}}
 {{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
@@ -1135,12 +1138,16 @@ networkPolicies:
     definitions: {{ $root.Values.networkPolicies.ingress.definitions | toYaml | nindent 6 }}
   egress:
     definitions: {{ $root.Values.networkPolicies.egress.definitions | toYaml | nindent 6 }}
+{{- /* Packages on a bb-common release (>= 1.6.0) whose schema accepts routes.defaults.
+       Extend as packages upgrade; once every package is on it, drop the gate. */ -}}
+{{- if has $name (list "keycloak") }}
+routes:
+  {{- include "bigbang.routeDefaults" $root | nindent 2 }}
+{{- end }}
 {{- end -}}
 
-{{- /* Top-level routes.defaults passthrough, nested under a package's routes block.
-       Included per-package (only packages on a bb-common release with routes.defaults
-       support) until every bb-common package supports it; then fold this into
-       bigbang.commonPackageDefaults.
+{{- /* Top-level routes.defaults passthrough, nested under a package's routes block by
+       bigbang.commonPackageDefaults (gated there to packages on bb-common >= 1.6.0).
        outbound.egressGateway is blanked unless ambient and the egress gateway package
        are both enabled, so ServiceEntries are never bound to a waypoint that will not
        exist (Istio fails open and traffic would egress directly). */ -}}

@@ -268,7 +268,7 @@ networkPolicies:
           - ipBlock:
               cidr: 10.0.0.0/8
 
-# bb-common route defaults passed through to every package; per-route values always win.
+# bb-common route defaults passed through to packages on bb-common >= 1.6.0; per-route values always win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
   defaults:
