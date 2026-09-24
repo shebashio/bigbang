@@ -26,9 +26,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "alloy" "root" .) | nindent 2 }}
 
-  {{- if .Values.alloy.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.alloy.dependsOnOverride) }}
+  {{- with .Values.alloy.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.alloy.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled .Values.alloy.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

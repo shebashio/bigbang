@@ -57,9 +57,11 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if .Values.ztunnel.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.ztunnel.dependsOnOverride) }}
+  {{- with .Values.ztunnel.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.ztunnel.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else }}
   dependsOn:
     - name: istiod

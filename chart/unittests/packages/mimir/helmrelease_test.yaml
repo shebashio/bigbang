@@ -115,6 +115,25 @@ tests:
         name: kyverno-policies
         namespace: NAMESPACE
 
+- it: mimir dependsOnOverride empty list should suppress all BB defaults
+  set:
+    addons:
+      mimir:
+        enabled: true
+        dependsOnOverride: []
+      minioOperator:
+        enabled: false
+    istiod:
+      enabled: true
+    kyvernoPolicies:
+      enabled: true
+    monitoring:
+      enabled: false
+  template: mimir/helmrelease.yaml
+  asserts:
+  - isNull:
+      path: spec.dependsOn
+
 - it: should configure Mimir to accept UTF-8 metric and label names
   set:
     addons:

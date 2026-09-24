@@ -1596,13 +1596,13 @@ addons:
     # -- Appends dependencies to BB's generated HelmRelease defaults (gatekeeper, istio, kyverno-policies, monitoring where applicable).
     # Use this when GitLab depends on a Helm release not in BB's defaults, such as cloudnative-pg.
     # Mutually exclusive with dependsOnOverride.
-    dependsOn: []
+    dependsOn:
     # - name: cloudnative-pg
     #   namespace: bigbang
     # -- Replaces ALL Flux HelmRelease dependencies; BB-generated defaults are dropped.
-    # Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
+    # Set to [] to clear all dependencies. Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
     # See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies
-    dependsOnOverride: []
+    dependsOnOverride:
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
@@ -2469,13 +2469,13 @@ addons:
     # -- Appends dependencies to BB's generated HelmRelease defaults (istio, kyverno-policies where applicable).
     # Use this when Mimir depends on a Helm release not in BB's defaults, such as garage.
     # Mutually exclusive with dependsOnOverride.
-    dependsOn: []
+    dependsOn:
     # - name: garage
     #   namespace: bigbang
     # -- Replaces ALL Flux HelmRelease dependencies; BB-generated defaults are dropped.
-    # Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
+    # Set to [] to clear all dependencies. Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
     # See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies
-    dependsOnOverride: []
+    dependsOnOverride:
 
     # -- Flux reconciliation overrides specifically for the Mimir Package
     flux: {}
@@ -2637,11 +2637,11 @@ packages:
 
     # -- Appends dependencies to BB's generated HelmRelease defaults (gatekeeper, kyverno-policies, istio where applicable).
     # Mutually exclusive with dependsOnOverride.
-    dependsOn: []
+    dependsOn:
     # -- Replaces ALL Flux HelmRelease dependencies; BB-generated defaults are dropped.
-    # Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
+    # Set to [] to clear all dependencies. Mutually exclusive with dependsOn. Only applies to HelmRelease, not Kustomization.
     # See https://fluxcd.io/flux/components/helm/helmreleases/#helmrelease-dependencies
-    dependsOnOverride: []
+    dependsOnOverride:
 
     # -- Include default Big Bang package HelmRelease dependencies (gatekeeper, kyverno-policies, istio where applicable).
     includeDefaultDependsOn: true

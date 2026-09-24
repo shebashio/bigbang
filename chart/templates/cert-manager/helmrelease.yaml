@@ -39,9 +39,11 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
-  {{- if .Values.certManager.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.certManager.dependsOnOverride) }}
+  {{- with .Values.certManager.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.certManager.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.certManager.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

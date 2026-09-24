@@ -28,9 +28,11 @@ spec:
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "fluentbit" "root" .) | nindent 2 }}
 
   {{/* To support a "standalone" fluentbit for shipping to central location we conditionally depend on logging enabled */}}
-  {{- if .Values.fluentbit.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.fluentbit.dependsOnOverride) }}
+  {{- with .Values.fluentbit.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.fluentbit.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.elasticsearchKibana.enabled .Values.loki.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.kyverno.enabled .Values.monitoring.enabled .Values.fluentbit.dependsOn }}
   dependsOn:
     {{- if .Values.elasticsearchKibana.enabled }}

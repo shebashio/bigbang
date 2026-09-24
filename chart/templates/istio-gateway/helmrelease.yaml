@@ -46,9 +46,11 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if $.Values.istioGateway.dependsOnOverride }}
+  {{- if not (kindIs "invalid" $.Values.istioGateway.dependsOnOverride) }}
+  {{- with $.Values.istioGateway.dependsOnOverride }}
   dependsOn:
-  {{- toYaml $.Values.istioGateway.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else }}
   dependsOn:
     {{- include "istioHelmReleases" $ | nindent 4 }}

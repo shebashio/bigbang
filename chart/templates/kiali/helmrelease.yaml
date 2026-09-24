@@ -25,9 +25,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kiali" "root" .) | nindent 2 }}
 
-  {{- if .Values.kiali.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.kiali.dependsOnOverride) }}
+  {{- with .Values.kiali.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.kiali.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.monitoring.enabled .Values.kiali.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

@@ -25,9 +25,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istio-crds" "root" .) | nindent 2 }}
 
-  {{- if .Values.istioCRDs.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.istioCRDs.dependsOnOverride) }}
+  {{- with .Values.istioCRDs.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.istioCRDs.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.istioCRDs.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

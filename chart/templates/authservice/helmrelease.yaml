@@ -25,9 +25,11 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "authservice" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.authservice.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.authservice.dependsOnOverride) }}
+  {{- with .Values.addons.authservice.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.authservice.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else }}
   dependsOn:
   {{- include "istioHelmReleases" . | nindent 2 }}

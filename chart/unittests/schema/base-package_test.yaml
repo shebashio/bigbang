@@ -61,6 +61,13 @@ tests:
       - failedTemplate:
           errorPattern: ".*"
 
+  - it: should allow dependsOnOverride as an empty list to clear BB defaults
+    set:
+      kiali:
+        dependsOnOverride: []
+    asserts:
+      - notFailedTemplate: {}
+
   - it: should reject an Alloy HelmRelease dependency without a name
     set:
       alloy:

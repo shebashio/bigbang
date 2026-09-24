@@ -68,9 +68,11 @@ spec:
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
   {{- $monitoringDep := $.Values.monitoring.enabled -}}
-  {{- if $vals.dependsOnOverride }}
+  {{- if not (kindIs "invalid" $vals.dependsOnOverride) }}
+  {{- with $vals.dependsOnOverride }}
   dependsOn:
-  {{- toYaml $vals.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $gatekeeperDep $istioOpDep $kyvernoDep $monitoringDep $vals.dependsOn }}
   dependsOn:
     {{- if $gatekeeperDep }}

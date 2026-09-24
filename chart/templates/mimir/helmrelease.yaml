@@ -31,9 +31,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mimir" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.mimir.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.mimir.dependsOnOverride) }}
+  {{- with .Values.addons.mimir.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.mimir.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.minioOperator.enabled .Values.addons.mimir.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

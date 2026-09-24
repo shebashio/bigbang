@@ -26,9 +26,11 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "anchore-enterprise" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.anchoreEnterprise.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.anchoreEnterprise.dependsOnOverride) }}
+  {{- with .Values.addons.anchoreEnterprise.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.anchoreEnterprise.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.addons.anchoreEnterprise.sso.enabled) .Values.addons.anchoreEnterprise.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
