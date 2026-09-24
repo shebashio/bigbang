@@ -9,6 +9,12 @@ istio:
     # This automatically enables istioCNI, ztunnel, and gatewayAPI packages.
     # NOTE: Ambient mode is generally available as of Big Bang 3.32. It remains opt-in in 3.x and becomes the default in 4.0.
     enabled: false
+  # -- Egress gateway configuration
+  egressGateway:
+    # -- Enable the shared egress waypoint gateway (requires ambient mode).
+    # This automatically enables the istioEgressGateway package.
+    # NOTE: The egress gateway is an alpha feature.
+    enabled: false
 
 # -- Prevent Big Bang from creating GitRepository resources. HelmReleases configured with Git sources
 # will continue to reference those resources, so they must already exist in the expected namespaces.
@@ -262,6 +268,16 @@ networkPolicies:
           - ipBlock:
               cidr: 10.0.0.0/8
 
+# bb-common route defaults passed through to every package; per-route values always win.
+# See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
+routes:
+  defaults:
+    outbound:
+      # -- Default egress waypoint binding ('<namespace>/<name>') for package outbound routes.
+      # Automatically set to false when ambient mode or the istioEgressGateway package is disabled.
+      # NOTE: The egress gateway is an alpha feature.
+      egressGateway: istio-egress/egress-waypoint
+
 # -- Global ImagePullPolicy value for all packages
 # Permitted values are: Never, Always, IfNotPresent
 imagePullPolicy: IfNotPresent
@@ -514,6 +530,26 @@ istioGateway:
   #             path: /metadata/annotations/bigbang.dev~1example
   #             value: example
 
+istioEgressGateway:
+  # -- Toggle deployment of the shared egress waypoint gateway (requires ambient mode)
+  enabled: false
+  # -- Choose source type of "git" or "helmRepo"
+  sourceType: "git"
+  git:
+    repo: https://repo1.dso.mil/big-bang/product/packages/istio-egress-gateway.git
+    path: "./chart"
+    tag: 0.1.3
+  helmRepo:
+    repoName: "registry1"
+    chartName: "istio-egress-gateway"
+    tag: 0.1.3
+  # -- Values to passthrough to the istio-egress-gateway chart
+  values: {}
+  # -- Flux reconciliation overrides specifically for the Istio Egress Gateway Package
+  flux: {}
+  # -- Post Renderers.  See docs/postrenders.md
+  postRenderers: []
+
 ztunnel:
   # -- Toggle deployment of ztunnel (required for Istio ambient mode)
   enabled: false
@@ -544,11 +580,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.31.0-bb.1"
+    tag: "2.31.0-bb.2"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.31.0-bb.1"
+    tag: "2.31.0-bb.2"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -980,11 +1016,11 @@ neuvector:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
     path: "./chart"
-    tag: "2.11.1-bb.0"
+    tag: "2.11.2-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "neuvector"
-    tag: "2.11.1-bb.0"
+    tag: "2.11.2-bb.0"
 
   # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
   ingress:
@@ -1050,11 +1086,11 @@ tempo:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
     path: "./chart"
-    tag: "2.1.0-bb.2"
+    tag: "2.1.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "tempo"
-    tag: "2.1.0-bb.2"
+    tag: "2.1.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Tempo Package
   flux: {}
@@ -1479,11 +1515,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.1.1-bb.10"
+      tag: "7.1.1-bb.11"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.1.1-bb.10"
+      tag: "7.1.1-bb.11"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1699,11 +1735,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.4.1-bb.2"
+      tag: "2026.4.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.4.1-bb.2"
+      tag: "2026.4.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1764,11 +1800,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "26.2.0-bb.4"
+      tag: "26.2.0-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "26.2.0-bb.4"
+      tag: "26.2.0-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -1889,11 +1925,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.9-bb.0"
+      tag: "1.25.9-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.9-bb.0"
+      tag: "1.25.9-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -1914,11 +1950,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.10.1-bb.2"
+      tag: "11.11.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.10.1-bb.2"
+      tag: "11.11.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2051,11 +2087,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.3.0-bb.1"
+      tag: "7.3.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.3.0-bb.1"
+      tag: "7.3.0-bb.2"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2343,12 +2379,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.1.0-bb.1"
+      tag: "6.1.0-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.1.0-bb.1"
+      tag: "6.1.0-bb.2"
 
     # -- Enable Mimir Enterprise
     enterprise:
