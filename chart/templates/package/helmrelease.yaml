@@ -83,9 +83,11 @@ spec:
   {{- $sidecarIstioDep := and $istioEnabled (eq "enabled" (dig "istio" "injection" "enabled" $vals)) -}}
   {{- $istioDep := or $bbCommonIstioDep $sidecarIstioDep -}}
   {{- $defaultDependsOn := and $includeDefaultDependsOn (or $gatekeeperDep $kyvernoDep $istioDep) -}}
-  {{- if $vals.dependsOnOverride }}
+  {{- if not (kindIs "invalid" $vals.dependsOnOverride) }}
+  {{- with $vals.dependsOnOverride }}
   dependsOn:
-  {{- toYaml $vals.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $defaultDependsOn $vals.dependsOn }}
   dependsOn:
     {{- if and $includeDefaultDependsOn $gatekeeperDep }}

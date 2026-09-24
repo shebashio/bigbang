@@ -33,9 +33,11 @@ spec:
   {{ include "tempo.objectStoragePostRenderers" . | nindent 2 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "tempo" "root" .) | nindent 2 }}
-  {{- if .Values.tempo.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.tempo.dependsOnOverride) }}
+  {{- with .Values.tempo.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.tempo.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.monitoring.enabled .Values.tempo.sso.enabled $istioEnabled .Values.tempo.dependsOn }}
   dependsOn:
     {{- if  .Values.monitoring.enabled }}

@@ -30,9 +30,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "harbor" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.harbor.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.harbor.dependsOnOverride) }}
+  {{- with .Values.addons.harbor.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.harbor.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.harbor.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

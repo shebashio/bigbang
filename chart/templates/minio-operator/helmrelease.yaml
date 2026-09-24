@@ -32,9 +32,11 @@ spec:
     imagePullSecrets:
       - name: private-registry
 
-  {{- if .Values.addons.minioOperator.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.minioOperator.dependsOnOverride) }}
+  {{- with .Values.addons.minioOperator.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.minioOperator.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.minioOperator.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

@@ -31,9 +31,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "fortify" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.fortify.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.fortify.dependsOnOverride) }}
+  {{- with .Values.addons.fortify.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.fortify.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.fortify.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}

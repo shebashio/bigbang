@@ -25,9 +25,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "neuvector" "root" .) | nindent 2 }}
 
-  {{- if .Values.neuvector.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.neuvector.dependsOnOverride) }}
+  {{- with .Values.neuvector.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.neuvector.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.neuvector.sso.enabled) .Values.neuvector.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

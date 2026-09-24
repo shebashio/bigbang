@@ -30,9 +30,11 @@ spec:
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "loki" "root" .) | nindent 2 }}
-  {{- if .Values.loki.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.loki.dependsOnOverride) }}
+  {{- with .Values.loki.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.loki.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.monitoring.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.loki.dependsOn }}
   dependsOn:
     {{- if  .Values.monitoring.enabled }}

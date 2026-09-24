@@ -31,9 +31,11 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "grafana" "root" .) | nindent 2 }}
 
-  {{- if .Values.grafana.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.grafana.dependsOnOverride) }}
+  {{- with .Values.grafana.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.grafana.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.grafana.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}

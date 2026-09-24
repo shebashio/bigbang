@@ -27,9 +27,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "mattermost-operator" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.mattermostOperator.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.mattermostOperator.dependsOnOverride) }}
+  {{- with .Values.addons.mattermostOperator.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.mattermostOperator.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.mattermostOperator.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

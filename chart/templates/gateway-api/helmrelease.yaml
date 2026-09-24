@@ -25,9 +25,11 @@ spec:
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gateway-api" "root" .) | nindent 2 }}
 
-  {{- if .Values.gatewayAPI.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.gatewayAPI.dependsOnOverride) }}
+  {{- with .Values.gatewayAPI.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.gatewayAPI.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.gatewayAPI.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}

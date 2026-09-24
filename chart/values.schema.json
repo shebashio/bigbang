@@ -100,7 +100,7 @@
           "items": {
             "$ref": "#/$defs/registryCredential"
           },
-          "minItems": 1
+          "type": "array", "minItems": 1
         },
         {
           "type": "null"
@@ -1332,10 +1332,10 @@
         ],
         "properties": {
           "dependsOnOverride": {
-            "minItems": 1
+            "type": "array", "minItems": 1
           },
           "dependsOn": {
-            "minItems": 1
+            "type": "array", "minItems": 1
           }
         }
       },
@@ -1875,10 +1875,10 @@
         ],
         "properties": {
           "dependsOnOverride": {
-            "minItems": 1
+            "type": "array", "minItems": 1
           },
           "dependsOn": {
-            "minItems": 1
+            "type": "array", "minItems": 1
           }
         }
       }
@@ -2485,8 +2485,11 @@
     },
     "dependsOnOverride": {
       "description": "Additional Flux HelmRelease dependencies.",
-      "type": "array",
-      "default": [],
+      "type": [
+        "array",
+        "null"
+      ],
+      "default": null,
       "items": {
         "type": "object",
         "properties": {
@@ -2926,10 +2929,10 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             },
             "dependsOn": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             }
           }
         }
@@ -3817,10 +3820,10 @@
             ],
             "properties": {
               "dependsOnOverride": {
-                "minItems": 1
+                "type": "array", "minItems": 1
               },
               "dependsOn": {
-                "minItems": 1
+                "type": "array", "minItems": 1
               }
             }
           },
@@ -6670,10 +6673,10 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             },
             "dependsOn": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             }
           }
         },
@@ -6897,10 +6900,10 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             },
             "dependsOn": {
-              "minItems": 1
+              "type": "array", "minItems": 1
             }
           }
         },

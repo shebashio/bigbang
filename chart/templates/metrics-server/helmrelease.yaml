@@ -35,9 +35,11 @@ spec:
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "metrics" "root" .) | nindent 2 }}
 
-  {{- if .Values.addons.metricsServer.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.addons.metricsServer.dependsOnOverride) }}
+  {{- with .Values.addons.metricsServer.dependsOnOverride }}
   dependsOn:
-  {{- toYaml .Values.addons.metricsServer.dependsOnOverride | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- else if .Values.addons.metricsServer.dependsOn }}
   dependsOn:
   {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.metricsServer) }}
