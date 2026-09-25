@@ -34,7 +34,6 @@
   {{- $s3Endpoint = printf "%s.s3.%s.amazonaws.com" $s3Bucket $s3Region }}
 {{- end }}
 
-{{- $shouldEnableMinio := or (and (eq .Values.addons.thanos.strategy "scalable") (not (and .Values.addons.thanos.objectStorage.endpoint .Values.addons.thanos.objectStorage.region))) (dig "minio" "enabled" false .Values.addons.thanos.values) -}}
 {{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.addons.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
 
@@ -70,27 +69,10 @@ routes:
         issuer: {{ include "sso.url" . | quote }}
         clientId: {{ .Values.addons.thanos.sso.client_id | quote }}
       {{- end }}
-    minio:
-      enabled: {{ and $istioEnabled $shouldEnableMinio }}
-      gateways:
-      - istio-gateway/public-ingressgateway
-      hosts:
-      - thanos-minio.{{ .Values.domain }}
-
 {{- if $thanosAuthserviceWaypoint }}
 istio:
   prependReleaseName: true
 {{- end }}
-
-minio:
-  enabled: {{ $shouldEnableMinio }}
-  {{- if $shouldEnableMinio }}
-  upstream:
-    tenant:
-      {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
-      metrics:
-        enabled: {{ .Values.monitoring.enabled }}
-  {{- end }}
 
 networkPolicies:
   egress:
@@ -122,15 +104,9 @@ networkPolicies:
             app.kubernetes.io/component: storegateway
         to:
           definition:
-            storage-subnets: {{ $storeGatewayEnabled }}
+            storage-subnets: {{ not (empty .Values.addons.thanos.objectStorage.endpoint) }}
   ingress:
     to:
-      minio:9000:
-        from:
-          k8s:
-            minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       thanos-query-frontend:9090:
         podSelector:
           matchLabels:
