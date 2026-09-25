@@ -21,6 +21,9 @@ tests:
           path: routes.inbound.keycloak.passthrough.enabled
           value: false
       - equal:
+          path: routes.inbound.keycloak.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
           path: upstream.proxy.mode
           value: xforwarded
       - equal:
@@ -51,6 +54,9 @@ tests:
       - equal:
           path: routes.inbound.keycloak.passthrough.enabled
           value: true
+      - equal:
+          path: routes.inbound.keycloak.gateways[0]
+          value: istio-gateway/passthrough-ingressgateway
       - isNotNull:
           path: upstream.secrets.tlscert
       - isNotNull:
@@ -87,3 +93,32 @@ tests:
           content:
             name: KC_TRUSTSTORE_PATHS
             value: "/etc/ssl/certs/"
+
+  - it: should use an explicitly configured custom gateway
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      addons.keycloak.enabled: true
+      addons.keycloak.ingress.gateway: custom
+      istioGateway.values.gateways.custom:
+        gateway:
+          servers:
+            - hosts:
+                - custom.dev.bigbang.mil
+              port:
+                name: https
+                number: 8443
+                protocol: HTTPS
+              tls:
+                credentialName: custom-cert
+                mode: SIMPLE
+        upstream:
+          labels:
+            istio: ingressgateway
+    asserts:
+      - equal:
+          path: routes.inbound.keycloak.gateways[0]
+          value: istio-gateway/custom-ingressgateway

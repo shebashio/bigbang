@@ -117,3 +117,32 @@ tests:
       - lengthEqual:
           path: gateway.servers
           count: 2
+
+  - it: should not add a keycloak server block to the public gateway when keycloak uses a custom gateway
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      addons.keycloak.enabled: true
+      addons.keycloak.ingress.gateway: custom
+      istioGateway.values.gateways.custom:
+        gateway:
+          servers:
+            - hosts:
+                - custom.dev.bigbang.mil
+              port:
+                name: https
+                number: 8443
+                protocol: HTTPS
+              tls:
+                credentialName: custom-cert
+                mode: SIMPLE
+        upstream:
+          labels:
+            istio: ingressgateway
+    asserts:
+      - lengthEqual:
+          path: gateway.servers
+          count: 2

@@ -1218,6 +1218,19 @@ Args:
 {{- end -}}
 
 {{- /*
+Returns the configured Keycloak gateway key. When no gateway is explicitly
+configured, use passthrough if Keycloak has its own TLS certificate and key;
+otherwise use the public TLS-terminating gateway.
+*/}}
+{{- define "bigbang.keycloak.gateway" -}}
+{{- $addons := .Values.addons | default dict -}}
+{{- $keycloak := get $addons "keycloak" | default dict -}}
+{{- $ingress := get $keycloak "ingress" | default dict -}}
+{{- $tlsEnabled := and (not (empty (dig "cert" "" $ingress))) (not (empty (dig "key" "" $ingress))) -}}
+{{- default (ternary "passthrough" "public" $tlsEnabled) (dig "gateway" "" $ingress) -}}
+{{- end -}}
+
+{{- /*
 Gets the gateway name for a package
 Args:
     - default: The default gateway name to use if none specified (default: "public")

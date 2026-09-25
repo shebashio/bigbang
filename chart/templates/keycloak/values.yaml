@@ -24,6 +24,7 @@
 {{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.keycloak.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $monitoringEnabled := eq (include "metricScrapingEnabled" .) "true" }}
 {{- $tlsEnabled := and (not (empty .Values.addons.keycloak.ingress.cert)) (not (empty .Values.addons.keycloak.ingress.key)) -}}
+{{- $keycloakGateway := include "bigbang.keycloak.gateway" . -}}
 {{- $externalPostgresEnabled := or (ne .Values.addons.keycloak.database.host "") (ne (dig "upstream" "database" "hostname" "" .Values.addons.keycloak.values) "") -}}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
@@ -39,7 +40,7 @@ routes:
     keycloak:
       enabled: true
       gateways:
-        - {{ include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
+        - {{ include "getGatewayName" (dict "gateway" $keycloakGateway "root" .)}}
       hosts:
         - keycloak.{{ $domainName }}
       service: keycloak-keycloak-http.keycloak.svc.cluster.local
