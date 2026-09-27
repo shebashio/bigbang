@@ -1,5 +1,4 @@
 {{- define "bigbang.defaults.istio-gateway" -}}
-{{- $keycloakGateway := include "bigbang.keycloak.gateway" . -}}
 gateways:
   public:
     gateway:
@@ -21,7 +20,7 @@ gateways:
         tls:
           credentialName: public-cert
           mode: SIMPLE
-      {{- if and .Values.addons.keycloak.enabled (empty .Values.addons.keycloak.ingress.cert) (empty .Values.addons.keycloak.ingress.key) (eq $keycloakGateway "public") }}
+      {{- if and .Values.addons.keycloak.enabled (empty .Values.addons.keycloak.ingress.cert) (empty .Values.addons.keycloak.ingress.key) }}
       - hosts:
         - 'keycloak.{{ .Values.domain }}'
         port:
