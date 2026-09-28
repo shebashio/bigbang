@@ -1332,10 +1332,12 @@
         ],
         "properties": {
           "dependsOnOverride": {
-            "type": "array", "minItems": 1
+            "type": "array",
+            "minItems": 1
           },
           "dependsOn": {
-            "type": "array", "minItems": 1
+            "type": "array",
+            "minItems": 1
           }
         }
       },
@@ -1875,10 +1877,12 @@
         ],
         "properties": {
           "dependsOnOverride": {
-            "type": "array", "minItems": 1
+            "type": "array",
+            "minItems": 1
           },
           "dependsOn": {
-            "type": "array", "minItems": 1
+            "type": "array",
+            "minItems": 1
           }
         }
       }
@@ -2929,10 +2933,12 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             },
             "dependsOn": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             }
           }
         }
@@ -3503,8 +3509,11 @@
       },
       "dependsOnOverride": {
         "description": "Additional Flux HelmRelease dependencies.",
-        "type": "array",
-        "default": [],
+        "type": [
+          "array",
+          "null"
+        ],
+        "default": null,
         "items": {
           "type": "object",
           "properties": {
@@ -3820,10 +3829,12 @@
             ],
             "properties": {
               "dependsOnOverride": {
-                "type": "array", "minItems": 1
+                "type": "array",
+                "minItems": 1
               },
               "dependsOn": {
-                "type": "array", "minItems": 1
+                "type": "array",
+                "minItems": 1
               }
             }
           },
@@ -4431,6 +4442,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -6673,10 +6690,12 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             },
             "dependsOn": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             }
           }
         },
@@ -6900,10 +6919,12 @@
           ],
           "properties": {
             "dependsOnOverride": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             },
             "dependsOn": {
-              "type": "array", "minItems": 1
+              "type": "array",
+              "minItems": 1
             }
           }
         },
