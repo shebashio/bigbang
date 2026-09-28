@@ -28,6 +28,7 @@ K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-}"
 TMPDIR=$(mktemp -d)
 BASE_DOMAIN="dev.bigbang.mil"
 KEYCLOAK_TLS_TERMINATED=false
+VAULT_TLS_TERMINATED=false
 PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "alertmanager"
   "anchore-api"
@@ -158,6 +159,10 @@ function process_arguments {
 
     --keycloak-tls-terminate)
       KEYCLOAK_TLS_TERMINATED=true
+      ;;
+
+    --vault-tls-terminate)
+      VAULT_TLS_TERMINATED=true
       ;;
 
     -H|--existing-public-ip)
@@ -1631,6 +1636,12 @@ function main {
     PUBLIC_SUBDOMAINS+=("keycloak")
   else
     PASSTHROUGH_SUBDOMAINS+=("keycloak")
+  fi
+
+  if [[ "${VAULT_TLS_TERMINATED}" == "true" ]]; then
+    PUBLIC_SUBDOMAINS+=("vault")
+  else
+    PASSTHROUGH_SUBDOMAINS+=("vault")
   fi
 
   set_domains
