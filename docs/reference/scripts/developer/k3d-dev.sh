@@ -1570,12 +1570,9 @@ function fix_etc_hosts {
   fi
 
   if [[ ${#PASSTHROUGH_DOMAINS[@]} -ne 0 ]]; then
-    passthrough_template=$(cat <<EOF
-  template IN A ${PASSTHROUGH_DOMAINS[*]} {
-    answer "{{ .Name }} 60 IN A ${secondary_ip}"
-  }
-  EOF
-  )
+    printf -v passthrough_template \
+      '  template IN A %s {\n    answer "{{ .Name }} 60 IN A %s"\n  }\n' \
+      "${PASSTHROUGH_DOMAINS[*]}" "${secondary_ip}"
   fi
 
   run <<ENDSSH
