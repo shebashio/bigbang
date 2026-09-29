@@ -1212,6 +1212,8 @@ policies:
           allow:
           - anchore-ui-redis-*
           - redis-clean-upgrade-*
+          - anchore-enterprise-anchore-enterprise-*-upgrade-*
+          - anchore-enterprise-anchore-enterprise-*-osaa-migration-job-*
       - namespace: fortify
         # Omitting the serviceAccount and pods section forces the policy to apply to
         # all of the serviceAccounts and pods in the namespace
