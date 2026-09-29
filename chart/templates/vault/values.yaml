@@ -126,6 +126,7 @@ bbtests:
 upstream:
   global:
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
+    tlsDisable: {{ not $tlsEnabled }}
 
   injector:
     image:
