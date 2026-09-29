@@ -1669,6 +1669,28 @@
           "properties": {
             "istio": {
               "$ref": "#/$defs/istio"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/dependsOnOverride"
+            }
+          },
+          "not": {
+            "required": [
+              "dependsOnOverride",
+              "dependsOn"
+            ],
+            "properties": {
+              "dependsOnOverride": {
+                "type": "array",
+                "minItems": 1
+              },
+              "dependsOn": {
+                "type": "array",
+                "minItems": 1
+              }
             }
           }
         },
@@ -7066,6 +7088,29 @@
         "velero": {
           "$ref": "#/$defs/packageAliasPartials/aliases/velero"
         }
+      }
+    },
+    "dependsOnOverride": {
+      "description": "Additional Flux HelmRelease dependencies.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "default": null,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
       }
     }
   },
