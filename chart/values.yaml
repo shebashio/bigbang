@@ -295,11 +295,11 @@ istioCNI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-cni.git
     path: "./chart"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-cni"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   # -- Values to passthrough to the Istio CNI chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CNI Package
@@ -315,11 +315,11 @@ istioCRDs:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-crds.git
     path: "./chart"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istio-crds"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   # -- Values to passthrough to the Istio CRDs chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio CRDs Package
@@ -348,11 +348,11 @@ gatewayAPI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/gateway-api.git
     path: "./chart"
-    tag: 1.6.1-bb.0
+    tag: 1.6.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway-api"
-    tag: 1.6.1-bb.0
+    tag: 1.6.2-bb.0
   # -- Values to passthrough to the Gateway API chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Gateway API Package
@@ -368,11 +368,11 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   # -- Values to passthrough to the istiod chart
   values: {}
   # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -406,11 +406,11 @@ istioGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-gateway.git
     path: "./chart"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "gateway"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   # -- Gateway chart values. Values under shared apply to every gateway; values under gateways.<name> override them.
   values: {}
   # EXAMPLE: Disable the wait job for every gateway except public
@@ -558,11 +558,11 @@ ztunnel:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/ztunnel.git
     path: "./chart"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   helmRepo:
     repoName: "registry1"
     chartName: "ztunnel"
-    tag: 1.30.4-bb.0
+    tag: 1.30.4-bb.1
   # -- Values to passthrough to the ztunnel chart
   values: {}
   # -- Flux reconciliation overrides specifically for the ztunnel Package
@@ -580,11 +580,11 @@ kiali:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
     path: "./chart"
-    tag: "2.31.0-bb.2"
+    tag: "2.32.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "kiali"
-    tag: "2.31.0-bb.2"
+    tag: "2.32.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Kiali Package
   flux:
@@ -786,11 +786,11 @@ elasticsearchKibana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     path: "./chart"
-    tag: "1.43.0-bb.0"
+    tag: "1.44.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "elasticsearch-kibana"
-    tag: "1.43.0-bb.0"
+    tag: "1.44.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
   flux:
@@ -1257,11 +1257,11 @@ grafana:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
     path: "./chart"
-    tag: "12.10.0-bb.1"
+    tag: "13.2.4-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "grafana"
-    tag: "12.10.0-bb.1"
+    tag: "13.2.4-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Grafana Package
   flux: {}
@@ -1309,11 +1309,11 @@ twistlock:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
     path: "./chart"
-    tag: "0.30.0-bb.2"
+    tag: "0.30.0-bb.3"
   helmRepo:
     repoName: "registry1"
     chartName: "twistlock"
-    tag: "0.30.0-bb.2"
+    tag: "0.30.0-bb.3"
 
   # -- Flux reconciliation overrides specifically for the Twistlock Package
   flux: {}
@@ -1353,11 +1353,11 @@ renovate:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
     path: "./chart"
-    tag: "46.289.4-bb.0"
+    tag: "46.316.0-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "renovate"
-    tag: "46.289.4-bb.0"
+    tag: "46.316.0-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Renovate Package
   flux: {}
@@ -1584,11 +1584,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "10.3.2-bb.1"
+      tag: "10.4.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "10.3.2-bb.1"
+      tag: "10.4.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -1735,11 +1735,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.4.1-bb.3"
+      tag: "2026.4.1-bb.4"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.4.1-bb.3"
+      tag: "2026.4.1-bb.4"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1800,11 +1800,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fortify.git
       path: "./chart"
-      tag: "26.2.0-bb.5"
+      tag: "26.2.0-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "fortify-ssc"
-      tag: "26.2.0-bb.5"
+      tag: "26.2.0-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Fortify Package
     flux: {}
@@ -2056,11 +2056,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/velero.git
       path: "./chart"
-      tag: "12.1.0-bb.4"
+      tag: "12.1.0-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "velero"
-      tag: "12.1.0-bb.4"
+      tag: "12.1.0-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Velero Package
     flux: {}
@@ -2122,13 +2122,15 @@ addons:
       gateway: ""
       # -- Certificate/Key pair to use as the certificate for exposing Keycloak
       # Setting the ingress cert here will automatically create the volume and volumemounts in the Keycloak Package chart
+      # Leave the values blank to set keycloak to use a TLS terminated gateway; otherwise, it will use a passthrough gateway
+      # and terminate TLS directly on the keycloak workload
       key: ""
       cert: ""
 
     # -- Values to passthrough to the keycloak chart: https://repo1.dso.mil/big-bang/product/packages/keycloak.git;
     # WARNING: The upstream keycloak chart has some limitations on certain keys
     # due to its templating architecture. Some of the offending keys are
-    # `extraEnv`, `extraEnvFrom`, `extraVolumeMounts`, and `extraVolumes`.
+    # `extraEnvFrom`, `extraVolumeMounts`, and `extraVolumes`.
     # These keys are set as strings when installing the chart, so subsequent
     # overrides aren't merged with existing values: they simply replace them.
     # This means that if you set any of these keys in your overrides, you must
@@ -2245,12 +2247,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.19.2-bb.1"
+      tag: "1.19.2-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.19.2-bb.1"
+      tag: "1.19.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
@@ -2312,12 +2314,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "17.6.0-bb.1"
+      tag: "17.6.0-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "17.6.0-bb.1"
+      tag: "17.6.0-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux:
