@@ -348,11 +348,11 @@ gatewayAPI:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/gateway-api.git
     path: "./chart"
-    tag: 1.6.1-bb.0
+    tag: 1.6.2-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "gateway-api"
-    tag: 1.6.1-bb.0
+    tag: 1.6.2-bb.0
   # -- Values to passthrough to the Gateway API chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Gateway API Package
@@ -1184,11 +1184,11 @@ monitoring:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
     path: "./chart"
-    tag: "88.6.2-bb.0"
+    tag: "91.4.1-bb.0"
   helmRepo:
     repoName: "registry1"
     chartName: "monitoring"
-    tag: "88.6.2-bb.0"
+    tag: "91.4.1-bb.0"
 
   # -- Flux reconciliation overrides specifically for the Monitoring Package
   flux:
@@ -1584,11 +1584,11 @@ addons:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "10.3.2-bb.1"
+      tag: "10.4.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "10.3.2-bb.1"
+      tag: "10.4.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2122,13 +2122,15 @@ addons:
       gateway: ""
       # -- Certificate/Key pair to use as the certificate for exposing Keycloak
       # Setting the ingress cert here will automatically create the volume and volumemounts in the Keycloak Package chart
+      # Leave the values blank to set keycloak to use a TLS terminated gateway; otherwise, it will use a passthrough gateway
+      # and terminate TLS directly on the keycloak workload
       key: ""
       cert: ""
 
     # -- Values to passthrough to the keycloak chart: https://repo1.dso.mil/big-bang/product/packages/keycloak.git;
     # WARNING: The upstream keycloak chart has some limitations on certain keys
     # due to its templating architecture. Some of the offending keys are
-    # `extraEnv`, `extraEnvFrom`, `extraVolumeMounts`, and `extraVolumes`.
+    # `extraEnvFrom`, `extraVolumeMounts`, and `extraVolumes`.
     # These keys are set as strings when installing the chart, so subsequent
     # overrides aren't merged with existing values: they simply replace them.
     # This means that if you set any of these keys in your overrides, you must
@@ -2245,12 +2247,12 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.19.2-bb.1"
+      tag: "1.19.2-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.19.2-bb.1"
+      tag: "1.19.2-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
