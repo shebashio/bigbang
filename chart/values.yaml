@@ -2377,30 +2377,16 @@ addons:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.1.0-bb.2"
+      tag: "6.2.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.1.0-bb.2"
+      tag: "6.2.0-bb.0"
 
     # -- Enable Mimir Enterprise
     enterprise:
       enabled: false
-
-    # -- Enable Big Bang MinIO dependency chart for Mimir
-    minioObjectStorage:
-      enabled: false
-      # -- MinIO root credentials
-      configSecret:
-        accessKey: "minio"
-        secretKey: "minio123" # default key, change this!
-      # Configures the Big Bang MinIO Tenant User Credentials
-      defaultUserCredentials:
-        username: "mimir-user"
-        password: "supersecret"
-      # -- Bucket name for the Mimir MinIO tenant bucket
-      bucketName: "mimir"
 
     # -- Configure Mimir to use S3 bucket
     s3ObjectStorage:
