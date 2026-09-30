@@ -136,7 +136,7 @@ networkPolicies:
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.alloy.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.alloy.values .) }}
       hosts:
       - repo1.dso.mil
       - loki.{{ $domainName }}

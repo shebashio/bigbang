@@ -96,7 +96,7 @@ routes:
       port: 3200
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.tempo.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.tempo.values .) }}
       hosts:
       - repo1.dso.mil
       - grafana.{{ $domainName }}

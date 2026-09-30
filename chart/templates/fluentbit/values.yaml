@@ -77,7 +77,7 @@ istio:
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.fluentbit.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.fluentbit.values .) }}
       hosts:
       - 'repo1.dso.mil'
       - grafana.{{ $domainName }}

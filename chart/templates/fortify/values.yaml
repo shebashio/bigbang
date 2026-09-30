@@ -53,7 +53,7 @@ routes:
         app.kubernetes.io/component: webapp
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.fortify.values .) }}
       hosts:
         - repo1.dso.mil
     external-mysql:

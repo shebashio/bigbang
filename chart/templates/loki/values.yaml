@@ -55,7 +55,7 @@ routes:
         {{- end }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.loki.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.loki.values .) }}
       hosts:
       - repo1.dso.mil
       - grafana.{{ $domainName }}

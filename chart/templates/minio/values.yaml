@@ -46,7 +46,7 @@ routes:
       port: 9090
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.minio.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.minio.values .) }}
       hosts:
       - repo1.dso.mil
 

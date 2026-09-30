@@ -92,7 +92,7 @@ routes:
       hosts:
       - data.anchore-enterprise.com
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.anchoreEnterprise.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.anchoreEnterprise.values .) }}
       hosts:
       - 'repo1.dso.mil'
       - 'auth.docker.io'

@@ -73,7 +73,7 @@ routes:
       {{- end }}
   outbound:
     headlamp-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.headlamp.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.headlamp.values .) }}
       hosts:
         - repo1.dso.mil
     sso:

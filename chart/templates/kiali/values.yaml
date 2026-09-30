@@ -39,7 +39,7 @@ routes:
         - {{ include "getGatewayName" (dict "gateway" .Values.kiali.ingress.gateway "root" .)}}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kiali.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.kiali.values .) }}
       hosts:
       - repo1.dso.mil
     grafana:

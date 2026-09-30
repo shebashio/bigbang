@@ -131,7 +131,7 @@ routes:
       {{- end }}
   outbound:
     monitoring-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.monitoring.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.monitoring.values .) }}
       hosts:
       - 'repo1.dso.mil'
       - prometheus.{{ $domainName }}

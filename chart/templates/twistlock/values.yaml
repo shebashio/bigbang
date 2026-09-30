@@ -67,7 +67,7 @@ routes:
         - {{ include "getGatewayName" (dict "gateway" .Values.twistlock.ingress.gateway "root" .)}}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.twistlock.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.twistlock.values .) }}
       hosts:
       - repo1.dso.mil
 

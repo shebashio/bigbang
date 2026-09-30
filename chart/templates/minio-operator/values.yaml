@@ -58,7 +58,7 @@ istio:
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.minioOperator.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.minioOperator.values .) }}
       hosts:
       - repo1.dso.mil
 

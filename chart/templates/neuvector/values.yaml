@@ -26,7 +26,7 @@ routes:
         - {{ include "getGatewayName" (dict "gateway" .Values.neuvector.ingress.gateway "root" .)}}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.neuvector.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.neuvector.values .) }}
       hosts:
       - repo1.dso.mil
 

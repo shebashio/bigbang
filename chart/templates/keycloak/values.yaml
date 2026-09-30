@@ -48,7 +48,7 @@ routes:
         enabled: {{ $tlsEnabled }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.keycloak.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.keycloak.values .) }}
       hosts:
       - repo1.dso.mil
 

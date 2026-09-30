@@ -1036,6 +1036,17 @@ valuesFrom:
 {{ or .Values.istioEgressGateway.enabled .Values.istio.egressGateway.enabled }}
 {{- end -}}
 
+{{- /* A package's bb-tests egress route (repo1.dso.mil) is enabled when its
+       bbtests are on AND the shared egress gateway is not in use. When the egress
+       gateway is enabled the central istio-egress-gateway serviceEntries cover
+       repo1 instead, so a per-package ServiceEntry would duplicate that host and
+       collide at the shared waypoint. Args (list): [pkgValues, root]. */ -}}
+{{- define "bbtestsEgressRouteEnabled" -}}
+{{- $pkgValues := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- and (dig "bbtests" "enabled" false ($pkgValues | default dict)) (ne (include "egressGatewayEnabled" $root) "true") -}}
+{{- end -}}
+
 {{- /*
 Returns "true" when Monitoring's prometheus/alertmanager should be protected by
 authservice via the monitoring package's own ambient waypoint (the bb-common

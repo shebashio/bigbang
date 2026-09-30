@@ -4,6 +4,25 @@ istio:
   egressGateway:
     enabled: true
 
+# Shared egress allowlist rendered by the istio-egress-gateway package: one
+# ServiceEntry per host bound to the waypoint, plus an ALLOW per consumer
+# namespace. This replaces per-package egress ServiceEntries for shared hosts,
+# so consumer packages keep bbtests off (no per-package repo1 ServiceEntry to
+# collide with the central one).
+# NOTE: git.branch override is temporary until the serviceEntries feature is
+# released; drop it once the package tag ships the feature.
+istioEgressGateway:
+  git:
+    branch: add-egress-service-entries
+    tag: null
+  values:
+    serviceEntries:
+      repo1.dso.mil:
+        consumers:
+          - monitoring
+          - kiali
+          - neuvector
+
 grafana:
   enabled: true
 monitoring:

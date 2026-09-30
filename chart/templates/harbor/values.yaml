@@ -47,7 +47,7 @@ routes:
         protocol: TCP
       {{- end }}
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.harbor.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.harbor.values .) }}
       hosts:
       - repo1.dso.mil
       - 'registry1.dso.mil'

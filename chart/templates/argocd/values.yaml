@@ -111,7 +111,7 @@ routes:
         app.kubernetes.io/name: argocd-server
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.argocd.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.argocd.values .) }}
       hosts:
       - 'repo1.dso.mil'
     external-redis:

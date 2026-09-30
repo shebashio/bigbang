@@ -45,7 +45,7 @@ routes:
         enabled: true
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.vault.values .) }}
       hosts:
       - repo1.dso.mil
 

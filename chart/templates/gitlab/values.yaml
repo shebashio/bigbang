@@ -141,7 +141,7 @@ routes:
         protocol: TCP
       {{- end }}
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlab.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.gitlab.values .) }}
       hosts:
       - 'repo1.dso.mil'
       - 'registry1.dso.mil'

@@ -40,7 +40,7 @@ routes:
       port: 8080
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kyvernoReporter.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.kyvernoReporter.values .) }}
       hosts:
       - repo1.dso.mil
       - prometheus.{{ $domainName }}

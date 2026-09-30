@@ -19,7 +19,7 @@
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlabRunner.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.gitlabRunner.values .) }}
       hosts:
       - 'repo1.dso.mil'
       - gitlab.{{ $domainName }}

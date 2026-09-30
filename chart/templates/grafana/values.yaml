@@ -82,7 +82,7 @@ routes:
         protocol: TCP
       {{- end }}
     grafana-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.grafana.values }}
+      enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.grafana.values .) }}
       hosts:
       - repo1.dso.mil
 
