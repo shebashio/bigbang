@@ -24,12 +24,17 @@ spec:
   {{ toYaml .Values.addons.velero.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "velero" "root" .) | nindent 2 }}
-  {{- if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if not (kindIs "invalid" .Values.addons.velero.dependsOnOverride) }}
+  {{- with .Values.addons.velero.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.velero.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}  
+    {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
@@ -37,5 +42,8 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.velero) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
