@@ -260,6 +260,7 @@ function process_arguments {
       echo "                                  K3D_DEV_POSTGRES_DATABASES and"
       echo "                                  K3D_DEV_GARAGE_BUCKETS"
       echo " --keycloak-tls-terminate         set Keycloak to use default public gateway"
+      echo " --vault-tls-terminate            set Vault to use default public gateway"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
       echo "                                  to existing system in -P (default"
       echo "                                  value depends on cloud provider,"
