@@ -1194,6 +1194,13 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- end }}
 {{- end -}}
 
+{{/* Render user-supplied additive HelmRelease dependency entries. Called from the else-if additive branch only; never used in the dependsOnOverride replacement path. */}}
+{{- define "bigbang.helmRelease.dependsOn" -}}
+{{- with (dig "dependsOn" list .) -}}
+{{- toYaml . -}}
+{{- end -}}
+{{- end -}}
+
 {{- /* Returns name of istio Namespace Selector*/ -}}
 {{- define "istioNamespaceSelector" -}}
 ingress: istio-gateway

@@ -32,7 +32,12 @@ spec:
     imagePullSecrets:
       - name: private-registry
 
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled }}
+  {{- if not (kindIs "invalid" .Values.addons.minioOperator.dependsOnOverride) }}
+  {{- with .Values.addons.minioOperator.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.minioOperator.dependsOn }}
   dependsOn:
     {{- if .Values.gatekeeper.enabled }}
     - name: gatekeeper
@@ -45,5 +50,8 @@ spec:
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.minioOperator) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

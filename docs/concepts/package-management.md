@@ -203,7 +203,33 @@ packages:
 
 ### Dependency Management
 
-Control a custom Helm package's installation order with dependencies:
+Control a built-in or custom Helm package's installation order with Flux
+HelmRelease dependencies. Two keys are available with distinct semantics:
+
+**`dependsOn`** - appends entries to Big Bang's generated defaults
+(istio, kyverno-policies, etc.):
+
+```yaml
+addons:
+  argocd:
+    dependsOn:
+      - name: external-operator
+        namespace: operators
+```
+
+**`dependsOnOverride`** - replaces the entire dependency list. Big Bang's
+defaults are dropped; only the provided entries are used. It is mutually
+exclusive with `dependsOn`:
+
+```yaml
+addons:
+  argocd:
+    dependsOnOverride:
+      - name: external-operator
+        namespace: operators
+```
+
+Custom packages use the same fields:
 
 ```yaml
 packages:

@@ -1,19 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Package - Mimir - HelmRelease
 tests:
-- it: should succeed when mimir values does not contain minio-tenant config
-  set:
-    addons:
-      mimir:
-        enabled: true
-        values: {}
-      minioOperator:
-        enabled: false
-  template: mimir/helmrelease.yaml
-  asserts:
-  - isKind:
-      of: HelmRelease
-
 - it: mimir should append custom HelmRelease dependencies
   set:
     addons:
@@ -69,6 +56,25 @@ tests:
       content:
         name: kyverno-policies
         namespace: NAMESPACE
+
+- it: mimir dependsOnOverride empty list should suppress all BB defaults
+  set:
+    addons:
+      mimir:
+        enabled: true
+        dependsOnOverride: []
+      minioOperator:
+        enabled: false
+    istiod:
+      enabled: true
+    kyvernoPolicies:
+      enabled: true
+    monitoring:
+      enabled: false
+  template: mimir/helmrelease.yaml
+  asserts:
+  - isNull:
+      path: spec.dependsOn
 
 - it: should configure Mimir to accept UTF-8 metric and label names
   set:

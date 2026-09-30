@@ -336,7 +336,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -354,7 +356,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -372,7 +376,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -390,7 +396,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -451,7 +459,9 @@
           },
           "additionalProperties": false
         },
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -487,7 +497,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -518,7 +530,9 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -536,7 +550,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -554,7 +570,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -572,7 +590,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -619,7 +639,9 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -667,7 +689,9 @@
             "elasticsearch": true,
             "kibana": true
           }
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -688,7 +712,9 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -709,7 +735,9 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -776,7 +804,9 @@
               "type": "object"
             }
           }
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -843,7 +873,9 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -912,7 +944,9 @@
               "type": "boolean"
             }
           }
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -925,7 +959,9 @@
         "helmRepo": true,
         "flux": true,
         "values": true,
-        "postRenderers": true
+        "postRenderers": true,
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "allOf": [
         {
@@ -1041,7 +1077,9 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1062,7 +1100,9 @@
         "postRenderers": true,
         "istio": {
           "$ref": "#/$defs/istio"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1098,7 +1138,9 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1177,7 +1219,9 @@
             }
           },
           "additionalProperties": false
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1239,7 +1283,9 @@
         },
         "ingress": {
           "$ref": "#/$defs/ingress"
-        }
+        },
+        "dependsOnOverride": true,
+        "dependsOn": true
       },
       "additionalProperties": false
     },
@@ -1271,6 +1317,28 @@
         },
         "istio": {
           "$ref": "#/$defs/istio"
+        },
+        "dependsOnOverride": {
+          "$ref": "#/$defs/dependsOnOverride"
+        },
+        "dependsOn": {
+          "$ref": "#/$defs/dependsOnOverride"
+        }
+      },
+      "not": {
+        "required": [
+          "dependsOnOverride",
+          "dependsOn"
+        ],
+        "properties": {
+          "dependsOnOverride": {
+            "type": "array",
+            "minItems": 1
+          },
+          "dependsOn": {
+            "type": "array",
+            "minItems": 1
+          }
         }
       },
       "additionalProperties": false
@@ -1334,24 +1402,6 @@
             }
           ],
           "properties": {
-            "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
-            },
             "istio": {
               "$ref": "#/$defs/istio"
             }
@@ -1635,26 +1685,7 @@
               "$ref": "#/$defs/basePackage"
             }
           ],
-          "properties": {
-            "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
+          "properties": {}
         }
       }
     },
@@ -1831,6 +1862,28 @@
         },
         "postRenderers": {
           "$ref": "#/$defs/postRenderers"
+        },
+        "dependsOnOverride": {
+          "$ref": "#/$defs/dependsOnOverride"
+        },
+        "dependsOn": {
+          "$ref": "#/$defs/dependsOnOverride"
+        }
+      },
+      "not": {
+        "required": [
+          "dependsOnOverride",
+          "dependsOn"
+        ],
+        "properties": {
+          "dependsOnOverride": {
+            "type": "array",
+            "minItems": 1
+          },
+          "dependsOn": {
+            "type": "array",
+            "minItems": 1
+          }
         }
       }
     },
@@ -2434,6 +2487,29 @@
         }
       ]
     },
+    "dependsOnOverride": {
+      "description": "Additional Flux HelmRelease dependencies.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "default": null,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
     "postRenderersArray": {
       "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
       "type": "array",
@@ -2842,6 +2918,28 @@
           },
           "postRenderers": {
             "$ref": "#/$defs/packageAliasPartials/postRenderers"
+          },
+          "dependsOnOverride": {
+            "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+          },
+          "dependsOn": {
+            "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOnOverride",
+            "dependsOn"
+          ],
+          "properties": {
+            "dependsOnOverride": {
+              "type": "array",
+              "minItems": 1
+            },
+            "dependsOn": {
+              "type": "array",
+              "minItems": 1
+            }
           }
         }
       },
@@ -3409,6 +3507,29 @@
           }
         ]
       },
+      "dependsOnOverride": {
+        "description": "Additional Flux HelmRelease dependencies.",
+        "type": [
+          "array",
+          "null"
+        ],
+        "default": null,
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
       "postRenderersArray": {
         "description": "PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.",
         "type": "array",
@@ -3693,6 +3814,28 @@
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            }
+          },
+          "not": {
+            "required": [
+              "dependsOnOverride",
+              "dependsOn"
+            ],
+            "properties": {
+              "dependsOnOverride": {
+                "type": "array",
+                "minItems": 1
+              },
+              "dependsOn": {
+                "type": "array",
+                "minItems": 1
+              }
             }
           },
           "additionalProperties": false,
@@ -3733,6 +3876,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "namespace": {
               "type": "object",
@@ -3787,6 +3936,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3829,6 +3984,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -3896,6 +4057,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -3938,6 +4105,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -3978,6 +4151,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4023,6 +4202,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "enterprise": true,
             "istio": {
@@ -4119,6 +4304,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4159,6 +4350,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4199,6 +4396,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4239,6 +4442,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4320,6 +4529,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4360,6 +4575,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -4409,6 +4630,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4449,6 +4676,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4489,6 +4722,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "sso": {
               "type": "object",
@@ -4558,6 +4797,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "clusterName": {
               "type": "string"
@@ -4632,6 +4877,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "prometheusMetrics": {
               "type": "object",
@@ -4766,6 +5017,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -4844,6 +5101,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -4890,6 +5153,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -4932,6 +5201,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5013,6 +5288,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5086,6 +5367,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             }
           },
           "allOf": [
@@ -5131,6 +5418,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5181,6 +5474,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5227,6 +5526,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5272,6 +5577,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "ingress": true
           },
           "additionalProperties": false,
@@ -5311,6 +5622,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "externalDatabase": {
               "type": "object",
@@ -5374,23 +5691,11 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5443,6 +5748,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             }
@@ -5485,6 +5796,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5529,6 +5846,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5575,6 +5898,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5619,6 +5948,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5668,6 +6003,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5787,23 +6128,11 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "dependsOn": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "namespace": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "additionalProperties": false
-              }
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "enterprise": true,
             "kafkaIngestStorage": true,
@@ -5848,6 +6177,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5895,6 +6230,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -5938,6 +6279,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -5985,6 +6332,12 @@
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
             },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
             },
@@ -6030,6 +6383,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -6097,6 +6456,12 @@
             },
             "postRenderers": {
               "$ref": "#/$defs/packageAliasPartials/postRenderers"
+            },
+            "dependsOnOverride": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
+            },
+            "dependsOn": {
+              "$ref": "#/$defs/packageAliasPartials/dependsOnOverride"
             },
             "istio": {
               "$ref": "#/$defs/packageAliasPartials/istio"
@@ -6278,23 +6643,11 @@
           "postRenderers": {
             "$ref": "#/$defs/postRenderers"
           },
+          "dependsOnOverride": {
+            "$ref": "#/$defs/dependsOnOverride"
+          },
           "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "namespace": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name"
-              ],
-              "additionalProperties": false
-            }
+            "$ref": "#/$defs/dependsOnOverride"
           },
           "istio": {
             "$ref": "#/$defs/istio"
@@ -6328,6 +6681,22 @@
           },
           "values": {
             "$ref": "#/$defs/values"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOnOverride",
+            "dependsOn"
+          ],
+          "properties": {
+            "dependsOnOverride": {
+              "type": "array",
+              "minItems": 1
+            },
+            "dependsOn": {
+              "type": "array",
+              "minItems": 1
+            }
           }
         },
         "additionalProperties": false
@@ -6503,23 +6872,11 @@
           "postRenderers": {
             "$ref": "#/$defs/postRenderers"
           },
+          "dependsOnOverride": {
+            "$ref": "#/$defs/dependsOnOverride"
+          },
           "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "namespace": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name"
-              ],
-              "additionalProperties": false
-            }
+            "$ref": "#/$defs/dependsOnOverride"
           },
           "istio": {
             "$ref": "#/$defs/istio"
@@ -6553,6 +6910,22 @@
           },
           "values": {
             "$ref": "#/$defs/values"
+          }
+        },
+        "not": {
+          "required": [
+            "dependsOnOverride",
+            "dependsOn"
+          ],
+          "properties": {
+            "dependsOnOverride": {
+              "type": "array",
+              "minItems": 1
+            },
+            "dependsOn": {
+              "type": "array",
+              "minItems": 1
+            }
           }
         },
         "additionalProperties": false
