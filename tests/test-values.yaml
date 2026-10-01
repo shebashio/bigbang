@@ -1845,11 +1845,12 @@ addons:
           envs:
             cypress_url: "https://thanos.dev.bigbang.mil"
             cypress_prometheus_integration_enabled: "true"
-            cypress_objstorage_integration_enabled: "true"
         scripts:
-          image: "registry1.dso.mil/bigbang-ci/gitlab-tester:0.0.4"
+          image: "registry1.dso.mil/ironbank/big-bang/base:2.1.0"
           envs:
-            THANOS_REGISTRY: "thanos.dev.bigbang.mil"
+            THANOS_S3_ENDPOINT: "http://garage:3900"
+            THANOS_S3_ACCESS_KEY: "GKbb0000000000000000000000"
+            THANOS_S3_SECRET_KEY: "bb00000000000000000000000000000000000000000000000000000000000000"
       upstream:
         storegateway:
           enabled: true

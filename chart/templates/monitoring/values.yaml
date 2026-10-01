@@ -393,11 +393,11 @@ upstream:
           secret:
             type: s3
             config:
-              bucket: "thanos"
-              endpoint: minio.thanos.svc.cluster.local:80
-              access_key: "minio"
-              secret_key: "minio123"
-              insecure: false
+              bucket: {{ .Values.addons.thanos.objectStorage.bucket | quote }}
+              endpoint: {{ .Values.addons.thanos.objectStorage.endpoint | quote }}
+              access_key: {{ .Values.addons.thanos.objectStorage.accessKey | quote }}
+              secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret | quote }}
+              insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
               trace:
                 enable: true
               {{- if $monitoringMtlsStrict }}
@@ -409,7 +409,7 @@ upstream:
                 insecure_skip_verify: true
               {{- end }}
         # by default, the object stores only sync every 2 hours
-        # increase the frequency so the tests will pass 
+        # increase the frequency so the tests will pass
         blockSize: 1m
         {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
         objectStorageConfig:
