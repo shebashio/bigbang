@@ -1233,7 +1233,8 @@ policies:
       - namespace: thanos
         pods:
           allow:
-          - thanos-minio-*
+          # For the gluon script test job to access the K8s API
+          - thanos-script-test
           deny:
           - thanos-query-frontend-*
           - thanos-storegateway*
