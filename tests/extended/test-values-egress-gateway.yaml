@@ -4,13 +4,15 @@ istio:
   egressGateway:
     enabled: true
 
-# Shared egress allowlist rendered by the istio-egress-gateway package: one
+# Shared egress allowlist rendered by the istio-egress-gateway package, which
+# delegates ServiceEntry + AuthorizationPolicy generation to bb-common: one
 # ServiceEntry per host bound to the waypoint, plus an ALLOW per consumer
 # namespace. This replaces per-package egress ServiceEntries for shared hosts,
 # so consumer packages keep bbtests off (no per-package repo1 ServiceEntry to
 # collide with the central one).
-# NOTE: git.branch override is temporary until the serviceEntries feature is
-# released; drop it once the package tag ships the feature.
+# NOTE: the git.branch override is temporary. The branch vendors bb-common 1.7.0
+# (adds the outbound-route `from` field, bb-common#110). Drop the override once
+# the package tag ships the feature against a released bb-common 1.7.0.
 istioEgressGateway:
   git:
     branch: add-egress-service-entries
