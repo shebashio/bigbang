@@ -185,24 +185,38 @@ kubectl get helmreleases -A
 
 Use `kubectl describe` or `flux logs` on the failing release to determine the root cause.
 
-### Full Reset
+### Full reset
 
-Deleting the Big Bang `HelmRelease` is a **destructive recovery action**, not a standard troubleshooting step. It can remove resources managed by the release and may affect application data depending on the package and storage configuration.
+Deleting the Big Bang `HelmRelease` is a **destructive recovery action**, not a standard troubleshooting step. Use a full reset only after confirming that the failure cannot be corrected through the declarative source configuration.
 
-Before resetting an installation:
+Before proceeding:
 
-1. Confirm the failure cannot be corrected through the declarative source configuration.
-2. Review persistent-data and backup requirements.
-3. Confirm how the environment recreates the Big Bang `HelmRelease`.
+1. Review persistent data and backup requirements.
+2. Identify the customer-template Kustomization that manages the Big Bang `HelmRelease`.
+3. Confirm that reconciling the Kustomization will recreate the `HelmRelease` in your environment.
 
-If a reset is required:
+Delete the Big Bang `HelmRelease`:
 
 ```shell
-# Delete the Big Bang HelmRelease
 kubectl delete helmrelease bigbang -n bigbang
-
-# Reconcile the Git source to trigger recreation
-flux reconcile source git <source-name> -n flux-system
 ```
 
-This assumes your environment recreates the HelmRelease automatically from Git once it's deleted. Confirm that applies to your deployment before proceeding — if it doesn't, follow your environment's own deployment procedure to redeploy Big Bang instead.
+Reconcile the Kustomization that manages the `HelmRelease` and its source:
+
+```shell
+flux reconcile kustomization <kustomization-name> -n bigbang --with-source
+```
+
+Verify that the `HelmRelease` is recreated and becomes ready:
+
+```shell
+flux get helmreleases -n bigbang
+```
+
+If the `HelmRelease` is recreated but does not become ready, inspect its status:
+
+```shell
+kubectl describe helmrelease bigbang -n bigbang
+```
+
+For the current deployment and reconciliation workflow, see [First Customer-managed Deployment](../../getting-started/first-deployment.md).
