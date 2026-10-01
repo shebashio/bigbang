@@ -18,20 +18,26 @@ istioEgressGateway:
     branch: add-egress-service-entries
     tag: null
   values:
-    serviceEntries:
-      # repo1.dso.mil is the cypress network-wait-online target for every
-      # package helm test. With the egress gateway on, the per-package bb-tests
-      # routes are gated off, so every namespace that runs a cypress test must
-      # be admitted here or its network-wait-online init container fails.
-      repo1.dso.mil:
-        consumers:
-          - alloy
-          - kiali
-          - kyverno-reporter
-          - logging
-          - monitoring
-          - neuvector
-          - tempo
+    routes:
+      outbound:
+        # repo1.dso.mil is the cypress network-wait-online target for every
+        # package helm test. With the egress gateway on, the per-package bb-tests
+        # routes are gated off, so every namespace that runs a cypress test must
+        # be admitted here or its network-wait-online init container fails.
+        repo1:
+          enabled: true
+          hosts: [repo1.dso.mil]
+          exportTo: ["*"]
+          from:
+            - source:
+                namespaces:
+                  - alloy
+                  - kiali
+                  - kyverno-reporter
+                  - logging
+                  - monitoring
+                  - neuvector
+                  - tempo
 
 grafana:
   enabled: true
