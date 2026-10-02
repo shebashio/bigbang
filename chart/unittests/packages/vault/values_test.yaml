@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Vault - Values Tests
+templates:
+  - templates/vault/values.yaml
+release:
+  name: bb
+tests:
+  - it: should use the public gateway when ingress cert and key are empty
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      addons.vault.enabled: true
+    asserts:
+      - equal:
+          path: routes.inbound.vault.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
+          path: routes.inbound.vault.passthrough.enabled
+          value: false
+      - equal:
+          path: upstream.global.tlsDisable
+          value: true
+      - notExists:
+          path: upstream.server.volumes
+      - equal:
+          path: networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/public-ingressgateway:8443"]
+          value: true
+
+  - it: should use the passthrough gateway when ingress cert and key are set
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      addons.vault.enabled: true
+      addons.vault.ingress.cert: test-cert
+      addons.vault.ingress.key: test-key
+    asserts:
+      - equal:
+          path: routes.inbound.vault.gateways[0]
+          value: istio-gateway/passthrough-ingressgateway
+      - equal:
+          path: routes.inbound.vault.passthrough.enabled
+          value: true
+      - equal:
+          path: upstream.global.tlsDisable
+          value: false
+      - contains:
+          path: upstream.server.volumes
+          content:
+            name: tls
+            secret:
+              secretName: vault-tls
+      - contains:
+          path: upstream.server.volumeMounts
+          content:
+            name: tls
+            mountPath: /vault/tls
+            readOnly: true
+      - equal:
+          path: networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/passthrough-ingressgateway:8200"]
+          value: true

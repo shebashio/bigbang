@@ -57,6 +57,12 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
+  {{- if not (kindIs "invalid" .Values.ztunnel.dependsOnOverride) }}
+  {{- with .Values.ztunnel.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else }}
   dependsOn:
     - name: istiod
       namespace: {{ .Release.Namespace }}
@@ -69,5 +75,9 @@ spec:
   {{- if .Values.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
+  {{- end }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.ztunnel) }}
+  {{- . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

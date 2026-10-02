@@ -691,6 +691,80 @@ tests:
         name: istiod
         namespace: NAMESPACE
 
+- it: argocd should render a custom HelmRelease dependency without default dependencies
+  set:
+    addons:
+      argocd:
+        enabled: true
+        dependsOnOverride:
+          - name: external-operator
+            namespace: operators
+    istiod:
+      enabled: false
+    monitoring:
+      enabled: false
+  template: argocd/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: external-operator
+          namespace: operators
+
+- it: gatekeeper should render a custom HelmRelease dependency
+  set:
+    gatekeeper:
+      enabled: true
+      dependsOnOverride:
+        - name: external-operator
+          namespace: operators
+  template: gatekeeper/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: external-operator
+          namespace: operators
+
+- it: monitoring dependsOnOverride replaces all BB defaults
+  set:
+    monitoring:
+      enabled: true
+      dependsOnOverride:
+        - name: user-dep
+          namespace: custom
+    istiod:
+      enabled: true
+    certManager:
+      enabled: true
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - equal:
+      path: spec.dependsOn
+      value:
+        - name: user-dep
+          namespace: custom
+
+- it: monitoring dependsOn appends to BB defaults
+  set:
+    monitoring:
+      enabled: true
+      dependsOn:
+        - name: user-dep
+          namespace: custom
+  template: monitoring/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: prometheus-operator-crds
+      any: true
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: user-dep
+        namespace: custom
+
 ###############################################################################
 # DependsOn correctness
 ###############################################################################

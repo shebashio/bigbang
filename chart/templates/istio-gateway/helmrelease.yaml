@@ -46,6 +46,12 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
+  {{- if not (kindIs "invalid" $.Values.istioGateway.dependsOnOverride) }}
+  {{- with $.Values.istioGateway.dependsOnOverride }}
+  dependsOn:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else }}
   dependsOn:
     {{- include "istioHelmReleases" $ | nindent 4 }}
     {{- if $.Values.gatekeeper.enabled }}
@@ -56,6 +62,10 @@ spec:
     - name: kyverno-policies
       namespace: {{ $.Release.Namespace }}
     {{- end }}
+    {{- with (include "bigbang.helmRelease.dependsOn" $.Values.istioGateway) }}
+    {{- . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 status: {}
 {{- end }}
 {{- end }}
