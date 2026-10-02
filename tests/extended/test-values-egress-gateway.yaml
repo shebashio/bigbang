@@ -18,46 +18,49 @@ istioEgressGateway:
     branch: add-egress-service-entries
     tag: null
   values:
-    routes:
-      outbound:
-        # repo1.dso.mil is the cypress network-wait-online target for every
-        # package helm test. With the egress gateway on, the per-package bb-tests
-        # routes are gated off, so every namespace that runs a cypress test must
-        # be admitted here or its network-wait-online init container fails.
-        repo1:
-          enabled: true
-          hosts: [repo1.dso.mil]
-          exportTo: ["*"]
-          from:
-            - source:
-                namespaces:
-                  - alloy
-                  - kiali
-                  - kyverno-reporter
-                  - logging
-                  - monitoring
-                  - neuvector
-                  - tempo
-        # grafana.dev.bigbang.mil is visited cross-namespace by several packages'
-        # cypress tests (loki, tempo, kyverno-reporter verify their datasource /
-        # dashboards in Grafana). A central exportTo: "*" ServiceEntry routes ALL
-        # namespaces' traffic to this host through the waypoint, so admit every
-        # enabled namespace to avoid denying ones that previously reached it
-        # directly.
-        grafana:
-          enabled: true
-          hosts: [grafana.dev.bigbang.mil]
-          exportTo: ["*"]
-          from:
-            - source:
-                namespaces:
-                  - alloy
-                  - kiali
-                  - kyverno-reporter
-                  - logging
-                  - monitoring
-                  - neuvector
-                  - tempo
+    # bb-common is consumed as a subchart, so egress routes are nested under the
+    # bb-common key for the passthrough to reach it.
+    bb-common:
+      routes:
+        outbound:
+          # repo1.dso.mil is the cypress network-wait-online target for every
+          # package helm test. With the egress gateway on, the per-package
+          # bb-tests routes are gated off, so every namespace that runs a cypress
+          # test must be admitted here or its network-wait-online init fails.
+          repo1:
+            enabled: true
+            hosts: [repo1.dso.mil]
+            exportTo: ["*"]
+            from:
+              - source:
+                  namespaces:
+                    - alloy
+                    - kiali
+                    - kyverno-reporter
+                    - logging
+                    - monitoring
+                    - neuvector
+                    - tempo
+          # grafana.dev.bigbang.mil is visited cross-namespace by several
+          # packages' cypress tests (loki, tempo, kyverno-reporter verify their
+          # datasource / dashboards in Grafana). A central exportTo: "*"
+          # ServiceEntry routes ALL namespaces' traffic to this host through the
+          # waypoint, so admit every enabled namespace to avoid denying ones that
+          # previously reached it directly.
+          grafana:
+            enabled: true
+            hosts: [grafana.dev.bigbang.mil]
+            exportTo: ["*"]
+            from:
+              - source:
+                  namespaces:
+                    - alloy
+                    - kiali
+                    - kyverno-reporter
+                    - logging
+                    - monitoring
+                    - neuvector
+                    - tempo
 
 grafana:
   enabled: true
