@@ -52,6 +52,8 @@ _reset_globals() {
     export InstId=""
     export BASE_DOMAIN="dev.bigbang.mil"
     export ENABLE_OIDC=false
+    export KEYCLOAK_TLS_TERMINATED=false
+    export VAULT_TLS_TERMINATED=false
     export PUBLIC_DOMAINS=()
     export PASSTHROUGH_DOMAINS=()
     export K3D_TIMEOUT=300
@@ -207,6 +209,12 @@ _reset_globals() {
     [[ "$output" == *"not recognized"* ]]
 }
 
+@test "help lists the Vault TLS termination option" {
+    _source_k3d_dev
+    output=$(process_arguments --help)
+    [[ "$output" == *"--vault-tls-terminate"* ]]
+}
+
 # =============================================================================
 # Domain Configuration Tests
 # =============================================================================
@@ -243,6 +251,69 @@ _reset_globals() {
 
     [ "${#PUBLIC_DOMAINS[@]}" -eq 1 ]
     [ "${PUBLIC_DOMAINS[0]}" = "app.new.domain.com" ]
+    [ "${#PASSTHROUGH_DOMAINS[@]}" -eq 0 ]
+}
+
+@test "main places Vault on the public gateway when TLS termination is requested" {
+    _source_k3d_dev
+    _reset_globals
+    PROVISION_CLOUD_INSTANCE=false
+    CLOUDPROVIDER=""
+    PUBLIC_SUBDOMAINS=()
+    PASSTHROUGH_SUBDOMAINS=()
+    check_missing_tools() { :; }
+    set_kubeconfig() { :; }
+    check_for_existing_instances() { :; }
+    create_instances() { :; }
+
+    main --vault-tls-terminate
+
+    [[ " ${PUBLIC_DOMAINS[*]} " == *" vault.dev.bigbang.mil "* ]]
+    [[ " ${PASSTHROUGH_DOMAINS[*]} " != *" vault.dev.bigbang.mil "* ]]
+}
+
+@test "main places Vault on the passthrough gateway by default" {
+    _source_k3d_dev
+    _reset_globals
+    PROVISION_CLOUD_INSTANCE=false
+    CLOUDPROVIDER=""
+    PUBLIC_SUBDOMAINS=()
+    PASSTHROUGH_SUBDOMAINS=()
+    check_missing_tools() { :; }
+    set_kubeconfig() { :; }
+    check_for_existing_instances() { :; }
+    create_instances() { :; }
+
+    main
+
+    [[ " ${PASSTHROUGH_DOMAINS[*]} " == *" vault.dev.bigbang.mil "* ]]
+    [[ " ${PUBLIC_DOMAINS[*]} " != *" vault.dev.bigbang.mil "* ]]
+}
+
+@test "fix_etc_hosts omits the passthrough CoreDNS template when no domains use it" {
+    _source_k3d_dev
+    _reset_globals
+    METAL_LB=true
+    PUBLIC_DOMAINS=("vault.dev.bigbang.mil")
+    PASSTHROUGH_DOMAINS=()
+    run() { cat; }
+
+    output=$(fix_etc_hosts)
+
+    [ "$(grep -c 'template IN A' <<< "$output")" -eq 1 ]
+}
+
+@test "fix_etc_hosts includes the passthrough CoreDNS template when domains use it" {
+    _source_k3d_dev
+    _reset_globals
+    METAL_LB=true
+    PUBLIC_DOMAINS=("grafana.dev.bigbang.mil")
+    PASSTHROUGH_DOMAINS=("vault.dev.bigbang.mil")
+    run() { cat; }
+
+    output=$(fix_etc_hosts)
+
+    [[ "$output" == *"template IN A vault.dev.bigbang.mil {"* ]]
 }
 
 # =============================================================================
