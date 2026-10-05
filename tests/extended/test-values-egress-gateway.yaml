@@ -41,27 +41,6 @@ istioEgressGateway:
                     - monitoring
                     - neuvector
                     - tempo
-          # grafana.dev.bigbang.mil is visited cross-namespace by several
-          # packages' cypress tests (loki, tempo, kyverno-reporter verify their
-          # datasource / dashboards in Grafana). A central exportTo: "*"
-          # ServiceEntry routes ALL namespaces' traffic to this host through the
-          # waypoint, so admit every enabled namespace to avoid denying ones that
-          # previously reached it directly.
-          grafana:
-            enabled: true
-            hosts: [grafana.dev.bigbang.mil]
-            exportTo: ["*"]
-            from:
-              - source:
-                  namespaces:
-                    - alloy
-                    - kiali
-                    - kyverno-reporter
-                    - logging
-                    - monitoring
-                    - neuvector
-                    - tempo
-
 grafana:
   enabled: true
 monitoring:

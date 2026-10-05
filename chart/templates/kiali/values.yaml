@@ -42,10 +42,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.kiali.values .) }}
       hosts:
       - repo1.dso.mil
-    grafana:
-      enabled: {{ .Values.grafana.enabled }}
-      hosts:
-      - {{ $grafanaUrl | default (printf "%s.%s" "grafana" $domainName) }}
     sso:
       enabled: {{ .Values.kiali.sso.enabled }}
       hosts:
