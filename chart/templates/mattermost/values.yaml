@@ -110,7 +110,7 @@ routes:
     mattermost-sentry:
       enabled: {{ $sentryEnabled }}
     sso:
-      enabled: {{ .Values.addons.mattermost.sso.enabled }}
+      enabled: {{ and .Values.addons.mattermost.sso.enabled (eq (include "sso.hostIsInternalKeycloak" .) "false") }}
       {{- if $ssoHost }}
       hosts:
         - {{ $ssoHost }}

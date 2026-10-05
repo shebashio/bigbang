@@ -43,7 +43,7 @@ routes:
       hosts:
       - repo1.dso.mil
     sso:
-      enabled: {{ .Values.kiali.sso.enabled }}
+      enabled: {{ and .Values.kiali.sso.enabled (eq (include "sso.hostIsInternalKeycloak" .) "false") }}
       hosts:
       - {{ include "sso.host" . }}
 

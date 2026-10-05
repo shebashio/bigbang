@@ -766,6 +766,19 @@ bigbang.dev/istioVersion: {{ $helmRepo.tag }}
   {{- coalesce .Values.sso.oidc.host (regexReplaceAll ".*//([^/]*)/?.*" .Values.sso.url "${1}") -}}
 {{- end -}}
 
+{{- /* "true" when the configured SSO host is Big Bang's in-cluster Keycloak.
+       Keycloak's own inbound route already exports a mesh-wide ServiceEntry for
+       this host, so a consumer's SSO outbound ServiceEntry is redundant when this
+       is true and only needed for an external IdP. */ -}}
+{{- define "sso.hostIsInternalKeycloak" -}}
+  {{- $domainName := default .Values.domain .Values.hostname -}}
+  {{- if and .Values.addons.keycloak.enabled (eq (include "sso.host" .) (printf "keycloak.%s" $domainName)) -}}
+true
+  {{- else -}}
+false
+  {{- end -}}
+{{- end -}}
+
 {{- /* Returns an SSO realm */ -}}
 {{- define "sso.realm" -}}
   {{- coalesce .Values.sso.oidc.realm (regexReplaceAll ".*/realms/([^/]*)" .Values.sso.url "${1}") (regexReplaceAll "\\W+" .Values.sso.name "") -}}

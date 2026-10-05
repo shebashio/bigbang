@@ -84,6 +84,38 @@ tests:
             name: https
             protocol: HTTPS
         resolution: DNS
+- it: should create the sso outbound ServiceEntry for an external IdP
+  set:
+    istiod.enabled: true
+    kiali.enabled: true
+    kiali.values.istio.enabled: true
+    kiali.sso.enabled: true
+    domain: dev.bigbang.mil
+    addons.keycloak.enabled: false
+    sso.url: https://login.dso.mil/auth/realms/baby-yoda
+    kiali.values.routes.inbound.kiali.enabled: false
+    kiali.values.routes.outbound.bb-tests.enabled: false
+  asserts:
+  - hasDocuments:
+      count: 1
+  - documentIndex: 0
+    equal:
+      path: spec.hosts[0]
+      value: login.dso.mil
+- it: should not create the sso outbound ServiceEntry when the sso host is in-cluster keycloak
+  set:
+    istiod.enabled: true
+    kiali.enabled: true
+    kiali.values.istio.enabled: true
+    kiali.sso.enabled: true
+    domain: dev.bigbang.mil
+    addons.keycloak.enabled: true
+    sso.url: https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda
+    kiali.values.routes.inbound.kiali.enabled: false
+    kiali.values.routes.outbound.bb-tests.enabled: false
+  asserts:
+  - hasDocuments:
+      count: 0
 - it: should merge ServiceEntries from both hardened and istio configurations
   set:
     istiod.enabled: true

@@ -77,7 +77,7 @@ routes:
       hosts:
         - repo1.dso.mil
     sso:
-      enabled: {{ .Values.addons.headlamp.sso.enabled }}
+      enabled: {{ and .Values.addons.headlamp.sso.enabled (eq (include "sso.hostIsInternalKeycloak" .) "false") }}
       {{- if $ssoHost }}
       hosts:
         - {{ $ssoHost }}

@@ -57,7 +57,7 @@ routes:
       - release-assets.githubusercontent.com
       - downloads.sonarsource.com
     sonarqube-configure-sso:
-      enabled: {{ $localSSOEnabled }}
+      enabled: {{ and $localSSOEnabled (eq (include "sso.hostIsInternalKeycloak" .) "false") }}
       hosts:
       - {{ include "sso.host" . }}
 
