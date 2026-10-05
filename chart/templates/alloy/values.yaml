@@ -139,7 +139,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.alloy.values .) }}
       hosts:
       - repo1.dso.mil
-      - loki.{{ $domainName }}
 
 upstream:
   {{- if $istioEnabled }}

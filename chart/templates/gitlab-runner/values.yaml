@@ -22,7 +22,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.addons.gitlabRunner.values .) }}
       hosts:
       - 'repo1.dso.mil'
-      - gitlab.{{ $domainName }}
 
 networkPolicies:
   egress:
