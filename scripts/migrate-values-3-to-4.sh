@@ -376,7 +376,8 @@ for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
   # Capture the legacy ServiceEntry names before they are folded in — these stay
   # cluster-wide under serviceEntries.custom and are flagged for review afterwards.
   hardened_se_names=$(PACKAGE_NAME="$package_name" yq -r '
-    .packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // []
+    (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // [])
+    | select(length > 0)
     | map(.name // "(unnamed)") | join(", ")
   ' "$WORK_FILE")
 
@@ -438,5 +439,5 @@ if [[ ${#SERVICE_ENTRY_REVIEW[@]} -gt 0 ]]; then
   printf 'remain cluster-wide (istio.serviceEntries.custom). If namespace-scoped egress is sufficient,\n' >&2
   printf "consider moving each to that package's bb-common.routes.outbound instead:\n" >&2
   printf '  %s\n' "${SERVICE_ENTRY_REVIEW[@]}" >&2
-  printf '\nReference: https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/'
+  printf '\nReference: https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/\n' >&2
 fi

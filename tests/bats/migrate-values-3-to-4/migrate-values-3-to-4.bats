@@ -13,6 +13,8 @@ setup() {
   run "$SCRIPT_PATH" --help
 
   [ "$status" -eq 0 ]
+  [[ "$output" == *"istio, networkPolicies, and routes values are also moved under the"* ]]
+  [[ "$output" == *"bb-common subchart key"* ]]
   [[ "$output" == *"Big Bang 4.x retains v1 as the default unified package contract"* ]]
 }
 
@@ -122,6 +124,91 @@ EOF
 
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
+}
+
+@test "migrates hardened Istio resources and reports non-istiod ServiceEntries for review" {
+  SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
+  cat >"$INPUT_FILE" <<'EOF'
+addons:
+  gitlab:
+    values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - name: legacy-entry
+              hosts:
+                - legacy.example.com
+            - hosts:
+                - unnamed.example.com
+          customAuthorizationPolicies:
+            - name: legacy-policy
+        serviceEntries:
+          custom:
+            - name: existing-entry
+        authorizationPolicies:
+          custom:
+            - name: existing-policy
+EOF
+
+  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+  [ "$(yq '.packages.gitlab.values.bb-common.istio | has("hardened")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq -o=json -I=0 '.packages.gitlab.values.bb-common.istio.serviceEntries.custom | map(.name // "(unnamed)")' "$OUTPUT_FILE")" = '["legacy-entry","(unnamed)","existing-entry"]' ]
+  [ "$(yq -o=json -I=0 '.packages.gitlab.values.bb-common.istio.authorizationPolicies.custom | map(.name)' "$OUTPUT_FILE")" = '["legacy-policy","existing-policy"]' ]
+  [[ "$stderr" == *"packages.gitlab.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom"* ]]
+  [[ "$stderr" == *"packages.gitlab.values.bb-common.istio.serviceEntries.custom: legacy-entry, (unnamed)"* ]]
+  [[ "$stderr" == *"consider moving each to that package's bb-common.routes.outbound"* ]]
+  [[ "$stderr" == *"https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/"* ]]
+
+  run --separate-stderr "$SCRIPT_PATH" -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [[ "$stderr" != *"Review: the following ServiceEntries"* ]]
+  cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
+}
+
+@test "migrates istiod hardened resources without a ServiceEntry review and removes global hardening" {
+  cat >"$INPUT_FILE" <<'EOF'
+istiod:
+  values:
+    hardened:
+      enabled: true
+    pilot:
+      autoscaleEnabled: false
+    istio:
+      hardened:
+        customServiceEntries:
+          - name: istiod-entry
+        customAuthorizationPolicies:
+          - name: istiod-policy
+EOF
+
+  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.istiod.values | has("hardened")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.istiod.values.pilot.autoscaleEnabled' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.istiod.values.bb-common.istio | has("hardened")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.istiod.values.bb-common.istio.serviceEntries.custom[0].name' "$OUTPUT_FILE")" = "istiod-entry" ]
+  [ "$(yq '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = "istiod-policy" ]
+  [[ "$stderr" == *"packages.istiod.values.hardened -> removed (hardening deprecated in 4.x)"* ]]
+  [[ "$stderr" != *"Review: the following ServiceEntries"* ]]
+}
+
+@test "removes empty istiod values after deleting deprecated global hardening" {
+  cat >"$INPUT_FILE" <<'EOF'
+istiod:
+  values:
+    hardened:
+      enabled: true
+EOF
+
+  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.istiod | has("values")' "$OUTPUT_FILE")" = "false" ]
 }
 
 @test "composes ordered inputs before migration and preserves canonical precedence" {

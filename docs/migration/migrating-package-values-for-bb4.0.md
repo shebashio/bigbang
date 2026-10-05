@@ -1,8 +1,10 @@
 # Migrating package values for Big Bang 4.0
 
-Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Starting with Big Bang 3.32, Big Bang 3.x accepts both the old and new paths so you can migrate values before upgrading. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
+Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Starting with Big Bang 3.32, Big Bang 3.x accepts both the old and new package paths. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
 
-This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migration and the related `bb-common` values migration. For known built-in packages, the script moves `istio`, `networkPolicies`, and `routes` beneath the `bb-common` subchart key. It preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname`, SSO, and Istio hardening values. Follow the applicable release notes and deprecation notices for those migrations.
+This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migration and the related `bb-common` values migration. In Big Bang 4.x, every built-in package consumes `bb-common` as a subchart, so the script moves `istio`, `networkPolicies`, and `routes` beneath the `bb-common` subchart key. The script also removes the legacy Istio hardening configuration after migrating its custom ServiceEntries and AuthorizationPolicies to their 4.x locations. It preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname` and SSO settings. Follow the applicable release notes and deprecation notices for those migrations.
+
+Although Big Bang 3.32 supports the unified `packages.<name>` paths, the complete output from this script also contains the 4.x-only `bb-common` subchart layout and hardening changes. Deploy the complete migrated output with Big Bang 4.x rather than applying it independently to a 3.x release.
 
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
@@ -112,7 +114,52 @@ packages:
 Unknown custom packages are not rewritten because their `bb-common`
 consumption model is owned by the package author.
 
-Review the output and render it with the Big Bang 3.32 or later 3.x chart before adopting it. Because the migration is supported before 4.0, you can commit and deploy the migrated values independently of the 4.0 chart upgrade. Keep `packageConfiguration.version: v1` when upgrading; 4.x retains it as the unified package contract discriminator.
+## Istio hardening changes
+
+Big Bang 4.x removes the legacy `hardened` configuration model. The hardened
+posture is applied by default, and its individual behaviors are configured
+directly through the `bb-common` Istio values instead of a shared hardening
+switch.
+
+The migration script makes the following changes:
+
+| Big Bang 3.x value | Big Bang 4.x result |
+| --- | --- |
+| `istiod.values.hardened` | Removed; there is no direct replacement because the hardened posture is the default. |
+| `<package>.values.istio.hardened.enabled` | Removed; there is no direct replacement because the hardened posture is the default. |
+| `<package>.values.istio.hardened.customServiceEntries` | Moved to `packages.<package>.values.bb-common.istio.serviceEntries.custom`. |
+| `<package>.values.istio.hardened.customAuthorizationPolicies` | Moved to `packages.<package>.values.bb-common.istio.authorizationPolicies.custom`. |
+
+When the destination already contains custom ServiceEntries or
+AuthorizationPolicies, the migrated legacy entries are prepended to the
+existing entries. All other values beneath the legacy `hardened` key are
+removed.
+
+AuthorizationPolicies can be disabled for an individual package when the
+default posture is not appropriate. Custom ServiceEntries can likewise be
+removed, or individual entries can be disabled when supported by the package:
+
+```yaml
+packages:
+  kiali:
+    values:
+      bb-common:
+        istio:
+          authorizationPolicies:
+            enabled: false
+            generateFromNetpol: false
+            custom: []
+          serviceEntries:
+            custom: []
+```
+
+The script reports non-istiod ServiceEntries migrated from
+`hardened.customServiceEntries` for manual review. These entries remain
+cluster-wide under `istio.serviceEntries.custom`. If namespace-scoped egress is
+sufficient, consider replacing them with package-scoped
+`bb-common.routes.outbound` configuration.
+
+Review the output and render it with the Big Bang 4.x chart before adopting it. Keep `packageConfiguration.version: v1`; 4.x retains it as the unified package contract discriminator.
 
 ```shell
 helm template bigbang ./chart -f values-4.x.yaml > /dev/null
