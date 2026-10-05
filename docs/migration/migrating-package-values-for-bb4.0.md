@@ -13,6 +13,9 @@ This guide covers the package-path migration and the related `bb-common`
 values migration. For built-in packages, the script moves `values.istio`,
 `values.networkPolicies`, and `values.routes` beneath `values.bb-common`.
 Already-nested values take precedence. Unknown custom packages are not rewritten.
+The script also migrates custom hardening resources and removes legacy hardening.
+Deploy this complete output with Big Bang 4.x; the subchart layout and hardening
+changes are not compatible with Big Bang 3.x.
 Other deprecated Big Bang settings and child-chart values require separate
 migration according to the applicable release notes.
 
@@ -186,6 +189,51 @@ AWS_PROFILE=development \
 The embedded key defaults to `values.yaml`. See the
 [SOPS command reference](package-values-migration-script.md#sops-migration-command)
 for custom keys, output modes, and security behavior.
+
+## Istio hardening changes
+
+Big Bang 4.x removes the legacy `hardened` configuration model. The hardened
+posture is applied by default, and its individual behaviors are configured
+directly through the `bb-common` Istio values instead of a shared hardening
+switch.
+
+The migration script makes the following changes:
+
+| Big Bang 3.x value | Big Bang 4.x result |
+| --- | --- |
+| `istiod.values.hardened` | Removed; there is no direct replacement because the hardened posture is the default. |
+| `<package>.values.istio.hardened.enabled` | Removed; there is no direct replacement because the hardened posture is the default. |
+| `<package>.values.istio.hardened.customServiceEntries` | Moved to `packages.<package>.values.bb-common.istio.serviceEntries.custom`. |
+| `<package>.values.istio.hardened.customAuthorizationPolicies` | Moved to `packages.<package>.values.bb-common.istio.authorizationPolicies.custom`. |
+
+When the destination already contains custom ServiceEntries or
+AuthorizationPolicies, the migrated legacy entries are prepended to the
+existing entries. All other values beneath the legacy `hardened` key are
+removed.
+
+AuthorizationPolicies can be disabled for an individual package when the
+default posture is not appropriate. Custom ServiceEntries can likewise be
+removed, or individual entries can be disabled when supported by the package:
+
+```yaml
+packages:
+  kiali:
+    values:
+      bb-common:
+        istio:
+          authorizationPolicies:
+            enabled: false
+            generateFromNetpol: false
+            custom: []
+          serviceEntries:
+            custom: []
+```
+
+The script reports non-istiod ServiceEntries migrated from
+`hardened.customServiceEntries` for manual review. These entries remain
+cluster-wide under `istio.serviceEntries.custom`. If namespace-scoped egress is
+sufficient, consider replacing them with package-scoped
+`bb-common.routes.outbound` configuration.
 
 ## Review and validate
 
