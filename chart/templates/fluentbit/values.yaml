@@ -80,7 +80,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.fluentbit.values .) }}
       hosts:
       - 'repo1.dso.mil'
-      - grafana.{{ $domainName }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}

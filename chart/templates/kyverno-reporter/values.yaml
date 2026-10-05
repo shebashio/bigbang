@@ -43,8 +43,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.kyvernoReporter.values .) }}
       hosts:
       - repo1.dso.mil
-      - prometheus.{{ $domainName }}
-      - grafana.{{ $domainName }}
 
 networkPolicies:
   egress:

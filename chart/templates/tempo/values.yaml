@@ -99,7 +99,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.tempo.values .) }}
       hosts:
       - repo1.dso.mil
-      - grafana.{{ $domainName }}
       - grafana.com
 
 networkPolicies:

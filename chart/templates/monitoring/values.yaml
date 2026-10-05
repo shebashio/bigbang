@@ -134,9 +134,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.monitoring.values .) }}
       hosts:
       - 'repo1.dso.mil'
-      - prometheus.{{ $domainName }}
-      - grafana.{{ $domainName }}
-      - alertmanager.{{ $domainName }}
 
 networkPolicies:
   defaultsAsHooks:

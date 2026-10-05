@@ -58,7 +58,6 @@ routes:
       enabled: {{ include "bbtestsEgressRouteEnabled" (list .Values.loki.values .) }}
       hosts:
       - repo1.dso.mil
-      - grafana.{{ $domainName }}
 
 {{- include "secretsImagePullSecretsWithName" . }}
 
