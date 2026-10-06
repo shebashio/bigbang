@@ -20,6 +20,8 @@ setup() {
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
   [[ "$output" == *"--omit-package-configuration"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
+  [[ "$output" == *"complete output targets Big Bang 4.x and must not"* ]]
+  [[ "$output" == *"be deployed to a 3.x release"* ]]
 }
 
 @test "moves root and addon packages into the unified package map" {
@@ -215,6 +217,7 @@ EOF
   [ "$(yq -o=json -I=0 '.packages.gitlab.values.bb-common.istio.serviceEntries.custom | map(.name // "(unnamed)")' "$OUTPUT_FILE")" = '["legacy-entry","(unnamed)","existing-entry"]' ]
   [ "$(yq -o=json -I=0 '.packages.gitlab.values.bb-common.istio.authorizationPolicies.custom | map(.name)' "$OUTPUT_FILE")" = '["legacy-policy","existing-policy"]' ]
   [[ "$stderr" == *"packages.gitlab.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom"* ]]
+  [[ "$stderr" == *"packages.gitlab.values.bb-common.istio.hardened.customAuthorizationPolicies -> authorizationPolicies.custom"* ]]
   [[ "$stderr" == *"packages.gitlab.values.bb-common.istio.serviceEntries.custom: legacy-entry, (unnamed)"* ]]
   [[ "$stderr" == *"consider moving each to that package's bb-common.routes.outbound"* ]]
   [[ "$stderr" == *"https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/"* ]]
@@ -224,6 +227,31 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$stderr" != *"Review: the following ServiceEntries"* ]]
   cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
+}
+
+@test "removes obsolete package hardening values and reports an AuthorizationPolicy-only migration" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration:
+  version: v1
+packages:
+  kiali:
+    values:
+      bb-common:
+        istio:
+          hardened:
+            enabled: true
+            obsoleteSetting: legacy
+            customAuthorizationPolicies:
+              - name: legacy-policy
+EOF
+
+  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.values.bb-common.istio | has("hardened")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.kiali.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = "legacy-policy" ]
+  [[ "$stderr" == *"packages.kiali.values.bb-common.istio.hardened.customAuthorizationPolicies -> authorizationPolicies.custom"* ]]
+  [[ "$stderr" != *"No legacy built-in package paths found."* ]]
 }
 
 @test "migrates istiod hardened resources without a ServiceEntry review and removes global hardening" {
