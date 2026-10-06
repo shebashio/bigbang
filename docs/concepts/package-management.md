@@ -257,4 +257,4 @@ packages:
 
 Look at [test values](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/tests/test-values.yaml) for comprehensive examples of (non-production) package configurations.
 
-For detailed package-specific configuration options, refer to each package's individual documentation and the [Package Troubleshooting](../operations/troubleshooting/packages.md) guide for resolving configuration issues.
+For package-specific configuration options, refer to the individual package documentation. If a package fails to deploy or its workloads are not healthy, see [Package or workload troubleshooting](../operations/troubleshooting/index.md#package-or-workload).

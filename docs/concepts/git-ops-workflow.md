@@ -300,7 +300,7 @@ helm list -n bigbang
 helm status bigbang -n bigbang
 ```
 
-For detailed troubleshooting guidance, see [Package Troubleshooting](../operations/troubleshooting/packages.md).
+For help diagnosing Big Bang, package, or workload failures, see [Troubleshoot a Big Bang deployment](../operations/troubleshooting/index.md).
 
 ## Security Best Practices
 

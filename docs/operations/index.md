@@ -14,8 +14,9 @@ Operating a running deployment breaks down into three areas:
 
 | Your goal | Start here |
 | --- | --- |
-| Set up observability and alerting | [Monitoring](monitoring.md) — put this in place before an incident, not during one |
-| Protect your data | [Backup and Restore](backup-restore.md) — and actually test the restore, not just the backup |
-| Upgrade Big Bang or a package | [Upgrades](upgrades.md) — plan your cadence deliberately; Big Bang releases every two weeks |
+| Set up observability and alerting | [Monitoring](monitoring.md) — configure monitoring before an incident occurs |
+| Protect your data | [Backup and Restore](backup-restore.md) — configure backups and verify that data can be restored |
+| Upgrade Big Bang or a package | [Upgrades](upgrades.md) — review upgrade notices, package changes, and supported upgrade paths before upgrading |
 | Automate dependency updates | [Maintenance](maintenance/index.md), including [Renovate](maintenance/renovate.md) |
-| Diagnose a specific problem | [Troubleshooting](troubleshooting/index.md) — worth a skim before you need it, organized by symptom: [installation](troubleshooting/installation.md), [networking](troubleshooting/networking.md), [packages](troubleshooting/packages.md), [performance](troubleshooting/performance.md), [upgrades](troubleshooting/upgrades.md) |
+| Diagnose a deployment, package, networking, or upgrade problem | [Troubleshooting](troubleshooting/index.md) — identify the first failing layer and follow the troubleshooting workflow |
+| Diagnose performance or resource issues | [Performance troubleshooting](troubleshooting/performance.md) |

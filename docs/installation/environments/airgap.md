@@ -76,10 +76,13 @@ Review the current generated [configuration reference](../../configuration/base-
 
 Treat each upgrade as a new dependency set:
 
+Second update:
+
+```md
 1. Diff the target release, enabled-package versions, and rendered images against the deployed release.
-2. Mirror and verify all new artifacts before changing Git desired state.
+2. Mirror and verify all new artifacts before changing the Git desired state.
 3. Test the upgrade and rollback procedure in a representative disconnected environment.
 4. Transfer the approved artifacts and configuration through the controlled boundary.
-5. Upgrade using the normal GitOps process and follow [upgrade troubleshooting](../../operations/troubleshooting/upgrades.md) if reconciliation fails.
+5. Upgrade using the normal GitOps process. If reconciliation fails, see [Upgrade problems](../../operations/troubleshooting/index.md#upgrade-problems) to identify and troubleshoot the first failing layer.
 
 Never point a disconnected production environment at a moving branch or depend on a developer workstation, public image cache, or undocumented proxy to complete reconciliation.

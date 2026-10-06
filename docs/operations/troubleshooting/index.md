@@ -1,134 +1,243 @@
-# Troubleshooting
+# Troubleshoot a Big Bang deployment
 
-Changes to Big Bang configuration can take 10-15 minutes to complete the Flux reconciliation of Flux Kustomizations and Flux HelmReleases. Please review upstream [Flux Reconcile command documentation](https://fluxcd.io/flux/cmd/flux_reconcile/) for more information on how to manually trigger or force reconciliation with git repositories.
+Use this guide when a Big Bang deployment, upgrade, or package is not healthy.
 
-Big Bang's default flux configuration for each Big Bang package automatically retries failed package installations and upgrades.
+Big Bang is deployed declaratively through Flux. Find the **first resource that is not ready** and fix that failure before troubleshooting downstream resources. An earlier reconciliation failure can cause multiple downstream symptoms.
 
-These sections follow Flux's reconciliation order — check the earliest applicable stage first, since failures cascade downstream:
+## Find the failing layer
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'fontSize': '18px', 'primaryColor': '#00758f', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#004d5c', 'lineColor': '#00758f'}, 'flowchart': {'curve': 'basis'}}}%%
-flowchart TB
-  A(Iron Bank Authentication) --> B(Flux Install)
-  B --> C(Git/OCI Repository)
-  C --> D(Customer Template Kustomization)
-  D --> E(ConfigMap or Secrets)
-  D --> F(Big Bang Helm Release)
-  F --> G(Packages Git/OCI & Helm Releases)
-  G --> H(Package Resources (Deploy/DS/STS/etc))
-  linkStyle default stroke-width:3px
+flowchart TD
+    A[Big Bang deployment has a problem] --> B{Is Flux healthy?}
+
+    B -->|No| C[Troubleshoot Flux]
+    B -->|Yes| D{Is environment configuration ready?}
+
+    D -->|No| E[Troubleshoot source or Kustomization]
+    D -->|Yes| F{Is the Big Bang HelmRelease ready?}
+
+    F -->|No| G[Troubleshoot Big Bang HelmRelease]
+    F -->|Yes| H{Are package HelmReleases ready?}
+
+    H -->|No| I[Troubleshoot affected package]
+    H -->|Yes| J{Are package workloads healthy?}
+
+    J -->|No| K[Troubleshoot workload or component]
+    J -->|Yes| L[Investigate application-specific symptoms]
 ```
 
-## Iron Bank Authentication
+Work from the highest failing layer downward. Avoid troubleshooting downstream symptoms while an earlier dependency is not ready.
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| Despite entering correct credentials, get `unauthorized: authentication required` from Iron Bank. | Using a non-robot account with an expired token. | Login with the non-robot account manually at `registry1.dso.mil`, then retry. Please review [Iron Bank latest guidance](https://docs-ironbank.dso.mil/reference/cso/customer-services-and-onboarding/#robot-account) on obtaining a service account credential for pulling images from Registry1. |
+## Check deployment status
 
-## Troubleshooting the Flux Controllers and Flux Resource Reconciliation
-
-Please reference [this Flux troubleshooting cheatsheet](https://fluxcd.io/flux/cheatsheets/troubleshooting/) for help with getting basic information about Flux resources.
-
-Below are commands for getting information about controller pods and events in the flux-system namespace:
+Start by checking Flux and listing resources that are not ready:
 
 ```shell
-# Get the status
-kubectl get pods -n flux-system
-
-# Get the logs
-kubectl get events -n flux-system
+flux check
+flux get all -A --status-selector ready=false
 ```
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| Install script timed out and pods are still pulling the image | Slow connection to docker registry | Adjust `--timeout` value in `flux install` to wait longer |
-| Pod status is `ImagePullBackOff` or `ErrImagePull` | Bad registry, version, or credentials | Fix the `--registry`, `--version`, or `--image-pull secret` options or use the `./scripts/install_flux.sh` script for pulling from Iron Bank |
-
-## Git Repository
-
-Helpful debugging commands:
+If you need the complete reconciliation status:
 
 ```shell
-# Get the status
-kubectl get gitrepositories -A
-
-# Get the logs
-kubectl get events --field-selector involvedObject.kind=GitRepository -A
+flux get sources all -A
+flux get kustomizations -A
+flux get helmreleases -A
 ```
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| `unable to clone ... error: authentication required` | Pull credentials for Git invalid or not provided | Add credentials to a `Secret` and reference it in `GitRepository.spec.secretRef.name`. If possible, encrypt the secret and include it in the Kustomization deployment for your environment. |
-| `auth secret error: Secret ... not found` | `GitRepository` indicates that a Flux controller is looking for credentials but cannot find the `Secret` | Make sure the secret exists and is in the same namespace as the `GitRepository` resource. If possible, encrypt the secret and include it in the Kustomization deployment for your environment. |
-| `unable to clone ... error: repository not found` | Invalid Git url | Fix url for Git repository and redeploy |
-| `unable to clone ... error: couldn't find remote ref` | Invalid branch or tag | Fix branch or tag for Git repository and redeploy |
+For a resource that is not ready, inspect its conditions, message, and recent events before moving to the next layer.
 
-## ConfigMap or Secrets
+| Failing layer | Continue with |
+| --- | --- |
+| Flux controller or health check | [Flux](#flux) |
+| Source or Kustomization | [Environment configuration](#environment-configuration) |
+| Big Bang `HelmRelease` | [Big Bang HelmRelease](#big-bang-helmrelease) |
+| Package `HelmRelease` or workload | [Package or workload](#package-or-workload) |
+| Upgrade | [Upgrade problems](#upgrade-problems) |
+| Healthy deployment with performance problems | [Performance troubleshooting](performance.md) |
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| `ConfigMap` or `Secret` does not exist | GitRepository or Kustomization failed. Namespace was incorrect. | Use [GitRepository](#git-repository) and [Kustomization](#kustomization) sections to troubleshoot. Use `kubectl get secrets,configmaps -A` to verify resource was not in the wrong Namespace. |
+## Troubleshoot by layer
 
-## Helm Release
+### Flux
 
-Helpful debugging commands:
+If `flux check` reports unhealthy controllers, resolve the Flux problem before troubleshooting Big Bang resources.
+
+For controller health, logs, source failures, and other Flux-specific problems, see the [Flux troubleshooting guide](https://fluxcd.io/flux/cheatsheets/troubleshooting/).
+
+### Environment configuration
+
+Check the sources and Kustomizations that manage the environment:
 
 ```shell
-# Get the status
-kubectl get hr -A
-
-# Get the logs
-kubectl get events --field-selector involvedObject.kind=HelmRelease -A
-
-# Describe the HelmRelease to get more information
-kubectl describe hr <NAME> -n bigbang
-
-# Get all logs/events for a specific HelmRelease object
-flux logs --kind=HelmRelease --namespace bigbang --name <NAME>
+flux get sources all -A
+flux get kustomizations -A
 ```
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| `Reconciliation in Progress` | This is normal and indicates flux is currently applying updates | Wait |
-| `dependency ... is not ready` | This is normal and indicates flux is currently waiting on another resource to complete | Wait |
-| `Error: YAML parse error on ...` | Syntax error in helm chart | Use `helm template` to narrow down the problem. Fix it and commit to Git |
-| `Helm install failed: failed to create resource ... unable to create new content in namespace because it is being terminated` | This seems to happen when a re-deploy of Big Bang occurs too early after a Big Bang delete. | Try to remove the namespace using `export NS="<stuck namespace>"; kubectl get ns "$NS" -o json | jq '.spec.finalizers = []' | kubectl replace --raw "/api/v1/namespaces/${NS}/finalize" -f`.  If this does not work, a cluster restart may be necessary. |
-| `Error: failed to download ...` | Path to Helm chart is incorrect | Find the HelmRelease configuration and update `spec.path` to the correct path of the helm chart |
-| `Helm uninstall failed: uninstall: Release not loaded: ____: release: not found` | Helm install failed because of an error and a rollback/uninstall is attempted but release has not been installed. | Describe the HelmRelease in question or use flux to get the logs to get more info about why it failed to install. |
-| `reconciliation failed: Helm rollback failed: an error occurred while cleaning up resources. original rollback error: no XXXX with the name "XXXX" found: unable to cleanup resources: object not found, skipping delete` | This error happens when an upgrade fails and flux attempts a rollback but there are templates that have been renamed/removed. | Describe the HelmRelease in question or use flux to get the logs to get more info about why exactly the upgrade failed. |
-
-## Kustomization
-
-Helpful debugging commands:
+If a Kustomization is not ready, inspect it:
 
 ```shell
-# Get the status
-kubectl get kustomizations -A
-
-# Get the logs
-kubectl get events --field-selector involvedObject.kind=Kustomization -A
+kubectl describe kustomization <kustomization-name> -n <namespace>
 ```
 
-| Symptom | Cause | Resolution |
-|--|--|--|
-| `kustomization path not found` | `spec.path` in Kustomization resource in is incorrect | Fix `spec.path` and redeploy |
-| `Source not found` | `spec.sourceRef` in Kustomization resource is incorrect | Fix `spec.sourceRef` to point to repository resource and redeploy |
-| `decryption secret error: Secret ... not found` | SOPS private key secret is missing or misconfigured | Check `decryption` settings in the Kustomization resource to make sure `secretRef` is pointing to the correct secret. Make sure the `Secret` holding the private key is deployed in the cluster. |
-| `kustomize build failed: json: unknown field` | There is a syntax error with the kustomization files. | Use `kustomize build` on the `<env>` folder or `base` folder to narrow down the problem. Fix the error and push to Git. |
-| `evalsymlink failure ... no such file or directory` | A reference to a file in `kustomization.yaml` is incorrect | Use `kustomize build` on the `<env>` folder or `base` folder to narrow down the problem. Fix the error and push to Git. |
-| `Error: accumulating resources ...` | A reference to a base is incorrect | Use `kustomize build` on the `<env>` folder or `base` folder to narrow down the problem. Review the `bases:` section for correct paths to find the error. Fix the error and push to Git. |
-| `Error fetchingref: fatal: couldn't find remote ref ...` | The branch, tag, or sha used for a remote base is incorrect | Use `kustomize build` on the `<env>` folder or `base` folder to narrow down the problem. It is likely the remote reference to Big Bang's Kustomize in the `base` folder. Review the `bases:` section for correct paths to find the error. Fix the error and push to Git. |
-| `Error: merging from generator ...` | Kustomize is trying to merge with a resource that is non-existent. This is usually due to naming the merging `ConfigMap` or `Secret` incorrectly compared to a base `ConfigMap` or `Secret`. | Use `kustomize build` on the `<env>` folder or `base` folder to narrow down the problem. Look for the keyword `merge` in the `kustomization.yaml` files and verify the `name` is correctly set. |
+Use the resource conditions and messages to identify source access, manifest build or apply, decryption, or dependency failures.
 
-## Packages
+For detailed troubleshooting, see the [Flux troubleshooting guide](https://fluxcd.io/flux/cheatsheets/troubleshooting/) and [Flux Kustomization documentation](https://fluxcd.io/flux/components/kustomize/kustomizations/).
 
-Helpful debugging commands:
+### Big Bang HelmRelease
+
+If the Flux resources that manage the environment are ready, check the Big Bang umbrella `HelmRelease`:
 
 ```shell
-# Get the status
-kubectl get deployments,po -n <namespace of package>
-
-# Get the logs
-kubectl get events --field-selector involvedObject.kind=Deployment -n <namespace of package>
-kubectl get events --field-selector involvedObject.kind=Pod -n <namespace of package>
+flux get helmrelease bigbang -n bigbang
+kubectl describe helmrelease bigbang -n bigbang
 ```
+
+Use its conditions, reason, message, and events to identify failures involving Big Bang values, chart or source configuration, dependencies, or install and upgrade reconciliation.
+
+Correct the declarative configuration that caused the failure. For detailed HelmRelease behavior and remediation, see the [Flux HelmRelease documentation](https://fluxcd.io/flux/components/helm/helmreleases/).
+
+#### Reconcile after correcting the cause
+
+Flux reconciles resources automatically. To trigger an immediate reconciliation after correcting the configuration:
+
+```shell
+flux reconcile helmrelease bigbang -n bigbang --with-source
+```
+
+Then verify the release:
+
+```shell
+flux get helmrelease bigbang -n bigbang
+```
+
+#### Full reset
+
+Deleting the Big Bang `HelmRelease` is a **destructive recovery action**, not a standard troubleshooting step. Use it only when the deployment procedure for your environment requires it and after confirming that the failure cannot be corrected through the declarative configuration.
+
+Before deleting the release:
+
+1. Identify the Kustomization that manages the Big Bang `HelmRelease`.
+2. Confirm that reconciling the Kustomization will recreate the release.
+3. Review persistent-data and backup requirements for your environment.
+
+Delete the release, reconcile its owning Kustomization, and verify that the release is recreated:
+
+```shell
+kubectl delete helmrelease bigbang -n bigbang
+
+flux reconcile kustomization <kustomization-name> \
+  -n <namespace> --with-source
+
+flux get helmrelease bigbang -n bigbang
+```
+
+**Warning:** Confirm the owning Kustomization and namespace before deleting the Big Bang `HelmRelease`. Do not assume that reconciling its source alone will recreate it.
+
+### Package or workload
+
+After the Big Bang `HelmRelease` is ready, check the downstream package releases:
+
+```shell
+flux get helmreleases -A
+```
+
+Inspect a package that is not ready:
+
+```shell
+kubectl describe helmrelease <package-name> -n <namespace>
+```
+
+If the package release is ready but the application is not functioning, inspect its workloads:
+
+```shell
+kubectl get pods -n <namespace>
+kubectl describe pod <pod-name> -n <namespace>
+```
+
+Use the reported conditions and events to choose the next step.
+
+| Problem | Continue with |
+| --- | --- |
+| Pod is `Pending`, fails to start, or repeatedly restarts | [Kubernetes application debugging](https://kubernetes.io/docs/tasks/debug/debug-application/) |
+| `ErrImagePull` or `ImagePullBackOff` | Inspect pod events and verify the image reference, registry access, and configured credentials |
+| DNS failure | [Kubernetes DNS debugging](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) |
+| Service has no reachable backend | [Kubernetes Service debugging](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/) |
+| NetworkPolicy may be blocking traffic | [Big Bang Network Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/network-policies/) |
+| Istio routing, mesh, TLS, or authorization problem | [Istio diagnostic tools](https://istio.io/latest/docs/ops/diagnostic-tools/) |
+| Big Bang authorization problem | [Big Bang Authorization Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/authorization-policies/) |
+| Big Bang route problem | [Big Bang Routes](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/) |
+| Admission failure | Use the documentation for the policy controller reported in the rejection |
+| Resource, storage, or scheduling problem | [Kubernetes troubleshooting](https://kubernetes.io/docs/tasks/debug/) |
+| Kubernetes resources are healthy but the application is not | Use the package-specific documentation |
+| Deployment is healthy but slow or resource constrained | [Performance troubleshooting](performance.md) |
+
+#### Check Service connectivity
+
+If the problem involves Service connectivity, confirm that the Service has the expected EndpointSlices:
+
+```shell
+kubectl get svc <service-name> -n <namespace>
+
+kubectl get endpointslice -n <namespace> \
+  -l kubernetes.io/service-name=<service-name>
+```
+
+If the Service is expected to select workloads but has no endpoints, verify its selector and backing workloads.
+
+For CNI, load balancer, or infrastructure failures, use the documentation for the components deployed in your environment.
+
+**Warning:** Do not disable security policies, add broad allow rules, or manually modify Flux-managed workloads as a standard troubleshooting step. Correct the declarative configuration that caused the failure.
+
+## Upgrade problems
+
+Use the same top-down troubleshooting workflow on this page to find the first resource that is not ready.
+
+For an upgrade failure, also review:
+
+- Big Bang release notes and upgrade notices for the relevant upgrade path.
+- The affected package's changelog.
+- Required configuration or value changes.
+
+Correct the desired configuration rather than using a direct `helm upgrade`, manually editing Flux-managed resources, or performing a direct Helm rollback as the first response.
+
+For upgrade procedures, supported upgrade paths, and post-upgrade verification, see [Upgrades](../upgrades.md).
+
+## Verify recovery
+
+After correcting the failure, check for resources that are still not ready:
+
+```shell
+flux get all -A --status-selector ready=false
+```
+
+Then verify the affected workloads:
+
+```shell
+kubectl get pods -n <namespace>
+```
+
+Verify that the original symptom is also resolved. A successful reconciliation does not necessarily mean that the application is functioning correctly.
+
+## Escalate the issue
+
+If you cannot resolve the problem, collect information about the **first failing layer**.
+
+Include:
+
+- Big Bang version
+- Affected package and version, if applicable
+- First Flux resource that is not ready
+- Resource condition and error message
+- Relevant events or logs
+- Recent configuration or upgrade changes
+- Steps to reproduce the problem
+
+Useful starting commands are:
+
+```shell
+flux get all -A --status-selector ready=false
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'
+```
+
+**Warning:** Review diagnostic output before sharing it. Logs, events, and resource information can contain environment-specific or sensitive information.
+

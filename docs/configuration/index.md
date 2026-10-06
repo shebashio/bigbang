@@ -94,7 +94,7 @@ flux get kustomizations -A
 flux get helmreleases -A
 ```
 
-Verify workload health and application behavior after Flux reports Ready. See [Troubleshoot Upgrades](../operations/troubleshooting/upgrades.md) for a layer-by-layer diagnostic workflow.
+Verify workload health and application behavior after Flux reports the resources as ready. If an upgrade fails, see [Upgrade problems](../operations/troubleshooting/index.md#upgrade-problems) to identify and troubleshoot the first failing layer.
 
 ## Focused Configuration Guides
 

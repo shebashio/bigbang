@@ -274,7 +274,7 @@ Implement fault injection testing:
 If performance issues persist:
 
 1. Review [monitoring documentation](../monitoring.md) for advanced observability setup
-2. Check [networking troubleshooting](networking.md) for network-related issues
+2. For network-related symptoms, see [Package or workload troubleshooting](index.md#package-or-workload).
 3. Consider engaging with the Big Bang community for complex performance challenges
 4. Plan capacity upgrades if current infrastructure is insufficient
 
