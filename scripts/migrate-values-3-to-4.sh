@@ -200,13 +200,17 @@ validate_values_file() {
     || fail "the values document root must be a YAML mapping: $display_name"
   yq -e 'has("sops") and (.sops | tag == "!!map")' "$values_file" >/dev/null 2>&1 \
     && fail "SOPS-encrypted input is not supported by this command: $display_name; use scripts/migrate-sops-values-3-to-4.sh"
-  yq -e 'explode(.) | ((.packages == null) or (.packages | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+  yq --yaml-fix-merge-anchor-to-spec=true -e \
+    'explode(.) | ((.packages == null) or (.packages | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
     || fail "packages must be a YAML mapping: $display_name"
-  yq -e 'explode(.) | ((.addons == null) or (.addons | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+  yq --yaml-fix-merge-anchor-to-spec=true -e \
+    'explode(.) | ((.addons == null) or (.addons | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
     || fail "addons must be a YAML mapping: $display_name"
-  yq -e 'explode(.) | ((.packageConfiguration == null) or (.packageConfiguration | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
+  yq --yaml-fix-merge-anchor-to-spec=true -e \
+    'explode(.) | ((.packageConfiguration == null) or (.packageConfiguration | tag == "!!map"))' "$values_file" >/dev/null 2>&1 \
     || fail "packageConfiguration must be a YAML mapping: $display_name"
-  yq -e 'explode(.) | ((.packageConfiguration.version == null) or (.packageConfiguration.version == "v1"))' "$values_file" >/dev/null 2>&1 \
+  yq --yaml-fix-merge-anchor-to-spec=true -e \
+    'explode(.) | ((.packageConfiguration.version == null) or (.packageConfiguration.version == "v1"))' "$values_file" >/dev/null 2>&1 \
     || fail "packageConfiguration.version must be v1: $display_name"
 }
 
@@ -251,6 +255,9 @@ done
   || fail "--secret-key requires exactly one input Secret"
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
+yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
+  || fail "Mike Farah yq v4 with --yaml-fix-merge-anchor-to-spec support is required"
+command -v jq >/dev/null 2>&1 || fail "jq is required"
 
 if [[ "$IN_PLACE" == true && -n "$OUTPUT_FILE" ]]; then
   fail "--in-place and --output cannot be used together"
@@ -277,9 +284,11 @@ for input_file in "${INPUT_FILES[@]}"; do
       && fail "SOPS-encrypted input is not supported by this command: $input_file; use scripts/migrate-sops-values-3-to-4.sh"
     yq -e '.kind == "Secret"' "$input_file" >/dev/null 2>&1 \
       || fail "--secret-key input must be a Kubernetes Secret: $input_file"
-    yq -e 'explode(.) | ((.stringData == null) or ((.stringData | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+    yq --yaml-fix-merge-anchor-to-spec=true -e \
+      'explode(.) | ((.stringData == null) or ((.stringData | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
       || fail "Secret stringData must be a mapping: $input_file"
-    yq -e 'explode(.) | ((.data == null) or ((.data | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+    yq --yaml-fix-merge-anchor-to-spec=true -e \
+      'explode(.) | ((.data == null) or ((.data | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
       || fail "Secret data must be a mapping: $input_file"
   else
     validate_values_file "$input_file"
@@ -320,9 +329,12 @@ expand_yaml_anchors() {
 
   [[ ${#anchor_names[@]} -gt 0 ]] || return 0
 
-  yq -o=json -I=0 'sort_keys(..)' "$values_file" >"$BEFORE_EXPANSION_JSON"
-  yq 'explode(.)' "$values_file" >"$EXPANDED_FILE"
-  yq -o=json -I=0 'sort_keys(..)' "$EXPANDED_FILE" >"$AFTER_EXPANSION_JSON"
+  yq --yaml-fix-merge-anchor-to-spec=true -o=json -I=0 '.' "$values_file" \
+    | jq -cS '.' >"$BEFORE_EXPANSION_JSON"
+  yq --yaml-fix-merge-anchor-to-spec=true 'explode(.)' \
+    "$values_file" >"$EXPANDED_FILE"
+  yq --yaml-fix-merge-anchor-to-spec=true -o=json -I=0 '.' "$EXPANDED_FILE" \
+    | jq -cS '.' >"$AFTER_EXPANSION_JSON"
   cmp -s "$BEFORE_EXPANSION_JSON" "$AFTER_EXPANSION_JSON" \
     || fail "expanding YAML anchors changed the resolved values structure: $display_name"
   cp "$EXPANDED_FILE" "$values_file"
@@ -366,7 +378,8 @@ if [[ -n "$SECRET_VALUES_KEY" ]]; then
 elif [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
   cp "${INPUT_FILES[0]}" "$WORK_FILE"
 else
-  yq eval-all '. as $item ireduce ({}; . * $item)' "${INPUT_FILES[@]}" >"$WORK_FILE"
+  yq --yaml-fix-merge-anchor-to-spec=true eval-all \
+    '. as $item ireduce ({}; . * $item)' "${INPUT_FILES[@]}" >"$WORK_FILE"
 fi
 
 if [[ -n "$SECRET_VALUES_KEY" ]]; then

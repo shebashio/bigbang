@@ -31,7 +31,9 @@ Two commands are available:
 Both commands require:
 
 - Bash.
-- [Mike Farah `yq`](https://github.com/mikefarah/yq) version 4.
+- [Mike Farah `yq`](https://github.com/mikefarah/yq) version 4 with
+  `--yaml-fix-merge-anchor-to-spec` support.
+- `jq`.
 - Standard command-line utilities including `base64`, `cmp`, `mktemp`, and
   `tr`.
 
@@ -201,14 +203,17 @@ detail and should not be invoked directly.
 ## YAML anchors and aliases
 
 The commands automatically resolve YAML anchors, aliases, and merge keys before
-migration. Retaining aliases while moving their targets between legacy and
-canonical package paths could produce an unclear or misleading output document.
+migration. Merge keys use YAML-spec precedence, so an explicit mapping value
+overrides a value from `<<` regardless of their order in the source document.
+This matches Helm values behavior. Retaining aliases while moving their targets
+between legacy and canonical package paths could produce an unclear or
+misleading output document.
 
 Before continuing, the plaintext command renders a canonical JSON view of the
-resolved values both before and after expansion and requires those structures
-to match. If expansion changes the resolved structure, the command fails without
-writing the result. The output contains ordinary YAML values rather than anchors
-or aliases.
+resolved values both before and after expansion, sorts both with `jq`, and
+requires those structures to match. If expansion changes the resolved
+structure, the command fails without writing the result. The output contains
+ordinary YAML values rather than anchors or aliases.
 
 When anchors are detected, the command prints a warning and lists every expanded
 anchor name. Use that list while reviewing the migrated output; the script does

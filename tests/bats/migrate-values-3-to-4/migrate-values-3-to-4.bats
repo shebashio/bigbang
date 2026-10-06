@@ -427,6 +427,11 @@ defaults: &packageDefaults
   enabled: true
 kiali:
   <<: *packageDefaults
+  enabled: false
+addons:
+  gitlab:
+    enabled: false
+    <<: *packageDefaults
 EOF
 
   run --separate-stderr "$SCRIPT_PATH" --output "$OUTPUT_FILE" "$INPUT_FILE"
@@ -435,7 +440,8 @@ EOF
   [[ "$stderr" == *"Warning: expanded YAML anchors and aliases"* ]]
   [[ "$stderr" == *"Expanded anchors:"* ]]
   [[ "$stderr" == *"packageDefaults"* ]]
-  [ "$(yq '.packages.kiali.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.enabled' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.gitlab.enabled' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '[.. | anchor] | map(select(. != "")) | length' "$OUTPUT_FILE")" = "0" ]
   [ "$(yq '[.. | select(kind == "alias")] | length' "$OUTPUT_FILE")" = "0" ]
 }

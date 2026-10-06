@@ -60,7 +60,8 @@ encrypted.
 The command automatically resolves YAML anchors and aliases in the protected
 working copy before migration. It warns and lists each expanded anchor name so
 you can review the affected values. The output contains concrete values rather
-than recreated anchors.
+than recreated anchors. YAML merge keys use spec-compliant precedence, matching
+Helm: explicit mapping values override merged values regardless of key order.
 
 ## SOPS-encrypted Kubernetes Secrets
 

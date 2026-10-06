@@ -21,9 +21,11 @@ command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
   || fail "Mike Farah yq v4 is required"
 
 HAS_STRING_DATA=$(BIGBANG_VALUES_KEY="$BIGBANG_SECRET_VALUES_KEY" yq -r \
+  --yaml-fix-merge-anchor-to-spec=true \
   '(.stringData // {}) | has(strenv(BIGBANG_VALUES_KEY))' \
   "$BIGBANG_MIGRATED_SECRET_FILE")
 HAS_DATA=$(BIGBANG_VALUES_KEY="$BIGBANG_SECRET_VALUES_KEY" yq -r \
+  --yaml-fix-merge-anchor-to-spec=true \
   '(.data // {}) | has(strenv(BIGBANG_VALUES_KEY))' \
   "$BIGBANG_MIGRATED_SECRET_FILE")
 
@@ -40,7 +42,7 @@ fi
 BIGBANG_VALUES_FIELD=$BIGBANG_VALUES_FIELD \
 BIGBANG_VALUES_KEY=$BIGBANG_SECRET_VALUES_KEY \
 BIGBANG_MIGRATED_SECRET=$BIGBANG_MIGRATED_SECRET_FILE \
-  yq -i '
+  yq --yaml-fix-merge-anchor-to-spec=true -i '
     .[strenv(BIGBANG_VALUES_FIELD)][strenv(BIGBANG_VALUES_KEY)] =
       load(strenv(BIGBANG_MIGRATED_SECRET))[strenv(BIGBANG_VALUES_FIELD)][strenv(BIGBANG_VALUES_KEY)]
   ' "$1"
