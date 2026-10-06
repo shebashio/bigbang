@@ -117,6 +117,9 @@ Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
 names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
 it from the migrated output when upgrading.
+Because the script also converts bb-common values to the subchart layout and
+removes legacy hardening, its complete output targets Big Bang 4.x and must not
+be deployed to a 3.x release.
 
 Inputs are composed in order using Helm values precedence (later files win),
 then migrated into one consolidated document. By default, migrated YAML is
@@ -380,6 +383,10 @@ for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
     | select(length > 0)
     | map(.name // "(unnamed)") | join(", ")
   ' "$WORK_FILE")
+  hardened_authz_count=$(PACKAGE_NAME="$package_name" yq -r '
+    (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customAuthorizationPolicies // [])
+    | length
+  ' "$WORK_FILE")
 
   PACKAGE_NAME="$package_name" yq -i '
     with(.packages[strenv(PACKAGE_NAME)].values.bb-common.istio;
@@ -399,6 +406,9 @@ for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
     if [[ "$package_name" != "istiod" ]]; then
       SERVICE_ENTRY_REVIEW+=("packages.$package_name.values.bb-common.istio.serviceEntries.custom: $hardened_se_names")
     fi
+  fi
+  if [[ "$hardened_authz_count" -gt 0 ]]; then
+    MIGRATED_PATHS+=("packages.$package_name.values.bb-common.istio.hardened.customAuthorizationPolicies -> authorizationPolicies.custom")
   fi
 done
 
