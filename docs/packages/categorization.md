@@ -260,7 +260,7 @@ A monitoring stack is used to collect, visualize, and alert on time-series metri
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|Monitoring|[Prometheus](./core/monitoring.md)|Collection & Alerting|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
+|X|Monitoring|[Prometheus (draft guide)](https://repo1.dso.mil/big-bang/product/packages/monitoring/-/blob/8d24ee480e09429d06568f0d2484d72de5343afb/docs/overview.md)|Collection & Alerting|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
 |X|Monitoring|[Grafana](./core/monitoring.md)|Visualization|[monitoring](https://repo1.dso.mil/big-bang/product/packages/monitoring)|
 
 ### Distributed Tracing
