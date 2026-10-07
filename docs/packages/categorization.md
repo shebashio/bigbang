@@ -291,7 +291,7 @@ Single sign-on tools include packages that provide centralized authentication an
 |Package|Function|Repository|
 |--|--|--|
 |[Authservice (draft guide)](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/82ce5c53e18576a98b215a15bd66d015214041d8/docs/overview.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
-|[Keycloak](./addons/keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
+|[Keycloak (draft guide)](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/1e4f48881643531fddc2db3daecda2c040e15c8b/docs/overview.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
 
 ### Secrets Management
 
@@ -344,7 +344,7 @@ DevSecOps tools include packages that programmers and security teams use to plan
 |Anchore|[Anchore (draft guide)](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/a8717f71e0fbc714adccf728d969b25b78150943/docs/overview.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
 |Fortify|[Fortify (draft guide)](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/54e7c6e6ede649fb27ef5828259da7b3c3eb30d4/docs/overview.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
 |Sonarqube|[Sonarqube](./addons/sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
-|Harbor|[Harbor](./addons/harbor.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
+|Harbor|[Harbor (draft guide)](https://repo1.dso.mil/big-bang/product/packages/harbor/-/blob/68bfa616aee5f78d5ec4967d57272263a31c61ec/docs/overview.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
 
 ## Further Information
 
