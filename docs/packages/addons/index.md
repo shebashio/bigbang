@@ -10,8 +10,8 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Argo CD | `packages.argocd` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/argocd) |
 | Authservice | `packages.authservice` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/82ce5c53e18576a98b215a15bd66d015214041d8/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/authservice) |
 | External Secrets | `packages.externalSecrets` | [Guide](external-secrets-operator.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |
-| Fortify | `packages.fortify` | [Guide](fortify.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
-| GitLab | `packages.gitlab` | [Guide](gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab) |
+| Fortify | `packages.fortify` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/54e7c6e6ede649fb27ef5828259da7b3c3eb30d4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
+| GitLab | `packages.gitlab` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/c06248d2cbb7ea0ffe4a57df83509752b6d8930b/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab) |
 | GitLab Runner | `packages.gitlabRunner` | [Guide](gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner) |
 | Harbor | `packages.harbor` | [Guide](harbor.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/harbor) |
 | Headlamp | `packages.headlamp` | [Guide](headlamp.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/headlamp) |
