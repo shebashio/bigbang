@@ -30,7 +30,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
       path: chart
-      tag: <CMTM_TAG>
+      tag: <CMTM_TAG> # replace with a published compatible tag
 
   cert-manager-trust-manager-bundle:
     enabled: true
@@ -41,7 +41,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
       path: chart
-      tag: <CMTMB_TAG>
+      tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
       bundle:
         enabled: true
@@ -69,7 +69,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
       path: chart
-      tag: <CMTM_TAG>
+      tag: <CMTM_TAG> # replace with a published compatible tag
     values:
       upstream:
         defaultPackage:
@@ -84,7 +84,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
       path: chart
-      tag: <CMTMB_TAG>
+      tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
       bundle:
         enabled: true
