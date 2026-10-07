@@ -32,6 +32,9 @@ packages:
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    dependsOn:
+      - name: cert-manager-trust-manager
+        namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
@@ -70,6 +73,9 @@ packages:
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    dependsOn:
+      - name: cert-manager-trust-manager
+        namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
