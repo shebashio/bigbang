@@ -1,10 +1,8 @@
-# Mattermost
+# Mattermost Package Boundaries
 
-## Overview
+The [Mattermost draft guide](https://repo1.dso.mil/big-bang/product/packages/mattermost/-/blob/038e9d6bd3acfebc7a8e1a6b10303e51306b8ca3/docs/overview.md) covers Mattermost-owned licensing, SSO, storage, network, monitoring, and operational integration.
 
-[Mattermost](https://mattermost.com/) is an open-source, self-hostable online chat service with file sharing, search, and integrations.
-
-Big Bang's implementation uses the [Mattermost operator](https://github.com/mattermost/mattermost-operator) to provide custom resources and manage the application.
+The Mattermost Operator is separately owned. Its controller and custom-resource lifecycle documentation remains pending that package's migration; umbrella orchestration remains here until then.
 
 ### Basic Tier
 

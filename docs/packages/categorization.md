@@ -299,7 +299,7 @@ Secrets management tools include packages that securely store, distribute, and r
 
 |Package|Function|Repository|
 |--|--|--|
-|[Vault](./addons/vault.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
+|[Vault (draft guide)](https://repo1.dso.mil/big-bang/product/packages/vault/-/blob/16516344207f4cbf3261132400bd8d7eba449041/docs/overview.md)|Sensitive Data Access Control|[vault](https://repo1.dso.mil/big-bang/product/packages/vault)|
 |[External Secrets (draft guide)](https://repo1.dso.mil/big-bang/product/packages/external-secrets/-/blob/627a20c354158aa41136cb683929be1b04c4f0b2/docs/overview.md)|Secrets management|[external-secrets](https://repo1.dso.mil/big-bang/product/packages/external-secrets)|
 
 ### Observability
