@@ -27,6 +27,6 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | NeuVector | `packages.neuvector` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/neuvector/-/blob/137a68d96f91d228f0be25e09704b13f301e50d5/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
 | Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Renovate | `packages.renovate` | [Guide](renovate.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
-| Tempo | `packages.tempo` | [Guide](tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
-| Twistlock | `packages.twistlock` | [Guide](twistlock.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
+| Tempo | `packages.tempo` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/tempo/-/blob/997f43387422fc07278704f381d2c37eb09f6dac/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
+| Twistlock | `packages.twistlock` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/twistlock/-/blob/4381fcf990611782455c0d5814d774726499b0e2/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
 | Ztunnel | `packages.ztunnel` | [Guide](ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |

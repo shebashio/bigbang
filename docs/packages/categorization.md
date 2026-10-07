@@ -269,7 +269,7 @@ Distributed tracing is a method of tracking application transactions as they flo
 
 |Default|Package|Repositories|
 |--|--|--|
-|X|[Tempo](./core/tempo.md)|[tempo](https://repo1.dso.mil/big-bang/product/packages/tempo)|
+|X|[Tempo (draft guide)](https://repo1.dso.mil/big-bang/product/packages/tempo/-/blob/997f43387422fc07278704f381d2c37eb09f6dac/docs/overview.md)|[tempo](https://repo1.dso.mil/big-bang/product/packages/tempo)|
 
 ### Runtime Security
 
@@ -278,7 +278,7 @@ Runtime security is the active protection of containers running in the cluster. 
 |Default|Package|Repositories|
 |--|--|--|
 |X|[Neuvector (draft guide)](https://repo1.dso.mil/big-bang/product/packages/neuvector/-/blob/137a68d96f91d228f0be25e09704b13f301e50d5/docs/overview.md)|[neuvector](https://repo1.dso.mil/big-bang/product/packages/neuvector)|
-| |[Prisma Cloud Compute](./core/twistlock.md) (AKA Twistlock) ![License Required](https://img.shields.io/badge/License_Required-orange)|[twistlock](https://repo1.dso.mil/big-bang/product/packages/twistlock)|
+| |[Prisma Cloud Compute (draft guide)](https://repo1.dso.mil/big-bang/product/packages/twistlock/-/blob/4381fcf990611782455c0d5814d774726499b0e2/docs/overview.md) (AKA Twistlock) ![License Required](https://img.shields.io/badge/License_Required-orange)|[twistlock](https://repo1.dso.mil/big-bang/product/packages/twistlock)|
 
 ## Addons
 
