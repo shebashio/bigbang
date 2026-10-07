@@ -22,7 +22,7 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Kyverno | `packages.kyverno` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kyverno/-/blob/44642cd53a556731f091d4560d5a0ca2788d9fe4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |
 | Kyverno Reporter | `packages.kyvernoReporter` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter) |
-| Loki | `packages.loki` | [Guide](loki.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |
+| Loki | `packages.loki` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/ad59e86c815184264ab157daea04ef676c197ac9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |
 | Monitoring | `packages.monitoring` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/monitoring) |
 | NeuVector | `packages.neuvector` | [Guide](neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
 | Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
