@@ -235,10 +235,10 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|ALG|[Alloy draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/e255545ac2211eb8b4b67e7a438d9fafb5f2834c/docs/overview.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
+|X|ALG|[Alloy draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/976e0e3836d15cc976e5e5f73332f42e0f34cf75/docs/overview.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
 |X|ALG|[Loki](./core/loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
 | |EFK|[Elastic Cloud on Kubernetes (ECK) Operator](./core/elasticsearch-kibana.md)|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)|
-| |EFK|[Elasticsearch / Kibana](./core/elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
+| |EFK|[Elasticsearch / Kibana draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
 | |EFK|[Fluentbit](./core/fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
 
 > ALG stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
