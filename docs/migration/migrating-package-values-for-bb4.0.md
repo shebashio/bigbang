@@ -42,6 +42,8 @@ To replace the input, use `--in-place`. This mode first creates `values.yaml.bak
 scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
+The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. It also moves each built-in package's `values.istio`, `values.networkPolicies`, and `values.routes` configuration beneath `values.bb-common`. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior. If both flat and already-nested `bb-common` values exist, they are recursively merged and the nested values take precedence.
+
 ## Decrypted Kubernetes Secrets
 
 Use `--secret-key` when a decrypted Kubernetes Secret stores Big Bang values
@@ -115,8 +117,6 @@ are created with restrictive permissions and removed on exit. Re-encryption
 uses the input document's existing SOPS metadata and master keys, so no
 provider-specific key flags are required beyond the authentication normally
 used to edit that file.
-
-The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
 
 Package entries retain their first-appearance order from the effective composed
 input. When legacy and canonical paths both configure a package, its first

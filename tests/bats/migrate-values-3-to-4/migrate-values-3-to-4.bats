@@ -16,6 +16,8 @@ setup() {
   [[ "$output" == *"istio, networkPolicies, and routes values are also moved under the"* ]]
   [[ "$output" == *"bb-common subchart key"* ]]
   [[ "$output" == *"Big Bang 4.x retains v1 as the default unified package contract"* ]]
+  [[ "$output" == *"complete output targets Big Bang 4.x and must not"* ]]
+  [[ "$output" == *"be deployed to a 3.x release"* ]]
   [[ "$output" == *"Package entries retain their first-appearance order"* ]]
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
