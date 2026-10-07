@@ -343,7 +343,7 @@ DevSecOps tools include packages that programmers and security teams use to plan
 |ArgoCD|[ArgoCD (draft guide)](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
 |Anchore|[Anchore (draft guide)](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/a8717f71e0fbc714adccf728d969b25b78150943/docs/overview.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
 |Fortify|[Fortify (draft guide)](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/54e7c6e6ede649fb27ef5828259da7b3c3eb30d4/docs/overview.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
-|Sonarqube|[Sonarqube](./addons/sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
+|Sonarqube|[Sonarqube (draft guide)](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/108dfe9/docs/overview.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
 |Harbor|[Harbor (draft guide)](https://repo1.dso.mil/big-bang/product/packages/harbor/-/blob/68bfa616aee5f78d5ec4967d57272263a31c61ec/docs/overview.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
 
 ## Further Information

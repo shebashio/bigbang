@@ -1,21 +1,8 @@
-# MinIO
+# MinIO Package Boundaries
 
-## Overview
+The [MinIO tenant draft guide](https://repo1.dso.mil/big-bang/product/packages/minio/-/blob/1f78da20e5b20ad7fcd2d0dcf33ea895d990102b/docs/overview.md) covers tenant configuration, storage, access, networking, and operations.
 
-[MinIO](https://min.io/) is an open source high performance, Kubernetes-native object storage suite is
-built for the demands of the hybrid cloud.
-
-The package is offered up as three individual packages that make up the MinIO ecosystem.
-
-Big Bang's implementation uses the [MinIO operator](https://github.com/minio/operator) to provide custom resources and manage the different tenents of MinIO. The official package for MinIO Operator can be found [here](https://repo1.dso.mil/big-bang/product/packages/minio-operator)
-
-The MinIO tenants are created using the [MinIO package](https://repo1.dso.mil/big-bang/product/packages/minio). This package is used to set up individual MinIO instances for applications to use (e.g. Gitlab).
-
-The final package is the MinIO console. This is a graphical user interface that allows management of an individual tenant. The official package can be found [here](https://repo1.dso.mil/big-bang/product/packages/minio).
-
-[Tenant Architecture](https://raw.githubusercontent.com/minio/operator/master/docs/images/architecture.png)
-
-Note: The Minio Operator needs to be able to reach out to the minio instances. This is to ensure that on an upgrade all existing pools are shut down before starting new ones. If you run into issues with upgrades ensure that networkPolicies allow ingress to the minio pods in your namespace on port 9000.
+MinIO Operator controller and custom-resource lifecycle guidance belongs to the separately versioned MinIO Operator package. Umbrella orchestration remains here until that migration is complete.
 
 ## Big Bang Touchpoints
 
