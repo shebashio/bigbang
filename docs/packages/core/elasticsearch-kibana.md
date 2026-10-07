@@ -4,7 +4,7 @@
 
 This page covers the umbrella's Elasticsearch/Kibana and ECK Operator orchestration and license routing. Workload storage, Kibana access, SSO, networking, and operational guidance belong in the [package migration draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md).
 
-The [ECK Operator package](https://repo1.dso.mil/big-bang/product/packages/eck-operator) owns the controller, CRD lifecycle, and operator integration. Workload custom resources and operator lifecycle are configured and versioned in separate packages.
+The [ECK Operator package](https://repo1.dso.mil/big-bang/product/packages/eck-operator) owns the controller, CRD lifecycle, and operator integration; see its [draft guide](https://repo1.dso.mil/big-bang/product/packages/eck-operator/-/blob/64260d2473a1d320f4959bcaeb2884bdd5bfa9b4/docs/overview.md). Workload custom resources and operator lifecycle are configured and versioned in separate packages.
 
 ## Big Bang Touch Points
 

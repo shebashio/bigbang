@@ -14,7 +14,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | --- | --- | --- | --- |
 | Alloy | `packages.alloy` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/976e0e3836d15cc976e5e5f73332f42e0f34cf75/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
 | cert-manager | `packages.certManager` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/cert-manager/-/blob/2497ca2c4bb00125fea7db7d78d784e64149290c/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
-| ECK Operator | `packages.eckOperator` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
+| ECK Operator | `packages.eckOperator` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/eck-operator/-/blob/64260d2473a1d320f4959bcaeb2884bdd5bfa9b4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
 | Elasticsearch Kibana | `packages.elasticsearchKibana` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
 | Fluent Bit | `packages.fluentbit` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/fluentbit/-/blob/d15f1b1c614090342e8702832fbe09b3bb99f431/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
 | Gatekeeper | `packages.gatekeeper` | [Guide](core/opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
