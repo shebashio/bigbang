@@ -6,10 +6,10 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
-| Alloy | `packages.alloy` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/e255545ac2211eb8b4b67e7a438d9fafb5f2834c/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
-| cert-manager | `packages.certManager` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/cert-manager/-/blob/1e6724b393391b8cc8df15a41733c78bc58c68ed/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
+| Alloy | `packages.alloy` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/976e0e3836d15cc976e5e5f73332f42e0f34cf75/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
+| cert-manager | `packages.certManager` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/cert-manager/-/blob/2497ca2c4bb00125fea7db7d78d784e64149290c/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
 | ECK Operator | `packages.eckOperator` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
-| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
+| Elasticsearch Kibana | `packages.elasticsearchKibana` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
 | Fluent Bit | `packages.fluentbit` | [Guide](fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
 | Gatekeeper | `packages.gatekeeper` | [Guide](opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Gateway API | `packages.gatewayAPI` | [Guide](gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |

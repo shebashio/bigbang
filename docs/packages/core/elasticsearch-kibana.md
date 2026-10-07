@@ -2,135 +2,21 @@
 
 ## Overview
 
-[Elasticsearch-Kibana](https://www.elastic.co/elastic-stack) Elasticsearch is a search engine based on the Lucene library. It provides a distributed, multi-tenant-capable full-text search engine with an HTTP web interface and schema-free JSON documents. Kibana is a data visualization dashboard for Elasticsearch. It provides visualization capabilities on top of the content indexed on an Elasticsearch cluster. Users can create bar, line and scatter plots, or pie charts and maps on top of large volumes of data.
+This page covers the umbrella's Elasticsearch/Kibana and ECK Operator orchestration and license routing. Workload storage, Kibana access, SSO, networking, and operational guidance belong in the [package migration draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md).
+
+The [ECK Operator package](https://repo1.dso.mil/big-bang/product/packages/eck-operator) owns the controller, CRD lifecycle, and operator integration. Workload custom resources and operator lifecycle are configured and versioned in separate packages.
 
 ## Big Bang Touch Points
 
-```mermaid
-graph TB
-  subgraph "Ingress"
-    ingressgateway
-  end
+With `packageConfiguration.version: v1`, use `packages.elasticsearchKibana` for the workload and `packages.eckOperator` for the operator. Legacy root-level configuration remains supported; see [Package Management](../../concepts/package-management.md).
 
-  subgraph "Operator"
-    eck-operator
-  end
-
-  subgraph "Kibana"
-    ingressgateway --> kibana
-    eck-operator --> kibana
-  end
-
-  subgraph "Elasticsearch"
-    kibana --> elasticsearch
-    eck-operator --> elasticsearch
-  end
-
-  subgraph "Metrics"
-    kibana --> prometheus
-  end
-```
-
-### Storage
-
-Persistent storage for both Elasticsearch Master and Data nodes can be configured with the following values:
-
-```yaml
-elasticsearchKibana:
-  values:
-    elasticsearch:
-      master:
-      persistence:
-        storageClassName: ""
-        size: 10Gi
-      data:
-      persistence:
-        storageClassName: ""
-        size: 20Gi
-```
-
-### Istio Configuration
-
-Istio is disabled in the elasticsearch-kibana chart by default and can be enabled with the following values in the bigbang chart:
-
-```yaml
-hostname: dev.bigbang.mil
-istio:
-  enabled: true
-```
-
-These values get passed into the logging chart [here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/templates/elasticsearch-kibana/values.yaml#L6). This creates the Istio virtual service and maps to the main istio gateway for bigbang. The Kibana GUI is available behind this Istio VirtualService that is configured automatically at "kibana.{{ .Values.hostname }}" (value set above) and can be configured with the following values:
-
-```yaml
-elasticsearchKibana:
-  values:
-    istio:
-      kibana:
-        # Toggle vs creation
-        enabled: true
-        annotations: {}
-        labels: {}
-        gateways:
-          - istio-system/main
-        hosts:
-          - kibana.{{ .Values.hostname }}
-```
-
-## High Availability
-
-This can be accomplished by increasing the "count" or number of replicas in each deployment in the stack:
-
-```yaml
-elasticsearchKibana:
-  values:
-    kibana:
-      count: 1
-    elasticsearch:
-      master:
-        count: 3
-      data:
-        count: 4
-```
-
-## Single Sign On (SSO)
-
-SSO integration for the eck stack requires a license (see below) and can be configured with the following values:
-
-```yaml
-elasticsearchKibana:
-  sso:
-    # -- Toggle OIDC SSO for Kibana/Elasticsearch on and off.
-    # Enabling this option will auto-create any required secrets.
-    enabled: true
-    # -- Elasticsearch/Kibana OIDC client ID
-    client_id: "EXAMPLE_OIDC_CLIENT"
-    # -- Elasticsearch/Kibana OIDC client secret
-    client_secret: "EXAMPLE_OIDC_CLIENT_SECRET"
-```
+- Enabling Elasticsearch/Kibana also renders the ECK Operator release, even when the operator's explicit enablement is false. ECK Operator can also be enabled independently.
+- By default, the `ek` HelmRelease targets namespace `logging` and depends on `eck-operator`; the operator release targets namespace `eck-operator`.
+- The workload package renders ECK `Elasticsearch` and `Kibana` custom resources. The operator reconciles them; operator and workload configuration are not interchangeable.
+- Logging-stack selection and collector enablement remain umbrella concerns; see [Big Bang Logging Stacks](../../concepts/logging.md).
 
 ## Licensing
 
-Features like SSO integration, email/slack/Pagerduty alerting, FIPS 140-2 mode, encryption at rest, and more for the eck stack requires a platinum or enterprise license. Information about licensing and all features is available [here](https://www.elastic.co/pricing/). A Trial license can be enabled by setting `trial: true` in the below settings to enable a 30-day trial of enterprise settings.
-Licensing can be configured with the following values:
+The umbrella accepts license inputs under `packages.elasticsearchKibana.license` when using the v1 configuration contract, or `elasticsearchKibana.license` for legacy configuration. It forwards `trial` and `keyJSON` into the ECK Operator package's generated `license` values, not into the Elasticsearch/Kibana workload chart. The operator package manages the corresponding license resources in its release namespace.
 
-```yaml
-elasticsearchKibana:
-  license:
-    trial: false
-    keyJSON: |
-      {"license":{"uid":....}}
-```
-
-## Health Checks
-
-Licensed ECK comes with [built in Health monitoring for Kibana and Elasticsearch](https://www.elastic.co/guide/en/kibana/current/monitoring-kibana.html). This is called self-monitoring within the Kibana UI available at the Stack Monitoring settings `https://KIBANA_URL/app/monitoring`#.
-
-Outside of the UI it is possible to check the health of Elasticsearch cluster via port-forward via doing the following:
-
-```shell
-kubectl get secrets -n logging logging-ek-es-elastic-user -o go-template='{{.data.elastic | base64decode}}'
-
-kubectl port-forward svc/logging-ek-es-http -n logging 9200:9200
-
-curl -ku "elastic:ELASTIC_PASSWORD" "https://localhost:9200/_cluster/health?pretty"
-```
+Treat license JSON as sensitive deployment data: use protected, encrypted deployment inputs rather than committing license material to documentation or plaintext values. Setting `trial: true` requests the operator package's trial resource; trial eligibility, terms, licensed features, and expiry behavior remain defined by Elastic. See [Elastic's ECK license management](https://www.elastic.co/docs/deploy-manage/license/manage-your-license-in-eck) and [subscriptions](https://www.elastic.co/subscriptions) rather than a copied feature matrix.
