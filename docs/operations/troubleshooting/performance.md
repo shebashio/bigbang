@@ -1,281 +1,121 @@
-# Performance Troubleshooting
+# Troubleshoot Performance
 
-This guide helps you diagnose and resolve performance issues in your Big Bang deployment. Performance problems can manifest in various ways including slow response times, high resource utilization, or application timeouts.
+Use this guide when a Big Bang deployment is healthy but workloads are slow, resource constrained, or experiencing increased latency.
 
-## Identifying Performance Issues
+If Flux resources, HelmReleases, or workloads are not healthy, start with [Troubleshooting](index.md) instead.
 
-### 1. Review Monitoring Dashboards
+## Identify the Bottleneck
 
-Start by examining your observability stack:
+Start by determining whether the problem affects a single workload, multiple workloads, or the entire cluster.
 
-- **Grafana Dashboards**: Check Big Bang's built-in dashboards for system metrics
-  - Cluster overview dashboards for CPU, memory, and network usage
-  - Application-specific dashboards for service performance
-  - Node-level metrics for infrastructure health
+For a quick check of current CPU and memory usage:
 
-- **Prometheus Metrics**: Query specific metrics to identify bottlenecks
-  - Use the Prometheus UI to explore available metrics
-  - Check the `kubernetes-service-endpoints` and `kubernetes-pods` targets for application metrics
-
-### 2. Common Performance Indicators
-
-Look for these warning signs:
-
-- High CPU or memory utilization (>80% sustained)
-- Increased response times in application logs
-- Pod restarts due to resource limits
-- Network latency or packet loss
-- Storage I/O bottlenecks
-
-## Resource Optimization
-
-### 1. Adjusting Pod Resources
-
-Edit deployment resource specifications:
-
-```yaml
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
+```shell
+kubectl top nodes
+kubectl top pods -A
 ```
 
-**Best Practices:**
-- Set requests based on actual usage patterns
-- Use limits to prevent resource starvation
-- Monitor resource utilization over time before adjusting
+To inspect a specific workload:
 
-### 2. Horizontal Pod Autoscaling (HPA)
-
-Configure HPA to automatically scale pods based on metrics:
-
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: myapp-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: myapp
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
+```shell
+kubectl top pod <pod-name> -n <namespace> --containers
+kubectl describe pod <pod-name> -n <namespace>
 ```
 
-### 3. Vertical Pod Autoscaling (VPA)
+`kubectl top` requires Metrics Server and provides a recent view of CPU and memory usage. Use the monitoring tools configured for your environment to investigate historical trends and correlate performance with other metrics.
 
-Use VPA for automatic resource recommendations:
+See [Monitoring](../monitoring.md) for Big Bang observability guidance.
 
-```yaml
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: myapp-vpa
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: myapp
-  updatePolicy:
-    updateMode: "Auto"
+## Diagnose by Symptom
+
+Use metrics, workload status, and events to identify the bottleneck before changing resource or application configuration.
+
+| Symptom | Investigate |
+| --- | --- |
+| High CPU usage or slow response under load | CPU usage, requests and limits, and application-specific metrics |
+| CPU throttling | CPU limits and workload demand |
+| High memory usage or `OOMKilled` containers | Memory usage, requests and limits, and application memory behavior |
+| Pods remain `Pending` | Pod events, resource requests, node capacity, and scheduling constraints |
+| Node resource pressure | Node resource usage, allocatable resources, and affected workloads |
+| Slow storage or I/O | Storage configuration, volume behavior, and the underlying storage platform |
+| Slow service-to-service communication | Network path, Istio metrics, and application latency |
+| Kubernetes resources are healthy but the application is slow | Application metrics, logs, dependencies, and package documentation |
+
+For Kubernetes resource behavior, see [Resource Management for Pods and Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+
+For pod scheduling or runtime problems, see [Debug Running Pods](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/).
+
+## Check CPU and Memory Configuration
+
+Compare actual resource usage with the workload's configured requests and limits:
+
+```shell
+kubectl get pod <pod-name> -n <namespace> \
+  -o jsonpath='{.spec.containers[*].resources}'
 ```
 
-## Infrastructure Optimization
+CPU and memory requests are used when Kubernetes schedules workloads. CPU limits can throttle CPU usage, while exceeding memory limits can result in a container being terminated for out-of-memory conditions.
 
-### 1. Node Pool Management
+Do not change requests or limits solely because a workload is slow. Use observed resource usage and workload requirements to determine whether resource configuration is contributing to the problem.
 
-Consider node pool adjustments:
+See [Resource Management for Pods and Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for details about requests and limits.
 
-- **Instance Types**: Use compute-optimized instances for CPU-intensive workloads
-- **Storage**: Choose appropriate storage classes (SSD vs HDD)
-- **Network**: Ensure adequate network bandwidth between nodes
+## Check Node Capacity and Scheduling
 
-### 2. Pod Placement
+If the issue affects multiple workloads or pods cannot obtain the resources they request, inspect node usage and capacity:
 
-Optimize pod scheduling:
-
-```yaml
-# Node affinity for performance-critical workloads
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: node-type
-          operator: In
-          values: ["high-performance"]
-
-# Anti-affinity to spread pods across nodes
-podAntiAffinity:
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
-        matchLabels:
-          app: myapp
-      topologyKey: kubernetes.io/hostname
+```shell
+kubectl top nodes
+kubectl describe node <node-name>
 ```
 
-### 3. Resource Quotas and Limits
+Review pod events for scheduling failures:
 
-Set namespace-level resource management:
-
-```yaml
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: namespace-quota
-spec:
-  hard:
-    requests.cpu: "4"
-    requests.memory: 8Gi
-    limits.cpu: "8"
-    limits.memory: 16Gi
+```shell
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 ```
 
-## Application-Level Optimizations
+Kubernetes schedules pods based on their resource requests and available node capacity. Pod events can identify insufficient resources and other scheduling constraints.
 
-### 1. Connection Pooling
+For detailed scheduling troubleshooting, see [Debug Running Pods](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/).
 
-Configure appropriate connection limits:
+## Check Network and Service-Mesh Performance
 
-- Database connection pools
-- HTTP client timeouts
-- Keep-alive settings
+For increased request latency or slow service-to-service communication, determine whether the delay is isolated to an application or affects multiple services.
 
-### 2. Caching Strategies
+If the affected traffic uses Istio, review mesh and application metrics to identify where latency is occurring. Istio performance can vary based on traffic characteristics, proxy resources, configuration, and enabled telemetry.
 
-Implement caching where appropriate:
+See:
 
-- Redis for session storage
-- CDN for static content
-- Application-level caching
+- [Istio standard metrics](https://istio.io/latest/docs/reference/config/metrics/)
+- [Istio performance and scalability](https://istio.io/latest/docs/ops/deployment/performance-and-scalability/)
 
-### 3. Database Performance
+If the problem is connectivity rather than performance, see [Package or workload troubleshooting](index.md#package-or-workload).
 
-Optimize database interactions:
+## Verify Performance Changes
 
-- Index optimization
-- Query performance tuning
-- Connection pooling
-- Read replicas for read-heavy workloads
+After changing resource or application configuration:
 
-## Network Performance
+1. Test the change under a representative workload.
+2. Compare the same metrics used to identify the original bottleneck.
+3. Compare results against an established performance baseline, when available.
+4. Confirm that the change improves the original symptom without introducing resource pressure or other regressions.
+5. Validate the change in a non-production environment before applying it to production when possible.
 
-### 1. Service Mesh Optimization
+Avoid treating increased resource limits, additional replicas, or infrastructure capacity as default fixes. The appropriate change depends on the identified bottleneck.
 
-If using Istio:
+## Escalate the Issue
 
-- Configure appropriate circuit breakers
-- Optimize retry policies
-- Use traffic splitting for gradual deployments
+If the bottleneck cannot be identified or resolved, collect:
 
-### 2. Load Balancing
+- Big Bang and affected package versions
+- Affected workloads and namespaces
+- When the performance issue occurs
+- CPU and memory usage
+- Relevant resource requests and limits
+- Node resource usage, if applicable
+- Application or service latency metrics
+- Relevant events and logs
+- Recent configuration, package, or infrastructure changes
 
-Ensure proper load distribution:
-
-- Configure service load balancing algorithms
-- Use ingress controllers efficiently
-- Consider geographic traffic routing
-
-## Monitoring and Alerting
-
-### 1. Set Up Performance Alerts
-
-Create alerts for key metrics:
-
-```yaml
-# Example Prometheus alert rule
-groups:
-- name: performance.rules
-  rules:
-  - alert: HighCPUUsage
-    expr: container_cpu_usage_seconds_total > 0.8
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High CPU usage detected"
-```
-
-### 2. Custom Metrics
-
-Implement application-specific monitoring as described in the [monitoring guide](../monitoring.md):
-
-- Add Prometheus annotations to services
-- Enable global endpoint metrics if needed
-- Create custom dashboards for your applications
-
-## Performance Testing
-
-### 1. Load Testing
-
-Regular performance validation:
-
-- Use tools like k6, JMeter, or Artillery
-- Test under realistic load conditions
-- Establish performance baselines
-
-### 2. Chaos Engineering
-
-Implement fault injection testing:
-
-- Use tools like Chaos Monkey or Litmus
-- Test system resilience under stress
-- Validate auto-scaling behavior
-
-## Common Performance Bottlenecks
-
-### 1. CPU Throttling
-
-**Symptoms**: Slow response times despite low CPU usage
-**Solutions**: 
-- Increase CPU limits
-- Optimize application code
-- Use CPU profiling tools
-
-### 2. Memory Pressure
-
-**Symptoms**: Pod restarts, OOM kills
-**Solutions**:
-- Increase memory limits
-- Optimize memory usage patterns
-- Implement garbage collection tuning
-
-### 3. I/O Bottlenecks
-
-**Symptoms**: High disk wait times
-**Solutions**:
-- Use faster storage classes
-- Optimize database queries
-- Implement read caching
-
-### 4. Network Latency
-
-**Symptoms**: Slow inter-service communication
-**Solutions**:
-- Optimize service mesh configuration
-- Use connection pooling
-- Consider service colocation
-
-## Next Steps
-
-If performance issues persist:
-
-1. Review [monitoring documentation](../monitoring.md) for advanced observability setup
-2. Check [networking troubleshooting](networking.md) for network-related issues
-3. Consider engaging with the Big Bang community for complex performance challenges
-4. Plan capacity upgrades if current infrastructure is insufficient
-
-Remember to always test performance changes in a non-production environment first and monitor the impact of optimizations over time.
+Review diagnostic output before sharing it because metrics, logs, and resource information can contain environment-specific or sensitive information.
