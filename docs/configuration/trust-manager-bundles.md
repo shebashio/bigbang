@@ -24,8 +24,14 @@ packageConfiguration:
 packages:
   cert-manager-trust-manager:
     enabled: true
+    namespace:
+      name: cert-manager
     helmRelease:
       namespace: bigbang
+    bbCommonValues: true
+    dependsOn:
+      - name: cert-manager
+        namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
@@ -34,6 +40,11 @@ packages:
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    namespace:
+      name: cert-manager
+    helmRelease:
+      namespace: bigbang
+    bbCommonValues: true
     dependsOn:
       - name: cert-manager-trust-manager
         namespace: bigbang
@@ -43,7 +54,7 @@ packages:
       path: chart
       tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
-      namespace: cert-manager-trust-manager
+      namespace: cert-manager
       bundle:
         enabled: true
         sources:
@@ -64,8 +75,14 @@ packageConfiguration:
 packages:
   cert-manager-trust-manager:
     enabled: true
+    namespace:
+      name: cert-manager
     helmRelease:
       namespace: bigbang
+    bbCommonValues: true
+    dependsOn:
+      - name: cert-manager
+        namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
@@ -78,6 +95,11 @@ packages:
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    namespace:
+      name: cert-manager
+    helmRelease:
+      namespace: bigbang
+    bbCommonValues: true
     dependsOn:
       - name: cert-manager-trust-manager
         namespace: bigbang
@@ -87,7 +109,7 @@ packages:
       path: chart
       tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
-      namespace: cert-manager-trust-manager
+      namespace: cert-manager
       bundle:
         enabled: true
         sources:
@@ -103,9 +125,9 @@ The aggregate Bundle can combine the supported DoD, public, and custom sources. 
 
 The default target is namespace-scoped. An omitted or explicitly empty namespace selector targets the configured trust-manager namespace. Configure an explicit label or expression selector when the trust material should be distributed to another namespace set. This package does not currently provide an all-namespaces opt-in.
 
-Secret targets and workload mount/reference configuration are follow-up scope. After the companion package documentation is published on its default branch, use the [`CMTMB package overview`](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle/-/blob/main/docs/overview.md) and [`CMTMB maintenance guide`](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle/-/blob/main/docs/DEVELOPMENT_MAINTENANCE.md) for the complete source, selector, target, schema, lifecycle, collision, provenance, and maintenance contract.
+Secret targets and workload mount/reference configuration remain follow-up scope. For the complete source, selector, target, schema, lifecycle, collision, provenance, and maintenance contract, see the [CMTMB package overview](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle/-/blob/main/docs/overview.md) and [CMTMB maintenance guide](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle/-/blob/main/docs/DEVELOPMENT_MAINTENANCE.md).
 
-After the companion package documentation is published on its default branch, use the [`CMTM package overview`](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager/-/blob/main/docs/overview.md) and [`CMTM maintenance guide`](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager/-/blob/main/docs/DEVELOPMENT_MAINTENANCE.md) for controller, webhook, CRD, and upstream default-package behavior.
+For controller, webhook, CRD, and upstream default-package behavior, see the [CMTM package overview](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager/-/blob/main/docs/overview.md) and [CMTM maintenance guide](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager/-/blob/main/docs/DEVELOPMENT_MAINTENANCE.md).
 
 ## Lifecycle and collisions
 
