@@ -43,6 +43,7 @@ packages:
       path: chart
       tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
+      namespace: cert-manager-trust-manager
       bundle:
         enabled: true
         sources:
@@ -86,6 +87,7 @@ packages:
       path: chart
       tag: <CMTMB_TAG> # replace with a published compatible tag
     values:
+      namespace: cert-manager-trust-manager
       bundle:
         enabled: true
         sources:
