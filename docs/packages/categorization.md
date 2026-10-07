@@ -290,7 +290,7 @@ Single sign-on tools include packages that provide centralized authentication an
 
 |Package|Function|Repository|
 |--|--|--|
-|[Authservice](./addons/authservice.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
+|[Authservice (draft guide)](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/82ce5c53e18576a98b215a15bd66d015214041d8/docs/overview.md)|Istio extension for Single Sign-On (SSO)|[authservice](https://repo1.dso.mil/big-bang/product/packages/authservice)|
 |[Keycloak](./addons/keycloak.md)|IdP, Identity Broker, AuthN/Z|[keycloak](https://repo1.dso.mil/big-bang/product/packages/keycloak)|
 
 ### Secrets Management
@@ -340,7 +340,7 @@ DevSecOps tools include packages that programmers and security teams use to plan
 |--|--|--|--|
 |GitLab|[GitLab](./addons/gitlab.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
 |GitLab|GitLab Runner|Executor for GitLab pipelines|[gitlab-runner](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner)|
-|ArgoCD|[ArgoCD](./addons/argocd.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
+|ArgoCD|[ArgoCD (draft guide)](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
 |Anchore|[Anchore](./addons/anchore.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
 |Fortify|[Fortify](./addons/fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
 |Sonarqube|[Sonarqube](./addons/sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
