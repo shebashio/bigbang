@@ -24,6 +24,8 @@ packageConfiguration:
 packages:
   cert-manager-trust-manager:
     enabled: true
+    helmRelease:
+      namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
@@ -61,6 +63,8 @@ packageConfiguration:
 packages:
   cert-manager-trust-manager:
     enabled: true
+    helmRelease:
+      namespace: bigbang
     sourceType: git
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
