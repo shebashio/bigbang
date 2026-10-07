@@ -13,9 +13,9 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Fortify | `packages.fortify` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/54e7c6e6ede649fb27ef5828259da7b3c3eb30d4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
 | GitLab | `packages.gitlab` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/c06248d2cbb7ea0ffe4a57df83509752b6d8930b/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab) |
 | GitLab Runner | `packages.gitlabRunner` | [Guide](gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner) |
-| Harbor | `packages.harbor` | [Guide](harbor.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/harbor) |
-| Headlamp | `packages.headlamp` | [Guide](headlamp.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/headlamp) |
-| Keycloak | `packages.keycloak` | [Guide](keycloak.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/keycloak) |
+| Harbor | `packages.harbor` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/harbor/-/blob/68bfa616aee5f78d5ec4967d57272263a31c61ec/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/harbor) |
+| Headlamp | `packages.headlamp` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/headlamp/-/blob/bb6477647a06ab14d0c7fecbc0aed447505826fc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/headlamp) |
+| Keycloak | `packages.keycloak` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/1e4f48881643531fddc2db3daecda2c040e15c8b/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/keycloak) |
 | Mattermost | `packages.mattermost` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
 | Mattermost Operator | `packages.mattermostOperator` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
 | Metrics Server | `packages.metricsServer` | [Guide](metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
