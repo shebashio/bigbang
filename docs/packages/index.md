@@ -43,8 +43,8 @@ Add-on packages provide optional platform and application capabilities.
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
 | Anchore Enterprise | `packages.anchoreEnterprise` | [Guide](addons/anchore.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |
-| Argo CD | `packages.argocd` | [Guide](addons/argocd.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/argocd) |
-| Authservice | `packages.authservice` | [Guide](addons/authservice.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/authservice) |
+| Argo CD | `packages.argocd` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/argocd) |
+| Authservice | `packages.authservice` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/82ce5c53e18576a98b215a15bd66d015214041d8/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/authservice) |
 | External Secrets | `packages.externalSecrets` | [Guide](addons/external-secrets-operator.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |
 | Fortify | `packages.fortify` | [Guide](addons/fortify.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fortify) |
 | GitLab | `packages.gitlab` | [Guide](addons/gitlab.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gitlab) |
