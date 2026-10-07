@@ -30,6 +30,64 @@ tests:
     asserts:
       - notFailedTemplate: {}
 
+  - it: should pass validation with additional HelmRelease dependencies
+    set:
+      kiali:
+        dependsOn:
+          - name: external-operator
+            namespace: operators
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should reject a HelmRelease dependency without a name
+    set:
+      kiali:
+        dependsOn:
+          - namespace: operators
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
+  - it: should fail when both dependsOn and dependsOnOverride are non-empty
+    set:
+      kiali:
+        dependsOn:
+          - name: foo
+            namespace: bar
+        dependsOnOverride:
+          - name: baz
+            namespace: qux
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
+  - it: should allow dependsOnOverride as an empty list to clear BB defaults
+    set:
+      kiali:
+        dependsOnOverride: []
+    asserts:
+      - notFailedTemplate: {}
+
+  - it: should reject an Alloy HelmRelease dependency without a name
+    set:
+      alloy:
+        dependsOn:
+          - namespace: operators
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
+  - it: should reject both Alloy dependency fields when non-empty
+    set:
+      alloy:
+        dependsOn:
+          - name: foo
+        dependsOnOverride:
+          - name: bar
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*"
+
   - it: should fail validation with extra key in base package
     set:
       kiali:

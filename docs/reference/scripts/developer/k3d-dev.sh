@@ -27,6 +27,8 @@ K3D_DEV_POSTGRES_DATABASES="${K3D_DEV_POSTGRES_DATABASES:-gitlabhq_production,ma
 K3D_DEV_GARAGE_BUCKETS="${K3D_DEV_GARAGE_BUCKETS:-}"
 TMPDIR=$(mktemp -d)
 BASE_DOMAIN="dev.bigbang.mil"
+KEYCLOAK_TLS_TERMINATED=false
+VAULT_TLS_TERMINATED=false
 PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "alertmanager"
   "anchore-api"
@@ -55,8 +57,6 @@ PUBLIC_SUBDOMAINS=( # Subdomains that use the public gateway by default
   "twistlock"
 )
 PASSTHROUGH_SUBDOMAINS=( # Subdomains that use the passthrough gateway by default
-  "keycloak"
-  "vault"
 )
 
 # OIDC configuration for kube-apiserver (enables group-based RBAC with Keycloak)
@@ -156,6 +156,14 @@ function process_arguments {
       EXTERNAL_DEPENDENCIES=true
       ;;
 
+    --keycloak-tls-terminate)
+      KEYCLOAK_TLS_TERMINATED=true
+      ;;
+
+    --vault-tls-terminate)
+      VAULT_TLS_TERMINATED=true
+      ;;
+
     -H|--existing-public-ip)
       shift
       PublicIP=$1
@@ -251,6 +259,8 @@ function process_arguments {
       echo "                                  configure databases and add buckets with"
       echo "                                  K3D_DEV_POSTGRES_DATABASES and"
       echo "                                  K3D_DEV_GARAGE_BUCKETS"
+      echo " --keycloak-tls-terminate         set Keycloak to use default public gateway"
+      echo " --vault-tls-terminate            set Vault to use default public gateway"
       echo " -U|--ssh-username USERNAME       username to use when connecting"
       echo "                                  to existing system in -P (default"
       echo "                                  value depends on cloud provider,"
@@ -393,9 +403,12 @@ function set_domains {
   for subdomain in "${PUBLIC_SUBDOMAINS[@]}"; do
     PUBLIC_DOMAINS+=("${subdomain}.${BASE_DOMAIN}")
   done
-  for subdomain in "${PASSTHROUGH_SUBDOMAINS[@]}"; do
-    PASSTHROUGH_DOMAINS+=("${subdomain}.${BASE_DOMAIN}")
-  done
+  # Skip setting domains if there are no entries for passthrough subdomains
+  if [ ${#PASSTHROUGH_SUBDOMAINS[@]} -ne 0 ]; then
+    for subdomain in "${PASSTHROUGH_SUBDOMAINS[@]}"; do
+      PASSTHROUGH_DOMAINS+=("${subdomain}.${BASE_DOMAIN}")
+    done
+  fi
 }
 
 function check_missing_tools {
@@ -1544,6 +1557,7 @@ function cloud_aws_create_instances {
 function fix_etc_hosts {
   local primary_ip # for the public gateway
   local secondary_ip # for the passthrough gateway
+  local passthrough_template=""
 
   if [[ "$METAL_LB" == "true" ]]; then
     primary_ip="172.20.1.241"
@@ -1554,6 +1568,12 @@ function fix_etc_hosts {
   else
     # No need to fix /etc/hosts if we are not using MetalLB or a secondary IP
     return
+  fi
+
+  if [[ ${#PASSTHROUGH_DOMAINS[@]} -ne 0 ]]; then
+    printf -v passthrough_template \
+      '  template IN A %s {\n    answer "{{ .Name }} 60 IN A %s"\n  }\n' \
+      "${PASSTHROUGH_DOMAINS[*]}" "${secondary_ip}"
   fi
 
   run <<ENDSSH
@@ -1568,10 +1588,7 @@ sudo bash -c "echo '## end ${BASE_DOMAIN} section' >> /etc/hosts"
 kubectl create configmap coredns-custom \
   --namespace=kube-system \
   --from-literal=bigbang.server='${BASE_DOMAIN} {
-  template IN A ${PASSTHROUGH_DOMAINS[*]} {
-    answer "{{ .Name }} 60 IN A ${secondary_ip}"
-  }
-
+${passthrough_template}
   template IN A {
     answer "{{ .Name }} 60 IN A ${primary_ip}"
   }
@@ -1620,6 +1637,20 @@ function create_instances {
 
 function main {
   process_arguments "$@"
+
+  # Place Keycloak after processing arguments so TLS termination can select the gateway.
+  if [[ "${KEYCLOAK_TLS_TERMINATED}" == "true" ]]; then
+    PUBLIC_SUBDOMAINS+=("keycloak")
+  else
+    PASSTHROUGH_SUBDOMAINS+=("keycloak")
+  fi
+
+  if [[ "${VAULT_TLS_TERMINATED}" == "true" ]]; then
+    PUBLIC_SUBDOMAINS+=("vault")
+  else
+    PASSTHROUGH_SUBDOMAINS+=("vault")
+  fi
+
   set_domains
 
   extratools=""

@@ -131,6 +131,10 @@ istioCRDs:
   enabled: true
 istioGateway:
   enabled: true
+istioEgressGateway:
+  values:
+    bbtests:
+      enabled: true
 kiali:
   sso:
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_kiali
@@ -888,6 +892,18 @@ monitoring:
             cpu: 100m
             memory: 30Mi
           limits: {}
+      kubeControllerManager:
+        serviceMonitor:
+          enabled: false
+      kubeScheduler:
+        serviceMonitor:
+          enabled: false
+      kubeEtcd:
+        serviceMonitor:
+          enabled: false
+      kubeProxy:
+        serviceMonitor:
+          enabled: false
     bbtests:
       enabled: true
 
@@ -939,6 +955,13 @@ twistlock:
     enabled: false
     client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_twistlock-saml
   values:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 2Gi
+      limits:
+        cpu: "1"
+        memory: 16Gi
     console:
       persistence:
         size: 5Gi
@@ -1232,6 +1255,24 @@ addons:
 
   anchoreEnterprise:
     enabled: false
+    database:
+      username: ci
+      password: ci-only-password
+      database: anchore
+      host: postgresql
+      port: 5432
+    flux:
+      timeout: 15m
+      install:
+        remediation:
+          retries: 0
+          remediateLastFailure: false
+      upgrade:
+        timeout: 20m
+        remediation:
+          retries: 0
+          remediateLastFailure: false
+        cleanupOnFail: false
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_anchore
@@ -1242,21 +1283,6 @@ addons:
         resources:
           requests:
             memory: 200Mi
-      postgresql:
-        persistence:
-          size: 256Mi
-        resources:
-          requests:
-            memory: 1024Mi
-        metrics:
-          resources:
-            requests:
-              memory: 200Mi
-      ensureDbJobs:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 200Mi
       ui-redis:
         upstream:
           replica:
@@ -1264,10 +1290,14 @@ addons:
             autoscaling:
               enabled: false
       upstream:
+        anchoreConfig:
+          default_admin_password: anchore-admin,123
+          keys:
+            secret: anchore-saml-secret-ci
         dataSyncer:
           initContainers:
             - name: wait-for-catalog
-              image: registry1.dso.mil/ironbank/anchore/enterprise/enterprise:5.27.1
+              image: registry1.dso.mil/ironbank/anchore/enterprise/enterprise:6.1.1
               command:
                 - /bin/sh
                 - -c
@@ -1412,9 +1442,6 @@ addons:
             limits:
               max_global_series_per_user: 0
 
-    minioObjectStorage:
-      enabled: true
-
   mattermostOperator:
     enabled: false
 
@@ -1538,23 +1565,6 @@ addons:
         - "start"
         - "--import-realm"
         extraEnv: |-
-          - name: JAVA_OPTS_APPEND
-            value: >-
-              -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-          - name: KC_HTTPS_CERTIFICATE_FILE
-            value: /opt/keycloak/conf/tls.crt
-          - name: KC_HTTP_MANAGEMENT_SCHEME
-            value: http
-          - name: KC_HTTPS_CERTIFICATE_KEY_FILE
-            value: /opt/keycloak/conf/tls.key
-          - name: KC_HTTPS_CLIENT_AUTH
-            value: request
-          - name: KC_TRUSTSTORE_PATHS
-            value: /etc/ssl/certs/
-          - name: KC_HOSTNAME
-            value: keycloak.dev.bigbang.mil
-          - name: KC_HOSTNAME_STRICT
-            value: "true"
           - name: KC_LOG_LEVEL
             value: "ALL"
         secrets:
@@ -1655,7 +1665,6 @@ addons:
           - name: tlskey
             secret:
               secretName: {{ include "keycloak.fullname" . }}-tlskey
-
         extraVolumeMounts: |-
           - name: tlscert
             mountPath: /etc/x509/https/tls.crt
@@ -1689,7 +1698,7 @@ addons:
   vault:
     enabled: false
     ingress:
-      gateway: "passthrough"
+      gateway: ""
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     kms_key_id: mrk-ff723da024254ea2b7f490c68fbc9b9b
@@ -1703,8 +1712,6 @@ addons:
             hosts:
             - kms.us-gov-west-1.amazonaws.com
       upstream:
-        global:
-          tlsDisable: false
         injector:
           enabled: true
           affinity: |

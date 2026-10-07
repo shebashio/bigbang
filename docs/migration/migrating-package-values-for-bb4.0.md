@@ -6,6 +6,10 @@ This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migrati
 
 Although Big Bang 3.32 supports the unified `packages.<name>` paths, the complete output from this script also contains the 4.x-only `bb-common` subchart layout and hardening changes. Deploy the complete migrated output with Big Bang 4.x rather than applying it independently to a 3.x release.
 
+For complete command syntax, option behavior, input formats, safety controls,
+and troubleshooting, see the
+[Package Values Migration Script Reference](package-values-migration-script.md).
+
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
 ```shell
@@ -38,7 +42,85 @@ To replace the input, use `--in-place`. This mode first creates `values.yaml.bak
 scripts/migrate-values-3-to-4.sh --in-place values.yaml
 ```
 
-The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. It also moves each built-in package's `values.istio`, `values.networkPolicies`, and `values.routes` configuration beneath `values.bb-common`. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior. If both flat and already-nested `bb-common` values exist, they are recursively merged and the nested values take precedence.
+## Decrypted Kubernetes Secrets
+
+Use `--secret-key` when a decrypted Kubernetes Secret stores Big Bang values
+under `stringData` or base64-encoded `data`. The command preserves the Secret
+envelope and migrates only the selected values payload:
+
+```shell
+scripts/migrate-values-3-to-4.sh \
+  --secret-key values.yaml \
+  --output environment-4.x.yaml environment.yaml
+```
+
+Secret mode accepts exactly one input. It rejects ambiguous keys that exist in
+both `data` and `stringData`, malformed base64, non-Secret resources, and
+SOPS-encrypted documents. Use the SOPS wrapper below when the input is still
+encrypted.
+
+The command automatically resolves YAML anchors and aliases in the protected
+working copy before migration. It warns and lists each expanded anchor name so
+you can review the affected values. The output contains concrete values rather
+than recreated anchors. YAML merge keys use spec-compliant precedence, matching
+Helm: explicit mapping values override merged values regardless of key order.
+
+## SOPS-encrypted Kubernetes Secrets
+
+Use `scripts/migrate-sops-values-3-to-4.sh` when a SOPS-encrypted Kubernetes
+Secret stores Big Bang values under `stringData["values.yaml"]` or
+`data["values.yaml"]`. The wrapper decrypts a protected temporary copy, calls
+the plaintext migration script's `--secret-key` mode, updates the Secret through
+SOPS's editor flow, and verifies the encrypted result by decrypting it again.
+Values under `data` are decoded from and restored to base64 automatically.
+
+SOPS authentication is inherited from the environment. For example, to write
+a new encrypted file while leaving the input unchanged:
+
+```shell
+AWS_PROFILE=development \
+  scripts/migrate-sops-values-3-to-4.sh \
+  --output environment-4.x.enc.yaml environment.enc.yaml
+```
+
+To replace the encrypted input, use `--in-place`. This creates an encrypted
+`.bak` file before replacing the input and refuses to overwrite an existing
+backup:
+
+```shell
+AWS_PROFILE=development \
+  scripts/migrate-sops-values-3-to-4.sh \
+  --in-place environment.enc.yaml
+```
+
+The Secret key defaults to `values.yaml`. Use `--values-key` when the embedded
+values use another key:
+
+```shell
+scripts/migrate-sops-values-3-to-4.sh \
+  --values-key bigbang.yaml \
+  --output environment-4.x.enc.yaml environment.enc.yaml
+```
+
+The wrapper accepts exactly one Secret because independently migrating layered
+values can change precedence when one layer uses a legacy package path and
+another uses its canonical `packages.<name>` path. For layered deployments,
+inspect every values source in Helm/Flux order. If the same package is
+configured through both forms across layers, compose the decrypted values in
+that order with `migrate-values-3-to-4.sh` and review a consolidated output
+before changing the stored layers.
+
+The wrapper never sends plaintext to standard output. Plaintext temporary files
+are created with restrictive permissions and removed on exit. Re-encryption
+uses the input document's existing SOPS metadata and master keys, so no
+provider-specific key flags are required beyond the authentication normally
+used to edit that file.
+
+The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+
+Package entries retain their first-appearance order from the effective composed
+input. When legacy and canonical paths both configure a package, its first
+appearance determines its position without changing canonical-value precedence.
 
 For backward compatibility, the migration utility also recognizes the historical addons.mattermostoperator key, which was renamed to addons.mattermostOperator in Big Bang 1.53. When multiple forms configure the same package, precedence is packages.mattermostOperator, then addons.mattermostOperator, then the historical addons.mattermostoperator key.
 
@@ -165,24 +247,18 @@ Review the output and render it with the Big Bang 4.x chart before adopting it. 
 helm template bigbang ./chart -f values-4.x.yaml > /dev/null
 ```
 
-The script rejects inputs that it cannot transform safely:
+The scripts reject inputs that they cannot transform safely:
 
-- For SOPS-encrypted values, decrypt to a protected temporary plaintext file,
-  migrate it, review it, and re-encrypt it according to your repository's SOPS
-  policy. For example:
-
-  ```shell
-  sops --decrypt values.enc.yaml > values.decrypted.yaml
-  scripts/migrate-values-3-to-4.sh --output values.migrated.yaml values.decrypted.yaml
-  sops --encrypt values.migrated.yaml > values.enc.yaml
-  ```
-
-  Securely remove the temporary plaintext files after reviewing the encrypted
-  result.
+- The plaintext script rejects SOPS metadata and directs users to
+  `migrate-sops-values-3-to-4.sh`.
+- The SOPS wrapper requires a Kubernetes Secret with exactly one matching key
+  under `data` or `stringData`. It rejects plaintext documents, ambiguous keys,
+  malformed base64, and failed decrypt or re-encrypt verification.
 - Split multi-document YAML into individual values files and pass them in their
   original order.
-- Expand YAML anchors and aliases before migration. Automated rewriting can
-  otherwise change their sharing and merge semantics.
+- YAML anchors and aliases are expanded automatically. Review the warning and
+  list of expanded anchor names; the scripts stop if expansion changes the
+  resolved values structure.
 - `--output` must name a file, not a directory, and cannot refer to an input
   directly or through a symlink or hardlink. Use `--in-place` for a single input
   when replacement is intended; it creates a backup first.
