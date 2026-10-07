@@ -16,7 +16,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | cert-manager | `packages.certManager` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/cert-manager/-/blob/2497ca2c4bb00125fea7db7d78d784e64149290c/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
 | ECK Operator | `packages.eckOperator` | [Guide](core/elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
 | Elasticsearch Kibana | `packages.elasticsearchKibana` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
-| Fluent Bit | `packages.fluentbit` | [Guide](core/fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
+| Fluent Bit | `packages.fluentbit` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/fluentbit/-/blob/d15f1b1c614090342e8702832fbe09b3bb99f431/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
 | Gatekeeper | `packages.gatekeeper` | [Guide](core/opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Gateway API | `packages.gatewayAPI` | [Guide](core/gateway-api.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
 | Grafana | `packages.grafana` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
