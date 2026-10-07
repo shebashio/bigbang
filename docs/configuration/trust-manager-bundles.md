@@ -15,15 +15,28 @@ The two packages have independent Helm lifecycles. Enabling the bundle package d
 
 ## DoD trust bundle
 
-Enable the controller package and the bundle package explicitly in the environment's package configuration. The package values passed to `cert-manager-trust-manager-bundle` are:
+Enable the controller package and the bundle package explicitly. These package repositories are maintained separately from the umbrella chart, so the example includes the `packageConfiguration.version: v1` discriminator and Git source fields required for custom package entries. Pin each package to an approved release tag for the environment:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   cert-manager-trust-manager:
     enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
+      path: chart
+      tag: v0.22.1-bb.8
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
+      path: chart
+      tag: 0.1.0-bb.3
     values:
       bundle:
         enabled: true
@@ -36,12 +49,20 @@ The DoD source is the package-owned, provenance-tracked Cyber Exchange artifact.
 
 ## Public trust bundle
 
-Public trust is an explicit two-package contract. Enable the upstream default package in `cert-manager-trust-manager` and the public source in `cert-manager-trust-manager-bundle`:
+Public trust is an explicit two-package contract. Use the same complete package source configuration as above, then enable the upstream default package in `cert-manager-trust-manager` and the public source in `cert-manager-trust-manager-bundle`:
 
 ```yaml
+packageConfiguration:
+  version: v1
+
 packages:
   cert-manager-trust-manager:
     enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
+      path: chart
+      tag: v0.22.1-bb.8
     values:
       upstream:
         defaultPackage:
@@ -49,6 +70,11 @@ packages:
 
   cert-manager-trust-manager-bundle:
     enabled: true
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
+      path: chart
+      tag: 0.1.0-bb.3
     values:
       bundle:
         enabled: true
