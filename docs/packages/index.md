@@ -61,7 +61,7 @@ Add-on packages provide optional platform and application capabilities.
 | SonarQube | `packages.sonarqube` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/108dfe9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
 | Thanos | `packages.thanos` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/1c338400c622d94889350336c7c114a03949ba61/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/vault/-/blob/16516344207f4cbf3261132400bd8d7eba449041/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
-| Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
+| Velero | `packages.velero` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/velero/-/blob/1404db397071d24f1a3bc581f3ffa26aa8d365fc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
 ## Other package collections
 
 - [Maintained packages](https://repo1.dso.mil/groups/big-bang/product/maintained) are maintained and tested independently but are not rendered directly by the umbrella chart.
