@@ -29,4 +29,4 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Renovate | `packages.renovate` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/renovate/-/blob/2c8f1170/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
 | Tempo | `packages.tempo` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/tempo/-/blob/997f43387422fc07278704f381d2c37eb09f6dac/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
 | Twistlock | `packages.twistlock` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/twistlock/-/blob/4381fcf990611782455c0d5814d774726499b0e2/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
-| Ztunnel | `packages.ztunnel` | [Guide](ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+| Ztunnel | `packages.ztunnel` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/ztunnel/-/blob/3189c52a2b6dbb351fe9cddc9cfa5e2207a78025/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |

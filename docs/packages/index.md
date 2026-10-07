@@ -35,7 +35,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | Renovate | `packages.renovate` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/renovate/-/blob/2c8f1170/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
 | Tempo | `packages.tempo` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/tempo/-/blob/997f43387422fc07278704f381d2c37eb09f6dac/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
 | Twistlock | `packages.twistlock` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/twistlock/-/blob/4381fcf990611782455c0d5814d774726499b0e2/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
-| Ztunnel | `packages.ztunnel` | [Guide](core/ztunnel.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+| Ztunnel | `packages.ztunnel` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/ztunnel/-/blob/3189c52a2b6dbb351fe9cddc9cfa5e2207a78025/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
 ## Add-on packages
 
 Add-on packages provide optional platform and application capabilities.
@@ -60,7 +60,7 @@ Add-on packages provide optional platform and application capabilities.
 | MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/108dfe9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
 | Thanos | `packages.thanos` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/1c338400c622d94889350336c7c114a03949ba61/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
-| Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
+| Vault | `packages.vault` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/vault/-/blob/16516344207f4cbf3261132400bd8d7eba449041/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
 ## Other package collections
 
