@@ -19,7 +19,7 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Mattermost | `packages.mattermost` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
 | Mattermost Operator | `packages.mattermostOperator` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
 | Metrics Server | `packages.metricsServer` | [Guide](metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
-| Mimir | `packages.mimir` | [Guide](mimir.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
+| Mimir | `packages.mimir` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/mimir/-/blob/328f28d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
 | MinIO | `packages.minio` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Guide](sonarqube.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |

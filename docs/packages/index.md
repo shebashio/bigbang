@@ -55,7 +55,7 @@ Add-on packages provide optional platform and application capabilities.
 | Mattermost | `packages.mattermost` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
 | Mattermost Operator | `packages.mattermostOperator` | [Guide](addons/mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
 | Metrics Server | `packages.metricsServer` | [Guide](addons/metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
-| Mimir | `packages.mimir` | [Guide](addons/mimir.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
+| Mimir | `packages.mimir` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/mimir/-/blob/328f28d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
 | MinIO | `packages.minio` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Guide](addons/sonarqube.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
