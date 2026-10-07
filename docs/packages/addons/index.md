@@ -18,7 +18,7 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Keycloak | `packages.keycloak` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/1e4f48881643531fddc2db3daecda2c040e15c8b/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/keycloak) |
 | Mattermost | `packages.mattermost` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost) |
 | Mattermost Operator | `packages.mattermostOperator` | [Guide](mattermost.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mattermost-operator) |
-| Metrics Server | `packages.metricsServer` | [Guide](metricserver.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
+| Metrics Server | `packages.metricsServer` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/metrics-server/-/blob/e0b72e939ad8fa153ddd04250c101b7e6342350d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/metrics-server) |
 | Mimir | `packages.mimir` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/mimir/-/blob/328f28d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/mimir) |
 | MinIO | `packages.minio` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |

@@ -308,7 +308,7 @@ Observability tools include packages for collecting, storing, and visualizing sy
 
 |Package|Function|Repository|
 |--|--|--|
-|[Metrics Server](./addons/metricserver.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
+|[Metrics Server (draft guide)](https://repo1.dso.mil/big-bang/product/packages/metrics-server/-/blob/e0b72e939ad8fa153ddd04250c101b7e6342350d/docs/overview.md)|Monitors pod CPU & memory utilization|[metrics-server](https://repo1.dso.mil/big-bang/product/packages/metrics-server)|
 |[Mimir (draft guide)](https://repo1.dso.mil/big-bang/product/packages/mimir/-/blob/328f28d/docs/overview.md)|Long-term storage for Prometheus metrics|[mimir](https://repo1.dso.mil/big-bang/product/packages/mimir)|
 |Headlamp|Cluster management dashboard|[headlamp](https://repo1.dso.mil/big-bang/product/packages/headlamp)|
 |Thanos|Multi-cluster Prometheus setup|[thanos](https://repo1.dso.mil/big-bang/product/packages/thanos)|
