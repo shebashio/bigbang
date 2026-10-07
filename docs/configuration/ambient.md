@@ -118,7 +118,7 @@ Restart or roll the application workloads after changing namespace enrollment an
 - [Mission Applications with Istio Ambient Mode](../tutorials/ambient-mission-applications/index.md)
 - [Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode](../migration/migrating-istio-to-ambient.md)
 - [ztunnel Package](../packages/core/ztunnel.md)
-- [Gateway API Package](../packages/core/gateway-api.md)
+- [Gateway API draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md)
 
 ### Upstream Istio Documentation
 

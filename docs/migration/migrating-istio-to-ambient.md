@@ -21,7 +21,7 @@ Standing up a **new** ambient environment instead? See
 
 - [Configuring Istio Ambient Mode in Big Bang](../configuration/ambient.md)
 - [Running Mission Applications in Ambient](../tutorials/ambient-mission-applications/index.md)
-- [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API Package](../packages/core/gateway-api.md)
+- [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md)
 - Upstream: [Migrating to Ambient Mode](https://istio.io/latest/docs/ambient/install/)
 
 ## What Changes
@@ -198,7 +198,7 @@ kubectl logs -n istio-system $ztunnel
 
 - [Configuring Istio Ambient Mode in Big Bang](../configuration/ambient.md)
 - [Running Mission Applications in Ambient](../tutorials/ambient-mission-applications/index.md)
-- [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API Package](../packages/core/gateway-api.md)
+- [ztunnel Package](../packages/core/ztunnel.md) / [Gateway API draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md)
 - [Istio Ambient Overview](https://istio.io/latest/docs/ambient/overview/) /
   [Migrating to Ambient](https://istio.io/latest/docs/ambient/install/) /
   [Ambient and Kubernetes Network Policy](https://istio.io/latest/docs/ambient/usage/networkpolicy/)
