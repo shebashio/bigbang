@@ -30,7 +30,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | Kyverno Reporter | `packages.kyvernoReporter` | [Guide](core/kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter) |
 | Loki | `packages.loki` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/ad59e86c815184264ab157daea04ef676c197ac9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |
 | Monitoring | `packages.monitoring` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/monitoring/-/blob/8d24ee480e09429d06568f0d2484d72de5343afb/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/monitoring) |
-| NeuVector | `packages.neuvector` | [Guide](core/neuvector.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
+| NeuVector | `packages.neuvector` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/neuvector/-/blob/137a68d96f91d228f0be25e09704b13f301e50d5/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/neuvector) |
 | Prometheus Operator CRDs | `packages.prometheusOperatorCRDs` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds) |
 | Renovate | `packages.renovate` | [Guide](core/renovate.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/renovate) |
 | Tempo | `packages.tempo` | [Guide](core/tempo.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
