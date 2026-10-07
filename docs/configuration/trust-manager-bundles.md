@@ -15,7 +15,7 @@ The two packages have independent Helm lifecycles. Enabling the bundle package d
 
 ## DoD trust bundle
 
-Enable the controller package and the bundle package explicitly. These package repositories are maintained separately from the umbrella chart, so the example includes the `packageConfiguration.version: v1` discriminator and Git source fields required for custom package entries. Pin each package to an approved release tag for the environment:
+Enable the controller package and the bundle package explicitly. These package repositories are maintained separately from the umbrella chart, so the example includes the `packageConfiguration.version: v1` discriminator and Git source fields required for custom package entries. Replace `<CMTM_TAG>` and `<CMTMB_TAG>` with compatible, currently published release tags for the environment before applying the configuration:
 
 ```yaml
 packageConfiguration:
@@ -30,7 +30,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
       path: chart
-      tag: v0.22.1-bb.8
+      tag: <CMTM_TAG>
 
   cert-manager-trust-manager-bundle:
     enabled: true
@@ -41,7 +41,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
       path: chart
-      tag: 0.1.0-bb.3
+      tag: <CMTMB_TAG>
     values:
       bundle:
         enabled: true
@@ -69,7 +69,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager.git
       path: chart
-      tag: v0.22.1-bb.8
+      tag: <CMTM_TAG>
     values:
       upstream:
         defaultPackage:
@@ -84,7 +84,7 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager-bundle.git
       path: chart
-      tag: 0.1.0-bb.3
+      tag: <CMTMB_TAG>
     values:
       bundle:
         enabled: true
