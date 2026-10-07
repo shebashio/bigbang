@@ -6,7 +6,7 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
-| Anchore Enterprise | `packages.anchoreEnterprise` | [Guide](anchore.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |
+| Anchore Enterprise | `packages.anchoreEnterprise` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/a8717f71e0fbc714adccf728d969b25b78150943/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise) |
 | Argo CD | `packages.argocd` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/argocd) |
 | Authservice | `packages.authservice` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/82ce5c53e18576a98b215a15bd66d015214041d8/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/authservice) |
 | External Secrets | `packages.externalSecrets` | [Guide](external-secrets-operator.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/external-secrets) |
