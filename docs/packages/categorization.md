@@ -235,7 +235,7 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-|X|ALG|[Alloy](./core/alloy.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
+|X|ALG|[Alloy draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/e255545ac2211eb8b4b67e7a438d9fafb5f2834c/docs/overview.md)|Forwarder|[alloy](https://repo1.dso.mil/big-bang/product/packages/alloy)|
 |X|ALG|[Loki](./core/loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
 | |EFK|[Elastic Cloud on Kubernetes (ECK) Operator](./core/elasticsearch-kibana.md)|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)|
 | |EFK|[Elasticsearch / Kibana](./core/elasticsearch-kibana.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|

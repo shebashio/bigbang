@@ -6,8 +6,8 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 
 | Package | Canonical configuration | Big Bang integration | Package source |
 | --- | --- | --- | --- |
-| Alloy | `packages.alloy` | [Guide](alloy.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
-| cert-manager | `packages.certManager` | [Guide](cert-manager.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
+| Alloy | `packages.alloy` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/alloy/-/blob/e255545ac2211eb8b4b67e7a438d9fafb5f2834c/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/alloy) |
+| cert-manager | `packages.certManager` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/cert-manager/-/blob/1e6724b393391b8cc8df15a41733c78bc58c68ed/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/cert-manager) |
 | ECK Operator | `packages.eckOperator` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
 | Elasticsearch Kibana | `packages.elasticsearchKibana` | [Guide](elasticsearch-kibana.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
 | Fluent Bit | `packages.fluentbit` | [Guide](fluentbit.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
