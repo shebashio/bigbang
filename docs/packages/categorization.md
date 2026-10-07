@@ -338,11 +338,11 @@ DevSecOps tools include packages that programmers and security teams use to plan
 
 |Stack|Package|Function|Repository|
 |--|--|--|--|
-|GitLab|[GitLab](./addons/gitlab.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
+|GitLab|[GitLab (draft guide)](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/c06248d2cbb7ea0ffe4a57df83509752b6d8930b/docs/overview.md)|Code repository, issue tracking, release planning, security and compliance scanning, pipelines, artifact repository, wiki|[gitLab](https://repo1.dso.mil/big-bang/product/packages/gitlab)|
 |GitLab|GitLab Runner|Executor for GitLab pipelines|[gitlab-runner](https://repo1.dso.mil/big-bang/product/packages/gitlab-runner)|
 |ArgoCD|[ArgoCD (draft guide)](https://repo1.dso.mil/big-bang/product/packages/argocd/-/blob/aa7cf268/docs/overview.md)|Continuous Deployment|[argocd](https://repo1.dso.mil/big-bang/product/packages/argocd)|
 |Anchore|[Anchore (draft guide)](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/a8717f71e0fbc714adccf728d969b25b78150943/docs/overview.md)|Vulnerability Scanner|[anchore-enterprise](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise)|
-|Fortify|[Fortify](./addons/fortify.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
+|Fortify|[Fortify (draft guide)](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/54e7c6e6ede649fb27ef5828259da7b3c3eb30d4/docs/overview.md)|Security scanning tool|[fortify](https://repo1.dso.mil/big-bang/product/packages/fortify)|
 |Sonarqube|[Sonarqube](./addons/sonarqube.md)|Static code analysis|[sonarqube](https://repo1.dso.mil/big-bang/product/packages/sonarqube)|
 |Harbor|[Harbor](./addons/harbor.md)|Container registry|[harbor](https://repo1.dso.mil/big-bang/product/packages/harbor)|
 

@@ -1,12 +1,8 @@
-# GitLab
+# GitLab Package Boundaries
 
-## Overview
+The [GitLab draft guide](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/c06248d2cbb7ea0ffe4a57df83509752b6d8930b/docs/overview.md) covers GitLab-owned integration guidance, including its data services, object storage, SSO, ingress, and operations.
 
-[Gitlab](https://about.gitlab.com/) is an open-source with premium offering, self-hostable Git repository, build system and container registry.
-
-Big Bang's implementation uses the [Gitlab Helm Chart](https://docs.gitlab.com/charts/) to provide custom resources and manage the application.
-
-A more detail view of Big Bang's implementation of Gitlab can be found in the [package docs](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/tree/main/chart/doc).
+GitLab Runner is a separately versioned package. Its documentation and release-specific configuration remain owned by the GitLab Runner package; umbrella dependency and orchestration behavior remains here until that owner migrates its portion.
 
 ## Big Bang Touch Points
 
