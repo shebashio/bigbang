@@ -1,5 +1,7 @@
 # Trust-manager bundles
 
+Deploy these packages when workloads need centrally managed CA trust distributed across selected namespaces, such as approved DoD PKI roots or public Web PKI roots. The CMTM package provides the trust-manager controller, webhook, and Bundle API; the optional CMTMB package composes selected sources into a package-managed Bundle and target ConfigMaps. Workloads must explicitly mount or reference the generated targets.
+
 Big Bang has two separate maintained packages for trust-manager:
 
 - [`cert-manager-trust-manager`](https://repo1.dso.mil/big-bang/product/maintained/cert-manager-trust-manager) provides the trust-manager controller, webhook, `Bundle` CRD, and upstream default-package behavior.
