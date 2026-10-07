@@ -112,27 +112,30 @@ flux get helmrelease bigbang -n bigbang
 
 #### Full reset
 
-Deleting the Big Bang `HelmRelease` is a **destructive recovery action**, not a standard troubleshooting step. Use it only when the deployment procedure for your environment requires it and after confirming that the failure cannot be corrected through the declarative configuration.
+A full reset is a **destructive recovery action that deletes the entire Big Bang deployment**. Before proceeding, confirm backup and persistent-data requirements and identify the Kustomization that will recreate the Big Bang `HelmRelease`.
 
-Before deleting the release:
-
-1. Identify the Kustomization that manages the Big Bang `HelmRelease`.
-2. Confirm that reconciling the Kustomization will recreate the release.
-3. Review persistent-data and backup requirements for your environment.
-
-Delete the release, reconcile its owning Kustomization, and verify that the release is recreated:
+Delete the Big Bang `HelmRelease`:
 
 ```shell
 kubectl delete helmrelease bigbang -n bigbang
+```
 
+If namespaces remain stuck in a terminating state, use the [`remove-ns-finalizer.sh`](../../../scripts/remove-ns-finalizer.sh) script to remove the remaining finalizers.
+
+After deletion completes, reconcile the Kustomization that manages the Big Bang `HelmRelease`:
+
+```shell
 flux reconcile kustomization <kustomization-name> \
   -n <namespace> --with-source
+```
 
+Verify that the deployment is recreated successfully:
+
+```shell
 flux get helmrelease bigbang -n bigbang
 ```
 
-**Warning:** Confirm the owning Kustomization and namespace before deleting the Big Bang `HelmRelease`. Do not assume that reconciling its source alone will recreate it.
-
+**Warning:** Removing namespace finalizers forces deletion to complete. Use the script only for namespaces that remain stuck during the full reset.
 ### Package or workload
 
 After the Big Bang `HelmRelease` is ready, check the downstream package releases:
