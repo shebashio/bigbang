@@ -214,10 +214,5 @@ upstream:
   csi:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
-
-{{- if $istioEnabled }}
-minio:
-  annotations:
-    {{ include "istioAnnotation" . }}
-{{- end }}        
+  
 {{- end -}}
