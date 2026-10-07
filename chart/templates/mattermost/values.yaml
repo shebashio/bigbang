@@ -195,28 +195,12 @@ postgresql:
 {{- end }}
 {{- end }}
 
-{{- with .Values.addons.mattermost.objectStorage }}
-{{- if and .endpoint .accessKey .accessSecret .bucket }}
+{{- $objStore := .Values.addons.mattermost.objectStorage }}
+{{- if and $objStore.endpoint $objStore.accessKey $objStore.accessSecret $objStore.bucket }}
 fileStore:
   secret: "mattermost-objectstorage-secret"
-  url: {{ .endpoint }}
-  bucket: {{ .bucket }}
-{{- else }}
-minio:
-  install: true
-  upstream:
-    tenant:
-      {{- include "secretsImagePullSecretWithName" $ | nindent 6 }}
-      metrics:
-        enabled: {{ eq (include "metricScrapingEnabled" $) "true" }}
-      configSecret:
-        accessKey: {{ .accessKey | default "minio" }}
-        secretKey: {{ .secretKey | default "BigBangDEVONLY" }}
-    {{- if $istioEnabled }}
-    annotations:
-      {{ include "istioAnnotation" $ }}
-  {{- end }}
-{{- end }}
+  url: {{ $objStore.endpoint }}
+  bucket: {{ $objStore.bucket }}
 {{- end }}
 
 {{- if .Values.addons.mattermost.elasticsearch.enabled }}
@@ -227,5 +211,11 @@ elasticsearch:
 mattermostEnvs:
   # required for Keycloak >= 20.X to work with gitlab auth pointed to Keycloak
   MM_GITLABSETTINGS_SCOPE: openid
+  {{- if $objStore.disableSSL }}
+  MM_FILESETTINGS_AMAZONS3SSL: "false"
+  {{- end }}
+  {{- if $objStore.forcePathStyle }}
+  MM_FILESETTINGS_AMAZONS3PATHSTYLE: "true"
+  {{- end }}
 
 {{- end -}}

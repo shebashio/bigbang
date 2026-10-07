@@ -1453,6 +1453,13 @@ addons:
       client_secret: "no-secret"
     elasticsearch:
       enabled: true
+    objectStorage:
+      endpoint: "garage:3900"
+      accessKey: "GKbb0000000000000000000000"
+      accessSecret: "bb00000000000000000000000000000000000000000000000000000000000000"
+      bucket: "mattermost"
+      disableSSL: true
+      forcePathStyle: true
     values:
       monitoring:
         enabled: true
@@ -1464,37 +1471,6 @@ addons:
           cpu: 100m
           memory: 128Mi
         limits: {}
-      minio:
-        upstream:
-          tenant:
-            pools:
-            - name: pool-0
-              labels:
-                app: minio
-                app.kubernetes.io/name: minio
-              servers: 1
-              volumesPerServer: 4
-              size: 256Mi
-              resources:
-                requests:
-                  cpu: 250m
-                  memory: 1Gi
-                limits:
-                  cpu: 250m
-                  memory: 2Gi
-              securityContext:
-                runAsUser: 1001
-                runAsGroup: 1001
-                fsGroup: 1001
-                fsGroupChangePolicy: "OnRootMismatch"
-                runAsNonRoot: true
-              containerSecurityContext:
-                runAsUser: 1001
-                runAsGroup: 1001
-                runAsNonRoot: true
-                capabilities:
-                  drop:
-                    - ALL
       bbtests:
         enabled: true
 
