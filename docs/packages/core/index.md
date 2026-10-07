@@ -11,15 +11,15 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | ECK Operator | `packages.eckOperator` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/eck-operator/-/blob/64260d2473a1d320f4959bcaeb2884bdd5bfa9b4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/eck-operator) |
 | Elasticsearch Kibana | `packages.elasticsearchKibana` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana) |
 | Fluent Bit | `packages.fluentbit` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/fluentbit/-/blob/d15f1b1c614090342e8702832fbe09b3bb99f431/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/fluentbit) |
-| Gatekeeper | `packages.gatekeeper` | [Guide](opa-gatekeeper.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
+| Gatekeeper | `packages.gatekeeper` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/policy/-/blob/e07223e92cf47a5bb5efe293a7ea71f75187ed0a/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Gateway API | `packages.gatewayAPI` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
 | Grafana | `packages.grafana` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
 | Istio CNI | `packages.istioCNI` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
 | Istio CRDs | `packages.istioCRDs` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
 | Istio Gateway | `packages.istioGateway` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
 | Istiod | `packages.istiod` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
-| Kiali | `packages.kiali` | [Guide](kiali.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
-| Kyverno | `packages.kyverno` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
+| Kiali | `packages.kiali` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kiali/-/blob/9216b468197153547711ff738fd4bddc4acadd75/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
+| Kyverno | `packages.kyverno` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kyverno/-/blob/44642cd53a556731f091d4560d5a0ca2788d9fe4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |
 | Kyverno Reporter | `packages.kyvernoReporter` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter) |
 | Loki | `packages.loki` | [Guide](loki.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/loki) |

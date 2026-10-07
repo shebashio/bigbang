@@ -227,7 +227,7 @@ A service mesh is a dedicated infrastructure layer for making service-to-service
 |X|Istio|[Istiod](./core/istio.md) |Control Plane|[istiod](https://repo1.dso.mil/big-bang/product/packages/istiod)|
 |X|Istio|[Istio Gateway](./core/istio.md) | Ingress Gateway |[istio-gateway](https://repo1.dso.mil/big-bang/product/packages/istio-gateway)|
 | |Istio|[Istio CNI](./core/istio.md) | Traffic Interception |[istio-cni](https://repo1.dso.mil/big-bang/product/packages/istio-cni)|
-|X|Istio|[Kiali](./core/kiali.md)|Management Console|[kiali](https://repo1.dso.mil/big-bang/product/packages/kiali)|
+|X|Istio|[Kiali (draft guide)](https://repo1.dso.mil/big-bang/product/packages/kiali/-/blob/9216b468197153547711ff738fd4bddc4acadd75/docs/overview.md)|Management Console|[kiali](https://repo1.dso.mil/big-bang/product/packages/kiali)|
 
 ### Logging
 
@@ -249,8 +249,8 @@ Policy Enforcement is the ability to validate Kubernetes resources against compl
 
 |Default|Stack|Package|Function|Repositories|
 |--|--|--|--|--|
-| |Gatekeeper|[OPA Gatekeeper](./core/opa-gatekeeper.md)|Engine & Policies|[policy](https://repo1.dso.mil/big-bang/product/packages/policy)|
-|X|Kyverno|[Kyverno](./core/kyverno.md)|Engine|[kyverno](https://repo1.dso.mil/big-bang/product/packages/kyverno)|
+| |Gatekeeper|[OPA Gatekeeper (draft guide)](https://repo1.dso.mil/big-bang/product/packages/policy/-/blob/e07223e92cf47a5bb5efe293a7ea71f75187ed0a/docs/overview.md)|Engine & Policies|[policy](https://repo1.dso.mil/big-bang/product/packages/policy)|
+|X|Kyverno|[Kyverno (draft guide)](https://repo1.dso.mil/big-bang/product/packages/kyverno/-/blob/44642cd53a556731f091d4560d5a0ca2788d9fe4/docs/overview.md)|Engine|[kyverno](https://repo1.dso.mil/big-bang/product/packages/kyverno)|
 |X|Kyverno|[Kyverno Policies](./core/kyverno.md)|Policies|[kyverno-policies](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies)|
 |X|Kyverno|[Kyverno Reporter](./core/kyverno.md)|Reporting|[kyverno-reporter](https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter)|
 
