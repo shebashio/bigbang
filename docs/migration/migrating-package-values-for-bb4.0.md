@@ -12,7 +12,8 @@ packageConfiguration:
 This guide covers the package-path migration and the related `bb-common`
 values migration. For built-in packages, the script moves `values.istio`,
 `values.networkPolicies`, and `values.routes` beneath `values.bb-common`.
-Already-nested values take precedence. Unknown custom packages are not rewritten.
+When legacy and canonical package paths coexist, `packages.<name>` takes
+precedence. Already-nested `bb-common` values take precedence over flat values. Unknown custom packages are not rewritten.
 The script also migrates custom hardening resources and removes legacy hardening.
 Deploy this complete output with Big Bang 4.x; the subchart layout and hardening
 changes are not compatible with Big Bang 3.x.
