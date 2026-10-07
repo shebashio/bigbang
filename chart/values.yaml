@@ -2025,7 +2025,7 @@ addons:
     objectStorage:
       # -- S3 compatible endpoint to use for connection information.
       # Entering connection info will enable this option and will auto-create any required secrets.
-      # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "garage:3900"
+      # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com"
       endpoint: ""
 
       # -- Access key for connecting to object storage endpoint.
@@ -2038,10 +2038,10 @@ addons:
       # -- Bucket name to use for Mattermost.
       bucket: ""
 
-      # -- Disable SSL for the object storage connection (set true for HTTP endpoints such as Garage).
+      # -- Disable SSL for the object storage connection (set true for HTTP S3-compatible endpoints).
       disableSSL: false
 
-      # -- Force path-style S3 addressing (required for Garage and other S3-compatible stores).
+      # -- Force path-style S3 addressing (required for some S3-compatible stores).
       forcePathStyle: false
 
     # -- Mattermost Elasticsearch integration - requires enterprise E20 license - https://docs.mattermost.com/administration-guide/configure/environment-configuration-settings
