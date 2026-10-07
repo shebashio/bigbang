@@ -59,7 +59,7 @@ Add-on packages provide optional platform and application capabilities.
 | MinIO | `packages.minio` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](addons/minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/108dfe9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
-| Thanos | `packages.thanos` | [Guide](addons/thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
+| Thanos | `packages.thanos` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/1c338400c622d94889350336c7c114a03949ba61/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Guide](addons/vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Guide](addons/velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
 ## Other package collections

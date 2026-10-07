@@ -23,6 +23,6 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | MinIO | `packages.minio` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio) |
 | MinIO Operator | `packages.minioOperator` | [Guide](minio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/minio-operator) |
 | SonarQube | `packages.sonarqube` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/108dfe9/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/sonarqube) |
-| Thanos | `packages.thanos` | [Guide](thanos.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
+| Thanos | `packages.thanos` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/1c338400c622d94889350336c7c114a03949ba61/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Guide](vault.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Guide](velero.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
