@@ -277,7 +277,7 @@ Runtime security is the active protection of containers running in the cluster. 
 
 |Default|Package|Repositories|
 |--|--|--|
-|X|[Neuvector](./core/neuvector.md)|[neuvector](https://repo1.dso.mil/big-bang/product/packages/neuvector)|
+|X|[Neuvector (draft guide)](https://repo1.dso.mil/big-bang/product/packages/neuvector/-/blob/137a68d96f91d228f0be25e09704b13f301e50d5/docs/overview.md)|[neuvector](https://repo1.dso.mil/big-bang/product/packages/neuvector)|
 | |[Prisma Cloud Compute](./core/twistlock.md) (AKA Twistlock) ![License Required](https://img.shields.io/badge/License_Required-orange)|[twistlock](https://repo1.dso.mil/big-bang/product/packages/twistlock)|
 
 ## Addons
