@@ -239,7 +239,7 @@ A logging stack is a set of scalable tools that can aggregate logs from cluster 
 |X|ALG|[Loki](./core/loki.md)|Storage|[loki](https://repo1.dso.mil/big-bang/product/packages/loki)|
 | |EFK|[Elastic Cloud on Kubernetes (ECK) Operator](./core/elasticsearch-kibana.md)|Operator|[eck-operator](https://repo1.dso.mil/big-bang/product/packages/eck-operator)|
 | |EFK|[Elasticsearch / Kibana draft guide](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana/-/blob/76bea319822232afab2c22505e83a66e9ca2d03d/docs/overview.md)|Storage & Visualization|[elasticsearch-kibana](https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana)|
-| |EFK|[Fluentbit](./core/fluentbit.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
+| |EFK|[Fluentbit (draft guide)](https://repo1.dso.mil/big-bang/product/packages/fluentbit/-/blob/d15f1b1c614090342e8702832fbe09b3bb99f431/docs/overview.md)|Forwarder|[fluentbit](https://repo1.dso.mil/big-bang/product/packages/fluentbit)|
 
 > ALG stack uses the Grafana package, deployed in [monitoring](#monitoring), for visualization.
 
