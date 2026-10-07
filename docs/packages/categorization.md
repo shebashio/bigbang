@@ -330,7 +330,7 @@ For non-critical or on-prem deployments where data loss is an acceptable risk, t
 |--|--|--|--|
 |MinIO|MinIO Operator|Operator|[minio-operator](https://repo1.dso.mil/big-bang/product/packages/minio-operator)|
 |MinIO|[MinIO](./addons/minio.md)|S3 Object Storage|[minio](https://repo1.dso.mil/big-bang/product/packages/minio)|
-|Velero|[Velero](./addons/velero.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
+|Velero|[Velero (draft guide)](https://repo1.dso.mil/big-bang/product/packages/velero/-/blob/1404db397071d24f1a3bc581f3ffa26aa8d365fc/docs/overview.md)|Cluster Backup & Restore|[velero](https://repo1.dso.mil/big-bang/product/packages/velero)|
 
 ### DevSecOps Tools
 
