@@ -81,7 +81,7 @@ kubectl describe kustomization <kustomization-name> -n <namespace>
 
 Use the resource conditions and messages to identify source access, manifest build or apply, decryption, or dependency failures.
 
-For detailed troubleshooting, see the [Flux troubleshooting guide](https://fluxcd.io/flux/cheatsheets/troubleshooting/) and [Flux Kustomization documentation](https://fluxcd.io/flux/components/kustomize/kustomizations/).
+For detailed troubleshooting, see the [Flux troubleshooting guide](https://fluxcd.io/flux/cheatsheets/troubleshooting/) and [Flux Kustomization documentation](https://fluxcd.io/flux/components/kustomize/kustomizations/). For Git repository authentication, certificate, or source-access failures, see [Flux GitRepository documentation](https://fluxcd.io/flux/components/source/gitrepositories/).
 
 ### Big Bang HelmRelease
 
@@ -120,7 +120,7 @@ Delete the Big Bang `HelmRelease`:
 kubectl delete helmrelease bigbang -n bigbang
 ```
 
-If namespaces remain stuck in a terminating state, use the [`remove-ns-finalizer.sh`](../../../scripts/remove-ns-finalizer.sh) script to remove the remaining finalizers.
+If namespaces remain stuck in a terminating state, use the [`remove-ns-finalizer.sh`](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/scripts/remove-ns-finalizer.sh) script to remove the remaining finalizers.
 
 After deletion completes, reconcile the Kustomization that manages the Big Bang `HelmRelease`:
 
@@ -158,20 +158,23 @@ kubectl describe pod <pod-name> -n <namespace>
 ```
 
 Use the reported conditions and events to choose the next step.
+For package-specific configuration and troubleshooting, see the [Big Bang package documentation](https://docs-bigbang.dso.mil/latest/docs/packages/). Select the affected package for its Big Bang integration guide and package repository.
 
 | Problem | Continue with |
 | --- | --- |
 | Pod is `Pending`, fails to start, or repeatedly restarts | [Kubernetes application debugging](https://kubernetes.io/docs/tasks/debug/debug-application/) |
-| `ErrImagePull` or `ImagePullBackOff` | Inspect pod events and verify the image reference, registry access, and configured credentials |
+| `ErrImagePull` or `ImagePullBackOff` | Inspect pod events, image references, and pull credentials. See [Big Bang registry credentials](https://docs-bigbang.dso.mil/latest/docs/configuration/#registrycredentials) and [Kubernetes private registry authentication](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/). |
 | DNS failure | [Kubernetes DNS debugging](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) |
 | Service has no reachable backend | [Kubernetes Service debugging](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/) |
 | NetworkPolicy may be blocking traffic | [Big Bang Network Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/network-policies/) |
 | Istio routing, mesh, TLS, or authorization problem | [Istio diagnostic tools](https://istio.io/latest/docs/ops/diagnostic-tools/) |
 | Big Bang authorization problem | [Big Bang Authorization Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/authorization-policies/) |
 | Big Bang route problem | [Big Bang Routes](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/) |
-| Admission failure | Use the documentation for the policy controller reported in the rejection |
-| Resource, storage, or scheduling problem | [Kubernetes troubleshooting](https://kubernetes.io/docs/tasks/debug/) |
-| Kubernetes resources are healthy but the application is not | Use the package-specific documentation |
+| Kyverno admission or policy failure | [Kyverno troubleshooting](https://kyverno.io/docs/guides/troubleshooting/). For other admission controllers, consult the documentation for the controller identified in the error. |
+| Insufficient CPU or memory | [Kubernetes resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| Storage or PersistentVolumeClaim problem | [Kubernetes persistent volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) |
+| Pod scheduling failure | [Kubernetes scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/) |
+| Kubernetes resources are healthy but the application is not | Consult the affected package's [Big Bang integration guide or package repository](https://docs-bigbang.dso.mil/latest/docs/packages/). |
 | Deployment is healthy but slow or resource constrained | [Performance troubleshooting](performance.md) |
 
 #### Check Service connectivity
@@ -188,6 +191,10 @@ kubectl get endpointslice -n <namespace> \
 If the Service is expected to select workloads but has no endpoints, verify its selector and backing workloads.
 
 For CNI, load balancer, or infrastructure failures, use the documentation for the components deployed in your environment.
+
+For cluster networking problems, see [Kubernetes Network Plugins](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/) and the documentation for your installed CNI.
+
+For external traffic or load-balancer problems, see [Kubernetes Service debugging](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/) and the documentation for your cluster's load-balancer implementation.
 
 **Warning:** Do not disable security policies, add broad allow rules, or manually modify Flux-managed workloads as a standard troubleshooting step. Correct the declarative configuration that caused the failure.
 
