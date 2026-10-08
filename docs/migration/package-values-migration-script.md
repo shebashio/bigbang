@@ -8,8 +8,8 @@ reviewing exact behavior, or diagnosing a failure.
 
 ## Scope
 
-The migration moves recognized built-in packages from their Big Bang 3.x
-locations into `packages.<name>` and, by default, sets:
+Both targets move recognized built-in packages from their Big Bang 3.x
+locations into `packages.<name>` and, by default, set:
 
 ```yaml
 packageConfiguration:
@@ -19,9 +19,13 @@ packageConfiguration:
 Use `--omit-package-configuration` only for a secondary values source when
 another source composed into the same Big Bang release supplies this contract.
 
-The commands do not rewrite unrelated deprecated Big Bang settings or values
-passed through to child charts. Review the applicable release notes for those
-changes.
+Target 3 stops after the unified package-path migration, retaining flat
+`bb-common` library values and legacy hardening for use with Big Bang 3.x.
+Target 4 additionally nests `istio`, `networkPolicies`, and `routes` beneath
+the `bb-common` subchart key, migrates legacy custom Istio resources, and
+removes legacy hardening. The commands do not rewrite other unrelated
+deprecated settings or values passed through to child charts. Target 4 output
+must not be deployed to Big Bang 3.x.
 
 Two commands are available:
 
@@ -54,13 +58,14 @@ The SOPS wrapper additionally requires:
 ### Syntax
 
 ```text
-migrate-values-3-to-4.sh [OPTIONS] [INPUT ...]
+migrate-values-3-to-4.sh --target {3|4} [OPTIONS] [INPUT ...]
 ```
 
 ### Options
 
 | Option | Description |
 | --- | --- |
+| `-t VERSION`, `--target VERSION` | Required target Big Bang major version. Allowed values are `3` and `4`. |
 | `-o FILE`, `--output FILE` | Write the migrated document to `FILE`. The output cannot resolve to an input file. |
 | `-i`, `--in-place` | Replace one input after creating `INPUT.bak`. The command refuses to overwrite an existing backup. |
 | `-k KEY`, `--secret-key KEY` | Treat one input as a decrypted Kubernetes Secret and migrate the values stored under `data[KEY]` or `stringData[KEY]`. |
@@ -79,6 +84,7 @@ Pass one raw values file to migrate it without changing the input:
 
 ```shell
 scripts/migrate-values-3-to-4.sh \
+  --target 4 \
   --output values-4.x.yaml values.yaml
 ```
 
@@ -88,6 +94,7 @@ one consolidated document:
 
 ```shell
 scripts/migrate-values-3-to-4.sh \
+  --target 4 \
   --output values-4.x.yaml \
   common.yaml environment.yaml secrets.yaml
 ```
@@ -144,7 +151,7 @@ spec:
 Migrate a secondary patch while preserving its HelmRelease structure:
 
 ```shell
-scripts/migrate-values-3-to-4.sh \
+scripts/migrate-values-3-to-4.sh --target 4 \
   --bigbang-helmrelease --omit-package-configuration \
   --output monitoring-4.x.yaml monitoring.yaml
 ```
@@ -167,7 +174,7 @@ secondary patches. Migrate each patch independently so the Kustomize directory
 structure and overlay order can remain intact:
 
 ```shell
-scripts/migrate-values-3-to-4.sh \
+scripts/migrate-values-3-to-4.sh --target 4 \
   --bigbang-helmrelease --omit-package-configuration \
   --in-place monitoring.yaml
 ```
@@ -214,7 +221,7 @@ spec:
 Combine ordinary values and package patches:
 
 ```shell
-scripts/migrate-values-3-to-4.sh \
+scripts/migrate-values-3-to-4.sh --target 4 \
   --output values-4.x.yaml values.yaml \
   --helmrelease-patch monitoring-patch.yaml \
   --helmrelease-patch ek-patch.yaml
@@ -276,6 +283,7 @@ stringData:
 
 ```shell
 scripts/migrate-values-3-to-4.sh \
+  --target 4 \
   --secret-key values.yaml \
   --output environment-4.x.yaml environment.yaml
 ```
@@ -303,13 +311,14 @@ must not contain top-level SOPS metadata.
 ### Syntax
 
 ```text
-migrate-sops-values-3-to-4.sh [OPTIONS] INPUT
+migrate-sops-values-3-to-4.sh --target {3|4} [OPTIONS] INPUT
 ```
 
 ### Options
 
 | Option | Description |
 | --- | --- |
+| `-t VERSION`, `--target VERSION` | Required target Big Bang major version. Allowed values are `3` and `4`; it is passed to the plaintext migration command. |
 | `-o FILE`, `--output FILE` | Write the migrated SOPS-encrypted Secret to `FILE`. |
 | `-i`, `--in-place` | Replace the encrypted input after creating an encrypted `INPUT.bak`. |
 | `-k KEY`, `--values-key KEY` | Select the Secret key containing the values. The default is `values.yaml`. |
@@ -324,6 +333,7 @@ both `stringData` and base64-encoded `data`.
 ```shell
 AWS_PROFILE=development \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
 
@@ -332,6 +342,7 @@ AWS_PROFILE=development \
 ```shell
 AWS_PROFILE=development \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --in-place environment.enc.yaml
 ```
 
@@ -340,6 +351,7 @@ AWS_PROFILE=development \
 ```shell
 AWS_PROFILE=development \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --values-key bigbang.yaml \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
@@ -348,7 +360,7 @@ AWS_PROFILE=development \
 
 ```shell
 AWS_PROFILE=development \
-  scripts/migrate-sops-values-3-to-4.sh \
+  scripts/migrate-sops-values-3-to-4.sh --target 4 \
   --omit-package-configuration \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
@@ -362,8 +374,8 @@ The wrapper performs the following operations:
 
 1. Creates a temporary directory with restrictive permissions.
 2. Decrypts the input into that directory.
-3. Calls `migrate-values-3-to-4.sh --secret-key` on the decrypted Secret,
-   forwarding `--omit-package-configuration` when requested.
+3. Calls `migrate-values-3-to-4.sh --target <target> --secret-key` on the decrypted Secret.
+   The omission option is also forwarded when requested.
 4. Uses the input document's existing SOPS metadata and master keys to update a
    temporary encrypted copy.
 5. Decrypts the result and compares the complete Secret with the migrated
@@ -380,6 +392,7 @@ environment. Do not pass credentials as command options.
 ```shell
 SOPS_BIN=/opt/bin/sops \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
 
@@ -452,6 +465,7 @@ The commands stop without replacing the input when they encounter conditions
 that cannot be migrated safely, including:
 
 - Invalid YAML or a root value that is not a mapping.
+- A missing target or a target other than `3` or `4`.
 - Multiple YAML documents in ordinary values or Secret inputs. Files supplied
   with `--helmrelease-patch` may contain multiple HelmRelease documents.
 - A semantic mismatch detected while automatically expanding YAML anchors and

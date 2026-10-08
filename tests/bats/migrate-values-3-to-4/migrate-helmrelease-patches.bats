@@ -29,7 +29,7 @@ EOF
 
 @test "converts a package patch to values without changing the input" {
   cp "$INPUT_FILE" "${INPUT_FILE}.original"
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packageConfiguration.version' "$OUTPUT_FILE")" = v1 ]
@@ -39,7 +39,7 @@ EOF
   [ "$(yq 'has("kind") or has("spec") or (.packages.monitoring | has("enabled"))' "$OUTPUT_FILE")" = false ]
   cmp "$INPUT_FILE" "${INPUT_FILE}.original"
 
-  run "$SCRIPT_PATH" -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
 
@@ -69,7 +69,7 @@ EOF
   cp "$INPUT_FILE" "$SECOND_PATCH"
   yq -i '.spec = {"timeout": "30m", "values": {"entries": ["patch"]}}' "$SECOND_PATCH"
 
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" "$RAW_VALUES" \
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" "$RAW_VALUES" \
     --helmrelease-patch "$SECOND_PATCH" -o "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
@@ -101,7 +101,7 @@ metadata:
 spec:
   suspend: false
 EOF
-  run "$SCRIPT_PATH" --omit-package-configuration --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --omit-package-configuration --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq 'has("packageConfiguration")' "$OUTPUT_FILE")" = false ]
@@ -115,7 +115,7 @@ EOF
 @test "reports and expands anchors in package patches" {
   yq -i '.spec.install = .spec.upgrade | .spec.upgrade anchor = "remediation" | .spec.install alias = "remediation"' "$INPUT_FILE"
 
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [[ "$output" == *"Expanded anchors:"* ]]
@@ -125,7 +125,7 @@ EOF
 @test "refuses ambiguous package identities and parent HelmReleases" {
   for release_name in bigbang custom-package public-ingressgateway istio-gateway; do
     RELEASE_NAME="$release_name" yq -i '.metadata.name = strenv(RELEASE_NAME)' "$INPUT_FILE"
-    run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+    run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
     [ "$status" -ne 0 ]
     [[ "$output" == *"cannot identify a built-in package"* ]]
     [ ! -e "$OUTPUT_FILE" ]
@@ -136,7 +136,7 @@ EOF
   printf 'existing output\n' >"$OUTPUT_FILE"
   for field in chart valuesFrom dependsOn postRenderers targetNamespace; do
     PATCH_FIELD="$field" yq -i '.spec[strenv(PATCH_FIELD)] = "private-test-sentinel"' "$INPUT_FILE"
-    run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+    run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
     [ "$status" -ne 0 ]
     [[ "$output" == *"unsupported HelmRelease patch fields"* ]]
     [[ "$output" != *"private-test-sentinel"* ]]
@@ -145,7 +145,7 @@ EOF
   done
 
   yq -i '.metadata.annotations.owner = "private-test-sentinel"' "$INPUT_FILE"
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"metadata.annotations"* ]]
   [[ "$output" != *"private-test-sentinel"* ]]
@@ -154,7 +154,7 @@ EOF
 @test "rejects null deletions and nested Kustomize patch directives" {
   for expression in '.spec.values.upstream = null' '.spec.values.upstream.$patch = "replace"'; do
     EXPRESSION="$expression" yq -i 'eval(strenv(EXPRESSION))' "$INPUT_FILE"
-    run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+    run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
     [ "$status" -ne 0 ]
     [[ "$output" == *"null deletions and patch directives require manual migration"* ]]
     [ ! -e "$OUTPUT_FILE" ]
@@ -165,13 +165,13 @@ EOF
   for expression in '.spec.values = []' '.apiVersion = "example.com/v1"' '.kind = "Secret"' '.sops = {"encrypted": true}' '.spec = "invalid"' '.metadata.name = null'; do
     cp "$INPUT_FILE" "${INPUT_FILE}.invalid"
     EXPRESSION="$expression" yq -i 'eval(strenv(EXPRESSION))' "${INPUT_FILE}.invalid"
-    run "$SCRIPT_PATH" --helmrelease-patch "${INPUT_FILE}.invalid" -o "$OUTPUT_FILE"
+    run "$SCRIPT_PATH" --target 3 --helmrelease-patch "${INPUT_FILE}.invalid" -o "$OUTPUT_FILE"
     [ "$status" -ne 0 ]
     [ ! -e "$OUTPUT_FILE" ]
   done
 
   printf 'invalid: [\n' >"${INPUT_FILE}.invalid"
-  run "$SCRIPT_PATH" --helmrelease-patch "${INPUT_FILE}.invalid" -o "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "${INPUT_FILE}.invalid" -o "$OUTPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"not valid YAML"* ]]
 }
@@ -183,7 +183,7 @@ EOF
   path: /spec/timeout
   value: 30m
 EOF
-  run --separate-stderr "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
 
   [ "$status" -ne 0 ]
   [ -z "$output" ]
@@ -191,35 +191,35 @@ EOF
 }
 
 @test "HelmRelease inputs require the explicit patch option" {
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"use --helmrelease-patch"* ]]
 }
 
 @test "works with system Bash for patches-only and values-only inputs" {
-  run /bin/bash "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run /bin/bash "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
   [ "$status" -eq 0 ]
-  run /bin/bash "$SCRIPT_PATH" "$OUTPUT_FILE" -o "${OUTPUT_FILE}.second"
+  run /bin/bash "$SCRIPT_PATH" --target 3 "$OUTPUT_FILE" -o "${OUTPUT_FILE}.second"
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
 }
 
 @test "patch mode protects input paths and rejects incompatible options" {
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" --in-place
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" --in-place
   [ "$status" -ne 0 ]
   [[ "$output" == *"cannot be combined with --in-place"* ]]
   [ ! -e "${INPUT_FILE}.bak" ]
 
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" --secret-key values.yaml "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" --secret-key values.yaml "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"cannot be combined with --secret-key"* ]]
 
   ln -s "$INPUT_FILE" "$OUTPUT_FILE"
-  run "$SCRIPT_PATH" --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch "$INPUT_FILE" -o "$OUTPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"output refers to an input file"* ]]
 
-  run "$SCRIPT_PATH" --helmrelease-patch
+  run "$SCRIPT_PATH" --target 3 --helmrelease-patch
   [ "$status" -ne 0 ]
   [[ "$output" == *"requires a file path"* ]]
 }

@@ -10,20 +10,35 @@ setup() {
 }
 
 @test "documents v1 as the retained Big Bang 4.x package contract" {
-  run "$SCRIPT_PATH" --help
+  run "$SCRIPT_PATH" --target 4 --help
 
   [ "$status" -eq 0 ]
-  [[ "$output" == *"istio, networkPolicies, and routes values are also moved under the"* ]]
+  [[ "$output" == *"istio, networkPolicies, and routes values for built-in packages are also moved"* ]]
   [[ "$output" == *"bb-common subchart key"* ]]
   [[ "$output" == *"Big Bang 4.x retains v1 as the default unified package contract"* ]]
-  [[ "$output" == *"complete output targets Big Bang 4.x and must not"* ]]
-  [[ "$output" == *"be deployed to a 3.x release"* ]]
+  [[ "$output" == *"Target 3 performs only the unified package-path migration"* ]]
+  [[ "$output" == *"Target 4"*"removes legacy"*"hardening"* ]]
+  [[ "$output" == *"Target 4 output must not be deployed to a 3.x"* ]]
+  [[ "$output" == *"release"* ]]
+  [[ "$output" == *"--target {3|4}"* ]]
   [[ "$output" == *"Package entries retain their first-appearance order"* ]]
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
   [[ "$output" == *"--omit-package-configuration"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
-  [[ "$output" == *"complete output targets Big Bang 4.x and must not"* ]]
-  [[ "$output" == *"be deployed to a 3.x release"* ]]
+}
+
+@test "requires target 3 or 4" {
+  printf '%s\n' 'kiali:' '  enabled: true' >"$INPUT_FILE"
+
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--target is required and must be 3 or 4"* ]]
+
+  run "$SCRIPT_PATH" --target 5 "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--target must be 3 or 4"* ]]
 }
 
 @test "moves root and addon packages into the unified package map" {
@@ -42,7 +57,7 @@ packages:
     enabled: true
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packageConfiguration.version' "$OUTPUT_FILE")" = "v1" ]
@@ -66,7 +81,7 @@ addons:
     enabled: false
 EOF
 
-  run "$SCRIPT_PATH" --omit-package-configuration \
+  run "$SCRIPT_PATH" --target 4 --omit-package-configuration \
     --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
@@ -75,7 +90,7 @@ EOF
   [ "$(yq '.packages.gitlab.enabled' "$OUTPUT_FILE")" = "false" ]
 
   SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
-  run "$SCRIPT_PATH" --omit-package-configuration \
+  run "$SCRIPT_PATH" --target 4 --omit-package-configuration \
     --output "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
@@ -98,7 +113,7 @@ addons:
     enabled: true
 EOF
 
-  run "$SCRIPT_PATH" --output "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq -o=json -I=0 '.packages | to_entries | map(.key)' "$OUTPUT_FILE")" \
@@ -125,13 +140,57 @@ packages:
       timeout: 20m
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.monitoring.enabled' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.packages.monitoring.flux.timeout' "$OUTPUT_FILE")" = "20m" ]
   [ "$(yq '.packages.monitoring.flux.interval' "$OUTPUT_FILE")" = "5m" ]
   [ "$(yq '.packages.monitoring.values.serviceMonitor.enabled' "$OUTPUT_FILE")" = "true" ]
+}
+
+@test "target 3 migrates package paths while preserving flat bb-common values and hardening" {
+  TARGET_3_SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-target-3-second.yaml"
+  SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-target-4.yaml"
+  cat >"$INPUT_FILE" <<'EOF'
+kiali:
+  values:
+    istio:
+      hardened:
+        enabled: true
+        customAuthorizationPolicies:
+          - name: legacy-policy
+    networkPolicies:
+      enabled: true
+    routes:
+      outbound: {}
+istiod:
+  values:
+    hardened:
+      enabled: true
+EOF
+
+  run "$SCRIPT_PATH" --target 3 --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.values | has("bb-common")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.kiali.values.istio.hardened.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values.networkPolicies.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values | has("routes")' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.istiod.values.hardened.enabled' "$OUTPUT_FILE")" = "true" ]
+
+  run "$SCRIPT_PATH" --target 3 --output "$TARGET_3_SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "$TARGET_3_SECOND_OUTPUT_FILE"
+
+  run "$SCRIPT_PATH" --target 4 --output "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.values.bb-common.networkPolicies.enabled' "$SECOND_OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.kiali.values.bb-common.istio.authorizationPolicies.custom[0].name' "$SECOND_OUTPUT_FILE")" = "legacy-policy" ]
+  [ "$(yq '.packages.kiali.values.bb-common.istio | has("hardened")' "$SECOND_OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.istiod.values | has("hardened")' "$SECOND_OUTPUT_FILE")" = "false" ]
 }
 
 @test "moves built-in bb-common values into the subchart scope" {
@@ -169,7 +228,7 @@ packages:
         outbound: {}
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.kiali.values.bb-common.istio.enabled' "$OUTPUT_FILE")" = "true" ]
@@ -181,7 +240,7 @@ EOF
   [ "$(yq '.packages.kiali.values | has("istio") or has("networkPolicies") or has("routes")' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.packages.podinfo.values | has("routes")' "$OUTPUT_FILE")" = "true" ]
 
-  run "$SCRIPT_PATH" -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
@@ -211,7 +270,7 @@ addons:
             - name: existing-policy
 EOF
 
-  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ -z "$output" ]
@@ -224,7 +283,7 @@ EOF
   [[ "$stderr" == *"consider moving each to that package's bb-common.routes.outbound"* ]]
   [[ "$stderr" == *"https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/"* ]]
 
-  run --separate-stderr "$SCRIPT_PATH" -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [[ "$stderr" != *"Review: the following ServiceEntries"* ]]
@@ -247,7 +306,7 @@ packages:
               - name: legacy-policy
 EOF
 
-  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.kiali.values.bb-common.istio | has("hardened")' "$OUTPUT_FILE")" = "false" ]
@@ -272,7 +331,7 @@ istiod:
           - name: istiod-policy
 EOF
 
-  run --separate-stderr "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.istiod.values | has("hardened")' "$OUTPUT_FILE")" = "false" ]
@@ -292,7 +351,7 @@ istiod:
       enabled: true
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.istiod | has("values")' "$OUTPUT_FILE")" = "false" ]
@@ -324,7 +383,7 @@ compositionTest:
     - production
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE" "$OVERLAY_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE" "$OVERLAY_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.kiali.enabled' "$OUTPUT_FILE")" = "false" ]
@@ -355,7 +414,7 @@ packages:
       timeout: 20m
 EOF
 
-  run "$SCRIPT_PATH" -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.packages.mattermostOperator.enabled' "$OUTPUT_FILE")" = "false" ]
@@ -377,7 +436,7 @@ packages:
       tag: v1
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packages.kiali is an existing 3.x custom package"* ]]
@@ -390,7 +449,7 @@ packages:
     enabled: true
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packages.istio-cni conflicts with built-in package packages.istioCNI"* ]]
@@ -407,7 +466,7 @@ packages:
     enabled: false
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packages.examplePackage and packages.example-package normalize to the same package identity"* ]]
@@ -421,13 +480,13 @@ addons:
 EOF
   cp "$INPUT_FILE" "${INPUT_FILE}.original"
 
-  run --separate-stderr "$SCRIPT_PATH" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   cmp "$INPUT_FILE" "${INPUT_FILE}.original"
   printf '%s\n' "$output" >"$OUTPUT_FILE"
 
-  run --separate-stderr "$SCRIPT_PATH" "$OUTPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(printf '%s\n' "$output" | yq '.packages.argocd.enabled')" = "true" ]
@@ -440,7 +499,7 @@ kiali:
   enabled: false
 EOF
 
-  run "$SCRIPT_PATH" --in-place "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --in-place "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ -f "${INPUT_FILE}.bak" ]
@@ -466,7 +525,7 @@ stringData:
   unrelated: preserve-me
 EOF
 
-  run "$SCRIPT_PATH" --secret-key values.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.metadata.name' "$OUTPUT_FILE")" = "environment" ]
@@ -477,7 +536,7 @@ EOF
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.gitlab.enabled' -)" = "false" ]
 
   SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/secret-4.x-second.yaml"
-  run "$SCRIPT_PATH" --secret-key values.yaml \
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml \
     --output "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
@@ -494,7 +553,7 @@ EOF
     .data."bigbang.yaml" = load_str(strenv(ENCODED_VALUES_FILE))
   ' >"$INPUT_FILE"
 
-  run "$SCRIPT_PATH" --secret-key bigbang.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key bigbang.yaml --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   yq -r '.data."bigbang.yaml"' "$OUTPUT_FILE" \
@@ -519,7 +578,7 @@ stringData:
           copiedPassword: *testPassword
 EOF
 
-  run --separate-stderr "$SCRIPT_PATH" --secret-key values.yaml \
+  run --separate-stderr "$SCRIPT_PATH" --target 4 --secret-key values.yaml \
     --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
@@ -546,7 +605,7 @@ stringData:
       enabled: true
 EOF
 
-  run "$SCRIPT_PATH" --secret-key values.yaml --in-place "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml --in-place "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ -f "${INPUT_FILE}.bak" ]
@@ -562,7 +621,7 @@ data:
   values.yaml: bW9uaXRvcmluZzoKICBlbmFibGVkOiB0cnVlCg==
 EOF
 
-  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"must be a Kubernetes Secret"* ]]
@@ -574,7 +633,7 @@ data:
   values.yaml: not-base64!
 EOF
 
-  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"data.values.yaml is not valid base64"* ]]
@@ -585,7 +644,7 @@ EOF
   printf '%s\n' 'kind: Secret' >"$INPUT_FILE"
   printf '%s\n' 'kind: Secret' >"$OVERLAY_FILE"
 
-  run "$SCRIPT_PATH" --secret-key values.yaml "$INPUT_FILE" "$OVERLAY_FILE"
+  run "$SCRIPT_PATH" --target 4 --secret-key values.yaml "$INPUT_FILE" "$OVERLAY_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"--secret-key requires exactly one input Secret"* ]]
@@ -597,7 +656,7 @@ packages:
   - invalid
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packages must be a YAML mapping"* ]]
@@ -609,7 +668,7 @@ packageConfiguration:
   version: v2
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"packageConfiguration.version must be v1"* ]]
@@ -624,7 +683,7 @@ sops:
   version: 3.9.0
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"SOPS-encrypted input is not supported"* ]]
@@ -640,7 +699,7 @@ monitoring:
   enabled: true
 EOF
 
-  run "$SCRIPT_PATH" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"multiple YAML documents are not supported"* ]]
@@ -659,7 +718,7 @@ addons:
     <<: *packageDefaults
 EOF
 
-  run --separate-stderr "$SCRIPT_PATH" --output "$OUTPUT_FILE" "$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [[ "$stderr" == *"Warning: expanded YAML anchors and aliases"* ]]
@@ -685,7 +744,7 @@ defaults: &packageDefaults
 kiali: *packageDefaults
 EOF
 
-  run env PATH="${FAKE_BIN}:${PATH}" "$SCRIPT_PATH" \
+  run env PATH="${FAKE_BIN}:${PATH}" "$SCRIPT_PATH" --target 4 \
     --output "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
@@ -703,14 +762,14 @@ EOF
   cp "$INPUT_FILE" "${INPUT_FILE}.original"
   ln -s "$INPUT_FILE" "$SYMLINK_OUTPUT"
 
-  run "$SCRIPT_PATH" -o "$SYMLINK_OUTPUT" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$SYMLINK_OUTPUT" "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"output refers to an input file"* ]]
   cmp "$INPUT_FILE" "${INPUT_FILE}.original"
 
   ln "$INPUT_FILE" "$HARDLINK_OUTPUT"
-  run "$SCRIPT_PATH" -o "$HARDLINK_OUTPUT" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$HARDLINK_OUTPUT" "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"output refers to an input file"* ]]
@@ -725,7 +784,7 @@ kiali:
   enabled: true
 EOF
 
-  run "$SCRIPT_PATH" --output "$OUTPUT_DIRECTORY" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 --output "$OUTPUT_DIRECTORY" "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"output path must be a file, not a directory"* ]]
@@ -737,7 +796,7 @@ EOF
   printf '%s\n' 'domain: dev.bigbang.mil' >"$INPUT_FILE"
   printf '%s\n' 'domain: production.bigbang.mil' >"$OVERLAY_FILE"
 
-  run "$SCRIPT_PATH" --in-place "$INPUT_FILE" "$OVERLAY_FILE"
+  run "$SCRIPT_PATH" --target 4 --in-place "$INPUT_FILE" "$OVERLAY_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"--in-place requires exactly one input file"* ]]
@@ -747,7 +806,7 @@ EOF
   SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
 
   run --separate-stderr \
-    "$SCRIPT_PATH" -o "$OUTPUT_FILE" "${REPO_ROOT}/tests/test-values.yaml"
+    "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "${REPO_ROOT}/tests/test-values.yaml"
 
   [ "$status" -eq 0 ]
 
@@ -756,7 +815,7 @@ EOF
   [ "$status" -eq 0 ]
 
   run --separate-stderr \
-    "$SCRIPT_PATH" -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+    "$SCRIPT_PATH" --target 4 -o "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
 
   [ "$status" -eq 0 ]
   [[ "$stderr" == *"No legacy built-in package paths found."* ]]
