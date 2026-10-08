@@ -160,10 +160,12 @@ upstream:
     - name: jgroups
       port: 7800
       protocol: TCP
+      appProtocol: tcp
       targetPort: 7800
     - name: jgroups-fd
       port: 57800
       protocol: TCP
+      appProtocol: tcp
       targetPort: 57800
   {{- end }}
 
