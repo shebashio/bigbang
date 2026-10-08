@@ -13,13 +13,15 @@ SOPS_BIN=${SOPS_BIN:-sops}
 
 usage() {
   cat <<'EOF'
-Usage: migrate-sops-values-3-to-4.sh [OPTIONS] INPUT
+Usage: migrate-sops-values-3-to-4.sh --target {3|4} [OPTIONS] INPUT
 
 Decrypt a SOPS-encrypted Kubernetes Secret, migrate the Big Bang values YAML
 stored at stringData["values.yaml"] or data["values.yaml"], and re-encrypt a
 copy using the input file's existing SOPS metadata and master keys.
+Target behavior matches migrate-values-3-to-4.sh.
 
 Options:
+  -t, --target {3|4}  Required target Big Bang major version.
   -o, --output FILE       Write the encrypted migrated Secret to FILE.
   -i, --in-place         Replace INPUT after creating INPUT.bak.
   -k, --values-key KEY   Secret data key containing values (default: values.yaml).
@@ -34,8 +36,10 @@ reported. Expansion must preserve the resolved values structure.
 
 Examples:
   AWS_PROFILE=dev_sso scripts/migrate-sops-values-3-to-4.sh \
+    --target 4 \
     --output secret-4.x.enc.yaml secret.enc.yaml
   AWS_PROFILE=dev_sso scripts/migrate-sops-values-3-to-4.sh \
+    --target 4 \
     --in-place secret.enc.yaml
 EOF
 }
@@ -48,10 +52,20 @@ fail() {
 OUTPUT_FILE=""
 IN_PLACE=false
 VALUES_KEY="values.yaml"
+TARGET_VERSION=""
 INPUT_FILE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -t|--target)
+      [[ $# -ge 2 ]] || fail "$1 requires 3 or 4"
+      [[ -z "$TARGET_VERSION" ]] || fail "--target may only be specified once"
+      case "$2" in
+        3|4) TARGET_VERSION=$2 ;;
+        *) fail "$1 must be 3 or 4" ;;
+      esac
+      shift 2
+      ;;
     -o|--output)
       [[ $# -ge 2 ]] || fail "$1 requires a file path"
       OUTPUT_FILE=$2
@@ -81,6 +95,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+[[ -n "$TARGET_VERSION" ]] || fail "--target is required and must be 3 or 4"
 [[ -n "$INPUT_FILE" ]] || fail "one input Secret is required"
 [[ -n "$VALUES_KEY" ]] || fail "--values-key cannot be empty"
 [[ "$IN_PLACE" != true || -z "$OUTPUT_FILE" ]] \
@@ -134,7 +149,7 @@ trap cleanup EXIT
 "$SOPS_BIN" --decrypt --output "$DECRYPTED_SECRET" "$INPUT_FILE" \
   || fail "failed to decrypt SOPS input: $INPUT_FILE"
 
-"$MIGRATION_SCRIPT" --secret-key "$VALUES_KEY" \
+"$MIGRATION_SCRIPT" --target "$TARGET_VERSION" --secret-key "$VALUES_KEY" \
   --output "$MIGRATED_SECRET" "$DECRYPTED_SECRET"
 
 cp -p "$INPUT_FILE" "$ENCRYPTED_WORK"

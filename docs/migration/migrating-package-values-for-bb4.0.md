@@ -2,9 +2,14 @@
 
 Big Bang 4.0 consolidates built-in and user-supplied package configuration under `packages.<name>`. Starting with Big Bang 3.32, Big Bang 3.x accepts both the old and new package paths. The `packageConfiguration.version: v1` discriminator produced by this migration remains supported and becomes the default package contract in Big Bang 4.x.
 
-This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migration and the related `bb-common` values migration. In Big Bang 4.x, every built-in package consumes `bb-common` as a subchart, so the script moves `istio`, `networkPolicies`, and `routes` beneath the `bb-common` subchart key. The script also removes the legacy Istio hardening configuration after migrating its custom ServiceEntries and AuthorizationPolicies to their 4.x locations. It preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname` and SSO settings. Follow the applicable release notes and deprecation notices for those migrations.
+This guide and `scripts/migrate-values-3-to-4.sh` cover the package-path migration and the related `bb-common` values migration. In Big Bang 4.x, every built-in package consumes `bb-common` as a subchart, so target 4 moves `istio`, `networkPolicies`, and `routes` beneath the `bb-common` subchart key. Target 4 also removes the legacy Istio hardening configuration after migrating its custom ServiceEntries and AuthorizationPolicies to their 4.x locations. The script preserves but does not rewrite other deprecated Big Bang settings or child-chart values, including legacy `hostname` and SSO settings. Follow the applicable release notes and deprecation notices for those migrations.
 
-Although Big Bang 3.32 supports the unified `packages.<name>` paths, the complete output from this script also contains the 4.x-only `bb-common` subchart layout and hardening changes. Deploy the complete migrated output with Big Bang 4.x rather than applying it independently to a 3.x release.
+The required `--target` option controls which parts of the migration run. Use
+`--target 3` to adopt only the unified `packages.<name>` paths on Big Bang 3.32
+or a later 3.x release. This retains the flat `bb-common` library values and
+legacy hardening settings required by 3.x. Use `--target 4` when preparing
+values for Big Bang 4.x; it also applies the `bb-common` subchart layout and
+removes legacy hardening. Do not deploy target 4 output to a 3.x release.
 
 For complete command syntax, option behavior, input formats, safety controls,
 and troubleshooting, see the
@@ -13,7 +18,7 @@ and troubleshooting, see the
 Run the migration script with [Mike Farah yq v4](https://github.com/mikefarah/yq) installed:
 
 ```shell
-scripts/migrate-values-3-to-4.sh --output values-4.x.yaml values.yaml
+scripts/migrate-values-3-to-4.sh --target 4 --output values-4.x.yaml values.yaml
 ```
 
 By default, the script writes migrated YAML to standard output and leaves its
@@ -22,7 +27,7 @@ input file because the shell truncates the destination before the script can
 validate it.
 
 ```shell
-scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
+scripts/migrate-values-3-to-4.sh --target 4 values.yaml > values-4.x.yaml
 ```
 
 For a GitOps deployment that supplies multiple values files, pass every file in
@@ -33,16 +38,19 @@ different layers.
 
 ```shell
 scripts/migrate-values-3-to-4.sh --output values-4.x.yaml \
+  --target 4 \
   base.yaml environment.yaml secrets.yaml
 ```
 
 To replace the input, use `--in-place`. This mode first creates `values.yaml.bak` and refuses to overwrite an existing backup:
 
 ```shell
-scripts/migrate-values-3-to-4.sh --in-place values.yaml
+scripts/migrate-values-3-to-4.sh --target 4 --in-place values.yaml
 ```
 
-The script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. It also moves each built-in package's `values.istio`, `values.networkPolicies`, and `values.routes` configuration beneath `values.bb-common`. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior. If both flat and already-nested `bb-common` values exist, they are recursively merged and the nested values take precedence.
+For either target, the script selects the durable unified package contract by setting `packageConfiguration.version: v1`, which enables the canonical-package preview in Big Bang 3.32 and later 3.x releases, then moves known top-level built-in packages and packages under `addons` into the unified map. Non-conflicting custom packages and unrelated values are preserved. If both the legacy and unified paths configure a package, their maps are recursively merged and `packages.<name>` takes precedence, matching Big Bang 3.x compatibility behavior.
+
+With `--target 4`, the script additionally moves each built-in package's `values.istio`, `values.networkPolicies`, and `values.routes` configuration beneath `values.bb-common`. If both flat and already-nested `bb-common` values exist, they are recursively merged and the nested values take precedence. With `--target 3`, these values remain flat for compatibility with the `bb-common` library chart.
 
 ## Decrypted Kubernetes Secrets
 
@@ -52,6 +60,7 @@ envelope and migrates only the selected values payload:
 
 ```shell
 scripts/migrate-values-3-to-4.sh \
+  --target 4 \
   --secret-key values.yaml \
   --output environment-4.x.yaml environment.yaml
 ```
@@ -82,6 +91,7 @@ a new encrypted file while leaving the input unchanged:
 ```shell
 AWS_PROFILE=development \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
 
@@ -92,6 +102,7 @@ backup:
 ```shell
 AWS_PROFILE=development \
   scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --in-place environment.enc.yaml
 ```
 
@@ -100,6 +111,7 @@ values use another key:
 
 ```shell
 scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
   --values-key bigbang.yaml \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
@@ -109,7 +121,8 @@ values can change precedence when one layer uses a legacy package path and
 another uses its canonical `packages.<name>` path. For layered deployments,
 inspect every values source in Helm/Flux order. If the same package is
 configured through both forms across layers, compose the decrypted values in
-that order with `migrate-values-3-to-4.sh` and review a consolidated output
+that order with `migrate-values-3-to-4.sh --target 3` or `--target 4`, as
+appropriate for the destination chart, and review a consolidated output
 before changing the stored layers.
 
 The wrapper never sends plaintext to standard output. Plaintext temporary files
@@ -198,10 +211,10 @@ consumption model is owned by the package author.
 
 ## Istio hardening changes
 
-Big Bang 4.x removes the legacy `hardened` configuration model. The hardened
-posture is applied by default, and its individual behaviors are configured
-directly through the `bb-common` Istio values instead of a shared hardening
-switch.
+With `--target 4`, Big Bang 4.x removes the legacy `hardened` configuration
+model. The hardened posture is applied by default, and its individual
+behaviors are configured directly through the `bb-common` Istio values instead
+of a shared hardening switch.
 
 The migration script makes the following changes:
 
@@ -241,7 +254,10 @@ cluster-wide under `istio.serviceEntries.custom`. If namespace-scoped egress is
 sufficient, consider replacing them with package-scoped
 `bb-common.routes.outbound` configuration.
 
-Review the output and render it with the Big Bang 4.x chart before adopting it. Keep `packageConfiguration.version: v1`; 4.x retains it as the unified package contract discriminator.
+Review the output and render it with the chart selected by `--target`: a
+compatible Big Bang 3.x chart for target 3, or the Big Bang 4.x chart for target
+4. Keep `packageConfiguration.version: v1`; 4.x retains it as the unified
+package contract discriminator.
 
 ```shell
 helm template bigbang ./chart -f values-4.x.yaml > /dev/null
@@ -249,6 +265,7 @@ helm template bigbang ./chart -f values-4.x.yaml > /dev/null
 
 The scripts reject inputs that they cannot transform safely:
 
+- `--target` is required and accepts only `3` or `4`.
 - The plaintext script rejects SOPS metadata and directs users to
   `migrate-sops-values-3-to-4.sh`.
 - The SOPS wrapper requires a Kubernetes Secret with exactly one matching key

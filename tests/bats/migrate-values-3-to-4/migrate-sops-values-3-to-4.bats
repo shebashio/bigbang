@@ -43,11 +43,11 @@ EOF
 }
 
 run_migration() {
-  run --separate-stderr env SOPS_BIN="$FAKE_SOPS" "$SCRIPT_PATH" "$@"
+  run --separate-stderr env SOPS_BIN="$FAKE_SOPS" "$SCRIPT_PATH" --target 4 "$@"
 }
 
 @test "documents encrypted Secret migration behavior" {
-  run "$SCRIPT_PATH" --help
+  run "$SCRIPT_PATH" --target 4 --help
 
   [ "$status" -eq 0 ] || {
     printf '%s\n' "$stderr" >&3
@@ -55,8 +55,21 @@ run_migration() {
   }
   [[ "$output" == *'stringData["values.yaml"] or data["values.yaml"]'* ]]
   [[ "$output" == *"existing SOPS metadata and master keys"* ]]
+  [[ "$output" == *"--target {3|4}"* ]]
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
+}
+
+@test "requires target 3 or 4" {
+  run "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--target is required and must be 3 or 4"* ]]
+
+  run "$SCRIPT_PATH" --target 5 "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"--target must be 3 or 4"* ]]
 }
 
 @test "migrates values stored in Secret stringData" {
@@ -89,6 +102,40 @@ EOF
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packageConfiguration.version' -)" = "v1" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.monitoring.enabled' -)" = "true" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.gitlab.enabled' -)" = "false" ]
+}
+
+@test "passes target 3 through and preserves flat bb-common values and hardening" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: environment
+stringData:
+  values.yaml: |
+    kiali:
+      values:
+        istio:
+          hardened:
+            enabled: true
+        networkPolicies:
+          enabled: true
+sops:
+  mac: fake
+  version: 3.9.0
+EOF
+
+  run --separate-stderr env SOPS_BIN="$FAKE_SOPS" \
+    "$SCRIPT_PATH" --target 3 --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ] || {
+    printf '%s\n' "$stderr" >&3
+    false
+  }
+  printf '%s' "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE")" \
+    >"${BATS_TEST_TMPDIR}/target-3-values.yaml"
+  [ "$(yq '.packages.kiali.values | has("bb-common")' "${BATS_TEST_TMPDIR}/target-3-values.yaml")" = "false" ]
+  [ "$(yq '.packages.kiali.values.istio.hardened.enabled' "${BATS_TEST_TMPDIR}/target-3-values.yaml")" = "true" ]
+  [ "$(yq '.packages.kiali.values.networkPolicies.enabled' "${BATS_TEST_TMPDIR}/target-3-values.yaml")" = "true" ]
 }
 
 @test "migrates base64-encoded values stored in Secret data" {
@@ -269,7 +316,7 @@ EOF
   run --separate-stderr env \
     SOPS_BIN="$FAKE_SOPS" \
     FAKE_SOPS_FAIL_EDIT=true \
-    "$SCRIPT_PATH" --in-place "$INPUT_FILE"
+    "$SCRIPT_PATH" --target 4 --in-place "$INPUT_FILE"
 
   [ "$status" -ne 0 ]
   [[ "$stderr" == *"failed to re-encrypt migrated Secret"* ]]
