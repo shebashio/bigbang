@@ -1,7 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- define "bigbang.defaults.neuvector" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.neuvector) "enabled") -}}
 
 # Check for existing NeuVector exporter secret, otherwise generate new random password
 {{- $existingSecret := lookup "v1" "Secret" "neuvector" "neuvector-prometheus-exporter-pod-secret" }}
@@ -14,32 +13,31 @@
 {{- end }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
-domain: {{ default .Values.domain .Values.hostname }}
+global:
+  domain: {{ default .Values.domain .Values.hostname }}
 
-istio:
-  injection: {{ ternary "enabled" "disabled" $istioInjection }}
+bb-common:
+  routes:
+    inbound:
+      neuvector:
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.neuvector.ingress.gateway "root" .)}}
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.neuvector.values }}
+        hosts:
+        - repo1.dso.mil
 
-routes:
-  inbound:
-    neuvector:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.neuvector.ingress.gateway "root" .)}}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.neuvector.values }}
-      hosts:
-      - repo1.dso.mil
-
-networkPolicies:
-  egress:
-    from:
-      controller:
-        podSelector:
-          matchLabels:
-            app: neuvector-controller-pod
-        to:
-          definition:
-            sso: {{ .Values.neuvector.sso.enabled }}
+  networkPolicies:
+    egress:
+      from:
+        controller:
+          podSelector:
+            matchLabels:
+              app: neuvector-controller-pod
+          to:
+            definition:
+              sso: {{ .Values.neuvector.sso.enabled }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -157,10 +155,11 @@ monitor:
 {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.neuvector.values) | fromYaml -}}
 {{- $neuvectorPackage = set $neuvectorPackage "values" $cleanedValues -}}
 
-{{- include "values-secret" (dict 
-  "root" $ 
-  "package" $neuvectorPackage 
-  "name" "neuvector" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.neuvector" . | fromYaml) (include "bigbang.neuvector.bb-common-migrations" . | fromYaml)) | toYaml)
+{{- include "values-secret" (dict
+  "root" $
+  "package" $neuvectorPackage
+  "name" "neuvector"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.neuvector" .)
 ) }}
 {{- end }}
