@@ -90,7 +90,7 @@ See:
 - [Istio standard metrics](https://istio.io/latest/docs/reference/config/metrics/)
 - [Istio performance and scalability](https://istio.io/latest/docs/ops/deployment/performance-and-scalability/)
 
-If the problem is connectivity rather than performance, see [Package or workload troubleshooting](index.md#package-or-workload).
+If the problem is connectivity rather than performance, see [Package or workload troubleshooting](index.md#packages).
 
 ## Verify Performance Changes
 
