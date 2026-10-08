@@ -76,9 +76,6 @@ Review the current generated [configuration reference](../../configuration/base-
 
 Treat each upgrade as a new dependency set:
 
-Second update:
-
-```md
 1. Diff the target release, enabled-package versions, and rendered images against the deployed release.
 2. Mirror and verify all new artifacts before changing the Git desired state.
 3. Test the upgrade and rollback procedure in a representative disconnected environment.
