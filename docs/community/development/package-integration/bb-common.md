@@ -1,6 +1,10 @@
-# Big Bang Common Library Integration
+# `bb-common` Subchart Integration
 
-The Big Bang Common Library ([bb-common](https://repo1.dso.mil/big-bang/product/packages/bb-common)) provides standardized Helm templates for integrating packages with Big Bang's security and networking features.
+The [`bb-common`](https://repo1.dso.mil/big-bang/product/packages/bb-common)
+chart provides standardized resources for integrating packages with Big Bang's
+security and networking features. Integrated packages consume `bb-common` as a
+regular Helm subchart, which renders these resources directly and validates its
+configuration against its own values schema.
 
 ## Prerequisites
 
@@ -32,30 +36,43 @@ dependencies:
 **See:** [bb-common Istio Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/istio.md) and [Routes Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/routes.md)
 
 - Enable Istio sidecar injection on your namespace, not needed if deploying using Big Bang umbrella, i.e. `packages`
-- Use `{{- include "bb-common.istio.render" . }}` to render the configured PeerAuthentication, Sidecar, ServiceEntry, and AuthorizationPolicy resources
-- Use `{{- include "bb-common.routes.render" . }}` to render inbound and outbound routes
-- Configure the package's `istio`, `networkPolicies`, and `routes` values following the current bb-common patterns
+- Configure the package's `istio` and `routes` values beneath the `bb-common` dependency key.
+- Do not add package templates that call the legacy `bb-common.*.render` library interfaces; the subchart renders its supported resources directly.
+
+```yaml
+bb-common:
+  istio: {}
+  routes: {}
+```
 
 ### 3. Network Policies
 
 **See:** [bb-common Network Policies Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies.md)
 
-- Use `{{- include "bb-common.network-policies.render" . }}` in templates
-- Configure `networkPolicies` values section
+- Configure the `bb-common.networkPolicies` values section; the subchart renders the policies directly.
 - Add custom policies via `ingress` and `egress` as needed
+
+```yaml
+bb-common:
+  networkPolicies: {}
+```
 
 ### 4. Authorization Policies
 
 **See:** [bb-common Authorization Policies Documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/authorization-policies.md)
 
-- Configure authorization policies under `istio.authorizationPolicies`
-- Set `istio.authorizationPolicies.generateFromNetpol: true` to have `bb-common.network-policies.render` generate corresponding Istio `AuthorizationPolicy` resources from identity-bearing network-policy rules
+- Configure authorization policies under `bb-common.istio.authorizationPolicies`.
+- Set `bb-common.istio.authorizationPolicies.generateFromNetpol: true` to generate corresponding Istio `AuthorizationPolicy` resources from identity-bearing network-policy rules.
 - Include identities in network-policy entries using the `service-account@namespace/pod` form when service-account authentication is required
-- Use `bb-common.istio.render` for default and custom Istio authorization policies, and add package-specific policies through `istio.authorizationPolicies.custom`; use the bb-common documentation as the source of truth for supported fields
+- Add package-specific policies through `bb-common.istio.authorizationPolicies.custom`; use the bb-common documentation as the source of truth for supported fields.
 
 ### Umbrella compatibility
 
-Package charts should expose the current bb-common value structure described above. The Big Bang umbrella still accepts `istio.hardened` settings as a compatibility and global-hardening input, then translates those settings into current package values such as `istio.sidecar`, `istio.serviceEntries`, and `istio.authorizationPolicies`. Do not model a new package's standalone values API on the legacy `istio.hardened` structure.
+Package charts should expose the subchart-scoped values structure described
+above. During the Big Bang 3.x package-by-package transition, the umbrella uses
+its package integration metadata to send either the flat library-chart shape or
+the nested subchart shape expected by each package. Do not model a new package's
+standalone values API on the legacy flat or `istio.hardened` structures.
 
 ## Additional Resources
 

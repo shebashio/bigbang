@@ -8,7 +8,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       kyverno.enabled: true
       istiod.enabled: true
@@ -16,13 +16,13 @@ tests:
       networkPolicies.enabled: true
     asserts:
       - equal:
-          path: istio.enabled
+          path: bb-common.istio.enabled
           value: false
       - equal:
-          path: istio.ambient.enabled
+          path: bb-common.istio.ambient.enabled
           value: false
       - equal:
-          path: networkPolicies.hbonePortInjection.enabled
+          path: bb-common.networkPolicies.hbonePortInjection.enabled
           value: false
 
   - it: should include default kubeAPI ingress definition
@@ -30,21 +30,21 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       kyverno.enabled: true
       networkPolicies.enabled: true
     asserts:
       - isNotNull:
-          path: networkPolicies.ingress.definitions.kubeAPI
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI
       - equal:
-          path: networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr
           value: "192.168.0.0/16"
       - equal:
-          path: networkPolicies.ingress.definitions.kubeAPI.from[1].ipBlock.cidr
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI.from[1].ipBlock.cidr
           value: "172.16.0.0/12"
       - equal:
-          path: networkPolicies.ingress.definitions.kubeAPI.from[2].ipBlock.cidr
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI.from[2].ipBlock.cidr
           value: "10.0.0.0/8"
 
   - it: should use custom kubeAPI ingress definition when overridden
@@ -52,14 +52,14 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       kyverno.enabled: true
       networkPolicies.enabled: true
       networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr: "10.10.0.0/16"
     asserts:
       - isNotNull:
-          path: networkPolicies.ingress.definitions.kubeAPI
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI
       - equal:
-          path: networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr
+          path: bb-common.networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr
           value: "10.10.0.0/16"
