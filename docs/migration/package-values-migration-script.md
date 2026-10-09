@@ -1,27 +1,31 @@
 # Package Values Migration Script Reference
 
 This page is the technical reference for the commands that migrate Big Bang
-3.x package configuration to the unified Big Bang 4.x `packages` map. For the
-upgrade workflow and configuration examples, see
-[Migrating Package Values for Big Bang 4.0](migrating-package-values-for-bb4.0.md).
+3.x package configuration to the unified Big Bang 4.x `packages` map. Start
+with [Migrating Package Values for Big Bang 4.0](migrating-package-values-for-bb4.0.md)
+to choose an end-to-end workflow. Use this page when selecting options,
+reviewing exact behavior, or diagnosing a failure.
 
 ## Scope
 
 Both targets move recognized built-in packages from their Big Bang 3.x
-locations into `packages.<name>` and set:
+locations into `packages.<name>` and, by default, set:
 
 ```yaml
 packageConfiguration:
   version: v1
 ```
 
+Use `--omit-package-configuration` only for a secondary values source when
+another source composed into the same Big Bang release supplies this contract.
+
 Target 3 stops after the unified package-path migration, retaining flat
-`bb-common` library values and legacy hardening for use with Big Bang 3.x.
-Target 4 additionally nests `istio`, `networkPolicies`, and `routes` beneath
-the `bb-common` subchart key, migrates legacy custom Istio resources, and
-removes legacy hardening. The commands do not rewrite other unrelated
-deprecated settings or values passed through to child charts. Target 4 output
-must not be deployed to Big Bang 3.x.
+`bb-common` library values and legacy hardening for Big Bang 3.x. Target 4
+additionally nests `istio`, `networkPolicies`, and `routes` beneath the
+`bb-common` subchart key, migrates legacy custom Istio resources, and removes
+legacy hardening. The commands do not rewrite other unrelated deprecated
+settings or child-chart values. Target 4 output must not be deployed to Big
+Bang 3.x.
 
 Two commands are available:
 
@@ -35,8 +39,9 @@ Two commands are available:
 Both commands require:
 
 - Bash.
-- [Mike Farah `yq`](https://github.com/mikefarah/yq) version 4 with
-  `--yaml-fix-merge-anchor-to-spec` support.
+- [Mike Farah `yq`](https://github.com/mikefarah/yq) version 4.47.1 or newer.
+  Version 4.47.1 is the minimum known compatible release because the migration
+  requires `--yaml-fix-merge-anchor-to-spec`.
 - `jq`.
 - Standard command-line utilities including `base64`, `cmp`, `mktemp`, and
   `tr`.
@@ -64,6 +69,7 @@ migrate-values-3-to-4.sh --target {3|4} [OPTIONS] INPUT [INPUT ...]
 | `-o FILE`, `--output FILE` | Write the migrated document to `FILE`. The output cannot resolve to an input file. |
 | `-i`, `--in-place` | Replace one input after creating `INPUT.bak`. The command refuses to overwrite an existing backup. |
 | `-k KEY`, `--secret-key KEY` | Treat one input as a decrypted Kubernetes Secret and migrate the values stored under `data[KEY]` or `stringData[KEY]`. |
+| `--omit-package-configuration` | Remove `packageConfiguration` from the output. Use only for a secondary values source when another composed source supplies `packageConfiguration.version: v1`. |
 | `-h`, `--help` | Print command help and exit. |
 
 `--output` and `--in-place` are mutually exclusive. Without either option, the
@@ -101,6 +107,41 @@ existing `packages` entries retain that relative order as they are consolidated.
 When more than one path configures the same package, its first appearance
 determines its position while the normal canonical-value precedence still
 determines its merged content.
+
+### Separately stored values sources
+
+Flux and Helm can compose values from several ConfigMaps, Secrets, or files
+while those sources remain separate in Git. Designate one primary source to
+own `packageConfiguration.version: v1`. Migrate every secondary source with
+`--omit-package-configuration`, using the same target for every source. See the
+[separate-sources workflow](migrating-package-values-for-bb4.0.md#keep-values-sources-separate)
+for the command sequence.
+
+The option removes the complete `packageConfiguration` block. It also treats
+exact built-in names already under `packages` as intentional canonical package
+configuration, which makes rerunning the same command on an omitted secondary
+source idempotent.
+
+Do not use this option for a standalone values document or when no other
+source in the effective Big Bang 3.x values supplies version `v1`. Without the
+discriminator, Big Bang 3.x interprets `packages` entries as custom packages.
+
+### Target-specific values migration
+
+Target 3 leaves built-in package `values.istio`, `values.networkPolicies`, and
+`values.routes` at their flat library-chart paths and preserves legacy
+hardening. Its output can be deployed with Big Bang 3.32 or a later 3.x release.
+
+Target 4 recursively merges those flat values beneath `values.bb-common`, with
+already-nested values taking precedence. It then moves legacy
+`hardened.customServiceEntries` and `hardened.customAuthorizationPolicies` to
+their current `serviceEntries.custom` and `authorizationPolicies.custom`
+locations before removing `hardened`. It also removes
+`istiod.values.hardened`. Unknown custom packages are not rewritten.
+
+Use the same target for every separately migrated values source. Running target
+3 first and target 4 later is supported and produces the same effective target
+4 structure as migrating the original values directly to target 4.
 
 ### Decrypted Kubernetes Secrets
 
@@ -157,6 +198,7 @@ migrate-sops-values-3-to-4.sh --target {3|4} [OPTIONS] INPUT
 | `-o FILE`, `--output FILE` | Write the migrated SOPS-encrypted Secret to `FILE`. |
 | `-i`, `--in-place` | Replace the encrypted input after creating an encrypted `INPUT.bak`. |
 | `-k KEY`, `--values-key KEY` | Select the Secret key containing the values. The default is `values.yaml`. |
+| `--omit-package-configuration` | Remove `packageConfiguration` from the encrypted values payload. Use only when another composed source supplies `packageConfiguration.version: v1`. |
 | `-h`, `--help` | Print command help and exit. |
 
 The wrapper accepts exactly one SOPS-encrypted Kubernetes Secret. It supports
@@ -190,13 +232,27 @@ AWS_PROFILE=development \
   --output environment-4.x.enc.yaml environment.enc.yaml
 ```
 
+### Migrate a secondary encrypted values source
+
+```shell
+AWS_PROFILE=development \
+  scripts/migrate-sops-values-3-to-4.sh \
+  --target 4 \
+  --omit-package-configuration \
+  --output environment-4.x.enc.yaml environment.enc.yaml
+```
+
+The wrapper forwards the omission option to the plaintext migration and
+verifies that the re-encrypted payload does not contain the block.
+
 ### SOPS processing model
 
 The wrapper performs the following operations:
 
 1. Creates a temporary directory with restrictive permissions.
 2. Decrypts the input into that directory.
-3. Calls `migrate-values-3-to-4.sh --target <target> --secret-key` on the decrypted Secret.
+3. Calls `migrate-values-3-to-4.sh --target <target> --secret-key` on the
+   decrypted Secret, forwarding `--omit-package-configuration` when requested.
 4. Uses the input document's existing SOPS metadata and master keys to update a
    temporary encrypted copy.
 5. Decrypts the result and compares the complete Secret with the migrated
@@ -276,6 +332,10 @@ changing the stored layers:
 4. If it is, pass the extracted values to the plaintext command in application
    order and review the consolidated result.
 
+If the sources must remain separate, keep `packageConfiguration.version: v1`
+in one primary values source and use `--omit-package-configuration` for every
+secondary plaintext or encrypted source. Use the same target for all sources.
+
 ## Validation and refusal conditions
 
 The commands stop without replacing the input when they encounter conditions
@@ -296,8 +356,9 @@ that cannot be migrated safely, including:
 - Missing SOPS metadata when using the SOPS wrapper.
 - SOPS authentication, decryption, re-encryption, or verification failure.
 
-The migration is idempotent. Running the same command on an already migrated
-document makes no further package-path changes.
+The migration is idempotent when rerun with the same target and options.
+Running the same command on an already migrated document makes no further
+changes.
 
 ## Review and verification
 

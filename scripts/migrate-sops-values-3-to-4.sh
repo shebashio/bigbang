@@ -21,11 +21,17 @@ copy using the input file's existing SOPS metadata and master keys.
 Target behavior matches migrate-values-3-to-4.sh.
 
 Options:
-  -t, --target {3|4}  Required target Big Bang major version.
-  -o, --output FILE       Write the encrypted migrated Secret to FILE.
-  -i, --in-place         Replace INPUT after creating INPUT.bak.
-  -k, --values-key KEY   Secret data key containing values (default: values.yaml).
-  -h, --help             Show this help.
+  -t, --target {3|4}              Required target Big Bang major version.
+  -o, --output FILE               Write the encrypted migrated Secret to FILE.
+  -i, --in-place                  Replace INPUT after creating INPUT.bak.
+  -k, --values-key KEY            Secret data key containing values
+                                  (default: values.yaml).
+      --omit-package-configuration
+                                  Remove packageConfiguration from the values
+                                  payload. Use only when another composed
+                                  source supplies packageConfiguration.version
+                                  v1.
+  -h, --help                      Show this help.
 
 Without --output or --in-place, encrypted output is written to standard output.
 SOPS authentication and provider selection are inherited from the environment,
@@ -41,6 +47,8 @@ Examples:
   AWS_PROFILE=dev_sso scripts/migrate-sops-values-3-to-4.sh \
     --target 4 \
     --in-place secret.enc.yaml
+  AWS_PROFILE=dev_sso scripts/migrate-sops-values-3-to-4.sh \
+    --target 4 --omit-package-configuration --in-place secret.enc.yaml
 EOF
 }
 
@@ -53,6 +61,7 @@ OUTPUT_FILE=""
 IN_PLACE=false
 VALUES_KEY="values.yaml"
 TARGET_VERSION=""
+OMIT_PACKAGE_CONFIGURATION=false
 INPUT_FILE=""
 
 while [[ $# -gt 0 ]]; do
@@ -79,6 +88,10 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || fail "$1 requires a Secret key"
       VALUES_KEY=$2
       shift 2
+      ;;
+    --omit-package-configuration)
+      OMIT_PACKAGE_CONFIGURATION=true
+      shift
       ;;
     -h|--help)
       usage
@@ -107,6 +120,8 @@ done
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] \
   || fail "Mike Farah yq v4 is required"
+yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
+  || fail "Mike Farah yq v4.47.1 or newer with --yaml-fix-merge-anchor-to-spec support is required"
 command -v "$SOPS_BIN" >/dev/null 2>&1 || fail "sops is required"
 
 if [[ -n "$OUTPUT_FILE" ]]; then
@@ -149,8 +164,11 @@ trap cleanup EXIT
 "$SOPS_BIN" --decrypt --output "$DECRYPTED_SECRET" "$INPUT_FILE" \
   || fail "failed to decrypt SOPS input: $INPUT_FILE"
 
-"$MIGRATION_SCRIPT" --target "$TARGET_VERSION" --secret-key "$VALUES_KEY" \
-  --output "$MIGRATED_SECRET" "$DECRYPTED_SECRET"
+MIGRATION_ARGS=(--target "$TARGET_VERSION" --secret-key "$VALUES_KEY" --output "$MIGRATED_SECRET")
+if [[ "$OMIT_PACKAGE_CONFIGURATION" == true ]]; then
+  MIGRATION_ARGS+=(--omit-package-configuration)
+fi
+"$MIGRATION_SCRIPT" "${MIGRATION_ARGS[@]}" "$DECRYPTED_SECRET"
 
 cp -p "$INPUT_FILE" "$ENCRYPTED_WORK"
 BIGBANG_MIGRATED_SECRET_FILE="$MIGRATED_SECRET" \

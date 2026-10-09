@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Migrate Big Bang 3.x package values to the unified Big Bang 4.x package map.
-# Requires Mike Farah yq v4: https://github.com/mikefarah/yq
+# Requires Mike Farah yq v4.47.1 or newer: https://github.com/mikefarah/yq
 
 set -euo pipefail
 
@@ -112,13 +112,14 @@ usage() {
 Usage: migrate-values-3-to-4.sh --target {3|4} [OPTIONS] INPUT [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
-addons.<name> paths to the Big Bang 4.x packages.<name> paths. With target 4,
-istio, networkPolicies, and routes values for built-in packages are also moved
-under the bb-common subchart key. The output sets packageConfiguration.version to v1.
-Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
-names as canonical built-ins rather than existing custom packages.
+addons.<name> paths to packages.<name>. Unless omitted for a secondary values
+source, the output sets packageConfiguration.version to v1. Starting with Big
+Bang 3.32, the 3.x chart uses it to interpret catalog package names as canonical
+built-ins rather than existing custom packages.
+With target 4, istio, networkPolicies, and routes values for built-in packages are also moved
+under the bb-common subchart key.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
-it from the migrated output when upgrading.
+it from a standalone migrated configuration when upgrading.
 Target 3 performs only the unified package-path migration and retains the flat
 bb-common library values and legacy hardening used by Big Bang 3.x. Target 4
 also converts bb-common values to the subchart layout and removes legacy
@@ -135,12 +136,19 @@ YAML anchors and aliases are expanded automatically and their anchor names are
 reported. Expansion must preserve the resolved values structure.
 
 Options:
-  -t, --target {3|4}     Required target Big Bang major version.
-  -o, --output FILE      Write migrated values to FILE.
-  -i, --in-place         Replace a single INPUT after creating INPUT.bak.
-  -k, --secret-key KEY   Migrate values stored at data[KEY] or stringData[KEY]
-                         in one decrypted Kubernetes Secret.
-  -h, --help             Show this help.
+  -t, --target {3|4}              Required target Big Bang major version.
+  -o, --output FILE               Write migrated values to FILE.
+  -i, --in-place                  Replace a single INPUT after creating
+                                  INPUT.bak.
+  -k, --secret-key KEY            Migrate values stored at data[KEY] or
+                                  stringData[KEY] in one decrypted Kubernetes
+                                  Secret.
+      --omit-package-configuration
+                                  Remove packageConfiguration from the output.
+                                  Use only for a secondary values source when
+                                  another composed source supplies
+                                  packageConfiguration.version v1.
+  -h, --help                      Show this help.
 
 If both a legacy path and packages.<name> exist, they are recursively merged
 and packages.<name> takes precedence. Unrecognized package entries are left
@@ -149,10 +157,11 @@ unchanged. The migration is idempotent.
 Examples:
   scripts/migrate-values-3-to-4.sh --target 3 -o values-v1.yaml values.yaml
   scripts/migrate-values-3-to-4.sh --target 4 -o values-4.x.yaml values.yaml
-  scripts/migrate-values-3-to-4.sh --target 4 -o values-4.x.yaml base.yaml production.yaml
   scripts/migrate-values-3-to-4.sh --target 4 values.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh --target 4 --in-place values.yaml
   scripts/migrate-values-3-to-4.sh --target 4 --secret-key values.yaml secret.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 --omit-package-configuration \
+    --output overlay-4.x.yaml overlay.yaml
 
 For values embedded in a SOPS-encrypted Kubernetes Secret, use
 scripts/migrate-sops-values-3-to-4.sh.
@@ -307,6 +316,7 @@ OUTPUT_FILE=""
 IN_PLACE=false
 SECRET_VALUES_KEY=""
 TARGET_VERSION=""
+OMIT_PACKAGE_CONFIGURATION=false
 INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
@@ -335,6 +345,10 @@ while [[ $# -gt 0 ]]; do
       SECRET_VALUES_KEY=$2
       shift 2
       ;;
+    --omit-package-configuration)
+      OMIT_PACKAGE_CONFIGURATION=true
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -356,7 +370,7 @@ done
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
 yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
-  || fail "Mike Farah yq v4 with --yaml-fix-merge-anchor-to-spec support is required"
+  || fail "Mike Farah yq v4.47.1 or newer with --yaml-fix-merge-anchor-to-spec support is required"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 
 if [[ "$IN_PLACE" == true && -n "$OUTPUT_FILE" ]]; then
@@ -496,7 +510,8 @@ expand_yaml_anchors "$WORK_FILE" "$ANCHOR_DISPLAY_NAME"
 # migration cannot produce values that the chart will reject. Values already
 # using v1 receive the same normalized collision validation as chart rendering.
 CANONICAL_PACKAGES_ENABLED=false
-if yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
+if [[ "$OMIT_PACKAGE_CONFIGURATION" == true ]] \
+  || yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
   CANONICAL_PACKAGES_ENABLED=true
 fi
 
@@ -541,7 +556,11 @@ done < <(yq -r '.packages // {} | keys | .[]' "$WORK_FILE")
 
 capture_package_order "$WORK_FILE"
 
-yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
+if [[ "$OMIT_PACKAGE_CONFIGURATION" == true ]]; then
+  yq -i 'del(.packageConfiguration)' "$WORK_FILE"
+else
+  yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
+fi
 
 MIGRATED_PATHS=()
 
@@ -609,14 +628,13 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
     done
   done
 
-  # Final legacy cleanup and hardened removal to ensure bb-common usage is schema valid.
+  # Remove legacy hardening after preserving its custom resources in the 4.x
+  # bb-common locations.
   for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
     PACKAGE_NAME="$package_name" yq -e \
       '.packages[strenv(PACKAGE_NAME)].values.bb-common.istio | tag == "!!map"' \
       "$WORK_FILE" >/dev/null 2>&1 || continue
 
-    # Capture the legacy ServiceEntry names before they are folded in — these stay
-    # cluster-wide under serviceEntries.custom and are flagged for review afterwards.
     hardened_se_names=$(PACKAGE_NAME="$package_name" yq -r '
       (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // [])
       | select(length > 0)
@@ -641,7 +659,6 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
 
     if [[ -n "$hardened_se_names" ]]; then
       MIGRATED_PATHS+=("packages.$package_name.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom")
-      # istiod's ServiceEntries were always intended to be global, so don't prompt a review for it.
       if [[ "$package_name" != "istiod" ]]; then
         SERVICE_ENTRY_REVIEW+=("packages.$package_name.values.bb-common.istio.serviceEntries.custom: $hardened_se_names")
       fi
@@ -651,7 +668,6 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
     fi
   done
 
-  # Remove deprecated global hardening key from istiod.
   if yq -e '.packages.istiod.values | has("hardened")' "$WORK_FILE" >/dev/null 2>&1; then
     yq -i 'del(.packages.istiod.values.hardened)' "$WORK_FILE"
     yq -i 'del(.packages.istiod.values | select(tag == "!!map" and length == 0))' "$WORK_FILE"

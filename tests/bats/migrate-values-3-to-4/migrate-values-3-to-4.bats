@@ -23,6 +23,7 @@ setup() {
   [[ "$output" == *"--target {3|4}"* ]]
   [[ "$output" == *"Package entries retain their first-appearance order"* ]]
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
+  [[ "$output" == *"--omit-package-configuration"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
 }
 
@@ -69,6 +70,31 @@ EOF
   grep -q 'Existing package comment remains attached after reordering.' "$OUTPUT_FILE"
   [ "$(yq 'has("monitoring")' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.addons | has("gitlab")' "$OUTPUT_FILE")" = "false" ]
+}
+
+@test "omits package configuration for a secondary values source" {
+  cat >"$INPUT_FILE" <<'EOF'
+monitoring:
+  enabled: true
+addons:
+  gitlab:
+    enabled: false
+EOF
+
+  run "$SCRIPT_PATH" --target 4 --omit-package-configuration \
+    --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq 'has("packageConfiguration")' "$OUTPUT_FILE")" = "false" ]
+  [ "$(yq '.packages.monitoring.enabled' "$OUTPUT_FILE")" = "true" ]
+  [ "$(yq '.packages.gitlab.enabled' "$OUTPUT_FILE")" = "false" ]
+
+  SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
+  run "$SCRIPT_PATH" --target 4 --omit-package-configuration \
+    --output "$SECOND_OUTPUT_FILE" "$OUTPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "$SECOND_OUTPUT_FILE"
 }
 
 @test "uses the first package appearance when duplicate forms are merged" {
