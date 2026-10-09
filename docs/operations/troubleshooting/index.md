@@ -4,7 +4,7 @@ Use this guide when a Big Bang deployment, upgrade, or package is not healthy.
 
 Big Bang is deployed declaratively through Flux. Find the **first resource that is not ready** and fix that failure before troubleshooting downstream resources. An earlier reconciliation failure can cause multiple downstream symptoms.
 
-## Find the failing layer
+## Find the Failing Layer
 
 ```mermaid
 flowchart TD
@@ -28,7 +28,7 @@ flowchart TD
 
 Work from the highest failing layer downward. Avoid troubleshooting downstream symptoms while an earlier dependency is not ready.
 
-## Check deployment status
+## Check Deployment Status
 
 Start by checking Flux and listing resources that are not ready:
 
@@ -56,7 +56,7 @@ For a resource that is not ready, inspect its conditions, message, and recent ev
 | Upgrade | [Upgrade problems](#upgrade-problems) |
 | Healthy deployment with performance problems | [Performance troubleshooting](performance.md) |
 
-## Troubleshoot by layer
+## Troubleshoot by Layer
 
 ### Flux
 
@@ -64,7 +64,7 @@ If `flux check` reports unhealthy controllers, resolve the Flux problem before t
 
 For controller health, logs, source failures, and other Flux-specific problems, see the [Flux troubleshooting guide](https://fluxcd.io/flux/cheatsheets/troubleshooting/).
 
-### Environment configuration
+### Environment Configuration
 
 Check the sources and Kustomizations that manage the environment:
 
@@ -96,7 +96,7 @@ Use its conditions, reason, message, and events to identify failures involving B
 
 Correct the declarative configuration that caused the failure. For detailed HelmRelease behavior and remediation, see the [Flux HelmRelease documentation](https://fluxcd.io/flux/components/helm/helmreleases/).
 
-#### Reconcile after correcting the cause
+#### Reconcile after Correcting the Cause
 
 Flux reconciles resources automatically. To trigger an immediate reconciliation after correcting the configuration:
 
@@ -110,7 +110,7 @@ Then verify the release:
 flux get helmrelease bigbang -n bigbang
 ```
 
-#### Full reset
+#### Full Reset
 
 A full reset is a **destructive recovery action that deletes the entire Big Bang deployment**. Before proceeding, confirm backup and persistent-data requirements and identify the Kustomization that will recreate the Big Bang `HelmRelease`.
 
@@ -177,7 +177,7 @@ For package-specific configuration and troubleshooting, see the [Big Bang packag
 | Kubernetes resources are healthy but the application is not | Consult the affected package's [Big Bang integration guide or package repository](https://docs-bigbang.dso.mil/latest/docs/packages/). |
 | Deployment is healthy but slow or resource constrained | [Performance troubleshooting](performance.md) |
 
-#### Check Service connectivity
+#### Check Service Connectivity
 
 If the problem involves Service connectivity, confirm that the Service has the expected EndpointSlices:
 
@@ -198,7 +198,7 @@ For external traffic or load-balancer problems, see [Kubernetes Service debuggin
 
 **Warning:** Do not disable security policies, add broad allow rules, or manually modify Flux-managed workloads as a standard troubleshooting step. Correct the declarative configuration that caused the failure.
 
-## Upgrade problems
+## Upgrade Problems
 
 Use the same top-down troubleshooting workflow on this page to find the first resource that is not ready.
 
@@ -212,7 +212,7 @@ Correct the desired configuration rather than using a direct `helm upgrade`, man
 
 For upgrade procedures, supported upgrade paths, and post-upgrade verification, see [Upgrades](../upgrades.md).
 
-## Verify recovery
+## Verify Recovery
 
 After correcting the failure, check for resources that are still not ready:
 
@@ -228,7 +228,7 @@ kubectl get pods -n <namespace>
 
 Verify that the original symptom is also resolved. A successful reconciliation does not necessarily mean that the application is functioning correctly.
 
-## Escalate the issue
+## Escalate the Issue
 
 If you cannot resolve the problem, collect information about the **first failing layer**.
 
