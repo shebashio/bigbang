@@ -35,6 +35,15 @@ tests:
       - equal:
           path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
           value: true
+      - equal:
+          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
+          value: [monitoring]
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'allow_arbitrary_file_access = true'
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.cortex_tenant.receiver'
   - it: omits Prometheus when its workload is disabled and Cortex Tenant is not selected
     set:
       alloy.alloyMetrics.enabled: true
@@ -54,6 +63,12 @@ tests:
       - equal:
           path: upstream.prometheusOperatorObjects.destinations
           value: [prometheus, mimir]
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.prometheus.receiver'
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.mimir.receiver'
   - it: omits kube-state-metrics egress when monitoring is disabled
     set:
       alloy.alloyMetrics.enabled: true
@@ -61,3 +76,16 @@ tests:
     asserts:
       - notExists:
           path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
+      - notExists:
+          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
+      - notExists:
+          path: upstream.collectors.alloy-metrics.extraConfig
+  - it: uses ordinary ServiceMonitor discovery without an Istio sidecar
+    set:
+      alloy.alloyMetrics.enabled: true
+      istiod.enabled: false
+    asserts:
+      - notExists:
+          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
+      - notExists:
+          path: upstream.collectors.alloy-metrics.extraConfig

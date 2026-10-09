@@ -314,6 +314,31 @@ upstream:
             - name: istio-certs
               emptyDir:
                 medium: Memory
+      {{- if and .Values.monitoring.enabled $sidecarInjectionEnabled }}
+      # Monitoring's ServiceMonitors reference the mounted Istio certificate files.
+      # Trust file references only for ServiceMonitors in the monitoring namespace.
+      extraConfig: |
+        prometheus.operator.servicemonitors "bigbang_monitoring" {
+          kubernetes_role = "endpointslice"
+          namespaces = ["monitoring"]
+          allow_arbitrary_file_access = true
+          clustering {
+            enabled = true
+          }
+          forward_to = [
+            {{- if $cortexTenantEnabled }}
+            prometheus.remote_write.cortex_tenant.receiver,
+            {{- else }}
+            {{- if $prometheusEnabled }}
+            prometheus.remote_write.prometheus.receiver,
+            {{- end }}
+            {{- if $mimirEnabled }}
+            prometheus.remote_write.mimir.receiver,
+            {{- end }}
+            {{- end }}
+          ]
+        }
+      {{- end }}
   {{- end }}
   {{- if $alloyLogsEnabled }}
   podLogsViaLoki:
@@ -423,6 +448,12 @@ upstream:
       {{- end }}
   prometheusOperatorObjects:
     enabled: true
+    {{- if and .Values.monitoring.enabled $sidecarInjectionEnabled }}
+    serviceMonitors:
+      # The separate trusted component handles these without duplicate scrapes.
+      excludeNamespaces:
+        - monitoring
+    {{- end }}
     destinations:
       {{- if $cortexTenantEnabled }}
       - cortex-tenant
