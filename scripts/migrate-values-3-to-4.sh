@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Migrate Big Bang 3.x package values to the unified Big Bang 4.x package map.
-# Requires Mike Farah yq v4: https://github.com/mikefarah/yq
+# Requires Mike Farah yq v4.47.1 or newer: https://github.com/mikefarah/yq
 
 set -euo pipefail
 
@@ -112,12 +112,12 @@ usage() {
 Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
-addons.<name> paths to the Big Bang 4.x packages.<name> paths. The output sets
-packageConfiguration.version to v1. Starting with Big Bang 3.32, the 3.x chart
-uses it to interpret catalog package names as canonical built-ins rather than
-existing custom packages.
+addons.<name> paths to the Big Bang 4.x packages.<name> paths. By default, the
+output sets packageConfiguration.version to v1. Starting with Big Bang 3.32,
+the 3.x chart uses it to interpret catalog package names as canonical built-ins
+rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
-it from the migrated output when upgrading.
+it from a standalone migrated configuration when upgrading.
 
 Inputs are composed in order using Helm values precedence (later files win),
 then migrated into one consolidated document. By default, migrated YAML is
@@ -129,11 +129,18 @@ YAML anchors and aliases are expanded automatically and their anchor names are
 reported. Expansion must preserve the resolved values structure.
 
 Options:
-  -o, --output FILE      Write migrated values to FILE.
-  -i, --in-place         Replace a single INPUT after creating INPUT.bak.
-  -k, --secret-key KEY   Migrate values stored at data[KEY] or stringData[KEY]
-                         in one decrypted Kubernetes Secret.
-  -h, --help             Show this help.
+  -o, --output FILE               Write migrated values to FILE.
+  -i, --in-place                  Replace a single INPUT after creating
+                                  INPUT.bak.
+  -k, --secret-key KEY            Migrate values stored at data[KEY] or
+                                  stringData[KEY] in one decrypted Kubernetes
+                                  Secret.
+      --omit-package-configuration
+                                  Remove packageConfiguration from the output.
+                                  Use only for a secondary values source when
+                                  another composed source supplies
+                                  packageConfiguration.version v1.
+  -h, --help                      Show this help.
 
 If both a legacy path and packages.<name> exist, they are recursively merged
 and packages.<name> takes precedence. Unrecognized package entries are left
@@ -145,6 +152,8 @@ Examples:
   scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh --in-place values.yaml
   scripts/migrate-values-3-to-4.sh --secret-key values.yaml secret.yaml
+  scripts/migrate-values-3-to-4.sh --omit-package-configuration \
+    --output overlay-4.x.yaml overlay.yaml
 
 For values embedded in a SOPS-encrypted Kubernetes Secret, use
 scripts/migrate-sops-values-3-to-4.sh.
@@ -298,6 +307,7 @@ validate_values_file() {
 OUTPUT_FILE=""
 IN_PLACE=false
 SECRET_VALUES_KEY=""
+OMIT_PACKAGE_CONFIGURATION=false
 INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
@@ -316,6 +326,10 @@ while [[ $# -gt 0 ]]; do
       [[ -n "$2" ]] || fail "$1 requires a non-empty Secret key"
       SECRET_VALUES_KEY=$2
       shift 2
+      ;;
+    --omit-package-configuration)
+      OMIT_PACKAGE_CONFIGURATION=true
+      shift
       ;;
     -h|--help)
       usage
@@ -337,7 +351,7 @@ done
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
 yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
-  || fail "Mike Farah yq v4 with --yaml-fix-merge-anchor-to-spec support is required"
+  || fail "Mike Farah yq v4.47.1 or newer with --yaml-fix-merge-anchor-to-spec support is required"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 
 if [[ "$IN_PLACE" == true && -n "$OUTPUT_FILE" ]]; then
@@ -477,7 +491,8 @@ expand_yaml_anchors "$WORK_FILE" "$ANCHOR_DISPLAY_NAME"
 # migration cannot produce values that the chart will reject. Values already
 # using v1 receive the same normalized collision validation as chart rendering.
 CANONICAL_PACKAGES_ENABLED=false
-if yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
+if [[ "$OMIT_PACKAGE_CONFIGURATION" == true ]] \
+  || yq -e '.packageConfiguration.version == "v1"' "$WORK_FILE" >/dev/null 2>&1; then
   CANONICAL_PACKAGES_ENABLED=true
 fi
 
@@ -522,7 +537,11 @@ done < <(yq -r '.packages // {} | keys | .[]' "$WORK_FILE")
 
 capture_package_order "$WORK_FILE"
 
-yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
+if [[ "$OMIT_PACKAGE_CONFIGURATION" == true ]]; then
+  yq -i 'del(.packageConfiguration)' "$WORK_FILE"
+else
+  yq -i '.packageConfiguration = (.packageConfiguration // {}) | .packageConfiguration.version = "v1"' "$WORK_FILE"
+fi
 
 MIGRATED_PATHS=()
 
