@@ -267,7 +267,10 @@ networkPolicies:
               cidr: 172.16.0.0/12
           - ipBlock:
               cidr: 10.0.0.0/8
-
+# -- Global AuthorizationPolicy generation settings for integrated packages.
+authorizationPolicies:
+  # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
+  enabled: false
 # bb-common route defaults passed through to every package; per-route values always win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:

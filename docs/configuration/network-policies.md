@@ -1,6 +1,6 @@
 # Using Network Policies in Big Bang
 
-> **ℹ️ NOTE:** For package developers integrating network policies, see the [Big Bang Common Library](../community/development/package-integration/bb-common.md) guide which consolidates service mesh, network policies, and Istio hardening documentation.
+> **ℹ️ NOTE:** For package developers integrating network policies, see the [`bb-common` Subchart Integration](../community/development/package-integration/bb-common.md) guide, which consolidates service mesh, network-policy, and authorization-policy documentation.
 
 ## What are Network Policies
 
@@ -16,7 +16,7 @@ The mechanisms described in this document are natively available for:
 - all bigbang supported addon packages (such as minio, etc)
 - select community supported addons (jira, confluence)
 
-For the purposes of this document, "customer defined package" and "community supported package" may be used interchangably and the techniques for one will apply equally to the other. However, customer defined packages will need to implement support for the networkpolicy control mechanism themselves if they want to make use of this functionality. See the [Big Bang Common Library](../community/development/package-integration/bb-common.md) guide for how to implement this functionality in a customer defined package. 
+For the purposes of this document, "customer defined package" and "community supported package" may be used interchangably and the techniques for one will apply equally to the other. However, customer defined packages will need to implement support for the networkpolicy control mechanism themselves if they want to make use of this functionality. See the [`bb-common` Subchart Integration](../community/development/package-integration/bb-common.md) guide for how to implement this functionality in a customer defined package.
 
 ## Enabling or Disabling Network Policies
 
@@ -27,62 +27,50 @@ BigBang core and addon packages ship with various network policies already confi
 networkPolicies:
   enabled: [true|false]
 
-# For bigbang core packages, this will turn on or off support for network policies in a core component
-CORE_PACKAGE_NAME:
-  values:
-    networkPolicies:
-      enabled: [true|false]
-
-# For bigbang supported addon packages, this will turn on or off support for network policies in a specific addon
-addons:
-  ADDON_PACKAGE_NAME:
-    values:
-      networkPolicies:
-        enabled: [true|false]
-
-# For user defined packages deployed using the wrapper chart, this will turn on or off support for network policies in that package
-package:
+# For an integrated package that consumes bb-common as a subchart, this will
+# turn network policies on or off for that package. User-defined packages that
+# consume bb-common as a subchart use the same nested values shape.
+packages:
   PACKAGE_NAME:
     values:
-      networkPolicies:
-        enabled: [true|false]
+      bb-common:
+        networkPolicies:
+          enabled: [true|false]
 ```
+
+## Enabling Authorization Policies
+
+AuthorizationPolicies are disabled globally by default. Enable them for
+integrated packages with:
+
+```yaml
+authorizationPolicies:
+  enabled: true
+```
+
+Ambient mode enables AuthorizationPolicies regardless of this value. A package
+can override the generated setting beneath
+`packages.<name>.values.bb-common.istio.authorizationPolicies`.
 
 ## Crafting and Delivering Additional Network Policies
 
 Sometimes you will want to apply additional [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to further isolate certain pods in your deployment. BigBang has adopted standardized mechanisms for crafting and deploying these Network Policies through the values provided to your BigBang core, supported addon or packages deployed with the big bang wrapper chart.
 
-For BigBang core packages, you place these rules inside of the values for the given component:
-
-```
-CORE_PACKAGE_NAME:
-  values:
-    networkPolicies:
-      enabled: true
-      additionalPolicies: []
-```
-
-For BigBang supported addon packages, you place these rules inside of the values for the given package:
-
-```
-addons:
-  ADDON_PACKAGE_NAME:
-    values:
-      networkPolicies:
-        enabled: true
-        additionalPolicies: []
-```
-
-For packages deployed with the wrapper chart, you add these rules inside of the values for the package:
+For an integrated package that consumes `bb-common` as a subchart, place these
+rules beneath that dependency's values key:
 
 ```
 packages:
   PACKAGE_NAME:
     values:
-      networkPolicies:
-        enabled: true
-        additionalPolicies: []
+      bb-common:
+        networkPolicies:
+          enabled: true
+          additionalPolicies: []
 ```
+
+User-defined packages own their internal values contract. When such a package
+consumes `bb-common` as a subchart, use the same nested shape.
 
 In all cases, the `additionalPolicies` entry should be a list of YAML objects, each describing a single [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/). You can add as many of these as you like. Consult [the upstream Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/) for more information on Network Policies, and what you can do with them.
 
@@ -113,6 +101,6 @@ additionalPolicies:
 * [Kubernetes Network Policies Documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 * [Kubernetes Labels and Selectors Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
 * [Big Bang Developer Guide for Package Implementation](../community/development/develop-package.md)
-* [Big Bang Common Library](../community/development/package-integration/bb-common.md)
+* [`bb-common` Subchart Integration](../community/development/package-integration/bb-common.md)
 
 For more information regarding the behavior of a specific core, supported addon or community supported package, you should always reference the documentation for the specific package in question. Information specific to any given package is outside the scope of this documentation.

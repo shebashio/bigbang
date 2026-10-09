@@ -11,8 +11,6 @@ postRenderer:
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
   - it: make assertions on the default values for Elasticsearch Kibana
-    set:
-      istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: domain

@@ -67,9 +67,9 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
-  - it: should have istio sidecar enabled when istiod hardened is enabled
+  - it: should honor legacy package-level hardening for the Istio sidecar
     set:
-      istiod.values.hardened.enabled: true
+      packages.sample.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -84,9 +84,9 @@ tests:
           path: bb-common.istio.authorizationPolicies.generateFromNetpol
           value: false
 
-  - it: should have authorizationPolicies enabled when istiod hardened is enabled
+  - it: should have authorizationPolicies enabled when globally enabled
     set:
-      istiod.values.hardened.enabled: true
+      authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled

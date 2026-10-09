@@ -9,8 +9,6 @@ tests:
       args:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: domain
@@ -84,4 +82,3 @@ tests:
       - equal:
           path: istio.serviceEntries.custom[1].spec.hosts[0]
           value: "custom.example.com"
-

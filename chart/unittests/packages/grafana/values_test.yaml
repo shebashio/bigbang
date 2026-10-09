@@ -3,14 +3,14 @@ suite: Package - Grafana - Values Tests
 templates:
   - templates/grafana/values.yaml
 tests:
-  - it: should enable istio sidecar when istiod hardened is enabled
+  - it: should honor legacy package-level hardening for the Istio sidecar
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      istiod.values.hardened.enabled: true
+      grafana.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled

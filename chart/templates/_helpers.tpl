@@ -1079,8 +1079,8 @@ keeps the legacy pod-label ext_authz path.
 {{- end -}}
 
 {{- /* Returns "true" if authorization policies should be generated.
-       True when istio.hardened is enabled at the package or global istiod level,
-       OR when ambient mode is globally enabled.
+       True when legacy package-level istio.hardened is enabled, the global
+       authorizationPolicies switch is enabled, or ambient mode is enabled.
        Args (positional list):
          0 - pkg:  the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
          1 - root: the root context (.)
@@ -1088,9 +1088,12 @@ keeps the legacy pod-label ext_authz path.
 {{- define "authorizationPoliciesEnabled" -}}
 {{- $pkg  := index . 0 -}}
 {{- $root := index . 1 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
+{{- $authorizationPoliciesEnabled := or
+  (dig "istio" "hardened" "enabled" false $pkg)
+  $root.Values.authorizationPolicies.enabled
+-}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $hardened $ambient }}
+{{ or $authorizationPoliciesEnabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly

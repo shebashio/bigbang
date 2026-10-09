@@ -12,6 +12,7 @@
     "sso",
     "flux",
     "networkPolicies",
+    "authorizationPolicies",
     "imagePullPolicy",
     "istioCNI",
     "istioCRDs",
@@ -275,6 +276,20 @@
       "required": [
         "enabled"
       ]
+    },
+    "authorizationPolicies": {
+      "type": "object",
+      "description": "Global AuthorizationPolicy generation settings for integrated packages.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value."
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "additionalProperties": false
     },
     "routes": {
       "type": "object",

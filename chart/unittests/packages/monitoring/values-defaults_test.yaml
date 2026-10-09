@@ -10,10 +10,10 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
-  - it: should keep istio cert mounts when hardened sidecar is enabled
+  - it: should keep istio cert mounts when legacy package hardening is enabled
     set:
       istiod.enabled: true
-      istiod.values.hardened.enabled: true
+      monitoring.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -33,7 +33,6 @@ tests:
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
       istiod.enabled: true
-      istiod.values.hardened.enabled: false
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -53,7 +52,6 @@ tests:
   - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
     set:
       istiod.enabled: true
-      istiod.values.hardened.enabled: false
       monitoring.values.istio.sidecar.enabled: true
     asserts:
       - equal:
@@ -102,7 +100,6 @@ tests:
   - it: should prioritize prometheusOperatorCRDs namespace injection over grafana when CRDs own monitoring namespace
     set:
       istiod.enabled: true
-      istiod.values.hardened.enabled: false
       prometheusOperatorCRDs.enabled: true
       grafana.enabled: true
       grafana.istio.injection: disabled
@@ -116,7 +113,6 @@ tests:
   - it: should use grafana namespace injection when prometheusOperatorCRDs is disabled
     set:
       istiod.enabled: true
-      istiod.values.hardened.enabled: false
       prometheusOperatorCRDs.enabled: false
       grafana.enabled: true
       grafana.istio.injection: disabled

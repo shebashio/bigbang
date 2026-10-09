@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Istiod - Values Tests
+templates:
+  - templates/istiod/values.yaml
+set:
+  istiod.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.common' - | yq eval '.'"
+tests:
+  - it: nests shared values beneath the bb-common subchart key
+    asserts:
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: false
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: istio
+
+  - it: enables authorization policies through the global switch
+    set:
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: true
+
+  - it: enables authorization policies in ambient mode
+    set:
+      istio.ambient.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.defaults.allowInNamespace.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.ingress.defaults.allowInNamespace.enabled
+          value: true

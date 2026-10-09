@@ -93,34 +93,36 @@ networkPolicies:
   enabled: true
   controlPlaneCidr: 172.16.0.0/12
 
+authorizationPolicies:
+  enabled: true
+
 istiod:
   enabled: true
   values:
-    hardened:
-      enabled: true
-    istio:
-      serviceEntries:
-        custom:
-          - name: external-dependencies
-            spec:
-              hosts:
-                - external-dependencies.local
-              addresses:
-                - 172.30.0.0/16
-              exportTo:
-                - "*"
-              location: MESH_EXTERNAL
-              resolution: NONE
-              ports:
-                - name: tcp-garage
-                  number: 3900
-                  protocol: TCP
-                - name: tcp-postgresql
-                  number: 5432
-                  protocol: TCP
-                - name: tcp-valkey
-                  number: 6379
-                  protocol: TCP
+    bb-common:
+      istio:
+        serviceEntries:
+          custom:
+            - name: external-dependencies
+              spec:
+                hosts:
+                  - external-dependencies.local
+                addresses:
+                  - 172.30.0.0/16
+                exportTo:
+                  - "*"
+                location: MESH_EXTERNAL
+                resolution: NONE
+                ports:
+                  - name: tcp-garage
+                    number: 3900
+                    protocol: TCP
+                  - name: tcp-postgresql
+                    number: 5432
+                    protocol: TCP
+                  - name: tcp-valkey
+                    number: 6379
+                    protocol: TCP
 istioCNI:
   enabled: false
   values:

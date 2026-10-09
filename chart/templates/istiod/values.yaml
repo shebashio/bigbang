@@ -7,42 +7,39 @@
   "root" $ 
   "package" (get .Values $pkg) 
   "name" ($pkg | kebabcase) 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.istiod" . | fromYaml) (include "bigbang.istiod.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.istiod" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.istiod" -}}
-{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.istiod.values }}
 {{- $authserviceEnabled := eq (include "authserviceEnabled" .) "true" }}
 
-istio:
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
-networkPolicies:
-  egress:
-    {{- if eq (include "ambientEnabled" .) "true" }}
-    defaults:
-      allowInNamespace:
-        enabled: true
-    {{- end }}
-    from:
-      istiod:
-        to:
-          definition:
-            sso: {{ $authserviceEnabled }}
-  ingress:
-    {{- if eq (include "ambientEnabled" .) "true" }}
-    defaults:
-      allowInNamespace:
-        enabled: true
-    {{- end }}
-    to:
-      istiod:15014:
-        from:
-          k8s:
-            kiali/kiali: {{ .Values.kiali.enabled }}
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+bb-common:
+  networkPolicies:
+    egress:
+      {{- if eq (include "ambientEnabled" .) "true" }}
+      defaults:
+        allowInNamespace:
+          enabled: true
+      {{- end }}
+      from:
+        istiod:
+          to:
+            definition:
+              sso: {{ $authserviceEnabled }}
+    ingress:
+      {{- if eq (include "ambientEnabled" .) "true" }}
+      defaults:
+        allowInNamespace:
+          enabled: true
+      {{- end }}
+      to:
+        istiod:15014:
+          from:
+            k8s:
+              kiali/kiali: {{ .Values.kiali.enabled }}
+              monitoring/prometheus: {{ .Values.monitoring.enabled }}
 
 monitoring:
   enabled: {{ .Values.monitoring.enabled }}

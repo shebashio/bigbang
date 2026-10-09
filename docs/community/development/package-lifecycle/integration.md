@@ -5,7 +5,7 @@ Use this technical checklist to integrate a package with Big Bang.
 - [ ] 1. [Upstream Helm Chart](../package-integration/upstream.md): Initialize package workspace using an upstream Helm chart.
 - [ ] 2. [CICD Pipeline](../package-integration/pipeline.md): Establish a baseline package pipeline for testing changes.
 - [ ] 3. [Flux Helm Chart](../package-integration/flux.md): Create a Flux-compatible GitOps Helm chart required by Big Bang.
-- [ ] 4. [Big Bang Common Library](../package-integration/bb-common.md): Integrate with bb-common for service mesh, network policies, and Istio hardening.
+- [ ] 4. [`bb-common` Subchart Integration](../package-integration/bb-common.md): Integrate with `bb-common` for service mesh, network policies, and authorization policies.
 - [ ] 5. [Monitoring](../package-integration/monitoring.md): Enable metrics scraping on product.
 - [ ] 6. [Database](../package-integration/database.md): If required, add internal and external database support using Big Bang values.
 - [ ] 7. [Object Storage](../package-integration/storage.md): If required, add internal or external object storage support using Big Bang values.

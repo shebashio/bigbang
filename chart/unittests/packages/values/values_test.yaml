@@ -16,7 +16,6 @@ templates:
   - templates/grafana/values.yaml
   - templates/harbor/values.yaml
   - templates/headlamp/values.yaml
-  - templates/istiod/values.yaml
   - templates/keycloak/values.yaml
   - templates/kiali/values.yaml
   - templates/kyverno-reporter/values.yaml
@@ -34,6 +33,22 @@ templates:
   - templates/velero/values.yaml
   - templates/minio-operator/values.yaml
 tests:
+  - it: enables authorization policies when globally enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: istio.authorizationPolicies.generateFromNetpol
+          value: true
+
   - it: enables authorization policies if ambient is enabled
     postRenderer:
       cmd: "sh"
