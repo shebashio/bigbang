@@ -34,7 +34,6 @@
   {{- $s3Endpoint = printf "%s.s3.%s.amazonaws.com" $s3Bucket $s3Region }}
 {{- end }}
 
-{{- $shouldEnableMinio := or (and (eq .Values.packages.thanos.strategy "scalable") (not (and .Values.packages.thanos.objectStorage.endpoint .Values.packages.thanos.objectStorage.region))) (dig "minio" "enabled" false .Values.packages.thanos.values) -}}
 {{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.packages.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
 
@@ -70,18 +69,12 @@ routes:
         issuer: {{ include "sso.url" . | quote }}
         clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
       {{- end }}
-    minio:
-      enabled: {{ and $istioEnabled $shouldEnableMinio }}
-      gateways:
-      - istio-gateway/public-ingressgateway
-      hosts:
-      - thanos-minio.{{ .Values.domain }}
-
 {{- if $thanosAuthserviceWaypoint }}
 istio:
   prependReleaseName: true
 {{- end }}
 
+<<<<<<< HEAD
 minio:
   enabled: {{ $shouldEnableMinio }}
   {{- if $shouldEnableMinio }}
@@ -92,6 +85,8 @@ minio:
         enabled: {{ .Values.packages.monitoring.enabled }}
   {{- end }}
 
+=======
+>>>>>>> bda47c87a (updated the for removal of minio)
 networkPolicies:
   egress:
     from:
@@ -122,15 +117,18 @@ networkPolicies:
             app.kubernetes.io/component: storegateway
         to:
           definition:
-            storage-subnets: {{ $storeGatewayEnabled }}
+            storage-subnets: {{ not (empty .Values.addons.thanos.objectStorage.endpoint) }}
   ingress:
     to:
+<<<<<<< HEAD
       minio:9000:
         from:
           k8s:
             minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+=======
+>>>>>>> bda47c87a (updated the for removal of minio)
       thanos-query-frontend:9090:
         podSelector:
           matchLabels:
