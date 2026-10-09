@@ -117,12 +117,15 @@ networkPolicies:
             tempo/tempo:4317: true
       {{- end }}
       {{- if $alloyMetricsEnabled }}
-      # Allow alloy-metrics to reach its selected metrics backend.
+      # Allow alloy-metrics to scrape monitoring and reach its selected metrics backend.
       alloy-metrics:
         to:
           definition:
             kubeAPI: true
           k8s:
+            {{- if .Values.monitoring.enabled }}
+            monitoring/kube-state-metrics:8080: true
+            {{- end }}
             {{- if and $prometheusEnabled (not $cortexTenantEnabled) }}
             {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
             # Prometheus is enrolled on the monitoring package's own waypoint for authservice;

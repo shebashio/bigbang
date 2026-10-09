@@ -32,6 +32,9 @@ tests:
       - equal:
           path: networkPolicies.egress.from.alloy-metrics.to.k8s.cortex-tenant/cortex-tenant:8080
           value: true
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
+          value: true
   - it: omits Prometheus when its workload is disabled and Cortex Tenant is not selected
     set:
       alloy.alloyMetrics.enabled: true
@@ -51,3 +54,10 @@ tests:
       - equal:
           path: upstream.prometheusOperatorObjects.destinations
           value: [prometheus, mimir]
+  - it: omits kube-state-metrics egress when monitoring is disabled
+    set:
+      alloy.alloyMetrics.enabled: true
+      monitoring.enabled: false
+    asserts:
+      - notExists:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080

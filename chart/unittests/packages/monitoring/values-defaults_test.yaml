@@ -10,6 +10,18 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: allows Alloy metrics to scrape kube-state-metrics with Prometheus disabled
+    set:
+      alloy.alloyMetrics.enabled: true
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          value: true
+  - it: omits Alloy scrape ingress when metrics collection is disabled
+    asserts:
+      - notExists:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080
   - it: disables control-plane ServiceMonitors when Prometheus is not deployed
     set:
       monitoring.values.upstream.prometheus.enabled: false

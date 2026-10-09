@@ -183,6 +183,12 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
+      {{- if and .Values.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
+      kube-state-metrics:8080:
+        from:
+          k8s:
+            alloy/alloy-metrics: true
+      {{- end }}
       {{ $kpsName }}:10250:
         from:
           cidr:
