@@ -222,9 +222,12 @@ append_package_order() {
   local candidate=$1
   local package_name
 
-  for package_name in "${PACKAGE_ORDER[@]}"; do
-    [[ "$candidate" == "$package_name" ]] && return 0
-  done
+  if (( ${#PACKAGE_ORDER[@]} != 0 )); then
+    for package_name in "${PACKAGE_ORDER[@]}"; do
+      [[ "$candidate" == "$package_name" ]] && return 0
+    done
+  fi
+
   PACKAGE_ORDER+=("$candidate")
 }
 
