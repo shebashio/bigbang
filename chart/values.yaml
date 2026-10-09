@@ -921,6 +921,14 @@ alloy:
   alloyMetrics:
     enabled: false
 
+  # -- Send Alloy ServiceMonitor/PodMonitor metrics through Cortex Tenant instead of directly to Prometheus or Mimir.
+  cortexTenant:
+    enabled: false
+    # -- Remote-write endpoint of the Cortex Tenant package.
+    url: http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+    # -- Optional tenant label added to all forwarded series. Leave empty when targets already carry tenant labels.
+    tenant: ""
+
   # -- Toggle Alloy to collect cluster events
   alloyClusterEvents:
     enabled: true

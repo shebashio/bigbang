@@ -1300,6 +1300,21 @@
         "values": true,
         "postRenderers": true,
         "additionalDestinations": true,
+        "cortexTenant": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            },
+            "tenant": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "alloyLogs": {
           "enabled": {
             "type": "boolean"
@@ -3797,6 +3812,21 @@
             "values": true,
             "postRenderers": true,
             "additionalDestinations": true,
+            "cortexTenant": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "tenant": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
             "alloyLogs": {
               "enabled": {
                 "type": "boolean"

@@ -25,6 +25,8 @@
 }}
 {{- $tempoEnabled := .Values.tempo.enabled }}
 {{- $mimirEnabled := .Values.addons.mimir.enabled }}
+{{- $cortexTenantEnabled := dig "cortexTenant" "enabled" false .Values.alloy }}
+{{- $prometheusEnabled := and .Values.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.monitoring) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{/* When ambient mode is enabled, sidecar injection is disabled since sidecars are not used */}}
@@ -56,7 +58,7 @@ networkPolicies:
           k8s:
             # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-logs
       alloy-logs:12345:
@@ -64,21 +66,21 @@ networkPolicies:
           k8s:
             # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-singleton
       alloy-singleton:12345:
         from:
           k8s:
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-metrics
       alloy-metrics:12345:
         from:
           k8s:
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
       {{- if $tempoEnabled }}
       # Allow any namespace to send traces to alloy-receiver via OTLP gRPC
       alloy-receiver:4317:
@@ -115,12 +117,13 @@ networkPolicies:
             tempo/tempo:4317: true
       {{- end }}
       {{- if $alloyMetricsEnabled }}
-      # Allow alloy-metrics to push metrics to Prometheus and Mimir
+      # Allow alloy-metrics to reach its selected metrics backend.
       alloy-metrics:
         to:
           definition:
             kubeAPI: true
           k8s:
+            {{- if and $prometheusEnabled (not $cortexTenantEnabled) }}
             {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
             # Prometheus is enrolled on the monitoring package's own waypoint for authservice;
             # in-mesh remote-write egress targets the waypoint pod over HBONE (15008).
@@ -129,9 +132,13 @@ networkPolicies:
                 matchLabels:
                   gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
             {{- else }}
-            monitoring/monitoring-monitoring-kube-prometheus:9090: {{ .Values.monitoring.enabled }}
+            monitoring/monitoring-monitoring-kube-prometheus:9090: true
             {{- end }}
-            mimir/mimir-mimir-gateway:8080: {{ $mimirEnabled }}
+            {{- end }}
+            {{- if $cortexTenantEnabled }}
+            cortex-tenant/cortex-tenant:8080: true
+            {{- end }}
+            mimir/mimir-mimir-gateway:8080: {{ and $mimirEnabled (not $cortexTenantEnabled) }}
       {{- end }}
 routes:
   outbound:
@@ -177,7 +184,7 @@ upstream:
       tls:
         insecure: true
     {{- end }}
-    {{- if and $alloyMetricsEnabled .Values.monitoring.enabled }}
+    {{- if and $alloyMetricsEnabled $prometheusEnabled (not $cortexTenantEnabled) }}
     prometheus:
       type: prometheus
       {{- if $sidecarInjectionEnabled }}
@@ -191,7 +198,7 @@ upstream:
       url: http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
       {{- end }}
     {{- end }}
-    {{- if and $alloyMetricsEnabled $mimirEnabled }}
+    {{- if and $alloyMetricsEnabled $mimirEnabled (not $cortexTenantEnabled) }}
     mimir:
       type: prometheus
       {{- if $sidecarInjectionEnabled }}
@@ -203,6 +210,15 @@ upstream:
         insecureSkipVerify: true
       {{- else }}
       url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
+      {{- end }}
+    {{- end }}
+    {{- if and $alloyMetricsEnabled $cortexTenantEnabled }}
+    cortex-tenant:
+      type: prometheus
+      url: {{ .Values.alloy.cortexTenant.url | quote }}
+      {{- with .Values.alloy.cortexTenant.tenant }}
+      extraLabels:
+        tenant: {{ . | quote }}
       {{- end }}
     {{- end }}
   {{- if .Values.alloy.additionalDestinations }}
@@ -405,11 +421,15 @@ upstream:
   prometheusOperatorObjects:
     enabled: true
     destinations:
-      {{- if .Values.monitoring.enabled }}
+      {{- if $cortexTenantEnabled }}
+      - cortex-tenant
+      {{- else }}
+      {{- if $prometheusEnabled }}
       - prometheus
       {{- end }}
       {{- if $mimirEnabled }}
       - mimir
+      {{- end }}
       {{- end }}
     collector: alloy-metrics
   {{- end }}
@@ -431,7 +451,7 @@ serviceMonitors:
       keyFile: /etc/prom-certs/key.pem
       insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
-  {{- if and $alloyClusterEventsEnabled $.Values.monitoring.enabled }}
+  {{- if $alloyClusterEventsEnabled }}
   - name: alloy-alloy-singleton
     additionalLabels:
       app.kubernetes.io/instance: alloy

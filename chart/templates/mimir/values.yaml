@@ -21,6 +21,7 @@
 
 {{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
+{{- $prometheusEnabled := and .Values.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.monitoring) }}
 {{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
 {{- $kafkaBrokerHost := (.Values.addons.mimir.kafkaIngestStorage.brokerHost) }}
 {{- $kafkaBrokerPort := (.Values.addons.mimir.kafkaIngestStorage.brokerPort) }}
@@ -131,28 +132,38 @@ networkPolicies:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
   ingress:
     to:
+      {{- if dig "cortexTenant" "enabled" false .Values.alloy }}
+      mimir-distributor:8080:
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: mimir
+            app.kubernetes.io/component: distributor
+        from:
+          k8s:
+            cortex-tenant/cortex-tenant: true
+      {{- end }}
       mimir:[15020]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}  
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ and .Values.alloy.alloyMetrics.enabled (not (dig "cortexTenant" "enabled" false .Values.alloy)) }}
       mimir:[8080,9095]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ and .Values.alloy.alloyMetrics.enabled (not (dig "cortexTenant" "enabled" false .Values.alloy)) }}
       rollout-operator:[8080,9095]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ and .Values.alloy.alloyMetrics.enabled (not (dig "cortexTenant" "enabled" false .Values.alloy)) }}
       rollout-operator:[15020]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ and .Values.alloy.alloyMetrics.enabled (not (dig "cortexTenant" "enabled" false .Values.alloy)) }}
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:

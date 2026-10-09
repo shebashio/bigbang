@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Alloy - Cortex Tenant values
+templates:
+  - templates/alloy/values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.defaults' - | yq eval '.'"
+tests:
+  - it: sends Alloy metrics through Cortex Tenant without duplicate destinations
+    set:
+      alloy.alloyMetrics.enabled: true
+      alloy.cortexTenant.enabled: true
+      alloy.cortexTenant.tenant: cluster-a
+      addons.mimir.enabled: true
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [cortex-tenant]
+      - equal:
+          path: upstream.destinations.cortex-tenant.url
+          value: http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+      - equal:
+          path: upstream.destinations.cortex-tenant.extraLabels.tenant
+          value: cluster-a
+      - notExists:
+          path: upstream.destinations.prometheus
+      - notExists:
+          path: upstream.destinations.mimir
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.cortex-tenant/cortex-tenant:8080
+          value: true
+  - it: omits Prometheus when its workload is disabled and Cortex Tenant is not selected
+    set:
+      alloy.alloyMetrics.enabled: true
+      addons.mimir.enabled: true
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [mimir]
+      - notExists:
+          path: upstream.destinations.prometheus
+  - it: preserves Prometheus and Mimir destinations for existing deployments
+    set:
+      alloy.alloyMetrics.enabled: true
+      addons.mimir.enabled: true
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [prometheus, mimir]

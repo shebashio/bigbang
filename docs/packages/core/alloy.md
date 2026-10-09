@@ -47,6 +47,49 @@ flowchart TD
 
 ## Big Bang Touchpoints
 
+### Cortex Tenant remote write
+
+Big Bang can send metrics discovered through ServiceMonitors and PodMonitors from
+Alloy through the separately deployed Cortex Tenant package to Mimir. Enable
+`alloy.cortexTenant` when that proxy should be Alloy's metrics destination:
+
+```yaml
+alloy:
+  alloyMetrics:
+    enabled: true
+  cortexTenant:
+    enabled: true
+    tenant: my-tenant
+
+monitoring:
+  prometheusMetrics:
+    enabled: false
+  values:
+    upstream:
+      prometheus:
+        enabled: false
+
+addons:
+  mimir:
+    enabled: true
+```
+
+Deploy Cortex Tenant separately as `packages.cortex-tenant`; it is not a built-in
+umbrella package. The proxy's default backend is the Mimir distributor. With
+`alloy.cortexTenant.enabled`, the umbrella sends Alloy's operator-object metrics
+only to the proxy at `http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push`.
+It does not also write those metrics directly to Prometheus or Mimir. When the
+custom package is enabled in the same umbrella release, Alloy waits for its
+HelmRelease.
+
+The proxy requires a `tenant` label on every series. Set
+`alloy.cortexTenant.tenant` for one shared tenant, or leave it empty only when
+all scraped series already carry their intended tenant labels. Configure
+`alloy.cortexTenant.url` and matching network policies if the proxy uses a
+different Service. For environments that disable the Prometheus workload, the
+umbrella also disables the upstream control-plane ServiceMonitors by default;
+operators who supply independent scrape credentials can enable them explicitly.
+
 ### Licensing
 
 Grafana Alloy is open-source,

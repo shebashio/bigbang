@@ -3,6 +3,8 @@
 {{- if .Values.alloy.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $isStrictIstio := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.alloy.values) "STRICT") -}}
+{{- $cortexTenantPackage := get (.Values._customPackages | default dict) "cortex-tenant" | default dict -}}
+{{- $cortexTenantDependency := and (dig "cortexTenant" "enabled" false .Values.alloy) (not (empty $cortexTenantPackage)) (dig "enabled" true $cortexTenantPackage) -}}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -31,7 +33,7 @@ spec:
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled .Values.alloy.dependsOn }}
+  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled $cortexTenantDependency .Values.alloy.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
@@ -48,6 +50,10 @@ spec:
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
+  {{- if $cortexTenantDependency }}
+    - name: cortex-tenant
+      namespace: {{ dig "helmRelease" "namespace" (dig "namespace" "name" "cortex-tenant" $cortexTenantPackage) $cortexTenantPackage }}
+  {{- end }}
   {{- if .Values.loki.enabled }}
     - name: loki
       namespace: {{ .Release.Namespace }}
@@ -57,4 +63,3 @@ spec:
   {{- end }}
   {{- end }}
 {{- end }}
-

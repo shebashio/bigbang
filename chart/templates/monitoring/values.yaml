@@ -288,6 +288,12 @@ sso:
   enabled: {{ .Values.monitoring.sso.enabled }}
 
 upstream:
+  {{- if not (dig "upstream" "prometheus" "enabled" true .Values.monitoring.values) }}
+  # Control-plane monitors require a token Secret created with the Prometheus service account.
+  # Users who provide their own ServiceMonitor authorization can override this gate.
+  kubernetesServiceMonitors:
+    enabled: false
+  {{- end }}
   alertmanager:
     {{- if $monitoringAuthserviceWaypoint }}
     # In ambient mode, enroll alertmanager onto the monitoring package's own waypoint

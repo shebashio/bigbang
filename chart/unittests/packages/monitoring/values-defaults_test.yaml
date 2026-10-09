@@ -10,6 +10,17 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: disables control-plane ServiceMonitors when Prometheus is not deployed
+    set:
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.kubernetesServiceMonitors.enabled
+          value: false
+  - it: leaves control-plane ServiceMonitors at upstream defaults with Prometheus enabled
+    asserts:
+      - notExists:
+          path: upstream.kubernetesServiceMonitors
   - it: should keep istio cert mounts when hardened sidecar is enabled
     set:
       istiod.enabled: true
