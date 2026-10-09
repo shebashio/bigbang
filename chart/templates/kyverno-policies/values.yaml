@@ -1233,7 +1233,7 @@ policies:
       - namespace: thanos
         pods:
           allow:
-          - thanos-minio-*
+          - thanos-script-test
           deny:
           - thanos-query-frontend-*
           - thanos-storegateway*
