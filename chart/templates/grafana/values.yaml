@@ -10,7 +10,8 @@
   "root" $
   "package" $grafanaPackage
   "name" "grafana"
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.grafana" . | fromYaml) (include "bigbang.grafana.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.grafana" .)
 )}}
 {{- end }}
 
@@ -18,8 +19,8 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 {{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
 {{- $gitlabExternalRedisHost := dig "global" "redis" "host" "" .Values.addons.gitlab.values }}
@@ -47,44 +48,50 @@ enterprise:
   license: {{ .Values.grafana.enterprise.license | quote }}
 {{- end }}
 
-networkPolicies:
-  prependReleaseName: true
-  ingress:
-    to:
-      grafana:3000:
-        from:
-          k8s:
-            kiali/kiali: {{ .Values.kiali.enabled }}
-  egress:
-    from:
-      "*":
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-            thanos/thanos:9090: {{ .Values.addons.thanos.enabled }}
-      grafana:
-        to:
-          definition:
-            redis-subnets: {{ $gitlabExternalRedisEnabled }}
-          k8s:
-            authservice/authservice:10003: {{ $authserviceRedisEnabled }}
+bb-common:
+  networkPolicies:
+    prependReleaseName: true
+    ingress:
+      to:
+        grafana:3000:
+          from:
+            k8s:
+              kiali/kiali: {{ .Values.kiali.enabled }}
+    egress:
+      from:
+        "*":
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.tempo.enabled }}
+              thanos/thanos:9090: {{ .Values.addons.thanos.enabled }}
+        grafana:
+          to:
+            definition:
+              redis-subnets: {{ $gitlabExternalRedisEnabled }}
+            k8s:
+              authservice/authservice:10003: {{ $authserviceRedisEnabled }}
 
-routes:
-  outbound:
-    external-gitlab-redis:
-      enabled: {{ $gitlabExternalRedisEnabled }}
+  routes:
+    inbound:
+      grafana:
+        enabled: {{ $istioEnabled }}
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" .Values.grafana.ingress.gateway "root" .) }}
+    outbound:
       {{- if $gitlabExternalRedisEnabled }}
-      hosts:
-      - {{ $gitlabExternalRedisHost | quote }}
-      ports:
-      - number: {{ $gitlabRedisPort }}
-        name: redis
-        protocol: TCP
+      external-gitlab-redis:
+        enabled: true
+        hosts:
+        - {{ $gitlabExternalRedisHost | quote }}
+        ports:
+        - number: {{ $gitlabRedisPort }}
+          name: redis
+          protocol: TCP
       {{- end }}
-    grafana-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.grafana.values }}
-      hosts:
-      - repo1.dso.mil
+      grafana-bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.grafana.values }}
+        hosts:
+        - repo1.dso.mil
 
 bbtests:
   cypress:
