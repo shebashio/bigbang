@@ -1635,8 +1635,14 @@ packages:
   # Thanos
   #
   thanos:
-    # -- Toggle deployment of thanos
     enabled: false
+    objectStorage:
+      endpoint: "garage:3900"
+      region: "garage"
+      accessKey: "GKbb0000000000000000000000"
+      accessSecret: "bb00000000000000000000000000000000000000000000000000000000000000"
+      bucket: "thanos"
+      insecure: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
@@ -1675,21 +1681,37 @@ packages:
         enabled: true
         cypress:
           envs:
-            cypress_url: "https://thanos.dev.bigbang.mil"
-            cypress_prometheus_integration_enabled: "true"
+            cypress_prometheus_integration_enabled: 'true'
         scripts:
           envs:
             THANOS_S3_ENDPOINT: "http://garage:3900"
             THANOS_S3_ACCESS_KEY: "GKbb0000000000000000000000"
             THANOS_S3_SECRET_KEY: "bb00000000000000000000000000000000000000000000000000000000000000"
-      upstream:
-        storegateway:
-          enabled: true
-        compactor:
-          enabled: true
-          retentionResolutionRaw: 30d
-          retentionResolution5m: 30d
-          retentionResolution1h: 30d
+      routes:
+        outbound:
+          s3:
+            enabled: false
+      networkPolicies:
+        egress:
+          from:
+            thanos-storegateway:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
+            thanos-compactor:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
+        ingress:
+          to:
+            thanos-query:9090:
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/component: query
+                  app.kubernetes.io/name: thanos
+              from:
+                k8s:
+                  thanos/thanos-cypress-test: true
 
   # ----------------------------------------------------------------------------------------------------------------------
   # External Secrets
