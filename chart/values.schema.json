@@ -6367,6 +6367,22 @@
             "objectStorage": true,
             "sso": true
           },
+          "not": {
+            "required": [
+              "dependsOnOverride",
+              "dependsOn"
+            ],
+            "properties": {
+              "dependsOnOverride": {
+                "type": "array",
+                "minItems": 1
+              },
+              "dependsOn": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          },
           "type": "object",
           "additionalProperties": false,
           "description": "Partial override merged over the built-in package's legacy defaults."
@@ -7089,29 +7105,6 @@
           "$ref": "#/$defs/packageAliasPartials/aliases/velero"
         }
       }
-    },
-    "dependsOnOverride": {
-      "description": "Additional Flux HelmRelease dependencies.",
-      "type": [
-        "array",
-        "null"
-      ],
-      "default": null,
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "namespace": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ],
-        "additionalProperties": false
-      }      
     }
   },
   "allOf": [
