@@ -21,7 +21,10 @@ tests:
           value: [cortex-tenant]
       - equal:
           path: upstream.destinations.cortex-tenant.url
-          value: http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+          value: https://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+      - equal:
+          path: upstream.destinations.cortex-tenant.tls.certFile
+          value: /etc/prom-certs/cert-chain.pem
       - equal:
           path: upstream.destinations.cortex-tenant.extraLabels.tenant
           value: cluster-a
@@ -89,7 +92,24 @@ tests:
   - it: uses ordinary ServiceMonitor discovery without an Istio sidecar
     set:
       alloy.alloyMetrics.enabled: true
+      alloy.cortexTenant.enabled: true
       istiod.enabled: false
     asserts:
+      - equal:
+          path: upstream.destinations.cortex-tenant.url
+          value: http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+      - notExists:
+          path: upstream.destinations.cortex-tenant.tls
       - notExists:
           path: upstream.collectors.alloy-metrics.extraConfig
+  - it: preserves a custom Cortex Tenant URL
+    set:
+      alloy.alloyMetrics.enabled: true
+      alloy.cortexTenant.enabled: true
+      alloy.cortexTenant.url: https://metrics.example.test/push
+    asserts:
+      - equal:
+          path: upstream.destinations.cortex-tenant.url
+          value: https://metrics.example.test/push
+      - notExists:
+          path: upstream.destinations.cortex-tenant.tls

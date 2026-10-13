@@ -77,7 +77,9 @@ addons:
 Deploy Cortex Tenant separately as `packages.cortex-tenant`; it is not a built-in
 umbrella package. The proxy's default backend is the Mimir distributor. With
 `alloy.cortexTenant.enabled`, the umbrella sends Alloy's operator-object metrics
-only to the proxy at `http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push`.
+only to the proxy at `cortex-tenant.cortex-tenant.svc.cluster.local:8080/push`.
+With Istio sidecars, Alloy connects to the default endpoint over mTLS using
+its mounted Istio certificates; without sidecars it uses HTTP.
 It does not also write those metrics directly to Prometheus or Mimir. When the
 custom package is enabled in the same umbrella release, Alloy waits for its
 HelmRelease.

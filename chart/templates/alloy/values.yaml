@@ -26,6 +26,8 @@
 {{- $tempoEnabled := .Values.tempo.enabled }}
 {{- $mimirEnabled := .Values.addons.mimir.enabled }}
 {{- $cortexTenantEnabled := dig "cortexTenant" "enabled" false .Values.alloy }}
+{{- $defaultCortexTenantURL := "http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push" }}
+{{- $cortexTenantURL := dig "cortexTenant" "url" $defaultCortexTenantURL .Values.alloy }}
 {{- $prometheusEnabled := and .Values.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.monitoring) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
@@ -219,7 +221,18 @@ upstream:
     {{- if and $alloyMetricsEnabled $cortexTenantEnabled }}
     cortex-tenant:
       type: prometheus
-      url: {{ .Values.alloy.cortexTenant.url | quote }}
+      {{- if and $sidecarInjectionEnabled (eq $cortexTenantURL $defaultCortexTenantURL) }}
+      # alloy-metrics bypasses outbound Envoy interception, so it must originate
+      # mTLS itself when writing to the injected Cortex Tenant service.
+      url: https://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+      tls:
+        caFile: /etc/prom-certs/root-cert.pem
+        certFile: /etc/prom-certs/cert-chain.pem
+        keyFile: /etc/prom-certs/key.pem
+        insecureSkipVerify: true
+      {{- else }}
+      url: {{ $cortexTenantURL | quote }}
+      {{- end }}
       {{- with .Values.alloy.cortexTenant.tenant }}
       extraLabels:
         tenant: {{ . | quote }}
