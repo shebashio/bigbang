@@ -188,6 +188,10 @@ networkPolicies:
         from:
           k8s:
             alloy/alloy-metrics: true
+      prometheus-node-exporter:9100:
+        from:
+          k8s:
+            alloy/alloy-metrics: true
       {{- end }}
       {{ $kpsName }}:10250:
         from:

@@ -36,11 +36,17 @@ tests:
           path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
           value: true
       - equal:
-          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
-          value: [monitoring]
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/prometheus-node-exporter:9100
+          value: true
       - matchRegex:
           path: upstream.collectors.alloy-metrics.extraConfig
-          pattern: 'allow_arbitrary_file_access = true'
+          pattern: 'prometheus.scrape "bigbang_kube_state_metrics"'
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'cert_file = "/etc/prom-certs/cert-chain.pem"'
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'discovery.kubernetes "bigbang_node_exporter"'
       - matchRegex:
           path: upstream.collectors.alloy-metrics.extraConfig
           pattern: 'prometheus.remote_write.cortex_tenant.receiver'
@@ -77,7 +83,7 @@ tests:
       - notExists:
           path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
       - notExists:
-          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/prometheus-node-exporter:9100
       - notExists:
           path: upstream.collectors.alloy-metrics.extraConfig
   - it: uses ordinary ServiceMonitor discovery without an Istio sidecar
@@ -85,7 +91,5 @@ tests:
       alloy.alloyMetrics.enabled: true
       istiod.enabled: false
     asserts:
-      - notExists:
-          path: upstream.prometheusOperatorObjects.serviceMonitors.excludeNamespaces
       - notExists:
           path: upstream.collectors.alloy-metrics.extraConfig

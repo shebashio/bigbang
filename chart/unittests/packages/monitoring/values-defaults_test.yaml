@@ -18,10 +18,15 @@ tests:
       - equal:
           path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
           value: true
+      - equal:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100.from.k8s.alloy/alloy-metrics
+          value: true
   - it: omits Alloy scrape ingress when metrics collection is disabled
     asserts:
       - notExists:
           path: networkPolicies.ingress.to.kube-state-metrics:8080
+      - notExists:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100
   - it: disables control-plane ServiceMonitors when Prometheus is not deployed
     set:
       monitoring.values.upstream.prometheus.enabled: false

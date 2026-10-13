@@ -125,6 +125,7 @@ networkPolicies:
           k8s:
             {{- if .Values.monitoring.enabled }}
             monitoring/kube-state-metrics:8080: true
+            monitoring/prometheus-node-exporter:9100: true
             {{- end }}
             {{- if and $prometheusEnabled (not $cortexTenantEnabled) }}
             {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
@@ -315,13 +316,55 @@ upstream:
               emptyDir:
                 medium: Memory
       {{- if and .Values.monitoring.enabled $sidecarInjectionEnabled }}
-      # Monitoring's ServiceMonitors reference the mounted Istio certificate files.
-      # Trust file references only for ServiceMonitors in the monitoring namespace.
+      # Alloy 1.18 cannot load local certificate files from ServiceMonitors.
+      # Scrape the monitoring exporters with the mounted Istio certificates.
       extraConfig: |
-        prometheus.operator.servicemonitors "bigbang_monitoring" {
-          kubernetes_role = "endpointslice"
-          namespaces = ["monitoring"]
-          allow_arbitrary_file_access = true
+        prometheus.scrape "bigbang_kube_state_metrics" {
+          targets = [{"__address__" = "monitoring-monitoring-kube-state-metrics.monitoring.svc.cluster.local:8080"}]
+          scheme = "https"
+          tls_config {
+            ca_file = "/etc/prom-certs/root-cert.pem"
+            cert_file = "/etc/prom-certs/cert-chain.pem"
+            key_file = "/etc/prom-certs/key.pem"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+          forward_to = [
+            {{- if $cortexTenantEnabled }}
+            prometheus.remote_write.cortex_tenant.receiver,
+            {{- else }}
+            {{- if $prometheusEnabled }}
+            prometheus.remote_write.prometheus.receiver,
+            {{- end }}
+            {{- if $mimirEnabled }}
+            prometheus.remote_write.mimir.receiver,
+            {{- end }}
+            {{- end }}
+          ]
+        }
+
+        discovery.kubernetes "bigbang_node_exporter" {
+          role = "pod"
+          namespaces {
+            names = ["monitoring"]
+          }
+          selectors {
+            role = "pod"
+            label = "app.kubernetes.io/name=prometheus-node-exporter"
+          }
+        }
+
+        prometheus.scrape "bigbang_node_exporter" {
+          targets = discovery.kubernetes.bigbang_node_exporter.targets
+          scheme = "https"
+          tls_config {
+            ca_file = "/etc/prom-certs/root-cert.pem"
+            cert_file = "/etc/prom-certs/cert-chain.pem"
+            key_file = "/etc/prom-certs/key.pem"
+            insecure_skip_verify = true
+          }
           clustering {
             enabled = true
           }
@@ -448,12 +491,6 @@ upstream:
       {{- end }}
   prometheusOperatorObjects:
     enabled: true
-    {{- if and .Values.monitoring.enabled $sidecarInjectionEnabled }}
-    serviceMonitors:
-      # The separate trusted component handles these without duplicate scrapes.
-      excludeNamespaces:
-        - monitoring
-    {{- end }}
     destinations:
       {{- if $cortexTenantEnabled }}
       - cortex-tenant
