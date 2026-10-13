@@ -9,12 +9,12 @@ tests:
           path: apiVersion
           value: v1
 
-  - it: uses the top-level definitions if they're set
+  - it: nests top-level network policy definitions under bb-common
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       networkPolicies.egress.definitions:
         kubeAPI:
@@ -28,68 +28,14 @@ tests:
                 cidr: 10.10.10.10/10
     asserts:
       - equal:
-          path: networkPolicies.egress.definitions.kubeAPI
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI
           value:
             to:
               - ipBlock:
                   cidr: 10.10.10.10/10
       - equal:
-          path: networkPolicies.ingress.definitions.load-balancer-subnets
+          path: bb-common.networkPolicies.ingress.definitions.load-balancer-subnets
           value:
             from:
               - ipBlock:
                   cidr: 10.10.10.10/10
-  - it: uses the control plane cidr for the kubeAPI definition by default if no top-level kubeAPI egress definition is set
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      networkPolicies.controlPlaneCidr: 10.10.10.10/10
-    asserts:
-      - equal:
-          path: networkPolicies.egress.definitions.kubeAPI
-          value:
-            to:
-              - ipBlock:
-                  cidr: 10.10.10.10/10
-  - it: uses the control plane cidr and the VPC cidr if both are set and no top-level kubeAPI egress definition is set
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      networkPolicies.controlPlaneCidr: 10.10.10.10/10
-      networkPolicies.vpcCidr: 10.10.10.20/20
-    asserts:
-      - equal:
-          path: networkPolicies.egress.definitions.kubeAPI
-          value:
-            to:
-              - ipBlock:
-                  cidr: 10.10.10.10/10
-              - ipBlock:
-                  cidr: 10.10.10.20/20
-
-  - it: prefers the top-level kubeAPI egress definition over the control plane and VPC cidrs when all are set
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
-    set:
-      networkPolicies.controlPlaneCidr: 10.10.10.10/10
-      networkPolicies.vpcCidr: 10.10.10.20/20
-      networkPolicies.egress.definitions.kubeAPI:
-        to:
-          - ipBlock:
-              cidr: 100.100.100.100/16
-    asserts:
-      - equal:
-          path: networkPolicies.egress.definitions.kubeAPI
-          value:
-            to:
-              - ipBlock:
-                  cidr: 100.100.100.100/16

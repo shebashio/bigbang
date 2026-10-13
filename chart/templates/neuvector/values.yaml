@@ -150,14 +150,9 @@ monitor:
 
 {{- /* Create secret */ -}}
 {{- if .Values.neuvector.enabled }}
-# handle legacy istio hardened keys in neuvector values
-{{- $neuvectorPackage := deepCopy .Values.neuvector -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.neuvector.values) | fromYaml -}}
-{{- $neuvectorPackage = set $neuvectorPackage "values" $cleanedValues -}}
-
 {{- include "values-secret" (dict
   "root" $
-  "package" $neuvectorPackage
+  "package" .Values.neuvector
   "name" "neuvector"
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.neuvector" .)
