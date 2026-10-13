@@ -14,10 +14,10 @@ Use the integration guide for Big Bang-specific behavior. Use the package reposi
 | Gatekeeper | `packages.gatekeeper` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/policy/-/blob/e07223e92cf47a5bb5efe293a7ea71f75187ed0a/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Gateway API | `packages.gatewayAPI` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
 | Grafana | `packages.grafana` | [Guide](monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
-| Istio CNI | `packages.istioCNI` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
-| Istio CRDs | `packages.istioCRDs` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
-| Istio Gateway | `packages.istioGateway` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
-| Istiod | `packages.istiod` | [Guide](istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
+| Istio CNI | `packages.istioCNI` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-cni/-/blob/507ac7388f7b589dc2c1e790f4cb84d447a9a687/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
+| Istio CRDs | `packages.istioCRDs` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-crds/-/blob/37e867a7c90e5eb3c1ab2e5ad27470dab44965e6/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
+| Istio Gateway | `packages.istioGateway` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-gateway/-/blob/645d870a2a2ef3da46646a7380fcbe6d0e725fdd/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
+| Istiod | `packages.istiod` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istiod/-/blob/588f7ae253c9a3b86a4abc13e54e9085f9c064ba/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Kiali | `packages.kiali` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kiali/-/blob/9216b468197153547711ff738fd4bddc4acadd75/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
 | Kyverno | `packages.kyverno` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kyverno/-/blob/44642cd53a556731f091d4560d5a0ca2788d9fe4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |

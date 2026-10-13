@@ -20,10 +20,10 @@ Core packages provide the platform capabilities that other packages commonly dep
 | Gatekeeper | `packages.gatekeeper` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/policy/-/blob/e07223e92cf47a5bb5efe293a7ea71f75187ed0a/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/policy) |
 | Gateway API | `packages.gatewayAPI` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/gateway-api/-/blob/cd988dc3a9a64d05899783850f8f9e5c285edacc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/gateway-api) |
 | Grafana | `packages.grafana` | [Guide](core/monitoring.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/grafana) |
-| Istio CNI | `packages.istioCNI` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
-| Istio CRDs | `packages.istioCRDs` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
-| Istio Gateway | `packages.istioGateway` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
-| Istiod | `packages.istiod` | [Guide](core/istio.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
+| Istio CNI | `packages.istioCNI` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-cni/-/blob/507ac7388f7b589dc2c1e790f4cb84d447a9a687/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-cni) |
+| Istio CRDs | `packages.istioCRDs` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-crds/-/blob/37e867a7c90e5eb3c1ab2e5ad27470dab44965e6/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-crds) |
+| Istio Gateway | `packages.istioGateway` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istio-gateway/-/blob/645d870a2a2ef3da46646a7380fcbe6d0e725fdd/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istio-gateway) |
+| Istiod | `packages.istiod` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/istiod/-/blob/588f7ae253c9a3b86a4abc13e54e9085f9c064ba/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/istiod) |
 | Kiali | `packages.kiali` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kiali/-/blob/9216b468197153547711ff738fd4bddc4acadd75/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kiali) |
 | Kyverno | `packages.kyverno` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/kyverno/-/blob/44642cd53a556731f091d4560d5a0ca2788d9fe4/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno) |
 | Kyverno Policies | `packages.kyvernoPolicies` | [Guide](core/kyverno.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies) |
@@ -36,6 +36,7 @@ Core packages provide the platform capabilities that other packages commonly dep
 | Tempo | `packages.tempo` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/tempo/-/blob/997f43387422fc07278704f381d2c37eb09f6dac/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/tempo) |
 | Twistlock | `packages.twistlock` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/twistlock/-/blob/4381fcf990611782455c0d5814d774726499b0e2/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/twistlock) |
 | Ztunnel | `packages.ztunnel` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/ztunnel/-/blob/3189c52a2b6dbb351fe9cddc9cfa5e2207a78025/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/ztunnel) |
+
 ## Add-on packages
 
 Add-on packages provide optional platform and application capabilities.
@@ -62,6 +63,7 @@ Add-on packages provide optional platform and application capabilities.
 | Thanos | `packages.thanos` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/1c338400c622d94889350336c7c114a03949ba61/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/thanos) |
 | Vault | `packages.vault` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/vault/-/blob/16516344207f4cbf3261132400bd8d7eba449041/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/vault) |
 | Velero | `packages.velero` | [Draft guide](https://repo1.dso.mil/big-bang/product/packages/velero/-/blob/1404db397071d24f1a3bc581f3ffa26aa8d365fc/docs/overview.md) | [Repository](https://repo1.dso.mil/big-bang/product/packages/velero) |
+
 ## Other package collections
 
 - [Maintained packages](https://repo1.dso.mil/groups/big-bang/product/maintained) are maintained and tested independently but are not rendered directly by the umbrella chart.
