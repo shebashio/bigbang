@@ -538,11 +538,11 @@ istioEgressGateway:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istio-egress-gateway.git
     path: "./chart"
-    tag: 0.1.3
+    tag: 0.1.5-bb.0
   helmRepo:
     repoName: "registry1"
     chartName: "istio-egress-gateway"
-    tag: 0.1.3
+    tag: 0.1.5-bb.0
   # -- Values to passthrough to the istio-egress-gateway chart
   values: {}
   # -- Flux reconciliation overrides specifically for the Istio Egress Gateway Package
