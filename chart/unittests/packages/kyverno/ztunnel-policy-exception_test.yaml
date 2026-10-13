@@ -10,7 +10,7 @@ postRenderer:
 tests:
   - it: should include the ztunnel policy exception when ambient is enabled globally
     set:
-      kyvernoPolicies.enabled: true
+      packages.kyvernoPolicies.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
@@ -19,8 +19,8 @@ tests:
 
   - it: should include the ztunnel policy exception when ztunnel is enabled
     set:
-      kyvernoPolicies.enabled: true
-      ztunnel.enabled: true
+      packages.kyvernoPolicies.enabled: true
+      packages.ztunnel.enabled: true
     asserts:
       - equal:
           path: additionalPolicyExceptions.ztunnel.enabled
@@ -28,9 +28,9 @@ tests:
 
   - it: should not include the ztunnel policy exception when ambient is disabled
     set:
-      kyvernoPolicies.enabled: true
+      packages.kyvernoPolicies.enabled: true
       istio.ambient.enabled: false
-      ztunnel.enabled: false
+      packages.ztunnel.enabled: false
     asserts:
       - notExists:
           path: additionalPolicyExceptions.ztunnel

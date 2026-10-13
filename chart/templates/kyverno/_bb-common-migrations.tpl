@@ -1,9 +1,9 @@
 {{- define "bigbang.kyverno.bb-common-migrations" }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
 
-{{- $legacyPorts := dig "networkPolicies" "externalRegistries" "ports" list .Values.kyverno.values }}
+{{- $legacyPorts := dig "networkPolicies" "externalRegistries" "ports" list .Values.packages.kyverno.values }}
 {{- $definitionDefaultPort := list (dict "port" 443 "protocol" "TCP") }}
-{{- $definitionPorts := dig "networkPolicies" "egress" "definitions" "registry" "ports" $definitionDefaultPort .Values.kyverno.values }}
+{{- $definitionPorts := dig "networkPolicies" "egress" "definitions" "registry" "ports" $definitionDefaultPort .Values.packages.kyverno.values }}
 {{- $allPorts := concat $legacyPorts $definitionPorts }}
 {{- $allPortsSanitized := list }}
 {{- range $allPorts }}
@@ -41,6 +41,6 @@ networkPolicies:
             app.kubernetes.io/component: admission-controller
         to:
           definition:
-            private-registry: {{ or (dig "networkPolicies" "externalRegistries" "allowEgress" false .Values.kyverno.values) (dig "policies" "require-image-signature" "enabled" false .Values.kyvernoPolicies.values) }}
+            private-registry: {{ or (dig "networkPolicies" "externalRegistries" "allowEgress" false .Values.packages.kyverno.values) (dig "policies" "require-image-signature" "enabled" false .Values.packages.kyvernoPolicies.values) }}
             kubeAPI: true
 {{- end }}

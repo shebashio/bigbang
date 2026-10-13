@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsAnchore := mergeOverwrite (deepCopy .Values.flux) .Values.addons.anchoreEnterprise.flux -}}
-{{- if .Values.addons.anchoreEnterprise.enabled }}
+{{- $fluxSettingsAnchore := mergeOverwrite (deepCopy .Values.flux) .Values.packages.anchoreEnterprise.flux -}}
+{{- if .Values.packages.anchoreEnterprise.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -15,36 +15,36 @@ metadata:
 spec:
   releaseName: anchore-enterprise
   targetNamespace: anchore
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "anchore-enterprise" "package" .Values.addons.anchoreEnterprise "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "anchore-enterprise" "package" .Values.packages.anchoreEnterprise "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsAnchore | nindent 2 }}
 
-  {{- if .Values.addons.anchoreEnterprise.postRenderers }}
+  {{- if .Values.packages.anchoreEnterprise.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.anchoreEnterprise.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.anchoreEnterprise.postRenderers | nindent 4 }}
   {{- end }}
 
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "anchore-enterprise" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.addons.anchoreEnterprise.dependsOnOverride) }}
-  {{- with .Values.addons.anchoreEnterprise.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.anchoreEnterprise.dependsOnOverride) }}
+  {{- with .Values.packages.anchoreEnterprise.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or $istioEnabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.addons.anchoreEnterprise.sso.enabled) .Values.addons.anchoreEnterprise.dependsOn }}
+  {{- else if or $istioEnabled .Values.packages.monitoring.enabled (and .Values.packages.keycloak.enabled .Values.packages.anchoreEnterprise.sso.enabled) .Values.packages.anchoreEnterprise.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if and .Values.addons.keycloak.enabled .Values.addons.anchoreEnterprise.sso.enabled }}
+    {{- if and .Values.packages.keycloak.enabled .Values.packages.anchoreEnterprise.sso.enabled }}
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.anchoreEnterprise) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.anchoreEnterprise) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

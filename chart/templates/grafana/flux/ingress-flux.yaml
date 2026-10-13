@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if and .Values.monitoring.enabled (dig "grafana" "enabled" true .Values.monitoring.values) }}
-{{- if or (and .Values.networkPolicies.enabled (dig "networkPolicies" "enabled" true .Values.monitoring.values)) (and (not .Values.networkPolicies.enabled) (dig "networkPolicies" "enabled" false .Values.monitoring.values)) }}
+{{- if and .Values.packages.monitoring.enabled (dig "grafana" "enabled" true .Values.packages.monitoring.values) }}
+{{- if or (and .Values.networkPolicies.enabled (dig "networkPolicies" "enabled" true .Values.packages.monitoring.values)) (and (not .Values.networkPolicies.enabled) (dig "networkPolicies" "enabled" false .Values.packages.monitoring.values)) }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

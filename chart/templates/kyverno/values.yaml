@@ -1,10 +1,10 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled }}
-{{- include "values-secret" (dict 
-"root" $ 
-"package" .Values.kyverno 
-"name" "kyverno" 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno" . | fromYaml) (include "bigbang.kyverno.bb-common-migrations" . | fromYaml)) | toYaml) 
+{{- if or .Values.packages.kyverno.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.kyvernoReporter.enabled }}
+{{- include "values-secret" (dict
+"root" $
+"package" .Values.packages.kyverno
+"name" "kyverno"
+"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno" . | fromYaml) (include "bigbang.kyverno.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
 
@@ -31,7 +31,7 @@ networkPolicies:
             app.kubernetes.io/instance: kyverno-kyverno
         from:
           k8s:
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   egress:
     definitions:
       private-registry:
@@ -48,7 +48,7 @@ networkPolicies:
             app.kubernetes.io/component: admission-controller
         to:
           definition:
-            private-registry: {{ dig "policies" "require-image-signature" "enabled" false .Values.kyvernoPolicies.values }}
+            private-registry: {{ dig "policies" "require-image-signature" "enabled" false .Values.packages.kyvernoPolicies.values }}
             kubeAPI: true
       ## Kyverno background and cleanup controllers may be needed depending on the flavor of kubernetes in use
       kyverno-background-controller:
@@ -83,7 +83,7 @@ upstream:
   fullnameOverride: kyverno-kyverno
 
   replicaCount: 3
-  
+
   # clear out the explicit set in the package, so it falls back to our global value
   existingImagePullSecrets: []
 

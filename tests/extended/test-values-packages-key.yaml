@@ -1,5 +1,6 @@
-# Validate Big Bang's generic `packages` integration with a maintained package
-# that is intentionally not part of the umbrella chart.
+packageConfiguration:
+  version: v1
+
 packages:
   podinfo:
     enabled: true
@@ -32,103 +33,102 @@ packages:
       bbtests:
         enabled: true
 
-gatekeeper:
-  values:
-    violations:
-      allowedDockerRegistries:
-        parameters:
-          excludedResources:
-            # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
-            - podinfo/curl
+  gatekeeper:
+    values:
+      violations:
+        allowedDockerRegistries:
+          parameters:
+            excludedResources:
+              # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
+              - podinfo/curl
 
-kyvernoPolicies:
-  values:
-    additionalPolicyExceptions:
-      podinfo:
-        enabled: true
-        namespace: kyverno
-        metadata:
-          annotations:
-            policies.kyverno.io/title: Podinfo Test Exception
-            policies.kyverno.io/category: Test
-            policies.kyverno.io/subject: Pod
-            policies.kyverno.io/description: >-
-              Allows resources created by the Podinfo packages-key validation test.
-        spec:
-          exceptions:
-            - policyName: restrict-host-path-mount
-              ruleNames:
-                - restrict-hostpath-dirs
-                - autogen-restrict-hostpath-dirs
-            - policyName: restrict-host-path-write
-              ruleNames:
-                - require-readonly-hostpath
-                - autogen-require-readonly-hostpath
-            - policyName: restrict-volume-types
-              ruleNames:
-                - restrict-volume-types
-                - autogen-restrict-volume-types
-            - policyName: require-non-root-group
-              ruleNames:
-                - run-as-group
-                - autogen-run-as-group
-                - fs-group
-                - autogen-fs-group
-                - supplemental-groups
-                - autogen-supplemental-groups
-            - policyName: require-non-root-user
-              ruleNames:
-                - non-root-user
-                - autogen-non-root-user
-            - policyName: disallow-image-tags
-              ruleNames:
-                - require-image-tag
-                - autogen-require-image-tag
-                - validate-image-tag
-                - autogen-validate-image-tag
-            - policyName: require-drop-all-capabilities
-              ruleNames:
-                - drop-all-capabilities
-                - autogen-drop-all-capabilities
-            - policyName: restrict-image-registries
-              ruleNames:
-                - validate-registries
-                - autogen-validate-registries
-          match:
-            any:
-              - resources:
-                  kinds:
-                    - Pod
-                    - Deployment
-                    - ReplicaSet
-                    - DaemonSet
-                    - StatefulSet
-                  namespaces:
-                    - podinfo
-                  names:
-                    - podinfo*
+  kyvernoPolicies:
+    values:
+      additionalPolicyExceptions:
+        podinfo:
+          enabled: true
+          namespace: kyverno
+          metadata:
+            annotations:
+              policies.kyverno.io/title: Podinfo Test Exception
+              policies.kyverno.io/category: Test
+              policies.kyverno.io/subject: Pod
+              policies.kyverno.io/description: >-
+                Allows resources created by the Podinfo packages-key validation test.
+          spec:
+            exceptions:
+              - policyName: restrict-host-path-mount
+                ruleNames:
+                  - restrict-hostpath-dirs
+                  - autogen-restrict-hostpath-dirs
+              - policyName: restrict-host-path-write
+                ruleNames:
+                  - require-readonly-hostpath
+                  - autogen-require-readonly-hostpath
+              - policyName: restrict-volume-types
+                ruleNames:
+                  - restrict-volume-types
+                  - autogen-restrict-volume-types
+              - policyName: require-non-root-group
+                ruleNames:
+                  - run-as-group
+                  - autogen-run-as-group
+                  - fs-group
+                  - autogen-fs-group
+                  - supplemental-groups
+                  - autogen-supplemental-groups
+              - policyName: require-non-root-user
+                ruleNames:
+                  - non-root-user
+                  - autogen-non-root-user
+              - policyName: disallow-image-tags
+                ruleNames:
+                  - require-image-tag
+                  - autogen-require-image-tag
+                  - validate-image-tag
+                  - autogen-validate-image-tag
+              - policyName: require-drop-all-capabilities
+                ruleNames:
+                  - drop-all-capabilities
+                  - autogen-drop-all-capabilities
+              - policyName: restrict-image-registries
+                ruleNames:
+                  - validate-registries
+                  - autogen-validate-registries
+            match:
+              any:
+                - resources:
+                    kinds:
+                      - Pod
+                      - Deployment
+                      - ReplicaSet
+                      - DaemonSet
+                      - StatefulSet
+                    namespaces:
+                      - podinfo
+                    names:
+                      - podinfo*
 
-#########################
-# Disable Core Packages #
-#########################
-renovate:
-  enabled: false
-monitoring:
-  enabled: false
-grafana:
-  enabled: false
-neuvector:
-  enabled: false
-loki:
-  enabled: false
-tempo:
-  enabled: false
-kyvernoReporter:
-  enabled: false
-kiali:
-  enabled: false
-alloy:
-  enabled: false
-addons:
+  #########################
+  # Disable Core Packages #
+  #########################
+  renovate:
+    enabled: false
+  monitoring:
+    enabled: false
+  grafana:
+    enabled: false
+  neuvector:
+    enabled: false
+  loki:
+    enabled: false
+  tempo:
+    enabled: false
+  kyvernoReporter:
+    enabled: false
+  kiali:
+    enabled: false
+  alloy:
+    enabled: false
   minioOperator:
     enabled: false

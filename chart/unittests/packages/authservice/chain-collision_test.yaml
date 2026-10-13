@@ -8,17 +8,17 @@ templates:
 tests:
 - it: should auto-inject prometheus, alertmanager, and thanos when the user defines no chains
   set:
-    istiod:
-      enabled: true
-    monitoring:
-      enabled: true
-      sso:
+    packages:
+      istiod:
         enabled: true
-        prometheus:
-          client_id: auto-prometheus
-        alertmanager:
-          client_id: auto-alertmanager
-    addons:
+      monitoring:
+        enabled: true
+        sso:
+          enabled: true
+          prometheus:
+            client_id: auto-prometheus
+          alertmanager:
+            client_id: auto-alertmanager
       thanos:
         enabled: true
         sso:
@@ -37,17 +37,17 @@ tests:
 
 - it: should let the user prometheus chain win while alertmanager and thanos still auto-inject
   set:
-    istiod:
-      enabled: true
-    monitoring:
-      enabled: true
-      sso:
+    packages:
+      istiod:
         enabled: true
-        prometheus:
-          client_id: auto-prometheus
-        alertmanager:
-          client_id: auto-alertmanager
-    addons:
+      monitoring:
+        enabled: true
+        sso:
+          enabled: true
+          prometheus:
+            client_id: auto-prometheus
+          alertmanager:
+            client_id: auto-alertmanager
       authservice:
         chains:
           prometheus:
@@ -73,17 +73,17 @@ tests:
 
 - it: should let the user alertmanager chain win while prometheus and thanos still auto-inject
   set:
-    istiod:
-      enabled: true
-    monitoring:
-      enabled: true
-      sso:
+    packages:
+      istiod:
         enabled: true
-        prometheus:
-          client_id: auto-prometheus
-        alertmanager:
-          client_id: auto-alertmanager
-    addons:
+      monitoring:
+        enabled: true
+        sso:
+          enabled: true
+          prometheus:
+            client_id: auto-prometheus
+          alertmanager:
+            client_id: auto-alertmanager
       authservice:
         chains:
           alertmanager:
@@ -109,17 +109,17 @@ tests:
 
 - it: should let the user thanos chain win while prometheus and alertmanager still auto-inject
   set:
-    istiod:
-      enabled: true
-    monitoring:
-      enabled: true
-      sso:
+    packages:
+      istiod:
         enabled: true
-        prometheus:
-          client_id: auto-prometheus
-        alertmanager:
-          client_id: auto-alertmanager
-    addons:
+      monitoring:
+        enabled: true
+        sso:
+          enabled: true
+          prometheus:
+            client_id: auto-prometheus
+          alertmanager:
+            client_id: auto-alertmanager
       authservice:
         chains:
           thanos:

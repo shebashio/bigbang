@@ -1,5 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsZtunnel := mergeOverwrite (deepCopy .Values.flux) .Values.ztunnel.flux -}}
+{{- $fluxSettingsZtunnel := mergeOverwrite (deepCopy .Values.flux) .Values.packages.ztunnel.flux -}}
 {{- if eq (include "ambientEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -17,34 +17,34 @@ spec:
   targetNamespace: istio-system
   chart:
     spec:
-      {{- if eq .Values.ztunnel.sourceType "git" }}
-      chart: {{ .Values.ztunnel.git.path }}
+      {{- if eq .Values.packages.ztunnel.sourceType "git" }}
+      chart: {{ .Values.packages.ztunnel.git.path }}
       sourceRef:
         kind: GitRepository
         name: ztunnel
         namespace: {{ .Release.Namespace }}
       {{- else }}
-      chart: {{ .Values.ztunnel.helmRepo.chartName }}
-      version: {{ .Values.ztunnel.helmRepo.tag }}
+      chart: {{ .Values.packages.ztunnel.helmRepo.chartName }}
+      version: {{ .Values.packages.ztunnel.helmRepo.tag }}
       sourceRef:
         kind: HelmRepository
-        name: {{ .Values.ztunnel.helmRepo.repoName }}
+        name: {{ .Values.packages.ztunnel.helmRepo.repoName }}
         namespace: {{ .Release.Namespace }}
-      {{- $repoType := include "getRepoType" (dict "repoName" .Values.ztunnel.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
-      {{- if (and .Values.ztunnel.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
+      {{- $repoType := include "getRepoType" (dict "repoName" .Values.packages.ztunnel.helmRepo.repoName "allRepos" $.Values.helmRepositories) -}}
+      {{- if (and .Values.packages.ztunnel.helmRepo.cosignVerify (eq $repoType "oci")) }} # Needs to be an OCI repo
       verify:
         provider: cosign
         secretRef:
-          name: {{ printf "%s-cosign-pub" .Values.ztunnel.helmRepo.repoName }}
+          name: {{ printf "%s-cosign-pub" .Values.packages.ztunnel.helmRepo.repoName }}
       {{- end }}
       {{- end }}
       interval: 5m
 
   {{- toYaml $fluxSettingsZtunnel | nindent 2 }}
 
-  {{- if .Values.ztunnel.postRenderers }}
+  {{- if .Values.packages.ztunnel.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.ztunnel.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.ztunnel.postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-ztunnel-values
@@ -57,8 +57,8 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if not (kindIs "invalid" .Values.ztunnel.dependsOnOverride) }}
-  {{- with .Values.ztunnel.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.ztunnel.dependsOnOverride) }}
+  {{- with .Values.packages.ztunnel.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -68,15 +68,15 @@ spec:
       namespace: {{ .Release.Namespace }}
     - name: istio-cni
       namespace: {{ .Release.Namespace }}
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.ztunnel) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.ztunnel) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

@@ -73,8 +73,9 @@ tests:
     set:
       networkPolicies:
         enabled: false
-      ztunnel:
-        enabled: true
+      packages:
+        ztunnel:
+          enabled: true
     asserts:
       - equal:
           path: networkPolicies.enabled

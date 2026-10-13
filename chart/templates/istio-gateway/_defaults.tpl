@@ -20,7 +20,7 @@ gateways:
         tls:
           credentialName: public-cert
           mode: SIMPLE
-      {{- if and .Values.addons.keycloak.enabled (empty .Values.addons.keycloak.ingress.cert) (empty .Values.addons.keycloak.ingress.key) (or (empty .Values.addons.keycloak.ingress.gateway) (eq .Values.addons.keycloak.ingress.gateway "public")) }}
+      {{- if and .Values.packages.keycloak.enabled (empty .Values.packages.keycloak.ingress.cert) (empty .Values.packages.keycloak.ingress.key) (or (empty .Values.packages.keycloak.ingress.gateway) (eq .Values.packages.keycloak.ingress.gateway "public")) }}
       - hosts:
         - 'keycloak.{{ .Values.domain }}'
         port:

@@ -3,113 +3,124 @@ suite: Schema - Base Package
 tests:
   - it: should pass validation with valid base package (kiali)
     set:
-      kiali:
-        enabled: true
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
-          path: "./chart"
-          tag: "1.65.0-bb.0"
-        flux: {}
-        ingress:
-          gateway: ""
-        sso:
-          enabled: false
-          client_id: ""
-          client_secret: ""
-        values: {}
-        postRenderers: []
+      packages:
+        kiali:
+          enabled: true
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
+            path: "./chart"
+            tag: "1.65.0-bb.0"
+          flux: {}
+          ingress:
+            gateway: ""
+          sso:
+            enabled: false
+            client_id: ""
+            client_secret: ""
+          values: {}
+          postRenderers: []
     asserts:
       - notFailedTemplate: {}
 
   - it: should pass validation with neuvector istio injection enabled
     set:
-      neuvector:
-        enabled: true
-        istio:
-          injection: "enabled"
+      packages:
+        neuvector:
+          enabled: true
+          istio:
+            injection: "enabled"
     asserts:
       - notFailedTemplate: {}
 
   - it: should pass validation with additional HelmRelease dependencies
     set:
-      kiali:
-        dependsOn:
-          - name: external-operator
-            namespace: operators
+      packages:
+        kiali:
+          dependsOn:
+            - name: external-operator
+              namespace: operators
     asserts:
       - notFailedTemplate: {}
 
   - it: should reject a HelmRelease dependency without a name
     set:
-      kiali:
-        dependsOn:
-          - namespace: operators
+      packages:
+        kiali:
+          dependsOn:
+            - namespace: operators
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should fail when both dependsOn and dependsOnOverride are non-empty
     set:
-      kiali:
-        dependsOn:
-          - name: foo
-            namespace: bar
-        dependsOnOverride:
-          - name: baz
-            namespace: qux
+      packages:
+        kiali:
+          dependsOn:
+            - name: foo
+              namespace: bar
+          dependsOnOverride:
+            - name: baz
+              namespace: qux
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should allow dependsOnOverride as an empty list to clear BB defaults
     set:
-      kiali:
-        dependsOnOverride: []
+      packages:
+        kiali:
+          dependsOnOverride: []
     asserts:
       - notFailedTemplate: {}
 
   - it: should reject an Alloy HelmRelease dependency without a name
     set:
-      alloy:
-        dependsOn:
-          - namespace: operators
+      packages:
+        alloy:
+          dependsOn:
+            - namespace: operators
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should reject both Alloy dependency fields when non-empty
     set:
-      alloy:
-        dependsOn:
-          - name: foo
-        dependsOnOverride:
-          - name: bar
+      packages:
+        alloy:
+          dependsOn:
+            - name: foo
+          dependsOnOverride:
+            - name: bar
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should fail validation with extra key in base package
     set:
-      kiali:
-        extra: field
+      packages:
+        kiali:
+          extra: field
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should reject the removed package automatic passthrough compatibility setting
     set:
-      kiali:
-        disableAutomaticPassthroughValues: false
+      packages:
+        kiali:
+          disableAutomaticPassthroughValues: false
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should fail validation with invalid neuvector istio injection value
     set:
-      neuvector:
-        enabled: true
-        istio:
-          injection: foo
+      packages:
+        neuvector:
+          enabled: true
+          istio:
+            injection: foo
     asserts:
       - failedTemplate:
           errorPattern: ".*"

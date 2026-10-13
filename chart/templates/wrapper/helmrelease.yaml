@@ -62,12 +62,12 @@ spec:
       kind: Secret
 
   {{- /* Always wait on policy enforcement */ -}}
-  {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
-  {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
+  {{- $gatekeeperDep := $.Values.packages.gatekeeper.enabled -}}
+  {{- $kyvernoDep := $.Values.packages.kyvernoPolicies.enabled -}}
   {{- /* Wait on istio operator if creating a Virtual Service */ -}}
   {{- $istioOpDep := and $istioEnabled (dig "istio" "hosts" false $vals) -}}
   {{- /* Wait on monitoring if dashboard or metrics are enabled */ -}}
-  {{- $monitoringDep := $.Values.monitoring.enabled -}}
+  {{- $monitoringDep := $.Values.packages.monitoring.enabled -}}
   {{- if not (kindIs "invalid" $vals.dependsOnOverride) }}
   {{- with $vals.dependsOnOverride }}
   dependsOn:
