@@ -101,6 +101,29 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
+  {{- else if and $istioHardenedEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
+  {{- $objFull := .Values.addons.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
+  {{- $objHost := index (splitList ":" $objFull) 0 }}
+  {{- $objPort := 80 }}
+  {{- if contains ":" $objFull }}{{- $objPort = index (splitList ":" $objFull) 1 | int }}{{- end }}
+  serviceEntries:
+    custom:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - "{{ $objHost }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: {{ $objPort }}
+              {{- if .Values.addons.thanos.objectStorage.insecure }}
+              protocol: HTTP
+              name: http
+              {{- else }}
+              protocol: TLS
+              name: https
+              {{- end }}
+          resolution: DNS
   {{- else }}
   serviceEntries:
     custom: []
