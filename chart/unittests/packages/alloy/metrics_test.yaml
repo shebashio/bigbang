@@ -1,0 +1,97 @@
+suite: Alloy metrics sidecar compatibility
+templates:
+  - templates/alloy/values.yaml
+set:
+  alloy.enabled: true
+  alloy.git.tag: 4.5.3-bb.0
+  alloy.alloyMetrics.enabled: true
+  alloy.alloyClusterEvents.enabled: true
+  istiod.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq '.stringData.defaults' - | yq '.'"
+tests:
+  - it: retains writable storage alongside Istio certificates
+    asserts:
+      - contains:
+          path: upstream.collectors.alloy-singleton.alloy.mounts.extra
+          content:
+            name: alloy-storage
+            mountPath: /tmp/alloy
+      - contains:
+          path: upstream.collectors.alloy-singleton.controller.volumes.extra
+          content:
+            name: alloy-storage
+            emptyDir: {}
+      - contains:
+          path: upstream.alloy-singleton.alloy.mounts.extra
+          content:
+            name: alloy-storage
+            mountPath: /tmp/alloy
+      - contains:
+          path: upstream.alloy-singleton.controller.volumes.extra
+          content:
+            name: alloy-storage
+            emptyDir: {}
+      - contains:
+          path: upstream.alloy-singleton.alloy.mounts.extra
+          content:
+            name: istio-certs
+            mountPath: /etc/prom-certs/
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: 'allow_arbitrary_file_access = true'
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: 'forward_to = argument.metrics_destinations.value'
+  - it: preserves selectors and forwards filtered metrics through the existing relabel component
+    set:
+      alloy.values.upstream.global.scrapeInterval: 30s
+      alloy.values.upstream.prometheusOperatorObjects.serviceMonitors.namespaces: [monitoring]
+      alloy.values.upstream.prometheusOperatorObjects.serviceMonitors.labelSelectors.team: platform
+      alloy.values.upstream.prometheusOperatorObjects.serviceMonitors.metricsTuning.includeMetrics: [up]
+    asserts:
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: 'namespaces = \["monitoring"\]'
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: '"team" = "platform"'
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: 'default_scrape_interval = "30s"'
+      - matchRegex:
+          path: upstream.replaceComponent[0].content
+          pattern: 'forward_to = \[prometheus.relabel.servicemonitors.receiver\]'
+  - it: does not replace the component in ambient mode
+    set:
+      istio.ambient.enabled: true
+    asserts:
+      - notExists:
+          path: upstream.replaceComponent
+  - it: does not replace the component without Istio
+    set:
+      istiod.enabled: false
+    asserts:
+      - notExists:
+          path: upstream.replaceComponent
+  - it: does not replace the component with metrics disabled
+    set:
+      alloy.alloyMetrics.enabled: false
+    asserts:
+      - notExists:
+          path: upstream.replaceComponent
+  - it: does not replace disabled ServiceMonitor collection
+    set:
+      alloy.values.upstream.prometheusOperatorObjects.serviceMonitors.enabled: false
+    asserts:
+      - notExists:
+          path: upstream.replaceComponent
+  - it: leaves older pinned Alloy packages compatible
+    set:
+      alloy.git.tag: 4.3.2-bb.2
+    asserts:
+      - notExists:
+          path: upstream.replaceComponent
