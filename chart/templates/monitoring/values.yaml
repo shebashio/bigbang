@@ -4,7 +4,8 @@
   "root" $ 
   "package" (dict "values" (fromYaml (include "bigbang.overlays.monitoring" .))) 
   "name" "monitoring" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.monitoring" . | fromYaml) (include "bigbang.monitoring.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.monitoring" .)
 )}}
 {{- end }}
 
@@ -13,7 +14,6 @@
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
-domain: {{ $domainName }}
 {{/*
 Derived hardened posture for Monitoring.
 This boolean drives bb-common Istio defaults rendered in this file, including
@@ -42,7 +42,7 @@ When ambient mode is enabled, sidecar injection is disabled since sidecars are n
 Sidecar-specific annotations and cert mounting don't apply in ambient mode.
 */}}
 {{- $sidecarInjectionEnabled := and $monitoringInjectionEnabled (not $ambientEnabled) }}
-{{- $mtlsStrict := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+{{- $mtlsStrict := and $istioEnabled (eq (dig "bb-common" "istio" "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) .Values.monitoring.values) "STRICT") }}
 {{/*
 mTLS strict mode with sidecar certs is only applicable when sidecars are used (not ambient mode).
 */}}
@@ -55,7 +55,7 @@ mTLS strict mode with sidecar certs is only applicable when sidecars are used (n
 When true, prometheus/alertmanager are protected by authservice via the monitoring
 package's own ambient waypoint (bb-common per-route authservice model). This drives
 the per-route authservice config, the self-waypoint Service enrollment, and
-prependReleaseName (so the waypoint is named monitoring-monitoring-waypoint).
+prependReleaseName (so the waypoint is named monitoring-waypoint).
 */}}
 {{- $monitoringAuthserviceWaypoint := eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
@@ -71,152 +71,162 @@ prependReleaseName (so the waypoint is named monitoring-monitoring-waypoint).
 {{- $kpsNameOverride := dig "upstream" "nameOverride" "kube-prometheus-stack" .Values.monitoring.values | trunc 50 | trimSuffix "-" }}
 {{- $kpsName := printf "%s-%s" $kpsNameOverride "prometheus-operator" }}
 {{- $isDefaultKpsName := eq $kpsName "kube-prometheus-stack-prometheus-operator" }}
+{{- $routeNameValues := pick (dig "upstream" dict .Values.monitoring.values) "nameOverride" "fullnameOverride" }}
+{{- $routeNameValues = merge $routeNameValues (dict "nameOverride" "kube-prometheus-stack") }}
+{{- $routeFullname := printf "{{ include \"kube-prometheus-stack.fullname\" (dict \"Values\" (%s | fromYaml) \"Release\" .Release \"Chart\" .Chart) }}" (toYaml $routeNameValues | quote) }}
 
 flux:
   enabled: true
 
 
 {{/* bb-common Istio defaults for monitoring follow hardened posture. */}}
-istio:
-  {{- if $monitoringAuthserviceWaypoint }}
-  # Prefix bb-common Istio resources with the release name so the auto-created
-  # waypoint Gateway is named monitoring-monitoring-waypoint (referenced by the
-  # Service enrollment labels below and by in-mesh client egress policies).
-  prependReleaseName: true
-  {{- end }}
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-    outboundTrafficPolicyMode: REGISTRY_ONLY
-  {{- if and $istioHardenedEnabled (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
-  serviceEntries:
-    custom:
-      - name: egress-object-store
-        enabled: true
-        spec:
-          hosts:
-          - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
-          location: MESH_EXTERNAL
-          ports:
-            - number: 443
-              protocol: TLS
-              name: https
-          resolution: DNS
-  {{- else }}
-  serviceEntries:
-    custom: []
-  {{- end }}
-routes:
-  inbound:
-    monitoring-prometheus:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
-      {{- if $monitoringAuthserviceWaypoint }}
-      # bb-common generates the OIDC ext_authz policies (RequestAuthentication +
-      # CUSTOM/DENY AuthorizationPolicy) for this route, enforced at the waypoint.
-      authservice:
-        enabled: true
-        ingressOnly: true
-        issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.monitoring.sso.prometheus.client_id | quote }}
-      {{- end }}
-    monitoring-alertmanager:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
-      {{- if $monitoringAuthserviceWaypoint }}
-      authservice:
-        enabled: true
-        ingressOnly: true
-        issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.monitoring.sso.alertmanager.client_id | quote }}
-      {{- end }}
-  outbound:
-    monitoring-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.monitoring.values }}
-      hosts:
-      - 'repo1.dso.mil'
-      - prometheus.{{ $domainName }}
-      - grafana.{{ $domainName }}
-      - alertmanager.{{ $domainName }}
+bb-common:
+  istio:
+    {{- if $monitoringAuthserviceWaypoint }}
+    # Prefix bb-common Istio resources with the release name so the auto-created
+    # waypoint Gateway is named monitoring-waypoint (referenced by the
+    # Service enrollment labels below and by in-mesh client egress policies).
+    prependReleaseName: true
+    {{- end }}
+    sidecar:
+      enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
+      outboundTrafficPolicyMode: REGISTRY_ONLY
+    {{- if and $istioHardenedEnabled (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+    serviceEntries:
+      custom:
+        - name: egress-object-store
+          enabled: true
+          spec:
+            hosts:
+            - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
+            location: MESH_EXTERNAL
+            ports:
+              - number: 443
+                protocol: TLS
+                name: https
+            resolution: DNS
+    {{- else }}
+    serviceEntries:
+      custom: []
+    {{- end }}
+  routes:
+    inbound:
+      monitoring-prometheus:
+        enabled: {{ $istioEnabled }}
+        service: {{ printf "%s-prometheus.{{ .Release.Namespace }}.svc.cluster.local" $routeFullname | quote }}
+        port: {{ dig "upstream" "prometheus" "service" "port" 9090 .Values.monitoring.values }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+        {{- if $monitoringAuthserviceWaypoint }}
+        # bb-common generates the OIDC ext_authz policies (RequestAuthentication +
+        # CUSTOM/DENY AuthorizationPolicy) for this route, enforced at the waypoint.
+        authservice:
+          enabled: true
+          ingressOnly: true
+          issuer: {{ include "sso.url" . | quote }}
+          clientId: {{ .Values.monitoring.sso.prometheus.client_id | quote }}
+        {{- end }}
+      monitoring-alertmanager:
+        enabled: {{ $istioEnabled }}
+        service: {{ printf "%s-alertmanager.{{ .Release.Namespace }}.svc.cluster.local" $routeFullname | quote }}
+        port: {{ dig "upstream" "alertmanager" "service" "port" 9093 .Values.monitoring.values }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+        {{- if $monitoringAuthserviceWaypoint }}
+        authservice:
+          enabled: true
+          ingressOnly: true
+          issuer: {{ include "sso.url" . | quote }}
+          clientId: {{ .Values.monitoring.sso.alertmanager.client_id | quote }}
+        {{- end }}
+    outbound:
+      monitoring-bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.monitoring.values }}
+        hosts:
+        - 'repo1.dso.mil'
+        - prometheus.{{ $domainName }}
+        - grafana.{{ $domainName }}
+        - alertmanager.{{ $domainName }}
 
-networkPolicies:
-  defaultsAsHooks:
-    enabled: true
-  egress:
-    from:
-      {{ if not $isDefaultKpsName }}
-      # Need to make a couple changes to the default package netpols when the name is overridden
-      {{ $kpsName }}:
-        to:
-          definition:
-            kubeAPI: true
-      kube-prometheus-stack-prometheus-operator:
-        to:
-          definition:
-            kubeAPI: false
-      {{ end }}
-      admission-create-job:
-        podSelector:
-          matchLabels:
-            app: {{ printf "%s-%s" $kpsNameOverride "admission-create" }}
-        metadata:
-          annotations:
-            helm.sh/hook: pre-install,pre-upgrade
-            helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
-        to:
-          definition:
-            kubeAPI: true
-      "*":
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      prometheus:
-        to:
-          k8s:
-            authservice/authservice:10003: {{ $authserviceEnabled }}
-      prometheus-blackbox-exporter:
-        to:
-          k8s:
-            headlamp/headlamp:4466: {{ $headlampEnabled }}
-      alertmanager:
-        to:
-          k8s:
-            authservice/authservice:10003: {{ $authserviceEnabled }}
-  ingress:
-    to:
-      {{ $kpsName }}:10250:
-        from:
-          cidr:
-            # Needed for kube-api to call the prometheus operator webhook endpoint
-            {{ .Values.networkPolicies.controlPlaneCidr }}: true
-      prometheus:10901:
-        from:
-          k8s:
-            thanos/thanos: {{ .Values.addons.thanos.enabled }}
-      alertmanager:9093:
-        from:
-          k8s:
-            authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
-            alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            logging/logging-loki: {{ .Values.loki.enabled }}
-          definition:
-            gateway: {{ .Values.istioGateway.enabled }}
-      grafana:3000:
-        from:
-          k8s:
-            kiali/kiali: {{ .Values.kiali.enabled }}
-          definition:
-            gateway: {{ .Values.istioGateway.enabled }}
-      prometheus:9090:
-        from:
-          definition:
-            gateway: {{ .Values.istioGateway.enabled }}
-          k8s:
-            tempo/tempo: {{ .Values.tempo.enabled }}
-            authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
-            kiali/kiali: {{ .Values.kiali.enabled }}
-            alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            logging/logging-loki: {{ .Values.loki.enabled }}
+  networkPolicies:
+    defaultsAsHooks:
+      enabled: true
+    egress:
+      from:
+        {{ if not $isDefaultKpsName }}
+        # Need to make a couple changes to the default package netpols when the name is overridden
+        {{ $kpsName }}:
+          to:
+            definition:
+              kubeAPI: true
+        kube-prometheus-stack-prometheus-operator:
+          to:
+            definition:
+              kubeAPI: false
+        {{ end }}
+        admission-create-job:
+          podSelector:
+            matchLabels:
+              app: {{ printf "%s-%s" $kpsNameOverride "admission-create" }}
+          metadata:
+            annotations:
+              helm.sh/hook: pre-install,pre-upgrade
+              helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+          to:
+            definition:
+              kubeAPI: true
+        "*":
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.tempo.enabled }}
+        prometheus:
+          to:
+            k8s:
+              authservice/authservice:10003: {{ $authserviceEnabled }}
+        prometheus-blackbox-exporter:
+          to:
+            k8s:
+              headlamp/headlamp:4466: {{ $headlampEnabled }}
+        alertmanager:
+          to:
+            k8s:
+              authservice/authservice:10003: {{ $authserviceEnabled }}
+    ingress:
+      to:
+        {{ $kpsName }}:10250:
+          from:
+            cidr:
+              # Needed for kube-api to call the prometheus operator webhook endpoint
+              {{ .Values.networkPolicies.controlPlaneCidr }}: true
+        prometheus:10901:
+          from:
+            k8s:
+              thanos/thanos: {{ .Values.addons.thanos.enabled }}
+        alertmanager:9093:
+          from:
+            k8s:
+              authservice/haproxy: {{ dig "haproxy" "enabled" false (.Values.packages | default dict) }}
+              alloy/alloy-logs: {{ .Values.alloy.enabled }}
+              logging/logging-loki: {{ .Values.loki.enabled }}
+            definition:
+              gateway: {{ .Values.istioGateway.enabled }}
+        grafana:3000:
+          from:
+            k8s:
+              kiali/kiali: {{ .Values.kiali.enabled }}
+            definition:
+              gateway: {{ .Values.istioGateway.enabled }}
+        prometheus:9090:
+          from:
+            definition:
+              gateway: {{ .Values.istioGateway.enabled }}
+            k8s:
+              tempo/tempo: {{ .Values.tempo.enabled }}
+              authservice/haproxy: {{ dig "haproxy" "enabled" false (.Values.packages | default dict) }}
+              kiali/kiali: {{ .Values.kiali.enabled }}
+              alloy/alloy-logs: {{ .Values.alloy.enabled }}
+              alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
+              logging/logging-loki: {{ .Values.loki.enabled }}
 
 bbtests:
   cypress:
@@ -282,6 +292,7 @@ vault:
   tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
 
 global:
+  domain: {{ $domainName }}
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 sso:
@@ -295,7 +306,7 @@ upstream:
     # In ambient mode, route alertmanager traffic through the authservice waypoint so SSO is enforced.
     service:
       labels:
-        istio.io/use-waypoint: monitoring-monitoring-waypoint
+        istio.io/use-waypoint: monitoring-waypoint
         istio.io/ingress-use-waypoint: "true"
     {{- end }}
     alertmanagerSpec:
@@ -340,7 +351,7 @@ upstream:
     # so bb-common's per-route authservice ext_authz is enforced for ingress traffic.
     service:
       labels:
-        istio.io/use-waypoint: monitoring-monitoring-waypoint
+        istio.io/use-waypoint: monitoring-waypoint
         istio.io/ingress-use-waypoint: "true"
     {{- end }}
     {{- if $thanosEnabled }}
@@ -994,6 +1005,10 @@ upstream:
   {{- $overlays := dig "values" dict .Values.monitoring }}
   {{- if $overlays }}
     {{- $overlays = include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy $overlays)) | fromYaml }}
+    {{- if hasKey $overlays "bb-common" }}
+    {{- $cleanedBb := include "mergeLegacyIstioHardenedKeys" (dict "values" (index $overlays "bb-common")) | fromYaml }}
+    {{- $overlays = set $overlays "bb-common" $cleanedBb }}
+    {{- end }}
   {{- end }}
   {{- range $prometheusConfig, $default := $defaults.prometheus }}
     {{- $overlay := (dig "prometheus" $prometheusConfig dict $overlays) }}

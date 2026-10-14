@@ -109,7 +109,7 @@ networkPolicies:
             monitoring/waypoint:
               podSelector:
                 matchLabels:
-                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+                  gateway.networking.k8s.io/gateway-name: monitoring-waypoint
             {{- end }}
             {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
             thanos/waypoint:

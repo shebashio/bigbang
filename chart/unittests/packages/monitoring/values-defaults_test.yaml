@@ -16,9 +16,6 @@ tests:
       istiod.values.hardened.enabled: true
     asserts:
       - equal:
-          path: istio.sidecar.enabled
-          value: true
-      - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
       - equal:
@@ -36,9 +33,6 @@ tests:
       istiod.values.hardened.enabled: false
     asserts:
       - equal:
-          path: istio.sidecar.enabled
-          value: false
-      - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
       - equal:
@@ -54,11 +48,8 @@ tests:
     set:
       istiod.enabled: true
       istiod.values.hardened.enabled: false
-      monitoring.values.istio.sidecar.enabled: true
+      monitoring.values.bb-common.istio.sidecar.enabled: true
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: false
       - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
@@ -76,9 +67,6 @@ tests:
       istiod.enabled: false
       monitoring.values.istio.injection: enabled
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: false
       - notExists:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
       - notExists:
@@ -125,3 +113,50 @@ tests:
           path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig.caFile
       - notExists:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
+
+  - it: carries the global domain without flat bb-common configuration
+    set:
+      domain: example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: example.test
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: bb-common
+  - it: respects nested permissive mTLS overrides
+    set:
+      istiod.enabled: true
+      monitoring.values.bb-common.istio.mtls.mode: PERMISSIVE
+    asserts:
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig
+  - it: omits sidecar cert mounts in ambient mode
+    set:
+      istiod.enabled: true
+      istio.ambient.enabled: true
+    asserts:
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.volumeMounts
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
+
+  - it: enrolls ambient SSO services on the bb-common waypoint
+    set:
+      istiod.enabled: true
+      istio.ambient.enabled: true
+      monitoring.sso.enabled: true
+    asserts:
+      - equal:
+          path: upstream.prometheus.service.labels["istio.io/use-waypoint"]
+          value: monitoring-waypoint
+      - equal:
+          path: upstream.alertmanager.service.labels["istio.io/use-waypoint"]
+          value: monitoring-waypoint

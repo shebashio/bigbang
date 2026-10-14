@@ -1,57 +1,196 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: Package - Monitoring - Values
+suite: Package - Monitoring - bb-common subchart values
+templates:
+- templates/monitoring/values.yaml
+set:
+  monitoring.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+  - -c
+  - yq '.stringData.common' | yq '.'
 tests:
-- it: should create an ingress netpol allowing the control plane to hit the webhook port
-  postRenderer:
-    cmd: sh
-    args:
-      - -c
-      - |
-        set -o pipefail && \
-        yq 'select(.metadata.name == "*monitoring*")' \
-          | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
-          | yq 'select(.kind == "NetworkPolicy" and .spec.podSelector.matchLabels."app.kubernetes.io/name" == "kube-prometheus-stack-prometheus-operator" and .spec.ingress[0].ports[0].port == 10250)'
+- it: nests shared configuration and removes flat keys and injection
+  set: {}
   asserts:
+  - notExists:
+      path: istio
+  - notExists:
+      path: networkPolicies
+  - notExists:
+      path: routes
+  - notExists:
+      path: bb-common.istio.injection
   - equal:
-      path: spec
-      value:
-        ingress:
-        - from:
-          - ipBlock:
-              cidr: 0.0.0.0/0
-          ports:
-          - port: 10250
-            protocol: TCP
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: kube-prometheus-stack-prometheus-operator
-        policyTypes:
-          - Ingress
-- it: should update the selector based on the monitoring upstream name override
+      path: bb-common.networkPolicies.ingress.to["kube-prometheus-stack-prometheus-operator:10250"].from.cidr["0.0.0.0/0"]
+      value: true
+  - equal:
+      path: bb-common.networkPolicies.ingress.to["prometheus:9090"].from.k8s["authservice/haproxy"]
+      value: false
+- it: uses the upstream name override for admission traffic
   set:
     monitoring.values.upstream.nameOverride: testing
+  asserts:
+  - equal:
+      path: bb-common.networkPolicies.ingress.to["testing-prometheus-operator:10250"].from.cidr["0.0.0.0/0"]
+      value: true
+- it: sets inbound routes with Istio enabled
+  set:
+    istiod.enabled: true
+  asserts:
+  - equal:
+      path: bb-common.routes.inbound.monitoring-prometheus.enabled
+      value: true
+  - equal:
+      path: bb-common.routes.inbound.monitoring-alertmanager.enabled
+      value: true
+- it: sets inbound routes with Istio disabled
+  set:
+    istiod.enabled: false
+  asserts:
+  - equal:
+      path: bb-common.routes.inbound.monitoring-prometheus.enabled
+      value: false
+  - equal:
+      path: bb-common.routes.inbound.monitoring-alertmanager.enabled
+      value: false
+- it: sets sidecar policy from hardening True
+  set:
+    istiod.enabled: true
+    istiod.values.hardened.enabled: true
+  asserts:
+  - equal:
+      path: bb-common.istio.sidecar.enabled
+      value: true
+- it: sets sidecar policy from hardening False
+  set:
+    istiod.enabled: true
+    istiod.values.hardened.enabled: false
+  asserts:
+  - equal:
+      path: bb-common.istio.sidecar.enabled
+      value: false
+- it: disables sidecar policy in ambient mode
+  set:
+    istiod.enabled: true
+    istiod.values.hardened.enabled: true
+    istio.ambient.enabled: true
+  asserts:
+  - equal:
+      path: bb-common.istio.sidecar.enabled
+      value: false
+  - equal:
+      path: bb-common.istio.ambient.enabled
+      value: true
+- it: passes explicit kubeAPI egress definitions
+  set:
+    networkPolicies.egress.definitions.kubeAPI:
+      to:
+      - ipBlock:
+          cidr: 10.1.0.0/16
+  asserts:
+  - equal:
+      path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+      value: 10.1.0.0/16
+- it: configures authservice on both ambient routes
+  set:
+    istiod.enabled: true
+    istio.ambient.enabled: true
+    monitoring.sso.enabled: true
+    monitoring.sso.prometheus.client_id: prometheus-test
+    monitoring.sso.alertmanager.client_id: alertmanager-test
+  asserts:
+  - equal:
+      path: bb-common.routes.inbound.monitoring-prometheus.authservice.clientId
+      value: prometheus-test
+  - equal:
+      path: bb-common.routes.inbound.monitoring-alertmanager.authservice.clientId
+      value: alertmanager-test
+- it: preserves legacy hardened custom entries at istio
+  set:
+    monitoring.values.istio.hardened.customServiceEntries:
+    - name: external-api
+      spec:
+        hosts:
+        - api.example.test
+        location: MESH_EXTERNAL
+        ports:
+        - number: 443
+          protocol: TLS
+          name: https
+        resolution: DNS
   postRenderer:
     cmd: sh
     args:
-      - -c
-      - |
-        set -o pipefail && \
-        yq 'select(.metadata.name == "*monitoring*")' \
-          | BASH_ENV="" $(git rev-parse --show-toplevel)/scripts/template-all.sh \
-          | yq 'select(.kind == "NetworkPolicy" and .spec.podSelector.matchLabels."app.kubernetes.io/name" == "testing-prometheus-operator" and .spec.ingress[0].ports[0].port == 10250)'
+    - -c
+    - yq '.stringData.overlays' | yq '.'
   asserts:
   - equal:
-      path: spec
-      value:
-        ingress:
-        - from:
-          - ipBlock:
-              cidr: 0.0.0.0/0
-          ports:
-          - port: 10250
-            protocol: TCP
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: testing-prometheus-operator
-        policyTypes:
-          - Ingress
+      path: istio.serviceEntries.custom[0].name
+      value: external-api
+  - notExists:
+      path: istio.hardened.customServiceEntries
+- it: preserves legacy hardened custom entries at bb-common.istio
+  set:
+    monitoring.values.bb-common.istio.hardened.customServiceEntries:
+    - name: external-api
+      spec:
+        hosts:
+        - api.example.test
+        location: MESH_EXTERNAL
+        ports:
+        - number: 443
+          protocol: TLS
+          name: https
+        resolution: DNS
+  postRenderer:
+    cmd: sh
+    args:
+    - -c
+    - yq '.stringData.overlays' | yq '.'
+  asserts:
+  - equal:
+      path: bb-common.istio.serviceEntries.custom[0].name
+      value: external-api
+  - notExists:
+      path: bb-common.istio.hardened.customServiceEntries
+- it: enables authorization policies if ambient is enabled
+  set:
+    istio:
+      ambient:
+        enabled: true
+  asserts:
+  - equal:
+      path: bb-common.istio.authorizationPolicies.enabled
+      value: true
+- it: enables networkPolicies if ambient is enabled even when networkPolicies.enabled
+    is false
+  set:
+    networkPolicies:
+      enabled: false
+    istio:
+      ambient:
+        enabled: true
+  asserts:
+  - equal:
+      path: bb-common.networkPolicies.enabled
+      value: true
+- it: enables networkPolicies if ztunnel is enabled even when networkPolicies.enabled
+    is false
+  set:
+    networkPolicies:
+      enabled: false
+    ztunnel:
+      enabled: true
+  asserts:
+  - equal:
+      path: bb-common.networkPolicies.enabled
+      value: true
+- it: disables networkPolicies when both networkPolicies.enabled and ambient are false
+  set:
+    networkPolicies:
+      enabled: false
+  asserts:
+  - equal:
+      path: bb-common.networkPolicies.enabled
+      value: false
