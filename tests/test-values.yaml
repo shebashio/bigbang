@@ -1835,6 +1835,10 @@ addons:
       networkPolicies:
         egress:
           from:
+            thanos-storegateway:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
             thanos-compactor:
               to:
                 cidr:
