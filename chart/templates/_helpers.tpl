@@ -1250,7 +1250,7 @@ bb-common:
     ingress:
       {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
       definitions:
-        {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
+        {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 10 }}
       {{- end }}
       to:
         "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
@@ -1260,7 +1260,7 @@ bb-common:
     egress:
       {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
       definitions:
-        {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
+        {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 10 }}
       {{- end }}
       from:
         "{{ $name }}-ingressgateway":
