@@ -8,7 +8,10 @@ Migration guides help you transition between versions, update configurations, or
 
 ## Contents
 
-Browse the migration guides available in this directory for detailed instructions on specific migration scenarios.
+- [Migrating Istio for Big Bang 3.0](migrating-istio-for-bb3.0.md)
+- [Migrating Istio Sidecar to Ambient](migrating-istio-to-ambient.md)
+- [Migrating Package Values for Big Bang 4.0](migrating-package-values-for-bb4.0.md)
+- [Package Values Migration Script Reference](package-values-migration-script.md)
 
 ## Getting Help
 
