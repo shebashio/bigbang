@@ -72,6 +72,20 @@ monitoring:
 addons:
   mimir:
     enabled: true
+
+packages:
+  cortex-tenant:
+    enabled: true
+    namespace:
+      name: cortex-tenant
+    dependsOn:
+      - name: mimir
+        namespace: bigbang
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cortex-tenant.git
+      path: ./chart
+      tag: "0.8.1-bb.2"
 ```
 
 Deploy Cortex Tenant separately as `packages.cortex-tenant`; it is not a built-in
