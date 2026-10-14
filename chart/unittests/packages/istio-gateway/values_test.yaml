@@ -5,6 +5,23 @@ templates:
 release:
   name: bb
 tests:
+  - it: should scope generated network policy defaults under the bb-common subchart
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.common' - | yq eval '.'"
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+      - exists:
+          path: bb-common.networkPolicies.ingress.to["public-ingressgateway:[8080,8443]"]
+      - exists:
+          path: bb-common.networkPolicies.egress.from.public-ingressgateway
+      - notExists:
+          path: networkPolicies
+
   - it: should not add overlays when no shared or gateway-specific values are configured
     postRenderer:
       cmd: "sh"
