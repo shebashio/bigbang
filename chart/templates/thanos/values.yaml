@@ -52,6 +52,52 @@ externalURL: https://thanos.{{ .Values.domain }}
 
 domain: {{ .Values.domain }}
 
+istio:
+  {{- if $thanosAuthserviceWaypoint }}
+  prependReleaseName: true
+  {{- end }}
+  sidecar:
+    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+    outboundTrafficPolicyMode: REGISTRY_ONLY
+  {{- if and $istioHardened (contains "s3" $s3Endpoint) }}
+  serviceEntries:
+    custom:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ $s3Host }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: 443
+              protocol: TLS
+              name: https
+          resolution: DNS
+  {{- else if and $istioHardened (not (empty $s3Endpoint)) }}
+  {{- $s3Port := 443 }}
+  {{- if contains ":" $s3HostFull }}{{- $s3Port = index (splitList ":" $s3HostFull) 1 | int }}{{- end }}
+  serviceEntries:
+    custom:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - "{{ $s3Host }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: {{ $s3Port }}
+              {{- if .Values.addons.thanos.objectStorage.insecure }}
+              protocol: HTTP
+              name: http
+              {{- else }}
+              protocol: TLS
+              name: https
+              {{- end }}
+          resolution: DNS
+  {{- else }}
+  serviceEntries:
+    custom: []
+  {{- end }}
 routes:
   outbound:
     s3:
@@ -72,10 +118,6 @@ routes:
         issuer: {{ include "sso.url" . | quote }}
         clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
       {{- end }}
-{{- if $thanosAuthserviceWaypoint }}
-istio:
-  prependReleaseName: true
-{{- end }}
 
 <<<<<<< HEAD
 minio:
