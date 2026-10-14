@@ -156,7 +156,7 @@ tests:
     asserts:
       - equal:
           path: upstream.prometheus.service.labels["istio.io/use-waypoint"]
-          value: monitoring-waypoint
+          value: monitoring-monitoring-waypoint
       - equal:
           path: upstream.alertmanager.service.labels["istio.io/use-waypoint"]
-          value: monitoring-waypoint
+          value: monitoring-monitoring-waypoint

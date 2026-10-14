@@ -55,7 +55,7 @@ mTLS strict mode with sidecar certs is only applicable when sidecars are used (n
 When true, prometheus/alertmanager are protected by authservice via the monitoring
 package's own ambient waypoint (bb-common per-route authservice model). This drives
 the per-route authservice config, the self-waypoint Service enrollment, and
-prependReleaseName (so the waypoint is named monitoring-waypoint).
+prependReleaseName (so the waypoint is named monitoring-monitoring-waypoint).
 */}}
 {{- $monitoringAuthserviceWaypoint := eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
 {{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
@@ -84,7 +84,7 @@ bb-common:
   istio:
     {{- if $monitoringAuthserviceWaypoint }}
     # Prefix bb-common Istio resources with the release name so the auto-created
-    # waypoint Gateway is named monitoring-waypoint (referenced by the
+    # waypoint Gateway is named monitoring-monitoring-waypoint (referenced by the
     # Service enrollment labels below and by in-mesh client egress policies).
     prependReleaseName: true
     {{- end }}
@@ -303,10 +303,9 @@ upstream:
     {{- if $monitoringAuthserviceWaypoint }}
     # In ambient mode, enroll alertmanager onto the monitoring package's own waypoint
     # so bb-common's per-route authservice ext_authz is enforced for ingress traffic.
-    # In ambient mode, route alertmanager traffic through the authservice waypoint so SSO is enforced.
     service:
       labels:
-        istio.io/use-waypoint: monitoring-waypoint
+        istio.io/use-waypoint: monitoring-monitoring-waypoint
         istio.io/ingress-use-waypoint: "true"
     {{- end }}
     alertmanagerSpec:
@@ -351,7 +350,7 @@ upstream:
     # so bb-common's per-route authservice ext_authz is enforced for ingress traffic.
     service:
       labels:
-        istio.io/use-waypoint: monitoring-waypoint
+        istio.io/use-waypoint: monitoring-monitoring-waypoint
         istio.io/ingress-use-waypoint: "true"
     {{- end }}
     {{- if $thanosEnabled }}

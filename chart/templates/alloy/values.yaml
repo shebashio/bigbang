@@ -127,7 +127,7 @@ networkPolicies:
             monitoring/waypoint:15008:
               podSelector:
                 matchLabels:
-                  gateway.networking.k8s.io/gateway-name: monitoring-waypoint
+                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
             {{- else }}
             monitoring/monitoring-monitoring-kube-prometheus:9090: {{ .Values.monitoring.enabled }}
             {{- end }}

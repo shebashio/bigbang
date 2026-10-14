@@ -1608,7 +1608,7 @@ addons:
 
               # Download the test realm config and remove the Conditional OTP execution
               curl -fsSL \
-                https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/8854d85556d61f602840622a1b70402efe126e73/docs/test-data/realm.json \
+                https://repo1.dso.mil/big-bang/product/packages/keycloak/-/raw/53e61d8e9519b87be18fd0cdde082d13f9cc73d1/docs/test-data/realm.json \
                 | jq '
                 .authenticationFlows |= map(
                   if .id == "cdf1be21-4140-4652-9d68-3b60742cc8ad" then
