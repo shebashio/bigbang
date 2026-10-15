@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Alloy - Metrics defaults
+templates:
+  - templates/alloy/values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.defaults' - | yq eval '.'"
+tests:
+  - it: omits the Prometheus destination when its workload is disabled
+    set:
+      alloy.alloyMetrics.enabled: true
+      addons.mimir.enabled: true
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [mimir]
+      - notExists:
+          path: upstream.destinations.prometheus
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/kube-state-metrics:8080
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.monitoring/prometheus-node-exporter:9100
+          value: true
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.mimir.receiver'
+  - it: preserves both built-in destinations when Prometheus and Mimir run
+    set:
+      alloy.alloyMetrics.enabled: true
+      addons.mimir.enabled: true
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [prometheus, mimir]
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.prometheus.receiver'
+  - it: omits exporter scrapes when monitoring is disabled
+    set:
+      alloy.alloyMetrics.enabled: true
+      monitoring.enabled: false
+    asserts:
+      - notExists:
+          path: upstream.collectors.alloy-metrics.extraConfig
