@@ -49,62 +49,22 @@ flowchart TD
 
 ### Cortex Tenant remote write
 
-Big Bang can send metrics discovered through ServiceMonitors and PodMonitors from
-Alloy through the separately deployed Cortex Tenant package to Mimir. Enable
-`alloy.cortexTenant` when that proxy should be Alloy's metrics destination:
+The [Alloy → Cortex Tenant → Mimir example values](../../reference/configs/example/alloy-cortex-tenant-mimir-values.yaml)
+show how to deploy Cortex Tenant as a custom package, select it as Alloy's
+remote-write destination, enable both sides of the required network-policy
+connections, and order the HelmReleases. The umbrella does not configure this
+path automatically because Cortex Tenant is not a built-in package.
 
-```yaml
-alloy:
-  alloyMetrics:
-    enabled: true
-  cortexTenant:
-    enabled: true
-    tenant: my-tenant
-
-monitoring:
-  prometheusMetrics:
-    enabled: false
-  values:
-    upstream:
-      prometheus:
-        enabled: false
-
-addons:
-  mimir:
-    enabled: true
-
-packages:
-  cortex-tenant:
-    enabled: true
-    namespace:
-      name: cortex-tenant
-    dependsOn:
-      - name: mimir
-        namespace: bigbang
-    sourceType: git
-    git:
-      repo: https://repo1.dso.mil/big-bang/product/maintained/cortex-tenant.git
-      path: ./chart
-      tag: "0.8.1-bb.2"
-```
-
-Deploy Cortex Tenant separately as `packages.cortex-tenant`; it is not a built-in
-umbrella package. The proxy's default backend is the Mimir distributor. With
-`alloy.cortexTenant.enabled`, the umbrella sends Alloy's operator-object metrics
-only to the proxy at `cortex-tenant.cortex-tenant.svc.cluster.local:8080/push`.
-With Istio sidecars, Alloy connects to the default endpoint over mTLS using
-its mounted Istio certificates; without sidecars it uses HTTP.
-It does not also write those metrics directly to Prometheus or Mimir. When the
-custom package is enabled in the same umbrella release, Alloy waits for its
-HelmRelease.
-
-The proxy requires a `tenant` label on every series. Set
-`alloy.cortexTenant.tenant` for one shared tenant, or leave it empty only when
-all scraped series already carry their intended tenant labels. Configure
-`alloy.cortexTenant.url` and matching network policies if the proxy uses a
-different Service. For environments that disable the Prometheus workload, the
-umbrella also disables the upstream control-plane ServiceMonitors by default;
-operators who supply independent scrape credentials can enable them explicitly.
+The example assumes Istio sidecars and uses Alloy's mounted Istio certificates
+to scrape kube-state-metrics and node-exporter and to write to Cortex Tenant.
+For ambient or non-Istio deployments, use HTTP for the destination and adjust
+the direct exporter scrapes to match the endpoints' transport. Review the
+`extraConfig` override if you already provide custom Alloy metrics pipelines.
+Set `extraLabels.tenant` to the desired tenant; Cortex Tenant rejects series
+without a tenant label by default. The example disables Prometheus while
+retaining monitoring's exporters. With Prometheus disabled, the umbrella
+disables its token-dependent control-plane ServiceMonitors by default; operators
+who provide independent scrape credentials can enable them explicitly.
 
 ### Licensing
 

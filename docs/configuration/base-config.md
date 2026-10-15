@@ -232,14 +232,11 @@ Kubernetes: `>=1.34.0-0`
 | fluentbit.flux | object | `{}` | Flux reconciliation overrides specifically for the Fluent-Bit Package |
 | fluentbit.values | object | `{}` | Values to passthrough to the fluentbit chart: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git |
 | fluentbit.postRenderers | list | `[]` | Post Renderers.  See docs/postrenders.md |
-| alloy | object | `{"additionalDestinations":[],"alloyClusterEvents":{"enabled":true},"alloyLogs":{"enabled":true},"alloyMetrics":{"enabled":false},"cortexTenant":{"enabled":false,"tenant":"","url":"http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push"},"enabled":true,"flux":{},"git":{"path":"./chart","repo":"https://repo1.dso.mil/big-bang/product/packages/alloy.git","tag":"4.3.2-bb.2"},"helmRepo":{"chartName":"k8s-monitoring","repoName":"registry1","tag":"4.3.2-bb.2"},"postRenderers":[],"sourceType":"git","values":{}}` | Grafana Alloy package configuration. |
+| alloy | object | `{"additionalDestinations":[],"alloyClusterEvents":{"enabled":true},"alloyLogs":{"enabled":true},"alloyMetrics":{"enabled":false},"enabled":true,"flux":{},"git":{"path":"./chart","repo":"https://repo1.dso.mil/big-bang/product/packages/alloy.git","tag":"4.3.2-bb.2"},"helmRepo":{"chartName":"k8s-monitoring","repoName":"registry1","tag":"4.3.2-bb.2"},"postRenderers":[],"sourceType":"git","values":{}}` | Grafana Alloy package configuration. |
 | alloy.enabled | bool | `true` | Toggle deployment of grafana alloy |
 | alloy.sourceType | string | `"git"` | Choose source type of "git" or "helmRepo" |
 | alloy.alloyLogs | object | `{"enabled":true}` | Toggle Alloy to collect logs |
 | alloy.alloyMetrics | object | `{"enabled":false}` | Toggle Alloy to scrape metrics |
-| alloy.cortexTenant | object | `{"enabled":false,"tenant":"","url":"http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push"}` | Send Alloy ServiceMonitor/PodMonitor metrics through Cortex Tenant instead of directly to Prometheus or Mimir. |
-| alloy.cortexTenant.url | string | `"http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push"` | Remote-write endpoint of the Cortex Tenant package. |
-| alloy.cortexTenant.tenant | string | `""` | Optional tenant label added to all forwarded series. Leave empty when targets already carry tenant labels. |
 | alloy.alloyClusterEvents | object | `{"enabled":true}` | Toggle Alloy to collect cluster events |
 | alloy.additionalDestinations | list | `[]` | Additional Alloy destinations not included in Big Bang |
 | alloy.flux | object | `{}` | Flux reconciliation overrides specifically for the alloy package |

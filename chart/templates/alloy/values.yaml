@@ -25,9 +25,6 @@
 }}
 {{- $tempoEnabled := .Values.tempo.enabled }}
 {{- $mimirEnabled := .Values.addons.mimir.enabled }}
-{{- $cortexTenantEnabled := dig "cortexTenant" "enabled" false .Values.alloy }}
-{{- $defaultCortexTenantURL := "http://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push" }}
-{{- $cortexTenantURL := dig "cortexTenant" "url" $defaultCortexTenantURL .Values.alloy }}
 {{- $prometheusEnabled := and .Values.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.monitoring) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
@@ -129,7 +126,7 @@ networkPolicies:
             monitoring/kube-state-metrics:8080: true
             monitoring/prometheus-node-exporter:9100: true
             {{- end }}
-            {{- if and $prometheusEnabled (not $cortexTenantEnabled) }}
+            {{- if $prometheusEnabled }}
             {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
             # Prometheus is enrolled on the monitoring package's own waypoint for authservice;
             # in-mesh remote-write egress targets the waypoint pod over HBONE (15008).
@@ -141,10 +138,7 @@ networkPolicies:
             monitoring/monitoring-monitoring-kube-prometheus:9090: true
             {{- end }}
             {{- end }}
-            {{- if $cortexTenantEnabled }}
-            cortex-tenant/cortex-tenant:8080: true
-            {{- end }}
-            mimir/mimir-mimir-gateway:8080: {{ and $mimirEnabled (not $cortexTenantEnabled) }}
+            mimir/mimir-mimir-gateway:8080: {{ $mimirEnabled }}
       {{- end }}
 routes:
   outbound:
@@ -190,7 +184,7 @@ upstream:
       tls:
         insecure: true
     {{- end }}
-    {{- if and $alloyMetricsEnabled $prometheusEnabled (not $cortexTenantEnabled) }}
+    {{- if and $alloyMetricsEnabled $prometheusEnabled }}
     prometheus:
       type: prometheus
       {{- if $sidecarInjectionEnabled }}
@@ -204,7 +198,7 @@ upstream:
       url: http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
       {{- end }}
     {{- end }}
-    {{- if and $alloyMetricsEnabled $mimirEnabled (not $cortexTenantEnabled) }}
+    {{- if and $alloyMetricsEnabled $mimirEnabled }}
     mimir:
       type: prometheus
       {{- if $sidecarInjectionEnabled }}
@@ -216,26 +210,6 @@ upstream:
         insecureSkipVerify: true
       {{- else }}
       url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
-      {{- end }}
-    {{- end }}
-    {{- if and $alloyMetricsEnabled $cortexTenantEnabled }}
-    cortex-tenant:
-      type: prometheus
-      {{- if and $sidecarInjectionEnabled (eq $cortexTenantURL $defaultCortexTenantURL) }}
-      # alloy-metrics bypasses outbound Envoy interception, so it must originate
-      # mTLS itself when writing to the injected Cortex Tenant service.
-      url: https://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
-      tls:
-        caFile: /etc/prom-certs/root-cert.pem
-        certFile: /etc/prom-certs/cert-chain.pem
-        keyFile: /etc/prom-certs/key.pem
-        insecureSkipVerify: true
-      {{- else }}
-      url: {{ $cortexTenantURL | quote }}
-      {{- end }}
-      {{- with .Values.alloy.cortexTenant.tenant }}
-      extraLabels:
-        tenant: {{ . | quote }}
       {{- end }}
     {{- end }}
   {{- if .Values.alloy.additionalDestinations }}
@@ -345,15 +319,11 @@ upstream:
             enabled = true
           }
           forward_to = [
-            {{- if $cortexTenantEnabled }}
-            prometheus.remote_write.cortex_tenant.receiver,
-            {{- else }}
             {{- if $prometheusEnabled }}
             prometheus.remote_write.prometheus.receiver,
             {{- end }}
             {{- if $mimirEnabled }}
             prometheus.remote_write.mimir.receiver,
-            {{- end }}
             {{- end }}
           ]
         }
@@ -382,15 +352,11 @@ upstream:
             enabled = true
           }
           forward_to = [
-            {{- if $cortexTenantEnabled }}
-            prometheus.remote_write.cortex_tenant.receiver,
-            {{- else }}
             {{- if $prometheusEnabled }}
             prometheus.remote_write.prometheus.receiver,
             {{- end }}
             {{- if $mimirEnabled }}
             prometheus.remote_write.mimir.receiver,
-            {{- end }}
             {{- end }}
           ]
         }
@@ -505,15 +471,11 @@ upstream:
   prometheusOperatorObjects:
     enabled: true
     destinations:
-      {{- if $cortexTenantEnabled }}
-      - cortex-tenant
-      {{- else }}
       {{- if $prometheusEnabled }}
       - prometheus
       {{- end }}
       {{- if $mimirEnabled }}
       - mimir
-      {{- end }}
       {{- end }}
     collector: alloy-metrics
   {{- end }}
