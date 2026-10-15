@@ -10,6 +10,34 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: allows Alloy metrics to scrape kube-state-metrics with Prometheus disabled
+    set:
+      alloy.alloyMetrics.enabled: true
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          value: true
+      - equal:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100.from.k8s.alloy/alloy-metrics
+          value: true
+  - it: omits Alloy scrape ingress when metrics collection is disabled
+    asserts:
+      - notExists:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080
+      - notExists:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100
+  - it: disables control-plane ServiceMonitors when Prometheus is not deployed
+    set:
+      monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.kubernetesServiceMonitors.enabled
+          value: false
+  - it: leaves control-plane ServiceMonitors at upstream defaults with Prometheus enabled
+    asserts:
+      - notExists:
+          path: upstream.kubernetesServiceMonitors
   - it: should keep istio cert mounts when hardened sidecar is enabled
     set:
       istiod.enabled: true
