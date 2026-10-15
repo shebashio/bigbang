@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Alloy - Cortex Tenant example values
+templates:
+  - templates/alloy/values.yaml
+values:
+  - ../../../../docs/reference/configs/example/alloy-cortex-tenant-mimir-values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+tests:
+  - it: routes collected metrics only to the sample Cortex Tenant destination
+    asserts:
+      - equal:
+          path: upstream.prometheusOperatorObjects.destinations
+          value: [cortex-tenant]
+      - equal:
+          path: upstream.destinations.cortex-tenant.extraLabels.tenant
+          value: example-tenant
+      - equal:
+          path: upstream.destinations.cortex-tenant.tls.certFile
+          value: /etc/prom-certs/cert-chain.pem
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.cortex-tenant/cortex-tenant:8080
+          value: true
+      - equal:
+          path: networkPolicies.egress.from.alloy-metrics.to.k8s.mimir/mimir-mimir-gateway:8080
+          value: false
+      - matchRegex:
+          path: upstream.collectors.alloy-metrics.extraConfig
+          pattern: 'prometheus.remote_write.cortex_tenant.receiver'

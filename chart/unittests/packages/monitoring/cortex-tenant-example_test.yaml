@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Monitoring - Cortex Tenant example values
+templates:
+  - templates/monitoring/values.yaml
+values:
+  - ../../../../docs/reference/configs/example/alloy-cortex-tenant-mimir-values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+tests:
+  - it: retains exporters without Prometheus or duplicate ServiceMonitors
+    asserts:
+      - equal:
+          path: upstream.prometheus.enabled
+          value: false
+      - equal:
+          path: upstream.kubernetesServiceMonitors.enabled
+          value: false
+      - equal:
+          path: upstream.kube-state-metrics.prometheus.monitor.enabled
+          value: false
+      - equal:
+          path: upstream.prometheus-node-exporter.prometheus.monitor.enabled
+          value: false
+      - equal:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          value: true
