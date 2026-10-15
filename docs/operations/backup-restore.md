@@ -1,107 +1,87 @@
 # Backup and Restore
 
-[[_TOC_]]
+Use this guide to identify what to back up in a Big Bang deployment and find the appropriate backup and restore procedures. Big Bang-specific steps are included for GitLab.
 
-## Gitlab Backups and Restores
+Big Bang uses Flux to manage deployment configuration, but GitOps does not back up application data or persistent volumes.
 
-### Gitlab Helm Chart Configuration
+## What to Back Up
 
-1. Follow the [Protect the Rails Secret](../configuration/production-considerations/gitlab.md#protect-the-rails-secret) guidance in the GitLab production considerations.
-1. Fill in our externalStorage values, specifically `addons.gitlab.objectStorage.iamProfile` or both `.Values.addons.gitlab.objectStorage.accessKey` & `.Values.addons.gitlab.objectStorage.accessSecret` along with `.Values.addons.gitlab.objectStorage.bucketPrefix` or you can override in the name for your own bucket eg:
-```yaml
-addons:
-  gitlab:
-    values:
-      global:
-       appConfig:
-         backups:
-           bucket: "BUCKET_NAME"
+| What | How to Protect It |
+| --- | --- |
+| Big Bang configuration | Maintain deployment configuration in Git and preserve the credentials and secrets needed for recovery. |
+| Kubernetes resources and persistent volumes | Use a compatible backup solution, such as Velero. See [Big Bang Velero backup and restore](https://docs-bigbang.dso.mil/latest/packages/velero/docs/backup/full-cluster-backup/). |
+| GitLab application data | Use the GitLab Toolbox `backup-utility`. See [GitLab Backup and Restore](#gitlab-backup-and-restore). |
+| GitLab Rails secrets | Back up separately from application data and store securely outside the cluster. |
+| External databases, object storage, and other stateful services | Follow the backup procedures supported by each service. |
+
+**Important:** Kubernetes resource backups do not necessarily include all application data. Confirm backup coverage, persistent-volume support, and application consistency requirements before relying on a backup for recovery.
+
+## GitLab Backup and Restore
+
+GitLab uses the Toolbox `backup-utility` to create and restore application backups.
+
+### Before You Begin
+
+Before backing up or restoring GitLab:
+
+- **Protect Rails secrets.** GitLab backups do not include them. Preserve the secrets required to decrypt restored application data.
+- **Configure backup storage.** Provision the required backup and temporary object-storage buckets and ensure the Toolbox can access them. Big Bang does not create external buckets.
+- **Verify storage authentication.** Configure `addons.gitlab.objectStorage.iamProfile` or both `accessKey` and `accessSecret`, as appropriate for your environment.
+- **Check Toolbox storage.** Ensure the Toolbox has sufficient temporary disk space for backup creation and extraction. For manual backups, verify that the temporary directory has the required persistent storage. See [GitLab Toolbox configuration](https://docs.gitlab.com/charts/charts/gitlab/toolbox/).
+- **Confirm backup coverage.** Identify external PostgreSQL, Redis or Valkey, object storage, and other services that require separate protection.
+
+For Big Bang-specific configuration, bucket naming, and Rails secret management, see [GitLab Production Considerations](../configuration/production-considerations/gitlab.md).
+
+### Back Up GitLab
+
+Find the Toolbox pod and create a backup:
+
+```shell
+kubectl get pods -n gitlab -l release=gitlab,app=toolbox
+kubectl exec -it <toolbox-pod-name> -n gitlab -- backup-utility
 ```
-* If you would like to perform manual backups, you will need to ensure the `tmp` location in the toolbox pod has a PVC attached:
-```yaml
-addons:
-  gitlab:
-    values:
-      gitlab:
-        toolbox:
-          persistence:
-            enabled: true
-            size: 100Gi 
+
+The backup archive is uploaded to the configured backup bucket as `<backup-id>_gitlab_backup.tar`. Confirm that the archive exists before relying on the backup.
+
+For backup options, component exclusions, and scheduled backups, see [GitLab backup documentation](https://docs.gitlab.com/charts/backup-restore/backup/).
+
+For scheduled backups, inspect the Jobs and their logs to confirm completion:
+
+```shell
+kubectl get jobs -n gitlab
+kubectl logs -n gitlab job/<backup-job-name>
 ```
 
-### Backing up Gitlab
+### Restore GitLab
 
-#### Manual Steps
+**Warning:** Restoring GitLab erases existing database contents and can replace repository and object-storage data. Confirm the backup and target environment before proceeding.
 
-To perform a manual complete backup of Gitlab, exec into your Gitlab Toolbox pod and run the following:
-  1. Find your Gitlab Toolbox pod.
-     ```shell
-     kubectl get pods -l release=gitlab,app=toolbox -n gitlab
-     kubectl exec -it gitlab-toolbox-XXXXXXXXX-XXXXX -n gitlab -- /bin/sh
-     ```
-  1. Execute the backup-utility command which will pull down data from the database, gitaly, and other portions of the ecosystem. Tar them up and push to your configured cloud storage.
-     ```shell
-     backup-utility --skip registry,lfs,artifacts,packages,uploads,pseudonymizer,terraformState,backups
-     ```
+Follow the [GitLab restore procedure](https://docs.gitlab.com/charts/backup-restore/restore/) for your deployed version.
 
-You can read more on the upstream documentation: https://docs.gitlab.com/charts/backup-restore/backup.html#create-the-backup.
+1. Verify the backup archive, required external data, and matching Rails secrets. If the Rails secrets are replaced, restart the affected GitLab pods as directed by GitLab.
+2. Confirm that the target GitLab version matches the backup and that the Toolbox has sufficient temporary storage.
+3. Coordinate Flux reconciliation and follow GitLab's instructions to stop database clients. Record the affected deployment replica counts before scaling them down.
+4. Run the restore from the Toolbox pod:
 
-#### Automatic Cron-based Backups
+   ```shell
+   kubectl exec -it <toolbox-pod-name> -n gitlab -- backup-utility --restore -t <backup-id>
+   ```
 
-It is recommended to set up automatic backups via Gitlab toolbox's cron settings:
-```yaml
-addons:
-  gitlab:
-    values:
-      gitlab:
-        toolbox:
-          backups:
-            cron:
-              enabled: true
-              extraArgs: "--skip registry,lfs,artifacts,packages,uploads,pseudonymizer,terraformState,backups"
-              persistence:
-                enabled: true
-                size: '200Gi'
-              resources:
-                limits:
-                  cpu: 800m
-                  memory: "2Gi"
-                requests:
-                  cpu: 800m
-                  memory: "2Gi" 
+5. Restore the affected deployments to their recorded replica counts and resume normal reconciliation according to your environment's recovery procedure.
+
+The backup ID is the portion of the archive filename before `_gitlab_backup.tar`.
+
+### Verify the Restore
+
+After restoring GitLab:
+
+1. Confirm that GitLab deployments and pods are healthy.
+2. Verify that users can sign in, access projects and repositories, and use required external services.
+3. Complete GitLab's post-restore requirements and confirm Flux resources are ready.
+
+```shell
+kubectl get pods -n gitlab
+flux get all -A --status-selector ready=false
 ```
-You can read more on the upstream documentation: https://docs.gitlab.com/charts/charts/gitlab/toolbox/#configuration
 
-### Restore Gitlab
-
-1. Ensure your gitlab-rails secret is present in gitops or in-cluster and it correctly matches the database to which the chart is pointed.
-   * If you need to replace or update your rails secret, once it is updated be sure to restart the following pods:
-     ```shell
-     kubectl rollout -n gitlab restart deploy/gitlab-sidekiq-all-in-1-v2
-     kubectl rollout -n gitlab restart deploy/gitlab-webservice-default
-     kubectl rollout -n gitlab restart deploy/gitlab-toolbox
-     ```
-2. Exec into the toolbox pod and run the backup-utility command:
-   1. find your Gitlab Toolbox pod. 
-     ```shell
-     kubectl get pods -l release=gitlab,app=toolbox -n gitlab
-     kubectl exec -it gitlab-toolbox-XXXXXXXXX-XXXXX -n gitlab -- /bin/sh
-     ```
-   * Find your most recent backup from cloud storage by finding the last line of your most recent backup job pod:
-      ```shell
-      kubectl get po -l release=gitlab,job-name -n gitlab --sort-by=.metadata.creationTimestamp
-      kubectl logs gitlab-toolbox-backup-XXXXXXXX-XXXXX -n gitlab
-      ```
-   * Find your most recent backup via AWS CLI:
-      ```shell
-      aws s3api list-objects --bucket gitlab-backups --query 'reverse(sort_by(Contents,&LastModified))[0].Key' --output 
-      # Save the output, it is in the format TIMESTAMP_VALUE.tar
-      ```
-   2. Execute the backup-utility command which will pull down the tarred data from your configured cloud storage and restore.
-     ```shell
-     # Using the filename
-     backup-utility --restore -f s3://BUCKET_NAME/ARCHIVE_NAME.tar
-     # Using the Timestamp
-     backup-utility --restore -t TIMESTAMP_VALUE
-     ```
-You can read more on the upstream documentation: https://docs.gitlab.com/charts/backup-restore/restore.html#restoring-the-backup-file.
+For reconciliation failures, see [Troubleshoot a Big Bang deployment](troubleshooting/index.md).
