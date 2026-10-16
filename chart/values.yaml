@@ -854,6 +854,15 @@ packages:
       # -- Elasticsearch/Kibana OIDC client secret
       client_secret: ""
 
+      # -- Optional OIDC claim pattern for the authenticated principal
+      claims_principal_pattern: ""
+
+      # -- Optional OIDC scopes requested by Kibana/Elasticsearch
+      requested_scopes: []
+
+      # -- Optional OIDC signature algorithm
+      signature_algorithm: ""
+
     # -- Elasticsearch/Kibana Service Account Annotations
     serviceAccountAnnotations:
       elasticsearch: {}

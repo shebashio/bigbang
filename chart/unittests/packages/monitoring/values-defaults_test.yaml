@@ -12,8 +12,8 @@ postRenderer:
 tests:
   - it: allows Alloy metrics to scrape kube-state-metrics with Prometheus disabled
     set:
-      alloy.alloyMetrics.enabled: true
-      monitoring.values.upstream.prometheus.enabled: false
+      packages.alloy.alloyMetrics.enabled: true
+      packages.monitoring.values.upstream.prometheus.enabled: false
     asserts:
       - equal:
           path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
@@ -29,7 +29,7 @@ tests:
           path: networkPolicies.ingress.to.prometheus-node-exporter:9100
   - it: disables control-plane ServiceMonitors when Prometheus is not deployed
     set:
-      monitoring.values.upstream.prometheus.enabled: false
+      packages.monitoring.values.upstream.prometheus.enabled: false
     asserts:
       - equal:
           path: upstream.kubernetesServiceMonitors.enabled
