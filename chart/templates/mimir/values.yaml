@@ -21,6 +21,7 @@
 
 {{- $s3Enabled := (.Values.packages.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.packages.mimir.enterprise.enabled) }}
+{{- $prometheusEnabled := and .Values.packages.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.packages.monitoring) }}
 {{- $kafkaEnabled := (.Values.packages.mimir.kafkaIngestStorage.enabled) }}
 {{- $kafkaBrokerHost := (.Values.packages.mimir.kafkaIngestStorage.brokerHost) }}
 {{- $kafkaBrokerPort := (.Values.packages.mimir.kafkaIngestStorage.brokerPort) }}
@@ -134,24 +135,24 @@ networkPolicies:
       mimir:[15020]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       mimir:[8080,9095]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       rollout-operator:[8080,9095]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       rollout-operator:[15020]:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
             alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
