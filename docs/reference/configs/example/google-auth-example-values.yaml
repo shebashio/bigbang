@@ -33,5 +33,11 @@ packages:
       enabled: true
       client_secret: "<client_secret>"
       client_id: "<client_id>"
+      # additional fields (required to override keycloak defaults)
+      claims_principal_pattern: "<regex for allowed email domains>" # example: "^([^@]+)@leapfrog\\.ai$"
+      requested_scopes:
+        - openid
+        - email
+      signature_algorithm: ""
     license:
       trial: true

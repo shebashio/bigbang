@@ -18,16 +18,17 @@ Data from Kyverno is not stored by the app directly, it is stored as objects in 
 When deploying to k3d, istio-system should be added from `excludedNamespaces` under the `allowedDockerRegistries` violations. This can be done by modifying `chart/values.yaml` file or passing an override file with the values set as seen below. This is for development purposes only: production should not allow containers in the `istio-system` namespace to be pulled from outside of Registry1. 
 
 ```yaml
-kyvernoPolicies:
-  values:
-    exclude:
-      any:
-      # Allows k3d load balancer to bypass policies.
-      - resources:
-          namespaces:
-          - istio-system
-          names:
-          - svclb-*
+packages:
+  kyvernoPolicies:
+    values:
+      exclude:
+        any:
+          # Allows k3d load balancer to bypass policies.
+          - resources:
+              namespaces:
+                - istio-system
+              names:
+                - svclb-*
 ```
 
 ## High Availability
@@ -35,9 +36,10 @@ kyvernoPolicies:
 High availability is accomplished by increasing the replicas in the values file of this helm chart. The recommended replica counts for HA is at least 3 which is enabled by default in BigBang chart.
 
 ```yaml
-kyverno:
-  values:
-    replicaCount: 3
+packages:
+  kyverno:
+    values:
+      replicaCount: 3
 ```
 
 ## Kyverno Reporter
@@ -48,27 +50,29 @@ Kyverno Reporter is an optional component providing two main reporting functions
 
 
 ```yaml
-kyvernoReporter:
-  enabled: true
+packages:
+  kyvernoReporter:
+    enabled: true
 ```
 
 ### Kyverno Reporter UI
 While not yet officially supported by BigBang the Kyverno Reporter can be useful for inspecting policy results when other tools like Grafana are not available or in debugging scenarios.
 ```yaml
-kyvernoReporter:
-  enabled: true
+packages:
+  kyvernoReporter:
+    enabled: true
 
-  values:
-    global:
-      plugins:
-        kyverno:
-          enabled: true
+    values:
+      global:
+        plugins:
+          kyverno:
+            enabled: true
 
-    ui:
-      enabled: true
+      ui:
+        enabled: true
 
-    kyvernoPlugin:
-      enabled: true
+      kyvernoPlugin:
+        enabled: true
 ```
 
 ## Single Sign on (SSO)

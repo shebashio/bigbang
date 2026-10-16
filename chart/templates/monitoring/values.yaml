@@ -183,7 +183,7 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
-      {{- if and .Values.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
+      {{- if and .Values.packages.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.packages.alloy) }}
       kube-state-metrics:8080:
         from:
           k8s:
@@ -298,7 +298,7 @@ sso:
   enabled: {{ .Values.packages.monitoring.sso.enabled }}
 
 upstream:
-  {{- if not (dig "upstream" "prometheus" "enabled" true .Values.monitoring.values) }}
+  {{- if not (dig "upstream" "prometheus" "enabled" true .Values.packages.monitoring.values) }}
   # Control-plane monitors require a token Secret created with the Prometheus service account.
   # Users who provide their own ServiceMonitor authorization can override this gate.
   kubernetesServiceMonitors:

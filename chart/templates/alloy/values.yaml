@@ -122,7 +122,7 @@ networkPolicies:
           definition:
             kubeAPI: true
           k8s:
-            {{- if .Values.monitoring.enabled }}
+            {{- if .Values.packages.monitoring.enabled }}
             monitoring/kube-state-metrics:8080: true
             monitoring/prometheus-node-exporter:9100: true
             {{- end }}
@@ -302,7 +302,7 @@ upstream:
             - name: istio-certs
               emptyDir:
                 medium: Memory
-      {{- if and .Values.monitoring.enabled $sidecarInjectionEnabled }}
+      {{- if and .Values.packages.monitoring.enabled $sidecarInjectionEnabled }}
       # Alloy 1.18 cannot load local certificate files from ServiceMonitors.
       # Scrape the monitoring exporters with the mounted Istio certificates.
       extraConfig: |

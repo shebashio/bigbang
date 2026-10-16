@@ -4321,6 +4321,18 @@
           },
           "client_secret": {
             "type": "string"
+          },
+          "claims_principal_pattern": {
+            "type": "string"
+          },
+          "requested_scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "signature_algorithm": {
+            "type": "string"
           }
         },
         "additionalProperties": false

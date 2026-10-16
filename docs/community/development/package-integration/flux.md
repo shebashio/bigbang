@@ -63,7 +63,7 @@ The package will be deployed in its own namespace. Big Bang pre-creates this nam
 
 ```yaml
 {{- $pkg := "podinfo" }}
-{{- if (get .Values $pkg).enabled }}
+{{- if (get .Values.packages $pkg).enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -78,8 +78,9 @@ In order for the namespace Helm template to be properly created, the following v
 
 ```yaml
 # Identifies if our package should be deployed or ignored
-podinfo:
-  enabled: true
+packages:
+  podinfo:
+    enabled: true
 ```
 
 ### Flux Custom Resources
@@ -90,10 +91,10 @@ Flux's source controller uses the [GitRepository](https://fluxcd.io/docs/compone
 
 ```yaml
 {{- $pkg := "podinfo" }}
-{{- if (get .Values $pkg).enabled }}
+{{- if (get .Values.packages $pkg).enabled }}
 {{- $gitCredsDict := dict
   "name" $pkg
-  "packageGitScope" (get .Values pkg).git
+  "packageGitScope" (get .Values.packages $pkg).git
   "rootScope" .
   "releaseName" $.Release.Name
 }}
@@ -107,9 +108,9 @@ metadata:
     {{- include "commonLabels" . | nindent 4}}
 spec:
   interval: {{ .Values.flux.interval }}
-  url: {{ (get .Values $pkg).git.repo }}
+  url: {{ (get .Values.packages $pkg).git.repo }}
   ref:
-    {{- include "validRef" (get .Values $pkg).git | nindent 4 }}
+    {{- include "validRef" (get .Values.packages $pkg).git | nindent 4 }}
   {{ include "gitIgnore" . }}
   {{- include "gitCredsExtended" $gitCredsDict | nindent 2 }}
 {{- end }}
@@ -118,11 +119,12 @@ spec:
 The `GitRepository` Helm template above requires the following values to be added to `bigbang/values.yaml`:
 
 ```yaml
-podinfo:
-  # The Git location of the package Helm chart
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/podinfo
-    branch: master
+packages:
+  podinfo:
+    # The Git location of the package Helm chart
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/podinfo
+      branch: master
 ```
 
 > If you are working on a branch, change `master` to the branch you are working from in the values above.
@@ -133,8 +135,8 @@ Big Bang exclusively uses Helm charts for deployment through Flux. Using the [He
 
 ```yaml
 {{- $pkg := "podinfo" }}
-{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) (get .Values $pkg).flux -}}
-{{- if (get .Values $pkg).enabled }}
+{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) (get .Values.packages $pkg).flux -}}
+{{- if (get .Values.packages $pkg).enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -147,7 +149,7 @@ spec:
   targetNamespace: {{ $pkg }}
   chart:
     spec:
-      chart: {{ (get .Values $pkg).git.path }}
+      chart: {{ (get .Values.packages $pkg).git.path }}
       interval: 5m
       sourceRef:
         kind: GitRepository
@@ -156,9 +158,9 @@ spec:
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if (get .Values $pkg).postRenderers }}
+  {{- if (get .Values.packages $pkg).postRenderers }}
   postRenderers:
-  {{ toYaml (get .Values $pkg).postRenderers | nindent 4 }}
+  {{ toYaml (get .Values.packages $pkg).postRenderers | nindent 4 }}
   {{- end }}
   valuesFrom:
     - name: {{ .Release.Name }}-{{ $pkg }}-values
@@ -176,12 +178,13 @@ spec:
 The following values need to be added into `bigbang/values.yaml` for `HelmRelease`:
 
 ```yaml
-podinfo:
-  # Directory in git where Helm chart is located
-  git:
-    path: chart
-  # Flux specific settings for package
-  flux: {}
+packages:
+  podinfo:
+    # Directory in git where Helm chart is located
+    git:
+      path: chart
+    # Flux specific settings for package
+    flux: {}
 ```
 
 ### ImagePullSecret
@@ -190,7 +193,7 @@ Big Bang images are pulled from Iron Bank. In order to provide credentials for I
 
 ```yaml
 {{- $pkg := "podinfo" }}
-{{- if (get .Values $pkg).enabled }}
+{{- if (get .Values.packages $pkg).enabled }}
 {{- if ( include "imagePullSecret" . ) }}
 apiVersion: v1
 kind: Secret
@@ -222,12 +225,12 @@ Package values (chart/values.yaml) should contain upstream values plus any place
 
 ### Override Values
 
-Big Bang has a few options for overwriting values in packages. The package's `HelmRelease`, that we created earlier, contains a `ValuesFrom` section that references a secret with `common`, `default`, and `overlay` keys. Each of these keys can contain a set of override values that get passed down to the package. Here is a table explaining the difference between the possible overlays:
+Big Bang has a few options for overwriting values in packages. The package's `HelmRelease`, that we created earlier, contains a `valuesFrom` section that references a Secret with `common`, `defaults`, and `overlays` keys. Each of these keys can contain a set of override values that get passed down to the package. Here is a table explaining the difference between the possible overlays:
 
 | Name      | Description                                     | Source                                       | Priority  |
 | --------- | ----------------------------------------------- | -------------------------------------------- | --------- |
-| `overlay` | Values provided by user when deploying Big Bang | `bigbang/values.yaml`:`$PKGNAME.values.*`    | Highest 1 |
-| `default` | Values created by Big Bang                      | `bigbang/templates/$PKGNAME/values.yaml`:`*` | 2         |
+| `overlays` | Values provided by user when deploying Big Bang | `bigbang/values.yaml`:`packages.$PKGNAME.values.*` | Highest 1 |
+| `defaults` | Values created by Big Bang                      | `bigbang/templates/$PKGNAME/values.yaml`:`*` | 2         |
 | `common`  | Big Bang values common to all packages          | Not currently used                           | 3         |
 | `package` | Package defaults                                | `chart/values.yaml`:`*`                      | Lowest 4  |
 
@@ -242,8 +245,8 @@ For the package to implement this hierarchy, `bigbang/templates/$PKGNAME/values.
 {{- end }}
 
 {{- /* Create secret */ -}}
-{{- if (get .Values $pkg).enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" $pkg "defaults" (include (printf "bigbang.defaults.%s" $pkg) .)) }}
+{{- if (get .Values.packages $pkg).enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values.packages $pkg) "name" $pkg "defaults" (include (printf "bigbang.defaults.%s" $pkg) .)) }}
 {{- end }}
 ```
 
@@ -252,13 +255,14 @@ For the package to implement this hierarchy, `bigbang/templates/$PKGNAME/values.
 At this point, you should have a minimum viable set of values in `bigbang/values.yaml` that looks like this:
 
 ```yaml
-podinfo:
-  enabled: true
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/podinfo
-    branch: bigbang
-    path: chart
-  flux: {}
+packages:
+  podinfo:
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/podinfo
+      branch: bigbang
+      path: chart
+    flux: {}
 ```
 
 Use the Big Bang default values to make sure our Helm templates don't have any syntax errors. Run the following:
