@@ -32,12 +32,12 @@ After [graduating your package](https://repo1.dso.mil/platform-one/bbtoc/-/tree/
 
 1. Merge your default package values from `<your-package-git-folder>/bigbang/values.yaml` into `chart/values.yaml.` Only the "standard" keys used across packages should be used.  Keep in mind that values can be passed directly to the package using `.Values.<package>.values.`
 
-    > If your package is an `addon`, it falls into a different location than core packages.  In this case, you will need to update all your references from `.Values.<package>` to `.Values.addons.<package>`.
+    > All built-in packages use the unified `packages.<package>` values path. Update package references to `.Values.packages.<package>`; custom packages remain under their declared package name.
 
     Example:
 
    ```yaml
-   addons:
+   packages:
      mypackage:
        enabled: false     # default to false
        git:
@@ -103,7 +103,7 @@ After [graduating your package](https://repo1.dso.mil/platform-one/bbtoc/-/tree/
 1. Verify your package works when deployed through Big Bang. See the instructions below in the ```BigBang Development and Testing Cycle``` for the manual ```imperative``` way to deploy with helm upgrade commands. While testing you should use your package git branch instead of a tag. If you don't null the tag your branch will not get deployed. Here is an example:
 
     ```yaml
-    addons:
+    packages:
       app1:
         git:
           tag: null
@@ -115,7 +115,7 @@ After [graduating your package](https://repo1.dso.mil/platform-one/bbtoc/-/tree/
 1. Make sure to change the chart/values.yaml file to point to the new release tag rather than your dev branch (i.e. tag: "1.2.3-bb.0" in place of branch: "999-your-dev-branch-name"). example:
 
     ```yaml
-    addons:
+    packages:
       app1:
         git:
           tag: "1.2.3-bb.0"

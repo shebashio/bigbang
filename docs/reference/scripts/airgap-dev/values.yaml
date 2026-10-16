@@ -60,7 +60,7 @@ twistlock:
     repo: ssh://git@host.k3d.internal/home/git/repos/twistlock
 
 # Explicitly enable all addons for CI
-addons:
+packages:
   argocd:
     enabled: false
     git:

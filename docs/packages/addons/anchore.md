@@ -80,7 +80,7 @@ To be onboarded and provided with a trial or production license, please send an 
 Once you have obtained a license this can be added to your values in Big Bang to automatically set up your Anchore deployment with the license (replacing the `licenseYaml:` value with your full license):
 
 ```yaml
-addons:
+packages:
   anchore:
     enterprise:
       enabled: true
@@ -95,7 +95,7 @@ Anchore Enterprise 2.1+ can be configured to support user login to the UI using 
 See below for an example of the values to provide to Anchore Enterprise for SSO setup:
 
 ```yaml
-addons:
+packages:
   anchore:
     sso:
       enabled: true
@@ -114,7 +114,7 @@ Since Anchore relies on a PostgreSQL database, it is recommended that production
 Anchore Enterprise can run one or more analyzer services to scale out the processing of images. There may be many of these analyzers but best practice is to not have more than one per node since analysis is very IO intensive (see [Affinity](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/main/docs/Affinity.md) for an example of how to specify nodeSelector/affinity/anti-affinity). By specifying a `replicaCount` for the analyzers, the number of analysis pods can be scaled up or down:
 
 ```yaml
-addons:
+packages:
   anchore:
     values:
       anchoreAnalyzer:

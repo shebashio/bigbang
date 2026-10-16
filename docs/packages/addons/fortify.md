@@ -45,7 +45,7 @@ kyvernoPolicies:
 By default, Big Bang will deploy Fortify without a license. if you have a license, you can add your license via the values file as shown below:
 
 ```yaml
-addons:
+packages:
   fortify:
     fortify_license: |
       <license>

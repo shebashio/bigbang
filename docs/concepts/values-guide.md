@@ -66,7 +66,7 @@ Some examples of these values are included in the following:
 
 ### Abstracted Package Values
 
-Each package generally has some configuration that is commonly used for a production deployment. In these cases we try to abstract and simplify the configuration to make it easy for end users. Common use cases for this are database or object storage connections, SSO client ID/Secret, and license details. These values are all set under a `<package>` or `addons.<package>` key, since they are specific to one package in Big Bang.
+Each package generally has some configuration that is commonly used for a production deployment. In these cases we try to abstract and simplify the configuration to make it easy for end users. Common use cases for this are database or object storage connections, SSO client ID/Secret, and license details. These values are all set under the `packages.<package>` key, since they are specific to one package in Big Bang.
 
 When these values are set they are passed through to the package itself. In some cases the Big Bang chart provides additional utility by creating any necessary secrets or toggling other values that are needed.
 
