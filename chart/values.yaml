@@ -780,11 +780,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
       path: ./chart
-      tag: "3.10.0-bb.2"
+      tag: "3.11.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "kyverno-reporter"
-      tag: "3.10.0-bb.2"
+      tag: "3.11.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Kyverno Reporter Package
     flux: {}
@@ -815,11 +815,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
       path: "./chart"
-      tag: "1.44.0-bb.0"
+      tag: "1.44.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "elasticsearch-kibana"
-      tag: "1.44.0-bb.0"
+      tag: "1.44.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
     flux:
@@ -839,14 +839,6 @@ packages:
             target:
               kind: StatefulSet
 
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-reporter.git
-    path: ./chart
-    tag: "3.11.0-bb.0"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "kyverno-reporter"
-    tag: "3.11.0-bb.0"
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
       gateway: ""
@@ -876,37 +868,6 @@ packages:
 
     # -- Values to passthrough to the elasticsearch-kibana chart: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
     values: {}
-
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
-    path: "./chart"
-    tag: "1.44.0-bb.1"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "elasticsearch-kibana"
-    tag: "1.44.0-bb.1"
-
-  # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
-  flux:
-    timeout: 20m
-    driftDetection:
-      ignore:
-        - paths: [""]
-          target:
-            kind: Kibana
-        - paths: [""]
-          target:
-            kind: Elasticsearch
-        - paths: [""]
-          target:
-            kind: Job
-        - paths: [""]
-          target:
-            kind: StatefulSet
-
-  # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
-  ingress:
-    gateway: ""
 
     # -- Post Renderers.  See docs/postrenders.md
     postRenderers: []
@@ -974,12 +935,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "4.3.2-bb.1"
+      tag: "4.5.3-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "k8s-monitoring"
-      tag: "4.3.2-bb.1"
+      tag: "4.5.3-bb.0"
 
     # -- Toggle Alloy to collect logs
     alloyLogs:
@@ -1141,14 +1102,7 @@ packages:
 
   # ----------------------------------------------------------------------------------------------------------------------
 
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-    tag: "4.5.3-bb.0"
-    path: "./chart"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "k8s-monitoring"
-    tag: "4.5.3-bb.0"
+  # ----------------------------------------------------------------------------------------------------------------------
 
   # -- Tempo package configuration.
   tempo:
