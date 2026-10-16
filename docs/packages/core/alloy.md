@@ -47,6 +47,25 @@ flowchart TD
 
 ## Big Bang Touchpoints
 
+### Cortex Tenant remote write
+
+The [Alloy → Cortex Tenant → Mimir example values](../../reference/configs/example/alloy-cortex-tenant-mimir-values.yaml)
+show how to deploy Cortex Tenant as a custom package, select it as Alloy's
+remote-write destination, enable both sides of the required network-policy
+connections, and order the HelmReleases. The umbrella does not configure this
+path automatically because Cortex Tenant is not a built-in package.
+
+The example assumes Istio sidecars and uses Alloy's mounted Istio certificates
+to scrape kube-state-metrics and node-exporter and to write to Cortex Tenant.
+For ambient or non-Istio deployments, use HTTP for the destination and adjust
+the direct exporter scrapes to match the endpoints' transport. Review the
+`extraConfig` override if you already provide custom Alloy metrics pipelines.
+Set `extraLabels.tenant` to the desired tenant; Cortex Tenant rejects series
+without a tenant label by default. The example disables Prometheus while
+retaining monitoring's exporters. With Prometheus disabled, the umbrella
+disables its token-dependent control-plane ServiceMonitors by default; operators
+who provide independent scrape credentials can enable them explicitly.
+
 ### Licensing
 
 Grafana Alloy is open-source,
