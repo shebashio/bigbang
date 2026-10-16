@@ -30,7 +30,7 @@ After [graduating your package](https://repo1.dso.mil/platform-one/bbtoc/-/tree/
 
 1. More details about secret-*.yaml: The secret template is where the code for secrets go. Typically, you will see secrets for imagePullSecret, sso, database, and possibly object storage. These secrets are a BigBang chart enhancement. They are created conditionally based on what the user enables in the config. For example if the app supports SSO and will need a Certificate Authority supplied to trust the connection to the IdP there should be a `secret-ca.yaml` template to populate a secret with the `sso.certificateAuthority.cert` value in the application namespace.
 
-1. Merge your default package values from `<your-package-git-folder>/bigbang/values.yaml` into `chart/values.yaml.` Only the "standard" keys used across packages should be used.  Keep in mind that values can be passed directly to the package using `.Values.<package>.values.`
+1. Merge your default package values from `<your-package-git-folder>/bigbang/values.yaml` into `chart/values.yaml.` Only the "standard" keys used across packages should be used.  Keep in mind that values can be passed directly to the package using `.Values.packages.<package>.values.`
 
     > All built-in packages use the unified `packages.<package>` values path. Update package references to `.Values.packages.<package>`; custom packages remain under their declared package name.
 
@@ -132,7 +132,7 @@ There are two ways to test BigBang, imperative or GitOps with Flux.  Your initia
 You can manually deploy Big Bang with helm command line. With this method, you can test local code changes without committing to a repository. Here are the steps that you can iterate with "code a little, test a little". You should have previously created the ../overrides directory as described in step #10 above. From the root of your local bigbang repo:
 
 ```shell
-# Deploy with helm while pointing to your override values files. 
+# Deploy with helm while pointing to your override values files.
 # In this example the files are placed on your workstation at ../overrides/*
 # Bigbang packages should create any needed secrets from the chart values
 # If you have the values file encrypted with sops, temporarily decrypt it

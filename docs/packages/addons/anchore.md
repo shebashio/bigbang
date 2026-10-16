@@ -13,7 +13,7 @@ graph LR
   subgraph "Anchore Engine"
     anchorepods("Anchore Pods")
     anchoreservice{{"API Service"}} --> anchorepods("Anchore Pods")
-  end      
+  end
 
   subgraph "Ingress"
     ig(Ingress Gateway) --> anchoreservice
@@ -36,7 +36,7 @@ graph LR
     anchorepods("Anchore Pods")
     anchoreservice1{{"API Service"}} --> anchorepods("Anchore Pods")
     anchoreservice2{{"Enterprise UI Service"}} --> anchorepods("Anchore Pods")
-  end      
+  end
 
   subgraph "Session Storage (Redis)"
     anchoreservice2 --> database3[("Enterprise UI DB")]
@@ -81,9 +81,9 @@ Once you have obtained a license this can be added to your values in Big Bang to
 
 ```yaml
 packages:
-  anchore:
+  anchoreEnterprise:
+    enabled: true
     enterprise:
-      enabled: true
       licenseYaml: |
         ehjgjhh...
 ```
@@ -96,7 +96,7 @@ See below for an example of the values to provide to Anchore Enterprise for SSO 
 
 ```yaml
 packages:
-  anchore:
+  anchoreEnterprise:
     sso:
       enabled: true
       client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-anchore
@@ -115,7 +115,7 @@ Anchore Enterprise can run one or more analyzer services to scale out the proces
 
 ```yaml
 packages:
-  anchore:
+  anchoreEnterprise:
     values:
       anchoreAnalyzer:
         replicaCount: 2
