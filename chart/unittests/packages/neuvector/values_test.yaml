@@ -2,6 +2,8 @@
 suite: Package - Neuvector - Values Tests
 templates:
   - templates/neuvector/values.yaml
+release:
+  name: bb
 tests:
   - it: renders the values Secret with an API version
     asserts:
@@ -9,33 +11,82 @@ tests:
           path: apiVersion
           value: v1
 
-  - it: nests top-level network policy definitions under bb-common
+  - it: nests integration values under bb-common and omits the injection key
     postRenderer:
-      cmd: "sh"
+      cmd: sh
       args:
-        - "-c"
-        - "yq eval '.stringData.common' - | yq eval '.'"
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-neuvector-values") | .stringData.common | from_yaml'
+    asserts:
+      - isNotNull:
+          path: bb-common.istio
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - isNotNull:
+          path: bb-common.routes.inbound.neuvector
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: uses global.domain and omits integration values from defaults
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-neuvector-values") | .stringData.defaults | from_yaml'
     set:
-      networkPolicies.egress.definitions:
-        kubeAPI:
-          to:
-            - ipBlock:
-                cidr: 10.10.10.10/10
-      networkPolicies.ingress.definitions:
-        load-balancer-subnets:
-          from:
-            - ipBlock:
-                cidr: 10.10.10.10/10
+      domain: example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: example.test
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: bb-common
+
+  - it: passes global network definitions into bb-common
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-neuvector-values") | .stringData.common | from_yaml'
+    set:
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 192.0.2.10/32
+        ports:
+          - port: 6443
+            protocol: TCP
+      networkPolicies.ingress.definitions.load-balancer-subnets:
+        from:
+          - ipBlock:
+              cidr: 198.51.100.0/24
     asserts:
       - equal:
           path: bb-common.networkPolicies.egress.definitions.kubeAPI
           value:
             to:
               - ipBlock:
-                  cidr: 10.10.10.10/10
+                  cidr: 192.0.2.10/32
+            ports:
+              - port: 6443
+                protocol: TCP
       - equal:
           path: bb-common.networkPolicies.ingress.definitions.load-balancer-subnets
           value:
             from:
               - ipBlock:
-                  cidr: 10.10.10.10/10
+                  cidr: 198.51.100.0/24
