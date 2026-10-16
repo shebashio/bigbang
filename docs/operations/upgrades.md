@@ -1,7 +1,8 @@
 # Upgrades
 
 ## Before Upgrading
-Before upgrading Big Bang, please first check the Release Notes and the Changelog to look for any notes that apply to Big Bang Updates and Package Updates.
+
+Before upgrading Big Bang, check the release notes and changelogs for changes that may affect your deployment.
 
 There are two important things to review when upgrading:
 1. "Upgrade Notices" in the Big Bang release notes: 
@@ -14,13 +15,13 @@ There are two important things to review when upgrading:
 ## Supported Upgrades
 Generally, we expect upgrades to be done one minor release at a time.  If necessary, it is possible to jump past several versions provided there is careful review of the release notes in between the versions and there are no problems.
 
-NOTE: It is recommended that upgrades first be tested in a staging environment that mirrors the production environment so that errors are caught early.
+Test upgrades in a staging environment that mirrors production to identify issues before upgrading production.
 
 ## Upgrading a Single Package
-Packages in Big Bang can be updated one at a time.
-Upgrading a single package in Big Bang is done by changing the tag in the values for that package.  This should be done in the overriding values in the customer template.
 
-For a git repository:
+Packages in Big Bang can be updated one at a time by changing the version tag in the package's values override.
+
+For a Git repository:
 
 ```yaml
 istiod:
@@ -28,11 +29,10 @@ istiod:
   git:
     repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
     path: "./chart"
-    tag: "1.26.0-bb.0"
-
+    tag: "<package-version>"
 ```
 
-For a helm repository:
+For a Helm repository:
 
 ```yaml
 istiod:
@@ -40,82 +40,109 @@ istiod:
   helmRepo:
     repoName: "registry1"
     chartName: "istiod"
-    tag: "1.26.0-bb.0"
+    tag: "<package-version>"
 ```
 
-These values are in `chart/values.yaml` of the Big Bang helm chart.
-When using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template) you can make these changes in either the base values (`bigbang/base/values.yaml`) or in each environment's values file (ex: `bigbang/dev/configmap.yaml`).
+These values are defined in `chart/values.yaml` of the Big Bang Helm chart.
 
-## Upgrading Big Bang umbrella deployment
-To upgrade your umbrella deployment of Big Bang when using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template) you have two options:
-- Edit `base/kustomization.yaml` and change the value for the [base `ref`](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/base/kustomization.yaml#L4) to the new version. This will update all environments leveraging this base (dev, prod, etc).
+When using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template), make these changes in either:
+
+- The base values (`bigbang/base/values.yaml`) to update shared configuration.
+- An environment-specific values file (for example, `bigbang/dev/configmap.yaml`) to update one environment.
+
+Review the package changelog and confirm compatibility with your Big Bang version before upgrading an individual package.
+
+## Upgrading Big Bang Umbrella Deployment
+
+When using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template), you have two options for upgrading the Big Bang umbrella deployment.
+
+### Update All Environments
+
+Edit `base/kustomization.yaml` and change the base `ref` to the new version. This updates all environments that use the base configuration.
+
 ```yaml
 namespace: bigbang
 resources:
-  - https://repo1.dso.mil/big-bang/bigbang.git//base?ref=1.57.1
+  - https://repo1.dso.mil/big-bang/bigbang.git//base?ref=<target-version>
 ```
 
-- Edit the environment specific Kustomization (ex: `dev/kustomization.yaml`) to use the new version under the [ref/patch section](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/dev/kustomization.yaml#L18-21).
+### Update a Single Environment
+
+Edit the environment-specific Kustomization (for example, `dev/kustomization.yaml`) and update the version in its `ref` patch.
+
 ```yaml
-  spec:
-    interval: 1m
-    ref:
-      $patch: replace
-      tag: "1.57.1"
+spec:
+  interval: 1m
+  ref:
+    $patch: replace
+    tag: "<target-version>"
 ```
 
-### Flux controller alignment in Customer Template
+This example shows only the relevant portion of the existing `GitRepository` patch.
 
-The customer template includes a `flux-components` Kustomization in base for both `gitRepo` and `helmRepo` strategies so Flux can reconcile Flux controller manifests from Big Bang `base/flux`.
+### Flux Controller Alignment in Customer Template
 
-- For `gitRepo`, update the base `ref` and Flux components follow that same source revision.
-- For `helmRepo`, update `base/helmrelease.yaml` `spec.chart.spec.version`; the template syncs the `GitRepository/bigbang` tag from that version.
+The Customer Template includes a `flux-components` Kustomization for both `gitRepo` and `helmRepo` strategies. This allows Flux to reconcile its controller manifests from Big Bang's `base/flux` directory.
 
-If you override the Big Bang version in an environment overlay, also override the `GitRepository/bigbang.spec.ref.tag` in that overlay to keep Flux controllers and Big Bang on matching revisions.
+- **`gitRepo`:** Update the base `ref`. Flux components follow the same source revision.
+- **`helmRepo`:** Update `spec.chart.spec.version` in `base/helmrelease.yaml`. The template synchronizes the `GitRepository/bigbang` tag with that version.
+
+If you override the Big Bang version for a specific environment, also update `GitRepository/bigbang.spec.ref.tag` in that environment to keep Flux controllers and Big Bang on matching versions.
 
 ## Verifying the Upgrade
-After upgrading the cluster, there are some places to look to verify that the upgrade was completed successfully.
 
-### Verify Helm releases 
-Verify all the helm releases have succeeded
-   
-   If everything has updated successfully you should see `Release reconciliation succeeded` as the status for each HelmRelease.
-```bash
-❯ k get hr -A
-NAMESPACE   NAME              AGE    READY   STATUS
-bigbang     kyverno           5h1m   True    Release reconciliation succeeded
-bigbang     kyvernopolicies   5h1m   True    Release reconciliation succeeded
-bigbang     istio-crds        5h1m   True    Release reconciliation succeeded
-bigbang     istiod            5h1m   True    Release reconciliation succeeded
-bigbang     istio-gateway     5h1m   True    Release reconciliation succeeded
+After upgrading Big Bang, verify that the Helm releases, Pods, and applications are working as expected.
+
+### Verify Helm Releases
+
+Check that all Helm releases have reconciled successfully:
+
+```shell
+flux get helmreleases -A
+```
+
+Successful releases should show `READY=True` and a status such as `Release reconciliation succeeded`.
+
+Also check that Flux sources and Kustomizations are ready:
+
+```shell
+flux get sources all -A
+flux get kustomizations -A
 ```
 
 ### Verify Pods
- - Verify that there are all pods are either `Running` or `Completed.`
- - Look for any pods that recently restarted (crashing recently).
-   - Below see an example of a pod that has restarted multiple times in a short time.
-```bash
-❯ k get pod -A
-NAMESPACE           NAME                                                        READY   STATUS    RESTARTS   AGE
-kube-system         local-path-provisioner-5ff76fc89d-xd85h                     1/1     Running   0          22m
-...
-monitoring          alertmanager-monitoring-monitoring-kube-alertmanager-0      3/3     Running   7          3m
+
+Check that Pods are running or have completed successfully. Look for failed Pods or Pods that have restarted repeatedly.
+
+```shell
+kubectl get pods -A
+```
+
+For Pods with issues, inspect their status and events:
+
+```shell
+kubectl describe pod <pod-name> -n <namespace>
 ```
 
 ### Verify Image Versions for Specific Packages
- - Check for specific package versions (image version on pods).
-   - There may be cases where you are hoping to use new features in a new package version, as such it can be beneficial to validate that package did update to the new version as expected.
-   - It can also be important to validate Istio sidecar versions, especially for packages outside of Big Bang core/addons. See an example of checking the image version of the running pod below:
-```bash
-❯ kubectl get po -n istio-system -o yaml|grep image|head -1
-      image: registry1.dso.mil/ironbank/opensource/istio/pilot:1.25.2
+
+Check the running image version to confirm that a package updated as expected:
+
+```shell
+kubectl get pod <pod-name> -n <namespace> -o jsonpath='{.spec.containers[*].image}'
 ```
+
+Image versions may differ from Helm chart versions, so compare them with the expected versions for your upgrade.
+
+For workloads using Istio sidecars, verify that the sidecar versions are compatible with the upgraded Istio control plane, including workloads outside Big Bang core and addons.
+
 ### Check Package Usability
- - Validate the UI for web applications loads properly.
-   - This could be through a basic `curl` check or similar to confirm UIs are up and healthy.
- - You may configure and use certain applications in unique ways.
-   - It is important to validate those specific applications/features are functioning as expected post-upgrade.
+
+- Verify that web application interfaces load correctly. A basic `curl` check can help confirm that an endpoint is responding.
+- Test application features and integrations that your environment uses, especially those affected by the upgrade.
 
 ## Upgrade Troubleshooting
 
-See the [Troubleshooting Upgrades](troubleshooting/upgrades.md) page for help with common upgrade issues.
+If an upgrade fails, identify the affected package and review its release notes and changelog for changes that may have been missed.
+
+See [Troubleshoot a Big Bang deployment](troubleshooting/index.md) for steps to diagnose Flux and HelmRelease failures.
