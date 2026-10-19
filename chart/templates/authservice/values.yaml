@@ -1,20 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if eq (include "authserviceEnabled" .) "true" }}
-
-{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $authservicePackage := deepCopy .Values.addons.authservice -}}
-{{- if .Values.addons.authservice.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.authservice.values) | fromYaml -}}
-  {{- $authservicePackage = set $authservicePackage "values" $cleanedValues -}}
-{{- end -}}
-
 {{- include "values-secret" (dict
   "root" $
-  "package" $authservicePackage
+  "package" .Values.addons.authservice
   "name" "authservice"
+  "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.authservice" .)
 )}}
-
 {{- end }}
 
 {{- define "bigbang.defaults.authservice" -}}
@@ -39,21 +31,6 @@
 {{- $externalRedisAddress := regexReplaceAll "^[a-zA-Z][a-zA-Z0-9+.-]*://" $externalRedisUri "" }}
 {{- $externalRedisAddress = regexReplaceAll "^.*@" $externalRedisAddress "" }}
 {{- $externalRedisHost := trimSuffix ":6379" $externalRedisAddress }}
-{{- $istioHardenedEnabled := or
-    (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-    (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-    (dig "hardened" "enabled" false .Values.istiod.values)
-    (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-    (dig "istio" "hardened" "enabled" false .Values.loki.values)
-    (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-    (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
-}}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-  clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}
 
 routes:
   outbound:
