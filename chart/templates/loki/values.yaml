@@ -127,6 +127,8 @@ monitoring:
 
 upstream:
   monitoring:
+    dashboards:
+      enabled: {{ .Values.packages.monitoring.enabled }}
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       {{- if eq (include "metricsSidecarMtls" (list $lokiMeshConfig .)) "true" }}

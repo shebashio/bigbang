@@ -25,6 +25,20 @@ tests:
       - notExists:
           path: routes
 
+  - it: should enable upstream Loki dashboards when monitoring is enabled
+    asserts:
+      - equal:
+          path: upstream.monitoring.dashboards.enabled
+          value: true
+
+  - it: should disable upstream Loki dashboards when monitoring is disabled
+    set:
+      packages.monitoring.enabled: false
+    asserts:
+      - equal:
+          path: upstream.monitoring.dashboards.enabled
+          value: false
+
   - it: should render tlsConfig when istio enabled with STRICT mTLS (injection defaults to enabled)
     set:
       packages.istiod.enabled: true
