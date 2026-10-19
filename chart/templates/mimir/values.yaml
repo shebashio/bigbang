@@ -103,7 +103,7 @@ networkPolicies:
           k8s:
             monitoring/grafana:3000: {{ .Values.grafana.enabled }}
           definition:
-            storage-subnets: {{ not $s3Enabled }}
+            storage-subnets: {{ $s3Enabled }}
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
       # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
       # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
