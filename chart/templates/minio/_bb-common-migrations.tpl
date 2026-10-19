@@ -22,10 +22,10 @@ networkPolicies:
 
 routes:
   api:
-    enabled: {{ dig "istio" "api" "enabled" true .Values.addons.minio.values }}
+    enabled: {{ dig "istio" "api" "enabled" true .Values.packages.minio.values }}
     gateways: 
-    - {{ include "getGatewayName" (dict "gateway" (.Values.addons.minio.ingress.gateway | default "public") "root" .)}}
-    {{- $apiHosts := dig "istio" "api" "hosts" list .Values.addons.minio.values }}
+    - {{ include "getGatewayName" (dict "gateway" (.Values.packages.minio.ingress.gateway | default "public") "root" .)}}
+    {{- $apiHosts := dig "istio" "api" "hosts" list .Values.packages.minio.values }}
     {{- if $apiHosts }}
     hosts:
     {{- range $apiHosts }}
@@ -36,10 +36,10 @@ routes:
     - minio-api.{{ .Values.domain }}
     {{- end }}
   console:
-    enabled: {{ dig "istio" "console" "enabled" true .Values.addons.minio.values }}
+    enabled: {{ dig "istio" "console" "enabled" true .Values.packages.minio.values }}
     gateways:
-    - {{ include "getGatewayName" (dict "gateway" (.Values.addons.minio.ingress.gateway | default "public") "root" .)}}
-    {{- $consoleHosts := dig "istio" "console" "hosts" list .Values.addons.minio.values }}
+    - {{ include "getGatewayName" (dict "gateway" (.Values.packages.minio.ingress.gateway | default "public") "root" .)}}
+    {{- $consoleHosts := dig "istio" "console" "hosts" list .Values.packages.minio.values }}
     {{- if $consoleHosts }}
     hosts:
     {{- range $consoleHosts }}

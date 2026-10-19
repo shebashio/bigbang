@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
+      packages.fluentbit.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

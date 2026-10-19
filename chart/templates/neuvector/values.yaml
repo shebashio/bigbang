@@ -21,10 +21,10 @@ bb-common:
     inbound:
       neuvector:
         gateways:
-          - {{ include "getGatewayName" (dict "gateway" .Values.neuvector.ingress.gateway "root" .)}}
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.neuvector.ingress.gateway "root" .)}}
     outbound:
       bb-tests:
-        enabled: {{ dig "bbtests" "enabled" false .Values.neuvector.values }}
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.neuvector.values }}
         hosts:
         - repo1.dso.mil
 
@@ -37,34 +37,34 @@ bb-common:
               app: neuvector-controller-pod
           to:
             definition:
-              sso: {{ .Values.neuvector.sso.enabled }}
+              sso: {{ .Values.packages.neuvector.sso.enabled }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
       cypress_url: {{ printf "https://neuvector.%s" .Values.domain | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.neuvector "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.neuvector "values" .Values) | nindent 6 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 upstream:
   
   {{- include "secretsImagePullSecretsSingle" . | nindent 2 }}
 
   openshift: {{ .Values.openshift }}
-  {{- if or .Values.monitoring.enabled $istioEnabled .Values.neuvector.sso.enabled }}
+  {{- if or .Values.packages.monitoring.enabled $istioEnabled .Values.packages.neuvector.sso.enabled }}
   controller:
     {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
-    {{- if or .Values.monitoring.enabled .Values.neuvector.sso.enabled }}
+    {{- if or .Values.packages.monitoring.enabled .Values.packages.neuvector.sso.enabled }}
     secret:
       enabled: true
       data: 
-        {{- if .Values.monitoring.enabled }}
+        {{- if .Values.packages.monitoring.enabled }}
         userinitcfg.yaml:
           always_reload: true
           users:
@@ -73,24 +73,24 @@ upstream:
             role: reader
             fullname: metrics
         {{- end }}
-        {{- if .Values.neuvector.sso.enabled }}
+        {{- if .Values.packages.neuvector.sso.enabled }}
         oidcinitcfg.yaml:
           always_reload: true
-          enable: {{ .Values.neuvector.sso.enabled }}
-          issuer: {{ default (include "sso.url" .) (tpl (default "" .Values.neuvector.sso.issuer) .) }}
-          client_id: {{ .Values.neuvector.sso.client_id }}
-          client_secret: {{ .Values.neuvector.sso.client_secret | default "no-secret" }}
-          default_role: {{ .Values.neuvector.sso.default_role }}
-          group_claim: {{ .Values.neuvector.sso.group_claim }}
-          {{- if .Values.neuvector.sso.group_mapped_roles }}
+          enable: {{ .Values.packages.neuvector.sso.enabled }}
+          issuer: {{ default (include "sso.url" .) (tpl (default "" .Values.packages.neuvector.sso.issuer) .) }}
+          client_id: {{ .Values.packages.neuvector.sso.client_id }}
+          client_secret: {{ .Values.packages.neuvector.sso.client_secret | default "no-secret" }}
+          default_role: {{ .Values.packages.neuvector.sso.default_role }}
+          group_claim: {{ .Values.packages.neuvector.sso.group_claim }}
+          {{- if .Values.packages.neuvector.sso.group_mapped_roles }}
           group_mapped_roles: 
-            {{- toYaml .Values.neuvector.sso.group_mapped_roles | nindent 10 }}
+            {{- toYaml .Values.packages.neuvector.sso.group_mapped_roles | nindent 10 }}
           {{- else }}
           group_mapped_roles: []
           {{- end }}
         {{- end }}
     {{- end }}
-    {{- if and .Values.neuvector.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+    {{- if and .Values.packages.neuvector.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
     sso:
       certificateAuthority:
         secretName: {{ default (dig "certificateAuthority" "secretName" "" .Values.sso) .Values.sso.secretName }}
@@ -131,7 +131,7 @@ monitor:
     {{- end }}
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.neuvector .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.neuvector .)) "true" }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -149,10 +149,10 @@ monitor:
 {{- end }}
 
 {{- /* Create secret */ -}}
-{{- if .Values.neuvector.enabled }}
+{{- if .Values.packages.neuvector.enabled }}
 {{- include "values-secret" (dict
   "root" $
-  "package" .Values.neuvector
+  "package" .Values.packages.neuvector
   "name" "neuvector"
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.neuvector" .)

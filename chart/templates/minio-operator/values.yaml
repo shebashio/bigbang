@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
-  {{- $minioOperatorPackage := deepCopy .Values.addons.minioOperator -}}
+{{- if or .Values.packages.minioOperator.enabled .Values.packages.minio.enabled }}
+  {{- $minioOperatorPackage := deepCopy .Values.packages.minioOperator -}}
 
-  {{- if .Values.addons.minioOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.minioOperator.values) | fromYaml -}}
+  {{- if .Values.packages.minioOperator.values -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.minioOperator.values) | fromYaml -}}
     {{- $minioOperatorPackage = set $minioOperatorPackage "values" $cleanedValues -}}
   {{- end -}}
 
@@ -32,7 +32,7 @@ upstream:
       pullPolicy: {{ .Values.imagePullPolicy}}
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     env:
       - name: CLUSTER_DOMAIN
         value: "cluster.local"
@@ -48,20 +48,20 @@ networkPolicies:
       minio-operator:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
 istio:
   console:
     gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.minio.ingress.gateway "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.minio.ingress.gateway "root" .)}}
 
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.minioOperator.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.minioOperator.values }}
       hosts:
       - repo1.dso.mil
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 {{- end -}}

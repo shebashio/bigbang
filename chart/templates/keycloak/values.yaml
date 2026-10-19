@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.keycloak.enabled }}
+{{- if .Values.packages.keycloak.enabled }}
 {{- /* Create a cleaned copy of keycloak config and merge deprecated paths into current paths */ -}}
-{{- $keycloakPackage := deepCopy .Values.addons.keycloak -}}
-{{- if .Values.addons.keycloak.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.keycloak.values) | fromYaml -}}
+{{- $keycloakPackage := deepCopy .Values.packages.keycloak -}}
+{{- if .Values.packages.keycloak.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.keycloak.values) | fromYaml -}}
 {{- $keycloakPackage = set $keycloakPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- $defaults := include "bigbang.defaults.keycloak" . -}}
@@ -21,10 +21,10 @@
 
 {{- define "bigbang.defaults.keycloak" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.keycloak.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.keycloak.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $monitoringEnabled := eq (include "metricScrapingEnabled" .) "true" }}
-{{- $tlsEnabled := and (not (empty .Values.addons.keycloak.ingress.cert)) (not (empty .Values.addons.keycloak.ingress.key)) -}}
-{{- $externalPostgresEnabled := or (ne .Values.addons.keycloak.database.host "") (ne (dig "upstream" "database" "hostname" "" .Values.addons.keycloak.values) "") -}}
+{{- $tlsEnabled := and (not (empty .Values.packages.keycloak.ingress.cert)) (not (empty .Values.packages.keycloak.ingress.key)) -}}
+{{- $externalPostgresEnabled := or (ne .Values.packages.keycloak.database.host "") (ne (dig "upstream" "database" "hostname" "" .Values.packages.keycloak.values) "") -}}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -39,7 +39,7 @@ routes:
     keycloak:
       enabled: true
       gateways:
-        - {{ include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.addons.keycloak.ingress.gateway "root" .)}}
+        - {{ include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.packages.keycloak.ingress.gateway "root" .)}}
       hosts:
         - keycloak.{{ $domainName }}
       service: keycloak-keycloak-http.keycloak.svc.cluster.local
@@ -48,7 +48,7 @@ routes:
         enabled: {{ $tlsEnabled }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.keycloak.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.keycloak.values }}
       hosts:
       - repo1.dso.mil
 
@@ -56,24 +56,24 @@ networkPolicies:
   egress:
     defaults:
       allowIstiod:
-        enabled: {{ .Values.istiod.enabled }}
+        enabled: {{ .Values.packages.istiod.enabled }}
     from:
       keycloak:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             database-subnets: {{ $externalPostgresEnabled }}
   ingress:
     defaults:
       allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.monitoring.enabled .Values.istiod.enabled }}
+        enabled: {{ and .Values.packages.monitoring.enabled .Values.packages.istiod.enabled }}
     to:
       keycloak:9000:
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 bbtests:
   cypress:
@@ -87,7 +87,7 @@ upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
-  {{- with .Values.addons.keycloak.database }}
+  {{- with .Values.packages.keycloak.database }}
   database:
     existingSecret: ""
     existingSecretKey: ""
@@ -104,7 +104,7 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- if .Values.kiali.enabled }}
+  {{- if .Values.packages.kiali.enabled }}
   podLabels:
     service.istio.io/canonical-name: keycloak-keycloak
   {{- end }}
@@ -133,11 +133,11 @@ upstream:
   {{- else }}
     {{- $defaultEnv = append $defaultEnv (dict "name" "KC_SPI_X509CERT_LOOKUP_PROVIDER" "value" "envoy") }}
   {{- end }}
-  {{- if eq (dig "http" "internalScheme" "HTTP" .Values.addons.keycloak.values) "HTTP" }}
+  {{- if eq (dig "http" "internalScheme" "HTTP" .Values.packages.keycloak.values) "HTTP" }}
     {{- $defaultEnv = append $defaultEnv (dict "name" "KC_HTTP_MANAGEMENT_SCHEME" "value" "http") }}
   {{- end }}
 
-  {{- $userEnv := fromYamlArray (dig "upstream" "extraEnv" "" .Values.addons.keycloak.values | default "[]") }}
+  {{- $userEnv := fromYamlArray (dig "upstream" "extraEnv" "" .Values.packages.keycloak.values | default "[]") }}
   {{- $envByName := dict }}
   {{- $envOrder := list }}
   {{- /* Replace whole entries by name so a user valueFrom does not retain a default value. */}}
@@ -171,7 +171,7 @@ upstream:
 
   serviceMonitor:
     enabled: {{ $monitoringEnabled }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.keycloak .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.keycloak .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -181,15 +181,15 @@ upstream:
     {{- end }}
 
 
-  {{- if or .Values.addons.keycloak.database.host (and .Values.addons.keycloak.ingress.cert .Values.addons.keycloak.ingress.key) }}
+  {{- if or .Values.packages.keycloak.database.host (and .Values.packages.keycloak.ingress.cert .Values.packages.keycloak.ingress.key) }}
   secrets:
     {{- if $tlsEnabled }}
     tlscert:
       stringData:
-        tls.crt: {{ .Values.addons.keycloak.ingress.cert | quote }}
+        tls.crt: {{ .Values.packages.keycloak.ingress.cert | quote }}
     tlskey:
       stringData:
-        tls.key: {{ .Values.addons.keycloak.ingress.key  | quote }}
+        tls.key: {{ .Values.packages.keycloak.ingress.key  | quote }}
     {{- end }}
 
   {{- end }}

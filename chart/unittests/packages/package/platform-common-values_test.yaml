@@ -41,7 +41,7 @@ tests:
 
   - it: should have monitoring disabled when set
     set:
-      monitoring.enabled: false
+      packages.monitoring.enabled: false
     asserts:
       - equal:
           path: global.monitoring.enabled
@@ -55,7 +55,7 @@ tests:
 
   - it: should have istio disabled when istiod is disabled
     set:
-      istiod.enabled: false
+      packages.istiod.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.enabled
@@ -69,7 +69,7 @@ tests:
 
   - it: should have istio sidecar enabled when istiod hardened is enabled
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -86,7 +86,7 @@ tests:
 
   - it: should have authorizationPolicies enabled when istiod hardened is enabled
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled
@@ -127,7 +127,7 @@ tests:
   - it: should enable networkPolicies when ambient is enabled via ztunnel
     set:
       networkPolicies.enabled: false
-      ztunnel.enabled: true
+      packages.ztunnel.enabled: true
     asserts:
       - equal:
           path: bb-common.networkPolicies.enabled

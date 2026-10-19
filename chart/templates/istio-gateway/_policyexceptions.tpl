@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Istio ingress/egress gateways.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.istioGateway" -}}
-{{- if .Values.istioGateway.enabled }}
+{{- if .Values.packages.istioGateway.enabled }}
 # istio/gateway sets the deployment image to `auto` (injected by istiod at pod
 # creation) and does not expose a way to override it, so the gateway pods cannot
 # satisfy the image tag / registry policies.
@@ -23,18 +23,18 @@ istio-gateway-image:
           ))
 {{- /* Istio ingress gateways may intentionally create type: NodePort Services. */}}
 {{- $nodePortIngressGateways := list }}
-{{- range $name, $values := .Values.istioGateway.values.gateways }}
+{{- range $name, $values := .Values.packages.istioGateway.values.gateways }}
 {{- if eq $values.type "NodePort" }}
 {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
 {{- end }}
 {{- end }}
-{{- range $name, $values := .Values.istioGateway.values.gateways }}
+{{- range $name, $values := .Values.packages.istioGateway.values.gateways }}
 {{- if eq (dig "k8s" "service" "type" "LoadBalancer" $values) "NodePort" }}
 {{- $nodePortIngressGateways = append $nodePortIngressGateways $name }}
 {{- end }}
 {{- end }}
 {{- $gatewayServiceNames := list }}
-{{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
+{{- if and .Values.packages.istiod.enabled .Values.packages.istioGateway.enabled }}
 {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
 {{- $gatewayServiceNames = append $gatewayServiceNames $gw.serviceName }}
 {{- end }}

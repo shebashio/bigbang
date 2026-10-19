@@ -77,7 +77,7 @@ Example: [Anchore](https://repo1.dso.mil/big-bang/bigbang/-/blob/10d43bea9351b91
     * Add conditional statement in `chart/templates/<package>/values.yaml` to add values for database secret, if database values exist. Otherwise, the internal database is deployed.
 
 ```yaml
-{{- with .Values.addons.<package>.database }}
+{{- with .Values.packages.<package>.database }}
 {{- if and .username .password .host .port .database }}
 database:
   secret: "<package>-database-secret"
@@ -96,8 +96,8 @@ Example: [Mattermost](https://repo1.dso.mil/big-bang/bigbang/-/blob/10d43bea9351
     * Create manifest that uses database values to create the database secret referenced above.
 
 ```yaml
-{{- if .Values.addons.<package>.enabled }}
-{{- with .Values.addons.<package>.database }}
+{{- if .Values.packages.<package>.enabled }}
+{{- with .Values.packages.<package>.database }}
 {{- if and .username .password .host .port .database }}
 apiVersion: v1
 kind: Secret
@@ -124,7 +124,7 @@ For validating connection to the external database in your environment or testin
 Mattermost Example:
 
 ```yaml
-addons:
+packages:
   mattermost:
     enabled: true
     database:

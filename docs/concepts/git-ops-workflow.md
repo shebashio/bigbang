@@ -115,7 +115,7 @@ istio:
 monitoring:
   enabled: true
 
-addons:
+packages:
   gitlab:
     enabled: true
     values:

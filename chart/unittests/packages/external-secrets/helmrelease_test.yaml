@@ -8,8 +8,8 @@ tests:
     template: external-secrets/helmrelease.yaml
     set:
       istio.enabled: false
-      istiod.enabled: false
-      addons:
+      packages.istiod.enabled: false
+      packages:
         externalSecrets:
           enabled: true
     asserts:
@@ -23,8 +23,8 @@ tests:
     template: external-secrets/helmrelease.yaml
     set:
       istio.enabled: false
-      istiod.enabled: false
-      addons:
+      packages.istiod.enabled: false
+      packages:
         externalSecrets:
           enabled: true
           values: {}
@@ -39,8 +39,8 @@ tests:
     template: external-secrets/helmrelease.yaml
     set:
       istio.enabled: true
-      istiod.enabled: true
-      addons:
+      packages.istiod.enabled: true
+      packages:
         externalSecrets:
           enabled: true
           values:
@@ -58,8 +58,8 @@ tests:
     template: external-secrets/helmrelease.yaml
     set:
       istio.enabled: true
-      istiod.enabled: true
-      addons:
+      packages.istiod.enabled: true
+      packages:
         externalSecrets:
           enabled: true
           values:
@@ -77,8 +77,8 @@ tests:
     template: external-secrets/helmrelease.yaml
     set:
       istio.enabled: false
-      istiod.enabled: false
-      addons:
+      packages.istiod.enabled: false
+      packages:
         externalSecrets:
           enabled: true
           postRenderers:
@@ -96,8 +96,8 @@ tests:
     template: external-secrets/values.yaml
     set:
       istio.enabled: true
-      istiod.enabled: true
-      addons:
+      packages.istiod.enabled: true
+      packages:
         externalSecrets:
           enabled: true
           values: {}

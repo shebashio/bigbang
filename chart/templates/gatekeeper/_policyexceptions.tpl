@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Gatekeeper workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.gatekeeper" -}}
-{{- if .Values.gatekeeper.enabled }}
+{{- if .Values.packages.gatekeeper.enabled }}
 # Gatekeeper's audit and controller-manager pods need their API token.
 gatekeeper-auto-mount:
   spec:

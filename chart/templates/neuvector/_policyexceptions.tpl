@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for NeuVector workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.neuvector" -}}
-{{- if .Values.neuvector.enabled }}
+{{- if .Values.packages.neuvector.enabled }}
 # NeuVector needs host access to inspect network traffic / scan the node and
 # container runtime, so its pods cannot meet the restricted Pod Security policies.
 neuvector-require-drop-all-capabilities:

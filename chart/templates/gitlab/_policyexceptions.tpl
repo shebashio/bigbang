@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for GitLab workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.gitlab" -}}
-{{- if .Values.addons.gitlab.enabled }}
+{{- if .Values.packages.gitlab.enabled }}
 # The GitLab webservice test-runner job requires elevated capabilities.
 gitlab-require-drop-all-capabilities:
   spec:

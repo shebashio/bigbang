@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      eckOperator.enabled: true
+      packages.eckOperator.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

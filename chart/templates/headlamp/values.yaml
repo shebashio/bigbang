@@ -1,8 +1,8 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.headlamp.enabled }}
-{{- $headlampPackage := deepCopy .Values.addons.headlamp -}}
-{{- if .Values.addons.headlamp.values }}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.headlamp.values) | fromYaml -}}
+{{- if .Values.packages.headlamp.enabled }}
+{{- $headlampPackage := deepCopy .Values.packages.headlamp -}}
+{{- if .Values.packages.headlamp.values }}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.headlamp.values) | fromYaml -}}
 {{- $_ := set $headlampPackage "values" $cleanedValues }}
 {{- end -}}
 {{- include "values-secret" (dict
@@ -15,7 +15,7 @@
 
 {{- define "bigbang.defaults.headlamp" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
-{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.istiod.values }}
+{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.packages.istiod.values }}
 istio:
   sidecar:
     enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
@@ -26,10 +26,10 @@ networkPolicies:
       headlamp:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             kubeAPI: true
-            sso: {{ .Values.addons.headlamp.sso.enabled }}
+            sso: {{ .Values.packages.headlamp.sso.enabled }}
   ingress:
     to:
       headlamp:4466:
@@ -37,11 +37,11 @@ networkPolicies:
           k8s:
             monitoring-monitoring-prometheus-blackbox-exporter@monitoring/prometheus-blackbox-exporter: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
-{{- $baseURL := dig "upstream" "config" "baseURL" "" .Values.addons.headlamp.values }}
-{{- $port := dig "upstream" "service" "port" 4466 .Values.addons.headlamp.values }}
+{{- $baseURL := dig "upstream" "config" "baseURL" "" .Values.packages.headlamp.values }}
+{{- $port := dig "upstream" "service" "port" 4466 .Values.packages.headlamp.values }}
 {{- $serviceName := "headlamp-headlamp" }}
 {{- $ssoHost := "" }}
-{{- if .Values.addons.headlamp.sso.enabled }}
+{{- if .Values.packages.headlamp.sso.enabled }}
 {{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
 {{- end }}
 routes:
@@ -73,11 +73,11 @@ routes:
       {{- end }}
   outbound:
     headlamp-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.headlamp.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.headlamp.values }}
       hosts:
         - repo1.dso.mil
     sso:
-      enabled: {{ .Values.addons.headlamp.sso.enabled }}
+      enabled: {{ .Values.packages.headlamp.sso.enabled }}
       {{- if $ssoHost }}
       hosts:
         - {{ $ssoHost }}
@@ -87,7 +87,7 @@ bbtests:
   cypress:
     envs:
       cypress_url: {{ printf "https://headlamp.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.headlamp "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.headlamp "values" .Values) | nindent 6 }}
 
 domain: {{ $domainName }}
 
@@ -104,9 +104,9 @@ upstream:
   {{- end }}
 
   config:
-    {{- if .Values.addons.headlamp.sso.enabled }}
+    {{- if .Values.packages.headlamp.sso.enabled }}
     oidc:
-      clientID: {{ .Values.addons.headlamp.sso.client_id }}
+      clientID: {{ .Values.packages.headlamp.sso.client_id }}
       issuerURL: {{ .Values.sso.url }}
       scopes: "email,profile"
       usePKCE: true

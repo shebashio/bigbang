@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.minio.enabled: true
+      packages.minio.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

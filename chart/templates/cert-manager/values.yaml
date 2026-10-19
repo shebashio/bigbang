@@ -1,8 +1,8 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.certManager.enabled }}
+{{- if .Values.packages.certManager.enabled }}
 {{- include "values-secret" (dict
   "root" $
-  "package" .Values.certManager
+  "package" .Values.packages.certManager
   "name" "cert-manager"
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.cert-manager" .)
@@ -17,7 +17,7 @@ global:
 upstream:
   prometheus:
     servicemonitor:
-      enabled: {{ .Values.monitoring.enabled }}
+      enabled: {{ .Values.packages.monitoring.enabled }}
       endpointAdditionalProperties:
         scheme: http
         enableHttp2: false

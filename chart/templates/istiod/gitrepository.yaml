@@ -1,4 +1,4 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if and (eq .Values.istiod.sourceType "git") (not .Values.offline) .Values.istiod.enabled }}
-{{- include "bigbang.gitRepository" (dict "name" "istiod" "gitCredsName" "istiod" "git" .Values.istiod.git "component" "core" "root" .) }}
+{{- if and (eq .Values.packages.istiod.sourceType "git") (not .Values.offline) .Values.packages.istiod.enabled }}
+{{- include "bigbang.gitRepository" (dict "name" "istiod" "gitCredsName" "istiod" "git" .Values.packages.istiod.git "component" "core" "root" .) }}
 {{- end }}

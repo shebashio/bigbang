@@ -17,21 +17,21 @@ The Neuvector UI runs on the manager, a simple pod that provides the primary way
 When deploying BigBang, neuvector depends on monitoring, gatekeeper/kyverno, and istio being installed prior.
 
 ```yaml
-  {{- if or .Values.gatekeeper.enabled .Values.istiod.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.packages.gatekeeper.enabled .Values.packages.istiod.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.istiod.enabled }}
+    {{- if .Values.packages.istiod.enabled }}
     - name: istiod
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}

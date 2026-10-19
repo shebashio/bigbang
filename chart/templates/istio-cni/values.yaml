@@ -2,8 +2,8 @@
 {{- $pkg := "istioCNI" }}
 
 {{- /* Create secret */ -}}
-{{- if or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-cni" "defaults" (include "bigbang.defaults.istio-cni" .)) }}
+{{- if or .Values.packages.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values.packages $pkg) "name" "istio-cni" "defaults" (include "bigbang.defaults.istio-cni" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.istio-cni" -}}

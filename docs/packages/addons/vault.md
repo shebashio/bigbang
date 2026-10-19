@@ -45,7 +45,7 @@ The Big Bang Vault deployment uses a Mozilla Public License. The license is an o
 Additionally, to enable add a license to enable enterprise Vault features and support the following is an example of how to modify the values within Big Bang:
 
 ```yaml
-addons:
+packages:
   vault:
     values:
       enterpriseLicense:
@@ -63,7 +63,7 @@ Vault supports several storage options for the durable storage of Vault's inform
 The following is an example of how to size the storage within the Big Bang values:
 
 ```yaml
-addons:
+packages:
   vault:
     values:
       dataStorage:
@@ -108,7 +108,7 @@ Vault supports one or more servers to scale out the deployment.
 To scale the deployment in Big Bang, the following is recommended:
 
 ```yaml
-addons:
+packages:
   vault:
     values:
       server:
@@ -130,7 +130,7 @@ Vault produces detailed logs that contain information about user interactions, i
 The following is an example to enable debug level logging for the vault deployment in Big Bang:
 
 ```yaml
-addons:
+packages:
   vault:
     values:
       # Enables debug logging.

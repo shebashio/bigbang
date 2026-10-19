@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingskyverno := mergeOverwrite (deepCopy .Values.flux) .Values.kyverno.flux -}}
-{{- if or .Values.kyverno.enabled .Values.kyvernoPolicies.enabled .Values.kyvernoReporter.enabled }}
+{{- $fluxSettingskyverno := mergeOverwrite (deepCopy .Values.flux) .Values.packages.kyverno.flux -}}
+{{- if or .Values.packages.kyverno.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.kyvernoReporter.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -14,31 +14,31 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: kyverno
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "kyverno" "package" .Values.kyverno "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "kyverno" "package" .Values.packages.kyverno "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingskyverno | nindent 2 }}
 
-  {{- if .Values.kyverno.postRenderers }}
+  {{- if .Values.packages.kyverno.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.kyverno.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.kyverno.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.kyverno.dependsOnOverride) }}
-  {{- with .Values.kyverno.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.kyverno.dependsOnOverride) }}
+  {{- with .Values.packages.kyverno.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled .Values.prometheusOperatorCRDs.enabled .Values.kyverno.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled .Values.packages.prometheusOperatorCRDs.enabled .Values.packages.kyverno.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.prometheusOperatorCRDs.enabled }}
+    {{- if .Values.packages.prometheusOperatorCRDs.enabled }}
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.kyverno) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.kyverno) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

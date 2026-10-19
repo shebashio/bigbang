@@ -1,24 +1,24 @@
-#########################
-# Disable Core Packages #
-#########################
-monitoring:
-  enabled: false
-certManager:
-  enabled: false
-grafana:
-  enabled: false
-neuvector:
-  enabled: false
-loki:
-  enabled: false
-tempo:
-  enabled: false
-kyvernoReporter:
-  enabled: false
-kiali:
-  enabled: false
-alloy:
-  enabled: false
-addons:
+packageConfiguration:
+  version: v1
+
+packages:
+  monitoring:
+    enabled: false
+  certManager:
+    enabled: false
+  grafana:
+    enabled: false
+  neuvector:
+    enabled: false
+  loki:
+    enabled: false
+  tempo:
+    enabled: false
+  kyvernoReporter:
+    enabled: false
+  kiali:
+    enabled: false
+  alloy:
+    enabled: false
   minioOperator:
     enabled: false

@@ -1,10 +1,10 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
+{{- if or .Values.packages.eckOperator.enabled .Values.packages.elasticsearchKibana.enabled }}
 
   {{- /* Create a cleaned copy of the config and merge deprecated paths into current paths */ -}}
-  {{- $eckOperatorPackage := deepCopy .Values.eckOperator -}}
-  {{- if .Values.eckOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.eckOperator.values) | fromYaml -}}
+  {{- $eckOperatorPackage := deepCopy .Values.packages.eckOperator -}}
+  {{- if .Values.packages.eckOperator.values -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.eckOperator.values) | fromYaml -}}
     {{- $eckOperatorPackage = set $eckOperatorPackage "values" $cleanedValues -}}
   {{- end }}
 
@@ -14,9 +14,9 @@
 {{- define "bigbang.defaults.eck-operator" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 license:
-  trial: {{ .Values.elasticsearchKibana.license.trial }}
+  trial: {{ .Values.packages.elasticsearchKibana.license.trial }}
   keyJSON: |
-    {{ .Values.elasticsearchKibana.license.keyJSON | nindent 4 }}
+    {{ .Values.packages.elasticsearchKibana.license.keyJSON | nindent 4 }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
@@ -24,11 +24,11 @@ image:
 openshift: {{ .Values.openshift }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 serviceMonitor:
   enabled: {{ eq (include "metricScrapingEnabled" $) "true" }}
-  {{- if eq (include "metricsSidecarMtls" (list $.Values.eckOperator $)) "true" }}
+  {{- if eq (include "metricsSidecarMtls" (list $.Values.packages.eckOperator $)) "true" }}
   tlsConfig:
     caFile: /etc/prom-certs/root-cert.pem
     certFile: /etc/prom-certs/cert-chain.pem
@@ -42,7 +42,7 @@ networkPolicies:
       elastic-operator:8080:
         from:
           k8s:
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   egress:
     definitions:
       kubeAPI:
@@ -58,7 +58,7 @@ networkPolicies:
       elastic-operator:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 upstream:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
   {{- if $istioEnabled }}
