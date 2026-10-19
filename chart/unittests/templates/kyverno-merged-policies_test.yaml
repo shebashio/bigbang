@@ -8,10 +8,10 @@ tests:
         resultIsYaml: true
         args:
           Values:
+            istio:
+              ambient:
+                enabled: false
             packages:
-              istio:
-                ambient:
-                  enabled: false
               keycloak:
                 enabled: false
               vault:
@@ -119,6 +119,9 @@ tests:
         resultIsYaml: true
         args:
           Values:
+            istio:
+              ambient:
+                enabled: false
             packages:
               keycloak:
                 enabled: false
@@ -159,9 +162,6 @@ tests:
                 enabled: false
               alloy:
                 enabled: false
-              istio:
-                ambient:
-                  enabled: false
               ztunnel:
                 enabled: false
               kyvernoReporter:
@@ -198,6 +198,9 @@ tests:
         resultIsYaml: true
         args:
           Values:
+            istio:
+              ambient:
+                enabled: false
             packages:
               keycloak:
                 enabled: false
@@ -238,9 +241,6 @@ tests:
                 enabled: false
               alloy:
                 enabled: false
-              istio:
-                ambient:
-                  enabled: false
               ztunnel:
                 enabled: false
               kyvernoReporter:
@@ -282,6 +282,9 @@ tests:
         resultIsYaml: true
         args:
           Values:
+            istio:
+              ambient:
+                enabled: false
             packages:
               keycloak:
                 enabled: false
@@ -320,9 +323,6 @@ tests:
                 enabled: false
               alloy:
                 enabled: false
-              istio:
-                ambient:
-                  enabled: false
               ztunnel:
                 enabled: false
               kyvernoReporter:
