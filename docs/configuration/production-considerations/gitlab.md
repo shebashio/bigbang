@@ -17,10 +17,10 @@ GitLab 19 requires:
 - Redis 7.0 or later, or Valkey 7.2 or later. Redis Cluster and serverless offerings are not supported. Redis 7.2 is recommended by the package documentation.
 - GitLab-supported object storage with separate buckets for each enabled object type, Registry, and backup temporary storage.
 
-Big Bang provides convenience values for the primary PostgreSQL connection, Redis authentication, and S3-compatible object storage. The Redis endpoint is an upstream GitLab value and must be supplied through `addons.gitlab.values.global.redis`.
+Big Bang provides convenience values for the primary PostgreSQL connection, Redis authentication, and S3-compatible object storage. The Redis endpoint is an upstream GitLab value and must be supplied through `packages.gitlab.values.global.redis`.
 
 ```yaml
-addons:
+packages:
   gitlab:
     enabled: true
 
@@ -50,7 +50,7 @@ addons:
       iamProfile: ""
 ```
 
-Supplying `addons.gitlab.database.host` makes Big Bang configure `global.psql` and create the database password Secret. Supplying `addons.gitlab.redis.password` creates `gitlab-redis-secret-bb`; it does not configure the Redis host. Protect all credentials with SOPS or another secret-management workflow.
+Supplying `packages.gitlab.database.host` makes Big Bang configure `global.psql` and create the database password Secret. Supplying `packages.gitlab.redis.password` creates `gitlab-redis-secret-bb`; it does not configure the Redis host. Protect all credentials with SOPS or another secret-management workflow.
 
 For object storage:
 
@@ -59,14 +59,14 @@ For object storage:
 - Use either `iamProfile` or `accessKey` and `accessSecret`, not both.
 - Provision every bucket reported by the Big Bang Helm notes. With `bucketPrefix: production`, Big Bang configures names such as `production-gitlab-registry`, `production-gitlab-lfs`, `production-gitlab-artifacts`, `production-gitlab-backup`, and `production-gitlab-backup-tmp`; it does not create the buckets.
 
-Advanced deployments can configure the upstream `global.psql`, `global.redis`, consolidated object store, Registry storage, and Toolbox backup settings directly beneath `addons.gitlab.values`. See the package's [operational production settings](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/main/docs/operational-production-settings.md).
+Advanced deployments can configure the upstream `global.psql`, `global.redis`, consolidated object store, Registry storage, and Toolbox backup settings directly beneath `packages.gitlab.values`. See the package's [operational production settings](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/main/docs/operational-production-settings.md).
 
 ## Tune Flux Reconciliation
 
-Large GitLab installations commonly need a longer HelmRelease timeout. Tune retries for the environment, and use `addons.gitlab.dependsOn` when an operator must be Ready before GitLab creates or connects to its resources.
+Large GitLab installations commonly need a longer HelmRelease timeout. Tune retries for the environment, and use `packages.gitlab.dependsOn` when an operator must be Ready before GitLab creates or connects to its resources.
 
 ```yaml
-addons:
+packages:
   gitlab:
     flux:
       timeout: 30m
@@ -77,10 +77,10 @@ addons:
 
 ## Size GitLab from Measured Load
 
-The package defaults target development, demonstrations, and CI. Size Webservice, Sidekiq, Gitaly, Registry, PostgreSQL, Redis or Valkey, and object storage from measured workload and availability requirements. Upstream GitLab subchart values belong below `addons.gitlab.values.upstream`; for example:
+The package defaults target development, demonstrations, and CI. Size Webservice, Sidekiq, Gitaly, Registry, PostgreSQL, Redis or Valkey, and object storage from measured workload and availability requirements. Upstream GitLab subchart values belong below `packages.gitlab.values.upstream`; for example:
 
 ```yaml
-addons:
+packages:
   gitlab:
     values:
       upstream:
@@ -102,7 +102,7 @@ GitLab uses its Rails Secret to encrypt protected database fields. If the Secret
 For a new deployment, define stable Rails secret data through Big Bang:
 
 ```yaml
-addons:
+packages:
   gitlab:
     railsSecret: |
       production:
@@ -116,7 +116,7 @@ Big Bang creates `gitlab-rails-secret-bb` and configures GitLab to use it. Store
 Alternatively, create and manage the Secret independently and select it with:
 
 ```yaml
-addons:
+packages:
   gitlab:
     values:
       global:

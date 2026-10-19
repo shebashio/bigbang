@@ -13,7 +13,7 @@ graph LR
   subgraph "Anchore Engine"
     anchorepods("Anchore Pods")
     anchoreservice{{"API Service"}} --> anchorepods("Anchore Pods")
-  end      
+  end
 
   subgraph "Ingress"
     ig(Ingress Gateway) --> anchoreservice
@@ -36,7 +36,7 @@ graph LR
     anchorepods("Anchore Pods")
     anchoreservice1{{"API Service"}} --> anchorepods("Anchore Pods")
     anchoreservice2{{"Enterprise UI Service"}} --> anchorepods("Anchore Pods")
-  end      
+  end
 
   subgraph "Session Storage (Redis)"
     anchoreservice2 --> database3[("Enterprise UI DB")]
@@ -80,10 +80,10 @@ To be onboarded and provided with a trial or production license, please send an 
 Once you have obtained a license this can be added to your values in Big Bang to automatically set up your Anchore deployment with the license (replacing the `licenseYaml:` value with your full license):
 
 ```yaml
-addons:
-  anchore:
+packages:
+  anchoreEnterprise:
+    enabled: true
     enterprise:
-      enabled: true
       licenseYaml: |
         ehjgjhh...
 ```
@@ -95,8 +95,8 @@ Anchore Enterprise 2.1+ can be configured to support user login to the UI using 
 See below for an example of the values to provide to Anchore Enterprise for SSO setup:
 
 ```yaml
-addons:
-  anchore:
+packages:
+  anchoreEnterprise:
     sso:
       enabled: true
       client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-anchore
@@ -114,8 +114,8 @@ Since Anchore relies on a PostgreSQL database, it is recommended that production
 Anchore Enterprise can run one or more analyzer services to scale out the processing of images. There may be many of these analyzers but best practice is to not have more than one per node since analysis is very IO intensive (see [Affinity](https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise/-/blob/main/docs/Affinity.md) for an example of how to specify nodeSelector/affinity/anti-affinity). By specifying a `replicaCount` for the analyzers, the number of analysis pods can be scaled up or down:
 
 ```yaml
-addons:
-  anchore:
+packages:
+  anchoreEnterprise:
     values:
       anchoreAnalyzer:
         replicaCount: 2

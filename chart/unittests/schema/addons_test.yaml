@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Schema - Addons
 tests:
-  - it: should fail validation with invalid addon configuration (git tag null)
+  - it: should fail validation with invalid addon configuration (git tag invalid type)
     set:
-      addons:
+      packages:
         gitlab:
           sourceType: "git"
           git:
-            tag: null
+            tag: 123
     asserts:
       - failedTemplate:
           errorPattern: ".*"
@@ -23,7 +23,7 @@ tests:
 
   - it: should fail validation when a GitLab dependency is missing its name
     set:
-      addons:
+      packages:
         gitlab:
           dependsOn:
             - namespace: bigbang
@@ -33,7 +33,7 @@ tests:
 
   - it: should fail validation when a Mimir dependency is missing its name
     set:
-      addons:
+      packages:
         mimir:
           dependsOn:
             - namespace: bigbang

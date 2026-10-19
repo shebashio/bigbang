@@ -36,7 +36,7 @@ Follow the [AWS k3d development environment instructions](aws-k3d-script.md).
 
 ```yaml
 # enable grafana alloy to push traces to
-addons:
+packages:
   alloy:
     enabled: true
 

@@ -7,7 +7,7 @@ The Keycloak package includes a PostgreSQL dependency for development and CI. It
 ## Configure an External Database
 
 ```yaml
-addons:
+packages:
   keycloak:
     enabled: true
     database:
@@ -26,7 +26,7 @@ Protect the database password with SOPS or another secret-management workflow. R
 Keycloak must terminate TLS for X.509 client authentication such as CAC authentication. Select a passthrough gateway and provide a certificate and key through the Big Bang values:
 
 ```yaml
-addons:
+packages:
   keycloak:
     ingress:
       gateway: passthrough
@@ -47,7 +47,7 @@ The certificate must cover `keycloak.<domain>`. Store private key material in an
 The package defaults are development credentials and must be replaced before production use:
 
 ```yaml
-addons:
+packages:
   keycloak:
     values:
       upstream:
@@ -65,7 +65,7 @@ Prefer a separately managed administrative identity after bootstrap, restrict us
 The package deploys one Keycloak replica by default. Production environments should select a replica count, resources, scheduling constraints, and disruption behavior that meet their availability objectives. The package configures the headless service and JGroups DNS discovery used by Keycloak's distributed cache.
 
 ```yaml
-addons:
+packages:
   keycloak:
     values:
       upstream:
@@ -82,4 +82,4 @@ Test rolling upgrades, node loss, database failover, cache behavior, and session
 
 ## Preserve Big Bang Overrides
 
-The upstream Keycloak chart represents `extraEnv`, `extraEnvFrom`, `extraVolumes`, and `extraVolumeMounts` as templated strings. Overrides replace the complete value rather than merging individual entries. If you override one of these fields through `addons.keycloak.values.upstream`, preserve every Big Bang-provided entry you still require. See the package's [configuration documentation](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/main/docs/CONFIGURATION.md) for supported examples.
+The upstream Keycloak chart represents `extraEnv`, `extraEnvFrom`, `extraVolumes`, and `extraVolumeMounts` as templated strings. Overrides replace the complete value rather than merging individual entries. If you override one of these fields through `packages.keycloak.values.upstream`, preserve every Big Bang-provided entry you still require. See the package's [configuration documentation](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/main/docs/CONFIGURATION.md) for supported examples.

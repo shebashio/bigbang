@@ -7,8 +7,8 @@ setup() {
 @test "ambient overlay retains Vault ingress certificates" {
     run yq eval-all \
         '(select(fileIndex == 0) * select(fileIndex == 1) * select(fileIndex == 2)) |
-        ((.addons.vault.ingress.cert | length) > 0 and
-        (.addons.vault.ingress.key | length) > 0)' \
+        ((.packages.vault.ingress.cert | length) > 0 and
+        (.packages.vault.ingress.key | length) > 0)' \
         "${REPO_ROOT}/tests/test-values.yaml" \
         "${REPO_ROOT}/chart/ingress-certs.yaml" \
         "${REPO_ROOT}/tests/test-values-ambient.yaml"

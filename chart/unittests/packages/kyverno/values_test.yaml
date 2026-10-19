@@ -10,8 +10,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      kyverno.enabled: true
-      istiod.enabled: true
+      packages.kyverno.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
       networkPolicies.enabled: true
     asserts:
@@ -32,7 +32,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: true
     asserts:
       - isNotNull:
@@ -54,7 +54,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: true
       networkPolicies.ingress.definitions.kubeAPI.from[0].ipBlock.cidr: "10.10.0.0/16"
     asserts:

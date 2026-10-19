@@ -7,8 +7,8 @@ routes:
   inbound:
     argocd:
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.argocd.ingress.gateway "root" .) }}
-      {{- $argocdHosts := dig "istio" "argocd" "hosts" list .Values.addons.argocd.values }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.argocd.ingress.gateway "root" .) }}
+      {{- $argocdHosts := dig "istio" "argocd" "hosts" list .Values.packages.argocd.values }}
       {{- if $argocdHosts }}
       hosts:
       {{- range $argocdHosts }}

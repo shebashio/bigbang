@@ -56,7 +56,45 @@ run_migration() {
   [[ "$output" == *'stringData["values.yaml"] or data["values.yaml"]'* ]]
   [[ "$output" == *"existing SOPS metadata and master keys"* ]]
   [[ "$output" == *"YAML anchors and aliases are expanded automatically"* ]]
+  [[ "$output" == *"--omit-package-configuration"* ]]
   [[ "$output" != *"--expand-anchors"* ]]
+}
+
+@test "fails the yq feature probe before invoking SOPS" {
+  FAKE_BIN="${BATS_TEST_TMPDIR}/fake-bin"
+  PROBE_SOPS="${BATS_TEST_TMPDIR}/probe-sops"
+  SOPS_MARKER="${BATS_TEST_TMPDIR}/sops-called"
+  REAL_YQ=$(command -v yq)
+  mkdir "$FAKE_BIN"
+
+  cat >"${FAKE_BIN}/yq" <<'EOF'
+#!/usr/bin/env bash
+if [[ " $* " == *" --yaml-fix-merge-anchor-to-spec=true "* ]]; then
+  exit 1
+fi
+exec "$REAL_YQ" "$@"
+EOF
+  chmod +x "${FAKE_BIN}/yq"
+
+  cat >"$PROBE_SOPS" <<'EOF'
+#!/usr/bin/env bash
+touch "$SOPS_MARKER"
+exit 99
+EOF
+  chmod +x "$PROBE_SOPS"
+
+  printf '%s\n' 'kind: Secret' >"$INPUT_FILE"
+
+  run --separate-stderr env \
+    PATH="${FAKE_BIN}:${PATH}" \
+    REAL_YQ="$REAL_YQ" \
+    SOPS_BIN="$PROBE_SOPS" \
+    SOPS_MARKER="$SOPS_MARKER" \
+    "$SCRIPT_PATH" "$INPUT_FILE"
+
+  [ "$status" -ne 0 ]
+  [[ "$stderr" == *"yq v4.47.1 or newer"* ]]
+  [ ! -e "$SOPS_MARKER" ]
 }
 
 @test "migrates values stored in Secret stringData" {
@@ -89,6 +127,34 @@ EOF
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packageConfiguration.version' -)" = "v1" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.monitoring.enabled' -)" = "true" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.gitlab.enabled' -)" = "false" ]
+}
+
+@test "forwards package configuration omission to encrypted values" {
+  cat >"$INPUT_FILE" <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: environment
+stringData:
+  values.yaml: |
+    packageConfiguration:
+      version: v1
+    monitoring:
+      enabled: true
+sops:
+  mac: fake
+  version: 3.9.0
+EOF
+
+  run_migration --omit-package-configuration \
+    --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ] || {
+    printf '%s\n' "$stderr" >&3
+    false
+  }
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq 'has("packageConfiguration")' -)" = "false" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.monitoring.enabled' -)" = "true" ]
 }
 
 @test "migrates base64-encoded values stored in Secret data" {

@@ -12,9 +12,9 @@ postRenderer:
 tests:
   - it: should create kubeAPI ingress NetworkPolicy with default CIDRs when enabled through bb-common
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: false
-      kyverno.values.bb-common.networkPolicies.enabled: true
+      packages.kyverno.values.bb-common.networkPolicies.enabled: true
     documentSelector:
       path: metadata.name
       value: allow-ingress-to-kyverno-admission-controller-port-9443-from-kubeapi
@@ -43,10 +43,10 @@ tests:
 
   - it: should create kubeAPI ingress NetworkPolicy with custom bb-common CIDRs
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: false
-      kyverno.values.bb-common.networkPolicies.enabled: true
-      kyverno.values.bb-common.networkPolicies.ingress.definitions.kubeAPI:
+      packages.kyverno.values.bb-common.networkPolicies.enabled: true
+      packages.kyverno.values.bb-common.networkPolicies.ingress.definitions.kubeAPI:
         from:
           - ipBlock:
               cidr: "10.10.0.0/16"

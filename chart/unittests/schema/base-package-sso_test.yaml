@@ -3,16 +3,17 @@ suite: Schema - Base Package SSO
 tests:
   - it: should pass validation with valid SSO configuration
     set:
-      tempo:
-        sso:
-          enabled: true
-          client_id: "id"
-          client_secret: "1234"
-      neuvector:
-        sso:
-          enabled: true
-          client_id: "id"
-          client_secret: "string"
+      packages:
+        tempo:
+          sso:
+            enabled: true
+            client_id: "id"
+            client_secret: "1234"
+        neuvector:
+          sso:
+            enabled: true
+            client_id: "id"
+            client_secret: "string"
     asserts:
       - notFailedTemplate: {}
 
@@ -35,38 +36,41 @@ tests:
 
   - it: should fail validation with extra key in neuvector SSO
     set:
-      tempo:
-        sso:
-          enabled: true
-          client_id: "id"
-          client_secret: "1234"
-      neuvector:
-        sso:
-          enabled: true
-          client_id: "id"
-          client_secret: "string"
-          extra: "key"
+      packages:
+        tempo:
+          sso:
+            enabled: true
+            client_id: "id"
+            client_secret: "1234"
+        neuvector:
+          sso:
+            enabled: true
+            client_id: "id"
+            client_secret: "string"
+            extra: "key"
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should fail validation with extra key in monitoring SSO
     set:
-      monitoring:
-        sso:
-          extra: key
+      packages:
+        monitoring:
+          sso:
+            extra: key
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
   - it: should fail validation with extra key in twistlock SSO
     set:
-      twistlock:
-        sso:
-          enabled: true
-          client_id: "id"
-          provider_type: "string"
-          extra: "key"
+      packages:
+        twistlock:
+          sso:
+            enabled: true
+            client_id: "id"
+            provider_type: "string"
+            extra: "key"
     asserts:
       - failedTemplate:
           errorPattern: ".*"

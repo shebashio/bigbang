@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: domain
@@ -25,7 +25,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customServiceEntries:
+      packages.kiali.values.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
           hosts:
             - "example.com"
@@ -43,7 +43,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customAuthorizationPolicies:
+      packages.kiali.values.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
           labels:
             app: "kiali"
@@ -61,12 +61,12 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      kiali.values.istio.hardened.customServiceEntries:
+      packages.kiali.values.istio.hardened.customServiceEntries:
         - name: "hardened-entry"
           spec:
             hosts:
               - "hardened.example.com"
-      kiali.values.istio.serviceEntries.custom:
+      packages.kiali.values.istio.serviceEntries.custom:
         - name: "custom-entry"
           spec:
             hosts:

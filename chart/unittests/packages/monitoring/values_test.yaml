@@ -29,7 +29,7 @@ tests:
           - Ingress
 - it: should update the selector based on the monitoring upstream name override
   set:
-    monitoring.values.upstream.nameOverride: testing
+    packages.monitoring.values.upstream.nameOverride: testing
   postRenderer:
     cmd: sh
     args:

@@ -18,14 +18,15 @@ tests:
           remediation:
             retries: 3
             remediateLastFailure: true
-      grafana:
-        enabled: true
-        flux:
-          upgrade:
-            cleanupOnFail: false
-            remediation:
-              retries: 0
-              remediateLastFailure: false
+      packages:
+        grafana:
+          enabled: true
+          flux:
+            upgrade:
+              cleanupOnFail: false
+              remediation:
+                retries: 0
+                remediateLastFailure: false
     documentSelector:
       path: metadata.name
       value: grafana
@@ -52,17 +53,18 @@ tests:
           remediation:
             retries: 3
             remediateLastFailure: true
-      grafana:
-        enabled: true
-        flux:
-          upgrade:
-            cleanupOnFail: false
-            remediation:
-              retries: 0
-              remediateLastFailure: false
-      monitoring:
-        enabled: true
-        flux: {}
+      packages:
+        grafana:
+          enabled: true
+          flux:
+            upgrade:
+              cleanupOnFail: false
+              remediation:
+                retries: 0
+                remediateLastFailure: false
+        monitoring:
+          enabled: true
+          flux: {}
     documentSelector:
       path: metadata.name
       value: monitoring
@@ -87,14 +89,15 @@ tests:
           remediation:
             retries: 3
             remediateLastFailure: true
-      certManager:
-        enabled: true
-        flux:
-          upgrade:
-            cleanupOnFail: false
-            remediation:
-              retries: 0
-              remediateLastFailure: false
+      packages:
+        certManager:
+          enabled: true
+          flux:
+            upgrade:
+              cleanupOnFail: false
+              remediation:
+                retries: 0
+                remediateLastFailure: false
     documentSelector:
       path: metadata.name
       value: cert-manager

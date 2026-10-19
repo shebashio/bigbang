@@ -1,59 +1,6 @@
-# Each package in `chart/values.yaml` should be present in this file. The top level key should match the values key in values.yaml, all other keys should follow the guide below.
-# package:
-#   repoName: A string matching the `CI_PROJECT_NAME` in repo1. Typically this is the URL/path for the repo.
-#   hrName: A string matching the helmrelease name in `chart/templates/package/helmrelease.yaml`.
-#   filePath: A string matching the filePath for the package directory in `chart/templates`. This is typically just `package`.
-#   dependencies: A list of all packages that should also be deployed in CI if this one is enabled. These names should match the other package(s) values keys.
-# Note: For any locations where the value matches the top level key, these can be left blank.
+packageConfiguration:
+  version: v1
 
-istiod:
-  repoName: "istiod"
-  hrName: "istiod"
-  filePath: "istiod"
-istioCNI:
-  repoName: "istio-cni"
-  hrName: "istio-cni"
-  filePath: "istio-cni"
-istioCRDs:
-  repoName: "istio-crds"
-  hrName: "istio-crds"
-  filePath: "istio-crds"
-istioGateway:
-  repoName: "istio-gateway"
-  hrName: "public-ingressgateway"
-  filePath: "istio-gateway"
-gatekeeper:
-  repoName: "policy"
-kyvernoPolicies:
-  repoName: "kyverno-policies"
-  hrName: "kyverno-policies"
-  filePath: "kyverno-policies"
-kyvernoReporter:
-  repoName: "kyverno-reporter"
-  hrName: "kyverno-reporter"
-  filePath: "kyverno-reporter"
-  dependencies:
-    - "kyvernoPolicies"
-elasticsearchKibana:
-  repoName: "elasticsearch-kibana"
-  hrName: "ek"
-  filePath: "elasticsearch-kibana"
-  dependencies:
-    - "fluentbit"
-eckOperator:
-  repoName: "eck-operator"
-  hrName: "eck-operator"
-  filePath: "eck-operator"
-  dependencies:
-    - "elasticsearchKibana"
-    - "fluentbit"
-fluentbit:
-  hrName: "fluentbit"
-  filePath: "fluentbit"
-loki:
-  dependencies:
-    - "minioOperator"
-    - "alloy"
 minioOperator:
   repoName: "minio-operator"
   hrName: "minio-operator"
@@ -98,7 +45,60 @@ headlamp:
   repoName: "headlamp"
   hrName: "headlamp"
   filePath: "headlamp"
-prometheusOperatorCRDs:
-  repoName: "prometheus-operator-crds"
-  hrName: "prometheus-operator-crds"
-  filePath: "prometheus-operator-crds"
+packages:
+  istiod:
+    repoName: "istiod"
+    hrName: "istiod"
+    filePath: "istiod"
+  istioCNI:
+    repoName: "istio-cni"
+    hrName: "istio-cni"
+    filePath: "istio-cni"
+  istioCRDs:
+    repoName: "istio-crds"
+    hrName: "istio-crds"
+    filePath: "istio-crds"
+  istioGateway:
+    repoName: "istio-gateway"
+    hrName: "public-ingressgateway"
+    filePath: "istio-gateway"
+  istioEgressGateway:
+    repoName: "istio-egress-gateway"
+    hrName: "istio-egress-gateway"
+    filePath: "istio-egress-gateway"
+  gatekeeper:
+    repoName: "policy"
+  kyvernoPolicies:
+    repoName: "kyverno-policies"
+    hrName: "kyverno-policies"
+    filePath: "kyverno-policies"
+  kyvernoReporter:
+    repoName: "kyverno-reporter"
+    hrName: "kyverno-reporter"
+    filePath: "kyverno-reporter"
+    dependencies:
+      - "kyvernoPolicies"
+  elasticsearchKibana:
+    repoName: "elasticsearch-kibana"
+    hrName: "ek"
+    filePath: "elasticsearch-kibana"
+    dependencies:
+      - "fluentbit"
+  eckOperator:
+    repoName: "eck-operator"
+    hrName: "eck-operator"
+    filePath: "eck-operator"
+    dependencies:
+      - "elasticsearchKibana"
+      - "fluentbit"
+  fluentbit:
+    hrName: "fluentbit"
+    filePath: "fluentbit"
+  loki:
+    dependencies:
+      - "minioOperator"
+      - "alloy"
+  prometheusOperatorCRDs:
+    repoName: "prometheus-operator-crds"
+    hrName: "prometheus-operator-crds"
+    filePath: "prometheus-operator-crds"

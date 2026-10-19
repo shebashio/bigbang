@@ -1,3 +1,6 @@
+packageConfiguration:
+  version: v1
+
 helmRepositories:
   - name: "registry1"
     repository: "oci://registry1.dso.mil/bigbang"
@@ -12,107 +15,107 @@ helmRepositories:
         MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIE7v9J6ttQus6itUoyfMCqMjaIqm
         R8XrntaedsdEhPPchOQuFzqTyyAPGifV1SaEu8medVRi6mVICWbVwOteNg==
         -----END PUBLIC KEY-----
-istioCNI:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+packages:
+  istioCNI:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-istioCRDs:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  istioCRDs:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-istiod:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  istiod:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-istioGateway:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  istioGateway:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-alloy:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  alloy:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-kiali:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  kiali:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-kyverno:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  kyverno:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-kyvernoPolicies:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  kyvernoPolicies:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-kyvernoReporter:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  kyvernoReporter:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-loki:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  loki:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-neuvector:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  neuvector:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-tempo:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  tempo:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-prometheusOperatorCRDs:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  prometheusOperatorCRDs:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-monitoring:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  monitoring:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-grafana:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  grafana:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-twistlock:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  twistlock:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-fluentbit:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  fluentbit:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-eckOperator:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  eckOperator:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-elasticsearchKibana:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  elasticsearchKibana:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-gatekeeper:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: false
+  gatekeeper:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: false
 
-addons:
   argocd:
     sourceType: "helmRepo"
     helmRepo:

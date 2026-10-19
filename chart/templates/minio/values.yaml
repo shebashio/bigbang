@@ -1,14 +1,14 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.minio.enabled }}
-  {{- $minioPackage := deepCopy .Values.addons.minio -}}
-  {{- if .Values.addons.minio.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.minio.values) | fromYaml -}}
+{{- if .Values.packages.minio.enabled }}
+  {{- $minioPackage := deepCopy .Values.packages.minio -}}
+  {{- if .Values.packages.minio.values -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.minio.values) | fromYaml -}}
     {{- $minioPackage = set $minioPackage "values" $cleanedValues -}}
   {{- end -}}
-  {{- include "values-secret" (dict 
-    "root" $ 
-    "package" $minioPackage 
-    "name" "minio" 
+  {{- include "values-secret" (dict
+    "root" $
+    "package" $minioPackage
+    "name" "minio"
     "defaults" ((mergeOverwrite (include "bigbang.defaults.minio" . | fromYaml) (include "bigbang.minio.bb-common-migrations" . | fromYaml)) | toYaml)
   )}}
 {{- end }}
@@ -23,7 +23,7 @@ networkPolicies:
       minio:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
 routes:
   inbound:
@@ -46,7 +46,7 @@ routes:
       port: 9090
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.minio.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.minio.values }}
       hosts:
       - repo1.dso.mil
 
@@ -60,7 +60,7 @@ bbtests:
       MINIO_HOST: {{ printf "https://minio-api.%s" $domainName | quote }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 upstream:
   tenant:
@@ -76,9 +76,9 @@ upstream:
     metrics:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     configSecret:
-      accessKey: {{ .Values.addons.minio.accesskey | default "minio" }}
-      secretKey: {{ .Values.addons.minio.secretkey | default "minio123" }}  
-    {{- if .Values.monitoring.enabled }}
+      accessKey: {{ .Values.packages.minio.accesskey | default "minio" }}
+      secretKey: {{ .Values.packages.minio.secretkey | default "minio123" }}
+    {{- if .Values.packages.monitoring.enabled }}
     env:
       - name: MINIO_PROMETHEUS_AUTH_TYPE
         value: "public"

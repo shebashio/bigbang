@@ -1,10 +1,10 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
-{{- if .Values.alloy.enabled }}
+{{- if .Values.packages.alloy.enabled }}
 {{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
-{{- $alloyPackage := deepCopy .Values.alloy -}}
-{{- if .Values.alloy.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.alloy.values) | fromYaml -}}
+{{- $alloyPackage := deepCopy .Values.packages.alloy -}}
+{{- if .Values.packages.alloy.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.alloy.values) | fromYaml -}}
 {{- $alloyPackage = set $alloyPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict 
@@ -17,14 +17,15 @@
 
 {{- define "bigbang.defaults.alloy" -}}
 {{- $domainName := .Values.domain }}
-{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.alloy) }}
-{{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.alloy) }}
+{{- $alloyLogsEnabled := (dig "alloyLogs" "enabled" false .Values.packages.alloy) }}
+{{- $alloyMetricsEnabled := (dig "alloyMetrics" "enabled" false .Values.packages.alloy) }}
 {{- $alloyClusterEventsEnabled := or
-      (dig "alloyClusterEvents" "enabled" false .Values.alloy)
-      (dig "values" "upstream" "clusterEvents" "enabled" false .Values.alloy)
+      (dig "alloyClusterEvents" "enabled" false .Values.packages.alloy)
+      (dig "values" "upstream" "clusterEvents" "enabled" false .Values.packages.alloy)
 }}
-{{- $tempoEnabled := .Values.tempo.enabled }}
-{{- $mimirEnabled := .Values.addons.mimir.enabled }}
+{{- $tempoEnabled := .Values.packages.tempo.enabled }}
+{{- $mimirEnabled := .Values.packages.mimir.enabled }}
+{{- $prometheusEnabled := and .Values.packages.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.packages.monitoring) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{/* When ambient mode is enabled, sidecar injection is disabled since sidecars are not used */}}
@@ -35,7 +36,7 @@
     "scalable" "logging-loki-write"
     "distributed" "logging-loki-distributor"
 }}
-{{- $lokiServiceName := index $lokiServiceMap .Values.loki.strategy }}
+{{- $lokiServiceName := index $lokiServiceMap .Values.packages.loki.strategy }}
 {{- $lokiWriteDestUrl := printf "http://%s.logging.svc.cluster.local:3100/loki/api/v1/push" $lokiServiceName }}
 
 
@@ -45,7 +46,7 @@ global:
     {{- include "secretsPullSecretsWithName" . | nindent 4 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 networkPolicies:
   ingress:
@@ -55,30 +56,30 @@ networkPolicies:
         from:
           k8s:
             # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-logs
       alloy-logs:12345:
         from:
           k8s:
             # Use full sa@namespace/pod format for same-namespace AuthorizationPolicy
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-singleton
       alloy-singleton:12345:
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
 
       # Allow alloy-metrics and Prometheus to scrape alloy-metrics
       alloy-metrics:12345:
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
       {{- if $tempoEnabled }}
       # Allow any namespace to send traces to alloy-receiver via OTLP gRPC
       alloy-receiver:4317:
@@ -97,15 +98,15 @@ networkPolicies:
         to:
           k8s:
             # Loki egress follows the active Loki write path for the selected deployment strategy.
-            logging/{{ $lokiServiceName }}:3100: {{ .Values.loki.enabled }}
+            logging/{{ $lokiServiceName }}:3100: {{ .Values.packages.loki.enabled }}
       alloy:
         to:
-          tempo/tempo:4317: {{ .Values.tempo.enabled }}
+          tempo/tempo:4317: {{ .Values.packages.tempo.enabled }}
       {{- if $alloyClusterEventsEnabled }}
       alloy-singleton:
         to:
           k8s:
-            logging/{{ $lokiServiceName }}:3100: {{ .Values.loki.enabled }}
+            logging/{{ $lokiServiceName }}:3100: {{ .Values.packages.loki.enabled }}
       {{- end }}
       {{- if $tempoEnabled }}
       # Allow alloy-receiver to forward traces to Tempo backend
@@ -115,12 +116,17 @@ networkPolicies:
             tempo/tempo:4317: true
       {{- end }}
       {{- if $alloyMetricsEnabled }}
-      # Allow alloy-metrics to push metrics to Prometheus and Mimir
+      # Allow alloy-metrics to scrape monitoring and reach its selected metrics backend.
       alloy-metrics:
         to:
           definition:
             kubeAPI: true
           k8s:
+            {{- if .Values.packages.monitoring.enabled }}
+            monitoring/kube-state-metrics:8080: true
+            monitoring/prometheus-node-exporter:9100: true
+            {{- end }}
+            {{- if $prometheusEnabled }}
             {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
             # Prometheus is enrolled on the monitoring package's own waypoint for authservice;
             # in-mesh remote-write egress targets the waypoint pod over HBONE (15008).
@@ -129,14 +135,15 @@ networkPolicies:
                 matchLabels:
                   gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
             {{- else }}
-            monitoring/monitoring-monitoring-kube-prometheus:9090: {{ .Values.monitoring.enabled }}
+            monitoring/monitoring-monitoring-kube-prometheus:9090: true
+            {{- end }}
             {{- end }}
             mimir/mimir-mimir-gateway:8080: {{ $mimirEnabled }}
       {{- end }}
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.alloy.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.alloy.values }}
       hosts:
       - repo1.dso.mil
       - loki.{{ $domainName }}
@@ -155,13 +162,13 @@ upstream:
     podAnnotations:
       {{ include "istioAnnotation" . }}
   {{- end }}
-  {{- if .Values.kiali.enabled }}
+  {{- if .Values.packages.kiali.enabled }}
   alloy:
     extraLabels:
       service.istio.io/canonical-name: alloy-alloy-logs
   {{- end }}
   destinations:
-    {{- if and (or $alloyLogsEnabled $alloyClusterEventsEnabled) .Values.loki.enabled }}
+    {{- if and (or $alloyLogsEnabled $alloyClusterEventsEnabled) .Values.packages.loki.enabled }}
     loki:
       type: loki
       url: {{ $lokiWriteDestUrl }}
@@ -177,7 +184,7 @@ upstream:
       tls:
         insecure: true
     {{- end }}
-    {{- if and $alloyMetricsEnabled .Values.monitoring.enabled }}
+    {{- if and $alloyMetricsEnabled $prometheusEnabled }}
     prometheus:
       type: prometheus
       {{- if $sidecarInjectionEnabled }}
@@ -205,8 +212,8 @@ upstream:
       url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
       {{- end }}
     {{- end }}
-  {{- if .Values.alloy.additionalDestinations }}
-    {{- range $dest := .Values.alloy.additionalDestinations }}
+  {{- if .Values.packages.alloy.additionalDestinations }}
+    {{- range $dest := .Values.packages.alloy.additionalDestinations }}
     {{ $dest.name }}:
 {{ toYaml $dest | nindent 6 }}
     {{- end }}
@@ -295,16 +302,75 @@ upstream:
             - name: istio-certs
               emptyDir:
                 medium: Memory
+      {{- if and .Values.packages.monitoring.enabled $sidecarInjectionEnabled }}
+      # Alloy 1.18 cannot load local certificate files from ServiceMonitors.
+      # Scrape the monitoring exporters with the mounted Istio certificates.
+      extraConfig: |
+        prometheus.scrape "bigbang_kube_state_metrics" {
+          targets = [{"__address__" = "monitoring-monitoring-kube-state-metrics.monitoring.svc.cluster.local:8080"}]
+          scheme = "https"
+          tls_config {
+            ca_file = "/etc/prom-certs/root-cert.pem"
+            cert_file = "/etc/prom-certs/cert-chain.pem"
+            key_file = "/etc/prom-certs/key.pem"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+          forward_to = [
+            {{- if $prometheusEnabled }}
+            prometheus.remote_write.prometheus.receiver,
+            {{- end }}
+            {{- if $mimirEnabled }}
+            prometheus.remote_write.mimir.receiver,
+            {{- end }}
+          ]
+        }
+
+        discovery.kubernetes "bigbang_node_exporter" {
+          role = "pod"
+          namespaces {
+            names = ["monitoring"]
+          }
+          selectors {
+            role = "pod"
+            label = "app.kubernetes.io/name=prometheus-node-exporter"
+          }
+        }
+
+        prometheus.scrape "bigbang_node_exporter" {
+          targets = discovery.kubernetes.bigbang_node_exporter.targets
+          scheme = "https"
+          tls_config {
+            ca_file = "/etc/prom-certs/root-cert.pem"
+            cert_file = "/etc/prom-certs/cert-chain.pem"
+            key_file = "/etc/prom-certs/key.pem"
+            insecure_skip_verify = true
+          }
+          clustering {
+            enabled = true
+          }
+          forward_to = [
+            {{- if $prometheusEnabled }}
+            prometheus.remote_write.prometheus.receiver,
+            {{- end }}
+            {{- if $mimirEnabled }}
+            prometheus.remote_write.mimir.receiver,
+            {{- end }}
+          ]
+        }
+      {{- end }}
   {{- end }}
   {{- if $alloyLogsEnabled }}
   podLogsViaLoki:
     enabled: true
     destinations:
-      {{- if .Values.loki.enabled }}
+      {{- if .Values.packages.loki.enabled }}
       - loki
       {{- end }}
-      {{- if .Values.alloy.additionalDestinations }}
-      {{- range $dest := .Values.alloy.additionalDestinations }}
+      {{- if .Values.packages.alloy.additionalDestinations }}
+      {{- range $dest := .Values.packages.alloy.additionalDestinations }}
       {{- if eq (lower $dest.type) "loki" }}
       - {{ $dest.name }}
       {{- end }}
@@ -343,11 +409,11 @@ upstream:
     enabled: true
     collector: alloy-singleton
     destinations:
-      {{- if .Values.loki.enabled }}
+      {{- if .Values.packages.loki.enabled }}
       - loki
       {{- end }}
-      {{- if .Values.alloy.additionalDestinations }}
-      {{- range $dest := .Values.alloy.additionalDestinations }}
+      {{- if .Values.packages.alloy.additionalDestinations }}
+      {{- range $dest := .Values.packages.alloy.additionalDestinations }}
       {{- if eq (lower $dest.type) "loki" }}
       - {{ $dest.name }}
       {{- end }}
@@ -405,7 +471,7 @@ upstream:
   prometheusOperatorObjects:
     enabled: true
     destinations:
-      {{- if .Values.monitoring.enabled }}
+      {{- if $prometheusEnabled }}
       - prometheus
       {{- end }}
       {{- if $mimirEnabled }}
@@ -423,7 +489,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-logs
       app.kubernetes.io/name: alloy-logs
-    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.packages.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -431,7 +497,7 @@ serviceMonitors:
       keyFile: /etc/prom-certs/key.pem
       insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
     {{- end }}
-  {{- if and $alloyClusterEventsEnabled $.Values.monitoring.enabled }}
+  {{- if and $alloyClusterEventsEnabled $.Values.packages.monitoring.enabled }}
   - name: alloy-alloy-singleton
     additionalLabels:
       app.kubernetes.io/instance: alloy
@@ -439,7 +505,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-singleton
       app.kubernetes.io/name: alloy-singleton
-    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.packages.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -457,7 +523,7 @@ serviceMonitors:
     selectorLabels:
       app.kubernetes.io/instance: alloy-alloy-metrics
       app.kubernetes.io/name: alloy-metrics
-    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.alloy.values) "STRICT") }}
+    {{- if and $sidecarInjectionEnabled (eq (dig "istio" "mtls" "mode" "STRICT" $.Values.packages.alloy.values) "STRICT") }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
