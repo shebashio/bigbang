@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Kyverno Reporter (Policy Reporter) workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.kyvernoReporter" -}}
-{{- if .Values.kyvernoReporter.enabled }}
+{{- if .Values.packages.kyvernoReporter.enabled }}
 # Kyverno Reporter needs its API token to read policy reports.
 kyverno-reporter-auto-mount:
   spec:

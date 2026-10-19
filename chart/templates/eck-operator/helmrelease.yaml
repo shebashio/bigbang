@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsEckOperator := mergeOverwrite (deepCopy .Values.flux) .Values.eckOperator.flux -}}
-{{- if or .Values.eckOperator.enabled .Values.elasticsearchKibana.enabled }}
+{{- $fluxSettingsEckOperator := mergeOverwrite (deepCopy .Values.flux) .Values.packages.eckOperator.flux -}}
+{{- if or .Values.packages.eckOperator.enabled .Values.packages.elasticsearchKibana.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -15,39 +15,39 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/eck-operator/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: eck-operator
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "eck-operator" "package" .Values.eckOperator "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "eck-operator" "package" .Values.packages.eckOperator "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingsEckOperator | nindent 2 }}
 
-  {{- if .Values.eckOperator.postRenderers }}
+  {{- if .Values.packages.eckOperator.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.eckOperator.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.eckOperator.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "eck-operator" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.eckOperator.dependsOnOverride) }}
-  {{- with .Values.eckOperator.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.eckOperator.dependsOnOverride) }}
+  {{- with .Values.packages.eckOperator.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.eckOperator.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled .Values.packages.eckOperator.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.eckOperator) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.eckOperator) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

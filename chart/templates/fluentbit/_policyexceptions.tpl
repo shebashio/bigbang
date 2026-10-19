@@ -3,7 +3,10 @@ Kyverno PolicyExceptions for Fluent Bit workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.fluentbit" -}}
-{{- if .Values.fluentbit.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $fluentbit := default (dict) (get $packages "fluentbit") -}}
+{{- $fluentbitEnabled := default false (get $fluentbit "enabled") -}}
+{{- if $fluentbitEnabled }}
 # Fluent Bit needs privileged host access (journald, /var/log, container logs)
 # to tail node and container logs, so it cannot meet the restricted policies.
 fluentbit-fluent-bit:

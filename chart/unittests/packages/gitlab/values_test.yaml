@@ -5,25 +5,25 @@ templates:
 tests:
   - it: rejects an object storage endpoint without an HTTP URI scheme
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
+      packages.gitlab.enabled: true
+      packages.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
     asserts:
       - failedTemplate:
           errorMessage: "addons.gitlab.objectStorage.endpoint must begin with http:// or https:// when set"
 
   - it: rejects a registry object storage endpoint without an HTTP URI scheme
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
-      addons.gitlab.objectStorage.regionendpoint: garage.garage.svc.cluster.local:3900
+      packages.gitlab.enabled: true
+      packages.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
+      packages.gitlab.objectStorage.regionendpoint: garage.garage.svc.cluster.local:3900
     asserts:
       - failedTemplate:
           errorMessage: "addons.gitlab.objectStorage.regionendpoint must begin with http:// or https:// when set"
 
   - it: does not validate dormant object storage values when GitLab is disabled
     set:
-      addons.gitlab.enabled: false
-      addons.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
+      packages.gitlab.enabled: false
+      packages.gitlab.objectStorage.endpoint: garage.garage.svc.cluster.local:3900
     asserts:
       - hasDocuments:
           count: 0
@@ -35,9 +35,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.hostnames.gitlab: custom-gitlab
-      addons.gitlab.hostnames.registry: custom-registry
+      packages.gitlab.enabled: true
+      packages.gitlab.hostnames.gitlab: custom-gitlab
+      packages.gitlab.hostnames.registry: custom-registry
       domain: example.com
     asserts:
       - equal:
@@ -63,8 +63,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.redis.password: test-password
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
     asserts:
       - equal:
           path: global.redis.auth.enabled
@@ -85,12 +85,12 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.objectStorage.type: minio
-      addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
-      addons.gitlab.objectStorage.region: garage
-      addons.gitlab.objectStorage.accessKey: test-access-key
-      addons.gitlab.objectStorage.accessSecret: test-secret-key
+      packages.gitlab.enabled: true
+      packages.gitlab.objectStorage.type: minio
+      packages.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
+      packages.gitlab.objectStorage.region: garage
+      packages.gitlab.objectStorage.accessKey: test-access-key
+      packages.gitlab.objectStorage.accessSecret: test-secret-key
     asserts:
       - notExists:
           path: global.appConfig.object_store
@@ -113,13 +113,13 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.objectStorage.type: s3
-      addons.gitlab.objectStorage.endpoint: https://s3.us-gov-west-1.amazonaws.com
-      addons.gitlab.objectStorage.region: us-gov-west-1
-      addons.gitlab.objectStorage.accessKey: test-access-key
-      addons.gitlab.objectStorage.accessSecret: test-secret-key
-      addons.gitlab.values.global.appConfig.object_store.enabled: true
+      packages.gitlab.enabled: true
+      packages.gitlab.objectStorage.type: s3
+      packages.gitlab.objectStorage.endpoint: https://s3.us-gov-west-1.amazonaws.com
+      packages.gitlab.objectStorage.region: us-gov-west-1
+      packages.gitlab.objectStorage.accessKey: test-access-key
+      packages.gitlab.objectStorage.accessSecret: test-secret-key
+      packages.gitlab.values.global.appConfig.object_store.enabled: true
     asserts:
       - equal:
           path: global.appConfig.object_store.enabled
@@ -148,11 +148,11 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.database.host: postgresql-rw.postgresql.svc.cluster.local
-      addons.gitlab.objectStorage.type: minio
-      addons.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
-      addons.gitlab.objectStorage.region: garage
+      packages.gitlab.enabled: true
+      packages.gitlab.database.host: postgresql-rw.postgresql.svc.cluster.local
+      packages.gitlab.objectStorage.type: minio
+      packages.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
+      packages.gitlab.objectStorage.region: garage
     asserts:
       - equal:
           path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
@@ -171,10 +171,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.psql.host: postgres.example.internal
-      addons.gitlab.values.global.redis.host: redis.example.internal
-      addons.gitlab.values.global.appConfig.object_store.enabled: true
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.psql.host: postgres.example.internal
+      packages.gitlab.values.global.redis.host: redis.example.internal
+      packages.gitlab.values.global.appConfig.object_store.enabled: true
     asserts:
       - equal:
           path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
@@ -205,8 +205,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.appConfig.artifacts.connection:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.appConfig.artifacts.connection:
         secret: gitlab-object-storage
         key: rails
     asserts:
@@ -221,9 +221,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.redis.host: redis-sentinel.example.internal
-      addons.gitlab.values.global.redis.sentinels:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.redis.host: redis-sentinel.example.internal
+      packages.gitlab.values.global.redis.sentinels:
         - host: sentinel.example.internal
           port: 26379
     asserts:
@@ -240,8 +240,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.redis.redisYmlOverride:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.redis.redisYmlOverride:
         cache:
           secret: gitlab-redis-yml
           key: redis.yml
@@ -257,9 +257,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.redis.host: redis.example.internal
-      addons.gitlab.values.global.redis.auth.enabled: false
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.redis.host: redis.example.internal
+      packages.gitlab.values.global.redis.auth.enabled: false
     asserts:
       - equal:
           path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
@@ -274,9 +274,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.values.global.redis.host: redis.example.internal
-      addons.gitlab.values.global.redis.port: 6380
+      packages.gitlab.enabled: true
+      packages.gitlab.values.global.redis.host: redis.example.internal
+      packages.gitlab.values.global.redis.port: 6380
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled
@@ -298,7 +298,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons:
+      packages:
         gitlab:
           enabled: true
           values:

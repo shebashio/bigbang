@@ -1,5 +1,6 @@
-# Validate Big Bang's generic `packages` integration with a maintained package
-# that is intentionally not part of the umbrella chart.
+packageConfiguration:
+  version: v1
+
 packages:
   podinfo:
     enabled: true
@@ -18,44 +19,42 @@ packages:
         istio:
           serviceEntries:
             custom:
-              - name: repo1
-                spec:
-                  hosts:
-                    - repo1.dso.mil
-                    - cdn.jsdelivr.net
-                  location: MESH_EXTERNAL
-                  ports:
-                    - number: 443
-                      protocol: TLS
-                      name: https
-                  resolution: DNS
+            - name: repo1
+              spec:
+                hosts:
+                - repo1.dso.mil
+                - cdn.jsdelivr.net
+                location: MESH_EXTERNAL
+                ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+                resolution: DNS
       bbtests:
         enabled: true
 
-gatekeeper:
-  values:
-    violations:
-      allowedDockerRegistries:
-        parameters:
-          excludedResources:
-            # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
+  gatekeeper:
+    values:
+      violations:
+        allowedDockerRegistries:
+          parameters:
+            excludedResources:
+              # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
             - podinfo/curl
 
-kyvernoPolicies:
-  values:
-    # podinfo is a demo app that violates several policies (host path mounts, tagged
-    # images pulled from a public registry, etc.), so it is exempted from them.
-    additionalPolicyExceptions:
-      podinfo:
-        metadata:
-          annotations:
-            policies.kyverno.io/title: Podinfo Test Exception
-            policies.kyverno.io/category: Test
-            policies.kyverno.io/subject: Pod
-            policies.kyverno.io/description: >-
-              Allows resources created by the Podinfo packages-key validation test.
-        spec:
-          policyRefs:
+  kyvernoPolicies:
+    values:
+      additionalPolicyExceptions:
+        podinfo:
+          metadata:
+            annotations:
+              policies.kyverno.io/title: Podinfo Test Exception
+              policies.kyverno.io/category: Test
+              policies.kyverno.io/subject: Pod
+              policies.kyverno.io/description: >-
+                Allows resources created by the Podinfo packages-key validation test.
+          spec:
+            policyRefs:
             - name: restrict-host-path-mount
               kind: ValidatingPolicy
             - name: restrict-host-path-write
@@ -72,7 +71,7 @@ kyvernoPolicies:
               kind: ValidatingPolicy
             - name: restrict-image-registries
               kind: ValidatingPolicy
-          matchConditions:
+            matchConditions:
             - name: podinfo
               expression: >-
                 (object.metadata.namespace == 'podinfo' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('podinfo'))
@@ -80,24 +79,23 @@ kyvernoPolicies:
 #########################
 # Disable Core Packages #
 #########################
-renovate:
-  enabled: false
-monitoring:
-  enabled: false
-grafana:
-  enabled: false
-neuvector:
-  enabled: false
-loki:
-  enabled: false
-tempo:
-  enabled: false
-kyvernoReporter:
-  enabled: false
-kiali:
-  enabled: false
-alloy:
-  enabled: false
-addons:
+  renovate:
+    enabled: false
+  monitoring:
+    enabled: false
+  grafana:
+    enabled: false
+  neuvector:
+    enabled: false
+  loki:
+    enabled: false
+  tempo:
+    enabled: false
+  kyvernoReporter:
+    enabled: false
+  kiali:
+    enabled: false
+  alloy:
+    enabled: false
   minioOperator:
     enabled: false

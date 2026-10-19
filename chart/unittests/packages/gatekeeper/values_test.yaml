@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      gatekeeper.enabled: true
+      packages.gatekeeper.enabled: true
       networkPolicies.enabled: true
     asserts:
       - isNotNull:
@@ -32,7 +32,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      gatekeeper.enabled: true
+      packages.gatekeeper.enabled: true
       networkPolicies.enabled: true
       networkPolicies.ingress.definitions.kubeAPI:
         from:
@@ -52,8 +52,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      gatekeeper.enabled: true
-      monitoring.enabled: false
+      packages.gatekeeper.enabled: true
+      packages.monitoring.enabled: false
       istio.ambient.enabled: true
     asserts:
       - contains:

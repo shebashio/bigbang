@@ -36,8 +36,9 @@ tests:
       istio:
         ambient:
           enabled: false
-      ztunnel:
-        enabled: true
+      packages:
+        ztunnel:
+          enabled: true
     asserts:
       - equal:
           path: bigbang.istio.ambient.enabled

@@ -5,11 +5,11 @@ templates:
 tests:
   - it: keeps upstream kubelet TLS and authorization in sidecar strict mode
     set:
-      loki.enabled: true
-      loki.clusterName: regression-cluster
-      monitoring.values.istio.mtls.mode: STRICT
-      istiod.enabled: true
-      prometheusOperatorCRDs.enabled: true
+      packages.loki.enabled: true
+      packages.loki.clusterName: regression-cluster
+      packages.monitoring.values.istio.mtls.mode: STRICT
+      packages.istiod.enabled: true
+      packages.prometheusOperatorCRDs.enabled: true
     postRenderer: &defaults
       cmd: sh
       args: [-c, "yq '.stringData.defaults' | yq '.'"]
@@ -23,8 +23,8 @@ tests:
           value: regression-cluster
   - it: preserves kubelet defaults and cluster relabeling in ambient mode
     set:
-      loki.enabled: true
-      loki.clusterName: regression-cluster
+      packages.loki.enabled: true
+      packages.loki.clusterName: regression-cluster
       istio.ambient.enabled: true
     postRenderer: *defaults
     asserts:
@@ -35,14 +35,14 @@ tests:
           value: regression-cluster
   - it: does not inject kubelet configuration without Loki
     set:
-      loki.enabled: false
+      packages.loki.enabled: false
     postRenderer: *defaults
     asserts:
       - notExists:
           path: upstream.kubelet
   - it: preserves user kubelet TLS overrides separately from defaults
     set:
-      monitoring.values.upstream.kubelet.serviceMonitor.tlsConfig.serverName: kubelet.example.test
+      packages.monitoring.values.upstream.kubelet.serviceMonitor.tlsConfig.serverName: kubelet.example.test
     postRenderer:
       cmd: sh
       args: [-c, "yq '.stringData.overlays' | yq '.'"]

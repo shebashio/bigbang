@@ -1,8 +1,8 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.fortify.enabled }}
-{{- $fortifyPackage := deepCopy .Values.addons.fortify -}}
-{{- if .Values.addons.fortify.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.fortify.values) | fromYaml -}}
+{{- if .Values.packages.fortify.enabled }}
+{{- $fortifyPackage := deepCopy .Values.packages.fortify -}}
+{{- if .Values.packages.fortify.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.fortify.values) | fromYaml -}}
 {{- $fortifyPackage = set $fortifyPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict
@@ -16,12 +16,12 @@
 {{- define "bigbang.defaults.fortify" -}}
 {{- $domainName := .Values.domain }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardened := or (dig "istio" "hardened" "enabled" false .Values.addons.fortify.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $externalMySQLHost := dig "externalDatabase" "host" "" .Values.addons.fortify }}
-{{- $externalMySQLPort := dig "externalDatabase" "port" 3306 .Values.addons.fortify }}
-{{- $externalMySQLCIDRs := dig "networkPolicies" "egress" "definitions" "external-mysql" "to" list .Values.addons.fortify.values }}
-{{- $externalMySQLEnabled := and (not (dig "mysql" "enabled" true .Values.addons.fortify.values)) (not (empty $externalMySQLCIDRs)) }}
-{{- $externalMySQLRouteEnabled := and $istioEnabled (not (dig "mysql" "enabled" true .Values.addons.fortify.values)) (ne $externalMySQLHost "") }}
+{{- $istioHardened := or (dig "istio" "hardened" "enabled" false .Values.packages.fortify.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
+{{- $externalMySQLHost := dig "externalDatabase" "host" "" .Values.packages.fortify }}
+{{- $externalMySQLPort := dig "externalDatabase" "port" 3306 .Values.packages.fortify }}
+{{- $externalMySQLCIDRs := dig "networkPolicies" "egress" "definitions" "external-mysql" "to" list .Values.packages.fortify.values }}
+{{- $externalMySQLEnabled := and (not (dig "mysql" "enabled" true .Values.packages.fortify.values)) (not (empty $externalMySQLCIDRs)) }}
+{{- $externalMySQLRouteEnabled := and $istioEnabled (not (dig "mysql" "enabled" true .Values.packages.fortify.values)) (ne $externalMySQLHost "") }}
 
 upstream:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
@@ -43,7 +43,7 @@ routes:
     fortify:
       enabled: true
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.addons.fortify.ingress.gateway "root" .) }}
+        - {{ include "getGatewayName" (dict "gateway" .Values.packages.fortify.ingress.gateway "root" .) }}
       hosts:
         - fortify.{{ $domainName }}
       service: fortify-ssc-service
@@ -53,7 +53,7 @@ routes:
         app.kubernetes.io/component: webapp
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.fortify.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.fortify.values }}
       hosts:
         - repo1.dso.mil
     external-mysql:
@@ -84,7 +84,7 @@ bbtests:
   cypress:
     envs:
       cypress_url: {{ printf "https://fortify.%s" $domainName | quote }}
-      {{- $ssoTestValues := include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.fortify "values" .Values "testOnly" true) | fromYaml }}
+      {{- $ssoTestValues := include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.fortify "values" .Values "testOnly" true) | fromYaml }}
       {{- toYaml $ssoTestValues | nindent 6 }}
       # Fortify's SAML test uses these names for the shared Keycloak settings.
       cypress_sso_test_enable: {{ $ssoTestValues.cypress_keycloak_test_enable | quote }}

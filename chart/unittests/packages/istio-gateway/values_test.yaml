@@ -22,7 +22,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.overlays' - | yq eval '.'"
     set:
-      istioGateway.values:
+      packages.istioGateway.values:
         shared:
           waitJob:
             enabled: false
@@ -54,7 +54,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-istio-passthrough-gateway-values\") | .stringData.overlays' - | yq eval '.'"
     set:
-      istioGateway.values:
+      packages.istioGateway.values:
         shared:
           waitJob:
             enabled: false
@@ -75,7 +75,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.overlays' - | yq eval '.'"
     set:
-      istioGateway.values:
+      packages.istioGateway.values:
         shared:
           waitJob:
             enabled: false
@@ -95,7 +95,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.keycloak.enabled: true
+      packages.keycloak.enabled: true
     asserts:
       - equal:
           path: gateway.servers[2].hosts[0]
@@ -125,8 +125,8 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-istio-public-gateway-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.keycloak.enabled: true
-      addons.keycloak.ingress.gateway: custom
+      packages.keycloak.enabled: true
+      packages.keycloak.ingress.gateway: custom
     asserts:
       - lengthEqual:
           path: gateway.servers

@@ -7,8 +7,8 @@ tests:
   - it: should add ServiceMonitor patch when metric scraping is enabled
     template: templates/fluentbit/helmrelease.yaml
     set:
-      fluentbit.enabled: true
-      monitoring.enabled: true
+      packages.fluentbit.enabled: true
+      packages.monitoring.enabled: true
     asserts:
       - lengthEqual:
           path: spec.postRenderers[0].kustomize.patches
@@ -23,9 +23,9 @@ tests:
   - it: should not add ServiceMonitor patch when metric scraping is disabled
     template: templates/fluentbit/helmrelease.yaml
     set:
-      fluentbit.enabled: true
-      monitoring.enabled: false
-      alloy.enabled: false
+      packages.fluentbit.enabled: true
+      packages.monitoring.enabled: false
+      packages.alloy.enabled: false
     asserts:
       - lengthEqual:
           path: spec.postRenderers[0].kustomize.patches

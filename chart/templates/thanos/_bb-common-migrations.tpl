@@ -1,8 +1,8 @@
 {{- define "bigbang.thanos.bb-common-migrations" -}}
-{{- $thanos := .Values.addons.thanos }}
+{{- $thanos := .Values.packages.thanos }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
 {{- $storeGatewayEnabled := dig "storegateway" "enabled" false $thanos }}
-{{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
+{{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
 {{- $storeGatewayEgressCidr := dig "storegateway" "egress" "cidr" "" $thanos }}
 {{- $minioEnabled := dig "minio" "enabled" false $thanos }}
 
@@ -10,8 +10,8 @@ routes:
   inbound:
     query-frontend:
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.thanos.ingress.gateway | default "public") "root" .)}}
-      {{- $thanosHosts := dig "istio" "thanos" "hosts" list .Values.addons.thanos.values }}
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.thanos.ingress.gateway | default "public") "root" .)}}
+      {{- $thanosHosts := dig "istio" "thanos" "hosts" list .Values.packages.thanos.values }}
       {{- if $thanosHosts }}
       hosts:
       {{- range $thanosHosts }}
@@ -23,7 +23,7 @@ routes:
       {{- end }}
     minio:
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.thanos.ingress.gateway | default "public") "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.thanos.ingress.gateway | default "public") "root" .)}}
 
 networkPolicies:
   egress:

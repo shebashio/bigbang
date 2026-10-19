@@ -42,24 +42,26 @@ Gatekeeper doesn't have a database.
 When deploying to k3d, istio-system should be added from `excludedNamespaces` under the `allowedDockerRegistries` violations. This can be done by modifying `chart/values.yaml` file or passing an override file with the values set as seen below. This is for development purposes only: production should not allow containers in the `istio-system` namespace to be pulled from outside of Registry1. 
 
 ```yaml
-gatekeeper:
-  values:
-    violations:
-      allowedDockerRegistries:
-        match:
-          excludedNamespaces: 
-            - istio-system # allows creation for loadbalancer pods for various ports and various vendor loadbalancers
+packages:
+  gatekeeper:
+    values:
+      violations:
+        allowedDockerRegistries:
+          match:
+            excludedNamespaces:
+              - istio-system # allows creation for loadbalancer pods for various ports and various vendor loadbalancers
 ```
 
 ## High Availability
 
-High availability is accomplished by ensuring the `gatekeeper.values.upstream.replicas` setting is > 1. By default, this chart is configured for high availability with `replicas: 3`.
+High availability is accomplished by ensuring the `packages.gatekeeper.values.upstream.replicas` setting is > 1. By default, this chart is configured for high availability with `replicas: 3`.
 
 ```yaml
-gatekeeper:
-  values:
-    upstream:
-      replicas: 3
+packages:
+  gatekeeper:
+    values:
+      upstream:
+        replicas: 3
 ```
 
 ## Single Sign on (SSO)

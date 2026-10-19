@@ -37,6 +37,20 @@ create_generator_fixture() {
   [ "$actual" = "$expected" ]
 }
 
+@test "built-in schema definitions match the catalog and legacy paths are absent" {
+  expected=$(yq -o=json '.packages | keys' "${REPO_ROOT}/chart/package-metadata.yaml" | jq -c 'sort')
+  actual=$(jq -c '."$defs".builtinPackageSchemas.properties | keys | sort' "${REPO_ROOT}/chart/values.schema.json")
+  [ "$actual" = "$expected" ]
+
+  jq -e --argjson names "$expected" '
+    . as $schema |
+    (.properties.packages."$ref" == "#/$defs/canonicalPackages") and
+    (.allOf == null) and
+    (.properties | has("addons") | not) and
+    all($names[]; . as $name | ($schema.properties | has($name) | not))
+  ' "${REPO_ROOT}/chart/values.schema.json" >/dev/null
+}
+
 @test "package metadata groups categories and alphabetizes canonical keys" {
   category_order=$(yq -r '.packages[].category' \
     "${REPO_ROOT}/chart/package-metadata.yaml" | awk '!seen[$0]++')
@@ -83,4 +97,16 @@ create_generator_fixture() {
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"package metadata templateDirectory values must use kebab-case directory names"* ]]
+}
+
+@test "rejects a missing built-in schema definition" {
+  create_generator_fixture
+  jq 'del(."$defs".builtinPackageSchemas.properties.kiali)' \
+    "${FIXTURE_ROOT}/chart/values.schema.json" >"${BATS_TEST_TMPDIR}/schema.json"
+  cp "${BATS_TEST_TMPDIR}/schema.json" "${FIXTURE_ROOT}/chart/values.schema.json"
+
+  run "${FIXTURE_ROOT}/scripts/generate-package-schemas.sh" --check
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"built-in package schemas must match the package catalog"* ]]
 }

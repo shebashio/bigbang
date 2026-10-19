@@ -10,15 +10,15 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      fluentbit.values.networkPolicies.egress.definitions.external-elastic:
+      packages.fluentbit.enabled: true
+      packages.fluentbit.values.networkPolicies.egress.definitions.external-elastic:
         to:
           - ipBlock:
               cidr: 203.0.113.10/32
         ports:
           - port: 9200
             protocol: TCP
-      fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-elastic:
+      packages.fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-elastic:
         enabled: true
     asserts:
       - equal:
@@ -38,8 +38,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      loki.enabled: true
+      packages.fluentbit.enabled: true
+      packages.loki.enabled: true
     asserts:
       - matchRegex:
           path: upstream.config.outputs
@@ -58,15 +58,15 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      fluentbit.values.networkPolicies.egress.definitions.external-fluentd:
+      packages.fluentbit.enabled: true
+      packages.fluentbit.values.networkPolicies.egress.definitions.external-fluentd:
         to:
           - ipBlock:
               cidr: 198.51.100.0/24
         ports:
           - port: 24224
             protocol: TCP
-      fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd:
+      packages.fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd:
         enabled: true
     asserts:
       - equal:

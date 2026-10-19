@@ -3,8 +3,12 @@ Kyverno PolicyExceptions for Velero workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.velero" -}}
-{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
-{{- if .Values.addons.velero.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $velero := default (dict) (get $packages "velero") -}}
+{{- $veleroValues := default (dict) (get $velero "values") -}}
+{{- $veleroEnabled := default false (get $velero "enabled") -}}
+{{- $deployNodeAgent := and $veleroEnabled (dig "deployNodeAgent" false $veleroValues) }}
+{{- if $veleroEnabled }}
 # The backup/restore test pod requires elevated capabilities to validate backups.
 velero-require-drop-all-capabilities:
   spec:

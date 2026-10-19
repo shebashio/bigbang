@@ -19,8 +19,6 @@ tests:
         - yq 'select(.kind == "Secret" and .metadata.name == "bb-neuvector-values") | .stringData.common | from_yaml'
     asserts:
       - isNotNull:
-          path: bb-common.istio
-      - isNotNull:
           path: bb-common.networkPolicies
       - isNotNull:
           path: bb-common.routes.inbound.neuvector

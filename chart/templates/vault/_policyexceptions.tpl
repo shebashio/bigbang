@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Vault workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.vault" -}}
-{{- if .Values.addons.vault.enabled }}
+{{- if .Values.packages.vault.enabled }}
 # The Vault init job requires elevated capabilities.
 vault-add-default-capability-drop:
   spec:

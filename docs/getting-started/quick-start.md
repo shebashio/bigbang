@@ -185,7 +185,7 @@ You can use the Quick Start script to update your Big Bang Quick Start deploymen
 # [ubuntu@Ubuntu_VM:~]
 
 cat << EOF > ~/tinkering.yaml
-addons:
+packages:
   argocd:
     enabled: true
 EOF
