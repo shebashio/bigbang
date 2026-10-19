@@ -23,8 +23,8 @@ networkPolicies:
 routes:
   inbound:
     headlamp:
-      enabled: {{ dig "istio" "headlamp" "enabled" true .Values.addons.headlamp.values }}
-      {{- $hosts := dig "istio" "headlamp" "hosts" list .Values.addons.headlamp.values }}
+      enabled: {{ dig "istio" "headlamp" "enabled" true .Values.packages.headlamp.values }}
+      {{- $hosts := dig "istio" "headlamp" "hosts" list .Values.packages.headlamp.values }}
       hosts:
       {{- if $hosts }}
       {{- $hosts | toYaml | nindent 8 }}
@@ -32,10 +32,10 @@ routes:
       - headlamp.{{ .Values.domain }}
       {{- end }}
       gateways:
-      {{- $gateways := dig "istio" "headlamp" "gateways" list .Values.addons.headlamp.values }}
+      {{- $gateways := dig "istio" "headlamp" "gateways" list .Values.packages.headlamp.values }}
       {{- if $gateways }}
       {{- $gateways | toYaml | nindent 8 }}
       {{- else }}
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.headlamp.ingress.gateway "root" .) }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.headlamp.ingress.gateway "root" .) }}
       {{- end }}
 {{- end }}

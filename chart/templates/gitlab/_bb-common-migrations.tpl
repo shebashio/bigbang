@@ -1,6 +1,6 @@
 {{- define "bigbang.gitlab.externalObjectStorageConfigured" -}}
-{{- $configured := or (not (empty .Values.addons.gitlab.objectStorage.region)) (not (empty .Values.addons.gitlab.objectStorage.endpoint)) -}}
-{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $configured := or (not (empty .Values.packages.gitlab.objectStorage.region)) (not (empty .Values.packages.gitlab.objectStorage.endpoint)) -}}
+{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
 {{- $gitlabGlobalValues := dict -}}
 {{- if kindIs "map" $gitlabValues -}}
   {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
@@ -28,7 +28,7 @@
 
 {{- define "bigbang.gitlab.externalRedisConfigured" -}}
 {{- $configured := false -}}
-{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
 {{- $gitlabGlobalValues := dict -}}
 {{- if kindIs "map" $gitlabValues -}}
   {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
@@ -45,8 +45,8 @@
 {{- end }}
 
 {{- define "bigbang.gitlab.externalPostgresConfigured" -}}
-{{- $configured := not (empty .Values.addons.gitlab.database.host) -}}
-{{- $gitlabValues := .Values.addons.gitlab.values | default dict -}}
+{{- $configured := not (empty .Values.packages.gitlab.database.host) -}}
+{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
 {{- $gitlabGlobalValues := dict -}}
 {{- if kindIs "map" $gitlabValues -}}
   {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
@@ -69,10 +69,10 @@
 routes:
   inbound:
     gitlab:
-      enabled: {{ dig "istio" "gitlab" "enabled" true .Values.addons.gitlab.values }}
+      enabled: {{ dig "istio" "gitlab" "enabled" true .Values.packages.gitlab.values }}
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.gitlab.ingress.gateway | default "public") "root" .)}}
-      {{- $gitlabHosts := dig "istio" "gitlab" "hosts" list .Values.addons.gitlab.values }}
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+      {{- $gitlabHosts := dig "istio" "gitlab" "hosts" list .Values.packages.gitlab.values }}
       {{- if $gitlabHosts }}
       hosts:
       {{- range $gitlabHosts }}
@@ -80,13 +80,13 @@ routes:
       {{- end }}
       {{- else }}
       hosts:
-      - "{{ .Values.addons.gitlab.hostnames.gitlab }}.{{ .Values.domain }}"
+      - "{{ .Values.packages.gitlab.hostnames.gitlab }}.{{ .Values.domain }}"
       {{- end }}
     registry:
-      enabled: {{ dig "istio" "registry" "enabled" true .Values.addons.gitlab.values }}
+      enabled: {{ dig "istio" "registry" "enabled" true .Values.packages.gitlab.values }}
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.gitlab.ingress.gateway | default "public") "root" .)}}
-      {{- $registryHosts := dig "istio" "registry" "hosts" list .Values.addons.gitlab.values }}
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+      {{- $registryHosts := dig "istio" "registry" "hosts" list .Values.packages.gitlab.values }}
       {{- if $registryHosts }}
       hosts:
       {{- range $registryHosts }}
@@ -94,14 +94,14 @@ routes:
       {{- end }}
       {{- else }}
       hosts:
-      - "{{ .Values.addons.gitlab.hostnames.registry }}.{{ .Values.domain }}"
+      - "{{ .Values.packages.gitlab.hostnames.registry }}.{{ .Values.domain }}"
       {{- end }}
-    {{- if (dig "global" "kas" "enabled" false .Values.addons.gitlab.values) }}
+    {{- if (dig "global" "kas" "enabled" false .Values.packages.gitlab.values) }}
     kas:
-      enabled: {{ dig "global" "kas" "enabled" true .Values.addons.gitlab.values }}
+      enabled: {{ dig "global" "kas" "enabled" true .Values.packages.gitlab.values }}
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.addons.gitlab.ingress.gateway | default "public") "root" .)}}
-      {{- $kasHosts := dig "istio" "kas" "hosts" list .Values.addons.gitlab.values }}
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+      {{- $kasHosts := dig "istio" "kas" "hosts" list .Values.packages.gitlab.values }}
       {{- if $kasHosts }}
       hosts:
       {{- range $kasHosts }}
@@ -113,15 +113,15 @@ routes:
       {{- end }}
     {{- end }}
     pages:
-      enabled: {{ dig "istio" "pages" "enabled" false .Values.addons.gitlab.values }}
-      {{- $pagesGateways := dig "istio" "pages" "gateways" list .Values.addons.gitlab.values }}
+      enabled: {{ dig "istio" "pages" "enabled" false .Values.packages.gitlab.values }}
+      {{- $pagesGateways := dig "istio" "pages" "gateways" list .Values.packages.gitlab.values }}
       {{- if $pagesGateways }}
       gateways:
       {{- range $pagesGateways }}
       - {{ . }}
       {{- end }}
       {{- end }}
-      {{- $pagesHosts := dig "istio" "pages" "hosts" list .Values.addons.gitlab.values }}
+      {{- $pagesHosts := dig "istio" "pages" "hosts" list .Values.packages.gitlab.values }}
       {{- if $pagesHosts }}
       hosts:
       {{- range $pagesHosts }}
@@ -130,12 +130,12 @@ routes:
       {{- end }}
   outbound:
     sso:
-      enabled: {{ or .Values.addons.gitlab.sso.enabled (dig "sso" "enabled" false .Values.addons.gitlab.values) }}
+      enabled: {{ or .Values.packages.gitlab.sso.enabled (dig "sso" "enabled" false .Values.packages.gitlab.values) }}
       hosts:
-      - {{ coalesce (dig "sso" "host" nil .Values.addons.gitlab.values) (include "sso.host" .) }}
+      - {{ coalesce (dig "sso" "host" nil .Values.packages.gitlab.values) (include "sso.host" .) }}
 
-{{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
-{{- $gitlabUpstreamValues := (get .Values.addons.gitlab.values "upstream") | default dict }}
+{{- $gitlabGlobalValues := (get .Values.packages.gitlab.values "global") | default dict }}
+{{- $gitlabUpstreamValues := (get .Values.packages.gitlab.values "upstream") | default dict }}
 {{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
 {{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
 {{- $minioEnabled := true }}
@@ -162,8 +162,8 @@ routes:
 {{- if $externalPostgresConfigured }}
   {{- $postgresEnabled = false }}
 {{- end }}
-{{- $iamProfileUsed := dig "use_iam_profile" false .Values.addons.gitlab.values }}
-{{- $iamProfileUsed = not (empty .Values.addons.gitlab.objectStorage.iamProfile) | or $iamProfileUsed }}
+{{- $iamProfileUsed := dig "use_iam_profile" false .Values.packages.gitlab.values }}
+{{- $iamProfileUsed = not (empty .Values.packages.gitlab.objectStorage.iamProfile) | or $iamProfileUsed }}
 networkPolicies:
   egress:
     {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
@@ -187,7 +187,7 @@ networkPolicies:
       gitaly:
         to:
           cidr:
-            0.0.0.0/0:443: {{ dig "networkPolicies" "gitalyEgress" "enabled" false .Values.addons.gitlab.values }}
+            0.0.0.0/0:443: {{ dig "networkPolicies" "gitalyEgress" "enabled" false .Values.packages.gitlab.values }}
       migrations:
         to:
           cidr:

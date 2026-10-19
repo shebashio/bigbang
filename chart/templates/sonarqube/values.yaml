@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.sonarqube.enabled }}
+{{- if .Values.packages.sonarqube.enabled }}
 {{- /* Create a cleaned copy of sonarqube config and merge deprecated paths into current paths */ -}}
-{{- $sonarqubePackage := deepCopy .Values.addons.sonarqube -}}
-{{- if .Values.addons.sonarqube.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.sonarqube.values) | fromYaml -}}
+{{- $sonarqubePackage := deepCopy .Values.packages.sonarqube -}}
+{{- if .Values.packages.sonarqube.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.sonarqube.values) | fromYaml -}}
 {{- $sonarqubePackage = set $sonarqubePackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict 
@@ -16,15 +16,15 @@
 
 {{- define "bigbang.defaults.sonarqube" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.sonarqube.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $plugins := dig "upstream" "plugins" "install" (list) .Values.addons.sonarqube.values }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.sonarqube.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
+{{- $plugins := dig "upstream" "plugins" "install" (list) .Values.packages.sonarqube.values }}
 {{- $pluginsExist := not (empty $plugins) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
-{{- $localSSOEnabled := and .Values.addons.keycloak.enabled .Values.addons.sonarqube.sso.enabled }}
+{{- $localSSOEnabled := and .Values.packages.keycloak.enabled .Values.packages.sonarqube.sso.enabled }}
 
 OpenShift:
   enabled: {{ .Values.openshift }}
@@ -38,7 +38,7 @@ routes:
     sonarqube:
       enabled: true
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.addons.sonarqube.ingress.gateway "root" .)}}
+        - {{ include "getGatewayName" (dict "gateway" .Values.packages.sonarqube.ingress.gateway "root" .)}}
       hosts:
         - sonarqube.{{ .Values.domain }}
       service: sonarqube-sonarqube.sonarqube.svc.cluster.local
@@ -47,7 +47,7 @@ routes:
         app: sonarqube
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.sonarqube.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.sonarqube.values }}
       hosts:
       - repo1.dso.mil
     sonarqube-marketplace:
@@ -70,8 +70,8 @@ networkPolicies:
             app: sonarqube
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   egress:
     from:
       sonarqube:
@@ -80,11 +80,11 @@ networkPolicies:
             app: sonarqube
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             sonarsource-marketplace: {{ $pluginsExist }}
             code-repository: true
-            database-subnets: {{ not (or (empty .Values.addons.sonarqube.database.host) (dig "upstream" "jdbcOverwrite" "enabled" false .Values.addons.sonarqube.values )) }}
+            database-subnets: {{ not (or (empty .Values.packages.sonarqube.database.host) (dig "upstream" "jdbcOverwrite" "enabled" false .Values.packages.sonarqube.values )) }}
       sonarqube-configure-sso:
         podSelector:
           matchLabels:
@@ -112,7 +112,7 @@ bbtests:
     envs:
       cypress_url: {{ printf "https://sonarqube.%s" $domainName | quote }}
       cypress_url_setup: {{ printf "https://sonarqube.%s/setup" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.sonarqube "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.sonarqube "values" .Values) | nindent 6 }}
 
 {{- if $localSSOEnabled }}
 sso:
@@ -133,28 +133,28 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-{{- if .Values.addons.sonarqube.sso.enabled }}
+{{- if .Values.packages.sonarqube.sso.enabled }}
   sonarProperties:
     # enabling saml authentication 
-    sonar.auth.saml.enabled: {{ .Values.addons.sonarqube.sso.enabled }}   #false
+    sonar.auth.saml.enabled: {{ .Values.packages.sonarqube.sso.enabled }}   #false
      # The base URL of the sonarqube server
     sonar.core.serverBaseURL: https://sonarqube.{{ $domainName }}
     # The client ID of the Sonarqube client in Keycloak
-    sonar.auth.saml.applicationId: {{ .Values.addons.sonarqube.sso.client_id }}    # "sonarqube"
+    sonar.auth.saml.applicationId: {{ .Values.packages.sonarqube.sso.client_id }}    # "sonarqube"
     # SSO login button label 
-    sonar.auth.saml.providerName: {{ coalesce .Values.addons.sonarqube.sso.provider_name .Values.addons.sonarqube.sso.label .Values.sso.name }} # "Keycloak SSO"
+    sonar.auth.saml.providerName: {{ coalesce .Values.packages.sonarqube.sso.provider_name .Values.packages.sonarqube.sso.label .Values.sso.name }} # "Keycloak SSO"
     # You will find this in Keycloak in Realm Settings > General > Endpoints. Click on SAML 2.0 Identify Provider Metadata to obtain the XML configuration file. Search for the value 'EntityDescriptor > entityID'
     sonar.auth.saml.providerId: {{ include "sso.url" . }}    #"https://your.keycloak.url/auth/realms/baby-yoda"
     sonar.auth.saml.loginUrl: {{ include "sso.saml.service" . }}    #"https://your.keycloak.url/auth/realms/baby-yoda/protocol/saml"
     # This is the RS256 key copied from Keycloak The value you get from ***Realm Settings > Keys > RS256.*** Click on Certificate
     {{- if not $localSSOEnabled }}
-    sonar.auth.saml.certificate.secured: {{ default (include "sso.saml.cert" .) .Values.addons.sonarqube.sso.certificate }}   #"-----BEGIN CERTIFICATE-----"
+    sonar.auth.saml.certificate.secured: {{ default (include "sso.saml.cert" .) .Values.packages.sonarqube.sso.certificate }}   #"-----BEGIN CERTIFICATE-----"
     {{- end }}
-    sonar.auth.saml.user.login: {{ .Values.addons.sonarqube.sso.login | default "login" }}   #"login" (user attribute)
-    sonar.auth.saml.user.name: {{ .Values.addons.sonarqube.sso.name | default "name" }}      #"username" (user attribute)
-    sonar.auth.saml.user.email: {{ .Values.addons.sonarqube.sso.email | default "email" }}   #"email" (user attribute)
-    {{- if .Values.addons.sonarqube.sso.group }}
-    sonar.auth.saml.group.name: {{ .Values.addons.sonarqube.sso.group }}  #"groups" (user attribute)
+    sonar.auth.saml.user.login: {{ .Values.packages.sonarqube.sso.login | default "login" }}   #"login" (user attribute)
+    sonar.auth.saml.user.name: {{ .Values.packages.sonarqube.sso.name | default "name" }}      #"username" (user attribute)
+    sonar.auth.saml.user.email: {{ .Values.packages.sonarqube.sso.email | default "email" }}   #"email" (user attribute)
+    {{- if .Values.packages.sonarqube.sso.group }}
+    sonar.auth.saml.group.name: {{ .Values.packages.sonarqube.sso.group }}  #"groups" (user attribute)
     {{- end }}
 {{- end }}
 
@@ -163,9 +163,9 @@ upstream:
   {{- end }}
 
   prometheusExporter:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.monitoring.enabled }}
 
-  {{- with .Values.addons.sonarqube.database }}
+  {{- with .Values.packages.sonarqube.database }}
   {{- if and .host .username .password .database .port }}
 # External Postgres config
   jdbcOverwrite:

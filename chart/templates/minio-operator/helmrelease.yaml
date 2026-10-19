@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsMinioOperator := mergeOverwrite (deepCopy .Values.flux) .Values.addons.minioOperator.flux -}}
-{{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
+{{- $fluxSettingsMinioOperator := mergeOverwrite (deepCopy .Values.flux) .Values.packages.minioOperator.flux -}}
+{{- if or .Values.packages.minioOperator.enabled .Values.packages.minio.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -14,13 +14,13 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/minio-operator/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: minio-operator
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "minio-operator" "package" .Values.addons.minioOperator "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "minio-operator" "package" .Values.packages.minioOperator "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingsMinioOperator | nindent 2 }}
 
-  {{- if .Values.addons.minioOperator.postRenderers }}
+  {{- if .Values.packages.minioOperator.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.minioOperator.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.minioOperator.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "minio-operator" "root" .) | nindent 2 }}
 
@@ -32,25 +32,25 @@ spec:
     imagePullSecrets:
       - name: private-registry
 
-  {{- if not (kindIs "invalid" .Values.addons.minioOperator.dependsOnOverride) }}
-  {{- with .Values.addons.minioOperator.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.minioOperator.dependsOnOverride) }}
+  {{- with .Values.packages.minioOperator.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.minioOperator.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.minioOperator.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.minioOperator) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.minioOperator) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

@@ -27,11 +27,15 @@ BigBang core and addon packages ship with various network policies already confi
 networkPolicies:
   enabled: [true|false]
 
-# For an integrated package that consumes bb-common as a subchart, this will
-# turn network policies on or off for that package. User-defined packages that
-# consume bb-common as a subchart use the same nested values shape.
+# Packages that still consume bb-common as a library chart use the flat values shape.
 packages:
-  PACKAGE_NAME:
+  LIBRARY_PACKAGE_NAME:
+    values:
+      networkPolicies:
+        enabled: [true|false]
+
+# Packages that consume bb-common as a regular subchart use Helm's nested values shape.
+  SUBCHART_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:
@@ -50,18 +54,26 @@ authorizationPolicies:
 
 Ambient mode enables AuthorizationPolicies regardless of this value. A package
 can override the generated setting beneath
-`packages.<name>.values.bb-common.istio.authorizationPolicies`.
+`packages.<name>.values.istio.authorizationPolicies`, or beneath
+`packages.<name>.values.bb-common.istio.authorizationPolicies` after migrating
+`bb-common` to a regular subchart.
 
 ## Crafting and Delivering Additional Network Policies
 
 Sometimes you will want to apply additional [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to further isolate certain pods in your deployment. BigBang has adopted standardized mechanisms for crafting and deploying these Network Policies through the values provided to your BigBang core, supported addon or packages deployed with the big bang wrapper chart.
 
-For an integrated package that consumes `bb-common` as a subchart, place these
-rules beneath that dependency's values key:
+For packages that still consume `bb-common` as a library chart, place these
+rules directly in the package values. For packages that consume `bb-common` as
+a regular subchart, place them beneath that dependency's values key:
 
 ```
 packages:
-  PACKAGE_NAME:
+  LIBRARY_PACKAGE_NAME:
+    values:
+      networkPolicies:
+        enabled: true
+        additionalPolicies: []
+  SUBCHART_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:

@@ -1,5 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.monitoring.enabled }}
+{{- if .Values.packages.monitoring.enabled }}
 {{- include "values-secret" (dict 
   "root" $ 
   "package" (dict "values" (fromYaml (include "bigbang.overlays.monitoring" .))) 
@@ -21,9 +21,9 @@ sidecar defaults, generated authorization policies, and hardened service entries
 It folds umbrella hardening and legacy package hardening key paths together.
 */}}
 {{- $istioHardenedEnabled := or
-  (dig "hardened" "enabled" false .Values.istiod.values)
-  (dig "values" "istio" "hardened" "enabled" false .Values.monitoring)
-  (dig "values" "hardened" "enabled" false .Values.monitoring)
+  (dig "hardened" "enabled" false .Values.packages.istiod.values)
+  (dig "values" "istio" "hardened" "enabled" false .Values.packages.monitoring)
+  (dig "values" "hardened" "enabled" false .Values.packages.monitoring)
 }}
 {{/*
 Effective gate for monitoring workload injection/cert wiring.
@@ -31,9 +31,9 @@ When true, render annotations and cert output wiring that depend on Istio sideca
 injection in the monitoring namespace.
 */}}
 {{- $monitoringNamespaceInjectionEnabled := ternary
-  (eq (dig "istio" "injection" "enabled" .Values.prometheusOperatorCRDs) "enabled")
-  (and .Values.grafana.enabled (eq (dig "istio" "injection" "enabled" .Values.grafana) "enabled"))
-  .Values.prometheusOperatorCRDs.enabled
+  (eq (dig "istio" "injection" "enabled" .Values.packages.prometheusOperatorCRDs) "enabled")
+  (and .Values.packages.grafana.enabled (eq (dig "istio" "injection" "enabled" .Values.packages.grafana) "enabled"))
+  .Values.packages.prometheusOperatorCRDs.enabled
 }}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 {{- $monitoringInjectionEnabled := and $istioEnabled $monitoringNamespaceInjectionEnabled }}
@@ -42,15 +42,15 @@ When ambient mode is enabled, sidecar injection is disabled since sidecars are n
 Sidecar-specific annotations and cert mounting don't apply in ambient mode.
 */}}
 {{- $sidecarInjectionEnabled := and $monitoringInjectionEnabled (not $ambientEnabled) }}
-{{- $mtlsStrict := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.monitoring.values) "STRICT") }}
+{{- $mtlsStrict := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.monitoring.values) "STRICT") }}
 {{/*
 mTLS strict mode with sidecar certs is only applicable when sidecars are used (not ambient mode).
 */}}
 {{- $monitoringMtlsStrict := and $mtlsStrict $sidecarInjectionEnabled }}
-{{- $gitlabRedis := (and (ne .Values.addons.gitlab.redis.password "" ) (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled)) }}
-{{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.addons.authservice) .Values.addons.authservice.enabled) }}
+{{- $gitlabRedis := (and (ne .Values.packages.gitlab.redis.password "" ) (or .Values.packages.gitlab.enabled .Values.packages.gitlabRunner.enabled)) }}
+{{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.packages.authservice) .Values.packages.authservice.enabled) }}
 
-{{- $authserviceEnabled := and $istioEnabled (or .Values.addons.authservice.enabled (and .Values.monitoring.enabled .Values.monitoring.sso.enabled) (and .Values.tempo.enabled .Values.tempo.sso.enabled)) }}
+{{- $authserviceEnabled := and $istioEnabled (or .Values.packages.authservice.enabled (and .Values.packages.monitoring.enabled .Values.packages.monitoring.sso.enabled) (and .Values.packages.tempo.enabled .Values.packages.tempo.sso.enabled)) }}
 {{/*
 When true, prometheus/alertmanager are protected by authservice via the monitoring
 package's own ambient waypoint (bb-common per-route authservice model). This drives
@@ -58,17 +58,17 @@ the per-route authservice config, the self-waypoint Service enrollment, and
 prependReleaseName (so the waypoint is named monitoring-monitoring-waypoint).
 */}}
 {{- $monitoringAuthserviceWaypoint := eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
-{{- $redisDatasource := (or $gitlabRedis .Values.addons.argocd.enabled $authserviceRedisEnabled) }}
-{{- $headlampEnabled := (.Values.addons.headlamp.enabled) }}
-{{- $thanosEnabled := (.Values.addons.thanos.enabled) }}
-{{- $lokiEnabled := (.Values.loki.enabled) }}
-{{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
-{{- $vaultIstioHosts := (dig "routes" "inbound" "vault" "hosts" dict .Values.addons.vault.values) }}
+{{- $redisDatasource := (or $gitlabRedis .Values.packages.argocd.enabled $authserviceRedisEnabled) }}
+{{- $headlampEnabled := (.Values.packages.headlamp.enabled) }}
+{{- $thanosEnabled := (.Values.packages.thanos.enabled) }}
+{{- $lokiEnabled := (.Values.packages.loki.enabled) }}
+{{- $clusterName := ( default "logging-loki" .Values.packages.loki.clusterName ) }}
+{{- $vaultIstioHosts := (dig "routes" "inbound" "vault" "hosts" dict .Values.packages.vault.values) }}
 
 
 # Reproducing the naming convention based on the upstream chart: 
 # https://github.com/prometheus-community/helm-charts/blob/1a04bc9e7e988a210d0f1d1882243ff1e3bd1c03/charts/kube-prometheus-stack/templates/prometheus-operator/_prometheus-operator.tpl#L5
-{{- $kpsNameOverride := dig "upstream" "nameOverride" "kube-prometheus-stack" .Values.monitoring.values | trunc 50 | trimSuffix "-" }}
+{{- $kpsNameOverride := dig "upstream" "nameOverride" "kube-prometheus-stack" .Values.packages.monitoring.values | trunc 50 | trimSuffix "-" }}
 {{- $kpsName := printf "%s-%s" $kpsNameOverride "prometheus-operator" }}
 {{- $isDefaultKpsName := eq $kpsName "kube-prometheus-stack-prometheus-operator" }}
 
@@ -87,14 +87,14 @@ istio:
   sidecar:
     enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
     outboundTrafficPolicyMode: REGISTRY_ONLY
-  {{- if and $istioHardenedEnabled (contains "s3" .Values.addons.thanos.objectStorage.endpoint) }}
+  {{- if and $istioHardenedEnabled (contains "s3" .Values.packages.thanos.objectStorage.endpoint) }}
   serviceEntries:
     custom:
       - name: egress-object-store
         enabled: true
         spec:
           hosts:
-          - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ .Values.addons.thanos.objectStorage.endpoint }}"
+          - "{{ .Values.packages.thanos.objectStorage.bucket }}.{{ .Values.packages.thanos.objectStorage.endpoint }}"
           location: MESH_EXTERNAL
           ports:
             - number: 443
@@ -109,7 +109,7 @@ routes:
   inbound:
     monitoring-prometheus:
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+        - {{ include "getGatewayName" (dict "gateway" .Values.packages.monitoring.ingress.gateway "root" .)}}
       {{- if $monitoringAuthserviceWaypoint }}
       # bb-common generates the OIDC ext_authz policies (RequestAuthentication +
       # CUSTOM/DENY AuthorizationPolicy) for this route, enforced at the waypoint.
@@ -117,21 +117,21 @@ routes:
         enabled: true
         ingressOnly: true
         issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.monitoring.sso.prometheus.client_id | quote }}
+        clientId: {{ .Values.packages.monitoring.sso.prometheus.client_id | quote }}
       {{- end }}
     monitoring-alertmanager:
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.monitoring.ingress.gateway "root" .)}}
+        - {{ include "getGatewayName" (dict "gateway" .Values.packages.monitoring.ingress.gateway "root" .)}}
       {{- if $monitoringAuthserviceWaypoint }}
       authservice:
         enabled: true
         ingressOnly: true
         issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.monitoring.sso.alertmanager.client_id | quote }}
+        clientId: {{ .Values.packages.monitoring.sso.alertmanager.client_id | quote }}
       {{- end }}
   outbound:
     monitoring-bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.monitoring.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.monitoring.values }}
       hosts:
       - 'repo1.dso.mil'
       - prometheus.{{ $domainName }}
@@ -168,7 +168,7 @@ networkPolicies:
       "*":
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
       prometheus:
         to:
           k8s:
@@ -183,6 +183,16 @@ networkPolicies:
             authservice/authservice:10003: {{ $authserviceEnabled }}
   ingress:
     to:
+      {{- if and .Values.packages.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.packages.alloy) }}
+      kube-state-metrics:8080:
+        from:
+          k8s:
+            alloy/alloy-metrics: true
+      prometheus-node-exporter:9100:
+        from:
+          k8s:
+            alloy/alloy-metrics: true
+      {{- end }}
       {{ $kpsName }}:10250:
         from:
           cidr:
@@ -191,32 +201,32 @@ networkPolicies:
       prometheus:10901:
         from:
           k8s:
-            thanos/thanos: {{ .Values.addons.thanos.enabled }}
+            thanos/thanos: {{ .Values.packages.thanos.enabled }}
       alertmanager:9093:
         from:
           k8s:
             authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
-            alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            logging/logging-loki: {{ .Values.loki.enabled }}
+            alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
+            logging/logging-loki: {{ .Values.packages.loki.enabled }}
           definition:
-            gateway: {{ .Values.istioGateway.enabled }}
+            gateway: {{ .Values.packages.istioGateway.enabled }}
       grafana:3000:
         from:
           k8s:
-            kiali/kiali: {{ .Values.kiali.enabled }}
+            kiali/kiali: {{ .Values.packages.kiali.enabled }}
           definition:
-            gateway: {{ .Values.istioGateway.enabled }}
+            gateway: {{ .Values.packages.istioGateway.enabled }}
       prometheus:9090:
         from:
           definition:
-            gateway: {{ .Values.istioGateway.enabled }}
+            gateway: {{ .Values.packages.istioGateway.enabled }}
           k8s:
-            tempo/tempo: {{ .Values.tempo.enabled }}
+            tempo/tempo: {{ .Values.packages.tempo.enabled }}
             authservice/haproxy: {{ ((.Values.packages).haproxy).enabled }}
-            kiali/kiali: {{ .Values.kiali.enabled }}
-            alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            logging/logging-loki: {{ .Values.loki.enabled }}
+            kiali/kiali: {{ .Values.packages.kiali.enabled }}
+            alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
+            alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            logging/logging-loki: {{ .Values.packages.loki.enabled }}
 
 bbtests:
   cypress:
@@ -225,18 +235,18 @@ bbtests:
       cypress_prometheus_url: {{ printf "https://prometheus.%s" $domainName | quote }}
       cypress_grafana_url: {{ printf "https://grafana.%s" $domainName | quote }}
       cypress_alertmanager_url: {{ printf "https://alertmanager.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.monitoring "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.monitoring "values" .Values) | nindent 6 }}
 
 openshift: {{ .Values.openshift }}
 
-{{- if .Values.addons.headlamp.enabled }}
+{{- if .Values.packages.headlamp.enabled }}
 blackboxExporter:
   image:
   {{- include "secretsPullSecrets" . | nindent 4 }}
 
   enabled: true
   serviceMonitor:
-    enabled: {{ .Values.monitoring.enabled }}
+    enabled: {{ .Values.packages.monitoring.enabled }}
     {{- if $monitoringMtlsStrict }}
     scheme: https
     tlsConfig:
@@ -254,23 +264,23 @@ blackboxExporter:
 {{- end }}  
 
 minioOperator:
-  enabled: {{ .Values.addons.minioOperator.enabled }}
+  enabled: {{ .Values.packages.minioOperator.enabled }}
 
 gitlabRunner:
-  enabled: {{ .Values.addons.gitlabRunner.enabled }}
+  enabled: {{ .Values.packages.gitlabRunner.enabled }}
 
 
 anchoreEnterprise:
-  enabled: {{ .Values.addons.anchoreEnterprise.enabled }}
+  enabled: {{ .Values.packages.anchoreEnterprise.enabled }}
 
 kiali:
-  enabled: {{ .Values.kiali.enabled }}
+  enabled: {{ .Values.packages.kiali.enabled }}
 
 loki:
-  enabled: {{ .Values.loki.enabled }}
+  enabled: {{ .Values.packages.loki.enabled }}
 
 tempo:
-  enabled: {{ .Values.tempo.enabled }}
+  enabled: {{ .Values.packages.tempo.enabled }}
 
 {{- if or $gitlabRedis $authserviceRedisEnabled $redisDatasource }}
 redis:
@@ -278,16 +288,22 @@ redis:
 {{- end }}
 
 vault:
-  enabled: {{ .Values.addons.vault.enabled }}
-  tlsDisable: {{ dig "global" "tlsDisable" true .Values.addons.vault.values }}
+  enabled: {{ .Values.packages.vault.enabled }}
+  tlsDisable: {{ dig "global" "tlsDisable" true .Values.packages.vault.values }}
 
 global:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 sso:
-  enabled: {{ .Values.monitoring.sso.enabled }}
+  enabled: {{ .Values.packages.monitoring.sso.enabled }}
 
 upstream:
+  {{- if not (dig "upstream" "prometheus" "enabled" true .Values.packages.monitoring.values) }}
+  # Control-plane monitors require a token Secret created with the Prometheus service account.
+  # Users who provide their own ServiceMonitor authorization can override this gate.
+  kubernetesServiceMonitors:
+    enabled: false
+  {{- end }}
   alertmanager:
     {{- if $monitoringAuthserviceWaypoint }}
     # In ambient mode, enroll alertmanager onto the monitoring package's own waypoint
@@ -306,16 +322,16 @@ upstream:
           imagePullPolicy: {{ .Values.imagePullPolicy }}
         - name: "config-reloader"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-      {{- if or .Values.monitoring.sso.enabled $sidecarInjectionEnabled .Values.kiali.enabled }}
+      {{- if or .Values.packages.monitoring.sso.enabled $sidecarInjectionEnabled .Values.packages.kiali.enabled }}
       podMetadata:
-        {{- if or .Values.monitoring.sso.enabled .Values.kiali.enabled }}
-        {{- $alertmanagerAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-        {{- $alertmanagerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+        {{- if or .Values.packages.monitoring.sso.enabled .Values.packages.kiali.enabled }}
+        {{- $alertmanagerAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+        {{- $alertmanagerAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
         labels:
-          {{- if .Values.kiali.enabled }}
+          {{- if .Values.packages.kiali.enabled }}
           service.istio.io/canonical-name: alertmanager
           {{- end }}
-          {{- if .Values.monitoring.sso.enabled }}
+          {{- if .Values.packages.monitoring.sso.enabled }}
           {{ $alertmanagerAuthserviceKey }}: {{ $alertmanagerAuthserviceValue }}
           {{- end }}
         {{- end }}
@@ -370,7 +386,7 @@ upstream:
           keyFile: /etc/prom-certs/key.pem
           insecureSkipVerify: true  # Prometheus does not support Istio security naming, thus skip verifying target pod certificate
       {{- end }}
-      {{- if and .Values.addons.mimir.enabled (not (dig "alloyMetrics" "enabled" false .Values.alloy)) }}
+      {{- if and .Values.packages.mimir.enabled (not (dig "alloyMetrics" "enabled" false .Values.packages.alloy)) }}
       remoteWrite:
         {{- if and $istioEnabled (not $ambientEnabled) }}
         # I promise it's not a typo; the port is 80 even though it's TLS
@@ -378,7 +394,7 @@ upstream:
         {{- else }}
         - url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
         {{- end }}
-        {{- if and $monitoringMtlsStrict (eq (dig "istio" "mtls" "mode" "STRICT" .Values.addons.mimir.values) "STRICT") }}
+        {{- if and $monitoringMtlsStrict (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.mimir.values) "STRICT") }}
           tlsConfig:
             caFile: /etc/prom-certs/root-cert.pem
             certFile: /etc/prom-certs/cert-chain.pem
@@ -388,7 +404,7 @@ upstream:
       {{- end }}
       {{- if $thanosEnabled }}
       thanos:
-        {{- if (dig "values" "bbtests" "enabled" false .Values.addons.thanos) }}
+        {{- if (dig "values" "bbtests" "enabled" false .Values.packages.thanos) }}
         objectStorageConfig:
           secret:
             type: s3
@@ -411,7 +427,7 @@ upstream:
         # by default, the object stores only sync every 2 hours
         # increase the frequency so the tests will pass 
         blockSize: 1m
-        {{- else if not ( .Values.addons.thanos.objectStorage.endpoint | empty) }}
+        {{- else if not ( .Values.packages.thanos.objectStorage.endpoint | empty) }}
         objectStorageConfig:
           existingSecret:
             key: objstore.yml
@@ -437,10 +453,10 @@ upstream:
           imagePullPolicy: {{ .Values.imagePullPolicy }}
         - name: "config-reloader"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-      {{- if or .Values.tempo.enabled (dig "alloyMetrics" "enabled" false .Values.alloy) }}
+      {{- if or .Values.packages.tempo.enabled (dig "alloyMetrics" "enabled" false .Values.packages.alloy) }}
       enableRemoteWriteReceiver: true
       {{- end }}
-      {{- if not (dig "prometheusMetrics" "enabled" true .Values.monitoring) }}
+      {{- if not (dig "prometheusMetrics" "enabled" true .Values.packages.monitoring) }}
       serviceMonitorNamespaceSelector:
         matchLabels:
           invalid-key: invalid-value
@@ -451,18 +467,18 @@ upstream:
       podMetadata:
         labels:
           app: prometheus
-          {{- if .Values.kiali.enabled }}
+          {{- if .Values.packages.kiali.enabled }}
           service.istio.io/canonical-name: prometheus
           {{- end }}
-          {{- if .Values.monitoring.sso.enabled }}
-          {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-          {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+          {{- if .Values.packages.monitoring.sso.enabled }}
+          {{- $prometheusAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+          {{- $prometheusAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
           {{ $prometheusAuthserviceKey }}: {{ $prometheusAuthserviceValue }}
           {{- end }}
-          {{- if and (eq (include "networkPoliciesEnabled" .) "true") .Values.addons.vault.enabled }}
+          {{- if and (eq (include "networkPoliciesEnabled" .) "true") .Values.packages.vault.enabled }}
           vault-ingress: "true"
           {{- end }}
-        {{- if or $istioEnabled .Values.addons.vault.enabled }}
+        {{- if or $istioEnabled .Values.packages.vault.enabled }}
         annotations:
           {{- if $istioEnabled }}
           {{ include "istioAnnotation" . }}
@@ -474,7 +490,7 @@ upstream:
               OUTPUT_CERTS: /etc/istio-output-certs
           sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
           {{- end }}
-          {{- if .Values.addons.vault.enabled }}
+          {{- if .Values.packages.vault.enabled }}
           vault.hashicorp.com/agent-inject: "true"
           vault.hashicorp.com/agent-init-first: "true"
           vault.hashicorp.com/agent-inject-token: "true"
@@ -489,7 +505,7 @@ upstream:
           {{- end }}
           {{- end }}
         {{- end }}
-      {{- if .Values.addons.vault.enabled }}
+      {{- if .Values.packages.vault.enabled }}
       additionalScrapeConfigs:
       - job_name: vault
         metrics_path: /v1/sys/metrics
@@ -498,7 +514,7 @@ upstream:
         scheme: https
         authorization:
           credentials_file: /vault/secrets/token
-        {{- $vaultHosts := (dig "istio" "vault" "hosts" dict .Values.addons.vault.values) }}
+        {{- $vaultHosts := (dig "istio" "vault" "hosts" dict .Values.packages.vault.values) }}
         {{- if $vaultHosts }}
         static_configs:
         - targets: [{{ tpl ($vaultHosts | first) $ }}]
@@ -518,7 +534,7 @@ upstream:
       # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
       # * `prometheus.io/port`: If the metrics are exposed on a different port to the
       # service then set this appropriately.
-      {{- if (dig "globalServiceEndpointMetrics" "enabled" false .Values.monitoring) }}
+      {{- if (dig "globalServiceEndpointMetrics" "enabled" false .Values.packages.monitoring) }}
       - job_name: 'kubernetes-service-endpoints'
         kubernetes_sd_configs:
           - role: endpoints
@@ -570,7 +586,7 @@ upstream:
       # * `prometheus.io/scrape`: Only scrape pods that have a value of `true`
       # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
       # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
-      {{- if (dig "globalPodEndpointMetrics" "enabled" false .Values.monitoring) }}
+      {{- if (dig "globalPodEndpointMetrics" "enabled" false .Values.packages.monitoring) }}
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
           - role: pod     
@@ -991,7 +1007,7 @@ upstream:
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to `prometheus.prometheusSpec` or `grafana` overlays to ignore the defaults */ -}}
 {{- define "bigbang.overlays.monitoring" }}
   {{- $defaults := fromYaml (include "bigbang.defaults.monitoring" .) }}
-  {{- $overlays := dig "values" dict .Values.monitoring }}
+  {{- $overlays := dig "values" dict .Values.packages.monitoring }}
   {{- if $overlays }}
     {{- $overlays = include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy $overlays)) | fromYaml }}
   {{- end }}

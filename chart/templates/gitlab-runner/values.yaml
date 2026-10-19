@@ -1,11 +1,11 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "gitlab-runner" }}
 
-{{- if .Values.addons.gitlabRunner.enabled }}
+{{- if .Values.packages.gitlabRunner.enabled }}
 {{- /* Create a cleaned copy of gitlab-runner config and merge deprecated paths into current paths */ -}}
-{{- $gitlabRunnerPackage := deepCopy .Values.addons.gitlabRunner -}}
-{{- if .Values.addons.gitlabRunner.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.gitlabRunner.values) | fromYaml -}}
+{{- $gitlabRunnerPackage := deepCopy .Values.packages.gitlabRunner -}}
+{{- if .Values.packages.gitlabRunner.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.gitlabRunner.values) | fromYaml -}}
 {{- $gitlabRunnerPackage = set $gitlabRunnerPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict "root" $ "package" $gitlabRunnerPackage "name" $pkg "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
@@ -14,12 +14,12 @@
 {{- define "bigbang.defaults.gitlab-runner" -}}
 {{- $domainName := .Values.domain }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $autoRegisterEnabled := and .Values.kyverno.enabled .Values.addons.gitlab.enabled (dig "autoRegister" "enabled" true .Values.addons.gitlabRunner) }}
+{{- $autoRegisterEnabled := and .Values.packages.kyverno.enabled .Values.packages.gitlab.enabled (dig "autoRegister" "enabled" true .Values.packages.gitlabRunner) }}
 
 routes:
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlabRunner.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlabRunner.values }}
       hosts:
       - 'repo1.dso.mil'
       - gitlab.{{ $domainName }}
@@ -44,8 +44,8 @@ networkPolicies:
             app: gitlab-runner
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   additionalPolicies: []
 
 bbtests:
@@ -57,7 +57,7 @@ bbtests:
 openshift: {{ .Values.openshift }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 # Passthrough chart upstream config (main gitlab-runner chart values)
 upstream:
@@ -72,7 +72,7 @@ upstream:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlabRunner .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlabRunner .)) "true" }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -98,9 +98,9 @@ upstream:
   {{- end }}
 
 # autoRegister requires kyverno
-{{- if and .Values.kyverno.enabled .Values.addons.gitlab.enabled }}
+{{- if and .Values.packages.kyverno.enabled .Values.packages.gitlab.enabled }}
 autoRegister:
-  enabled: {{ dig  "autoRegister" "enabled" "true" .Values.addons.gitlabRunner }}
+  enabled: {{ dig  "autoRegister" "enabled" "true" .Values.packages.gitlabRunner }}
 {{- end }}
 
 {{- end -}}

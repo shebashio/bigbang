@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsMonitoring := mergeOverwrite (deepCopy .Values.flux) .Values.monitoring.flux -}}
-{{- if .Values.monitoring.enabled }}
+{{- $fluxSettingsMonitoring := mergeOverwrite (deepCopy .Values.flux) .Values.packages.monitoring.flux -}}
+{{- if .Values.packages.monitoring.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -15,23 +15,23 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/monitoring/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: monitoring
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "monitoring" "package" .Values.monitoring "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "monitoring" "package" .Values.packages.monitoring "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingsMonitoring | nindent 2 }}
 
-  {{- if or .Values.monitoring.postRenderers (ne (include "ambientEnabled" .) "true") }}
+  {{- if or .Values.packages.monitoring.postRenderers (ne (include "ambientEnabled" .) "true") }}
   postRenderers:
   {{- if ne (include "ambientEnabled" .) "true" }}
   {{- include "monitoring.operatorServiceMonitorPostRenderer" . | nindent 4 }}
   {{- end }}
-  {{- if .Values.monitoring.postRenderers }}
-  {{ toYaml .Values.monitoring.postRenderers | nindent 4 }}
+  {{- if .Values.packages.monitoring.postRenderers }}
+  {{ toYaml .Values.packages.monitoring.postRenderers | nindent 4 }}
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "monitoring" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.monitoring.dependsOnOverride) }}
-  {{- with .Values.monitoring.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.monitoring.dependsOnOverride) }}
+  {{- with .Values.packages.monitoring.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -39,28 +39,28 @@ spec:
   dependsOn:
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
-  {{- if .Values.certManager.enabled }}
+  {{- if .Values.packages.certManager.enabled }}
     - name: cert-manager
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.addons.vault.enabled }}
+  {{- if or .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.vault.enabled }}
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.addons.vault.enabled }}
+  {{- if .Values.packages.vault.enabled }}
     - name: vault
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.monitoring) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.monitoring) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

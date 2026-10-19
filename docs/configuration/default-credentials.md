@@ -21,14 +21,14 @@ The applications in the table below provide both SSO and built-in authentication
 | Grafana | `admin` | `prom-operator` | Default password can be overridden with Helm values `grafana.values.adminPassword` |
 | Twistlock | `admin` | `change_this_password` | Admin account will be automatically setup on fresh installs if `init.enabled` is `true`.  Default password can be overridden by setting `twistlock.values.console.credentials.password` |
 | ArgoCD | `admin` | (randomly generated) | Use `kubectl -n argocd get secret argocd-initial-admin-secret -o go-template='{{.data.password \| base64decode}}'` to get the password. Note: If the argocd-initial-admin-secret does not exist, you will need to [reset the admin password](https://github.com/argoproj/argo-cd/blob/master/docs/faq.md#i-forgot-the-admin-password-how-do-i-reset-it). |
-| Minio | `minio` | `minio123` | Access and secret key can be overridden with Helm values `addons.minio.accesskey` and `addons.minio.secretkey` respectively |
+| Minio | `minio` | `minio123` | Access and secret key can be overridden with Helm values `packages.minio.accesskey` and `packages.minio.secretkey` respectively |
 | Gitlab | `root` | (randomly generated) | Use `kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o go-template='{{.data.password \| base64decode}}'` to get the password |
-| Sonarqube | `admin` | `admin` | Default password can be overridden with Helm values `addons.sonarqube.values.account.adminPassword` |
-| Anchore | `admin` | (randomly generated) | Use `kubectl get secrets -n anchore anchore-anchore-enterprise -o go-template='{{.data.ANCHORE_ADMIN_PASSWORD \| base64decode}}'` to get the password, or override with Helm values `addons.anchore.values.anchoreGlobal.defaultAdminPassword` |
+| Sonarqube | `admin` | `admin` | Default password can be overridden with Helm values `packages.sonarqube.values.account.adminPassword` |
+| Anchore | `admin` | (randomly generated) | Use `kubectl get secrets -n anchore anchore-anchore-enterprise -o go-template='{{.data.ANCHORE_ADMIN_PASSWORD \| base64decode}}'` to get the password, or override with Helm values `packages.anchoreEnterprise.adminPassword` |
 | Mattermost | N/A | N/A | Prompted to setup an account when you first hit the virtual service - this user becomes admin, no default user |
-| Keycloak | `admin` | `password` | Default username and password can be overridden with Helm values `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN` and `addons.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN_PASSWORD` respectively |
+| Keycloak | `admin` | `password` | Default username and password can be overridden with Helm values `packages.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN` and `packages.keycloak.values.secrets.env.stringData.KEYCLOAK_ADMIN_PASSWORD` respectively |
 | Neuvector | `admin` | `admin` | You should change the default password when you log into Neuvector. Can also be changed via the chart at the `controller.secret.data.userinitcfg.yaml` key, see the [upstream docs for more details and examples](https://open-docs.neuvector.com/deploying/production/configmap).|
-| Harbor | `admin` | `Harbor12345` | Default password can be overridden with Helm values `addons.harbor.values.harborAdminPassword` |
+| Harbor | `admin` | `Harbor12345` | Default password can be overridden with Helm values `packages.harbor.values.harborAdminPassword` |
 | Fortify | `admin` | `admin` | You will be prompted to change the admin user password when you first attempt to login to Fortify using the default credentials |
 
 ## Internal CI-only credentials

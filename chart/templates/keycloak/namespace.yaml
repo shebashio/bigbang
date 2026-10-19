@@ -1,5 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.keycloak.enabled }}
+{{- if .Values.packages.keycloak.enabled }}
 {{ $name := "keycloak" }}
-{{- include "bigbang.namespace" (dict "root" . "name" $name "appName" $name "component" "security-tools" "package" .Values.addons.keycloak) }}
+{{- include "bigbang.namespace" (dict "root" . "name" $name "appName" $name "component" "security-tools" "package" .Values.packages.keycloak) }}
 {{- end }}

@@ -38,7 +38,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       authorizationPolicies.enabled: true
     asserts:
@@ -54,7 +54,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       istio:
         ambient:
@@ -68,7 +68,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false
@@ -84,12 +84,13 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false
-      ztunnel:
-        enabled: true
+      packages:
+        ztunnel:
+          enabled: true
     asserts:
       - equal:
           path: networkPolicies.enabled
@@ -99,7 +100,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false

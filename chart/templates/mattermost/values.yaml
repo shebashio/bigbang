@@ -1,24 +1,24 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $mattermostPackage := deepCopy .Values.addons.mattermost -}}
-{{- if .Values.addons.mattermost.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.mattermost.values) | fromYaml -}}
+{{- $mattermostPackage := deepCopy .Values.packages.mattermost -}}
+{{- if .Values.packages.mattermost.values -}}
+  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.mattermost.values) | fromYaml -}}
   {{- $mattermostPackage = set $mattermostPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- if .Values.addons.mattermost.enabled }}
+{{- if .Values.packages.mattermost.enabled }}
 {{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermost" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $sentryEnabled := dig "mattermostEnvs" "MM_LOGSETTINGS_ENABLESENTRY" true .Values.addons.mattermost.values }}
+{{- $sentryEnabled := dig "mattermostEnvs" "MM_LOGSETTINGS_ENABLESENTRY" true .Values.packages.mattermost.values }}
 {{- /* External postgres is enabled when all database connection fields are provided */ -}}
 {{- $externalPostgresEnabled := and
-    (ne .Values.addons.mattermost.database.username "")
-    (ne .Values.addons.mattermost.database.password "")
-    (ne .Values.addons.mattermost.database.host "")
-    (ne (.Values.addons.mattermost.database.port | toString) "")
-    (ne .Values.addons.mattermost.database.database "")
+    (ne .Values.packages.mattermost.database.username "")
+    (ne .Values.packages.mattermost.database.password "")
+    (ne .Values.packages.mattermost.database.host "")
+    (ne (.Values.packages.mattermost.database.port | toString) "")
+    (ne .Values.packages.mattermost.database.database "")
 -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -30,7 +30,7 @@ openshift: {{ .Values.openshift }}
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.addons.mattermost) "enabled") }}
+{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.packages.mattermost) "enabled") }}
 
 istio:
   injection: {{ ternary "enabled" "disabled" $istioInjection }}
@@ -47,7 +47,7 @@ monitoring:
 
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.mattermost .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.mattermost .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -56,7 +56,7 @@ monitoring:
       insecureSkipVerify: true
     {{- end }}
 
-{{- with .Values.addons.mattermost.sso }}
+{{- with .Values.packages.mattermost.sso }}
 sso:
   enabled: {{ .enabled }}
   client_id: {{ .client_id }}
@@ -75,16 +75,16 @@ networkPolicies:
       mattermost:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-            {{- if .Values.elasticsearchKibana.enabled }}
-            logging/logging-ek-es-http:9200: {{ .Values.addons.mattermost.elasticsearch.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+            {{- if .Values.packages.elasticsearchKibana.enabled }}
+            logging/logging-ek-es-http:9200: {{ .Values.packages.mattermost.elasticsearch.enabled }}
             {{- end }}
           definition:
             kubeAPI: true
             database-subnets: {{ $externalPostgresEnabled }}
-            sso: {{ .Values.addons.mattermost.sso.enabled }}
+            sso: {{ .Values.packages.mattermost.sso.enabled }}
             sentry-subnets: {{ $sentryEnabled }}
-      {{- if dig "waitJob" "enabled" true .Values.addons.mattermost.values }}
+      {{- if dig "waitJob" "enabled" true .Values.packages.mattermost.values }}
       wait-job:
         to:
           definition:
@@ -95,28 +95,28 @@ networkPolicies:
       mattermost:8067:
         from:
           k8s:
-            monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 {{- $ssoHost := "" }}
-{{- if .Values.addons.mattermost.sso.enabled }}
+{{- if .Values.packages.mattermost.sso.enabled }}
 {{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
 {{- end }}
 routes:
   inbound:
     chat:
       gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.addons.mattermost.ingress.gateway "root" .) }}
+        - {{ include "getGatewayName" (dict "gateway" .Values.packages.mattermost.ingress.gateway "root" .) }}
   outbound:
     mattermost-sentry:
       enabled: {{ $sentryEnabled }}
     sso:
-      enabled: {{ .Values.addons.mattermost.sso.enabled }}
+      enabled: {{ .Values.packages.mattermost.sso.enabled }}
       {{- if $ssoHost }}
       hosts:
         - {{ $ssoHost }}
       {{- end }}
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.mattermost.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.mattermost.values }}
       hosts:
       - 'repo1.dso.mil'
 
@@ -127,7 +127,7 @@ bbtests:
   cypress:
     envs:
       cypress_url: {{ printf "https://chat.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.mattermost "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.mattermost "values" .Values) | nindent 6 }}
     # This should be removed once https://repo1.dso.mil/big-bang/product/packages/mattermost/-/work_items/271 is complete
     resources:
       requests:
@@ -140,14 +140,14 @@ bbtests:
 global:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
-{{- with .Values.addons.mattermost.enterprise }}
+{{- with .Values.packages.mattermost.enterprise }}
 enterprise:
   enabled: {{ .enabled }}
   existingSecret: {{ .existingSecret }}
   license: {{ .license }}
 {{- end }}
 
-{{- with .Values.addons.mattermost.database }}
+{{- with .Values.packages.mattermost.database }}
 {{- if $externalPostgresEnabled }}
 database:
   secret: "mattermost-database-secret"
@@ -195,7 +195,7 @@ postgresql:
 {{- end }}
 {{- end }}
 
-{{- with .Values.addons.mattermost.objectStorage }}
+{{- with .Values.packages.mattermost.objectStorage }}
 {{- if and .endpoint .accessKey .accessSecret .bucket }}
 fileStore:
   secret: "mattermost-objectstorage-secret"
@@ -219,7 +219,7 @@ minio:
 {{- end }}
 {{- end }}
 
-{{- if .Values.addons.mattermost.elasticsearch.enabled }}
+{{- if .Values.packages.mattermost.elasticsearch.enabled }}
 elasticsearch:
   enabled: true
 {{- end }}

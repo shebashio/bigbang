@@ -22,7 +22,7 @@ BIG BANG OFFLINE SOURCE NOTICE:
   referenced by its HelmRelease before reconciliation.
 {{ end }}
 
-{{ if $.Values.addons.gitlab.enabled }}
+{{ if $.Values.packages.gitlab.enabled }}
 {{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
 {{- $externalRedisConfigured := eq (include "bigbang.gitlab.externalRedisConfigured" .) "true" }}
 {{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
@@ -34,7 +34,7 @@ You should point to your cloud provider's RDS, Redis or Valkey, and object stora
 Gitlab will not provision these services for you. You will need to provision the database, Redis or Valkey service, and S3 buckets.
 Here is an example of how to configure your deployment.
 
-addons:
+packages:
   gitlab:
     enabled: true
     hostnames:
@@ -65,21 +65,21 @@ addons:
       accessSecret: mysecretkey
       bucketPrefix: prod
 
-{{ if $.Values.addons.gitlab.objectStorage.endpoint }}
+{{ if $.Values.packages.gitlab.objectStorage.endpoint }}
 GITLAB: You have enabled Gitlab external object storage.
 Here is the list of buckets that you must provision in your s3 service:
-{{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
-{{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
+{{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
+{{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
 {{- else }}
 gitlab-registry
 gitlab-lfs
@@ -121,44 +121,44 @@ PLATFORM ONE REDIS WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 
-{{- if $.Values.addons.anchoreEnterprise.enabled }}
+{{- if $.Values.packages.anchoreEnterprise.enabled }}
 Anchore Enterprise is enabled.
-{{- if not (and $.Values.addons.anchoreEnterprise.database.host $.Values.addons.anchoreEnterprise.database.port $.Values.addons.anchoreEnterprise.database.username $.Values.addons.anchoreEnterprise.database.password $.Values.addons.anchoreEnterprise.database.database) }}
+{{- if not (and $.Values.packages.anchoreEnterprise.database.host $.Values.packages.anchoreEnterprise.database.port $.Values.packages.anchoreEnterprise.database.username $.Values.packages.anchoreEnterprise.database.password $.Values.packages.anchoreEnterprise.database.database) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal postgres database (main-db) in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
-{{- if $.Values.addons.anchoreEnterprise.enabled }}
-{{- if not (and $.Values.addons.anchoreEnterprise.redis.host $.Values.addons.anchoreEnterprise.redis.port $.Values.addons.anchoreEnterprise.redis.password) }}
+{{- if $.Values.packages.anchoreEnterprise.enabled }}
+{{- if not (and $.Values.packages.anchoreEnterprise.redis.host $.Values.packages.anchoreEnterprise.redis.port $.Values.packages.anchoreEnterprise.redis.password) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal redis database in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
-{{- if not (and $.Values.addons.anchoreEnterprise.database.host $.Values.addons.anchoreEnterprise.database.port $.Values.addons.anchoreEnterprise.database.username $.Values.addons.anchoreEnterprise.database.password $.Values.addons.anchoreEnterprise.database.feeds_database) }}
+{{- if not (and $.Values.packages.anchoreEnterprise.database.host $.Values.packages.anchoreEnterprise.database.port $.Values.packages.anchoreEnterprise.database.username $.Values.packages.anchoreEnterprise.database.password $.Values.packages.anchoreEnterprise.database.feeds_database) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an internal postgres database (feeds-db) in the values configuration.
   Platform One does not support this option for production deployments.
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- if and ($.Values.addons.anchoreEnterprise.enabled) (not $.Values.addons.anchoreEnterprise.enterprise.licenseYaml) }}
+{{- if and ($.Values.packages.anchoreEnterprise.enabled) (not $.Values.packages.anchoreEnterprise.enterprise.licenseYaml) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled an enterprise Anchore in the values configuration, but not provided a license.
   Your deployment will fail without a license, please review your configuration and supply a license
   or disable the enterprise features.
 {{- end }}
-{{- if and ($.Values.addons.anchoreEnterprise.sso.enabled) (not $.Values.addons.anchoreEnterprise.enabled) }}
+{{- if and ($.Values.packages.anchoreEnterprise.sso.enabled) (not $.Values.packages.anchoreEnterprise.enabled) }}
 PLATFORM ONE ANCHORE WARNING:
   You have enabled SSO in the values configuration, but not enabled enterprise Anchore.
   Your SSO configuration will be ignored, the Anchore UI is only available for enterprise deployments.
 {{- end }}
 {{- end }}
 
-{{- if and $.Values.eckOperator.enabled $.Values.elasticsearchKibana.enabled }}
-  {{- if $.Values.elasticsearchKibana.sso.enabled }}
-    {{- if and (not $.Values.elasticsearchKibana.license.trial) (not $.Values.elasticsearchKibana.license.keyJSON) }}
+{{- if and $.Values.packages.eckOperator.enabled $.Values.packages.elasticsearchKibana.enabled }}
+  {{- if $.Values.packages.elasticsearchKibana.sso.enabled }}
+    {{- if and (not $.Values.packages.elasticsearchKibana.license.trial) (not $.Values.packages.elasticsearchKibana.license.keyJSON) }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled SSO but not provided an enterprise license configuration to use. SSO is not functional without a license.
   Edit the values for the eck-operator to specify a license key JSON or use the trial license for development.
@@ -167,8 +167,8 @@ PLATFORM ONE LOGGING WARNING:
 {{- end }}
 
 
-{{- $fluentbitEnabled := .Values.fluentbit.enabled }}
-{{- $alloyLogsEnabled := (and .Values.alloy.enabled (or (dig "upstream" "alloy-logs" "enabled" false .Values.alloy.values) (dig "alloyLogs" "enabled" false .Values.alloy))) }}
+{{- $fluentbitEnabled := .Values.packages.fluentbit.enabled }}
+{{- $alloyLogsEnabled := (and .Values.packages.alloy.enabled (or (dig "upstream" "alloy-logs" "enabled" false .Values.packages.alloy.values) (dig "alloyLogs" "enabled" false .Values.packages.alloy))) }}
 {{- $loggerCount := add $fluentbitEnabled $alloyLogsEnabled }}
 {{- if ge $loggerCount 2 }}
 PLATFORM ONE LOGGING WARNING:
@@ -177,59 +177,59 @@ PLATFORM ONE LOGGING WARNING:
     - Alloy Enabled: {{ $alloyLogsEnabled }}
 {{- end }}
 
-{{- if and .Values.loki.enabled .Values.elasticsearchKibana.enabled }}
+{{- if and .Values.packages.loki.enabled .Values.packages.elasticsearchKibana.enabled }}
 PLATFORM ONE LOGGING WARNING:
   You have enabled both Loki and Elastic (log storage). This is not a supported configuration and you may see issues as a result of running both applications.
   If using Elastic for other functionality, deploying both applications is acceptable.
 {{- end }}
 
-{{- if and (and .Values.alloy.enabled .Values.alloy.alloyLogs.enabled) (not .Values.loki.enabled) (not .Values.alloy.additionalDestinations) }}
+{{- if and (and .Values.packages.alloy.enabled .Values.packages.alloy.alloyLogs.enabled) (not .Values.packages.loki.enabled) (not .Values.packages.alloy.additionalDestinations) }}
 PLATFORM ONE ALLOY WARNING:
   You have enabled Alloy with logging but a logging destination has not been configured.
   Resolution Options:
-    1. Enable Loki: Set .Values.loki.enabled=true
-    2. For external or custom destinations, add an additional destination of type "loki": Configure .Values.alloy.additionalDestinations see https://github.com/grafana/k8s-monitoring-helm/tree/main/charts/k8s-monitoring/docs/destinations
-    3. Disable Alloy Logging: Set .Values.alloy.alloyLogs.enabled=false
+    1. Enable Loki: Set .Values.packages.loki.enabled=true
+    2. For external or custom destinations, add an additional destination of type "loki": Configure .Values.packages.alloy.additionalDestinations see https://github.com/grafana/k8s-monitoring-helm/tree/main/charts/k8s-monitoring/docs/destinations
+    3. Disable Alloy Logging: Set .Values.packages.alloy.alloyLogs.enabled=false
 {{- end }}
 
-{{- if and (dig "alloyMetrics" "enabled" false .Values.alloy) (dig "prometheusMetrics" "enabled" true .Values.monitoring) .Values.monitoring.enabled }}
+{{- if and (dig "alloyMetrics" "enabled" false .Values.packages.alloy) (dig "prometheusMetrics" "enabled" true .Values.packages.monitoring) .Values.packages.monitoring.enabled }}
 PLATFORM ONE ALLOY WARNING:
   You have enabled both Prometheus scraping (monitoring.prometheusMetrics.enabled=true) and Alloy metrics
   scraping (alloy.alloyMetrics.enabled=true). This will result in duplicate metrics being collected.
   Resolution: Set monitoring.prometheusMetrics.enabled=false to let Alloy handle all scraping.
 {{- end }}
 
-{{- if and (dig "alloyMetrics" "enabled" false .Values.alloy) (not .Values.monitoring.enabled) (not .Values.addons.mimir.enabled) }}
+{{- if and (dig "alloyMetrics" "enabled" false .Values.packages.alloy) (not .Values.packages.monitoring.enabled) (not .Values.packages.mimir.enabled) }}
 PLATFORM ONE ALLOY WARNING:
   You have enabled Alloy metrics scraping but no metrics backend (Prometheus or Mimir) is enabled.
   Alloy will have no destination to push metrics to.
   Resolution Options:
-    1. Enable Monitoring: Set .Values.monitoring.enabled=true
-    2. Enable Mimir: Set .Values.addons.mimir.enabled=true
-    3. Disable Alloy Metrics: Set .Values.alloy.alloyMetrics.enabled=false
+    1. Enable Monitoring: Set .Values.packages.monitoring.enabled=true
+    2. Enable Mimir: Set .Values.packages.mimir.enabled=true
+    3. Disable Alloy Metrics: Set .Values.packages.alloy.alloyMetrics.enabled=false
 {{- end }}
 
-{{- if and $.Values.loki.enabled (dig "values" "global" "createGlobalConfig" false $.Values.loki) }}
+{{- if and $.Values.packages.loki.enabled (dig "values" "global" "createGlobalConfig" false $.Values.packages.loki) }}
 PLATFORM ONE LOKI WARNING:
   You still have Loki global values set but this version of Loki has changed significantly, please review the latest production document within the Loki package repo: https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/docs/production.md
 {{- end }}
 
-{{- if and $.Values.loki.enabled (dig "values" "gel" "enabled" false $.Values.loki) }}
+{{- if and $.Values.packages.loki.enabled (dig "values" "gel" "enabled" false $.Values.packages.loki) }}
 PLATFORM ONE LOKI WARNING:
   You still have Loki gel values set but this version of Loki has changed significantly, please review the latest grafana enterprise document within the Loki package repo: https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/docs/grafana-enterprise.md
 {{- end }}
 
-{{- if and .Values.renovate.enabled (not .Values.addons.gitlab.enabled) }}
+{{- if and .Values.packages.renovate.enabled (not .Values.packages.gitlab.enabled) }}
 PLATFORM ONE RENOVATE WARNING:
   Renovate is enabled while the Big Bang GitLab addon is disabled.
   This can be valid when Renovate is configured for an external SCM platform in renovate.values
   (for example GitHub, Gitea, or another GitLab instance).
-  If you intended to use the Big Bang GitLab addon, set .Values.addons.gitlab.enabled=true.
+  If you intended to use the Big Bang GitLab addon, set .Values.packages.gitlab.enabled=true.
 {{- end }}
 
-{{- if $.Values.addons.mattermost.enabled }}
+{{- if $.Values.packages.mattermost.enabled }}
 Mattermost is enabled.
-{{- with .Values.addons.mattermost.database }}
+{{- with .Values.packages.mattermost.database }}
 {{- if not (and .username .password .host .port .database .ssl_mode) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled an internal postgres database in the values configuration.
@@ -237,7 +237,7 @@ PLATFORM ONE MATTERMOST WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- with .Values.addons.mattermost.objectStorage }}
+{{- with .Values.packages.mattermost.objectStorage }}
 {{- if not (and .endpoint .accessKey .accessSecret .bucket) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled an internal Minio instance in the values configuration.
@@ -245,7 +245,7 @@ PLATFORM ONE MATTERMOST WARNING:
   This option should only be used for development or CI pipelines.
 {{- end }}
 {{- end }}
-{{- if and (.Values.addons.mattermost.enterprise.enabled) (not .Values.addons.mattermost.enterprise.license) }}
+{{- if and (.Values.packages.mattermost.enterprise.enabled) (not .Values.packages.mattermost.enterprise.license) }}
 PLATFORM ONE MATTERMOST WARNING:
   You have enabled enterprise Mattermost in the values configuration, but not provided a license.
   Make sure to go back and edit your values or ensure you add the license through the mattermost settings page.
@@ -259,7 +259,7 @@ DEPRECATION NOTICE:
 {{- end }}
 
 {{- with .Values }}
-{{- if and .sso.url (coalesce .sso.oidc.host .sso.oidc.realm .sso.certificate_authority .sso.jwks .sso.jwks_uri .sso.client_id .sso.client_secret .sso.token_url .sso.auth_url .sso.secretName .elasticsearchKibana.sso.issuer .elasticsearchKibana.sso.auth_url .elasticsearchKibana.sso.token_url .elasticsearchKibana.sso.userinfo_url .elasticsearchKibana.sso.jwkset_url .elasticsearchKibana.sso.claims_principal .elasticsearchKibana.sso.endsession_url .elasticsearchKibana.sso.claims_group .elasticsearchKibana.sso.claims_mail .grafana.sso.grafana.auth_url .grafana.sso.grafana.token_url .grafana.sso.grafana.api_url .twistlock.sso.provider_name .twistlock.sso.issuer_uri .twistlock.sso.idp_url .twistlock.sso.console_url .twistlock.sso.cert .addons.argocd.sso.provider_name .addons.gitlab.sso.label .addons.gitlab.sso.issuer_uri .addons.gitlab.sso.end_session_uri .addons.gitlab.sso.uid_field .addons.mattermost.sso.auth_endpoint .addons.mattermost.sso.token_endpoint .addons.mattermost.sso.user_api_endpoint .addons.sonarqube.sso.provider_name .addons.sonarqube.sso.certificate) }}
+{{- if and .sso.url (coalesce .sso.oidc.host .sso.oidc.realm .sso.certificate_authority .sso.jwks .sso.jwks_uri .sso.client_id .sso.client_secret .sso.token_url .sso.auth_url .sso.secretName .packages.elasticsearchKibana.sso.issuer .packages.elasticsearchKibana.sso.auth_url .packages.elasticsearchKibana.sso.token_url .packages.elasticsearchKibana.sso.userinfo_url .packages.elasticsearchKibana.sso.jwkset_url .packages.elasticsearchKibana.sso.claims_principal .packages.elasticsearchKibana.sso.endsession_url .packages.elasticsearchKibana.sso.claims_group .packages.elasticsearchKibana.sso.claims_mail .packages.grafana.sso.grafana.auth_url .packages.grafana.sso.grafana.token_url .packages.grafana.sso.grafana.api_url .packages.twistlock.sso.provider_name .packages.twistlock.sso.issuer_uri .packages.twistlock.sso.idp_url .packages.twistlock.sso.console_url .packages.twistlock.sso.cert .packages.argocd.sso.provider_name .packages.gitlab.sso.label .packages.gitlab.sso.issuer_uri .packages.gitlab.sso.end_session_uri .packages.gitlab.sso.uid_field .packages.mattermost.sso.auth_endpoint .packages.mattermost.sso.token_endpoint .packages.mattermost.sso.user_api_endpoint .packages.sonarqube.sso.provider_name .packages.sonarqube.sso.certificate) }}
 DEPRECATION NOTICE:
   The following SSO keys have been deprecated.  Deprecated keys will continue to work, but will be removed in a future release.  Please update your overrides.
     {{- if coalesce .sso.oidc.host .sso.oidc.realm .sso.certificate_authority .sso.jwks .sso.jwks_uri .sso.client_id .sso.client_secret .sso.token_url .sso.auth_url .sso.secretName }}
@@ -288,11 +288,11 @@ DEPRECATION NOTICE:
       jwks_uri: {{ .sso.jwks_uri }}
       {{- end }}
       {{- if .sso.client_id }}
-      # "client_id" was moved to "addons.authservice.sso.client_id"
+      # "client_id" was moved to "packages.authservice.sso.client_id"
       client_id: {{ .sso.client_id }}
       {{- end }}
       {{- if .sso.client_secret }}
-      # "client_secret" was moved to "addons.authservice.sso.client_secret"
+      # "client_secret" was moved to "packages.authservice.sso.client_secret"
       client_secret: {{ .sso.client_secret }}
       {{- end }}
       {{- if .sso.token_url }}
@@ -308,154 +308,148 @@ DEPRECATION NOTICE:
       secretName: {{ .sso.secretName }}
       {{- end }}
     {{- end }}
-    {{- if coalesce .elasticsearchKibana.sso.issuer .elasticsearchKibana.sso.auth_url .elasticsearchKibana.sso.token_url .elasticsearchKibana.sso.userinfo_url .elasticsearchKibana.sso.jwkset_url .elasticsearchKibana.sso.claims_principal .elasticsearchKibana.sso.endsession_url .elasticsearchKibana.sso.claims_group .elasticsearchKibana.sso.claims_mail }}
+    {{- if coalesce .packages.elasticsearchKibana.sso.issuer .packages.elasticsearchKibana.sso.auth_url .packages.elasticsearchKibana.sso.token_url .packages.elasticsearchKibana.sso.userinfo_url .packages.elasticsearchKibana.sso.jwkset_url .packages.elasticsearchKibana.sso.claims_principal .packages.elasticsearchKibana.sso.endsession_url .packages.elasticsearchKibana.sso.claims_group .packages.elasticsearchKibana.sso.claims_mail }}
     elasticsearchKibana:
       sso:
-        {{- if .elasticsearchKibana.sso.issuer }}
+        {{- if .packages.elasticsearchKibana.sso.issuer }}
         # "issuer" was moved to "sso.url"
-        issuer: {{ .elasticsearchKibana.sso.issuer }}
+        issuer: {{ .packages.elasticsearchKibana.sso.issuer }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.auth_url }}
+        {{- if .packages.elasticsearchKibana.sso.auth_url }}
         # "auth_url" was moved to "sso.oidc.authorization"
-        auth_url: {{ .elasticsearchKibana.sso.auth_url }}
+        auth_url: {{ .packages.elasticsearchKibana.sso.auth_url }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.token_url }}
+        {{- if .packages.elasticsearchKibana.sso.token_url }}
         # "token_url" was moved to "sso.oidc.token"
-        token_url: {{ .elasticsearchKibana.sso.token_url }}
+        token_url: {{ .packages.elasticsearchKibana.sso.token_url }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.userinfo_url }}
+        {{- if .packages.elasticsearchKibana.sso.userinfo_url }}
         # "userinfo_url" was moved to "sso.oidc.userinfo"
-        userinfo_url: {{ .elasticsearchKibana.sso.userinfo_url }}
+        userinfo_url: {{ .packages.elasticsearchKibana.sso.userinfo_url }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.jwkset_url }}
+        {{- if .packages.elasticsearchKibana.sso.jwkset_url }}
         # "jwkset_url" was moved to "sso.oidc.jwksUrl"
-        jwkset_url: {{ .elasticsearchKibana.sso.jwkset_url }}
+        jwkset_url: {{ .packages.elasticsearchKibana.sso.jwkset_url }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.claims_principal }}
+        {{- if .packages.elasticsearchKibana.sso.claims_principal }}
         # "claims_principal" was moved to "sso.oidc.claims.username"
-        claims_principal: {{ .elasticsearchKibana.sso.claims_principal }}
+        claims_principal: {{ .packages.elasticsearchKibana.sso.claims_principal }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.endsession_url }}
+        {{- if .packages.elasticsearchKibana.sso.endsession_url }}
         # "endsession_url" was moved to "sso.oidc.endsession"
-        endsession_url: {{ .elasticsearchKibana.sso.endsession_url }}
+        endsession_url: {{ .packages.elasticsearchKibana.sso.endsession_url }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.claims_group }}
+        {{- if .packages.elasticsearchKibana.sso.claims_group }}
         # "claims_group" was moved to "sso.oidc.claims.groups"
-        claims_group: {{ .elasticsearchKibana.sso.claims_group }}
+        claims_group: {{ .packages.elasticsearchKibana.sso.claims_group }}
         {{- end }}
-        {{- if .elasticsearchKibana.sso.claims_mail }}
+        {{- if .packages.elasticsearchKibana.sso.claims_mail }}
         # "claims_mail" was moved to "sso.oidc.claims.email"
-        claims_mail: {{ .elasticsearchKibana.sso.claims_mail }}
+        claims_mail: {{ .packages.elasticsearchKibana.sso.claims_mail }}
         {{- end }}
     {{- end }}
-    {{- if coalesce .grafana.sso.grafana.auth_url .grafana.sso.grafana.token_url .grafana.sso.grafana.api_url }}
+    {{- if coalesce .packages.grafana.sso.grafana.auth_url .packages.grafana.sso.grafana.token_url .packages.grafana.sso.grafana.api_url }}
     grafana:
       sso:
         grafana:
-          {{- if .grafana.sso.grafana.auth_url }}
+          {{- if .packages.grafana.sso.grafana.auth_url }}
           # "auth_url" moved to "sso.oidc.authorization"
-          auth_url: {{ .grafana.sso.grafana.auth_url }}
+          auth_url: {{ .packages.grafana.sso.grafana.auth_url }}
           {{- end }}
-          {{- if .grafana.sso.grafana.token_url }}
+          {{- if .packages.grafana.sso.grafana.token_url }}
           # "token_url" moved to "sso.oidc.token"
-          token_url: {{ .grafana.sso.grafana.token_url }}
+          token_url: {{ .packages.grafana.sso.grafana.token_url }}
           {{- end }}
-          {{- if .grafana.sso.grafana.api_url }}
+          {{- if .packages.grafana.sso.grafana.api_url }}
           # "api_url" moved to "sso.oidc.userinfo"
-          api_url: {{ .grafana.sso.grafana.api_url }}
+          api_url: {{ .packages.grafana.sso.grafana.api_url }}
           {{- end }}
     {{- end }}
-    {{- if coalesce .twistlock.sso.provider_name .twistlock.sso.issuer_uri .twistlock.sso.idp_url .twistlock.sso.console_url .twistlock.sso.cert }}
+    {{- if coalesce .packages.twistlock.sso.provider_name .packages.twistlock.sso.issuer_uri .packages.twistlock.sso.idp_url .packages.twistlock.sso.console_url .packages.twistlock.sso.cert }}
     twistlock:
       sso:
-        {{- if .twistlock.sso.provider_name }}
+        {{- if .packages.twistlock.sso.provider_name }}
         # "provider_name" moved to "sso.name"
-        provider_name: {{ .twistlock.sso.provider_name }}
+        provider_name: {{ .packages.twistlock.sso.provider_name }}
         {{- end }}
-        {{- if .twistlock.sso.issuer_uri }}
+        {{- if .packages.twistlock.sso.issuer_uri }}
         # "issuer_uri" moved to "sso.url"
-        issuer_uri: {{ .twistlock.sso.issuer_uri }}
+        issuer_uri: {{ .packages.twistlock.sso.issuer_uri }}
         {{- end }}
-        {{- if .twistlock.sso.idp_url }}
+        {{- if .packages.twistlock.sso.idp_url }}
         # "idp_url" moved to "sso.saml.service"
-        idp_url: {{ .twistlock.sso.idp_url }}
+        idp_url: {{ .packages.twistlock.sso.idp_url }}
         {{- end }}
-        {{- if .twistlock.sso.console_url }}
+        {{- if .packages.twistlock.sso.console_url }}
         # "console_url" deprecated.  It will be created from "twistlock.values.istio.console.hosts" or "twistlock.<domain>"
-        console_url: {{ .twistlock.sso.console_url }}
+        console_url: {{ .packages.twistlock.sso.console_url }}
         {{- end }}
-        {{- if .twistlock.sso.cert }}
+        {{- if .packages.twistlock.sso.cert }}
         # "cert" is derived from "sso.saml.metadata"
-        cert: {{ .twistlock.sso.cert | trunc 27 }}
+        cert: {{ .packages.twistlock.sso.cert | trunc 27 }}
         {{- end }}
     {{- end }}
-    {{- if coalesce .addons.argocd.sso.provider_name .addons.gitlab.sso.label .addons.gitlab.sso.issuer_uri .addons.gitlab.sso.end_session_uri .addons.gitlab.sso.uid_field .addons.mattermost.sso.auth_endpoint .addons.mattermost.sso.token_endpoint .addons.mattermost.sso.user_api_endpoint .addons.sonarqube.sso.provider_name .addons.sonarqube.sso.certificate }}
-    addons:
-      {{- if .addons.argocd.sso.provider_name }}
+    {{- if coalesce .packages.argocd.sso.provider_name .packages.gitlab.sso.label .packages.gitlab.sso.issuer_uri .packages.gitlab.sso.end_session_uri .packages.gitlab.sso.uid_field .packages.mattermost.sso.auth_endpoint .packages.mattermost.sso.token_endpoint .packages.mattermost.sso.user_api_endpoint .packages.sonarqube.sso.provider_name .packages.sonarqube.sso.certificate }}
+    packages:
+      {{- if .packages.argocd.sso.provider_name }}
       argocd:
         sso:
           # "provider_name" moved to "sso.name"
-          provider_name: {{ .addons.argocd.sso.provider_name }}
+          provider_name: {{ .packages.argocd.sso.provider_name }}
       {{- end }}
-      {{- if coalesce .addons.gitlab.sso.label .addons.gitlab.sso.issuer_uri .addons.gitlab.sso.end_session_uri .addons.gitlab.sso.uid_field -}}
+      {{- if coalesce .packages.gitlab.sso.label .packages.gitlab.sso.issuer_uri .packages.gitlab.sso.end_session_uri .packages.gitlab.sso.uid_field -}}
       gitlab:
         sso:
-          {{- if .addons.gitlab.sso.label }}
+          {{- if .packages.gitlab.sso.label }}
           # "label" moved to "sso.name"
-          label: {{ .addons.gitlab.sso.label }}
+          label: {{ .packages.gitlab.sso.label }}
           {{- end }}
-          {{- if .addons.gitlab.sso.issuer_uri }}
+          {{- if .packages.gitlab.sso.issuer_uri }}
           # "issuer_uri" moved to "sso.url"
-          issuer_uri: {{ .addons.gitlab.sso.issuer_uri }}
+          issuer_uri: {{ .packages.gitlab.sso.issuer_uri }}
           {{- end }}
-          {{- if .addons.gitlab.sso.end_session_uri }}
+          {{- if .packages.gitlab.sso.end_session_uri }}
           # "end_session_uri" moved to "sso.oidc.endSession"
-          end_session_uri: {{ .addons.gitlab.sso.end_session_uri }}
+          end_session_uri: {{ .packages.gitlab.sso.end_session_uri }}
           {{- end }}
-          {{- if .addons.gitlab.sso.uid_field }}
+          {{- if .packages.gitlab.sso.uid_field }}
           # "uid_field" moved to "sso.oidc.claims.username"
-          uid_field: {{ .addons.gitlab.sso.uid_field }}
+          uid_field: {{ .packages.gitlab.sso.uid_field }}
           {{- end }}
       {{- end }}
-      {{- if coalesce .addons.mattermost.sso.auth_endpoint .addons.mattermost.sso.token_endpoint .addons.mattermost.sso.user_api_endpoint }}
+      {{- if coalesce .packages.mattermost.sso.auth_endpoint .packages.mattermost.sso.token_endpoint .packages.mattermost.sso.user_api_endpoint }}
       mattermost:
         sso:
-          {{- if .addons.mattermost.sso.auth_endpoint }}
+          {{- if .packages.mattermost.sso.auth_endpoint }}
           # "auth_endpoint" moved to "sso.oidc.authorization"
-          auth_endpoint: {{ .addons.mattermost.sso.auth_endpoint }}
+          auth_endpoint: {{ .packages.mattermost.sso.auth_endpoint }}
           {{- end }}
-          {{- if .addons.mattermost.sso.token_endpoint }}
+          {{- if .packages.mattermost.sso.token_endpoint }}
           # "token_endpoint" moved "sso.oidc.token"
-          token_endpoint: {{ .addons.mattermost.sso.token_endpoint }}
+          token_endpoint: {{ .packages.mattermost.sso.token_endpoint }}
           {{- end }}
-          {{- if .addons.mattermost.sso.user_api_endpoint }}
+          {{- if .packages.mattermost.sso.user_api_endpoint }}
           # "user_api_endpoint" moved to "sso.oidc.userinfo"
-          user_api_endpoint: {{ .addons.mattermost.sso.user_api_endpoint }}
+          user_api_endpoint: {{ .packages.mattermost.sso.user_api_endpoint }}
           {{- end }}
       {{- end }}
-      {{- if coalesce .addons.sonarqube.sso.provider_name .addons.sonarqube.sso.certificate }}
+      {{- if coalesce .packages.sonarqube.sso.provider_name .packages.sonarqube.sso.certificate }}
       sonarqube:
         sso:
-          {{- if .addons.sonarqube.sso.provider_name }}
+          {{- if .packages.sonarqube.sso.provider_name }}
           # "provider_name" moved to "sso.name"
-          provider_name: {{ .addons.sonarqube.sso.provider_name }}
+          provider_name: {{ .packages.sonarqube.sso.provider_name }}
           {{- end }}
-          {{- if .addons.sonarqube.sso.certificate }}
+          {{- if .packages.sonarqube.sso.certificate }}
           # "certificate" derived from "sso.saml.metadata"
-          certificate: {{ .addons.sonarqube.sso.certificate | trunc 27 }}
+          certificate: {{ .packages.sonarqube.sso.certificate | trunc 27 }}
           {{- end }}
       {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
 
-{{- if .Values.addons.mattermostoperator }}
-DEPRECATION NOTICE:
-  .Values.addons.mattermostoperator has been deprecated and will be removed in a future Big Bang release.
-  Please reconfigure your values overrides to use .Values.addons.mattermostOperator
-{{- end }}
-
-{{- if and $.Values.addons.thanos.enabled (not (dig "values" "prometheus" "prometheusSpec" "replicas" "" $.Values.monitoring)) }}
+{{- if and $.Values.packages.thanos.enabled (not (dig "values" "prometheus" "prometheusSpec" "replicas" "" $.Values.packages.monitoring)) }}
 PLATFORM ONE THANOS WARNING:
   You have enabled Thanos with the default Prometheus replicas set to 1.  For production deployments,
   you can increase the number of replicas by adding:
@@ -466,18 +460,18 @@ PLATFORM ONE THANOS WARNING:
 
 {{- end }}
 
-{{- if (eq .Values.loki.strategy "distributed") }}
+{{- if (eq .Values.packages.loki.strategy "distributed") }}
 PLATFORM ONE LOKI WARNING:
   The Loki "distributed" deployment strategy is experimental and has limited support from Big Bang.
   For production deployments, please set your strategy to "scalable" or "monolithic"
-  To proceed with distributed mode, set .Values.loki.values.experimentalMode.enabled=true
+  To proceed with distributed mode, set .Values.packages.loki.values.experimentalMode.enabled=true
 {{- end }}
 
-{{- if and .Values.addons.keycloak.enabled (not (or .Values.addons.keycloak.database.host (dig "upstream" "database" "hostname" false .Values.addons.keycloak.values))) }}
+{{- if and .Values.packages.keycloak.enabled (not (or .Values.packages.keycloak.database.host (dig "upstream" "database" "hostname" false .Values.packages.keycloak.values))) }}
 PLATFORM ONE KEYCLOAK WARNING
   You have enabled Keycloak with an internal database. Platform One does not
   support this option for production deployments. This option should only be
   used for development or CI pipelines. Please configure your Keycloak deployment
-  to use an external database at either the `addons.keycloak.database` or
-  `addons.keycloak.values.upstream.database` keys.
+  to use an external database at either the `packages.keycloak.database` or
+  `packages.keycloak.values.upstream.database` keys.
 {{- end }}

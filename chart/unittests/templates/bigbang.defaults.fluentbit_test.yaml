@@ -6,18 +6,19 @@ templates:
 tests:
 - it: must enable storage-subnets egress when S3 output is configured
   set:
-    fluentbit:
-      values:
-        additionalOutputs:
-          s3:
-            bucket: test-bucket
-            region: us-gov-west-1
-            aws_access_key_id: test
-            aws_secret_access_key: test
     _selfTest:
       bigbang.defaults.fluentbit:
         resultIsYaml: true
         args: helm:context
+    packages:
+      fluentbit:
+        values:
+          additionalOutputs:
+            s3:
+              bucket: test-bucket
+              region: us-gov-west-1
+              aws_access_key_id: test
+              aws_secret_access_key: test
   template: templates/_self-test/render.yaml
   asserts:
   - equal:
@@ -36,8 +37,9 @@ tests:
             ports:
               - port: 443
                 protocol: TCP
-    fluentbit:
-      enabled: true
+    packages:
+      fluentbit:
+        enabled: true
   template: templates/fluentbit/values.yaml
   postRenderer:
     cmd: "sh"

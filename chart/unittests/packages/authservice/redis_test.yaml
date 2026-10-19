@@ -10,9 +10,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.authservice.enabled: true
-      addons.authservice.values.global.redis_server_uri: tcp://redis.example.internal:6379
-      addons.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
+      packages.authservice.enabled: true
+      packages.authservice.values.global.redis_server_uri: tcp://redis.example.internal:6379
+      packages.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled
@@ -36,9 +36,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.authservice.enabled: true
-      addons.authservice.values.redis.enabled: true
-      addons.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
+      packages.authservice.enabled: true
+      packages.authservice.values.redis.enabled: true
+      packages.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled

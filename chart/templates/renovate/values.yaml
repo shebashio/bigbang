@@ -1,10 +1,10 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
-{{- if .Values.renovate.enabled }}
+{{- if .Values.packages.renovate.enabled }}
 {{- /* Create a cleaned copy of renovate config and merge deprecated paths into current paths */ -}}
-{{- $renovatePackage := deepCopy .Values.renovate -}}
-{{- if .Values.renovate.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.renovate.values) | fromYaml -}}
+{{- $renovatePackage := deepCopy .Values.packages.renovate -}}
+{{- if .Values.packages.renovate.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.renovate.values) | fromYaml -}}
 {{- $renovatePackage = set $renovatePackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict
@@ -16,7 +16,7 @@
 {{- end }}
 
 {{- define "bigbang.defaults.renovate" -}}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.renovate.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.renovate.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}

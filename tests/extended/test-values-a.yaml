@@ -1,17 +1,20 @@
-fluentbit:
-  enabled: true
-elasticsearchKibana:
-  enabled: true
-eckOperator:
-  enabled: true
+packageConfiguration:
+  version: v1
 
-# Disable alloy/loki in favor of fluentbit/elasticsearch-kibana/eck-operator for logging/observability in this bucket
-alloy:
-  enabled: false
-loki:
-  enabled: false
+packages:
+  fluentbit:
+    enabled: true
+  elasticsearchKibana:
+    enabled: true
+  eckOperator:
+    enabled: true
 
-addons:
+  # Disable alloy/loki in favor of fluentbit/elasticsearch-kibana/eck-operator for logging/observability in this bucket
+  alloy:
+    enabled: false
+  loki:
+    enabled: false
+
   minioOperator:
     enabled: true
   argocd:

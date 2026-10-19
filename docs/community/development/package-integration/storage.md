@@ -71,7 +71,7 @@ Add objectStorage values for the package in bigbang/chart/values.yaml.
     * If object storage values are NOT present then the minio cluster is enabled and default values declared in the package are used.
 
 ```yaml
-{{- with .Values.addons.<package>.objectStorage }}
+{{- with .Values.packages.<package>.objectStorage }}
 {{- if and .endpoint .accessKey .accessSecret .bucket }}
 fileStore:
   accessKey: "{{ .accessKey }}"
@@ -100,8 +100,8 @@ Example: [GitLab](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/tem
     * Create the secret in the Big Bang chart. (**NOTE:** Replace `<package>` with your package name in the example below.)
 
 ```yaml
-{{- if .Values.addons.<package>.enabled }}
-{{- with .Values.addons.<package>.objectStorage }}
+{{- if .Values.packages.<package>.enabled }}
+{{- with .Values.packages.<package>.objectStorage }}
 {{- if and .endpoint .accessKey .accessSecret }}
 apiVersion: v1
 kind: Secret
@@ -123,12 +123,12 @@ Example: [GitLab secret-objectstore.yaml](https://repo1.dso.mil/big-bang/bigbang
 
 ## Validation
 
-For validating connection to the object storage in your environment or testing in CI pipeline, you will need to add the object storage specific values to your overrides file or `./tests/test-values.yaml`, respectively. If you are using Minio, ensure `addons.minio.enabled: true`.
+For validating connection to the object storage in your environment or testing in CI pipeline, you will need to add the object storage specific values to your overrides file or `./tests/test-values.yaml`, respectively. If you are using Minio, ensure `packages.minio.enabled: true`.
 
 Mattermost Example:
 
 ```yaml
-addons:
+packages:
   mattermost:
     enabled: true
     objectStorage:

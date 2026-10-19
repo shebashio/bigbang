@@ -3,7 +3,7 @@ suite: Package - Istiod - Values Tests
 templates:
   - templates/istiod/values.yaml
 set:
-  istiod.enabled: true
+  packages.istiod.enabled: true
 postRenderer:
   cmd: sh
   args:

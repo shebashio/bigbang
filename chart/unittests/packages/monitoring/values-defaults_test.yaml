@@ -3,17 +3,45 @@ suite: Package - Monitoring - Values Defaults Tests
 templates:
   - templates/monitoring/values.yaml
 set:
-  monitoring.enabled: true
+  packages.monitoring.enabled: true
 postRenderer:
   cmd: sh
   args:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: allows Alloy metrics to scrape kube-state-metrics with Prometheus disabled
+    set:
+      packages.alloy.alloyMetrics.enabled: true
+      packages.monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          value: true
+      - equal:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100.from.k8s.alloy/alloy-metrics
+          value: true
+  - it: omits Alloy scrape ingress when metrics collection is disabled
+    asserts:
+      - notExists:
+          path: networkPolicies.ingress.to.kube-state-metrics:8080
+      - notExists:
+          path: networkPolicies.ingress.to.prometheus-node-exporter:9100
+  - it: disables control-plane ServiceMonitors when Prometheus is not deployed
+    set:
+      packages.monitoring.values.upstream.prometheus.enabled: false
+    asserts:
+      - equal:
+          path: upstream.kubernetesServiceMonitors.enabled
+          value: false
+  - it: leaves control-plane ServiceMonitors at upstream defaults with Prometheus enabled
+    asserts:
+      - notExists:
+          path: upstream.kubernetesServiceMonitors
   - it: should keep istio cert mounts when legacy package hardening is enabled
     set:
-      istiod.enabled: true
-      monitoring.values.istio.hardened.enabled: true
+      packages.istiod.enabled: true
+      packages.monitoring.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -32,7 +60,7 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
-      istiod.enabled: true
+      packages.istiod.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -51,8 +79,8 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
     set:
-      istiod.enabled: true
-      monitoring.values.istio.sidecar.enabled: true
+      packages.istiod.enabled: true
+      packages.monitoring.values.istio.sidecar.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -71,8 +99,8 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should not inject sidecar annotations from legacy monitoring.values.istio.injection when istio is disabled
     set:
-      istiod.enabled: false
-      monitoring.values.istio.injection: enabled
+      packages.istiod.enabled: false
+      packages.monitoring.values.istio.injection: enabled
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -87,7 +115,7 @@ tests:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
   - it: should not inject istio cert mounts when istiod is disabled
     set:
-      istiod.enabled: false
+      packages.istiod.enabled: false
     asserts:
       - notExists:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
@@ -99,10 +127,10 @@ tests:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
   - it: should prioritize prometheusOperatorCRDs namespace injection over grafana when CRDs own monitoring namespace
     set:
-      istiod.enabled: true
-      prometheusOperatorCRDs.enabled: true
-      grafana.enabled: true
-      grafana.istio.injection: disabled
+      packages.istiod.enabled: true
+      packages.prometheusOperatorCRDs.enabled: true
+      packages.grafana.enabled: true
+      packages.grafana.istio.injection: disabled
     asserts:
       - equal:
           path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig.caFile
@@ -112,10 +140,10 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should use grafana namespace injection when prometheusOperatorCRDs is disabled
     set:
-      istiod.enabled: true
-      prometheusOperatorCRDs.enabled: false
-      grafana.enabled: true
-      grafana.istio.injection: disabled
+      packages.istiod.enabled: true
+      packages.prometheusOperatorCRDs.enabled: false
+      packages.grafana.enabled: true
+      packages.grafana.istio.injection: disabled
     asserts:
       - notExists:
           path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig.caFile
