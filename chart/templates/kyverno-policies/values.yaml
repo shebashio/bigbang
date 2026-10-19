@@ -512,26 +512,8 @@ istio:
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
   {{- $packages := default (dict) .Values.packages }}
-  {{- $effectivePackages := deepCopy $packages }}
-  {{- if not (hasKey .Values "packages") }}
-    {{- range $name, $value := .Values }}
-      {{- if and (ne $name "addons") (ne $name "_selfTest") }}
-        {{- $_ := set $effectivePackages $name $value }}
-      {{- end }}
-    {{- end }}
-    {{- $addons := get .Values "addons" | default dict }}
-    {{- range $name, $value := $addons }}
-      {{- if not (hasKey $effectivePackages $name) }}
-        {{- $_ := set $effectivePackages $name $value }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
-  {{- $effectiveValues := deepCopy .Values }}
-  {{- $_ := set $effectiveValues "packages" $effectivePackages }}
-  {{- $defaultsContext := deepCopy . }}
-  {{- $_ := set $defaultsContext "Values" $effectiveValues }}
-  {{- $kyvernoPolicies := default (dict) (get $effectivePackages "kyvernoPolicies") }}
-  {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" $defaultsContext) -}}
+  {{- $kyvernoPolicies := default (dict) (get $packages "kyvernoPolicies") }}
+  {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
   {{- $overlays := dig "values" dict $kyvernoPolicies }}
 
   {{- /* Policy specific merges.  Without these a user/test overlay REPLACES bigbang's
