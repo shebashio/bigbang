@@ -982,7 +982,11 @@ valuesFrom:
 
 {{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
 {{- define "ambientEnabled" -}}
-{{ or .Values.packages.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $ztunnel := default (dict) (get $packages "ztunnel") -}}
+{{- $istio := default (dict) .Values.istio -}}
+{{- $ambient := default (dict) (get $istio "ambient") -}}
+{{ or (default false (get $ztunnel "enabled")) (default false (get $ambient "enabled")) }}
 {{- end -}}
 
 {{- /* Returns true if the shared egress gateway is enabled (via istioEgressGateway package or global egressGateway flag) */ -}}
