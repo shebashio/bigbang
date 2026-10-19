@@ -962,7 +962,9 @@ valuesFrom:
 
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ dig "istiod" "enabled" false .Values.packages }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $istiod := default (dict) (get $packages "istiod") -}}
+{{ dig "enabled" false $istiod }}
 {{- end -}}
 
 {{- /* Returns true when authservice should be deployed or referenced by integrations. */ -}}
