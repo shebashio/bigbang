@@ -66,7 +66,7 @@ istio:
         enabled: true
         spec:
           hosts:
-          - "{{ .Values.addons.thanos.objectStorage.bucket }}.{{ $s3Host }}"
+          - "{{ .Values.packages.thanos.objectStorage.bucket }}.{{ $s3Host }}"
           location: MESH_EXTERNAL
           ports:
             - number: 443
@@ -86,7 +86,7 @@ istio:
           location: MESH_EXTERNAL
           ports:
             - number: {{ $s3Port }}
-              {{- if .Values.addons.thanos.objectStorage.insecure }}
+              {{- if .Values.packages.thanos.objectStorage.insecure }}
               protocol: HTTP
               name: http
               {{- else }}
@@ -119,19 +119,6 @@ routes:
         clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
       {{- end }}
 
-<<<<<<< HEAD
-minio:
-  enabled: {{ $shouldEnableMinio }}
-  {{- if $shouldEnableMinio }}
-  upstream:
-    tenant:
-      {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
-      metrics:
-        enabled: {{ .Values.packages.monitoring.enabled }}
-  {{- end }}
-
-=======
->>>>>>> bda47c87a (updated the for removal of minio)
 networkPolicies:
   egress:
     from:
@@ -162,18 +149,9 @@ networkPolicies:
             app.kubernetes.io/component: storegateway
         to:
           definition:
-            storage-subnets: {{ not (empty .Values.addons.thanos.objectStorage.endpoint) }}
+            storage-subnets: {{ not (empty .Values.packages.thanos.objectStorage.endpoint) }}
   ingress:
     to:
-<<<<<<< HEAD
-      minio:9000:
-        from:
-          k8s:
-            minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-=======
->>>>>>> bda47c87a (updated the for removal of minio)
       thanos-query-frontend:9090:
         podSelector:
           matchLabels:

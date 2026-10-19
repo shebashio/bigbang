@@ -105,8 +105,8 @@ bb-common:
                 protocol: TLS
                 name: https
             resolution: DNS
-    {{- else if and $istioHardenedEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
-    {{- $objFull := .Values.addons.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
+    {{- else if and $istioHardenedEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
+    {{- $objFull := .Values.packages.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
     {{- $objHost := index (splitList ":" $objFull) 0 }}
     {{- $objPort := 80 }}
     {{- if contains ":" $objFull }}{{- $objPort = index (splitList ":" $objFull) 1 | int }}{{- end }}
@@ -120,7 +120,7 @@ bb-common:
             location: MESH_EXTERNAL
             ports:
               - number: {{ $objPort }}
-                {{- if .Values.addons.thanos.objectStorage.insecure }}
+                {{- if .Values.packages.thanos.objectStorage.insecure }}
                 protocol: HTTP
                 name: http
                 {{- else }}
@@ -442,11 +442,11 @@ upstream:
           secret:
             type: s3
             config:
-              bucket: {{ .Values.addons.thanos.objectStorage.bucket | quote }}
-              endpoint: {{ .Values.addons.thanos.objectStorage.endpoint | quote }}
-              access_key: {{ .Values.addons.thanos.objectStorage.accessKey | quote }}
-              secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret | quote }}
-              insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+              bucket: {{ .Values.packages.thanos.objectStorage.bucket | quote }}
+              endpoint: {{ .Values.packages.thanos.objectStorage.endpoint | quote }}
+              access_key: {{ .Values.packages.thanos.objectStorage.accessKey | quote }}
+              secret_key: {{ .Values.packages.thanos.objectStorage.accessSecret | quote }}
+              insecure: {{ .Values.packages.thanos.objectStorage.insecure }}
               trace:
                 enable: true
               {{- if $monitoringMtlsStrict }}
