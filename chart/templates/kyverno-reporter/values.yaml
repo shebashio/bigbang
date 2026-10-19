@@ -1,32 +1,21 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoReporter" }}
-{{- if (get .Values $pkg).enabled }}
-{{- /* Create a cleaned copy of kyvernoReporter config and merge deprecated paths into current paths */ -}}
-{{- $kyvernoReporterPackage := deepCopy .Values.kyvernoReporter -}}
-{{- if .Values.kyvernoReporter.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.kyvernoReporter.values) | fromYaml -}}
-{{- $kyvernoReporterPackage = set $kyvernoReporterPackage "values" $cleanedValues -}}
-{{- end -}}
+{{- if .Values.kyvernoReporter.enabled }}
 {{- include "values-secret" (dict 
 "root" $ 
 "package" (get .Values $pkg) 
-"name" ($pkg | kebabcase) 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno-reporter" . | fromYaml) (include "bigbang.kyverno-reporter.bb-common-migrations" . | fromYaml)) | toYaml)
+"name" ($pkg | kebabcase)
+"bbCommonSubchart" true
+"defaults" (include "bigbang.defaults.kyverno-reporter" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno-reporter" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.kyvernoReporter.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-domain: {{ $domainName }}
 
 global:
   fullnameOverride: kyverno-reporter
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
 
 routes:
   inbound:
