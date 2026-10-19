@@ -91,7 +91,7 @@ section 3 below.
 | Global namespace exclude | `exclude.any[].resources.namespaces` | `policies.excludeNamespaces` |
 | Global container exclude | `excludeContainers` (top level) | `policies.excludeContainers` |
 | Per-policy preconditions | `policyPreconditions` | Per-policy `matchConditions` (CEL) |
-| Custom policies | `additionalPolicies` with `kind: ClusterPolicy`/`Policy` | `additionalPolicies` with `kind: ValidatingPolicy`/`MutatingPolicy`/`GeneratingPolicy`/`ImageValidatingPolicy`/`DeletingPolicy` |
+| Custom policies | `additionalPolicies` with `kind: ClusterPolicy`/`Policy` | `additionalPolicies` with `kind: ValidatingPolicy`/`MutatingPolicy`/`GeneratingPolicy`/`ImageValidatingPolicy` |
 | Policy tuning (`validationFailureAction`, `parameters`) | `policies.<name>.*` | `policies.<name>.*` (same key; see notes below) |
 
 The single most important thing to know: **the top-level `policies` key and the
@@ -506,7 +506,7 @@ matchConditions:
 If you ship your own policies through `additionalPolicies`, two things changed:
 
 - `kind` must now be one of `ValidatingPolicy`, `MutatingPolicy`,
-  `GeneratingPolicy`, `ImageValidatingPolicy`, or `DeletingPolicy` (no longer
+  `GeneratingPolicy`, or `ImageValidatingPolicy` (no longer
   `ClusterPolicy` / `Policy`).
 - `spec` must be a CEL policy spec for that kind, not a `ClusterPolicy` rules
   block. See the [Kyverno policy types

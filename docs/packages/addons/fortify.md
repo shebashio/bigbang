@@ -30,14 +30,15 @@ The following table provides descriptions of the required and optional Fortify S
 
 ### KyvernoPolicies
 
-When deploying to k3d, the `validationFailureAction` for the `restrict-host-path-mount-pv` policy should be set to `audit`. This can be done by modifying `chart/values.yaml` file or passing an override file with the values set as seen below. This is for development purposes only: production should use the default setting of `enforce`.
+When deploying to k3d, the `validationFailureAction` for the `restrict-host-path-mount-pv` policy should be set to `Audit`. This can be done by modifying `chart/values.yaml` file or passing an override file with the values set as seen below. This is for development purposes only: production should use the default setting of `Enforce`.
 
 ```yaml
-kyvernoPolicies:
-  values:
-    policies:
-      restrict-host-path-mount-pv:
-        validationFailureAction: audit
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-host-path-mount-pv:
+          validationFailureAction: Audit
 ```
 
 ## Licensing
