@@ -17,19 +17,19 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - equal:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
           value: https
       - equal:
-          path: monitoring.serviceMonitor.tlsConfig.caFile
+          path: upstream.monitoring.serviceMonitor.tlsConfig.caFile
           value: /etc/prom-certs/root-cert.pem
       - equal:
-          path: monitoring.serviceMonitor.tlsConfig.certFile
+          path: upstream.monitoring.serviceMonitor.tlsConfig.certFile
           value: /etc/prom-certs/cert-chain.pem
       - equal:
-          path: monitoring.serviceMonitor.tlsConfig.keyFile
+          path: upstream.monitoring.serviceMonitor.tlsConfig.keyFile
           value: /etc/prom-certs/key.pem
       - equal:
-          path: monitoring.serviceMonitor.tlsConfig.insecureSkipVerify
+          path: upstream.monitoring.serviceMonitor.tlsConfig.insecureSkipVerify
           value: true
 
   - it: should not render tlsConfig when istio is disabled
@@ -38,9 +38,9 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
 
   - it: should not render tlsConfig when mTLS mode is PERMISSIVE
     set:
@@ -48,9 +48,9 @@ tests:
       loki.values.istio.mtls.mode: PERMISSIVE
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
 
   - it: should not render tlsConfig when ambient mode is enabled via ztunnel
     set:
@@ -59,9 +59,9 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
 
   - it: should not render tlsConfig when ambient mode is enabled via istio.ambient.enabled
     set:
@@ -70,9 +70,9 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
 
   - it: should not render tlsConfig when package istio.enabled is false
     set:
@@ -81,9 +81,9 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
 
   - it: should not render tlsConfig when package injection is disabled
     set:
@@ -92,6 +92,6 @@ tests:
       loki.values.istio.mtls.mode: STRICT
     asserts:
       - notExists:
-          path: monitoring.serviceMonitor.scheme
+          path: upstream.monitoring.serviceMonitor.scheme
       - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
+          path: upstream.monitoring.serviceMonitor.tlsConfig
