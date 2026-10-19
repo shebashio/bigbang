@@ -65,6 +65,43 @@ packages:
     enabled: true
 ```
 
+## Shared Package Fields
+
+Built-in packages share the following fields. Set them under
+`packages.<name>` to override the defaults for one package.
+
+| Field | Default | Behavior |
+| --- | --- | --- |
+| `sourceType` | `git` | Select `helmRepo` to use a configured HelmRepository. Source URLs, chart names, paths, and version pins remain package-specific. |
+| `values` | `{}` | Pass child-chart overrides through after Big Bang's generated defaults. Consult the package chart for its supported values. |
+| `flux` | `{}` | Override global `flux` settings. Some built-ins supply additional timeouts, drift exclusions, or CRD settings; a partial user override merges with those package defaults. |
+| `postRenderers` | `[]` | Apply Flux HelmRelease post-renderers. Istio Gateway also accepts a map keyed by gateway name. |
+
+The chart uses a YAML anchor to avoid repeating these fields. Helm resolves that
+anchor before merging user values, so ordinary values files and `--set` overrides
+continue to work. Explicit package settings replace the corresponding shared
+field; YAML merge keys do not recursively combine nested maps. Helm then applies
+its usual recursive values merge. The anchor contains only the four fields above;
+enablement and source pins are defined separately for every built-in.
+
+```yaml
+packages:
+  kiali:
+    flux:
+      timeout: 30m
+      upgrade:
+        cleanupOnFail: false
+```
+
+Unknown package names retain the custom-package contract and do not inherit the
+built-in anchor. The disabled `packages.sample` entry retains its existing defaults
+for compatibility. Its fully annotated configuration is available in the
+[custom-package example](../reference/configs/example/custom-package-values.yaml).
+
+When inspecting `chart/values.yaml` with Mike Farah `yq`, use v4.47.1 or newer and
+`--yaml-fix-merge-anchor-to-spec=true` so explicit package fields take precedence
+over YAML merges. The schema and values-reference generators use this mode.
+
 ## Package Sources
 
 Big Bang supports both Git and OCI (Open Container Initiative) sources for packages.

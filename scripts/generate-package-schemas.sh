@@ -22,6 +22,8 @@ fi
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
+yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
+  || fail "Mike Farah yq v4.47.1 or newer with --yaml-fix-merge-anchor-to-spec support is required"
 
 TASK_TMP=$(mktemp -d "${TMPDIR:-/tmp}/bigbang-package-schemas.XXXXXX")
 cleanup() {
@@ -34,7 +36,8 @@ cleanup() {
 trap cleanup EXIT
 
 yq -o=json '.' "$METADATA_PATH" >"${TASK_TMP}/metadata.json"
-yq -o=json '.' "$VALUES_PATH" >"${TASK_TMP}/values.json"
+# Resolve the shared built-in fields with the same explicit-key precedence as Helm.
+yq --yaml-fix-merge-anchor-to-spec=true -o=json '.' "$VALUES_PATH" >"${TASK_TMP}/values.json"
 
 # Validate metadata before using its identifiers as filesystem paths or
 # emitting its package keys into the generated Bash arrays.

@@ -12,4 +12,16 @@ The table contains Big Bang values that have documentation annotations and their
 
 {{ template "chart.requirementsSection" . }}
 
+## Shared Package Fields
+
+Built-in packages inherit `sourceType: git`, `values: {}`, `flux: {}`, and
+`postRenderers: []` from a shared YAML mapping in `chart/values.yaml`. Explicit
+package settings override these fields. The public paths remain
+`packages.<name>.<field>`; user values files do not need YAML anchors.
+
+See [shared package fields](../concepts/package-management.md#shared-package-fields)
+for precedence and examples, and the
+[custom-package example](../reference/configs/example/custom-package-values.yaml)
+for the generic package contract.
+
 {{ template "chart.valuesSection" . }}

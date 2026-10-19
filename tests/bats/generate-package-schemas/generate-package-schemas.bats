@@ -37,6 +37,25 @@ create_generator_fixture() {
   [ "$actual" = "$expected" ]
 }
 
+@test "schema generation resolves shared defaults with explicit package precedence" {
+  create_generator_fixture
+  # A new shared field must be discovered for both the anchor owner and aliases,
+  # while a package's explicit map replaces the shared map before Helm merging.
+  yq --yaml-fix-merge-anchor-to-spec=true -i \
+    '.packages.istioCNI."<<".sharedExample = {"common": true} |
+     .packages.kiali.sharedExample = {"specific": true}' \
+    "${FIXTURE_ROOT}/chart/values.yaml"
+
+  run "${FIXTURE_ROOT}/scripts/generate-package-schemas.sh" --write
+
+  [ "$status" -eq 0 ]
+  jq -e '."$defs".packagePartials.overrides |
+    .istioCNI.properties.sharedExample == true and
+    .gatewayAPI.properties.sharedExample == true and
+    .kiali.properties.sharedExample == true' \
+    "${FIXTURE_ROOT}/chart/values.schema.json" >/dev/null
+}
+
 @test "built-in schema definitions match the catalog and legacy paths are absent" {
   expected=$(yq -o=json '.packages | keys' "${REPO_ROOT}/chart/package-metadata.yaml" | jq -c 'sort')
   actual=$(jq -c '."$defs".builtinPackageSchemas.properties | keys | sort' "${REPO_ROOT}/chart/values.schema.json")

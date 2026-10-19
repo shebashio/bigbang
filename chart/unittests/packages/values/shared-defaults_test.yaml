@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - Shared YAML Defaults
+templates:
+  - templates/_self-test/render.yaml
+set:
+  _selfTest:
+    bigbang.self-test.package-alias-state:
+      args: helm:context
+      resultIsYaml: true
+tests:
+  - it: resolves shared fields without inheriting another package's identity or replacing exceptions
+    asserts:
+      - equal:
+          path: result.packages.istioCNI.sourceType
+          value: git
+      - equal:
+          path: result.packages.istioCNI.values
+          value: {}
+      - equal:
+          path: result.packages.istioCNI.flux
+          value: {}
+      - equal:
+          path: result.packages.istioCNI.postRenderers
+          value: []
+      - equal:
+          path: result.packages.kiali.git.repo
+          value: https://repo1.dso.mil/big-bang/product/packages/kiali.git
+      - equal:
+          path: result.packages.kiali.enabled
+          value: true
+      - equal:
+          path: result.packages.kiali.flux.timeout
+          value: 20m
+      - equal:
+          path: result.packages.certManager.values.upstream.crds.enabled
+          value: true
+      - equal:
+          path: result.packages.sample.enabled
+          value: false
+
+  - it: preserves source overrides, falsey values, and list replacements after repeated normalization
+    set:
+      packages:
+        kiali:
+          sourceType: helmRepo
+          git:
+            path: custom/chart
+          helmRepo:
+            repoName: alternate
+          flux:
+            upgrade:
+              cleanupOnFail: false
+              remediation:
+                retries: 0
+          values:
+            featureFlag: false
+          postRenderers:
+            - kustomize:
+                patches:
+                  - target:
+                      kind: Deployment
+                    patch: |-
+                      - op: add
+                        path: /metadata/annotations/example.com~1test
+                        value: shared-defaults
+    asserts:
+      - equal:
+          path: result.packages.kiali.sourceType
+          value: helmRepo
+      - equal:
+          path: result.packages.kiali.git.path
+          value: custom/chart
+      - equal:
+          path: result.packages.kiali.helmRepo.repoName
+          value: alternate
+      - equal:
+          path: result.packages.kiali.flux.timeout
+          value: 20m
+      - equal:
+          path: result.packages.kiali.flux.upgrade.cleanupOnFail
+          value: false
+      - equal:
+          path: result.packages.kiali.flux.upgrade.remediation.retries
+          value: 0
+      - equal:
+          path: result.packages.kiali.values.featureFlag
+          value: false
+      - lengthEqual:
+          path: result.packages.kiali.postRenderers
+          count: 1
+      - equal:
+          path: result.packages.gatewayAPI.values
+          value: {}
+      - equal:
+          path: result.packages.gatewayAPI.postRenderers
+          value: []
+
+  - it: preserves Helm null deletion of inherited fields
+    set:
+      packages:
+        istioCNI:
+          sourceType: null
+          values: null
+          flux: null
+          postRenderers: null
+    asserts:
+      - notExists:
+          path: result.packages.istioCNI.sourceType
+      - notExists:
+          path: result.packages.istioCNI.values
+      - notExists:
+          path: result.packages.istioCNI.flux
+      - notExists:
+          path: result.packages.istioCNI.postRenderers
+
+  - it: keeps custom packages outside the built-in defaults
+    set:
+      packages:
+        example:
+          enabled: false
+    asserts:
+      - equal:
+          path: result.customPackages.example
+          value:
+            enabled: false
+      - notExists:
+          path: result.packages.example.sourceType
