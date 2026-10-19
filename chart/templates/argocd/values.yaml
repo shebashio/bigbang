@@ -9,7 +9,8 @@
   "root" $
   "package" $argocdPackage
   "name" "argocd"
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.argocd" . | fromYaml) (include "bigbang.argocd.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.argocd" .)
 )}}
 {{- end }}
 
@@ -75,7 +76,7 @@ redis-bb:
 createNamespace: false
 
 global:
-  {{- $argocdHosts := (dig "istio" "argocd" "hosts" dict .Values.addons.argocd.values) }}
+  {{- $argocdHosts := (dig "bb-common" "routes" "inbound" "argocd" "hosts" list .Values.addons.argocd.values) }}
   {{- if $argocdHosts }}
   domain: {{ tpl ($argocdHosts | first) $ }}
   {{- else }}
@@ -114,16 +115,16 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.addons.argocd.values }}
       hosts:
       - 'repo1.dso.mil'
+    {{- if $externalRedisEnabled }}
     external-redis:
-      enabled: {{ $externalRedisEnabled }}
-      {{- if $externalRedisEnabled }}
+      enabled: true
       hosts:
       - {{ .Values.addons.argocd.redis.host | quote }}
       ports:
       - number: {{ $externalRedisPort }}
         name: redis
         protocol: TCP
-      {{- end }}
+    {{- end }}
 
 networkPolicies:
   ingress:
@@ -154,6 +155,23 @@ networkPolicies:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisEnabled) (dig "redis-bb" "enabled" true .Values.addons.argocd.values) .Values.monitoring.enabled }}
   egress:
+  {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
+    definitions:
+      kubeAPI:
+        to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+            except:
+            - 169.254.169.254/32
+            {{- end }}
+        {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+        {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.vpcCidr }}
+        {{- end }}
+        {{- end }}
+  {{- end }}
     from:
       # -- Egress to tempo for tracing from all pods
       "*":
