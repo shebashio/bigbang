@@ -31,10 +31,15 @@ spec:
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or $istioEnabled (dig "values" "minio" "enabled" false .Values.packages.vault) .Values.packages.vault.dependsOn }}
+  {{- else if or $istioEnabled .Values.packages.kyvernoPolicies.enabled (dig "values" "minio" "enabled" false .Values.packages.vault) .Values.packages.vault.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
+    {{- end }}
+
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
+    - name: kyverno-policies
+      namespace: {{ $.Release.Namespace }}
     {{- end }}
 
     {{- if (dig "values" "minio" "enabled" false .Values.packages.vault) }}

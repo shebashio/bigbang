@@ -28,10 +28,26 @@ networkPolicies:
             cidr: {{ .Values.networkPolicies.vpcCidr }}
         {{- end }}
         {{- end }}
+      # Keep in sync with private-registry in values.yaml: registry1 plus the
+      # us-gov-west-1 S3 ranges it redirects blob downloads to.
       private-registry:
         to:
           - ipBlock:
               cidr: "15.205.173.153/32"
+          - ipBlock:
+              cidr: "108.175.56.0/22"
+          - ipBlock:
+              cidr: "108.175.48.0/22"
+          - ipBlock:
+              cidr: "136.18.0.0/23"
+          - ipBlock:
+              cidr: "3.2.99.0/24"
+          - ipBlock:
+              cidr: "1.178.30.0/24"
+          - ipBlock:
+              cidr: "15.200.176.128/28"
+          - ipBlock:
+              cidr: "15.200.28.240/28"
         ports:
         {{- toYaml $uniquePorts | nindent 10 }}
     from:

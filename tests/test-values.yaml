@@ -79,7 +79,25 @@ sso:
       -----END CERTIFICATE-----
   saml:
     # Retrieve from {{ .Values.sso.url }}/protocol/saml/descriptor
-    metadata: <md:EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda"><md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo><ds:KeyName>4CK69bW66HE2wph9VuBs0fTc1MaETSTpU1iflEkBHR4</ds:KeyName><ds:X509Data><ds:X509Certificate>MIICoTCCAYkCBgF/iYn0azANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwHhcNMjIwMzE0MTc0NDUzWhcNMzIwMzE0MTc0NjMzWjAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoCX4G1TCnZlWXvCLH/z6m5y/6NMrUv1AYVVbTaQ9iUWLR+uD44v1exIHUywkgQV+cMhn+my+9ZihmRWfOJuBWV8CM5BfIh685YulKVQrcGlYWcB877SjJBZKxyXITz7GnNOJ8vvlK9tK8OncldUFrhR2BXaqw2zvG733CKlDtyujaWmd7kQge/p4okx4bV4VBLYMmsjrJ004uvMcU4DekCFlGmEh3p3FhZorMf+1xHfi5DaCD4iCYZqRgsWEb8/Zmsx0+qi56P9YWhz1j2GUfHw0At8Dq5h7hoMJtYJMvVXWxkmPNVHtaJMOHt8iiBO7/a6SkI6ddf9Jotp2i6XEvAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAJwSLJ0eybbeBYPvXnawqpy6JSXJ/MnnRvSGN9tXJ2+d/QXMOEPwJaAaOrvFtpUQxyPELJ8nU/Ukf7AL2zWltsCLiwtTrJkC+BpbZYkb1UsByveBS5wTPfiNkFzHeGg+MxBjiju2y04P4kEngXhQh4ZIUdi+WJjew721nJa/tjrMfnuEsMjxY/tWnzkk8xkGgaApZpGyaj1tOmVH4GR6CeBU6459m/GXmGH5TCGwT3EyfpZ189te+xV73WZR/r2nDlGuuy//w/P4JGHh4lcCwLfPcOOH30otcPAgctyX9Takk4MkVjva+b9S88sGaWPg075bxA2sysmkuqEOULjdXjU=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/resolve" index="0"></md:ArtifactResolutionService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService></md:IDPSSODescriptor></md:EntityDescriptor>
+    metadata: <md:EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+      xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda"><md:IDPSSODescriptor WantAuthnRequestsSigned="true"
+      protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor
+      use="signing"><ds:KeyInfo><ds:KeyName>4CK69bW66HE2wph9VuBs0fTc1MaETSTpU1iflEkBHR4</ds:KeyName><ds:X509Data><ds:X509Certificate>MIICoTCCAYkCBgF/iYn0azANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwHhcNMjIwMzE0MTc0NDUzWhcNMzIwMzE0MTc0NjMzWjAUMRIwEAYDVQQDDAliYWJ5LXlvZGEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoCX4G1TCnZlWXvCLH/z6m5y/6NMrUv1AYVVbTaQ9iUWLR+uD44v1exIHUywkgQV+cMhn+my+9ZihmRWfOJuBWV8CM5BfIh685YulKVQrcGlYWcB877SjJBZKxyXITz7GnNOJ8vvlK9tK8OncldUFrhR2BXaqw2zvG733CKlDtyujaWmd7kQge/p4okx4bV4VBLYMmsjrJ004uvMcU4DekCFlGmEh3p3FhZorMf+1xHfi5DaCD4iCYZqRgsWEb8/Zmsx0+qi56P9YWhz1j2GUfHw0At8Dq5h7hoMJtYJMvVXWxkmPNVHtaJMOHt8iiBO7/a6SkI6ddf9Jotp2i6XEvAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAJwSLJ0eybbeBYPvXnawqpy6JSXJ/MnnRvSGN9tXJ2+d/QXMOEPwJaAaOrvFtpUQxyPELJ8nU/Ukf7AL2zWltsCLiwtTrJkC+BpbZYkb1UsByveBS5wTPfiNkFzHeGg+MxBjiju2y04P4kEngXhQh4ZIUdi+WJjew721nJa/tjrMfnuEsMjxY/tWnzkk8xkGgaApZpGyaj1tOmVH4GR6CeBU6459m/GXmGH5TCGwT3EyfpZ189te+xV73WZR/r2nDlGuuy//w/P4JGHh4lcCwLfPcOOH30otcPAgctyX9Takk4MkVjva+b9S88sGaWPg075bxA2sysmkuqEOULjdXjU=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:ArtifactResolutionService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml/resolve"
+      index="0"></md:ArtifactResolutionService><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:SingleLogoutService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleLogoutService><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat><md:SingleSignOnService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService><md:SingleSignOnService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+      Location="https://keycloak.dev.bigbang.mil/auth/realms/baby-yoda/protocol/saml"></md:SingleSignOnService></md:IDPSSODescriptor></md:EntityDescriptor>
 
 flux:
   interval: 1m
@@ -105,26 +123,26 @@ packages:
       istio:
         serviceEntries:
           custom:
-            - name: external-dependencies
-              spec:
-                hosts:
-                  - external-dependencies.local
-                addresses:
-                  - 172.30.0.0/16
-                exportTo:
-                  - "*"
-                location: MESH_EXTERNAL
-                resolution: NONE
-                ports:
-                  - name: tcp-garage
-                    number: 3900
-                    protocol: TCP
-                  - name: tcp-postgresql
-                    number: 5432
-                    protocol: TCP
-                  - name: tcp-valkey
-                    number: 6379
-                    protocol: TCP
+          - name: external-dependencies
+            spec:
+              hosts:
+              - external-dependencies.local
+              addresses:
+              - 172.30.0.0/16
+              exportTo:
+              - "*"
+              location: MESH_EXTERNAL
+              resolution: NONE
+              ports:
+              - name: tcp-garage
+                number: 3900
+                protocol: TCP
+              - name: tcp-postgresql
+                number: 5432
+                protocol: TCP
+              - name: tcp-valkey
+                number: 6379
+                protocol: TCP
   istioCNI:
     enabled: false
     values:
@@ -167,7 +185,7 @@ packages:
         replicas: 1
         controllerManager:
           resources:
-            limits: null
+            limits:
             requests:
               cpu: 100m
               memory: 256Mi
@@ -341,407 +359,217 @@ packages:
     values:
       bbtests:
         enabled: true
-          
+
   kyvernoPolicies:
     values:
       bbtests:
-        enabled: true
-        chainsawEnabled: false
-        kyvernoCliEnabled: false
-        legacyEnabled: true
-      excludeContainers:
-      - not-me
-      - or-me
-      exclude:
-        any:
-        # Allows k3d load balancer to bypass policies.
-        - resources:
-            namespaces:
-            - istio-system
-            names:
-            - svclb-*
-        # Exclude gatekeeper test resources so Helm tests will work
-        - resources:
-            namespaces:
-            - default
-            names:
-            - bad-test*
-            - good-test*
-      # Parameters are copied from kyverno policies for test vectors
-      # Exclusions are for allowing other helm tests to function
-      policies:
-        add-default-capability-drop:
-          exclude:
-            any:
-            # Need to be able to test the `require-drop-all-capabilities` policy
-            # without this policy mutating the podspecs and adding the "missing" capability
-            - resources:
-                namespaces:
-                - default
-                names:
-                - require-drop-all-capabilities*
-            - resources:
-                namespaces:
-                - argocd
-                names:
-                - guestbook-ui-*
-        clone-configs:
-          parameters:
-            clone:
-            - name: clone-configs-1
-              kind: ConfigMap
-              namespace: "{{ .Release.Namespace }}"
-            - name: clone-configs-2
-              kind: Secret
-              namespace: "{{ .Release.Namespace }}"
-        disallow-annotations:
-          parameters:
-            disallow:
-            - 'kyverno-policies-bbtest/test: disallowed'
-            - kyverno-policies-bbtest/disallowed
-        disallow-labels:
-          parameters:
-            disallow:
-            - 'kyverno-policies-bbtest/test: disallowed'
-            - kyverno-policies-bbtest/disallowed
-        disallow-tolerations:
-          parameters:
-            disallow:
-            - effect: NoSchedule
-              key: notallowed
-              value: 'false'
-            - effect: '*NoSchedule'
-              key: disa??owed
-              value: 'true'
-        require-annotations:
-          parameters:
-            require:
-            - 'kyverno-policies-bbtest/test: required'
-            - kyverno-policies-bbtest/required
-        require-image-signature:
-          enabled: false
-          # set to Audit for now -- having signature issues with registry1.dso.mil/ironbank/bitnami/redis:7.0.0-debian-10-r3
-          validationFailureAction: Audit
-          parameters:
-            require:
-            - imageReferences:
-              - "ghcr.io/kyverno/test-verify-image:*"
-              attestors:
-              - count: 1
-                entries:
-                - keys:
-                    publicKeys: |-
-                      -----BEGIN PUBLIC KEY-----
-                      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM
-                      5/KAQN0/KjHcorm/J5yctVd7iEcnessRQjU917hmKO6JWVGHpDguIyakZA==
-                      -----END PUBLIC KEY-----
-                    # Skip Rekor Transparency log check
-                    rekor:
-                      ignoreTlog: true
-                      url: ""
-              mutateDigest: false
-              verifyDigest: false
-            - imageReferences:
-              - "registry1.dso.mil/ironbank/*"
-              attestors:
-              - count: 1
-                entries:
-                - keys:
-                    publicKeys: |-
-                      -----BEGIN PUBLIC KEY-----
-                      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7CjMGH005DFFz6mffqTIGurBt6fL
-                      UfTZxuEDFRBS8mFJx1xw8DEVvjMibLTtqmAoJxUmzmGFgzz+LV875syVEg==
-                      -----END PUBLIC KEY-----
-                    # Skip Rekor Transparency log check
-                    rekor:
-                      ignoreTlog: true
-                      url: ""
-              # Ironbank images are rebuilt nightly and tags are not immutable
-              mutateDigest: false
-              verifyDigest: false
-        require-labels:
-          parameters:
-            require:
-            - 'kyverno-policies-bbtest/test: required'
-            - kyverno-policies-bbtest/required
-        restrict-external-ips:
-          parameters:
-            allow:
-            - 192.168.0.1
-        restrict-external-names:
-          parameters:
-            allow:
-            - allowed
-        restrict-host-path-mount:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - anchore
-                - gitlab
-                - gitlab-runner
-                - kiali
-                - cluster-auditor
-                - mattermost
-                - keycloak
-                - kyverno-reporter
-                - mimir
-                - monitoring
-                - vault
-                - logging
-                - twistlock
-                - sonarqube
-                - logging
-                - tempo
-                - argocd
-                - minio
-                - minio-operator
-                - neuvector
-                - harbor
-                - fortify
-                - thanos
-                - alloy
-                - headlamp
-                names:
-                - "*-cypress-test*"
-          parameters:
-            allow:
-            - /tmp/allowed
-        restrict-host-path-mount-pv:
-          parameters:
-            allow:
-            - /tmp/allowed
-            - /var/lib/rancher/k3s/storage/pvc-*
-        restrict-host-path-write:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - anchore
-                - gitlab
-                - gitlab-runner
-                - kiali
-                - cluster-auditor
-                - mattermost
-                - keycloak
-                - kyverno-reporter
-                - mimir
-                - monitoring
-                - vault
-                - logging
-                - twistlock
-                - sonarqube
-                - logging
-                - tempo
-                - argocd
-                - minio
-                - minio-operator
-                - neuvector
-                - harbor
-                - fortify
-                - thanos
-                - alloy
-                - headlamp
-                names:
-                - "*-cypress-test*"
-            - resources:
-                namespaces:
-                - neuvector
-                names:
-                - "neuvector-enforcer-*"
-                - "neuvector-manager-*"
-          parameters:
-            allow:
-            - /tmp/allowed
-        restrict-host-ports:
-          parameters:
-            allow:
-            - '63999'
-            - '>= 64000 & < 65000'
-            - '> 65000'
-        restrict-volume-types:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - anchore
-                - gitlab
-                - gitlab-runner
-                - kiali
-                - cluster-auditor
-                - mattermost
-                - keycloak
-                - kyverno-reporter
-                - mimir
-                - monitoring
-                - vault
-                - logging
-                - twistlock
-                - sonarqube
-                - logging
-                - tempo
-                - argocd
-                - minio
-                - minio-operator
-                - neuvector
-                - harbor
-                - fortify
-                - thanos
-                - alloy
-                - headlamp
-                names:
-                - "*-cypress-test*"
-        update-image-registry:
-          parameters:
-            update:
-            - from: replace.image.registry
-              to: registry1.dso.mil
-        require-drop-all-capabilities:
-          exclude:
-            any:
-            # Twistlock Defenders run as root to perform real time scanning on the nodes/cluster
-            - resources:
-                namespaces:
-                - twistlock
-                names:
-                - twistlock-defender-ds*
-            # Neuvector needs access to host to inspect network traffic
-            - resources:
-                namespaces:
-                - neuvector
-                names:
-                - neuvector-enforcer-pod*
-                - neuvector-controller-pod*
-                - neuvector-prometheus-exporter-pod*
-            - resources:
-                namespaces:
-                - argocd
-                names:
-                - guestbook-ui-*
-        require-non-root-group:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - fortify
-                names:
-                - fortify-mysql-* # mysql breaks if you give it a different group
-            - resources:
-                namespaces:
-                - metallb-system
-                names:
-                - speaker-*
-                - controller-*
-            - resources:
-                namespaces:
-                - velero
-                names:
-                - velero-backup-restore-test*
-            - resources:
-                namespaces:
-                - alloy
-                names:
-                - alloy-config-validator*
-                - alloy-config-analysis*
-                - alloy-test*
-        require-non-root-user:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - metallb-system
-                names:
-                - speaker-*
-            - resources:
-                namespaces:
-                - argocd
-                names:
-                - guestbook*
-            - resources:
-                namespaces:
-                - velero
-                names:
-                - velero-backup-restore-test*
-            - resources:
-                namespaces:
-                - twistlock
-                names:
-                - volume-upgrade-job*
-            - resources:
-                namespaces:
-                - alloy
-                names:
-                - alloy-config-validator*
-                - alloy-config-analysis*
-                - alloy-test*
-        add-default-securitycontext:
-          exclude:
-            any:
-            - resources:
-                namespaces:
-                - metallb-system
-                names:
-                - speaker-*
-            - resources:
-                namespaces:
-                - argocd
-                names:
-                - guestbook*
-            - resources:
-                namespaces:
-                - velero
-                names:
-                - velero-backup-restore-test*
-            - resources:
-                namespaces:
-                - twistlock
-                names:
-                - volume-upgrade-job*
-            - resources:
-                namespaces:
-                - alloy
-                names:
-                - alloy-config-validator*
-                - alloy-config-analysis*
-                - alloy-test*
-        disallow-namespaces:
-          parameters:
-            disallow:
-            - bigbang
-        restrict-image-registries:
-          exclude:
-            any:
-              - resources:
-                  namespaces:
-                    - gitlab
+        enabled: false
       additionalPolicyExceptions:
+      # Pre-existing test exception, migrated to a CEL ValidatingPolicy reference.
         testpolicyexception:
-          enabled: true
-          annotations:
-            policies.kyverno.io/title: Test PolicyException
-            policies.kyverno.io/category: Test
-            policies.kyverno.io/subject: Pod
-            policies.kyverno.io/description: >-
-              This Test PolicyException allows pods to deploy busybox for debugging.
-          # -- PolicyException specification.  See `kubectl explain policyexceptions.spec`
           spec:
-            exceptions:
-            #Name of Policy for exception
-            - policyName: block-ephemeral-containers
-              ruleNames:
-              - block-ephemeral-containers
-            match:
-              any:
-              - resources:
-                  kinds:
-                  - Pod
-                  names:
-                  - important-tool*
-            conditions:
-              any:
-              - key: "{{ request.object.metadata.labels.app || '' }}"
-                operator: Equals
-                value: busybox
+            policyRefs:
+            - name: block-ephemeral-containers
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: important-tool
+              expression: |-
+                (object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('important-tool'))
+      # Legacy global exclude (applied to all policies): k3d load balancer pods.
+        svclb-bypass:
+          spec:
+            policyRefs:
+            - name: disallow-privileged-containers
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation
+              kind: ValidatingPolicy
+            - name: restrict-capabilities
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+            - name: restrict-host-ports
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces
+              kind: ValidatingPolicy
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+            - name: restrict-seccomp
+              kind: ValidatingPolicy
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+            - name: disallow-image-tags
+              kind: ValidatingPolicy
+            - name: require-labels
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop
+              kind: MutatingPolicy
+            - name: add-default-securitycontext
+              kind: MutatingPolicy
+            matchConditions:
+            - name: svclb
+              expression: |-
+                (object.metadata.namespace == 'istio-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('svclb-'))
+      # Legacy global exclude (applied to all policies): gatekeeper helm-test pods.
+        gatekeeper-test-bypass:
+          spec:
+            policyRefs:
+            - name: disallow-privileged-containers
+              kind: ValidatingPolicy
+            - name: disallow-privilege-escalation
+              kind: ValidatingPolicy
+            - name: restrict-capabilities
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+            - name: restrict-host-ports
+              kind: ValidatingPolicy
+            - name: disallow-host-namespaces
+              kind: ValidatingPolicy
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+            - name: restrict-seccomp
+              kind: ValidatingPolicy
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+            - name: disallow-image-tags
+              kind: ValidatingPolicy
+            - name: require-labels
+              kind: ValidatingPolicy
+            - name: add-default-capability-drop
+              kind: MutatingPolicy
+            - name: add-default-securitycontext
+              kind: MutatingPolicy
+            matchConditions:
+            - name: gatekeeper-test
+              expression: |-
+                (object.metadata.namespace == 'default' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('bad-test') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('good-test')
+                ))
+      # Per-policy excludes below.
+        add-default-capability-drop:
+          spec:
+            policyRefs:
+            - name: add-default-capability-drop
+              kind: MutatingPolicy
+            matchConditions:
+            - name: add-default-capability-drop-exclude
+              expression: |-
+                (object.metadata.namespace == 'default' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('require-drop-all-capabilities')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-'))
+        restrict-host-path-mount:
+          spec:
+            policyRefs:
+            - name: restrict-host-path-mount
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: cypress-test
+              expression: |-
+                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+        restrict-host-path-write:
+          spec:
+            policyRefs:
+            - name: restrict-host-path-write
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: restrict-host-path-write-exclude
+              expression: |-
+                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
+                ))
+        restrict-volume-types:
+          spec:
+            policyRefs:
+            - name: restrict-volume-types
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: cypress-test
+              expression: |-
+                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+        require-drop-all-capabilities:
+          spec:
+            policyRefs:
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: require-drop-all-capabilities-exclude
+              expression: |-
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('twistlock-defender-ds')) ||
+                (object.metadata.namespace == 'neuvector' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-controller-pod') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-prometheus-exporter-pod')
+                )) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook-ui-'))
+        require-non-root-group:
+          spec:
+            policyRefs:
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: require-non-root-group-exclude
+              expression: |-
+                (object.metadata.namespace == 'fortify' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('fortify-mysql-')) ||
+                (object.metadata.namespace == 'metallb-system' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('controller-')
+                )) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+        require-non-root-user:
+          spec:
+            policyRefs:
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: require-non-root-user-exclude
+              expression: |-
+                (object.metadata.namespace == 'metallb-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+        add-default-securitycontext:
+          spec:
+            policyRefs:
+            - name: add-default-securitycontext
+              kind: MutatingPolicy
+            matchConditions:
+            - name: add-default-securitycontext-exclude
+              expression: |-
+                (object.metadata.namespace == 'metallb-system' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('speaker-')) ||
+                (object.metadata.namespace == 'argocd' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('guestbook')) ||
+                (object.metadata.namespace == 'velero' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('velero-backup-restore-test')) ||
+                (object.metadata.namespace == 'twistlock' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('volume-upgrade-job')) ||
+                (object.metadata.namespace == 'alloy' && (
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-validator') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-config-analysis') ||
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('alloy-test')
+                ))
+        restrict-image-registries:
+          spec:
+            policyRefs:
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: gitlab
+              expression: |-
+                (object.metadata.namespace == 'gitlab')
+
   eckOperator:
     # -- Toggle deployment of ECK Operator.
     enabled: false
@@ -757,27 +585,27 @@ packages:
       istio:
         hardened:
           customServiceEntries:
-            - name: "repo1"
-              spec:
-                hosts:
-                  - repo1.dso.mil
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
-            - name: "cypress-service-entries-elasticsearchkibana"
-              enabled: true
-              spec:
-                hosts:
-                  - 'kibana.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
+          - name: "repo1"
+            spec:
+              hosts:
+              - repo1.dso.mil
+              location: MESH_EXTERNAL
+              ports:
+              - number: 443
+                protocol: TLS
+                name: https
+              resolution: DNS
+          - name: "cypress-service-entries-elasticsearchkibana"
+            enabled: true
+            spec:
+              hosts:
+              - 'kibana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+              - number: 443
+                protocol: TLS
+                name: https
+              resolution: DNS
       elasticsearch:
         master:
           count: 1
@@ -828,13 +656,13 @@ packages:
                 Skip_Long_Lines On
                 storage.type filesystem
         daemonSetVolumes:
-          - name: varlog
-            hostPath:
-              path: /var/log
+        - name: varlog
+          hostPath:
+            path: /var/log
         daemonSetVolumeMounts:
-          - name: varlog
-            mountPath: /var/log
-            readOnly: true
+        - name: varlog
+          mountPath: /var/log
+          readOnly: true
 
   loki:
     strategy: scalable
@@ -1087,16 +915,16 @@ packages:
             cpu: 1
             memory: 500Mi
       fortify_autoconfig: |
-          appProperties:
-            host.validation: false
-          datasourceProperties:
-            db.username: root
-            db.password: password
-            jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true'
-          dbMigrationProperties:
-            migration.enabled: true
-            migration.username: root
-            migration.password: password
+        appProperties:
+          host.validation: false
+        datasourceProperties:
+          db.username: root
+          db.password: password
+          jdbc.url: 'jdbc:mysql://fortify-mysql:3306/ssc_db?sessionVariables=collation_connection=latin1_general_cs&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true'
+        dbMigrationProperties:
+          migration.enabled: true
+          migration.username: root
+          migration.password: password
       mysql:
         primary:
           resources:
@@ -1299,26 +1127,26 @@ packages:
             secret: anchore-saml-secret-ci
         dataSyncer:
           initContainers:
-            - name: wait-for-catalog
-              image: registry1.dso.mil/ironbank/anchore/enterprise/enterprise:6.1.1
-              command:
-                - /bin/sh
-                - -c
-                - |
-                  until curl --fail --silent \
-                    http://anchore-enterprise-anchore-enterprise-catalog:8082/health;
-                  do
-                    sleep 1
-                  done
-              securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-                readOnlyRootFilesystem: true
+          - name: wait-for-catalog
+            image: registry1.dso.mil/ironbank/anchore/enterprise/enterprise:6.1.1
+            command:
+            - /bin/sh
+            - -c
+            - |
+              until curl --fail --silent \
+                http://anchore-enterprise-anchore-enterprise-catalog:8082/health;
+              do
+                sleep 1
+              done
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - ALL
+              readOnlyRootFilesystem: true
         # Anchore sets this lower to 2 by default, for our purposes we need it as the kubernetes default https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-config especially when the runners are ambient.
         dnsConfig:
-            ndots: 5
+          ndots: 5
         analyzer:
           replicaCount: 1
           resources:
@@ -1400,7 +1228,7 @@ packages:
       upstream:
         tenant:
           buckets:
-            - name: velero
+          - name: velero
           pools:
           - name: pool-0
             servers: 1
@@ -1497,7 +1325,7 @@ packages:
                 runAsNonRoot: true
                 capabilities:
                   drop:
-                    - ALL
+                  - ALL
       bbtests:
         enabled: true
 
@@ -1519,21 +1347,21 @@ packages:
       upstream:
         configuration:
           backupStorageLocation:
-            - bucket: velero
-              provider: aws
-              default: true
-              config:
-                region: velero
-                s3ForcePathStyle: "true"
-                s3Url: http://minio.minio.svc.cluster.local
-              annotations:
-                "helm.sh/hook": post-install,post-upgrade,post-rollback
-                "helm.sh/hook-delete-policy": before-hook-creation
+          - bucket: velero
+            provider: aws
+            default: true
+            config:
+              region: velero
+              s3ForcePathStyle: "true"
+              s3Url: http://minio.minio.svc.cluster.local
+            annotations:
+              "helm.sh/hook": post-install,post-upgrade,post-rollback
+              "helm.sh/hook-delete-policy": before-hook-creation
           volumeSnapshotLocation:
-            - name: default
-              provider: aws
-              config:
-                region: velero
+          - name: default
+            provider: aws
+            config:
+              region: velero
         credentials:
           secretContents:
             cloud: |
@@ -1575,7 +1403,7 @@ packages:
             stringData:
               CUSTOM_REGISTRATION_CONFIG: /opt/keycloak/conf/custom-registration-config.yaml
 
-        extraInitContainers: |
+        extraInitContainers: |2
 
           # This init container downloads the test realm config and various
           # supporting configuration from the keycloak package on repo1.
@@ -1815,33 +1643,33 @@ packages:
       istio:
         hardened:
           customServiceEntries:
-            - name: "cypress-service-entries-thanos"
-              enabled: true
-              spec:
-                hosts:
-                  - 'registry.npmjs.org'
-                  - 'download.cypress.io'
-                  - 'cdn.cypress.io'
-                  - 'repo1.dso.mil'
-                  - 'thanos.dev.bigbang.mil'
-                  - 'grafana.dev.bigbang.mil'
-                location: MESH_EXTERNAL
-                ports:
-                  - number: 443
-                    protocol: TLS
-                    name: https
-                resolution: DNS
+          - name: "cypress-service-entries-thanos"
+            enabled: true
+            spec:
+              hosts:
+              - 'registry.npmjs.org'
+              - 'download.cypress.io'
+              - 'cdn.cypress.io'
+              - 'repo1.dso.mil'
+              - 'thanos.dev.bigbang.mil'
+              - 'grafana.dev.bigbang.mil'
+              location: MESH_EXTERNAL
+              ports:
+              - number: 443
+                protocol: TLS
+                name: https
+              resolution: DNS
           customAuthorizationPolicies:
-            - name: "allow-intranamespace-thanos"
-              enabled: true
-              spec:
-                action: ALLOW
-                rules:
-                - from:
-                  - source:
-                      namespaces:
-                      - thanos
-                      - monitoring
+          - name: "allow-intranamespace-thanos"
+            enabled: true
+            spec:
+              action: ALLOW
+              rules:
+              - from:
+                - source:
+                    namespaces:
+                    - thanos
+                    - monitoring
       minio:
         enabled: true
         upstream:
@@ -1872,7 +1700,7 @@ packages:
                 runAsNonRoot: true
                 capabilities:
                   drop:
-                    - ALL
+                  - ALL
       bbtests:
         enabled: true
         cypress:

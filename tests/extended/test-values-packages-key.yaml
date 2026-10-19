@@ -19,17 +19,17 @@ packages:
         istio:
           serviceEntries:
             custom:
-              - name: repo1
-                spec:
-                  hosts:
-                    - repo1.dso.mil
-                    - cdn.jsdelivr.net
-                  location: MESH_EXTERNAL
-                  ports:
-                    - number: 443
-                      protocol: TLS
-                      name: https
-                  resolution: DNS
+            - name: repo1
+              spec:
+                hosts:
+                - repo1.dso.mil
+                - cdn.jsdelivr.net
+                location: MESH_EXTERNAL
+                ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+                resolution: DNS
       bbtests:
         enabled: true
 
@@ -40,14 +40,12 @@ packages:
           parameters:
             excludedResources:
               # The Podinfo upstream cache Helm test uses the curl container from curlimages/curl.
-              - podinfo/curl
+            - podinfo/curl
 
   kyvernoPolicies:
     values:
       additionalPolicyExceptions:
         podinfo:
-          enabled: true
-          namespace: kyverno
           metadata:
             annotations:
               policies.kyverno.io/title: Podinfo Test Exception
@@ -56,62 +54,31 @@ packages:
               policies.kyverno.io/description: >-
                 Allows resources created by the Podinfo packages-key validation test.
           spec:
-            exceptions:
-              - policyName: restrict-host-path-mount
-                ruleNames:
-                  - restrict-hostpath-dirs
-                  - autogen-restrict-hostpath-dirs
-              - policyName: restrict-host-path-write
-                ruleNames:
-                  - require-readonly-hostpath
-                  - autogen-require-readonly-hostpath
-              - policyName: restrict-volume-types
-                ruleNames:
-                  - restrict-volume-types
-                  - autogen-restrict-volume-types
-              - policyName: require-non-root-group
-                ruleNames:
-                  - run-as-group
-                  - autogen-run-as-group
-                  - fs-group
-                  - autogen-fs-group
-                  - supplemental-groups
-                  - autogen-supplemental-groups
-              - policyName: require-non-root-user
-                ruleNames:
-                  - non-root-user
-                  - autogen-non-root-user
-              - policyName: disallow-image-tags
-                ruleNames:
-                  - require-image-tag
-                  - autogen-require-image-tag
-                  - validate-image-tag
-                  - autogen-validate-image-tag
-              - policyName: require-drop-all-capabilities
-                ruleNames:
-                  - drop-all-capabilities
-                  - autogen-drop-all-capabilities
-              - policyName: restrict-image-registries
-                ruleNames:
-                  - validate-registries
-                  - autogen-validate-registries
-            match:
-              any:
-                - resources:
-                    kinds:
-                      - Pod
-                      - Deployment
-                      - ReplicaSet
-                      - DaemonSet
-                      - StatefulSet
-                    namespaces:
-                      - podinfo
-                    names:
-                      - podinfo*
+            policyRefs:
+            - name: restrict-host-path-mount
+              kind: ValidatingPolicy
+            - name: restrict-host-path-write
+              kind: ValidatingPolicy
+            - name: restrict-volume-types
+              kind: ValidatingPolicy
+            - name: require-non-root-group
+              kind: ValidatingPolicy
+            - name: require-non-root-user
+              kind: ValidatingPolicy
+            - name: disallow-image-tags
+              kind: ValidatingPolicy
+            - name: require-drop-all-capabilities
+              kind: ValidatingPolicy
+            - name: restrict-image-registries
+              kind: ValidatingPolicy
+            matchConditions:
+            - name: podinfo
+              expression: >-
+                (object.metadata.namespace == 'podinfo' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('podinfo'))
 
-  #########################
-  # Disable Core Packages #
-  #########################
+#########################
+# Disable Core Packages #
+#########################
   renovate:
     enabled: false
   monitoring:

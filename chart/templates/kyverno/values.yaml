@@ -34,10 +34,29 @@ networkPolicies:
             monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   egress:
     definitions:
+      # registry1 redirects image and signature blobs to S3, so require-image-signature
+      # needs both. S3 ranges from:
+      #   curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.prefixes[] | select(.service=="S3" and .region=="us-gov-west-1") | .ip_prefix'
       private-registry:
         to:
+          # registry1
           - ipBlock:
               cidr: "15.205.173.153/32"
+          # S3 us-gov-west-1
+          - ipBlock:
+              cidr: "108.175.56.0/22"
+          - ipBlock:
+              cidr: "108.175.48.0/22"
+          - ipBlock:
+              cidr: "136.18.0.0/23"
+          - ipBlock:
+              cidr: "3.2.99.0/24"
+          - ipBlock:
+              cidr: "1.178.30.0/24"
+          - ipBlock:
+              cidr: "15.200.176.128/28"
+          - ipBlock:
+              cidr: "15.200.28.240/28"
         ports:
           - port: 443
             protocol: TCP

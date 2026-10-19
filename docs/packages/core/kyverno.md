@@ -21,14 +21,17 @@ When deploying to k3d, istio-system should be added from `excludedNamespaces` un
 packages:
   kyvernoPolicies:
     values:
-      exclude:
-        any:
-          # Allows k3d load balancer to bypass policies.
-          - resources:
-              namespaces:
-                - istio-system
-              names:
-                - svclb-*
+      additionalPolicyExceptions:
+        k3d-load-balancer:
+          spec:
+            policyRefs:
+              - name: restrict-external-ips
+                kind: ValidatingPolicy
+            matchConditions:
+              - name: k3d-load-balancer
+                expression: >-
+                  object.metadata.namespace == 'istio-system' &&
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('svclb-')
 ```
 
 ## High Availability

@@ -734,19 +734,33 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies.git
       path: ./chart
-      tag: "3.3.4-bb.87"
+      tag: "3.3.4-bb.90"
     helmRepo:
       repoName: "registry1"
       chartName: "kyverno-policies"
-      tag: "3.3.4-bb.87"
+      tag: "3.3.4-bb.90"
 
     # -- Flux reconciliation overrides specifically for the Kyverno Policies Package
     flux:
       driftDetection:
         ignore:
+          # Retain the legacy target during upgrades so pre-4.0 resources can be
+          # cleaned up without Flux reporting drift while CEL policies take over.
           - paths: [""]
             target:
               kind: ClusterPolicy
+          - paths: [""]
+            target:
+              kind: ValidatingPolicy
+          - paths: [""]
+            target:
+              kind: MutatingPolicy
+          - paths: [""]
+            target:
+              kind: ImageValidatingPolicy
+          - paths: [""]
+            target:
+              kind: GeneratingPolicy
           - paths: [""]
             target:
               kind: Job

@@ -57,9 +57,15 @@ path automatically because Cortex Tenant is not a built-in package.
 
 The example assumes Istio sidecars and uses Alloy's mounted Istio certificates
 to scrape kube-state-metrics and node-exporter and to write to Cortex Tenant.
-For ambient or non-Istio deployments, use HTTP for the destination and adjust
-the direct exporter scrapes to match the endpoints' transport. Review the
-`extraConfig` override if you already provide custom Alloy metrics pipelines.
+The example disables server certificate verification for these three TLS
+connections because Istio workload certificates lack the Service DNS names or
+Pod IP addresses Alloy uses. Traffic is encrypted, but Alloy does not verify
+the server's identity. Use verifiable serving certificates and enable
+verification where possible. For ambient or non-Istio deployments, configure
+TLS for the destination and direct exporter scrapes where available. HTTP sends
+metrics without transport encryption; use it only when that is acceptable for
+your environment. Review the `extraConfig` override if you already provide
+custom Alloy metrics pipelines.
 Set `extraLabels.tenant` to the desired tenant; Cortex Tenant rejects series
 without a tenant label by default. The example disables Prometheus while
 retaining monitoring's exporters. With Prometheus disabled, the umbrella
