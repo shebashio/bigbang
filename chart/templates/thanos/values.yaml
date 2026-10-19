@@ -149,7 +149,7 @@ networkPolicies:
             app.kubernetes.io/component: storegateway
         to:
           definition:
-            storage-subnets: {{ not (empty .Values.packages.thanos.objectStorage.endpoint) }}
+            storage-subnets: {{ $storeGatewayEnabled }}
   ingress:
     to:
       thanos-query-frontend:9090:
