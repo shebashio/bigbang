@@ -32,23 +32,6 @@
 {{- $externalRedisAddress = regexReplaceAll "^.*@" $externalRedisAddress "" }}
 {{- $externalRedisHost := trimSuffix ":6379" $externalRedisAddress }}
 
-routes:
-  outbound:
-    external-redis:
-      enabled: {{ $externalRedisEnabled }}
-      {{- if $externalRedisEnabled }}
-      hosts:
-      - {{ $externalRedisHost | quote }}
-      ports:
-      - number: 6379
-        name: redis
-        protocol: TCP
-      {{- end }}
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.authservice.values }}
-      hosts:
-      - repo1.dso.mil
-
 image: 
   pullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
   
@@ -67,71 +50,89 @@ openshift: {{ .Values.openshift | default false }}
 monitoring:
   enabled: {{ .Values.monitoring.enabled | default false }}
 
-networkPolicies:
-  ingress:
-    to:
-      # gRPC connections for pods with protect=keycloak label
-      authservice:10003:
-        from:
-          k8s:
-            '*/keycloak-protected':
-              podSelector:
-                matchLabels:
-                  {{- $key := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-                  {{- $value := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
-                  {{ $key }}: {{ $value }}
-            {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
-            # ext_authz calls originate from the monitoring package's own waypoint pod,
-            # which fronts prometheus/alertmanager for authservice in ambient mode.
-            monitoring/waypoint:
-              podSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
-            {{- end }}
-            {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-            thanos/waypoint:
-              podSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: thanos-waypoint
-            {{- end }}
-      # Grafana redis client connection
-      redis-bb:6379:
-        from:
-          k8s:
-            monitoring/grafana: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
-      haproxy:8080:
-        from:
-          k8s:
-            "istio-gateway/*": {{ ((.Values.packages).haproxy).enabled }}
-      # Redis exporter metrics
-      redis-bb:9121:
-        from:
-          k8s:
-            monitoring/prometheus: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
-      # HBONE ingress from istio-gateway to the authservice waypoint (ambient)
-      authservice-waypoint:15008:
-        podSelector:
-          matchLabels:
-            gateway.networking.k8s.io/gateway-name: authservice-waypoint
-        from:
-          k8s:
-            "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
-            kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.kiali.enabled }}
-  egress:
-    from:
-      authservice:
-        to:
-          definition:
-            sso: true
-            redis-subnets: {{ $externalRedisEnabled }}
-          k8s:
-            # Tempo trace data
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      haproxy:
-        to:
-          k8s:
-            monitoring/alertmanager:9093: {{ ((.Values.packages).haproxy).enabled }}
-            monitoring/prometheus:9090: {{ ((.Values.packages).haproxy).enabled }}
+bb-common:
+  routes:
+    outbound:
+      external-redis:
+        enabled: {{ $externalRedisEnabled }}
+        {{- if $externalRedisEnabled }}
+        hosts:
+        - {{ $externalRedisHost | quote }}
+        ports:
+        - number: 6379
+          name: redis
+          protocol: TCP
+        {{- end }}
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.addons.authservice.values }}
+        hosts:
+        - repo1.dso.mil
+  
+  networkPolicies:
+    ingress:
+      to:
+        # gRPC connections for pods with protect=keycloak label
+        authservice:10003:
+          from:
+            k8s:
+              '*/keycloak-protected':
+                podSelector:
+                  matchLabels:
+                    {{- $key := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
+                    {{- $value := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+                    {{ $key }}: {{ $value }}
+              {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
+              # ext_authz calls originate from the monitoring package's own waypoint pod,
+              # which fronts prometheus/alertmanager for authservice in ambient mode.
+              monitoring/waypoint:
+                podSelector:
+                  matchLabels:
+                    gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+              {{- end }}
+              {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
+              thanos/waypoint:
+                podSelector:
+                  matchLabels:
+                    gateway.networking.k8s.io/gateway-name: thanos-waypoint
+              {{- end }}
+        # Grafana redis client connection
+        redis-bb:6379:
+          from:
+            k8s:
+              monitoring/grafana: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
+        haproxy:8080:
+          from:
+            k8s:
+              "istio-gateway/*": {{ ((.Values.packages).haproxy).enabled }}
+        # Redis exporter metrics
+        redis-bb:9121:
+          from:
+            k8s:
+              monitoring/prometheus: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
+        # HBONE ingress from istio-gateway to the authservice waypoint (ambient)
+        authservice-waypoint:15008:
+          podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: authservice-waypoint
+          from:
+            k8s:
+              "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
+              kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.kiali.enabled }}
+    egress:
+      from:
+        authservice:
+          to:
+            definition:
+              sso: true
+              redis-subnets: {{ $externalRedisEnabled }}
+            k8s:
+              # Tempo trace data
+              tempo/tempo:9411: {{ .Values.tempo.enabled }}
+        haproxy:
+          to:
+            k8s:
+              monitoring/alertmanager:9093: {{ ((.Values.packages).haproxy).enabled }}
+              monitoring/prometheus:9090: {{ ((.Values.packages).haproxy).enabled }}
 
 {{- if or $internalRedisEnabled $externalRedisEnabled }}
 autoscaling:
