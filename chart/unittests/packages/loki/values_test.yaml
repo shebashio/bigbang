@@ -11,6 +11,20 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: should enable upstream Loki dashboards when monitoring is enabled
+    asserts:
+      - equal:
+          path: upstream.monitoring.dashboards.enabled
+          value: true
+
+  - it: should disable upstream Loki dashboards when monitoring is disabled
+    set:
+      monitoring.enabled: false
+    asserts:
+      - equal:
+          path: upstream.monitoring.dashboards.enabled
+          value: false
+
   - it: should render tlsConfig when istio enabled with STRICT mTLS (injection defaults to enabled)
     set:
       istiod.enabled: true

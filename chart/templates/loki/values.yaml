@@ -123,6 +123,8 @@ monitoring:
 
 upstream:
   monitoring:
+    dashboards:
+      enabled: {{ .Values.monitoring.enabled }}
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
       {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
