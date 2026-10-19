@@ -266,21 +266,17 @@ Big Bang packages can be configured to use specific gateways through the
 `ingress.gateway` setting. By default, packages use the `public` gateway.
 
 ```yaml
-# Direct Grafana to use the public gateway (default)
-grafana:
-  ingress:
-    gateway: "public"
-
-# Direct Keycloak to use the passthrough gateway
-addons:
+# Direct packages to specific gateways
+packages:
+  grafana:
+    ingress:
+      gateway: "public"
   keycloak:
     ingress:
       gateway: "passthrough"
-
-# Direct monitoring to use a custom gateway
-monitoring:
-  ingress:
-    gateway: "custom"
+  monitoring:
+    ingress:
+      gateway: "custom"
 ```
 
 ### Gateway Name Resolution

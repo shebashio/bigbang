@@ -7,8 +7,8 @@ routes:
   inbound:
     grafana:
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.grafana.ingress.gateway "root" .) }}
-      {{- $grafanaHosts := dig "istio" "grafana" "hosts" list .Values.grafana.values }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.grafana.ingress.gateway "root" .) }}
+      {{- $grafanaHosts := dig "istio" "grafana" "hosts" list .Values.packages.grafana.values }}
       {{- if $grafanaHosts }}
       hosts:
       {{- range $grafanaHosts }}

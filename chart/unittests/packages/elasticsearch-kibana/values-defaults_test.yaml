@@ -3,7 +3,7 @@ suite: Package - Elasticsearch-Kibana - Values Defaults Tests
 templates:
   - templates/elasticsearch-kibana/values.yaml
 set:
-  elasticsearchKibana.enabled: true
+  packages.elasticsearchKibana.enabled: true
 postRenderer:
   cmd: "sh"
   args:
@@ -12,7 +12,7 @@ postRenderer:
 tests:
   - it: make assertions on the default values for Elasticsearch Kibana
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: domain
@@ -22,7 +22,7 @@ tests:
           value: true
   - it: should map istio.kibana.hosts to routes.inbound.kibana.hosts
     set:
-      elasticsearchKibana.values.istio.kibana.hosts:
+      packages.elasticsearchKibana.values.istio.kibana.hosts:
         - "custom-kibana.example.com"
         - "kibana.internal.example.com"
     asserts:
@@ -34,7 +34,7 @@ tests:
           value: "kibana.internal.example.com"
   - it: should map istio.elasticsearch.hosts to routes.inbound.elasticsearch.hosts
     set:
-      elasticsearchKibana.values.istio.elasticsearch.hosts:
+      packages.elasticsearchKibana.values.istio.elasticsearch.hosts:
         - "custom-elasticsearch.example.com"
         - "es.internal.example.com"
     asserts:
@@ -56,14 +56,14 @@ tests:
           value: "elasticsearch.dev.bigbang.mil"
   - it: should map istio.kibana.enabled to routes.inbound.kibana.enabled
     set:
-      elasticsearchKibana.values.istio.kibana.enabled: false
+      packages.elasticsearchKibana.values.istio.kibana.enabled: false
     asserts:
       - equal:
           path: routes.inbound.kibana.enabled
           value: false
   - it: should map istio.elasticsearch.enabled to routes.inbound.elasticsearch.enabled
     set:
-      elasticsearchKibana.values.istio.elasticsearch.enabled: true
+      packages.elasticsearchKibana.values.istio.elasticsearch.enabled: true
     asserts:
       - equal:
           path: routes.inbound.elasticsearch.enabled

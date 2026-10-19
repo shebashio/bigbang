@@ -48,7 +48,7 @@ For SSO integration using OIDC, at a minimum this usually requires `sso.client_i
 
 #### SAML
 
-For SSO integration using SAML, review the upstream documentation specific to the package and create the necessary items to passthrough from BigBang to the package values under the `<package>.sso` key. For example, Sonarqube configures SSO settings through `sonarProperties` values, which are collected from defined values under `addons.sonarqube.sso` within BigBang and passed through in the [sonarqube Values template](../../../../chart/templates/sonarqube/values.yaml).
+For SSO integration using SAML, review the upstream documentation specific to the package and create the necessary items to passthrough from BigBang to the package values under the `<package>.sso` key. For example, Sonarqube configures SSO settings through `sonarProperties` values, which are collected from defined values under `packages.sonarqube.sso` within BigBang and passed through in the [sonarqube Values template](../../../../chart/templates/sonarqube/values.yaml).
 
 ### AuthService Integration
 
@@ -66,8 +66,8 @@ In order to use Authservice, Istio injection is required and utilized to route a
 
     ```yaml
     ...
-    {{- $<package>AuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-    {{- $<package>AuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+    {{- $<package>AuthserviceKey := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+    {{- $<package>AuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
     ...
     metadata:
       labels:

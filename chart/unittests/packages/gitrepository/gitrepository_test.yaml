@@ -7,12 +7,13 @@ tests:
   - it: should create GitRepository when core package is enabled with git sourceType
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 1
@@ -25,12 +26,13 @@ tests:
   - it: should not create GitRepository when core package is disabled
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: false
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: false
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -38,12 +40,13 @@ tests:
   - it: should not create GitRepository when sourceType is not git
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: helmRepo
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: helmRepo
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -52,12 +55,13 @@ tests:
     template: loki/gitrepository.yaml
     set:
       offline: true
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -68,7 +72,7 @@ tests:
   - it: should create GitRepository for addon package when enabled
     template: velero/gitrepository.yaml
     set:
-      addons:
+      packages:
         velero:
           enabled: true
           sourceType: git
@@ -87,7 +91,7 @@ tests:
   - it: should not create GitRepository for addon when disabled
     template: velero/gitrepository.yaml
     set:
-      addons:
+      packages:
         velero:
           enabled: false
           sourceType: git
@@ -102,7 +106,7 @@ tests:
     template: velero/gitrepository.yaml
     set:
       offline: true
-      addons:
+      packages:
         velero:
           enabled: true
           sourceType: git
@@ -119,12 +123,13 @@ tests:
   - it: should include app.kubernetes.io/name label
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - equal:
           path: metadata.labels["app.kubernetes.io/name"]
@@ -133,12 +138,13 @@ tests:
   - it: should include app.kubernetes.io/component label when set
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - equal:
           path: metadata.labels["app.kubernetes.io/component"]
@@ -147,12 +153,13 @@ tests:
   - it: should include commonLabels
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - exists:
           path: metadata.labels["app.kubernetes.io/managed-by"]
@@ -168,12 +175,13 @@ tests:
   - it: should set the git repo URL
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - equal:
           path: spec.url
@@ -184,12 +192,13 @@ tests:
     set:
       flux:
         interval: 10m
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - equal:
           path: spec.interval
@@ -198,12 +207,13 @@ tests:
   - it: should include gitIgnore spec
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.0.0
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.0.0
     asserts:
       - exists:
           path: spec.ignore
@@ -211,12 +221,13 @@ tests:
   - it: should set git ref from tag
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          tag: 1.2.3
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            tag: 1.2.3
     asserts:
       - equal:
           path: spec.ref.tag
@@ -225,12 +236,13 @@ tests:
   - it: should set git ref from semver
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          semver: ">=1.0.0"
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            semver: ">=1.0.0"
     asserts:
       - equal:
           path: spec.ref.semver
@@ -239,13 +251,14 @@ tests:
   - it: should set git ref from branch
     template: loki/gitrepository.yaml
     set:
-      loki:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/loki
-          branch: main
-          tag: ""
+      packages:
+        loki:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/loki
+            branch: main
+            tag: ""
     asserts:
       - equal:
           path: spec.ref.branch
@@ -258,12 +271,13 @@ tests:
     template: grafana/gitrepository.yaml
     set:
       offline: true
-      grafana:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/grafana
-          tag: 1.0.0
+      packages:
+        grafana:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/grafana
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -272,12 +286,13 @@ tests:
     template: kyverno/gitrepository.yaml
     set:
       offline: true
-      kyverno:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kyverno
-          tag: 1.0.0
+      packages:
+        kyverno:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/kyverno
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -286,7 +301,7 @@ tests:
     template: argocd/gitrepository.yaml
     set:
       offline: true
-      addons:
+      packages:
         argocd:
           enabled: true
           sourceType: git
@@ -301,7 +316,7 @@ tests:
     template: headlamp/gitrepository.yaml
     set:
       offline: true
-      addons:
+      packages:
         headlamp:
           enabled: true
           sourceType: git
@@ -316,12 +331,13 @@ tests:
     template: kyverno-policies/gitrepository.yaml
     set:
       offline: true
-      kyvernoPolicies:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies
-          tag: 1.0.0
+      packages:
+        kyvernoPolicies:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/kyverno-policies
+            tag: 1.0.0
     asserts:
       - hasDocuments:
           count: 0
@@ -330,7 +346,7 @@ tests:
     template: external-secrets/gitrepository.yaml
     set:
       offline: true
-      addons:
+      packages:
         externalSecrets:
           enabled: true
           sourceType: git
@@ -345,7 +361,7 @@ tests:
     template: anchore-enterprise/gitrepository.yaml
     set:
       offline: true
-      addons:
+      packages:
         anchoreEnterprise:
           enabled: true
           sourceType: git
@@ -456,12 +472,13 @@ tests:
   - it: should include extra gitIgnore for twistlock
     template: twistlock/gitrepository.yaml
     set:
-      twistlock:
-        enabled: true
-        sourceType: git
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/twistlock
-          tag: 1.0.0
+      packages:
+        twistlock:
+          enabled: true
+          sourceType: git
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/twistlock
+            tag: 1.0.0
     asserts:
       - matchRegex:
           path: spec.ignore

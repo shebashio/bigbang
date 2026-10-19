@@ -12,7 +12,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.vault.enabled: true
+      packages.vault.enabled: true
     asserts:
       - equal:
           path: routes.inbound.vault.gateways[0]
@@ -36,9 +36,9 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.vault.enabled: true
-      addons.vault.ingress.cert: test-cert
-      addons.vault.ingress.key: test-key
+      packages.vault.enabled: true
+      packages.vault.ingress.cert: test-cert
+      packages.vault.ingress.key: test-key
     asserts:
       - equal:
           path: routes.inbound.vault.gateways[0]

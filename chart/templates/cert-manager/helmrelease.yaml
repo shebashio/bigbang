@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.certManager.enabled }}
-{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) .Values.certManager.flux -}}
+{{- if .Values.packages.certManager.enabled }}
+{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) .Values.packages.certManager.flux -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -14,12 +14,12 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/cert-manager/values.yaml") . | sha256sum }}
 spec:
-  targetNamespace: {{ .Values.certManager.namespace.name }}
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "cert-manager" "package" .Values.certManager "root" . "emitReleaseName" true) | nindent 2 }}
+  targetNamespace: {{ .Values.packages.certManager.namespace.name }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "cert-manager" "package" .Values.packages.certManager "root" . "emitReleaseName" true) | nindent 2 }}
   {{- toYaml $fluxSettings | nindent 2 }}
-  {{- if or .Values.monitoring.enabled .Values.certManager.postRenderers }}
+  {{- if or .Values.packages.monitoring.enabled .Values.packages.certManager.postRenderers }}
   postRenderers:
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.monitoring.enabled }}
     - kustomize:
         patches:
           - target:
@@ -34,30 +34,30 @@ spec:
               - op: remove
                 path: /spec/endpoints/0/tlsConfig
   {{- end }}
-  {{- if .Values.certManager.postRenderers }}
-  {{- toYaml .Values.certManager.postRenderers | nindent 4 }}
+  {{- if .Values.packages.certManager.postRenderers }}
+  {{- toYaml .Values.packages.certManager.postRenderers | nindent 4 }}
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "cert-manager" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.certManager.dependsOnOverride) }}
-  {{- with .Values.certManager.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.certManager.dependsOnOverride) }}
+  {{- with .Values.packages.certManager.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.certManager.dependsOn }}
+  {{- else if or $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled .Values.packages.certManager.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
   {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.monitoring.enabled }}
     - name: prometheus-operator-crds
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.certManager) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.certManager) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

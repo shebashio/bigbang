@@ -5,9 +5,9 @@ templates:
 tests:
   - it: disables sidecars and metrics TLS for the integrated namespace
     set:
-      certManager.enabled: true
-      monitoring.enabled: false
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.monitoring.enabled: false
+      packages.istiod.enabled: true
       istio.ambient.enabled: false
     postRenderer:
       cmd: sh
@@ -26,9 +26,9 @@ tests:
 
   - it: nests sidecar-disabled istio settings under bb-common in common for the integrated namespace
     set:
-      certManager.enabled: true
-      monitoring.enabled: false
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.monitoring.enabled: false
+      packages.istiod.enabled: true
       istio.ambient.enabled: false
     postRenderer:
       cmd: sh
@@ -42,9 +42,9 @@ tests:
 
   - it: keeps metrics TLS disabled for the integrated ambient path
     set:
-      certManager.enabled: true
-      monitoring.enabled: true
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.monitoring.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
     postRenderer:
       cmd: sh
@@ -63,9 +63,9 @@ tests:
 
   - it: nests ambient-enabled istio settings under bb-common in common for the integrated ambient path
     set:
-      certManager.enabled: true
-      monitoring.enabled: true
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.monitoring.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
     postRenderer:
       cmd: sh
@@ -82,8 +82,8 @@ tests:
 
   - it: keeps metrics TLS disabled when Istio is disabled
     set:
-      certManager.enabled: true
-      istiod.enabled: false
+      packages.certManager.enabled: true
+      packages.istiod.enabled: false
       istio.ambient.enabled: false
     postRenderer:
       cmd: sh
@@ -99,8 +99,8 @@ tests:
 
   - it: nests disabled istio settings under bb-common in common when Istio is disabled
     set:
-      certManager.enabled: true
-      istiod.enabled: false
+      packages.certManager.enabled: true
+      packages.istiod.enabled: false
       istio.ambient.enabled: false
     postRenderer:
       cmd: sh

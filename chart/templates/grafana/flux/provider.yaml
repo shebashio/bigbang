@@ -1,5 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.grafana.enabled }}
+{{- if .Values.packages.grafana.enabled }}
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
 kind: Provider
 metadata:

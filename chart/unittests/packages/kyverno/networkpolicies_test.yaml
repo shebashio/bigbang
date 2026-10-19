@@ -12,7 +12,7 @@ postRenderer:
 tests:
   - it: should create kubeAPI ingress NetworkPolicy for admission controller with default CIDRs
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: true
     documentSelector:
       path: metadata.name
@@ -42,7 +42,7 @@ tests:
 
   - it: should create kubeAPI ingress NetworkPolicy with custom CIDRs when overridden
     set:
-      kyverno.enabled: true
+      packages.kyverno.enabled: true
       networkPolicies.enabled: true
       networkPolicies.ingress.definitions.kubeAPI:
         from:

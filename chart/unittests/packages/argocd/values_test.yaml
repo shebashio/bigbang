@@ -10,8 +10,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.example.internal
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled

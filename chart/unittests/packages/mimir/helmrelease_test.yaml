@@ -3,7 +3,7 @@ suite: Package - Mimir - HelmRelease
 tests:
 - it: mimir should append custom HelmRelease dependencies
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         dependsOn:
@@ -11,12 +11,12 @@ tests:
             namespace: bigbang
       minioOperator:
         enabled: false
-    istiod:
-      enabled: false
-    kyvernoPolicies:
-      enabled: false
-    monitoring:
-      enabled: false
+      istiod:
+        enabled: false
+      kyvernoPolicies:
+        enabled: false
+      monitoring:
+        enabled: false
   template: mimir/helmrelease.yaml
   asserts:
   - lengthEqual:
@@ -30,7 +30,7 @@ tests:
 
 - it: mimir should preserve default dependencies when appending custom dependencies
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         dependsOn:
@@ -38,12 +38,12 @@ tests:
             namespace: bigbang
       minioOperator:
         enabled: false
-    istiod:
-      enabled: false
-    kyvernoPolicies:
-      enabled: true
-    monitoring:
-      enabled: false
+      istiod:
+        enabled: false
+      kyvernoPolicies:
+        enabled: true
+      monitoring:
+        enabled: false
   template: mimir/helmrelease.yaml
   asserts:
   - contains:
@@ -59,18 +59,18 @@ tests:
 
 - it: mimir dependsOnOverride empty list should suppress all BB defaults
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         dependsOnOverride: []
       minioOperator:
         enabled: false
-    istiod:
-      enabled: true
-    kyvernoPolicies:
-      enabled: true
-    monitoring:
-      enabled: false
+      istiod:
+        enabled: true
+      kyvernoPolicies:
+        enabled: true
+      monitoring:
+        enabled: false
   template: mimir/helmrelease.yaml
   asserts:
   - isNull:
@@ -78,7 +78,7 @@ tests:
 
 - it: should configure Mimir to accept UTF-8 metric and label names
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
   template: mimir/values.yaml
@@ -89,7 +89,7 @@ tests:
 
 - it: should render kafka ingest storage structuredConfig when kafkaIngestStorage is enabled
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:
@@ -115,7 +115,7 @@ tests:
   set:
     istio:
       enabled: true
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:
@@ -133,7 +133,7 @@ tests:
 
 - it: should not render kafka config when kafkaIngestStorage is disabled
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:
@@ -150,7 +150,7 @@ tests:
   set:
     istio:
       enabled: true
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:
@@ -172,7 +172,7 @@ tests:
 
 - it: should override kafka-subnets definition with brokerNetworkCIDR when set
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:
@@ -191,7 +191,7 @@ tests:
 
 - it: should scope kafka egress to distributor and ingester pod selectors only
   set:
-    addons:
+    packages:
       mimir:
         enabled: true
         kafkaIngestStorage:

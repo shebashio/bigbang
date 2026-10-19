@@ -23,8 +23,8 @@ networkPolicies:
 routes:
   inbound:
     kibana:
-      enabled: {{ dig "istio" "kibana" "enabled" true .Values.elasticsearchKibana.values }}
-      {{- $kibanaHosts := dig "istio" "kibana" "hosts" list .Values.elasticsearchKibana.values }}
+      enabled: {{ dig "istio" "kibana" "enabled" true .Values.packages.elasticsearchKibana.values }}
+      {{- $kibanaHosts := dig "istio" "kibana" "hosts" list .Values.packages.elasticsearchKibana.values }}
       {{- if $kibanaHosts }}
       hosts:
       {{- range $kibanaHosts }}
@@ -35,10 +35,10 @@ routes:
       - kibana.{{ .Values.domain }}
       {{- end }}
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.elasticsearchKibana.ingress.gateway "root" .)}}
     elasticsearch:
-      enabled: {{ dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values }}
-      {{- $elasticsearchHosts := dig "istio" "elasticsearch" "hosts" list .Values.elasticsearchKibana.values }}
+      enabled: {{ dig "istio" "elasticsearch" "enabled" false .Values.packages.elasticsearchKibana.values }}
+      {{- $elasticsearchHosts := dig "istio" "elasticsearch" "hosts" list .Values.packages.elasticsearchKibana.values }}
       {{- if $elasticsearchHosts }}
       hosts:
       {{- range $elasticsearchHosts }}
@@ -49,5 +49,5 @@ routes:
       - elasticsearch.{{ .Values.domain }}
       {{- end }}
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.elasticsearchKibana.ingress.gateway "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.elasticsearchKibana.ingress.gateway "root" .)}}
 {{- end }}

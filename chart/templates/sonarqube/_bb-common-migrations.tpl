@@ -1,9 +1,9 @@
 {{- define "bigbang.sonarqube.bb-common-migrations" }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
 
-{{- $plugins := dig "upstream" "plugins" "install" (list) .Values.addons.sonarqube.values }}
+{{- $plugins := dig "upstream" "plugins" "install" (list) .Values.packages.sonarqube.values }}
 {{- $pluginsExist := not (empty $plugins) }}
-{{- $egressHttpsEnabled := dig "networkPolicies" "allowEgress" "enabled" true .Values.addons.sonarqube.values }}
+{{- $egressHttpsEnabled := dig "networkPolicies" "allowEgress" "enabled" true .Values.packages.sonarqube.values }}
 
 routes:
   outbound:
