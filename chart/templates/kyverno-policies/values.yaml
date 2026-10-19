@@ -1,7 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoPolicies" }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $kyvernoPolicies := default (dict) (get $packages $pkg) }}
 
-{{- if (get .Values.packages $pkg).enabled }}
+{{- if default false (get $kyvernoPolicies "enabled") }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.kyverno-policies" .))) "name" "kyverno-policies" "defaults" (include "bigbang.defaults.kyverno-policies" .) "injectCommonDefaults" false) }}
 {{- end }}
 
