@@ -100,10 +100,6 @@ bb-common:
           from:
             k8s:
               monitoring/grafana: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
-        haproxy:8080:
-          from:
-            k8s:
-              "istio-gateway/*": {{ ((.Values.packages).haproxy).enabled }}
         # Redis exporter metrics
         redis-bb:9121:
           from:
@@ -128,11 +124,6 @@ bb-common:
             k8s:
               # Tempo trace data
               tempo/tempo:9411: {{ .Values.tempo.enabled }}
-        haproxy:
-          to:
-            k8s:
-              monitoring/alertmanager:9093: {{ ((.Values.packages).haproxy).enabled }}
-              monitoring/prometheus:9090: {{ ((.Values.packages).haproxy).enabled }}
 
 {{- if or $internalRedisEnabled $externalRedisEnabled }}
 autoscaling:
