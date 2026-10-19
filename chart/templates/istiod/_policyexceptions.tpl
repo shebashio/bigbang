@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Istiod.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.istiod" -}}
-{{- if .Values.packages.istiod.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "istiod")) "true" }}
 # istiod runs with a root group.
 istiod-require-non-root-group:
   spec:

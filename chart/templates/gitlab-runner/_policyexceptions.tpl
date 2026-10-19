@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for GitLab Runner workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.gitlabRunner" -}}
-{{- if .Values.packages.gitlabRunner.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "gitlabRunner")) "true" }}
 # CI jobs spawned by the runner may require root access.
 gitlab-runner:
   spec:

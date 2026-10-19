@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Mimir workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.mimir" -}}
-{{- if .Values.packages.mimir.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "mimir")) "true" }}
 # The Mimir smoke-test job requires elevated capabilities.
 mimir-require-drop-all-capabilities:
   spec:

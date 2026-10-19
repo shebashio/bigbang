@@ -960,6 +960,13 @@ valuesFrom:
   {{- end -}}
 {{- end -}}
 
+{{- /* Returns whether an optional package is enabled without assuming its map exists. */ -}}
+{{- define "packageEnabled" -}}
+{{- $packages := default (dict) .root.Values.packages -}}
+{{- $package := default (dict) (get $packages .name) -}}
+{{- default false (get $package "enabled") }}
+{{- end -}}
+
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
 {{- $packages := default (dict) .Values.packages -}}
