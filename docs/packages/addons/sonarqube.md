@@ -30,7 +30,7 @@ graph TB
 Persistent storage can be enabled by setting the following values in the bigbang chart:
 
 ```yaml
-addons:
+packages:
   sonarqube:
     values:
       persistence:
@@ -46,7 +46,7 @@ addons:
 Sonarqube needs a postgres database to function. If one is not specified in the bigbang chart Sonarqube will deploy one internally within the namespace it is deployed to.
 
 ```yaml
-addons:
+packages:
   sonarqube:
     database:
       host: ""
@@ -73,7 +73,7 @@ These values get passed into the sonarqube chart [here](https://repo1.dso.mil/bi
 This can be accomplished by increasing the number of replicas in the deployment.
 
 ```yaml
-addons:
+packages:
   sonarqube:
     values:
       replicaCount: 2
@@ -84,7 +84,7 @@ addons:
 SSO integration can be configured by modifying the following settings in the bigbang chart.
 
 ```yaml
-addons:
+packages:
   sonarqube:
     enabled: true
     sso:

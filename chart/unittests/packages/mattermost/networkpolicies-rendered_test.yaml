@@ -14,12 +14,12 @@ postRenderer:
 tests:
   - it: should create database-subnets egress NetworkPolicy when external database is configured
     set:
-      addons.mattermost.enabled: true
-      addons.mattermost.database.username: "mattermost"
-      addons.mattermost.database.password: "password"
-      addons.mattermost.database.host: "postgres.example.com"
-      addons.mattermost.database.port: 5432
-      addons.mattermost.database.database: "mattermost"
+      packages.mattermost.enabled: true
+      packages.mattermost.database.username: "mattermost"
+      packages.mattermost.database.password: "password"
+      packages.mattermost.database.host: "postgres.example.com"
+      packages.mattermost.database.port: 5432
+      packages.mattermost.database.database: "mattermost"
       networkPolicies.enabled: true
     documentSelector:
       path: metadata.name

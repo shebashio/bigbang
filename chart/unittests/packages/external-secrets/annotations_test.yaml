@@ -10,10 +10,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.externalSecrets.enabled: true
+      packages.externalSecrets.enabled: true
       istio.ambient.enabled: true
-      addons.externalSecrets.values.upstream.webhook.create: true
-      addons.externalSecrets.values.upstream.certController.create: true
+      packages.externalSecrets.values.upstream.webhook.create: true
+      packages.externalSecrets.values.upstream.certController.create: true
     asserts:
       - equal:
           path: upstream.podAnnotations["bigbang.dev/istioDataplane"]

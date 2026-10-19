@@ -45,25 +45,27 @@ Aside from the packages that it can integrate with, Istio provides no storage re
 By default, Istio is configured with 1 istiod replica, but it can be configured in the Big Bang values to use horizontal pod autoscaling:
 
 ```yaml
-istiod:
-  values:
-    upstream:
-      replicaCount: 1
-      hpaSpec:
-        minReplicas: 1
-        maxReplicas: 3
+packages:
+  istiod:
+    values:
+      upstream:
+        replicaCount: 1
+        hpaSpec:
+          minReplicas: 1
+          maxReplicas: 3
 ```
 
 Likewise, the ingress gateway replicas can be specified and extra ingress gateways can be configured:
 
 ```yaml
-istioGateway:
-  values:
-    upstream:
-      minReplicas: 1
-      maxReplicas: 5
-    extraIngressGateways:
-    # ...
+packages:
+  istioGateway:
+    values:
+      upstream:
+        minReplicas: 1
+        maxReplicas: 5
+      extraIngressGateways:
+      # ...
 ```
 
 ### UI
@@ -71,18 +73,19 @@ istioGateway:
 Big Bang can be configured to deploy [Kiali](https://repo1.dso.mil/big-bang/product/packages/kiali) (a management console that provides dashboards, observability, and other robust capabilities) and [Tempo](https://repo1.dso.mil/big-bang/product/packages/tempo) (a distributed tracing backend), which can help you visualize your Istio mesh. To enable Kialia and Tempo, simply update the Big Bang values.yaml:
 
 ```yaml
-istioCRDs:
-  enabled: true
-istiod:
-  enabled: true
-istioGateway:
-  enabled: true
-tempo:
-  enabled: true
-kiali:
-  enabled: true
-monitoring:
-  enabled: true
+packages:
+  istioCRDs:
+    enabled: true
+  istiod:
+    enabled: true
+  istioGateway:
+    enabled: true
+  tempo:
+    enabled: true
+  kiali:
+    enabled: true
+  monitoring:
+    enabled: true
 ```
 
 ### Logging
@@ -91,7 +94,7 @@ Within Big Bang, logs are captured by fluentbit and shipped to elastic by defaul
 
 ### Monitoring
 
-Monitoring can be enabled to automatically capture metrics for Istio when `monitoring.enabled` is set to `true` in the Big Bang values.yaml. Since Istio 1.5, standard metrics are directly exported by the Envoy proxy. For a list of metrics, see [Istio Standard Metrics](https://istio.io/latest/docs/reference/config/metrics/#metrics) and [Istio Observability](https://istio.io/latest/docs/ops/best-practices/observability/).
+Monitoring can be enabled to automatically capture metrics for Istio when `packages.monitoring.enabled` is set to `true` in the Big Bang values.yaml. Since Istio 1.5, standard metrics are directly exported by the Envoy proxy. For a list of metrics, see [Istio Standard Metrics](https://istio.io/latest/docs/reference/config/metrics/#metrics) and [Istio Observability](https://istio.io/latest/docs/ops/best-practices/observability/).
 
 > **Note**: When using Kiali as a UI component of Istio, monitoring must be enabled as Kiali will not function properly without Prometheus.
 

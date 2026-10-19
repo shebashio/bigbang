@@ -27,15 +27,9 @@ BigBang core and addon packages ship with various network policies already confi
 networkPolicies:
   enabled: [true|false]
 
-# For bigbang core packages, this will turn on or off support for network policies in a core component
-CORE_PACKAGE_NAME:
-  values:
-    networkPolicies:
-      enabled: [true|false]
-
-# For bigbang supported addon packages, this will turn on or off support for network policies in a specific addon
-addons:
-  ADDON_PACKAGE_NAME:
+# For Big Bang packages, this will turn on or off support for network policies in a package
+packages:
+  PACKAGE_NAME:
     values:
       networkPolicies:
         enabled: [true|false]
@@ -52,21 +46,11 @@ package:
 
 Sometimes you will want to apply additional [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to further isolate certain pods in your deployment. BigBang has adopted standardized mechanisms for crafting and deploying these Network Policies through the values provided to your BigBang core, supported addon or packages deployed with the big bang wrapper chart.
 
-For BigBang core packages, you place these rules inside of the values for the given component:
+For BigBang packages, you place these rules inside the values for the given package:
 
 ```
-CORE_PACKAGE_NAME:
-  values:
-    networkPolicies:
-      enabled: true
-      additionalPolicies: []
-```
-
-For BigBang supported addon packages, you place these rules inside of the values for the given package:
-
-```
-addons:
-  ADDON_PACKAGE_NAME:
+packages:
+  PACKAGE_NAME:
     values:
       networkPolicies:
         enabled: true

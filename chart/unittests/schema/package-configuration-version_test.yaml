@@ -7,43 +7,21 @@ templates:
 release:
   name: test
 tests:
-  - it: should treat a null package configuration as unversioned
+  - it: should use the unified package contract by default
     set:
-      packageConfiguration:
-    asserts:
-      - notFailedTemplate: {}
-
-  - it: should preserve the 3.x custom-package meaning without an explicit version
-    set:
-      kiali:
-        enabled: false
       packages:
         kiali:
-          enabled: true
-          sourceType: git
-          git:
-            repo: https://example.com/custom-kiali.git
-            path: custom-chart
-            tag: v1
+          enabled: false
     asserts:
       - hasDocuments:
           count: 0
         template: templates/kiali/helmrelease.yaml
-      - equal:
-          path: metadata.name
-          value: kiali
-        template: templates/package/helmrelease.yaml
-      - equal:
-          path: spec.chart.spec.chart
-          value: custom-chart
+      - hasDocuments:
+          count: 0
         template: templates/package/helmrelease.yaml
 
-  - it: should interpret catalog names as built-ins after opting into v1
+  - it: should interpret catalog names as built-ins
     set:
-      kiali:
-        enabled: false
-      packageConfiguration:
-        version: v1
       packages:
         kiali:
           enabled: true

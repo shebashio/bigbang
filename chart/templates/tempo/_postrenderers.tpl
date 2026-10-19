@@ -26,7 +26,7 @@
         target:
           kind: ServiceMonitor
           name: .*tempo.*
-{{- if (dig "upstream" "tempoQuery" "enabled" false .Values.tempo.values) }}
+{{- if (dig "upstream" "tempoQuery" "enabled" false .Values.packages.tempo.values) }}
       - patch: |
           - op: remove
             path: /spec/endpoints/1

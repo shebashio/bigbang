@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
@@ -27,7 +27,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
@@ -68,10 +68,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.anchoreEnterprise.enabled: true
-      addons.anchoreEnterprise.redis.host: redis.example.internal
-      addons.anchoreEnterprise.redis.port: 6380
-      addons.anchoreEnterprise.redis.password: test-password
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.redis.host: redis.example.internal
+      packages.anchoreEnterprise.redis.port: 6380
+      packages.anchoreEnterprise.redis.password: test-password
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled

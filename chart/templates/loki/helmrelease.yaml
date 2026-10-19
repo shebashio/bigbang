@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsLoki := mergeOverwrite (deepCopy .Values.flux) .Values.loki.flux -}}
-{{- if .Values.loki.enabled }}
+{{- $fluxSettingsLoki := mergeOverwrite (deepCopy .Values.flux) .Values.packages.loki.flux -}}
+{{- if .Values.packages.loki.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -14,49 +14,49 @@ metadata:
   annotations:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/loki/values.yaml") . | sha256sum }}
 spec:
-  releaseName: {{ default "logging-loki" .Values.loki.releaseName }}
+  releaseName: {{ default "logging-loki" .Values.packages.loki.releaseName }}
   targetNamespace: logging
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "loki" "package" .Values.loki "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "loki" "package" .Values.packages.loki "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsLoki | nindent 2 }}
 
-  {{- if or .Values.loki.postRenderers (and $istioEnabled (eq .Values.loki.strategy "distributed")) }}
+  {{- if or .Values.packages.loki.postRenderers (and $istioEnabled (eq .Values.packages.loki.strategy "distributed")) }}
   postRenderers:
-  {{- if and $istioEnabled (eq .Values.loki.strategy "distributed") }}
+  {{- if and $istioEnabled (eq .Values.packages.loki.strategy "distributed") }}
   {{- include "loki.istioPostRenderers" . | nindent 2 }}
   {{- end }}
-  {{- if .Values.loki.postRenderers }}
-  {{ toYaml .Values.loki.postRenderers | nindent 2 }}
+  {{- if .Values.packages.loki.postRenderers }}
+  {{ toYaml .Values.packages.loki.postRenderers | nindent 2 }}
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "loki" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.loki.dependsOnOverride) }}
-  {{- with .Values.loki.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.loki.dependsOnOverride) }}
+  {{- with .Values.packages.loki.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.monitoring.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.loki.dependsOn }}
+  {{- else if or .Values.packages.monitoring.enabled .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.loki.dependsOn }}
   dependsOn:
-    {{- if  .Values.monitoring.enabled }}
+    {{- if  .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if  .Values.gatekeeper.enabled }}
+    {{- if  .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.addons.minioOperator.enabled }}
+    {{- if .Values.packages.minioOperator.enabled }}
     - name: minio-operator
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.loki) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.loki) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoReporter" }}
-{{- if .Values.kyvernoReporter.enabled }}
-{{- include "values-secret" (dict 
-"root" $ 
-"package" (get .Values $pkg) 
+{{- if (get .Values.packages $pkg).enabled }}
+{{- include "values-secret" (dict
+"root" $
+"package" (get .Values.packages $pkg)
 "name" ($pkg | kebabcase)
 "bbCommonSubchart" true
 "defaults" (include "bigbang.defaults.kyverno-reporter" .)
@@ -17,45 +17,46 @@
 global:
   fullnameOverride: kyverno-reporter
 
-routes:
-  inbound:
-    policy-reporter-ui:
-      enabled: {{ dig "upstream" "ui" "enabled" true .Values.kyvernoReporter.values }}
-      gateways:
-        - istio-gateway/public-ingressgateway
-      hosts:
-        - policyreporter.{{ $domainName }}
-      service: policy-reporter-ui.kyverno-reporter.svc.cluster.local
-      port: 8080
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.kyvernoReporter.values }}
-      hosts:
-      - repo1.dso.mil
-      - prometheus.{{ $domainName }}
-      - grafana.{{ $domainName }}
-
-networkPolicies:
-  egress:
-    from:
-      kyverno-reporter:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/instance: kyverno-reporter-kyverno-reporter
-        to:
-          definition:
-            kubeAPI: true
-        to:
-          definition:
-            sso: {{ .Values.kyvernoReporter.sso.enabled }}
-  ingress:
-    to:
-      policy-reporter:8080:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-  additionalPolicies: []
+bb-common:
+  routes:
+    inbound:
+      policy-reporter-ui:
+        enabled: {{ dig "upstream" "ui" "enabled" true .Values.packages.kyvernoReporter.values }}
+        gateways:
+          - istio-gateway/public-ingressgateway
+        hosts:
+          - policyreporter.{{ $domainName }}
+        service: policy-reporter-ui.kyverno-reporter.svc.cluster.local
+        port: 8080
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.kyvernoReporter.values }}
+        hosts:
+        - repo1.dso.mil
+        - prometheus.{{ $domainName }}
+        - grafana.{{ $domainName }}
+  
+  networkPolicies:
+    egress:
+      from:
+        kyverno-reporter:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: kyverno-reporter-kyverno-reporter
+          to:
+            definition:
+              kubeAPI: true
+          to:
+            definition:
+              sso: {{ .Values.packages.kyvernoReporter.sso.enabled }}
+    ingress:
+      to:
+        policy-reporter:8080:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    additionalPolicies: []
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -63,8 +64,8 @@ bbtests:
     envs:
       cypress_grafana_url: {{ printf "https://grafana.%s" $domainName | quote }}
       cypress_prometheus_url: {{ printf "https://prometheus.%s" $domainName | quote }}
-      cypress_check_datasource: {{ .Values.grafana.enabled | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.kyvernoReporter "values" .Values) | nindent 6 }}
+      cypress_check_datasource: {{ .Values.packages.grafana.enabled | quote }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.kyvernoReporter "values" .Values) | nindent 6 }}
 
 openshift: {{ .Values.openshift }}
 
@@ -80,22 +81,22 @@ upstream:
     enabled: true
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
-    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }} 
+    {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
     {{- if $istioEnabled }}
     podAnnotations:
       {{ include "istioAnnotation" . }}
     {{- end }}
     openIDConnect:
-      enabled: {{ .Values.kyvernoReporter.sso.enabled }}
+      enabled: {{ .Values.packages.kyvernoReporter.sso.enabled }}
       discoveryUrl: {{ printf "%s/.well-known/openid-configuration" .Values.sso.url | quote }}
       callbackUrl: {{ printf "https://policyreporter.%s/callback" $domainName | quote }}
-      clientId: {{ .Values.kyvernoReporter.sso.client_id }}
-      clientSecret: {{ .Values.kyvernoReporter.sso.client_secret }}
-      {{- if and .Values.kyvernoReporter.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+      clientId: {{ .Values.packages.kyvernoReporter.sso.client_id }}
+      clientSecret: {{ .Values.packages.kyvernoReporter.sso.client_secret }}
+      {{- if and .Values.packages.kyvernoReporter.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
       certificate: /etc/oidc/ca.pem
       {{- end }}
 
-    {{- if and .Values.kyvernoReporter.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+    {{- if and .Values.packages.kyvernoReporter.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
     extraVolumes:
       volumeMounts:
         - name: tls-ca-sso
@@ -126,6 +127,6 @@ upstream:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
     grafana:
       dashboards:
-        enabled: {{ or (eq (include "metricScrapingEnabled" .) "true") .Values.grafana.enabled }}
+        enabled: {{ or (eq (include "metricScrapingEnabled" .) "true") .Values.packages.grafana.enabled }}
         namespace: monitoring
 {{- end -}}

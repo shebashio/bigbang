@@ -12,7 +12,7 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.keycloak.enabled: true
+      packages.keycloak.enabled: true
     asserts:
       - equal:
           path: routes.inbound.keycloak.port
@@ -41,9 +41,9 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.'"
     set:
-      addons.keycloak.enabled: true
-      addons.keycloak.ingress.cert: "test-cert"
-      addons.keycloak.ingress.key: "test-key"
+      packages.keycloak.enabled: true
+      packages.keycloak.ingress.cert: "test-cert"
+      packages.keycloak.ingress.key: "test-key"
     asserts:
       - equal:
           path: routes.inbound.keycloak.port
@@ -63,8 +63,8 @@ tests:
         - "-c"
         - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.upstream.extraEnv' - | yq eval '{\"env\": .}'"
     set:
-      addons.keycloak.enabled: true
-      addons.keycloak.values:
+      packages.keycloak.enabled: true
+      packages.keycloak.values:
         upstream:
           extraEnv: |
             - name: KC_LOG_LEVEL

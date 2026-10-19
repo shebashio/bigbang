@@ -50,7 +50,7 @@ MinIO server exposes three un-authenticated, healthcheck endpoints [liveness pro
 The default is to run in high availability. The default number of servers is 4, but can be changed by changing the values in the base Big Bang cofiguration.
 
 ```yaml
-addons:
+packages:
   minio:
     values:
       tenants:
@@ -84,7 +84,7 @@ No current SSO is available via Keycloak.
 Initial access to the MinIO server is via the accessKey and secretKey values in the top level values file.
 
 ```yaml
-addons:
+packages:
   minio:
     accesskey: "myaccesskey"
     secretkey: "mysecretkey"

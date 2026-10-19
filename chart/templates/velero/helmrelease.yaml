@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsVelero := mergeOverwrite (deepCopy .Values.flux) .Values.addons.velero.flux -}}
-{{- if .Values.addons.velero.enabled }}
+{{- $fluxSettingsVelero := mergeOverwrite (deepCopy .Values.flux) .Values.packages.velero.flux -}}
+{{- if .Values.packages.velero.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -15,34 +15,34 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/velero/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: velero
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "velero" "package" .Values.addons.velero "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "velero" "package" .Values.packages.velero "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingsVelero | nindent 2 }}
   
-  {{- if .Values.addons.velero.postRenderers }}
+  {{- if .Values.packages.velero.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.addons.velero.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.velero.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "velero" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.addons.velero.dependsOnOverride) }}
-  {{- with .Values.addons.velero.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.velero.dependsOnOverride) }}
+  {{- with .Values.packages.velero.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.velero.dependsOn }}
+  {{- else if or $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled .Values.packages.velero.dependsOn }}
   dependsOn:
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.velero) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.velero) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

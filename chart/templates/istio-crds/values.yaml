@@ -2,8 +2,8 @@
 {{- $pkg := "istioCRDs" }}
 
 {{- /* Create secret */ -}}
-{{- if .Values.istioCRDs.enabled }}
-{{- include "values-secret" (dict "root" $ "package" (get .Values $pkg) "name" "istio-crds" "defaults" (include "bigbang.defaults.istio-crds" .) "injectCommonDefaults" false) }}
+{{- if .Values.packages.istioCRDs.enabled }}
+{{- include "values-secret" (dict "root" $ "package" (get .Values.packages $pkg) "name" "istio-crds" "defaults" (include "bigbang.defaults.istio-crds" .) "injectCommonDefaults" false) }}
 {{- end }}
 
 {{- define "bigbang.defaults.istio-crds" -}}

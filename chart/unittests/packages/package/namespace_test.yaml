@@ -5,8 +5,6 @@ templates:
 release:
   name: test
 set:
-  istiod:
-    enabled: true
   istio:
     ambient:
       enabled: true
@@ -17,7 +15,7 @@ set:
         repo: https://example.com/sample.git
         path: chart
         tag: 1.0.0
-    cert-manager:
+    custom-cert-manager:
       enabled: false
       sourceType: git
       git:
@@ -38,6 +36,8 @@ set:
         repo: https://example.com/cert-manager-approver-policy.git
         path: chart
         tag: 1.0.0
+    istiod:
+      enabled: true
 tests:
   - it: should allow package namespace labels to override ambient namespace enrollment
     set:
@@ -65,7 +65,7 @@ tests:
   - it: should render cert-manager ecosystem namespaces as ambient opt-out when configured
     set:
       packages:
-        cert-manager:
+        custom-cert-manager:
           enabled: true
           namespace:
             labels:
@@ -74,19 +74,19 @@ tests:
           enabled: true
           namespace:
             create: false
-            name: cert-manager
+            name: custom-cert-manager
             labels:
               istio.io/dataplane-mode: none
         cert-manager-approver-policy:
           enabled: true
           namespace:
             create: false
-            name: cert-manager
+            name: custom-cert-manager
             labels:
               istio.io/dataplane-mode: none
     documentSelector:
       path: metadata.name
-      value: cert-manager
+      value: custom-cert-manager
     asserts:
       - hasDocuments:
           count: 1
@@ -97,7 +97,7 @@ tests:
   - it: should render each cert-manager ecosystem namespace as ambient opt-out when separately created
     set:
       packages:
-        cert-manager:
+        custom-cert-manager:
           enabled: true
           namespace:
             labels:

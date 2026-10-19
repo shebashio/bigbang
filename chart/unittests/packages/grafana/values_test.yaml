@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -22,7 +22,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      grafana.values.istio.hardened.customServiceEntries:
+      packages.grafana.values.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
           hosts:
             - "example.com"
@@ -40,7 +40,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      grafana.values.istio.hardened.customAuthorizationPolicies:
+      packages.grafana.values.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
           labels:
             app: "grafana"
@@ -58,12 +58,12 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      grafana.values.istio.hardened.customServiceEntries:
+      packages.grafana.values.istio.hardened.customServiceEntries:
         - name: "hardened-entry"
           spec:
             hosts:
               - "hardened.example.com"
-      grafana.values.istio.serviceEntries.custom:
+      packages.grafana.values.istio.serviceEntries.custom:
         - name: "custom-entry"
           spec:
             hosts:
@@ -88,11 +88,11 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      grafana.values.istio.hardened.customAuthorizationPolicies:
+      packages.grafana.values.istio.hardened.customAuthorizationPolicies:
         - name: "hardened-authz"
           labels:
             app: "grafana"
-      grafana.values.istio.authorizationPolicies.custom:
+      packages.grafana.values.istio.authorizationPolicies.custom:
         - name: "custom-authz"
           labels:
             app: "grafana-custom"
@@ -116,10 +116,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.redis.password: test-password
-      addons.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
-      addons.gitlab.values.global.redis.port: 6379
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
+      packages.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
+      packages.gitlab.values.global.redis.port: 6379
     asserts:
       - equal:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[1].url
@@ -141,8 +141,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.argocd.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.argocd.example.internal
     asserts:
       - notExists:
           path: routes.outbound["external-argocd-redis"]
