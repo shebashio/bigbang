@@ -10,8 +10,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.harbor.enabled: true
-      addons.harbor.values.postgresql.enabled: false
+      packages.harbor.enabled: true
+      packages.harbor.values.postgresql.enabled: false
     asserts:
       - equal:
           path: networkPolicies.egress.from.harbor.to.definition.database-subnets
@@ -23,8 +23,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.harbor.enabled: true
-      addons.harbor.values.postgresql.enabled: true
+      packages.harbor.enabled: true
+      packages.harbor.values.postgresql.enabled: true
     asserts:
       - equal:
           path: networkPolicies.egress.from.harbor.to.definition.database-subnets
@@ -36,7 +36,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.harbor.enabled: true
+      packages.harbor.enabled: true
     asserts:
       - equal:
           path: networkPolicies.egress.from.harbor.to.definition.database-subnets
@@ -48,8 +48,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.harbor.enabled: true
-      addons.harbor.values.redis.external.addr: redis.example.internal:6380
+      packages.harbor.enabled: true
+      packages.harbor.values.redis.external.addr: redis.example.internal:6380
     asserts:
       - equal:
           path: routes.outbound["external-redis"].enabled

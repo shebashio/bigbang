@@ -20,12 +20,12 @@ stringData:
 {{- if (not $vals.kustomize) }}
 {{- if dig "bbCommonValues" true $vals }}
 {{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
-{{- $istioHardened := or (dig "istio" "hardened" "enabled" false (default (dict) $vals.values)) (dig "hardened" "enabled" false $.Values.istiod.values) }}
+{{- $istioHardened := or (dig "istio" "hardened" "enabled" false (default (dict) $vals.values)) (dig "hardened" "enabled" false $.Values.packages.istiod.values) }}
   common.yaml: |
     global:
       domain: {{ $.Values.domain }}
       monitoring:
-        enabled: {{ $.Values.monitoring.enabled }}
+        enabled: {{ $.Values.packages.monitoring.enabled }}
     bb-common:
       istio:
         enabled: {{ $istioEnabled }}
@@ -47,7 +47,7 @@ stringData:
   values.yaml: |-
     {{ if (dig "passBigBangValues" false $vals) -}}
     bigbang:
-      {{- include "values-bigbang" $.Values | nindent 6 }}
+      {{- include "values-bigbang" $ | nindent 6 }}
     {{- end }}
     {{- if $vals.values -}}
     {{- tpl (toYaml $vals.values) $ | nindent 4 }}
@@ -60,7 +60,7 @@ stringData:
   {{- if or ($vals.values) (dig "passBigBangValues" false $vals) }}
   {{- if (dig "passBigBangValues" false $vals) }}
   bigbang: |-
-    {{- include "values-bigbang" $.Values | nindent 6 }}
+    {{- include "values-bigbang" $ | nindent 6 }}
   {{- end }}
   {{- if $vals.values -}}
   {{- tpl (toYaml $vals.values) $ | nindent 2 }}

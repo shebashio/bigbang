@@ -72,7 +72,7 @@ The following values can be customized in Big Bang's `values.yaml` to connect to
 your external database:
 
 ```yaml
-addons:
+packages:
   keycloak:
     values:
       upstream:
@@ -107,7 +107,7 @@ invalid certificate loaded into Keycloak.
 If you wish to adjust the probes, you can override the values in `values.yaml`:
 
 ```yaml
-addons:
+packages:
   keycloak:
     upstream:
       values:
@@ -144,7 +144,7 @@ make sure you are pointed to an external database, and then the replicas can be
 increased, all of which can be set in `values.yaml`:
 
 ```yaml
-addons:
+packages:
   keycloak:
     values:
       upstream:
@@ -155,7 +155,7 @@ The Keycloak package also comes with a HorizontalPodAutoscaler resource which
 can be enabled. Enabling the HPA will overwrite the `replicas` key shown above:
 
 ```yaml
-addons:
+packages:
   keycloak:
     values:
       upstream:

@@ -1,23 +1,25 @@
 # Use Kyverno instead of Gatekeeper
-gatekeeper:
-  enabled: false
-kyverno:
-  enabled: true
-kyvernoPolicies:
-  enabled: true
-  values:
-    policies:
-      restrict-host-ports:
-        validationFailureAction: Audit
-      restrict-capabilities:
-        validationFailureAction: Audit
-      restrict-image-registries:
-        validationFailureAction: Audit
-      disallow-host-namespaces:
-        validationFailureAction: Audit
-      disallow-privileged-containers:
-        validationFailureAction: Audit
-      require-non-root-user:
-        validationFailureAction: Audit
-      restrict-host-path-mount-pv:
-        validationFailureAction: Audit
+
+packages:
+  gatekeeper:
+    enabled: false
+  kyverno:
+    enabled: true
+  kyvernoPolicies:
+    enabled: true
+    values:
+      policies:
+        restrict-host-ports:
+          validationFailureAction: Audit
+        restrict-capabilities:
+          validationFailureAction: Audit
+        restrict-image-registries:
+          validationFailureAction: Audit
+        disallow-host-namespaces:
+          validationFailureAction: Audit
+        disallow-privileged-containers:
+          validationFailureAction: Audit
+        require-non-root-user:
+          validationFailureAction: Audit
+        restrict-host-path-mount-pv:
+          validationFailureAction: Audit

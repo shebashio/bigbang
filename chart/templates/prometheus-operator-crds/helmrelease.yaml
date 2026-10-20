@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsPrometheusOperatorCRDs:= mergeOverwrite (deepCopy .Values.flux) .Values.prometheusOperatorCRDs.flux -}}
-{{- if and .Values.prometheusOperatorCRDs.enabled }}
+{{- $fluxSettingsPrometheusOperatorCRDs:= mergeOverwrite (deepCopy .Values.flux) .Values.packages.prometheusOperatorCRDs.flux -}}
+{{- if and .Values.packages.prometheusOperatorCRDs.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,23 +15,23 @@ metadata:
 spec:
   releaseName: prometheus-operator-crds
   targetNamespace: monitoring
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "prometheus-operator-crds" "package" .Values.prometheusOperatorCRDs "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "prometheus-operator-crds" "package" .Values.packages.prometheusOperatorCRDs "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsPrometheusOperatorCRDs | nindent 2 }}
 
-  {{- if .Values.prometheusOperatorCRDs.postRenderers }}
+  {{- if .Values.packages.prometheusOperatorCRDs.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.prometheusOperatorCRDs.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.prometheusOperatorCRDs.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "prometheus-operator-crds" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.prometheusOperatorCRDs.dependsOnOverride) }}
-  {{- with .Values.prometheusOperatorCRDs.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.prometheusOperatorCRDs.dependsOnOverride) }}
+  {{- with .Values.packages.prometheusOperatorCRDs.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if .Values.prometheusOperatorCRDs.dependsOn }}
+  {{- else if .Values.packages.prometheusOperatorCRDs.dependsOn }}
   dependsOn:
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.prometheusOperatorCRDs) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.prometheusOperatorCRDs) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

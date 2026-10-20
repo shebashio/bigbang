@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsIstioCore := mergeOverwrite (deepCopy .Values.flux) .Values.istioCRDs.flux -}}
-{{- if and .Values.istioCRDs.enabled }}
+{{- $fluxSettingsIstioCore := mergeOverwrite (deepCopy .Values.flux) .Values.packages.istioCRDs.flux -}}
+{{- if and .Values.packages.istioCRDs.enabled }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,32 +15,32 @@ metadata:
 spec:
   releaseName: istio-crds
   targetNamespace: istio-system
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "istio-crds" "package" .Values.istioCRDs "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "istio-crds" "package" .Values.packages.istioCRDs "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsIstioCore | nindent 2 }}
 
-  {{- if .Values.istioCRDs.postRenderers }}
+  {{- if .Values.packages.istioCRDs.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.istioCRDs.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.istioCRDs.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "istio-crds" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.istioCRDs.dependsOnOverride) }}
-  {{- with .Values.istioCRDs.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.istioCRDs.dependsOnOverride) }}
+  {{- with .Values.packages.istioCRDs.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.istioCRDs.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.istioCRDs.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.istioCRDs) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.istioCRDs) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

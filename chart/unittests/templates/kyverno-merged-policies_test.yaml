@@ -8,7 +8,10 @@ tests:
         resultIsYaml: true
         args:
           Values:
-            addons:
+            istio:
+              ambient:
+                enabled: false
+            packages:
               keycloak:
                 enabled: false
               vault:
@@ -29,53 +32,50 @@ tests:
                 enabled: false
               externalSecrets:
                 enabled: false
-            twistlock:
-              enabled: false
-            istiod:
-              enabled: true
-            istioGateway:
-              enabled: true
-              values:
-                gateways:
-                  public: {}
-            neuvector:
-              enabled: false
-            fluentbit:
-              enabled: false
-            gatekeeper:
-              enabled: false
-            alloy:
-              enabled: false
-            istio:
-              ambient:
+              twistlock:
                 enabled: false
-            ztunnel:
-              enabled: false
-            kyvernoReporter:
-              enabled: false
-            kiali:
-              enabled: false
-            monitoring:
-              enabled: false
-            kyvernoPolicies:
-              enabled: true
-              values:
-                policies:
-                  update-automountserviceaccounttokens:
-                    namespaces:
-                      - namespace: monitoring
-                        pods:
-                          allow:
-                            - test-monitoring
-                            - grafana
-                          deny:
-                            - deny-monitoring
-                      - namespace: custom
-                        pods:
-                          allow:
-                            - custom-pod
-                          deny:
-                            - custom-deny
+              istiod:
+                enabled: true
+              istioGateway:
+                enabled: true
+                values:
+                  gateways:
+                    public: {}
+              neuvector:
+                enabled: false
+              fluentbit:
+                enabled: false
+              gatekeeper:
+                enabled: false
+              alloy:
+                enabled: false
+              ztunnel:
+                enabled: false
+              kyvernoReporter:
+                enabled: false
+              kiali:
+                enabled: false
+              monitoring:
+                enabled: false
+              kyvernoPolicies:
+                enabled: true
+                values:
+                  policies:
+                    update-automountserviceaccounttokens:
+                      namespaces:
+                        - namespace: monitoring
+                          pods:
+                            allow:
+                              - test-monitoring
+                              - grafana
+                            deny:
+                              - deny-monitoring
+                        - namespace: custom
+                          pods:
+                            allow:
+                              - custom-pod
+                            deny:
+                              - custom-deny
   template: templates/_self-test/render.yaml
   asserts:
     - equal:
@@ -119,7 +119,10 @@ tests:
         resultIsYaml: true
         args:
           Values:
-            addons:
+            istio:
+              ambient:
+                enabled: false
+            packages:
               keycloak:
                 enabled: false
               vault:
@@ -140,44 +143,41 @@ tests:
                 enabled: false
               externalSecrets:
                 enabled: false
-            twistlock:
-              enabled: false
-            istiod:
-              enabled: true
-            istioGateway:
-              enabled: true
-              values:
-                gateways:
-                  public: {}
-            neuvector:
-              enabled: false
-            # fluentbit enabled so the bigbang default allow paths (/var/log,
-            # /var/log/flb-storage/) are present to merge against.
-            fluentbit:
-              enabled: true
-            gatekeeper:
-              enabled: false
-            alloy:
-              enabled: false
-            istio:
-              ambient:
+              twistlock:
                 enabled: false
-            ztunnel:
-              enabled: false
-            kyvernoReporter:
-              enabled: false
-            kiali:
-              enabled: false
-            monitoring:
-              enabled: false
-            kyvernoPolicies:
-              enabled: true
-              values:
-                policies:
-                  restrict-host-path-write:
-                    parameters:
-                      allow:
-                        - /tmp/allowed
+              istiod:
+                enabled: true
+              istioGateway:
+                enabled: true
+                values:
+                  gateways:
+                    public: {}
+              neuvector:
+                enabled: false
+              # fluentbit enabled so the bigbang default allow paths (/var/log,
+              # /var/log/flb-storage/) are present to merge against.
+              fluentbit:
+                enabled: true
+              gatekeeper:
+                enabled: false
+              alloy:
+                enabled: false
+              ztunnel:
+                enabled: false
+              kyvernoReporter:
+                enabled: false
+              kiali:
+                enabled: false
+              monitoring:
+                enabled: false
+              kyvernoPolicies:
+                enabled: true
+                values:
+                  policies:
+                    restrict-host-path-write:
+                      parameters:
+                        allow:
+                          - /tmp/allowed
   template: templates/_self-test/render.yaml
   asserts:
     - equal:
@@ -198,7 +198,10 @@ tests:
         resultIsYaml: true
         args:
           Values:
-            addons:
+            istio:
+              ambient:
+                enabled: false
+            packages:
               keycloak:
                 enabled: false
               vault:
@@ -219,46 +222,43 @@ tests:
                 enabled: false
               externalSecrets:
                 enabled: false
-            twistlock:
-              enabled: false
-            # istiod enabled so the bigbang default excludeContainers (istio-init) and the
-            # istio namespace exclusions are present to merge against.
-            istiod:
-              enabled: true
-            istioGateway:
-              enabled: true
-              values:
-                gateways:
-                  public: {}
-            neuvector:
-              enabled: false
-            fluentbit:
-              enabled: false
-            gatekeeper:
-              enabled: false
-            alloy:
-              enabled: false
-            istio:
-              ambient:
+              twistlock:
                 enabled: false
-            ztunnel:
-              enabled: false
-            kyvernoReporter:
-              enabled: false
-            kiali:
-              enabled: false
-            monitoring:
-              enabled: false
-            kyvernoPolicies:
-              enabled: true
-              values:
-                policies:
-                  require-non-root-user:
-                    excludeContainers:
-                      - my-init
-                  require-istio-on-namespaces:
-                    excludeNamespaces:
-                      - my-namespace
+              # istiod enabled so the bigbang default excludeContainers (istio-init) and the
+              # istio namespace exclusions are present to merge against.
+              istiod:
+                enabled: true
+              istioGateway:
+                enabled: true
+                values:
+                  gateways:
+                    public: {}
+              neuvector:
+                enabled: false
+              fluentbit:
+                enabled: false
+              gatekeeper:
+                enabled: false
+              alloy:
+                enabled: false
+              ztunnel:
+                enabled: false
+              kyvernoReporter:
+                enabled: false
+              kiali:
+                enabled: false
+              monitoring:
+                enabled: false
+              kyvernoPolicies:
+                enabled: true
+                values:
+                  policies:
+                    require-non-root-user:
+                      excludeContainers:
+                        - my-init
+                    require-istio-on-namespaces:
+                      excludeNamespaces:
+                        - my-namespace
   template: templates/_self-test/render.yaml
   asserts:
     - equal:
@@ -282,7 +282,10 @@ tests:
         resultIsYaml: true
         args:
           Values:
-            addons:
+            istio:
+              ambient:
+                enabled: false
+            packages:
               keycloak:
                 enabled: false
               vault:
@@ -303,41 +306,38 @@ tests:
                 enabled: false
               externalSecrets:
                 enabled: false
-            twistlock:
-              enabled: false
-            istiod:
-              enabled: true
-            istioGateway:
-              enabled: true
-              values:
-                gateways:
-                  public: {}
-            neuvector:
-              enabled: false
-            fluentbit:
-              enabled: false
-            gatekeeper:
-              enabled: false
-            alloy:
-              enabled: false
-            istio:
-              ambient:
+              twistlock:
                 enabled: false
-            ztunnel:
-              enabled: false
-            kyvernoReporter:
-              enabled: false
-            kiali:
-              enabled: false
-            monitoring:
-              enabled: false
-            kyvernoPolicies:
-              enabled: true
-              values:
-                policies:
-                  update-automountserviceaccounttokens-default:
-                    namespaces:
-                      - my-namespace
+              istiod:
+                enabled: true
+              istioGateway:
+                enabled: true
+                values:
+                  gateways:
+                    public: {}
+              neuvector:
+                enabled: false
+              fluentbit:
+                enabled: false
+              gatekeeper:
+                enabled: false
+              alloy:
+                enabled: false
+              ztunnel:
+                enabled: false
+              kyvernoReporter:
+                enabled: false
+              kiali:
+                enabled: false
+              monitoring:
+                enabled: false
+              kyvernoPolicies:
+                enabled: true
+                values:
+                  policies:
+                    update-automountserviceaccounttokens-default:
+                      namespaces:
+                        - my-namespace
   template: templates/_self-test/render.yaml
   asserts:
     - equal:

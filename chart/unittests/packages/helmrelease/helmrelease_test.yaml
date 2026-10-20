@@ -8,10 +8,11 @@ tests:
 
 - it: should render cert-manager HelmRelease when enabled
   set:
-    certManager:
-      enabled: true
-    monitoring:
-      enabled: true
+    packages:
+      certManager:
+        enabled: true
+      monitoring:
+        enabled: true
   template: cert-manager/helmrelease.yaml
   asserts:
   - isKind:
@@ -49,8 +50,9 @@ tests:
 
 - it: should not render cert-manager HelmRelease when disabled
   set:
-    certManager:
-      enabled: false
+    packages:
+      certManager:
+        enabled: false
   template: cert-manager/helmrelease.yaml
   asserts:
   - hasDocuments:
@@ -58,14 +60,15 @@ tests:
 
 - it: should not require Istio or monitoring when both are disabled
   set:
-    certManager:
-      enabled: true
-    istiod:
-      enabled: false
-    monitoring:
-      enabled: false
-    kyvernoPolicies:
-      enabled: false
+    packages:
+      certManager:
+        enabled: true
+      istiod:
+        enabled: false
+      monitoring:
+        enabled: false
+      kyvernoPolicies:
+        enabled: false
   template: cert-manager/helmrelease.yaml
   asserts:
   - notExists:
@@ -75,10 +78,6 @@ tests:
 
 - it: should normalize canonical cert-manager configuration onto the integrated package
   set:
-    certManager:
-      enabled: false
-    monitoring:
-      enabled: false
     packageConfiguration:
       version: v1
     packages:
@@ -94,6 +93,8 @@ tests:
         postRenderers:
           - kustomize:
               patches: []
+      monitoring:
+        enabled: false
   template: cert-manager/helmrelease.yaml
   asserts:
   - equal:
@@ -118,10 +119,11 @@ tests:
 
 - it: should render monitoring HelmRelease when enabled
   set:
-    monitoring:
-      enabled: true
-    certManager:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
+      certManager:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - isKind:
@@ -137,8 +139,9 @@ tests:
 
 - it: should use the enabled cert-manager default for monitoring dependency ordering
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
@@ -149,10 +152,11 @@ tests:
 
 - it: should omit the cert-manager dependency when cert-manager is disabled
   set:
-    monitoring:
-      enabled: true
-    certManager:
-      enabled: false
+    packages:
+      monitoring:
+        enabled: true
+      certManager:
+        enabled: false
   template: monitoring/helmrelease.yaml
   asserts:
   - notContains:
@@ -163,8 +167,9 @@ tests:
 
 - it: should not render monitoring HelmRelease when disabled
   set:
-    monitoring:
-      enabled: false
+    packages:
+      monitoring:
+        enabled: false
   template: monitoring/helmrelease.yaml
   asserts:
   - hasDocuments:
@@ -172,8 +177,9 @@ tests:
 
 - it: should render loki HelmRelease when enabled
   set:
-    loki:
-      enabled: true
+    packages:
+      loki:
+        enabled: true
   template: loki/helmrelease.yaml
   asserts:
   - isKind:
@@ -184,8 +190,9 @@ tests:
 
 - it: should not render loki HelmRelease when disabled
   set:
-    loki:
-      enabled: false
+    packages:
+      loki:
+        enabled: false
   template: loki/helmrelease.yaml
   asserts:
   - hasDocuments:
@@ -197,7 +204,7 @@ tests:
 
 - it: should render velero HelmRelease when enabled
   set:
-    addons:
+    packages:
       velero:
         enabled: true
   template: velero/helmrelease.yaml
@@ -210,7 +217,7 @@ tests:
 
 - it: should not render velero HelmRelease when disabled
   set:
-    addons:
+    packages:
       velero:
         enabled: false
   template: velero/helmrelease.yaml
@@ -220,7 +227,7 @@ tests:
 
 - it: should render argocd HelmRelease when enabled
   set:
-    addons:
+    packages:
       argocd:
         enabled: true
   template: argocd/helmrelease.yaml
@@ -237,13 +244,14 @@ tests:
 
 - it: should render git sourceRef for monitoring when sourceType is git
   set:
-    monitoring:
-      enabled: true
-      sourceType: "git"
-      git:
-        repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
-        path: chart
-        tag: 1.0.0
+    packages:
+      monitoring:
+        enabled: true
+        sourceType: "git"
+        git:
+          repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
+          path: chart
+          tag: 1.0.0
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -261,7 +269,7 @@ tests:
 
 - it: should render git sourceRef for velero addon when sourceType is git
   set:
-    addons:
+    packages:
       velero:
         enabled: true
         sourceType: "git"
@@ -284,13 +292,14 @@ tests:
 
 - it: should render helmRepo sourceRef when sourceType is not git
   set:
-    monitoring:
-      enabled: true
-      sourceType: "helmRepo"
-      helmRepo:
-        chartName: kube-prometheus-stack
-        tag: 45.0.0
-        repoName: prometheus-community
+    packages:
+      monitoring:
+        enabled: true
+        sourceType: "helmRepo"
+        helmRepo:
+          chartName: kube-prometheus-stack
+          tag: 45.0.0
+          repoName: prometheus-community
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -312,8 +321,9 @@ tests:
 
 - it: should not render spec.releaseName by default for framework-enabled monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - notExists:
@@ -321,9 +331,10 @@ tests:
 
 - it: should render spec.releaseName when monitoring.releaseName is set
   set:
-    monitoring:
-      enabled: true
-      releaseName: monitoring-custom
+    packages:
+      monitoring:
+        enabled: true
+        releaseName: monitoring-custom
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -332,7 +343,7 @@ tests:
 
 - it: should render spec.releaseName when argocd.releaseName is set
   set:
-    addons:
+    packages:
       argocd:
         enabled: true
         releaseName: argocd-custom
@@ -344,8 +355,9 @@ tests:
 
 - it: should not render spec.releaseName by default for framework-enabled renovate
   set:
-    renovate:
-      enabled: true
+    packages:
+      renovate:
+        enabled: true
   template: renovate/helmrelease.yaml
   asserts:
   - notExists:
@@ -353,9 +365,10 @@ tests:
 
 - it: should render spec.releaseName when renovate.releaseName is set
   set:
-    renovate:
-      enabled: true
-      releaseName: renovate-custom
+    packages:
+      renovate:
+        enabled: true
+        releaseName: renovate-custom
   template: renovate/helmrelease.yaml
   asserts:
   - equal:
@@ -364,8 +377,9 @@ tests:
 
 - it: should keep explicit releaseName behavior for templates that already define it (alloy)
   set:
-    alloy:
-      enabled: true
+    packages:
+      alloy:
+        enabled: true
   template: alloy/helmrelease.yaml
   asserts:
   - equal:
@@ -378,8 +392,9 @@ tests:
 
 - it: should render standard 3-secret valuesFrom for monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - lengthEqual:
@@ -397,7 +412,7 @@ tests:
 
 - it: should render correct secret name in valuesFrom for velero
   set:
-    addons:
+    packages:
       velero:
         enabled: true
   template: velero/helmrelease.yaml
@@ -408,8 +423,9 @@ tests:
 
 - it: should render correct secret name in valuesFrom for ek
   set:
-    elasticsearchKibana:
-      enabled: true
+    packages:
+      elasticsearchKibana:
+        enabled: true
   template: elasticsearch-kibana/helmrelease.yaml
   asserts:
   - matchRegex:
@@ -422,8 +438,9 @@ tests:
 
 - it: should include app.kubernetes.io/name label on monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -432,8 +449,9 @@ tests:
 
 - it: should include app.kubernetes.io/component label on monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -442,8 +460,9 @@ tests:
 
 - it: should include commonLabels on monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -452,8 +471,9 @@ tests:
 
 - it: should include checksum annotation on monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - exists:
@@ -465,8 +485,9 @@ tests:
 
 - it: should set targetNamespace to monitoring for monitoring
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -475,8 +496,9 @@ tests:
 
 - it: should set targetNamespace to logging for loki
   set:
-    loki:
-      enabled: true
+    packages:
+      loki:
+        enabled: true
   template: loki/helmrelease.yaml
   asserts:
   - equal:
@@ -485,8 +507,9 @@ tests:
 
 - it: should set targetNamespace to gatekeeper-system for gatekeeper
   set:
-    gatekeeper:
-      enabled: true
+    packages:
+      gatekeeper:
+        enabled: true
   template: gatekeeper/helmrelease.yaml
   asserts:
   - equal:
@@ -495,10 +518,11 @@ tests:
 
 - it: should set targetNamespace to istio-system for istiod
   set:
-    istioCRDs:
-      enabled: true
-    istiod:
-      enabled: true
+    packages:
+      istioCRDs:
+        enabled: true
+      istiod:
+        enabled: true
   template: istiod/helmrelease.yaml
   asserts:
   - equal:
@@ -507,10 +531,11 @@ tests:
 
 - it: should set targetNamespace to kube-system for istio-cni
   set:
-    istiod:
-      enabled: true
-    istioCNI:
-      enabled: true
+    packages:
+      istiod:
+        enabled: true
+      istioCNI:
+        enabled: true
   template: istio-cni/helmrelease.yaml
   asserts:
   - equal:
@@ -523,8 +548,9 @@ tests:
 
 - it: should set persistentClient to false for gatekeeper
   set:
-    gatekeeper:
-      enabled: true
+    packages:
+      gatekeeper:
+        enabled: true
   template: gatekeeper/helmrelease.yaml
   asserts:
   - equal:
@@ -533,8 +559,9 @@ tests:
 
 - it: should default loki releaseName to logging-loki
   set:
-    loki:
-      enabled: true
+    packages:
+      loki:
+        enabled: true
   template: loki/helmrelease.yaml
   asserts:
   - equal:
@@ -543,8 +570,9 @@ tests:
 
 - it: should set metadata.name to ek for elasticsearch-kibana
   set:
-    elasticsearchKibana:
-      enabled: true
+    packages:
+      elasticsearchKibana:
+        enabled: true
   template: elasticsearch-kibana/helmrelease.yaml
   asserts:
   - equal:
@@ -560,13 +588,14 @@ tests:
 
 - it: should use grafana flux settings, not monitoring flux settings
   set:
-    grafana:
-      enabled: true
-      flux:
-        timeout: 30m
-    monitoring:
-      flux:
-        timeout: 10m
+    packages:
+      grafana:
+        enabled: true
+        flux:
+          timeout: 30m
+      monitoring:
+        flux:
+          timeout: 10m
   template: grafana/helmrelease.yaml
   asserts:
   - equal:
@@ -579,22 +608,23 @@ tests:
 
 - it: fluentbit should render dependsOn with loki when only loki is enabled
   set:
-    fluentbit:
-      enabled: true
-    loki:
-      enabled: true
-    elasticsearchKibana:
-      enabled: false
-    gatekeeper:
-      enabled: false
-    istiod:
-      enabled: false
-    kyvernoPolicies:
-      enabled: false
-    kyverno:
-      enabled: false
-    monitoring:
-      enabled: false
+    packages:
+      fluentbit:
+        enabled: true
+      loki:
+        enabled: true
+      elasticsearchKibana:
+        enabled: false
+      gatekeeper:
+        enabled: false
+      istiod:
+        enabled: false
+      kyvernoPolicies:
+        enabled: false
+      kyverno:
+        enabled: false
+      monitoring:
+        enabled: false
   template: fluentbit/helmrelease.yaml
   asserts:
   - contains:
@@ -609,19 +639,19 @@ tests:
 
 - it: gitlab-runner should render dependsOn with kyverno when only kyverno is enabled
   set:
-    addons:
+    packages:
       gitlabRunner:
         enabled: true
       gitlab:
         enabled: false
-    gatekeeper:
-      enabled: false
-    kyverno:
-      enabled: true
-    kyvernoPolicies:
-      enabled: false
-    monitoring:
-      enabled: false
+      gatekeeper:
+        enabled: false
+      kyverno:
+        enabled: true
+      kyvernoPolicies:
+        enabled: false
+      monitoring:
+        enabled: false
   template: gitlab-runner/helmrelease.yaml
   asserts:
   - contains:
@@ -632,20 +662,20 @@ tests:
 
 - it: gitlab should append custom HelmRelease dependencies
   set:
-    addons:
+    packages:
       gitlab:
         enabled: true
         dependsOn:
           - name: cloudnative-pg
             namespace: bigbang
-    gatekeeper:
-      enabled: false
-    istiod:
-      enabled: false
-    kyvernoPolicies:
-      enabled: false
-    monitoring:
-      enabled: false
+      gatekeeper:
+        enabled: false
+      istiod:
+        enabled: false
+      kyvernoPolicies:
+        enabled: false
+      monitoring:
+        enabled: false
   template: gitlab/helmrelease.yaml
   asserts:
   - lengthEqual:
@@ -659,20 +689,20 @@ tests:
 
 - it: gitlab should preserve default dependencies when appending custom dependencies
   set:
-    addons:
+    packages:
       gitlab:
         enabled: true
         dependsOn:
           - name: cloudnative-pg
             namespace: bigbang
-    gatekeeper:
-      enabled: false
-    istiod:
-      enabled: true
-    kyvernoPolicies:
-      enabled: true
-    monitoring:
-      enabled: false
+      gatekeeper:
+        enabled: false
+      istiod:
+        enabled: true
+      kyvernoPolicies:
+        enabled: true
+      monitoring:
+        enabled: false
   template: gitlab/helmrelease.yaml
   asserts:
   - contains:
@@ -693,16 +723,16 @@ tests:
 
 - it: argocd should render a custom HelmRelease dependency without default dependencies
   set:
-    addons:
+    packages:
       argocd:
         enabled: true
         dependsOnOverride:
           - name: external-operator
             namespace: operators
-    istiod:
-      enabled: false
-    monitoring:
-      enabled: false
+      istiod:
+        enabled: false
+      monitoring:
+        enabled: false
   template: argocd/helmrelease.yaml
   asserts:
   - equal:
@@ -713,11 +743,12 @@ tests:
 
 - it: gatekeeper should render a custom HelmRelease dependency
   set:
-    gatekeeper:
-      enabled: true
-      dependsOnOverride:
-        - name: external-operator
-          namespace: operators
+    packages:
+      gatekeeper:
+        enabled: true
+        dependsOnOverride:
+          - name: external-operator
+            namespace: operators
   template: gatekeeper/helmrelease.yaml
   asserts:
   - equal:
@@ -728,15 +759,16 @@ tests:
 
 - it: monitoring dependsOnOverride replaces all BB defaults
   set:
-    monitoring:
-      enabled: true
-      dependsOnOverride:
-        - name: user-dep
-          namespace: custom
-    istiod:
-      enabled: true
-    certManager:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
+        dependsOnOverride:
+          - name: user-dep
+            namespace: custom
+      istiod:
+        enabled: true
+      certManager:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -747,11 +779,12 @@ tests:
 
 - it: monitoring dependsOn appends to BB defaults
   set:
-    monitoring:
-      enabled: true
-      dependsOn:
-        - name: user-dep
-          namespace: custom
+    packages:
+      monitoring:
+        enabled: true
+        dependsOn:
+          - name: user-dep
+            namespace: custom
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
@@ -771,8 +804,9 @@ tests:
 
 - it: monitoring should always depend on prometheus-operator-crds
   set:
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
@@ -783,10 +817,11 @@ tests:
 
 - it: monitoring should depend on istiod when istio is enabled
   set:
-    monitoring:
-      enabled: true
-    istiod:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
+      istiod:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
@@ -797,10 +832,11 @@ tests:
 
 - it: monitoring should not depend on istiod when istio is disabled
   set:
-    monitoring:
-      enabled: true
-    istiod:
-      enabled: false
+    packages:
+      monitoring:
+        enabled: true
+      istiod:
+        enabled: false
   template: monitoring/helmrelease.yaml
   asserts:
   - notContains:
@@ -814,11 +850,11 @@ tests:
     istio:
       ambient:
         enabled: true
-    addons:
+    packages:
       authservice:
         enabled: true
-    monitoring:
-      enabled: false
+      monitoring:
+        enabled: false
   template: authservice/helmrelease.yaml
   asserts:
   - contains:
@@ -829,13 +865,13 @@ tests:
 
 - it: authservice should depend on gateway-api when ambient mode is enabled via ztunnel
   set:
-    ztunnel:
-      enabled: true
-    addons:
+    packages:
+      ztunnel:
+        enabled: true
       authservice:
         enabled: true
-    monitoring:
-      enabled: false
+      monitoring:
+        enabled: false
   template: authservice/helmrelease.yaml
   asserts:
   - contains:
@@ -846,13 +882,13 @@ tests:
 
 - it: standalone gateway-api should not make sidecar authservice depend on it
   set:
-    gatewayAPI:
-      enabled: true
-    addons:
+    packages:
+      gatewayAPI:
+        enabled: true
       authservice:
         enabled: true
-    monitoring:
-      enabled: false
+      monitoring:
+        enabled: false
   template: authservice/helmrelease.yaml
   asserts:
   - notContains:
@@ -863,8 +899,9 @@ tests:
 
 - it: ztunnel-enabled ambient mode should render ztunnel with its istio-cni dependency
   set:
-    ztunnel:
-      enabled: true
+    packages:
+      ztunnel:
+        enabled: true
   template: ztunnel/helmrelease.yaml
   asserts:
   - isKind:
@@ -880,8 +917,9 @@ tests:
 
 - it: ztunnel-enabled ambient mode should render istio-cni
   set:
-    ztunnel:
-      enabled: true
+    packages:
+      ztunnel:
+        enabled: true
   template: istio-cni/helmrelease.yaml
   asserts:
   - isKind:
@@ -892,8 +930,9 @@ tests:
 
 - it: ztunnel-enabled ambient mode should render gateway-api
   set:
-    ztunnel:
-      enabled: true
+    packages:
+      ztunnel:
+        enabled: true
   template: gateway-api/helmrelease.yaml
   asserts:
   - isKind:
@@ -917,8 +956,9 @@ tests:
 
 - it: explicit istio-cni should not render ztunnel
   set:
-    istioCNI:
-      enabled: true
+    packages:
+      istioCNI:
+        enabled: true
   template: ztunnel/helmrelease.yaml
   asserts:
   - hasDocuments:
@@ -926,8 +966,9 @@ tests:
 
 - it: explicit gateway-api should render outside ambient mode
   set:
-    gatewayAPI:
-      enabled: true
+    packages:
+      gatewayAPI:
+        enabled: true
   template: gateway-api/helmrelease.yaml
   asserts:
   - isKind:
@@ -941,8 +982,9 @@ tests:
     istio:
       ambient:
         enabled: true
-    monitoring:
-      enabled: true
+    packages:
+      monitoring:
+        enabled: true
   template: monitoring/helmrelease.yaml
   asserts:
   - contains:
@@ -953,10 +995,11 @@ tests:
 
 - it: kyverno-policies should always depend on kyverno
   set:
-    kyvernoPolicies:
-      enabled: true
-    kyverno:
-      enabled: true
+    packages:
+      kyvernoPolicies:
+        enabled: true
+      kyverno:
+        enabled: true
   template: kyverno-policies/helmrelease.yaml
   asserts:
   - contains:
@@ -965,12 +1008,42 @@ tests:
         name: kyverno
       any: true
 
+- it: kyverno-policies should retain the default dependency for null override
+  set:
+    packages:
+      kyvernoPolicies:
+        enabled: true
+        dependsOnOverride: null
+      kyverno:
+        enabled: true
+  template: kyverno-policies/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: kyverno
+      any: true
+
+- it: kyverno-policies should suppress dependencies for an explicit empty override
+  set:
+    packages:
+      kyvernoPolicies:
+        enabled: true
+        dependsOnOverride: []
+      kyverno:
+        enabled: true
+  template: kyverno-policies/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.dependsOn
+
 - it: elasticsearch-kibana should always depend on eck-operator
   set:
-    elasticsearchKibana:
-      enabled: true
-    eckOperator:
-      enabled: true
+    packages:
+      elasticsearchKibana:
+        enabled: true
+      eckOperator:
+        enabled: true
   template: elasticsearch-kibana/helmrelease.yaml
   asserts:
   - contains:
@@ -981,8 +1054,9 @@ tests:
 
 - it: gatekeeper should have no dependsOn
   set:
-    gatekeeper:
-      enabled: true
+    packages:
+      gatekeeper:
+        enabled: true
   template: gatekeeper/helmrelease.yaml
   asserts:
   - notExists:
@@ -990,8 +1064,9 @@ tests:
 
 - it: prometheus-operator-crds should have no dependsOn
   set:
-    prometheusOperatorCRDs:
-      enabled: true
+    packages:
+      prometheusOperatorCRDs:
+        enabled: true
   template: prometheus-operator-crds/helmrelease.yaml
   asserts:
   - notExists:
@@ -1003,10 +1078,11 @@ tests:
 
 - it: eck-operator should render when elasticsearchKibana is enabled
   set:
-    eckOperator:
-      enabled: false
-    elasticsearchKibana:
-      enabled: true
+    packages:
+      eckOperator:
+        enabled: false
+      elasticsearchKibana:
+        enabled: true
   template: eck-operator/helmrelease.yaml
   asserts:
   - isKind:
@@ -1014,10 +1090,11 @@ tests:
 
 - it: kyverno should render when kyvernoPolicies is enabled
   set:
-    kyverno:
-      enabled: false
-    kyvernoPolicies:
-      enabled: true
+    packages:
+      kyverno:
+        enabled: false
+      kyvernoPolicies:
+        enabled: true
   template: kyverno/helmrelease.yaml
   asserts:
   - isKind:
@@ -1025,7 +1102,7 @@ tests:
 
 - it: minio-operator should render when minio is enabled
   set:
-    addons:
+    packages:
       minioOperator:
         enabled: false
       minio:
@@ -1041,7 +1118,7 @@ tests:
 
 - it: sonarqube should not have an empty inline values block
   set:
-    addons:
+    packages:
       sonarqube:
         enabled: true
   template: sonarqube/helmrelease.yaml
@@ -1059,10 +1136,11 @@ tests:
   set:
     flux:
       timeout: 10m
-    monitoring:
-      enabled: true
-      flux:
-        timeout: 30m
+    packages:
+      monitoring:
+        enabled: true
+        flux:
+          timeout: 30m
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -1073,9 +1151,10 @@ tests:
   set:
     flux:
       timeout: 10m
-    monitoring:
-      enabled: true
-      flux: {}
+    packages:
+      monitoring:
+        enabled: true
+        flux: {}
   template: monitoring/helmrelease.yaml
   asserts:
   - equal:
@@ -1088,7 +1167,7 @@ tests:
 
 - it: mattermost-operator should render when mattermost is enabled
   set:
-    addons:
+    packages:
       mattermostOperator:
         enabled: false
       mattermost:
@@ -1107,10 +1186,11 @@ tests:
 
 - it: istiod should fail when istioCRDs is disabled
   set:
-    istiod:
-      enabled: true
-    istioCRDs:
-      enabled: false
+    packages:
+      istiod:
+        enabled: true
+      istioCRDs:
+        enabled: false
   template: istiod/helmrelease.yaml
   asserts:
   - failedTemplate:
@@ -1122,10 +1202,11 @@ tests:
 
 - it: istio-cni should fail when istiod is disabled
   set:
-    istioCNI:
-      enabled: true
-    istiod:
-      enabled: false
+    packages:
+      istioCNI:
+        enabled: true
+      istiod:
+        enabled: false
   template: istio-cni/helmrelease.yaml
   asserts:
   - failedTemplate:

@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Kiali workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.kiali" -}}
-{{- if .Values.kiali.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "kiali")) "true" }}
 # The Kiali operator needs to deploy the Kiali server before securitycontext is set.
 kiali-require-non-root-user:
   spec:

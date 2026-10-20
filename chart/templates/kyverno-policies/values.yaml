@@ -1,13 +1,17 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoPolicies" }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $kyvernoPolicies := default (dict) (get $packages $pkg) }}
 
-{{- if (get .Values $pkg).enabled }}
+{{- if default false (get $kyvernoPolicies "enabled") }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.kyverno-policies" .))) "name" "kyverno-policies" "defaults" (include "bigbang.defaults.kyverno-policies" .) "injectCommonDefaults" false) }}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno-policies" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $deployNodeAgent := (and .Values.addons.velero.enabled (dig "deployNodeAgent" false .Values.addons.velero.values)) }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $velero := default (dict) (get $packages "velero") }}
+{{- $deployNodeAgent := and (default false (get $velero "enabled")) (dig "deployNodeAgent" false (default (dict) (get $velero "values"))) }}
 
 additionalPolicyExceptions:
   {{- include "bigbang.kyvernoPolicyExceptions.ztunnel" . | nindent 2 }}
@@ -435,7 +439,8 @@ policies:
   restrict-host-path-write:
     enabled: true
     validationFailureAction: Enforce
-    {{- if .Values.fluentbit.enabled }}
+    {{- $fluentbit := default (dict) (get $packages "fluentbit") }}
+    {{- if default false (get $fluentbit "enabled") }}
     parameters:
       allow:
         # Fluent Bit buffering/persistent state and node log tailing.
@@ -506,8 +511,10 @@ istio:
 {{- /* The end user will not have to replicate exclusions from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
+  {{- $packages := default (dict) .Values.packages }}
+  {{- $kyvernoPolicies := default (dict) (get $packages "kyvernoPolicies") }}
   {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
-  {{- $overlays := dig "values" dict .Values.kyvernoPolicies -}}
+  {{- $overlays := dig "values" dict $kyvernoPolicies }}
 
   {{- /* Policy specific merges.  Without these a user/test overlay REPLACES bigbang's
          policies.<policy> list values rather than appending to them. */ -}}

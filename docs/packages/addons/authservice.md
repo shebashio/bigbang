@@ -64,7 +64,7 @@ spec:
 This label can be adjusted via following values in the Big Bang chart:
 
 ```yaml
-addons:
+packages:
   authservice:
     values:
       selector:
@@ -76,7 +76,7 @@ The corresponding chain loaded in to authservice via the values in the Big Bang 
 For more information see the [README.md](https://repo1.dso.mil/big-bang/product/packages/authservice/-/blob/main/README.md) in the Authservice package.
 
 ```yaml
-addons:
+packages:
   authservice:
     chains:
       example:
@@ -91,7 +91,7 @@ addons:
 Authservice can be configured to use a local redis deployment (disabled by default) for distributed state storage. This Redis instance is used cache session data.
 
 ```yaml
-addons:
+packages:
   authservice:
     values:
       redis:
@@ -101,7 +101,7 @@ addons:
 Authservice can also be configured to communicate with external Redis services such as ElastiCache.
 
 ```yaml
-addons:
+packages:
   authservice:
     values:
       global:
@@ -115,7 +115,7 @@ Big Bang automatically creates one outbound route on port `6379`, preferring
 entry for each additional host:
 
 ```yaml
-addons:
+packages:
   authservice:
     values:
       routes:
@@ -137,7 +137,7 @@ When setting `replicaCount` above `1`, Authservice will require an HA redis depl
 Authservice also utilizes a horizontal pod autoscaler, which can be configured with min & max replicas and target CPU & memory utilization:
 
 ```yaml
-addons:
+packages:
   authservice:
     values:
       replicaCount: 2

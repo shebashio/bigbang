@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Twistlock (Prisma Cloud Defender) workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.twistlock" -}}
-{{- if .Values.twistlock.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "twistlock")) "true" }}
 # Twistlock Defenders run privileged on every node for real-time scanning
 # (logs, /etc/passwd, container runtime socket, iptables), so they need broad
 # carve-outs from the restricted Pod Security policies.

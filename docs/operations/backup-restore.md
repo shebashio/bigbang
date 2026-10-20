@@ -7,9 +7,9 @@
 ### Gitlab Helm Chart Configuration
 
 1. Follow the [Protect the Rails Secret](../configuration/production-considerations/gitlab.md#protect-the-rails-secret) guidance in the GitLab production considerations.
-1. Fill in our externalStorage values, specifically `addons.gitlab.objectStorage.iamProfile` or both `.Values.addons.gitlab.objectStorage.accessKey` & `.Values.addons.gitlab.objectStorage.accessSecret` along with `.Values.addons.gitlab.objectStorage.bucketPrefix` or you can override in the name for your own bucket eg:
+1. Fill in our externalStorage values, specifically `packages.gitlab.objectStorage.iamProfile` or both `.Values.packages.gitlab.objectStorage.accessKey` & `.Values.packages.gitlab.objectStorage.accessSecret` along with `.Values.packages.gitlab.objectStorage.bucketPrefix` or you can override in the name for your own bucket eg:
 ```yaml
-addons:
+packages:
   gitlab:
     values:
       global:
@@ -19,7 +19,7 @@ addons:
 ```
 * If you would like to perform manual backups, you will need to ensure the `tmp` location in the toolbox pod has a PVC attached:
 ```yaml
-addons:
+packages:
   gitlab:
     values:
       gitlab:
@@ -50,7 +50,7 @@ You can read more on the upstream documentation: https://docs.gitlab.com/charts/
 
 It is recommended to set up automatic backups via Gitlab toolbox's cron settings:
 ```yaml
-addons:
+packages:
   gitlab:
     values:
       gitlab:

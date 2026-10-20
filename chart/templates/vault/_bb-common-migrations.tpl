@@ -1,6 +1,6 @@
 {{- define "bigbang.vault.bb-common-migrations" }}
 {{/* TODO: Remove this migration template for bb 4.0 */}}
-{{- $kmsCidrs := dig "networkPolicies" "egress" "definitions" "kms" "to" (list (dict "ipBlock" (dict "cidr" "0.0.0.0/0"))) .Values.addons.vault.values }}
+{{- $kmsCidrs := dig "networkPolicies" "egress" "definitions" "kms" "to" (list (dict "ipBlock" (dict "cidr" "0.0.0.0/0"))) .Values.packages.vault.values }}
 
 networkPolicies:
   egress:

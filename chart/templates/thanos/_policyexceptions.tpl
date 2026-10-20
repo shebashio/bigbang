@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Thanos workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.thanos" -}}
-{{- if .Values.addons.thanos.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "thanos")) "true" }}
 # The Thanos compactor needs its API token.
 thanos-compactor-auto-mount:
   spec:

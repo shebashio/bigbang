@@ -36,17 +36,18 @@ graph TB
 Persistent storage for both Elasticsearch Master and Data nodes can be configured with the following values:
 
 ```yaml
-elasticsearchKibana:
-  values:
-    elasticsearch:
-      master:
-      persistence:
-        storageClassName: ""
-        size: 10Gi
-      data:
-      persistence:
-        storageClassName: ""
-        size: 20Gi
+packages:
+  elasticsearchKibana:
+    values:
+      elasticsearch:
+        master:
+          persistence:
+            storageClassName: ""
+            size: 10Gi
+        data:
+          persistence:
+            storageClassName: ""
+            size: 20Gi
 ```
 
 ### Istio Configuration
@@ -62,18 +63,19 @@ istio:
 These values get passed into the logging chart [here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/templates/elasticsearch-kibana/values.yaml#L6). This creates the Istio virtual service and maps to the main istio gateway for bigbang. The Kibana GUI is available behind this Istio VirtualService that is configured automatically at "kibana.{{ .Values.hostname }}" (value set above) and can be configured with the following values:
 
 ```yaml
-elasticsearchKibana:
-  values:
-    istio:
-      kibana:
-        # Toggle vs creation
-        enabled: true
-        annotations: {}
-        labels: {}
-        gateways:
-          - istio-system/main
-        hosts:
-          - kibana.{{ .Values.hostname }}
+packages:
+  elasticsearchKibana:
+    values:
+      istio:
+        kibana:
+          # Toggle vs creation
+          enabled: true
+          annotations: {}
+          labels: {}
+          gateways:
+            - istio-system/main
+          hosts:
+            - kibana.{{ .Values.hostname }}
 ```
 
 ## High Availability
@@ -81,15 +83,16 @@ elasticsearchKibana:
 This can be accomplished by increasing the "count" or number of replicas in each deployment in the stack:
 
 ```yaml
-elasticsearchKibana:
-  values:
-    kibana:
-      count: 1
-    elasticsearch:
-      master:
-        count: 3
-      data:
-        count: 4
+packages:
+  elasticsearchKibana:
+    values:
+      kibana:
+        count: 1
+      elasticsearch:
+        master:
+          count: 3
+        data:
+          count: 4
 ```
 
 ## Single Sign On (SSO)
@@ -97,15 +100,22 @@ elasticsearchKibana:
 SSO integration for the eck stack requires a license (see below) and can be configured with the following values:
 
 ```yaml
-elasticsearchKibana:
-  sso:
-    # -- Toggle OIDC SSO for Kibana/Elasticsearch on and off.
-    # Enabling this option will auto-create any required secrets.
-    enabled: true
-    # -- Elasticsearch/Kibana OIDC client ID
-    client_id: "EXAMPLE_OIDC_CLIENT"
-    # -- Elasticsearch/Kibana OIDC client secret
-    client_secret: "EXAMPLE_OIDC_CLIENT_SECRET"
+packages:
+  elasticsearchKibana:
+    sso:
+      # -- Toggle OIDC SSO for Kibana/Elasticsearch on and off.
+      # Enabling this option will auto-create any required secrets.
+      enabled: true
+      # -- Elasticsearch/Kibana OIDC client ID
+      client_id: "EXAMPLE_OIDC_CLIENT"
+      # -- Elasticsearch/Kibana OIDC client secret
+      client_secret: "EXAMPLE_OIDC_CLIENT_SECRET"
+      # -- Optional OIDC claim pattern for the authenticated principal.
+      claims_principal_pattern: ""
+      # -- Optional additional scopes requested from the OIDC provider.
+      requested_scopes: []
+      # -- Optional OIDC signature algorithm.
+      signature_algorithm: ""
 ```
 
 ## Licensing
@@ -114,11 +124,12 @@ Features like SSO integration, email/slack/Pagerduty alerting, FIPS 140-2 mode, 
 Licensing can be configured with the following values:
 
 ```yaml
-elasticsearchKibana:
-  license:
-    trial: false
-    keyJSON: |
-      {"license":{"uid":....}}
+packages:
+  elasticsearchKibana:
+    license:
+      trial: false
+      keyJSON: |
+        {"license":{"uid":....}}
 ```
 
 ## Health Checks

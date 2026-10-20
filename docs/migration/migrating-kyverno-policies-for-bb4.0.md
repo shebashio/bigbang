@@ -7,11 +7,11 @@ newer, CEL-based policy CRDs (`ValidatingPolicy`, `MutatingPolicy`,
 `PolicyException` resources in the `policies.kyverno.io/v1` API group.
 
 This guide explains **why** the change is happening, **what** changed, and **how
-to update your `kyvernoPolicies` values** so your policy tuning and exceptions
+to update your `packages.kyvernoPolicies` values** so your policy tuning and exceptions
 keep working.
 
 > **Who needs to read this?** Anyone who sets anything under
-> `kyvernoPolicies.values` in their Big Bang configuration: custom
+> `packages.kyvernoPolicies.values` in their Big Bang configuration: custom
 > `validationFailureAction`, policy `parameters`, per-policy `exclude` blocks,
 > `additionalPolicies`, or `additionalPolicyExceptions`. If you deploy
 > `kyvernoPolicies` with defaults and never override policy behavior, no action
@@ -27,11 +27,11 @@ purpose-built, CEL-based policy types:
 - `MutatingPolicy`, `GeneratingPolicy`, and `DeletingPolicy` followed in
   **v1.15** (July 2025).
 - Kyverno **1.16** (November 2025) shipped these types at `v1beta1`.
-- Kyverno **1.17** (February 2026) promoted them to **`v1` (GA / production
-  ready)** and formally **marked `ClusterPolicy` as deprecated**.
-- Kyverno **1.20** (planned for **October 2026**) **removes the legacy
-  `ClusterPolicy` API entirely.** Versions 1.18 and 1.19 receive only critical
-  fixes for the legacy API in the interim.
+- Kyverno **1.17** (February 2026) made the `v1` APIs available and marked the
+  legacy types for deprecation.
+- Kyverno **1.18** (April 2026) made the CEL policy types stable.
+- Kyverno **1.19** (August 2026) formally deprecated `ClusterPolicy` and the
+  legacy policy-exception APIs, with removal planned for Kyverno 1.20.
 
 The move to [CEL (Common Expression
 Language)](https://kubernetes.io/docs/reference/using-api/cel/) mirrors the
@@ -91,12 +91,12 @@ section 3 below.
 | Global namespace exclude | `exclude.any[].resources.namespaces` | `policies.excludeNamespaces` |
 | Global container exclude | `excludeContainers` (top level) | `policies.excludeContainers` |
 | Per-policy preconditions | `policyPreconditions` | Per-policy `matchConditions` (CEL) |
-| Custom policies | `additionalPolicies` with `kind: ClusterPolicy`/`Policy` | `additionalPolicies` with `kind: ValidatingPolicy`/`MutatingPolicy`/`GeneratingPolicy`/`ImageValidatingPolicy`/`DeletingPolicy` |
+| Custom policies | `additionalPolicies` with `kind: ClusterPolicy`/`Policy` | `additionalPolicies` with `kind: ValidatingPolicy`/`MutatingPolicy`/`GeneratingPolicy`/`ImageValidatingPolicy` |
 | Policy tuning (`validationFailureAction`, `parameters`) | `policies.<name>.*` | `policies.<name>.*` (same key; see notes below) |
 
 The single most important thing to know: **the top-level `policies` key and the
 policy names did not change.** In both 3.x and 4.x you configure a policy at
-`kyvernoPolicies.values.policies.<policy-name>` (for example
+`packages.kyvernoPolicies.values.policies.<policy-name>` (for example
 `policies.restrict-image-registries`). What changed is the *shape* of a few
 fields inside that block, and, most significantly, how you write **exceptions**.
 
@@ -155,7 +155,7 @@ policies are not composed of named rules.
 
 ## How to Migrate Your `kyvernoPolicies` Values
 
-Everything below is configured under `kyvernoPolicies.values` in your Big Bang
+Everything below is configured under `packages.kyvernoPolicies.values` in your Big Bang
 values (or a package overlay). Work through the sections that apply to you.
 
 ### 1. Policy tuning (`validationFailureAction`, `parameters`)
@@ -164,11 +164,12 @@ values (or a package overlay). Work through the sections that apply to you.
 `Warn` per policy:
 
 ```yaml
-kyvernoPolicies:
-  values:
-    policies:
-      restrict-host-ports:
-        validationFailureAction: Audit   # unchanged
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-host-ports:
+          validationFailureAction: Audit   # unchanged
 ```
 
 > **Watch the capitalization.** The value is now matched **case-sensitively**.
@@ -212,6 +213,9 @@ policies:
         - 192.168.0.?*
         - 10.0.0.5
 
+```
+
+```yaml
 # AFTER (4.x)
 policies:
   restrict-external-ips:
@@ -236,6 +240,9 @@ policies:
         - app.kubernetes.io/name
         - "app.kubernetes.io/managed-by: Helm"
 
+```
+
+```yaml
 # AFTER (4.x)
 policies:
   require-labels:
@@ -260,6 +267,9 @@ policies:
         - 443
         - 8443
 
+```
+
+```yaml
 # AFTER (4.x)
 policies:
   restrict-host-ports:
@@ -284,6 +294,9 @@ policies:
         - registry1.dso.mil*
         - registry.dso.mil*
 
+```
+
+```yaml
 # AFTER (4.x)
 policies:
   restrict-image-registries:
@@ -320,14 +333,18 @@ kyvernoPolicies:
     excludeContainers:
       - istio-init
 
+```
+
+```yaml
 # AFTER (4.x)
-kyvernoPolicies:
-  values:
-    policies:
-      excludeNamespaces:
-        - kube-system
-      excludeContainers:
-        - istio-init
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        excludeNamespaces:
+          - kube-system
+        excludeContainers:
+          - istio-init
 ```
 
 `excludeNamespaces` and `excludeContainers` can also be set **per policy** under
@@ -375,26 +392,27 @@ policy the workload needs exempting from:
 
 ```yaml
 # AFTER (4.x)
-kyvernoPolicies:
-  values:
-    additionalPolicyExceptions:
-      my-app:
-        # Optional metadata/annotations for documentation
-        metadata:
-          annotations:
-            policies.kyverno.io/description: >-
-              Allows my-app to mount host paths and run as root.
-        spec:
-          policyRefs:
-            - name: restrict-host-path-mount
-              kind: ValidatingPolicy
-            - name: require-non-root-user
-              kind: ValidatingPolicy
-          matchConditions:
-            - name: my-app
-              expression: >-
-                object.metadata.namespace == 'my-namespace' &&
-                object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('my-app')
+packages:
+  kyvernoPolicies:
+    values:
+      additionalPolicyExceptions:
+        my-app:
+          # Optional metadata/annotations for documentation
+          metadata:
+            annotations:
+              policies.kyverno.io/description: >-
+                Allows my-app to mount host paths and run as root.
+          spec:
+            policyRefs:
+              - name: restrict-host-path-mount
+                kind: ValidatingPolicy
+              - name: require-non-root-user
+                kind: ValidatingPolicy
+            matchConditions:
+              - name: my-app
+                expression: >-
+                  object.metadata.namespace == 'my-namespace' &&
+                  object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('my-app')
 ```
 
 #### From a legacy `additionalPolicyExceptions` entry
@@ -419,6 +437,9 @@ additionalPolicyExceptions:
               namespaces: [my-namespace]
               names: [my-app*]
 
+```
+
+```yaml
 # AFTER (4.x, policies.kyverno.io/v1)
 additionalPolicyExceptions:
   my-exception:
@@ -485,7 +506,7 @@ matchConditions:
 If you ship your own policies through `additionalPolicies`, two things changed:
 
 - `kind` must now be one of `ValidatingPolicy`, `MutatingPolicy`,
-  `GeneratingPolicy`, `ImageValidatingPolicy`, or `DeletingPolicy` (no longer
+  `GeneratingPolicy`, or `ImageValidatingPolicy` (no longer
   `ClusterPolicy` / `Policy`).
 - `spec` must be a CEL policy spec for that kind, not a `ClusterPolicy` rules
   block. See the [Kyverno policy types
@@ -494,7 +515,7 @@ If you ship your own policies through `additionalPolicies`, two things changed:
 
 ## Reference: Complete Values Field Mapping
 
-| Big Bang 3.x (`kyvernoPolicies.values.…`) | Big Bang 4.x (`kyvernoPolicies.values.…`) |
+| Big Bang 3.x (`kyvernoPolicies.values.…`) | Big Bang 4.x (`packages.kyvernoPolicies.values.…`) |
 | --- | --- |
 | `policies.<name>.enabled` | `policies.<name>.enabled` (unchanged) |
 | `policies.<name>.validationFailureAction` | `policies.<name>.validationFailureAction` (unchanged) |
