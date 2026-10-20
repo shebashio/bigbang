@@ -42,6 +42,34 @@ graph LR
   end
 ```
 
+## Upgrade Notices: bb-common subchart
+
+Monitoring 91.4.1-bb.2 requires the paired umbrella wiring for bb-common subchart
+mode. Move package overrides from `monitoring.values.istio`,
+`monitoring.values.networkPolicies`, and `monitoring.values.routes` to
+`monitoring.values.bb-common.istio`, `monitoring.values.bb-common.networkPolicies`,
+and `monitoring.values.bb-common.routes`. With package configuration v1, use
+`packages.monitoring` instead of `monitoring`.
+
+Replace package `domain` and `upstream.domain` overrides with `global.domain`.
+Remove package `istio.injection`; the umbrella controls namespace injection and
+sets mesh mode in bb-common. Standalone chart users must explicitly enable each
+inbound route and keep its service and port aligned with upstream overrides.
+Custom route templates run in the bb-common scope and cannot read parent
+`upstream` values.
+
+Configure API-server egress through
+`networkPolicies.egress.definitions.kubeAPI`. Monitoring no longer builds this
+definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
+`controlPlaneCidr` continues to control admission-webhook ingress.
+
+Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
+`bb-common.istio.authorizationPolicies.custom`. The umbrella still translates
+legacy hardened custom resource lists at both the flat and nested paths.
+Ambient SSO enrollment and client policies now reference the rendered
+`monitoring-waypoint` Gateway; update external policies that selected
+`monitoring-monitoring-waypoint`.
+
 ## Big Bang Touchpoints
 
 ### UI

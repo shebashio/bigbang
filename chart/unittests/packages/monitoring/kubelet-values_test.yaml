@@ -7,7 +7,7 @@ tests:
     set:
       packages.loki.enabled: true
       packages.loki.clusterName: regression-cluster
-      packages.monitoring.values.istio.mtls.mode: STRICT
+      packages.monitoring.values.bb-common.istio.mtls.mode: STRICT
       packages.istiod.enabled: true
       packages.prometheusOperatorCRDs.enabled: true
     postRenderer: &defaults

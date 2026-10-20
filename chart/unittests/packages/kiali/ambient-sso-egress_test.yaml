@@ -1,0 +1,44 @@
+suite: Package - Kiali - Ambient SSO Egress
+templates:
+  - templates/kiali/values.yaml
+set:
+  packages.kiali.enabled: true
+  packages.istiod.enabled: true
+  packages.monitoring.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.defaults' - | yq eval '.'"
+tests:
+  - it: allows the monitoring waypoint when ambient SSO enrolls Prometheus
+    set:
+      istio.ambient.enabled: true
+      packages.monitoring.sso.enabled: true
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"].podSelector.matchLabels["gateway.networking.k8s.io/gateway-name"]
+          value: monitoring-monitoring-waypoint
+      - notExists:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+  - it: keeps direct Prometheus egress in ambient mode without SSO
+    set:
+      istio.ambient.enabled: true
+      packages.monitoring.sso.enabled: false
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+          value: true
+      - notExists:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]
+  - it: keeps direct Prometheus egress for sidecar SSO
+    set:
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: false
+      packages.monitoring.sso.enabled: true
+    asserts:
+      - equal:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+          value: true
+      - notExists:
+          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]
