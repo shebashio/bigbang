@@ -27,15 +27,11 @@ BigBang core and addon packages ship with various network policies already confi
 networkPolicies:
   enabled: [true|false]
 
-# Packages that still consume bb-common as a library chart use the flat values shape.
+# For an integrated package that consumes bb-common as a subchart, this will
+# turn network policies on or off for that package. User-defined packages that
+# consume bb-common as a subchart use the same nested values shape.
 packages:
   LIBRARY_PACKAGE_NAME:
-    values:
-      networkPolicies:
-        enabled: [true|false]
-
-# Packages that consume bb-common as a regular subchart use Helm's nested values shape.
-  SUBCHART_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:
@@ -62,24 +58,21 @@ can override the generated setting beneath
 
 Sometimes you will want to apply additional [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to further isolate certain pods in your deployment. BigBang has adopted standardized mechanisms for crafting and deploying these Network Policies through the values provided to your BigBang core, supported addon or packages deployed with the big bang wrapper chart.
 
-For packages that still consume `bb-common` as a library chart, place these
-rules directly in the package values. For packages that consume `bb-common` as
-a regular subchart, place them beneath that dependency's values key:
+For an integrated package that consumes `bb-common` as a subchart, place these
+rules beneath that dependency's values key:
 
 ```
 packages:
   LIBRARY_PACKAGE_NAME:
-    values:
-      networkPolicies:
-        enabled: true
-        additionalPolicies: []
-  SUBCHART_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:
           enabled: true
           additionalPolicies: []
 ```
+
+User-defined packages own their internal values contract. When such a package
+consumes `bb-common` as a subchart, use the same nested shape.
 
 User-defined packages own their internal values contract. When such a package
 consumes `bb-common` as a subchart, use the same nested shape.

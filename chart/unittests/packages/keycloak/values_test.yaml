@@ -5,7 +5,7 @@ templates:
 release:
   name: bb
 tests:
-  - it: should render http-only defaults when ingress.cert and ingress.key are empty
+  - it: relocates istio/networkPolicies/routes out of defaults and moves domain to global.domain
     postRenderer:
       cmd: "sh"
       args:
@@ -14,12 +14,62 @@ tests:
     set:
       packages.keycloak.enabled: true
     asserts:
+      - isNotNull:
+          path: global.domain
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies
+
+  - it: nests istio/networkPolicies/routes under bb-common in common and drops library-era istio keys
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.keycloak.enabled: true
+    asserts:
+      - isNotNull:
+          path: bb-common.routes.inbound.keycloak
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - isNotNull:
+          path: bb-common.istio
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+
+  - it: should render http-only route defaults under bb-common when ingress.cert and ingress.key are empty
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.keycloak.enabled: true
+    asserts:
       - equal:
-          path: routes.inbound.keycloak.port
+          path: bb-common.routes.inbound.keycloak.port
           value: 8080
       - equal:
-          path: routes.inbound.keycloak.passthrough.enabled
+          path: bb-common.routes.inbound.keycloak.passthrough.enabled
           value: false
+
+  - it: should render http-only upstream defaults when ingress.cert and ingress.key are empty
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      packages.keycloak.enabled: true
+    asserts:
       - equal:
           path: upstream.proxy.mode
           value: xforwarded
@@ -34,7 +84,25 @@ tests:
       - notExists:
           path: upstream.extraVolumes
 
-  - it: should render https defaults when ingress.cert and ingress.key are set
+  - it: should render https route defaults under bb-common when ingress.cert and ingress.key are set
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-keycloak-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.keycloak.enabled: true
+      packages.keycloak.ingress.cert: "test-cert"
+      packages.keycloak.ingress.key: "test-key"
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.keycloak.port
+          value: 8443
+      - equal:
+          path: bb-common.routes.inbound.keycloak.passthrough.enabled
+          value: true
+
+  - it: should render https upstream secrets when ingress.cert and ingress.key are set
     postRenderer:
       cmd: "sh"
       args:
@@ -45,12 +113,6 @@ tests:
       packages.keycloak.ingress.cert: "test-cert"
       packages.keycloak.ingress.key: "test-key"
     asserts:
-      - equal:
-          path: routes.inbound.keycloak.port
-          value: 8443
-      - equal:
-          path: routes.inbound.keycloak.passthrough.enabled
-          value: true
       - isNotNull:
           path: upstream.secrets.tlscert
       - isNotNull:
