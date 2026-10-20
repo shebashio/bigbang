@@ -45,7 +45,7 @@ tests:
           path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[1].ipBlock.cidr
           value: 172.16.0.0/12
 
-  - it: should derive chat host and sidecar gossip from umbrella configuration
+  - it: should derive chat host and preserve sidecar injection from umbrella configuration
     postRenderer:
       cmd: sh
       args:
@@ -65,10 +65,12 @@ tests:
           path: global.domain
           value: example.com
       - equal:
-          path: gossipService.enabled
-          value: true
+          path: istio.injection
+          value: enabled
       - notExists:
-          path: istio
+          path: bb-common.istio.injection
+      - notExists:
+          path: istio.enabled
       - notExists:
           path: networkPolicies
       - notExists:
