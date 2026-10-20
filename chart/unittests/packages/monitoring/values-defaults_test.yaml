@@ -38,10 +38,10 @@ tests:
     asserts:
       - notExists:
           path: upstream.kubernetesServiceMonitors
-  - it: should keep istio cert mounts when hardened sidecar is enabled
+  - it: should keep istio cert mounts when legacy package hardening is enabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
+      packages.monitoring.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -61,7 +61,6 @@ tests:
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
     asserts:
       - equal:
           path: istio.sidecar.enabled
@@ -81,7 +80,6 @@ tests:
   - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.monitoring.values.istio.sidecar.enabled: true
     asserts:
       - equal:
@@ -130,7 +128,6 @@ tests:
   - it: should prioritize prometheusOperatorCRDs namespace injection over grafana when CRDs own monitoring namespace
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.prometheusOperatorCRDs.enabled: true
       packages.grafana.enabled: true
       packages.grafana.istio.injection: disabled
@@ -144,7 +141,6 @@ tests:
   - it: should use grafana namespace injection when prometheusOperatorCRDs is disabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.prometheusOperatorCRDs.enabled: false
       packages.grafana.enabled: true
       packages.grafana.istio.injection: disabled
