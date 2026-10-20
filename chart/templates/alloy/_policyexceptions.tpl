@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Grafana Alloy workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.alloy" -}}
-{{- if .Values.packages.alloy.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "alloy")) "true" }}
 # alloy-logs needs privileged host access (journald, /var/log, container logs).
 alloy-logs:
   spec:

@@ -1008,6 +1008,35 @@ tests:
         name: kyverno
       any: true
 
+- it: kyverno-policies should retain the default dependency for null override
+  set:
+    packages:
+      kyvernoPolicies:
+        enabled: true
+        dependsOnOverride: null
+      kyverno:
+        enabled: true
+  template: kyverno-policies/helmrelease.yaml
+  asserts:
+  - contains:
+      path: spec.dependsOn
+      content:
+        name: kyverno
+      any: true
+
+- it: kyverno-policies should suppress dependencies for an explicit empty override
+  set:
+    packages:
+      kyvernoPolicies:
+        enabled: true
+        dependsOnOverride: []
+      kyverno:
+        enabled: true
+  template: kyverno-policies/helmrelease.yaml
+  asserts:
+  - notExists:
+      path: spec.dependsOn
+
 - it: elasticsearch-kibana should always depend on eck-operator
   set:
     packages:

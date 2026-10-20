@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for External Secrets Operator workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.externalSecrets" -}}
-{{- if .Values.packages.externalSecrets.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "externalSecrets")) "true" }}
 # External Secrets needs its API token to reconcile secrets.
 external-secrets-auto-mount:
   spec:

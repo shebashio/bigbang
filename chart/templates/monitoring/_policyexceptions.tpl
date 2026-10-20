@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Monitoring (kube-prometheus-stack) workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.monitoring" -}}
-{{- if .Values.packages.monitoring.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "monitoring")) "true" }}
 # Prometheus node-exporter mounts host /, /proc and /sys to gather node metrics.
 monitoring-node-exporter:
   spec:

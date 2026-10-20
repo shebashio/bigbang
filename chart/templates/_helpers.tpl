@@ -960,6 +960,13 @@ valuesFrom:
   {{- end -}}
 {{- end -}}
 
+{{- /* Returns whether an optional package is enabled without assuming its map exists. */ -}}
+{{- define "packageEnabled" -}}
+{{- $packages := default (dict) .root.Values.packages -}}
+{{- $package := default (dict) (get $packages .name) -}}
+{{- default false (get $package "enabled") }}
+{{- end -}}
+
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
 {{- $packages := default (dict) .Values.packages -}}
@@ -982,7 +989,11 @@ valuesFrom:
 
 {{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
 {{- define "ambientEnabled" -}}
-{{ or .Values.packages.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $ztunnel := default (dict) (get $packages "ztunnel") -}}
+{{- $istio := default (dict) .Values.istio -}}
+{{- $ambient := default (dict) (get $istio "ambient") -}}
+{{ or (default false (get $ztunnel "enabled")) (default false (get $ambient "enabled")) }}
 {{- end -}}
 
 {{- /* Returns true if the shared egress gateway is enabled (via istioEgressGateway package or global egressGateway flag) */ -}}
