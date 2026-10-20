@@ -737,6 +737,12 @@ packages:
         kubeProxy:
           serviceMonitor:
             enabled: false
+      routes:
+        inbound:
+          monitoring-prometheus:
+            enabled: true
+          monitoring-alertmanager:
+            enabled: true
       bbtests:
         enabled: true
 
