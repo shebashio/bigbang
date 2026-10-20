@@ -157,12 +157,14 @@ packages:
       cosignVerify: false
 
   mattermostOperator:
-    sourceType: "helmRepo"
+    # Use the paired migration branch until subchart-compatible OCI charts are published.
+    sourceType: "git"
     helmRepo:
       cosignVerify: false
 
   mattermost:
-    sourceType: "helmRepo"
+    # Use the paired migration branch until subchart-compatible OCI charts are published.
+    sourceType: "git"
     helmRepo:
       cosignVerify: false
 
