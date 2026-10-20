@@ -57,7 +57,14 @@ networkPolicies:
       kiali:
         to:
           k8s:
+            {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
+            monitoring/waypoint:15008:
+              podSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+            {{- else }}
             monitoring/prometheus:9090: {{ .Values.packages.monitoring.enabled }}
+            {{- end }}
             monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
             tempo/tempo:3200: {{ .Values.packages.tempo.enabled }}
             istio-system/istiod:15014: {{ .Values.packages.istiod.enabled }}

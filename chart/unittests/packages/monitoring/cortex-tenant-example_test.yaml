@@ -8,7 +8,7 @@ postRenderer:
   cmd: sh
   args:
     - -c
-    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml) * (.stringData.common | from_yaml)' -"
 tests:
   - it: retains exporters without Prometheus or duplicate ServiceMonitors
     asserts:
@@ -25,5 +25,5 @@ tests:
           path: upstream.prometheus-node-exporter.prometheus.monitor.enabled
           value: false
       - equal:
-          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          path: bb-common.networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
           value: true
