@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.headlamp.enabled: true
+      packages.headlamp.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

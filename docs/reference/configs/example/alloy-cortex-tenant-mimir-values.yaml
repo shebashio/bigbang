@@ -87,6 +87,9 @@ packages:
               caFile: /etc/prom-certs/root-cert.pem
               certFile: /etc/prom-certs/cert-chain.pem
               keyFile: /etc/prom-certs/key.pem
+              # SECURITY: Istio workload certs lack this Service's DNS name.
+              # TLS encrypts traffic, but this skips server identity verification.
+              # Use a certificate with a matching DNS name and set false when possible.
               insecureSkipVerify: true
             extraLabels:
               tenant: example-tenant
@@ -105,6 +108,8 @@ packages:
                   ca_file = "/etc/prom-certs/root-cert.pem"
                   cert_file = "/etc/prom-certs/cert-chain.pem"
                   key_file = "/etc/prom-certs/key.pem"
+                  // SECURITY: Istio workload certs lack this Service's DNS name.
+                  // This skips server identity verification; use a matching cert when possible.
                   insecure_skip_verify = true
                 }
                 clustering {
@@ -131,6 +136,8 @@ packages:
                   ca_file = "/etc/prom-certs/root-cert.pem"
                   cert_file = "/etc/prom-certs/cert-chain.pem"
                   key_file = "/etc/prom-certs/key.pem"
+                  // SECURITY: Istio workload certs lack the discovered Pod IP.
+                  // This skips server identity verification; use a matching cert when possible.
                   insecure_skip_verify = true
                 }
                 clustering {

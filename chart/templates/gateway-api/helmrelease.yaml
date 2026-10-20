@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsGatewayAPI := mergeOverwrite (deepCopy .Values.flux) .Values.gatewayAPI.flux -}}
-{{- if or .Values.gatewayAPI.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- $fluxSettingsGatewayAPI := mergeOverwrite (deepCopy .Values.flux) .Values.packages.gatewayAPI.flux -}}
+{{- if or .Values.packages.gatewayAPI.enabled (eq (include "ambientEnabled" .) "true") }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -15,32 +15,32 @@ metadata:
 spec:
   releaseName: gateway-api
   targetNamespace: kube-system
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "gateway-api" "package" .Values.gatewayAPI "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "gateway-api" "package" .Values.packages.gatewayAPI "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsGatewayAPI | nindent 2 }}
 
-  {{- if .Values.gatewayAPI.postRenderers }}
+  {{- if .Values.packages.gatewayAPI.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.gatewayAPI.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.gatewayAPI.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "gateway-api" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.gatewayAPI.dependsOnOverride) }}
-  {{- with .Values.gatewayAPI.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.gatewayAPI.dependsOnOverride) }}
+  {{- with .Values.packages.gatewayAPI.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.gatewayAPI.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.gatewayAPI.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.gatewayAPI) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.gatewayAPI) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

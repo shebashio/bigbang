@@ -9,9 +9,9 @@ postRenderer:
 tests:
 - it: omits the Prometheus destination when its workload is disabled
   set: &id001
-    alloy.alloyMetrics.enabled: true
-    addons.mimir.enabled: true
-    monitoring.values.upstream.prometheus.enabled: false
+    packages.alloy.alloyMetrics.enabled: true
+    packages.mimir.enabled: true
+    packages.monitoring.values.upstream.prometheus.enabled: false
   asserts:
   - equal:
       path: upstream.prometheusOperatorObjects.destinations
@@ -24,8 +24,8 @@ tests:
       pattern: prometheus.remote_write.mimir.receiver
 - it: preserves both built-in destinations when Prometheus and Mimir run
   set:
-    alloy.alloyMetrics.enabled: true
-    addons.mimir.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.mimir.enabled: true
   asserts:
   - equal:
       path: upstream.prometheusOperatorObjects.destinations
@@ -37,8 +37,8 @@ tests:
       pattern: prometheus.remote_write.prometheus.receiver
 - it: omits exporter scrapes when monitoring is disabled
   set:
-    alloy.alloyMetrics.enabled: true
-    monitoring.enabled: false
+    packages.alloy.alloyMetrics.enabled: true
+    packages.monitoring.enabled: false
   asserts:
   - notExists:
       path: upstream.collectors.alloy-metrics.extraConfig

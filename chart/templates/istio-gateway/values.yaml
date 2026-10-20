@@ -18,6 +18,6 @@
 {{- end }}
 {{- end }}
 
-{{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
+{{- if and .Values.packages.istiod.enabled .Values.packages.istioGateway.enabled }}
 {{- include "bigbang.istio-gateway-secrets" . }}
 {{- end }}

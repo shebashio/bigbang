@@ -1,12 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.externalSecrets.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.addons.externalSecrets "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .)) }}
+{{- if .Values.packages.externalSecrets.enabled }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.externalSecrets "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $externalSecretsValues := .Values.addons.externalSecrets.values | default dict }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $externalSecretsValues := .Values.packages.externalSecrets.values | default dict }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $webhookEnabled := dig "upstream" "webhook" "create" false $externalSecretsValues }}
 {{- $certControllerEnabled := dig "upstream" "certController" "create" false $externalSecretsValues }}
 
@@ -27,7 +27,7 @@ upstream:
   {{- end }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 istio:
   hardened:
@@ -45,7 +45,7 @@ networkPolicies:
       external-secrets:
         to:
           k8s:
-            vault/vault:8200: {{ .Values.addons.vault.enabled }}
+            vault/vault:8200: {{ .Values.packages.vault.enabled }}
       external-secrets-webhook:
         to:
           definition:

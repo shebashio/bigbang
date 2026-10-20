@@ -4,9 +4,9 @@ tests:
   - it: should select sidecar-injection labels in auto mode
     template: argocd/namespace.yaml
     set:
-      istiod:
-        enabled: true
-      addons:
+      packages:
+        istiod:
+          enabled: true
         argocd:
           enabled: true
           istio:
@@ -24,9 +24,9 @@ tests:
   - it: should disable sidecar injection in auto mode when Istio is globally disabled
     template: argocd/namespace.yaml
     set:
-      istiod:
-        enabled: false
-      addons:
+      packages:
+        istiod:
+          enabled: false
         argocd:
           enabled: true
           istio:
@@ -44,7 +44,7 @@ tests:
       istio:
         ambient:
           enabled: true
-      addons:
+      packages:
         argocd:
           enabled: true
     asserts:
@@ -57,9 +57,9 @@ tests:
   - it: should select ambient labels in auto mode when ztunnel is enabled
     template: argocd/namespace.yaml
     set:
-      ztunnel:
-        enabled: true
-      addons:
+      packages:
+        ztunnel:
+          enabled: true
         argocd:
           enabled: true
     asserts:
@@ -72,8 +72,9 @@ tests:
   - it: should keep Gatekeeper out of the mesh and preserve additional labels
     template: gatekeeper/namespace.yaml
     set:
-      gatekeeper:
-        enabled: true
+      packages:
+        gatekeeper:
+          enabled: true
     asserts:
       - equal:
           path: metadata.labels["istio-injection"]
@@ -94,8 +95,9 @@ tests:
       istio:
         ambient:
           enabled: true
-      renovate:
-        enabled: true
+      packages:
+        renovate:
+          enabled: true
     asserts:
       - equal:
           path: metadata.labels["istio.io/dataplane-mode"]

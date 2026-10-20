@@ -4,10 +4,10 @@ templates:
 tests:
 - it: nests policies and routes under bb-common
   set:
-    alloy.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.istiod.enabled: true
     networkPolicies.enabled: true
-    alloy.values.bbtests.enabled: true
+    packages.alloy.values.bbtests.enabled: true
   postRenderer: &id001
     cmd: sh
     args:
@@ -33,9 +33,9 @@ tests:
       path: routes
 - it: keeps globals and collector defaults outside bb-common
   set:
-    alloy.enabled: true
+    packages.alloy.enabled: true
     domain: example.test
-    alloy.alloyLogs.enabled: true
+    packages.alloy.alloyLogs.enabled: true
   postRenderer: &id003
     cmd: sh
     args:
@@ -60,7 +60,7 @@ tests:
       path: domain
 - it: passes the global kubeAPI egress definition through
   set:
-    alloy.enabled: true
+    packages.alloy.enabled: true
     networkPolicies.egress.definitions.kubeAPI:
       to:
       - ipBlock:
@@ -72,10 +72,10 @@ tests:
       value: 10.42.0.1/32
 - it: retains nested overrides in overlays
   set:
-    alloy.enabled: true
-    alloy.values.bb-common.istio.mtls.mode: PERMISSIVE
-    alloy.values.bb-common.networkPolicies.enabled: false
-    alloy.values.bb-common.routes.outbound.bb-tests.enabled: false
+    packages.alloy.enabled: true
+    packages.alloy.values.bb-common.istio.mtls.mode: PERMISSIVE
+    packages.alloy.values.bb-common.networkPolicies.enabled: false
+    packages.alloy.values.bb-common.routes.outbound.bb-tests.enabled: false
   postRenderer: &id002
     cmd: sh
     args:
@@ -93,13 +93,13 @@ tests:
       value: false
 - it: translates legacy flat hardened custom policies
   set:
-    alloy.enabled: true
-    alloy.values.istio.hardened.customServiceEntries:
+    packages.alloy.enabled: true
+    packages.alloy.values.istio.hardened.customServiceEntries:
     - name: custom-egress
       spec:
         hosts:
         - example.test
-    alloy.values.istio.hardened.customAuthorizationPolicies:
+    packages.alloy.values.istio.hardened.customAuthorizationPolicies:
     - name: custom-authz
       spec:
         action: ALLOW
@@ -115,13 +115,13 @@ tests:
       path: istio.hardened
 - it: translates nested hardened custom policies
   set:
-    alloy.enabled: true
-    alloy.values.bb-common.istio.hardened.customServiceEntries:
+    packages.alloy.enabled: true
+    packages.alloy.values.bb-common.istio.hardened.customServiceEntries:
     - name: custom-egress
       spec:
         hosts:
         - example.test
-    alloy.values.bb-common.istio.hardened.customAuthorizationPolicies:
+    packages.alloy.values.bb-common.istio.hardened.customAuthorizationPolicies:
     - name: custom-authz
       spec:
         action: ALLOW
@@ -137,14 +137,14 @@ tests:
       path: bb-common.istio.hardened
 - it: uses correct monitor TLS for sidecar strict
   set:
-    alloy.enabled: true
-    alloy.alloyLogs.enabled: true
-    alloy.alloyMetrics.enabled: true
-    alloy.alloyClusterEvents.enabled: true
-    monitoring.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.alloy.alloyLogs.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.alloy.alloyClusterEvents.enabled: true
+    packages.monitoring.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: false
-    alloy.values.bb-common.istio.mtls.mode: STRICT
+    packages.alloy.values.bb-common.istio.mtls.mode: STRICT
   postRenderer: *id003
   asserts:
   - equal:
@@ -158,8 +158,8 @@ tests:
       value: https
 - it: sets common mesh mode for sidecar strict
   set:
-    alloy.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: false
   postRenderer: *id001
   asserts:
@@ -171,14 +171,14 @@ tests:
       value: false
 - it: uses correct monitor TLS for sidecar permissive
   set:
-    alloy.enabled: true
-    alloy.alloyLogs.enabled: true
-    alloy.alloyMetrics.enabled: true
-    alloy.alloyClusterEvents.enabled: true
-    monitoring.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.alloy.alloyLogs.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.alloy.alloyClusterEvents.enabled: true
+    packages.monitoring.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: false
-    alloy.values.bb-common.istio.mtls.mode: PERMISSIVE
+    packages.alloy.values.bb-common.istio.mtls.mode: PERMISSIVE
   postRenderer: *id003
   asserts:
   - notExists:
@@ -189,8 +189,8 @@ tests:
       path: serviceMonitors[2].tlsConfig
 - it: sets common mesh mode for sidecar permissive
   set:
-    alloy.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: false
   postRenderer: *id001
   asserts:
@@ -202,14 +202,14 @@ tests:
       value: false
 - it: uses correct monitor TLS for ambient
   set:
-    alloy.enabled: true
-    alloy.alloyLogs.enabled: true
-    alloy.alloyMetrics.enabled: true
-    alloy.alloyClusterEvents.enabled: true
-    monitoring.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.alloy.alloyLogs.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.alloy.alloyClusterEvents.enabled: true
+    packages.monitoring.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: true
-    alloy.values.bb-common.istio.mtls.mode: STRICT
+    packages.alloy.values.bb-common.istio.mtls.mode: STRICT
   postRenderer: *id003
   asserts:
   - notExists:
@@ -222,8 +222,8 @@ tests:
       path: upstream.alloy-metrics.controller
 - it: sets common mesh mode for ambient
   set:
-    alloy.enabled: true
-    istiod.enabled: true
+    packages.alloy.enabled: true
+    packages.istiod.enabled: true
     istio.ambient.enabled: true
   postRenderer: *id001
   asserts:
@@ -235,14 +235,14 @@ tests:
       value: true
 - it: uses correct monitor TLS for disabled Istio
   set:
-    alloy.enabled: true
-    alloy.alloyLogs.enabled: true
-    alloy.alloyMetrics.enabled: true
-    alloy.alloyClusterEvents.enabled: true
-    monitoring.enabled: true
-    istiod.enabled: false
+    packages.alloy.enabled: true
+    packages.alloy.alloyLogs.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.alloy.alloyClusterEvents.enabled: true
+    packages.monitoring.enabled: true
+    packages.istiod.enabled: false
     istio.ambient.enabled: false
-    alloy.values.bb-common.istio.mtls.mode: STRICT
+    packages.alloy.values.bb-common.istio.mtls.mode: STRICT
   postRenderer: *id003
   asserts:
   - notExists:
@@ -257,8 +257,8 @@ tests:
       path: upstream.alloy-metrics.alloy
 - it: sets common mesh mode for disabled Istio
   set:
-    alloy.enabled: true
-    istiod.enabled: false
+    packages.alloy.enabled: true
+    packages.istiod.enabled: false
     istio.ambient.enabled: false
   postRenderer: *id001
   asserts:
@@ -270,9 +270,9 @@ tests:
       value: false
 - it: selects Prometheus pods for metrics remote write
   set:
-    alloy.enabled: true
-    alloy.alloyMetrics.enabled: true
-    monitoring.enabled: true
+    packages.alloy.enabled: true
+    packages.alloy.alloyMetrics.enabled: true
+    packages.monitoring.enabled: true
   postRenderer:
     cmd: sh
     args:

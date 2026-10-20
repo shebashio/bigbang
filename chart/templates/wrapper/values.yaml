@@ -23,7 +23,7 @@ stringData:
       {{- tpl (toYaml (omit $merged.package "git" "helmRepo" "flux" "postRenderers" "dependsOn")) $ | nindent 6 }}
       {{- end }}
     bigbang:
-      {{- include "values-bigbang" $merged.bigbang | nindent 6 }}
+      {{- include "values-bigbang" $ | nindent 6 }}
 ---
 {{ end -}}
 {{- end -}}

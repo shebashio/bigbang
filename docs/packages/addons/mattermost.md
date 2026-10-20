@@ -82,7 +82,7 @@ Optional Enterprise Feature: Mattermost can make use of Elastic for improved per
 
 ### Monitoring
 
-Monitoring is available within Mattermost as a paid feature — see [Licensing](#licensing) for current tier details. If you have both `addons.mattermost.enterprise` and `monitoring` enabled within Big Bang values a service monitor will be deployed to automatically ship metrics data to Prometheus for consumption.
+Monitoring is available within Mattermost as a paid feature — see [Licensing](#licensing) for current tier details. If you have both `packages.mattermost.enterprise` and `monitoring` enabled within Big Bang values a service monitor will be deployed to automatically ship metrics data to Prometheus for consumption.
 
 ### Health Checks
 
@@ -95,7 +95,7 @@ The Mattermost Operator ships by default with health checks on the address `/api
 To set a replica count greater than 1 requires an enterprise license, and can be configured like the following example:
 
 ```yaml
-addons:
+packages:
   mattermost:
     values:
       enterprise:
@@ -108,7 +108,7 @@ addons:
 If you want to use Mattermost's user/size value you will need to handle OPA violations and exceptions yourself since this is **not BB supported.** If all of these considerations have been accounted for and you still want to deploy with Mattermost's user sizing it can be done by setting the value as in this example:
 
 ```yaml
-addons:
+packages:
   mattermost:
     values:
       users: 1000
@@ -124,7 +124,7 @@ If using Big Bang's SSO implementation, Keycloak is used behind the scenes to "s
 See below for an example of the values to provide to Mattermost for SSO setup:
 
 ```yaml
-addons:
+packages:
   mattermost:
     sso:
       enabled: true
@@ -163,7 +163,7 @@ Big Bang deploys the free version of Mattermost by default, but there are two ad
 Once you have obtained a license this can be added to your values in Big Bang to automatically set up your Mattermost instance with the license (replacing the `license:` value with your full license string):
 
 ```yaml
-addons:
+packages:
   mattermost:
     enterprise:
       enabled: true
@@ -177,7 +177,7 @@ addons:
 Mattermost makes use of a database to store all chat information as well as persistent configuration for all of Mattermost. By default Big Bang deploys an in-cluster Postgresql instance for this purpose, but it is recommended to point to an external DB instance for HA. Currently Big Bang supports pointing to any external Postgres instance via values config. See the below example for values to point your database connection to an external instance:
 
 ```yaml
-addons:
+packages:
   mattermost:
     database:
       host: "mypostgreshost"
@@ -194,7 +194,7 @@ addons:
 Mattermost uses S3, Minio, or another S3-style storage for file storage. By default Big Bang deploys an in-cluster Minio instance for this purpose, but you have the option to point to an external Minio or S3 if desired. See the below example for the values to supply:
 
 ```yaml
-addons:
+packages:
   mattermost:
     objectStorage:
       endpoint: "s3.amazonaws.com"

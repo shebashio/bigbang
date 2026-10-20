@@ -30,7 +30,7 @@ def collect_properties($schema; $node; $seen):
         ({}; merge_properties(.; $properties))
   end;
 
-# Canonical package values are recursively merged over legacy defaults. Remove
+# Package overrides are recursively merged over chart defaults. Remove
 # requirements that may be satisfied by those defaults while retaining types,
 # enums, patterns, known properties, and complete validation for array elements.
 def partialize($partial_object):
@@ -42,7 +42,7 @@ def partialize($partial_object):
     with_entries(
       select(($partial_object and (.key == "required" or .key == "dependentRequired" or .key == "minProperties")) | not)
       | if .key == "$ref" and $partial_object and ((.value | local_definition_name) != null) then
-          .value = "#/$defs/packageAliasPartials/\(.value | local_definition_name)"
+          .value = "#/$defs/packagePartials/\(.value | local_definition_name)"
         elif .key == "items" or .key == "contains" or .key == "if" or .key == "not" then
           .value |= partialize(false)
         elif (.key == "properties" or .key == "patternProperties" or .key == "additionalProperties")
@@ -54,25 +54,24 @@ def partialize($partial_object):
     )
   end;
 
-def schema_at_legacy_path($schema; $legacy_path):
-  reduce ($legacy_path | split("."))[] as $segment ($schema; .properties[$segment]);
-
-def value_at_legacy_path($values; $legacy_path):
-  reduce ($legacy_path | split("."))[] as $segment ($values; .[$segment]);
-
-def package_alias($schema; $values; $package):
-  schema_at_legacy_path($schema; $package.value.legacyPath) as $legacy_schema
-  | value_at_legacy_path($values; $package.value.legacyPath) as $legacy_defaults
-  | collect_properties($schema; $legacy_schema; {}) as $schema_properties
-  | (reduce ($legacy_defaults | keys[]) as $name ($schema_properties;
+def package_override($schema; $values; $package):
+  $schema["$defs"].builtinPackageSchemas.properties[$package.key] as $package_schema
+  | $values.packages[$package.key] as $package_defaults
+  | if $package_schema == null then
+      error("missing built-in package schema for \($package.key)")
+    elif $package_defaults == null then
+      error("missing built-in package defaults for \($package.key)")
+    else . end
+  | collect_properties($schema; $package_schema; {}) as $schema_properties
+  | (reduce ($package_defaults | keys[]) as $name ($schema_properties;
       if has($name) then . else .[$name] = true end
     )) as $properties
-  | ($legacy_schema | partialize(true))
+  | ($package_schema | partialize(true))
   | del(.required)
   | .type = "object"
   | .properties = ($properties | with_entries(.value |= partialize(true)))
   | .additionalProperties = false
-  | .description = "Partial override merged over the built-in package's legacy defaults.";
+  | .description = "Partial override merged over the built-in package defaults.";
 
 def validate_metadata($metadata):
   if $metadata.apiVersion != "bigbang.dev/v1alpha1" then
@@ -107,42 +106,22 @@ def validate_metadata($metadata):
 validate_metadata($metadata[0]) as $validated_metadata
 | . as $schema
 | $values[0] as $chart_values
-| ($schema["$defs"].customPackages // {
-    "type": "object",
-    "additionalProperties": $schema.properties.packages.additionalProperties
-  }) as $custom_packages
+| if ($schema["$defs"].builtinPackageSchemas.properties | keys) != ($validated_metadata.packages | keys) then
+    error("built-in package schemas must match the package catalog")
+  elif (($validated_metadata.packages | keys) - ($chart_values.packages | keys)) != [] then
+    error("built-in package defaults are missing catalog entries")
+  elif $schema["$defs"].customPackages == null then
+    error("missing custom package schema")
+  else . end
+| $schema["$defs"].customPackages as $custom_packages
 | (reduce ($validated_metadata.packages | to_entries[]) as $package
-    ({}; .[$package.key] = package_alias($schema; $chart_values; $package))) as $aliases
+    ({}; .[$package.key] = package_override($schema; $chart_values; $package))) as $overrides
 | (reduce ($validated_metadata.packages | keys_unsorted[]) as $name
-    ({}; .[$name] = {"$ref": "#/$defs/packageAliasPartials/aliases/\($name)"})) as $package_properties
-| ($schema["$defs"] | del(.packageAlias, .packageAliasPartials, .customPackages, .canonicalPackages)
+    ({}; .[$name] = {"$ref": "#/$defs/packagePartials/overrides/\($name)"})) as $package_properties
+| ($schema["$defs"] | del(.packagePartials, .builtinPackageSchemas, .customPackages, .canonicalPackages)
    | with_entries(.value |= partialize(true))) as $partial_definitions
 | ($custom_packages + {"properties": $package_properties}) as $canonical_packages
-| .properties.packages = {}
-| del(.["$defs"].packageAlias)
+| .properties.packages = {"$ref": "#/$defs/canonicalPackages"}
 | .["$defs"].customPackages = $custom_packages
 | .["$defs"].canonicalPackages = $canonical_packages
-| .["$defs"].packageAliasPartials = ($partial_definitions + {aliases: $aliases})
-| .allOf = (((.allOf // [])
-    | map(select(."$comment" != "Generated canonical package configuration gate."))) + [{
-      "$comment": "Generated canonical package configuration gate.",
-      "if": {
-        "properties": {
-          "packageConfiguration": {
-            "properties": {"version": {"const": "v1"}},
-            "required": ["version"]
-          }
-        },
-        "required": ["packageConfiguration"]
-      },
-      "then": {
-        "properties": {
-          "packages": {"$ref": "#/$defs/canonicalPackages"}
-        }
-      },
-      "else": {
-        "properties": {
-          "packages": {"$ref": "#/$defs/customPackages"}
-        }
-      }
-    }])
+| .["$defs"].packagePartials = ($partial_definitions + {overrides: $overrides})

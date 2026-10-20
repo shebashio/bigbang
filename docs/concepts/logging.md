@@ -32,28 +32,29 @@ Switching between different logging stacks requires updating the enable/disable 
 #### Enabling EFK logging stack instead of ALG
 
 ```yaml
-# Big Bang values.yaml
-# Enable EFK stack
-elasticsearchKibana:
-  # -- Toggle deployment of Logging (Elastic/Kibana)
-  enabled: true
-eckOperator:
-  # -- Toggle deployment of ECK Operator
-  enabled: true
-fluentbit:
-  # -- Toggle deployment of Fluent-Bit
-  enabled: true
+packages:
+  # Big Bang values.yaml
+  # Enable EFK stack
+  elasticsearchKibana:
+    # -- Toggle deployment of Logging (Elastic/Kibana)
+    enabled: true
+  eckOperator:
+    # -- Toggle deployment of ECK Operator
+    enabled: true
+  fluentbit:
+    # -- Toggle deployment of Fluent-Bit
+    enabled: true
 
-# Disable ALG stack
-alloy:
-  # -- Toggle deployment of grafana alloy
-  enabled: false
-loki:
-  # -- Toggle deployment of Loki
-  enabled: false
-grafana:
-  # -- Toggle deployment of Grafana
-  enabled: false
+  # Disable ALG stack
+  alloy:
+    # -- Toggle deployment of grafana alloy
+    enabled: false
+  loki:
+    # -- Toggle deployment of Loki
+    enabled: false
+  grafana:
+    # -- Toggle deployment of Grafana
+    enabled: false
 ```
 
 #### Alternative Configuration: Fluentbit with Loki
@@ -61,17 +62,18 @@ grafana:
 There may be use cases where teams want to run Fluentbit with Loki, often for lighter resource usage or system support. Big Bang automatically supports this configuration when fluentbit and loki are enabled.
 
 ```yaml
-# Big Bang values.yaml
-# Enabling Fluentbit with Loki
-fluentbit:
-  # -- Toggle deployment of Fluent-Bit
-  enabled: true
-loki:
-  # -- Toggle deployment of Loki
-  enabled: true
-grafana:
-  # -- Toggle deployment of Grafana
-  enabled: true
+packages:
+  # Big Bang values.yaml
+  # Enabling Fluentbit with Loki
+  fluentbit:
+    # -- Toggle deployment of Fluent-Bit
+    enabled: true
+  loki:
+    # -- Toggle deployment of Loki
+    enabled: true
+  grafana:
+    # -- Toggle deployment of Grafana
+    enabled: true
 ```
 
 ### Additional Resources

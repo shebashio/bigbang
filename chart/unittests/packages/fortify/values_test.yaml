@@ -10,9 +10,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
-      addons.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
+      packages.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
     asserts:
       - equal:
           path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
@@ -24,8 +24,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
     asserts:
       - equal:
           path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
@@ -37,9 +37,9 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: true
-      addons.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: true
+      packages.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
     asserts:
       - equal:
           path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
@@ -53,11 +53,11 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      istiod.enabled: true
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
-      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
-      addons.fortify.externalDatabase.port: 3307
+      packages.istiod.enabled: true
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
+      packages.fortify.externalDatabase.host: "external-mysql.example.internal"
+      packages.fortify.externalDatabase.port: 3307
     asserts:
       - equal:
           path: routes.outbound["external-mysql"].enabled
@@ -78,10 +78,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      istiod.enabled: true
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: true
-      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
+      packages.istiod.enabled: true
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: true
+      packages.fortify.externalDatabase.host: "external-mysql.example.internal"
     asserts:
       - equal:
           path: routes.outbound["external-mysql"].enabled

@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsIstioGateway := mergeOverwrite (deepCopy .Values.flux) .Values.istioGateway.flux -}}
-{{- if and .Values.istiod.enabled .Values.istioGateway.enabled }}
+{{- $fluxSettingsIstioGateway := mergeOverwrite (deepCopy .Values.flux) .Values.packages.istioGateway.flux -}}
+{{- if and .Values.packages.istiod.enabled .Values.packages.istioGateway.enabled }}
 {{- range $name, $gw := include "enabledGateways" $ | fromYaml }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -17,17 +17,17 @@ metadata:
 spec:
   releaseName: {{ $gw.serviceName }}
   targetNamespace: istio-gateway
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "istio-gateway" "package" $.Values.istioGateway "root" $) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "istio-gateway" "package" $.Values.packages.istioGateway "root" $) | nindent 2 }}
 
   {{- toYaml $fluxSettingsIstioGateway | nindent 2 }}
 
-  {{- if $.Values.istioGateway.postRenderers }}
-  {{- if kindIs "slice" $.Values.istioGateway.postRenderers }}
+  {{- if $.Values.packages.istioGateway.postRenderers }}
+  {{- if kindIs "slice" $.Values.packages.istioGateway.postRenderers }}
   postRenderers:
-  {{ toYaml $.Values.istioGateway.postRenderers | nindent 4 }}
+  {{ toYaml $.Values.packages.istioGateway.postRenderers | nindent 4 }}
   {{- end }}
-  {{- if kindIs "map" $.Values.istioGateway.postRenderers }}
-  {{- $postRenderers := get $.Values.istioGateway.postRenderers $name }}
+  {{- if kindIs "map" $.Values.packages.istioGateway.postRenderers }}
+  {{- $postRenderers := get $.Values.packages.istioGateway.postRenderers $name }}
   {{- if $postRenderers }}
   postRenderers:
   {{ $postRenderers | toYaml | nindent 4 }}
@@ -46,23 +46,23 @@ spec:
       kind: Secret
       valuesKey: "overlays"
 
-  {{- if not (kindIs "invalid" $.Values.istioGateway.dependsOnOverride) }}
-  {{- with $.Values.istioGateway.dependsOnOverride }}
+  {{- if not (kindIs "invalid" $.Values.packages.istioGateway.dependsOnOverride) }}
+  {{- with $.Values.packages.istioGateway.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- else }}
   dependsOn:
     {{- include "istioHelmReleases" $ | nindent 4 }}
-    {{- if $.Values.gatekeeper.enabled }}
+    {{- if $.Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-    {{- if $.Values.kyvernoPolicies.enabled }}
+    {{- if $.Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ $.Release.Namespace }}
     {{- end }}
-    {{- with (include "bigbang.helmRelease.dependsOn" $.Values.istioGateway) }}
+    {{- with (include "bigbang.helmRelease.dependsOn" $.Values.packages.istioGateway) }}
     {{- . | nindent 4 }}
     {{- end }}
   {{- end }}

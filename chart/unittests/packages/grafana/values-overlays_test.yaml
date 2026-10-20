@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      grafana.values.upstream.extraSecretMounts:
+      packages.grafana.values.upstream.extraSecretMounts:
         - name: "user-secret"
           mountPath: "/etc/secrets/user"
           secretName: "my-secret"
@@ -33,12 +33,11 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      # Enable SSO to generate default extraSecretMounts
-      grafana.sso.enabled: true
-      grafana.sso.grafana.client_id: "test-client"
-      grafana.sso.grafana.client_secret: "test-secret"
+      packages.grafana.sso.enabled: true
+      packages.grafana.sso.grafana.client_id: "test-client"
+      packages.grafana.sso.grafana.client_secret: "test-secret"
       # User-provided extraSecretMounts
-      grafana.values.upstream.extraSecretMounts:
+      packages.grafana.values.upstream.extraSecretMounts:
         - name: "user-custom-secret"
           mountPath: "/etc/secrets/custom"
           secretName: "custom-secret"
@@ -66,12 +65,11 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      # Enable SSO to generate default extraSecretMounts
-      grafana.sso.enabled: true
-      grafana.sso.grafana.client_id: "test-client"
-      grafana.sso.grafana.client_secret: "test-secret"
+      packages.grafana.sso.enabled: true
+      packages.grafana.sso.grafana.client_id: "test-client"
+      packages.grafana.sso.grafana.client_secret: "test-secret"
       # User-provided extraSecretMounts with skipOverlayMerge
-      grafana.values.upstream:
+      packages.grafana.values.upstream:
         skipOverlayMerge: true
         extraSecretMounts:
           - name: "only-this-secret"

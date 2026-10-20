@@ -1,41 +1,41 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
-{{- if .Values.addons.mimir.enabled }}
+{{- if .Values.packages.mimir.enabled }}
 {{- /* Create a cleaned copy of mimir config and merge deprecated paths into current paths */ -}}
-{{- $mimirPackage := deepCopy .Values.addons.mimir -}}
-{{- if .Values.addons.mimir.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.mimir.values) | fromYaml -}}
+{{- $mimirPackage := deepCopy .Values.packages.mimir -}}
+{{- if .Values.packages.mimir.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.mimir.values) | fromYaml -}}
 {{- $mimirPackage = set $mimirPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict 
-  "root" $ 
-  "package" $mimirPackage 
-  "name" "mimir" 
+{{- include "values-secret" (dict
+  "root" $
+  "package" $mimirPackage
+  "name" "mimir"
   "defaults" ((mergeOverwrite (include "bigbang.defaults.mimir" . | fromYaml) (include "bigbang.mimir.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.mimir" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.mimir.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.mimir.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 
-{{- $s3Enabled := (.Values.addons.mimir.s3ObjectStorage.enabled) }}
-{{- $mimirEnterpriseEnabled := (.Values.addons.mimir.enterprise.enabled) }}
-{{- $prometheusEnabled := and .Values.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.monitoring) }}
-{{- $kafkaEnabled := (.Values.addons.mimir.kafkaIngestStorage.enabled) }}
-{{- $kafkaBrokerHost := (.Values.addons.mimir.kafkaIngestStorage.brokerHost) }}
-{{- $kafkaBrokerPort := (.Values.addons.mimir.kafkaIngestStorage.brokerPort) }}
-{{- $kafkaBrokerNetworkCIDR := (.Values.addons.mimir.kafkaIngestStorage.brokerNetworkCIDR) }}
-{{- $kafkaBrokerClusterDomain := (.Values.addons.mimir.kafkaIngestStorage.brokerClusterDomain) }}
+{{- $s3Enabled := (.Values.packages.mimir.s3ObjectStorage.enabled) }}
+{{- $mimirEnterpriseEnabled := (.Values.packages.mimir.enterprise.enabled) }}
+{{- $prometheusEnabled := and .Values.packages.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.packages.monitoring) }}
+{{- $kafkaEnabled := (.Values.packages.mimir.kafkaIngestStorage.enabled) }}
+{{- $kafkaBrokerHost := (.Values.packages.mimir.kafkaIngestStorage.brokerHost) }}
+{{- $kafkaBrokerPort := (.Values.packages.mimir.kafkaIngestStorage.brokerPort) }}
+{{- $kafkaBrokerNetworkCIDR := (.Values.packages.mimir.kafkaIngestStorage.brokerNetworkCIDR) }}
+{{- $kafkaBrokerClusterDomain := (.Values.packages.mimir.kafkaIngestStorage.brokerClusterDomain) }}
 {{- $kafkaBrokerRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerHost "") }}
 {{- $kafkaBrokerWildcardRouteEnabled := and $kafkaEnabled $istioEnabled (ne $kafkaBrokerClusterDomain "") }}
 
 upgradeJob:
   image:
     {{- include "secretsPullSecretsSingle" . | nindent 4 }}
-  
+
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 istio:
   hardened:
@@ -56,7 +56,7 @@ routes:
         app.kubernetes.io/name: mimir
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.mimir.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.mimir.values }}
       hosts:
       - repo1.dso.mil
     kafka-broker:
@@ -101,9 +101,9 @@ networkPolicies:
       mimir:
         to:
           k8s:
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }}
+            monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
           definition:
-            storage-subnets: {{ not $s3Enabled }}
+            storage-subnets: {{ $s3Enabled }}
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
       # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
       # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
@@ -129,31 +129,31 @@ networkPolicies:
       rollout-operator:
         to:
           k8s:
-            monitoring/grafana:3000: {{ .Values.grafana.enabled }} 
+            monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
   ingress:
     to:
       mimir:[15020]:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       mimir:[8080,9095]:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       rollout-operator:[8080,9095]:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
       rollout-operator:[15020]:
         from:
           k8s:
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.alloy.alloyMetrics.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
@@ -170,13 +170,13 @@ upstream:
   rollout_operator:
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
-{{- if or $istioEnabled (and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey) }}
+{{- if or $istioEnabled (and $s3Enabled .Values.packages.mimir.s3ObjectStorage.accessSecret .Values.packages.mimir.s3ObjectStorage.accessKey) }}
   global:
     {{- if $istioEnabled }}
     podAnnotations:
       proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
     {{- end }}
-    {{- if and $s3Enabled .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
+    {{- if and $s3Enabled .Values.packages.mimir.s3ObjectStorage.accessSecret .Values.packages.mimir.s3ObjectStorage.accessKey }}
     extraEnvFrom:
     - secretRef:
         name: mimir-objstore-secret
@@ -201,35 +201,35 @@ upstream:
         storage:
           backend: s3
           s3:
-            {{- if and .Values.addons.mimir.s3ObjectStorage.accessSecret .Values.addons.mimir.s3ObjectStorage.accessKey }}
+            {{- if and .Values.packages.mimir.s3ObjectStorage.accessSecret .Values.packages.mimir.s3ObjectStorage.accessKey }}
             access_key_id: "${AWS_ACCESS_KEY_ID}" # This is a secret injected via an environment variable
             secret_access_key: "${AWS_SECRET_ACCESS_KEY}" # This is a secret injected via an environment variable
             {{- end }}
-            endpoint: {{ .Values.addons.mimir.s3ObjectStorage.endpoint }}
-            insecure: {{ .Values.addons.mimir.s3ObjectStorage.insecure }}
-            region: {{ .Values.addons.mimir.s3ObjectStorage.region }}
-            bucket_name: {{ .Values.addons.mimir.s3ObjectStorage.bucketName }}
+            endpoint: {{ .Values.packages.mimir.s3ObjectStorage.endpoint }}
+            insecure: {{ .Values.packages.mimir.s3ObjectStorage.insecure }}
+            region: {{ .Values.packages.mimir.s3ObjectStorage.region }}
+            bucket_name: {{ .Values.packages.mimir.s3ObjectStorage.bucketName }}
       {{- end }}
       {{- if $kafkaEnabled }}
       ingest_storage:
         enabled: true
         kafka:
           address: "{{ $kafkaBrokerHost }}:{{ $kafkaBrokerPort }}"
-          topic: {{ .Values.addons.mimir.kafkaIngestStorage.topic | quote }}
+          topic: {{ .Values.packages.mimir.kafkaIngestStorage.topic | quote }}
       ingester:
         push_grpc_method_enabled: false
       {{- end }}
-  {{- if and (or $s3Enabled $kafkaEnabled) .Values.addons.mimir.serviceAccountAnnotations }}
+  {{- if and (or $s3Enabled $kafkaEnabled) .Values.packages.mimir.serviceAccountAnnotations }}
   serviceAccount:
     annotations:
-      {{- range $key, $value :=  .Values.addons.mimir.serviceAccountAnnotations }}
+      {{- range $key, $value :=  .Values.packages.mimir.serviceAccountAnnotations }}
       {{ $key }}: {{ $value | quote }}
       {{- end }}
   {{- end }}
   metaMonitoring:
     serviceMonitor:
       enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.mimir .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.mimir .)) "true" }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem
@@ -238,5 +238,5 @@ upstream:
         insecureSkipVerify: true
       {{- end }}
     dashboards:
-      enabled: {{ .Values.grafana.enabled }}
+      enabled: {{ .Values.packages.grafana.enabled }}
 {{- end -}}

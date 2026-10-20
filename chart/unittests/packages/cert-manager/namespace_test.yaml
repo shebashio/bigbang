@@ -5,9 +5,9 @@ templates:
 tests:
   - it: keeps cert-manager outside Istio injection and ambient enrollment
     set:
-      certManager.enabled: true
-      certManager.namespace.annotations.review-test: expected
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.certManager.namespace.annotations.review-test: expected
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
@@ -22,8 +22,8 @@ tests:
 
   - it: keeps cert-manager outside Istio injection in sidecar mode
     set:
-      certManager.enabled: true
-      istiod.enabled: true
+      packages.certManager.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: false
     asserts:
       - equal:

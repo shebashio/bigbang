@@ -1,4 +1,4 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if and (eq .Values.addons.headlamp.sourceType "git") (not .Values.offline) .Values.addons.headlamp.enabled }}
-{{- include "bigbang.gitRepository" (dict "name" "headlamp" "gitCredsName" "headlamp" "git" .Values.addons.headlamp.git "component" "core" "root" .) }}
+{{- if and (eq .Values.packages.headlamp.sourceType "git") (not .Values.offline) .Values.packages.headlamp.enabled }}
+{{- include "bigbang.gitRepository" (dict "name" "headlamp" "gitCredsName" "headlamp" "git" .Values.packages.headlamp.git "component" "core" "root" .) }}
 {{- end }}

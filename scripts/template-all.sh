@@ -36,6 +36,7 @@ api_versions=(
   "kyverno.io/v2alpha1"
   "kyverno.io/v2beta1"
   "policies.kyverno.io/v1alpha1"
+  "policies.kyverno.io/v1"
   "policies.kyverno.io/v1beta1"
   "reports.kyverno.io/v1"
   "extensions.istio.io/v1alpha1"

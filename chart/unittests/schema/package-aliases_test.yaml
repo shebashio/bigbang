@@ -59,10 +59,8 @@ tests:
             namespace: operators
         template: templates/kiali/helmrelease.yaml
 
-  - it: should prefer the unified package path over the legacy path
+  - it: should use the unified package path to disable a built-in package
     set:
-      kiali:
-        enabled: true
       packages:
         kiali:
           enabled: false
@@ -120,10 +118,8 @@ tests:
           count: 0
         template: templates/package/helmrelease.yaml
 
-  - it: should preserve explicitly supplied built-ins as resolved canonical values
+  - it: should retain built-in defaults alongside canonical overrides
     set:
-      kiali:
-        enabled: false
       packages:
         kiali:
           enabled: true
@@ -209,17 +205,16 @@ tests:
           value: podinfo-wrapper
         template: templates/wrapper/helmrelease.yaml
 
-  - it: should not populate canonical packages from legacy-only built-ins
+  - it: should populate canonical packages from built-in defaults
     set:
-      kiali:
-        enabled: true
       _selfTest:
         bigbang.self-test.package-alias-state:
           args: helm:context
           resultIsYaml: true
     asserts:
-      - notExists:
-          path: result.packages.kiali
+      - equal:
+          path: result.packages.kiali.enabled
+          value: true
         template: templates/_self-test/render.yaml
       - notExists:
           path: result.customPackages.kiali

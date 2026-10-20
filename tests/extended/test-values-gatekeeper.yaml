@@ -1,17 +1,21 @@
-gatekeeper:
-  enabled: true
-  flux:
-    install:
-      strategy:
-        name: RetryOnFailure
-        retryInterval: 1m
-    upgrade:
-      strategy:
-        name: RetryOnFailure
-        retryInterval: 1m
-kyvernoPolicies:
-  enabled: false
-kyverno:
-  enabled: false
-kyvernoReporter:
-  enabled: false
+packageConfiguration:
+  version: v1
+
+packages:
+  gatekeeper:
+    enabled: true
+    flux:
+      install:
+        strategy:
+          name: RetryOnFailure
+          retryInterval: 1m
+      upgrade:
+        strategy:
+          name: RetryOnFailure
+          retryInterval: 1m
+  kyvernoPolicies:
+    enabled: false
+  kyverno:
+    enabled: false
+  kyvernoReporter:
+    enabled: false
