@@ -57,6 +57,7 @@ upstream:
   pilot:
     env:
       PILOT_ENABLE_AMBIENT: "true"
+      ENABLE_INGRESS_WAYPOINT_ROUTING: "true"
   {{- end }}
 
   meshConfig:
