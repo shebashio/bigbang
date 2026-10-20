@@ -172,7 +172,7 @@ flux:
 
 # -- Global NetworkPolicies settings
 networkPolicies:
-  # -- Toggle all package NetworkPolicies, can disable specific packages with `package.values.networkPolicies.enabled`
+  # -- Toggle all package NetworkPolicies. For integrated packages that consume bb-common as a subchart, use `packages.<name>.values.bb-common.networkPolicies.enabled` to override a specific package.
   enabled: true
   # -- Control Plane CIDR, defaults to 0.0.0.0/0, use `kubectl get endpoints -n default kubernetes` to get the CIDR range needed for your cluster
   # Must be an IP CIDR range (x.x.x.x/x - ideally with /32 for the specific IP of a single endpoint, broader range for multiple masters/endpoints)
@@ -609,11 +609,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
       path: "./chart"
-      tag: "2.32.0-bb.0"
+      tag: "2.33.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "kiali"
-      tag: "2.32.0-bb.0"
+      tag: "2.33.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Kiali Package
     flux:
@@ -694,11 +694,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
       path: "./chart"
-      tag: "3.9.1-bb.1"
+      tag: "3.9.1-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "kyverno"
-      tag: "3.9.1-bb.1"
+      tag: "3.9.1-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Kyverno Package
     flux:
@@ -1791,11 +1791,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.4.1-bb.4"
+      tag: "2026.5.1002-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.4.1-bb.4"
+      tag: "2026.5.1002-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -1894,11 +1894,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/anchore-enterprise.git
       path: "./chart"
-      tag: "4.1.2-bb.2"
+      tag: "4.4.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "anchore-enterprise"
-      tag: "4.1.2-bb.2"
+      tag: "4.4.1-bb.0"
     # -- Flux reconciliation overrides specifically for the Anchore Package
     flux:
       upgrade:
@@ -1981,11 +1981,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost-operator.git
       path: "./chart"
-      tag: "1.25.9-bb.1"
+      tag: "1.25.9-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost-operator"
-      tag: "1.25.9-bb.1"
+      tag: "1.25.9-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Operator Package
     flux: {}
@@ -2006,11 +2006,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.11.0-bb.0"
+      tag: "11.11.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.11.0-bb.0"
+      tag: "11.11.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
