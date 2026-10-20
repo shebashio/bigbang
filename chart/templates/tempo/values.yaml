@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.tempo.enabled }}
+{{- if .Values.packages.tempo.enabled }}
 {{- /* Create a cleaned copy of tempo config and merge deprecated paths into current paths */ -}}
-{{- $tempoPackage := deepCopy .Values.tempo -}}
-{{- if .Values.tempo.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.tempo.values) | fromYaml -}}
+{{- $tempoPackage := deepCopy .Values.packages.tempo -}}
+{{- if .Values.packages.tempo.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.tempo.values) | fromYaml -}}
 {{- $tempoPackage = set $tempoPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict "root" $ "package" $tempoPackage "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
@@ -11,8 +11,8 @@
 
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.tempo.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $storageMode := dig "upstream" "tempo" "storage" "trace" "backend" "local" .Values.tempo.values }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.tempo.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
+{{- $storageMode := dig "upstream" "tempo" "storage" "trace" "backend" "local" .Values.packages.tempo.values }}
 
 upstream:
   # --- Add writable runtime volume ---
@@ -24,7 +24,7 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- if .Values.kiali.enabled }}
+  {{- if .Values.packages.kiali.enabled }}
   podLabels:
     service.istio.io/canonical-name: tempo-tempo
   {{- end }}
@@ -36,7 +36,7 @@ upstream:
     pullPolicy: {{ .Values.imagePullPolicy }}
     global_overrides:
       ingestion_rate_limit_bytes: 30000000
-  {{- with .Values.tempo.objectStorage }}
+  {{- with .Values.packages.tempo.objectStorage }}
   {{- if and .endpoint .region .bucket }}
     storage: 
       trace:
@@ -49,7 +49,7 @@ upstream:
           forcepathstyle: true
   {{- end }}
   {{- end }}
-  {{- if and .Values.tempo.metricsGenerator.enabled .Values.monitoring.enabled }}
+  {{- if and .Values.packages.tempo.metricsGenerator.enabled .Values.packages.monitoring.enabled }}
     metricsGenerator:
       enabled: true
       remoteWriteUrl: "http://monitoring-monitoring-kube-prometheus.monitoring.svc:9090/api/v1/write"
@@ -96,7 +96,7 @@ routes:
       port: 3200
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.tempo.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.tempo.values }}
       hosts:
       - repo1.dso.mil
       - grafana.{{ $domainName }}
@@ -108,25 +108,25 @@ networkPolicies:
       tempo:3200:
         from:
           k8s:
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-            kiali-service-account@kiali/kiali: {{ .Values.kiali.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+            kiali-service-account@kiali/kiali: {{ .Values.packages.kiali.enabled }}
       tempo:4317:
         from:
           k8s:
-            alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
-            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.alloy.enabled }}
+            alloy-alloy-operator@alloy/alloy: {{ .Values.packages.alloy.enabled }}
+            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
+            alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.packages.alloy.enabled }}
   egress:
     from:
       tempo:
         to:
           k8s:
-            monitoring/prometheus:9090: {{ .Values.monitoring.enabled }}
+            monitoring/prometheus:9090: {{ .Values.packages.monitoring.enabled }}
           definition:
             # TODO: Revisit this logic for bb 4.0
-            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.tempo.objectStorage.endpoint )) }}
+            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.packages.tempo.objectStorage.endpoint )) }}
 
 istio:
   hardened:
@@ -138,14 +138,14 @@ bbtests:
     envs:
       cypress_url: {{ printf "https://tempo.%s" $domainName | quote }}
       cypress_tempo_datasource: 'http://tempo-tempo.tempo.svc:3200'
-      cypress_check_datasource: {{ .Values.grafana.enabled | quote }}
+      cypress_check_datasource: {{ .Values.packages.grafana.enabled | quote }}
       cypress_grafana_url: {{ printf "https://grafana.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.tempo "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.tempo "values" .Values) | nindent 6 }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 sso:
-  enabled: {{ .Values.tempo.sso.enabled }}
+  enabled: {{ .Values.packages.tempo.sso.enabled }}
 
 {{- end -}}

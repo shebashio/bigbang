@@ -3,7 +3,7 @@ suite: Package - Elasticsearch-Kibana - Values Overlays Tests
 templates:
   - templates/elasticsearch-kibana/values.yaml
 set:
-  elasticsearchKibana.enabled: true
+  packages.elasticsearchKibana.enabled: true
 postRenderer:
   cmd: "sh"
   args:
@@ -12,7 +12,7 @@ postRenderer:
 tests:
   - it: should map customServiceEntries to istio.serviceEntries.custom
     set:
-      elasticsearchKibana.values.istio.hardened.customServiceEntries:
+      packages.elasticsearchKibana.values.istio.hardened.customServiceEntries:
         - name: "test-service-entry"
           hosts:
             - "example.com"
@@ -25,7 +25,7 @@ tests:
           value: "example.com"
   - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
     set:
-      elasticsearchKibana.values.istio.hardened.customAuthorizationPolicies:
+      packages.elasticsearchKibana.values.istio.hardened.customAuthorizationPolicies:
         - name: "test-authz-policy"
           labels:
             app: "elasticsearch-kibana"
@@ -38,12 +38,12 @@ tests:
           value: "elasticsearch-kibana"
   - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
     set:
-      elasticsearchKibana.values.istio.hardened.customServiceEntries:
+      packages.elasticsearchKibana.values.istio.hardened.customServiceEntries:
         - name: "hardened-entry"
           spec:
             hosts:
               - "hardened.example.com"
-      elasticsearchKibana.values.istio.serviceEntries.custom:
+      packages.elasticsearchKibana.values.istio.serviceEntries.custom:
         - name: "custom-entry"
           spec:
             hosts:

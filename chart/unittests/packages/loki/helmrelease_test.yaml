@@ -3,11 +3,12 @@ suite: Packages - Loki - HelmRelease
 tests:
 - it: must create a postRenderers key when loki's mode is distributed and istio is enabled
   set:
-    istiod:
-      enabled: true
-    loki:
-      enabled: true
-      strategy: distributed
+    packages:
+      istiod:
+        enabled: true
+      loki:
+        enabled: true
+        strategy: distributed
   template: loki/helmrelease.yaml
   asserts:
   - exists:
@@ -15,11 +16,12 @@ tests:
 
 - it: must not create a postRenderers key when loki's mode is not distributed and istio is enabled
   set:
-    istiod:
-      enabled: true
-    loki:
-      enabled: true
-      strategy: monolith
+    packages:
+      istiod:
+        enabled: true
+      loki:
+        enabled: true
+        strategy: monolith
   template: loki/helmrelease.yaml
   asserts:
   - notExists:
@@ -27,11 +29,12 @@ tests:
 
 - it: must not create a postRenderers key when loki's mode is distributed and istio is not enabled
   set:
-    istiod:
-      enabled: false
-    loki:
-      enabled: true
-      strategy: distributed
+    packages:
+      istiod:
+        enabled: false
+      loki:
+        enabled: true
+        strategy: distributed
   template: loki/helmrelease.yaml
   asserts:
   - notExists:

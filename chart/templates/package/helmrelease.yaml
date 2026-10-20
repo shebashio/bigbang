@@ -74,8 +74,8 @@ spec:
 
   {{- /* Always wait on policy enforcement */ -}}
   {{- $includeDefaultDependsOn := dig "includeDefaultDependsOn" true $vals -}}
-  {{- $gatekeeperDep := $.Values.gatekeeper.enabled -}}
-  {{- $kyvernoDep := $.Values.kyvernoPolicies.enabled -}}
+  {{- $gatekeeperDep := $.Values.packages.gatekeeper.enabled -}}
+  {{- $kyvernoDep := $.Values.packages.kyvernoPolicies.enabled -}}
   {{- /* Wait on Istio whenever Big Bang injects bb-common Istio values or sidecar injection is enabled.
          bb-common renders Istio resources in ambient mode and when sidecar injection is disabled, and
          those resources require istiod's validation webhook to be ready. */ -}}

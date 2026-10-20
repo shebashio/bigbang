@@ -73,7 +73,7 @@ These values get passed into the metric server chart [here](https://repo1.dso.mi
 Big Bang deploys Metrics Server to the `kube-system` namespace by default. To deploy to a custom namespace and have Big Bang create that namespace, set:
 
 ```yaml
-addons:
+packages:
   metricsServer:
     namespace:
       name: custom-metrics

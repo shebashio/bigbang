@@ -1,5 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if and .Values.monitoring.enabled .Values.grafana.enabled }}
+{{- if and .Values.packages.monitoring.enabled .Values.packages.grafana.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,7 +12,7 @@ data:
     {{ .Files.Get "dashboards/flux/cluster.json"  | nindent 4 }}
   flux-control-plane-dashboard.json: |
     {{ .Files.Get "dashboards/flux/control-plane.json" | nindent 4 }}
-  {{- if .Values.loki.enabled }}
+  {{- if .Values.packages.loki.enabled }}
   flux-logs-dashboard.json: |
     {{ .Files.Get "dashboards/flux/logs.json" | nindent 4 }}
   {{- end }}

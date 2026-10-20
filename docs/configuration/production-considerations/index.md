@@ -28,4 +28,4 @@ For every production package:
 
 These guides explain how Big Bang values configure each integration. The package repositories remain authoritative for component-specific settings, supported versions, migrations, and detailed operating procedures. General backup and recovery guidance belongs under [Operations](../../operations/), and version transitions belong under [Migration](../../migration/).
 
-Values under `addons.<package>.values` pass through to the corresponding package chart. Consult the selected package version's chart values and documentation before adding passthrough values.
+Values under `packages.<package>.values` pass through to the corresponding package chart. Consult the selected package version's chart values and documentation before adding passthrough values.

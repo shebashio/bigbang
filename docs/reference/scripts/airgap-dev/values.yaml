@@ -1,5 +1,5 @@
 # -- Domain used for BigBang created exposed services, can be overridden by individual packages.
-hostname: dev.bigbang.mil
+domain: dev.bigbang.mil
 registryCredentials:
   registry: host.k3d.internal
   username: ""
@@ -15,52 +15,52 @@ flux:
     cleanupOnFail: false
 
 
-eckOperator:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/eck-operator
+packages:
+  eckOperator:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/eck-operator
 
-fluentbit:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/fluentbit
-elasticsearchKibana:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/elasticsearch-kibana
+  fluentbit:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/fluentbit
+  elasticsearchKibana:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/elasticsearch-kibana
 
-istioCRDs:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/istio-crds
+  istioCRDs:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/istio-crds
 
-istiod:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/istiod
+  istiod:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/istiod
 
-istioGateway:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/istio-gateway
+  istioGateway:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/istio-gateway
 
-monitoring:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/monitoring
+  monitoring:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/monitoring
 
-gatekeeper:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/policy
+  gatekeeper:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/policy
 
-twistlock:
-  enabled: true
-  git:
-    repo: ssh://git@host.k3d.internal/home/git/repos/twistlock
+  twistlock:
+    enabled: true
+    git:
+      repo: ssh://git@host.k3d.internal/home/git/repos/twistlock
 
-# Explicitly enable all addons for CI
-addons:
+  # Explicitly enable all addons for CI
   argocd:
     enabled: false
     git:

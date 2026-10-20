@@ -5,10 +5,10 @@ tests:
     template: gateway-api/git-credentials.yaml
     set:
       istio.ambient.enabled: true
-      gatewayAPI.enabled: false
-      gatewayAPI.sourceType: git
-      gatewayAPI.git.credentials.username: user
-      gatewayAPI.git.credentials.password: password
+      packages.gatewayAPI.enabled: false
+      packages.gatewayAPI.sourceType: git
+      packages.gatewayAPI.git.credentials.username: user
+      packages.gatewayAPI.git.credentials.password: password
     asserts:
       - isKind:
           of: Secret
@@ -20,10 +20,10 @@ tests:
     template: gateway-api/gitrepository.yaml
     set:
       istio.ambient.enabled: true
-      gatewayAPI.enabled: false
-      gatewayAPI.sourceType: git
-      gatewayAPI.git.credentials.username: user
-      gatewayAPI.git.credentials.password: password
+      packages.gatewayAPI.enabled: false
+      packages.gatewayAPI.sourceType: git
+      packages.gatewayAPI.git.credentials.username: user
+      packages.gatewayAPI.git.credentials.password: password
     asserts:
       - equal:
           path: spec.secretRef.name
@@ -32,11 +32,11 @@ tests:
   - it: should render istio CNI git credentials when ztunnel enables ambient mode
     template: istio-cni/git-credentials.yaml
     set:
-      ztunnel.enabled: true
-      istioCNI.enabled: false
-      istioCNI.sourceType: git
-      istioCNI.git.credentials.username: user
-      istioCNI.git.credentials.password: password
+      packages.ztunnel.enabled: true
+      packages.istioCNI.enabled: false
+      packages.istioCNI.sourceType: git
+      packages.istioCNI.git.credentials.username: user
+      packages.istioCNI.git.credentials.password: password
     asserts:
       - isKind:
           of: Secret
@@ -48,10 +48,10 @@ tests:
     template: ztunnel/git-credentials.yaml
     set:
       istio.ambient.enabled: true
-      ztunnel.enabled: false
-      ztunnel.sourceType: git
-      ztunnel.git.credentials.username: user
-      ztunnel.git.credentials.password: password
+      packages.ztunnel.enabled: false
+      packages.ztunnel.sourceType: git
+      packages.ztunnel.git.credentials.username: user
+      packages.ztunnel.git.credentials.password: password
     asserts:
       - isKind:
           of: Secret
@@ -62,10 +62,10 @@ tests:
   - it: should enable the Istiod CNI configuration when ztunnel enables ambient mode
     template: istiod/values.yaml
     set:
-      istiod.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: false
-      istioCNI.enabled: false
-      ztunnel.enabled: true
+      packages.istioCNI.enabled: false
+      packages.ztunnel.enabled: true
     asserts:
       - matchRegex:
           path: stringData.defaults
@@ -82,13 +82,14 @@ tests:
           remediation:
             retries: 3
             remediateLastFailure: true
-      ztunnel:
-        flux:
-          upgrade:
-            cleanupOnFail: false
-            remediation:
-              retries: 0
-              remediateLastFailure: false
+      packages:
+        ztunnel:
+          flux:
+            upgrade:
+              cleanupOnFail: false
+              remediation:
+                retries: 0
+                remediateLastFailure: false
     asserts:
       - equal:
           path: spec.timeout

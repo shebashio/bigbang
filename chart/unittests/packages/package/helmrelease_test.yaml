@@ -6,12 +6,6 @@ release:
   name: test
   namespace: bigbang
 set:
-  gatekeeper:
-    enabled: true
-  kyvernoPolicies:
-    enabled: false
-  istiod:
-    enabled: false
   packages:
     sample:
       enabled: true
@@ -19,6 +13,12 @@ set:
         repo: https://example.com/sample.git
         path: chart
         tag: 1.0.0
+    gatekeeper:
+      enabled: true
+    kyvernoPolicies:
+      enabled: false
+    istiod:
+      enabled: false
 tests:
   - it: should use chart as the default path for a Git Helm package
     set:
@@ -63,8 +63,8 @@ tests:
 
   - it: should depend on istiod when bb-common Istio values are injected
     set:
-      gatekeeper.enabled: false
-      istiod.enabled: true
+      packages.gatekeeper.enabled: false
+      packages.istiod.enabled: true
     asserts:
       - contains:
           path: spec.dependsOn
@@ -74,8 +74,8 @@ tests:
 
   - it: should depend on the complete ambient mesh when bb-common Istio values are injected
     set:
-      gatekeeper.enabled: false
-      istiod.enabled: true
+      packages.gatekeeper.enabled: false
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
     asserts:
       - contains:
@@ -96,8 +96,8 @@ tests:
 
   - it: should not depend on istio when bb-common values and sidecar injection are disabled
     set:
-      gatekeeper.enabled: false
-      istiod.enabled: true
+      packages.gatekeeper.enabled: false
+      packages.istiod.enabled: true
       packages.sample.bbCommonValues: false
       packages.sample.istio.injection: disabled
     asserts:

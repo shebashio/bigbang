@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.minioOperator.enabled: true
+      packages.minioOperator.enabled: true
       registryCredentials.registry: registry1.dso.mil
       registryCredentials.username: test
       registryCredentials.password: test

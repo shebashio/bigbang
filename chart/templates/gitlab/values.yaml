@@ -1,15 +1,15 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.gitlab.enabled }}
-{{- $objectStorageValues := .Values.addons.gitlab.objectStorage -}}
+{{- if .Values.packages.gitlab.enabled }}
+{{- $objectStorageValues := .Values.packages.gitlab.objectStorage -}}
 {{- range $endpointName := list "endpoint" "regionendpoint" -}}
   {{- $endpointValue := get $objectStorageValues $endpointName -}}
   {{- if and (not (empty $endpointValue)) (not (regexMatch "^https?://" ($endpointValue | toString))) -}}
     {{- fail (printf "addons.gitlab.objectStorage.%s must begin with http:// or https:// when set" $endpointName) -}}
   {{- end -}}
 {{- end -}}
-{{- $gitlabPackage := deepCopy .Values.addons.gitlab -}}
-{{- if .Values.addons.gitlab.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.gitlab.values) | fromYaml -}}
+{{- $gitlabPackage := deepCopy .Values.packages.gitlab -}}
+{{- if .Values.packages.gitlab.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.gitlab.values) | fromYaml -}}
 {{- $gitlabPackage = set $gitlabPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict 
@@ -19,7 +19,7 @@
   "defaults" ((mergeOverwrite (include "bigbang.defaults.gitlab" . | fromYaml) (include "bigbang.gitlab.bb-common-migrations" . | fromYaml)) | toYaml)
 )}}
 {{- end }}
-{{- if and (ne .Values.addons.gitlab.objectStorage.iamProfile "") (ne .Values.addons.gitlab.objectStorage.accessKey "") }}{{- fail "Must choose to use an IAM profile OR an AWS accessKey/accessSecret at .Values.addons.gitlab.objectStorage" }}{{- end }}
+{{- if and (ne .Values.packages.gitlab.objectStorage.iamProfile "") (ne .Values.packages.gitlab.objectStorage.accessKey "") }}{{- fail "Must choose to use an IAM profile OR an AWS accessKey/accessSecret at .Values.packages.gitlab.objectStorage" }}{{- end }}
 {{- define "bigbang.defaults.gitlab" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -28,13 +28,13 @@ domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $extObjStorageIsConfigured := (or .Values.addons.gitlab.objectStorage.region .Values.addons.gitlab.objectStorage.endpoint) }}
-{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" false .Values.addons.gitlab.values }}
-{{- $iamProfile := (and (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
-{{- $kasEnabled := dig "global" "kas" "enabled" false .Values.addons.gitlab.values }}
+{{- $extObjStorageIsConfigured := (or .Values.packages.gitlab.objectStorage.region .Values.packages.gitlab.objectStorage.endpoint) }}
+{{- $consolidatedObjStoreEnabled := dig "global" "appConfig" "object_store" "enabled" false .Values.packages.gitlab.values }}
+{{- $iamProfile := (and (ne .Values.packages.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured) }}
+{{- $kasEnabled := dig "global" "kas" "enabled" false .Values.packages.gitlab.values }}
 {{- $externalRedisConfigured := eq (include "bigbang.gitlab.externalRedisConfigured" .) "true" }}
 {{- $externalPostgresConfigured := eq (include "bigbang.gitlab.externalPostgresConfigured" .) "true" }}
-{{- $gitlabGlobalValues := (get .Values.addons.gitlab.values "global") | default dict }}
+{{- $gitlabGlobalValues := (get .Values.packages.gitlab.values "global") | default dict }}
 {{- $gitlabRedisValues := dict }}
 {{- $gitlabPsqlValues := dict }}
 {{- if kindIs "map" $gitlabGlobalValues }}
@@ -105,7 +105,7 @@ routes:
         app: registry
     {{- if $kasEnabled }}
     kas:
-      enabled: {{ dig "global" "kas" "enabled" true .Values.addons.gitlab.values }}
+      enabled: {{ dig "global" "kas" "enabled" true .Values.packages.gitlab.values }}
       gateways:
       - istio-gateway/public-ingressgateway
       hosts:
@@ -141,7 +141,7 @@ routes:
         protocol: TCP
       {{- end }}
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.gitlab.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlab.values }}
       hosts:
       - 'repo1.dso.mil'
       - 'registry1.dso.mil'
@@ -150,7 +150,7 @@ routes:
       - registry.{{ $domainName }}
       - keycloak.{{ $domainName }}
 
-{{- $istioHardened := dig "hardened" "enabled" false .Values.istiod.values }}
+{{- $istioHardened := dig "hardened" "enabled" false .Values.packages.istiod.values }}
 istio:
   sidecar:
     enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
@@ -161,24 +161,24 @@ networkPolicies:
       redis:9121: 
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisConfigured) .Values.monitoring.enabled (dig "redis" "install" true .Values.addons.gitlab.values) }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisConfigured) .Values.packages.monitoring.enabled (dig "redis" "install" true .Values.packages.gitlab.values) }}
       gitlab-exporter:9168:
         podSelector:
           matchLabels:
             app: gitlab-exporter
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       gitaly:9236:
         podSelector:
           matchLabels:
             app: gitaly
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       webservice:8181:
         podSelector:
           matchLabels:
@@ -188,7 +188,7 @@ networkPolicies:
             # Allow any service account from the gitlab-runner namespace; the runner 
             # coordinator has a different service account to the jobs it runs
             gitlab-runner/gitlab-runner: 
-              enabled: {{ .Values.addons.gitlabRunner.enabled }}
+              enabled: {{ .Values.packages.gitlabRunner.enabled }}
               podSelector:
                 matchLabels:
                   app: gitlab-runner
@@ -198,8 +198,8 @@ networkPolicies:
             app: webservice
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
 
       registry:5001:
         podSelector:
@@ -207,8 +207,8 @@ networkPolicies:
             app: registry
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       {{- if $kasEnabled }}
       kas:[8150,8153]:
         podSelector:
@@ -216,8 +216,8 @@ networkPolicies:
             app: kas
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       {{- end }}
 
       gitlab-runner:9252:
@@ -226,8 +226,8 @@ networkPolicies:
             app: gitlab-runner
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
   egress:
     from:
       "*":
@@ -235,7 +235,7 @@ networkPolicies:
           definition:
             kubeAPI: true
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
       sidekiq:
         to:
           definition:
@@ -281,7 +281,7 @@ networkPolicies:
           definition:
             redis-subnets: true
       {{- end }}
-      {{- if and $externalRedisConfigured (dig "upstream" "gitlab" "mailroom" "enabled" false .Values.addons.gitlab.values) }}
+      {{- if and $externalRedisConfigured (dig "upstream" "gitlab" "mailroom" "enabled" false .Values.packages.gitlab.values) }}
       mailroom:
         podSelector:
           matchLabels:
@@ -296,13 +296,13 @@ bbtests:
   cypress:
     envs:
       cypress_url: {{ printf "https://gitlab.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.gitlab "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.gitlab "values" .Values) | nindent 6 }}
   scripts:
     envs:
       GITLAB_REGISTRY: registry.{{ $domainName }}
 
 upstream:
-  {{- if and (or $istioEnabled .Values.monitoring.enabled) (dig "redis" "install" true .Values.addons.gitlab.values) }}
+  {{- if and (or $istioEnabled .Values.packages.monitoring.enabled) (dig "redis" "install" true .Values.packages.gitlab.values) }}
   redis:
     {{- if eq (include "metricScrapingEnabled" .) "true" }}
     metrics:
@@ -320,9 +320,9 @@ upstream:
     {{- end }}
   {{- end }}
 
-  {{- if or .Values.addons.gitlab.database.host $istioEnabled }}
+  {{- if or .Values.packages.gitlab.database.host $istioEnabled }}
   postgresql:
-    {{- if .Values.addons.gitlab.database.host }}
+    {{- if .Values.packages.gitlab.database.host }}
     install: false
     {{- end }}
     {{- if $istioEnabled }}
@@ -345,13 +345,13 @@ upstream:
     {{- if or $iamProfile $istioEnabled }}
     annotations: 
       {{- if $iamProfile }}
-      iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+      iam.amazonaws.com/role: {{ .Values.packages.gitlab.objectStorage.iamProfile }}
       {{- end }}
       {{- if $istioEnabled }}
       {{ include "istioAnnotation" . }}
       {{- end }}
     {{- end }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
     metrics:
       serviceMonitor:
         endpointConfig:
@@ -377,7 +377,7 @@ upstream:
       {{- if or $iamProfile $istioEnabled }}
       annotations:
         {{- if $iamProfile }}
-        iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+        iam.amazonaws.com/role: {{ .Values.packages.gitlab.objectStorage.iamProfile }}
         {{- end }}
         {{- if $istioEnabled }}
         {{ include "istioAnnotation" . }}
@@ -391,7 +391,7 @@ upstream:
         annotations:
           {{ include "istioAnnotation" . }}
       {{- end }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
       metrics:
         serviceMonitor:
           endpointConfig:
@@ -405,7 +405,7 @@ upstream:
 
     {{- if or $iamProfile $istioEnabled }}
     webservice:
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
       metrics:
         serviceMonitor:
           endpointConfig:
@@ -429,7 +429,7 @@ upstream:
     {{- if or $iamProfile $istioEnabled }}
       annotations: 
         {{- if $iamProfile }}
-        iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+        iam.amazonaws.com/role: {{ .Values.packages.gitlab.objectStorage.iamProfile }}
         {{- end }}
         {{- if $istioEnabled }}
         {{ include "istioAnnotation" . }}
@@ -437,7 +437,7 @@ upstream:
     sidekiq:
       annotations: 
         {{- if $iamProfile }}
-        iam.amazonaws.com/role: {{ .Values.addons.gitlab.objectStorage.iamProfile }}
+        iam.amazonaws.com/role: {{ .Values.packages.gitlab.objectStorage.iamProfile }}
         {{- end }}
         {{- if $istioEnabled }}
         {{ include "istioAnnotation" . }}
@@ -451,7 +451,7 @@ upstream:
     gitaly:
       annotations:
         {{ include "istioAnnotation" . }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
       metrics:
         serviceMonitor:
           endpointConfig:
@@ -465,7 +465,7 @@ upstream:
     gitlab-shell:
       annotations:
         {{ include "istioAnnotation" . }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
       metrics:
         serviceMonitor:
           endpointConfig:
@@ -480,7 +480,7 @@ upstream:
     kas:
       annotations:
         {{ include "istioAnnotation" . }}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.gitlab .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.gitlab .)) "true" }}
       metrics:
         serviceMonitor:
           endpointConfig:
@@ -507,10 +507,10 @@ upstream:
   {{- end }}
 
 global:
-  {{- if and .Values.addons.gitlab.sso.enabled (or (dig "certificateAuthority" "secretName" false .Values.sso) .Values.sso.secretName) }}
+  {{- if and .Values.packages.gitlab.sso.enabled (or (dig "certificateAuthority" "secretName" false .Values.sso) .Values.sso.secretName) }}
   certificates:
     customCAs:
-      {{- if and .Values.addons.gitlab.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
+      {{- if and .Values.packages.gitlab.sso.enabled (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
       - secret: {{ default (dig "certificateAuthority" "secretName" "" .Values.sso) .Values.sso.secretName }}
       {{- end }}
       - secret: ca-certs-australian-defence-organisation-cross-cert-chain
@@ -556,22 +556,22 @@ global:
     domain: {{ $domainName }}
 
     gitlab:
-      name: {{ .Values.addons.gitlab.hostnames.gitlab }}.{{ $domainName }}
+      name: {{ .Values.packages.gitlab.hostnames.gitlab }}.{{ $domainName }}
 
     registry:
-      name: {{ .Values.addons.gitlab.hostnames.registry }}.{{ $domainName }}
+      name: {{ .Values.packages.gitlab.hostnames.registry }}.{{ $domainName }}
 
-  {{- if or (ne .Values.addons.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured }}
+  {{- if or (ne .Values.packages.gitlab.objectStorage.iamProfile "") $extObjStorageIsConfigured }}
   minio:
     enabled: false
   {{- end }}
 
-  {{- if .Values.addons.gitlab.database.host }}
+  {{- if .Values.packages.gitlab.database.host }}
   psql:
-    host: {{ .Values.addons.gitlab.database.host }}
-    port: {{ .Values.addons.gitlab.database.port }}
-    username: {{ .Values.addons.gitlab.database.username }}
-    database: {{ .Values.addons.gitlab.database.database }}
+    host: {{ .Values.packages.gitlab.database.host }}
+    port: {{ .Values.packages.gitlab.database.port }}
+    username: {{ .Values.packages.gitlab.database.username }}
+    database: {{ .Values.packages.gitlab.database.database }}
     password:
       secret: gitlab-database
       key: PGPASSWORD
@@ -579,30 +579,30 @@ global:
 
   {{- if $extObjStorageIsConfigured }}
   registry:
-    {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-    bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
+    {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+    bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-registry
     {{- else }}
     bucket: gitlab-registry
     {{- end }}
   {{- end }}
 
-  {{- if or .Values.addons.gitlab.sso.enabled $extObjStorageIsConfigured $consolidatedObjStoreEnabled }}
+  {{- if or .Values.packages.gitlab.sso.enabled $extObjStorageIsConfigured $consolidatedObjStoreEnabled }}
   appConfig:
     {{- end }}
 
-    {{- if .Values.addons.gitlab.sso.enabled }}
+    {{- if .Values.packages.gitlab.sso.enabled }}
     omniauth:
       enabled: true
-      {{- $global := .Values.addons.gitlab.values.global | default dict }}
+      {{- $global := .Values.packages.gitlab.values.global | default dict }}
       {{- $appConfig := $global.appConfig | default dict }}
       {{- $omniauth := $appConfig.omniauth | default dict }}
       {{- if hasKey $omniauth "allowSingleSignOn" }}
-      allowSingleSignOn: {{ .Values.addons.gitlab.values.global.appConfig.omniauth.allowSingleSignOn }}
+      allowSingleSignOn: {{ .Values.packages.gitlab.values.global.appConfig.omniauth.allowSingleSignOn }}
       {{- else }}
       allowSingleSignOn: ['openid_connect']
       {{- end }}
       {{- if hasKey $omniauth "blockAutoCreatedUsers" }}
-      blockAutoCreatedUsers: {{ .Values.addons.gitlab.values.global.appConfig.omniauth.blockAutoCreatedUsers }}
+      blockAutoCreatedUsers: {{ .Values.packages.gitlab.values.global.appConfig.omniauth.blockAutoCreatedUsers }}
       {{- else }}
       blockAutoCreatedUsers: false
       {{- end }}
@@ -622,8 +622,8 @@ global:
     {{- end }}
 
     lfs:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-lfs
       {{- else }}
       bucket: gitlab-lfs
       {{- end }}
@@ -634,8 +634,8 @@ global:
       {{- end }}
 
     artifacts:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-artifacts
       {{- else }}
       bucket: gitlab-artifacts
       {{- end }}
@@ -646,8 +646,8 @@ global:
       {{- end }}
 
     uploads:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-uploads
       {{- else }}
       bucket: gitlab-uploads
       {{- end }}
@@ -658,8 +658,8 @@ global:
       {{- end }}
 
     packages:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-packages
       {{- else }}
       bucket: gitlab-packages
       {{- end }}
@@ -670,8 +670,8 @@ global:
       {{- end }}
 
     externalDiffs:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-mr-diffs
       {{- else }}
       bucket: gitlab-mr-diffs
       {{- end }}
@@ -682,8 +682,8 @@ global:
       {{- end }}
 
     terraformState:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-terraform-state
       {{- else }}
       bucket: gitlab-terraform-state
       {{- end }}
@@ -695,8 +695,8 @@ global:
 
     dependencyProxy:
       enabled: true
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-dependency-proxy
       {{- else }}
       bucket: gitlab-dependency-proxy
       {{- end }}
@@ -707,8 +707,8 @@ global:
       {{- end }}
 
     pseudonymizer:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-pseudo
       {{- else }}
       bucket: gitlab-pseudo
       {{- end }}
@@ -717,19 +717,19 @@ global:
         key: rails
 
     backups:
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      bucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      bucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-backup
       {{- else }}
       bucket: gitlab-backup
       {{- end }}
-      {{- if .Values.addons.gitlab.objectStorage.bucketPrefix }}
-      tmpBucket: {{ .Values.addons.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
+      {{- if .Values.packages.gitlab.objectStorage.bucketPrefix }}
+      tmpBucket: {{ .Values.packages.gitlab.objectStorage.bucketPrefix }}-gitlab-backup-tmp
       {{- else }}
       tmpBucket: gitlab-backup-tmp
     {{- end }}
   {{- end }}
 
-  {{- if and (ne .Values.addons.gitlab.redis.password "") (or .Values.addons.gitlab.enabled .Values.addons.gitlabRunner.enabled) }}
+  {{- if and (ne .Values.packages.gitlab.redis.password "") (or .Values.packages.gitlab.enabled .Values.packages.gitlabRunner.enabled) }}
   redis:
     auth:
       enabled: true
@@ -737,19 +737,19 @@ global:
       key: "secret"
   {{- end }}
 
-  {{- if .Values.addons.gitlab.smtp.password }}
+  {{- if .Values.packages.gitlab.smtp.password }}
   smtp:
     password:
       secret: "gitlab-smtp-password"
   {{- end }}
 
-  {{- if .Values.addons.gitlab.railsSecret }}
+  {{- if .Values.packages.gitlab.railsSecret }}
   railsSecrets:
     secret: "gitlab-rails-secret-bb"
   {{- end }}
 
 
-{{- if ne .Values.addons.gitlab.objectStorage.iamProfile "" }}
+{{- if ne .Values.packages.gitlab.objectStorage.iamProfile "" }}
 use_iam_profile: true
 {{- end }}
 {{- end -}}
@@ -763,7 +763,7 @@ use_iam_profile: true
 
   {{- $defaults := fromYaml (include "bigbang.defaults.gitlab" .) }}
 
-  {{- $overlays := dig "values" dict .Values.addons.gitlab }}
+  {{- $overlays := dig "values" dict .Values.packages.gitlab }}
   {{- range $certificates, $default := $defaults.global }}
     {{- $overlay := (dig "global" $certificates dict $overlays) }}
     # Only continue if an overlay matches a default constriant and hidden "skipOverlayMerge" is not set

@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      istiod.values.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -22,10 +22,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.redis.password: test-password
-      addons.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
-      addons.gitlab.values.global.redis.port: 6379
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
+      packages.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
+      packages.gitlab.values.global.redis.port: 6379
     asserts:
       - equal:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[1].url
@@ -37,10 +37,10 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.redis.password: test-password
-      addons.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
-      addons.gitlab.values.global.redis.port: 6379
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
+      packages.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
+      packages.gitlab.values.global.redis.port: 6379
     asserts:
       - equal:
           path: bb-common.routes.outbound["external-gitlab-redis"].enabled
@@ -59,8 +59,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.argocd.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.argocd.example.internal
     asserts:
       - notEqual:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[0].name
@@ -76,8 +76,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.argocd.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.argocd.example.internal
     asserts:
       - notExists:
           path: bb-common.routes.outbound["external-argocd-redis"]

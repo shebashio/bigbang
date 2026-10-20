@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.sonarqube.enabled: true
+      packages.sonarqube.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

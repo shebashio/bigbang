@@ -10,7 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.velero.enabled: true
+      packages.velero.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

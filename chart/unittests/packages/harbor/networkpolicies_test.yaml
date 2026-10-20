@@ -12,8 +12,8 @@ postRenderer:
 tests:
   - it: should create database-subnets egress NetworkPolicy when postgresql is disabled
     set:
-      addons.harbor.enabled: true
-      addons.harbor.values.postgresql.enabled: false
+      packages.harbor.enabled: true
+      packages.harbor.values.postgresql.enabled: false
       networkPolicies.enabled: true
     documentSelector:
       path: metadata.name
@@ -27,8 +27,8 @@ tests:
           value: allow-egress-from-harbor-to-database-subnets
   - it: should create redis-subnets egress NetworkPolicy when external Redis is configured
     set:
-      addons.harbor.enabled: true
-      addons.harbor.values.redis.external.addr: redis.example.internal:6380
+      packages.harbor.enabled: true
+      packages.harbor.values.redis.external.addr: redis.example.internal:6380
       networkPolicies.enabled: true
     documentSelector:
       path: metadata.name
