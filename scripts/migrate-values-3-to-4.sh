@@ -893,7 +893,23 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
 
   # Remove deprecated global hardening key from istiod.
   if yq -e '.packages.istiod.values | has("hardened")' "$WORK_FILE" >/dev/null 2>&1; then
-    yq -i 'del(.packages.istiod.values.hardened)' "$WORK_FILE"
+    istiod_hardened_authz_count=$(yq -r '
+      (.packages.istiod.values.hardened.customAuthorizationPolicies // []) | length
+    ' "$WORK_FILE")
+
+    yq -i '
+      with(.packages.istiod.values;
+          with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
+            ."bb-common".istio.authorizationPolicies.custom =
+              (.hardened.customAuthorizationPolicies +
+               (."bb-common".istio.authorizationPolicies.custom // [])))
+        | del(.hardened)
+      )
+    ' "$WORK_FILE"
+
+    if [[ "$istiod_hardened_authz_count" -gt 0 ]]; then
+      MIGRATED_PATHS+=("packages.istiod.values.hardened.customAuthorizationPolicies -> packages.istiod.values.bb-common.istio.authorizationPolicies.custom")
+    fi
     yq -i 'del(.packages.istiod.values | select(tag == "!!map" and length == 0))' "$WORK_FILE"
     MIGRATED_PATHS+=("packages.istiod.values.hardened -> removed (hardening deprecated in 4.x)")
   fi

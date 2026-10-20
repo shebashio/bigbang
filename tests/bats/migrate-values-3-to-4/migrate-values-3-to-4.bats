@@ -321,6 +321,8 @@ istiod:
   values:
     hardened:
       enabled: true
+      customAuthorizationPolicies:
+        - name: root-istiod-policy
     pilot:
       autoscaleEnabled: false
     istio:
@@ -338,7 +340,8 @@ EOF
   [ "$(yq '.packages.istiod.values.pilot.autoscaleEnabled' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.packages.istiod.values.bb-common.istio | has("hardened")' "$OUTPUT_FILE")" = "false" ]
   [ "$(yq '.packages.istiod.values.bb-common.istio.serviceEntries.custom[0].name' "$OUTPUT_FILE")" = "istiod-entry" ]
-  [ "$(yq '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = "istiod-policy" ]
+  [ "$(yq -o=json -I=0 '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom | map(.name)' "$OUTPUT_FILE")" = '["root-istiod-policy","istiod-policy"]' ]
+  [[ "$stderr" == *"packages.istiod.values.hardened.customAuthorizationPolicies -> packages.istiod.values.bb-common.istio.authorizationPolicies.custom"* ]]
   [[ "$stderr" == *"packages.istiod.values.hardened -> removed (hardening deprecated in 4.x)"* ]]
   [[ "$stderr" != *"Review: the following ServiceEntries"* ]]
 }
