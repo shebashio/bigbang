@@ -1379,13 +1379,14 @@ packages:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
-      networkPolicies:
-        egress:
-          from:
-            keycloak:
-              to:
-                cidr:
-                  15.205.173.153/32:443: true  # so it can pull the files for the provision-test-data container
+      bb-common:
+        networkPolicies:
+          egress:
+            from:
+              keycloak:
+                to:
+                  cidr:
+                    15.205.173.153/32:443: true  # so it can pull the files for the provision-test-data container
       bbtests:
         enabled: true
       upstream:

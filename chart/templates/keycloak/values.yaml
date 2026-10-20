@@ -1,79 +1,72 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.keycloak.enabled }}
-{{- /* Create a cleaned copy of keycloak config and merge deprecated paths into current paths */ -}}
 {{- $keycloakPackage := deepCopy .Values.packages.keycloak -}}
-{{- if .Values.packages.keycloak.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.keycloak.values) | fromYaml -}}
-{{- $keycloakPackage = set $keycloakPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- $defaults := include "bigbang.defaults.keycloak" . -}}
 {{- /* Keep the merged extraEnv in the overlay so Flux does not replace it with the original string. */ -}}
 {{- if hasKey (dig "values" "upstream" dict $keycloakPackage) "extraEnv" -}}
 {{- $_ := set $keycloakPackage.values.upstream "extraEnv" ($defaults | fromYaml).upstream.extraEnv -}}
 {{- end -}}
-{{- include "values-secret" (dict 
-  "root" $ 
+{{- include "values-secret" (dict
+  "root" $
   "package" $keycloakPackage
-  "name" "keycloak" 
+  "name" "keycloak"
+  "bbCommonSubchart" true
   "defaults" $defaults
 ) }}
 {{- end }}
 
 {{- define "bigbang.defaults.keycloak" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.keycloak.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $monitoringEnabled := eq (include "metricScrapingEnabled" .) "true" }}
 {{- $tlsEnabled := and (not (empty .Values.packages.keycloak.ingress.cert)) (not (empty .Values.packages.keycloak.ingress.key)) -}}
 {{- $externalPostgresEnabled := or (ne .Values.packages.keycloak.database.host "") (ne (dig "upstream" "database" "hostname" "" .Values.packages.keycloak.values) "") -}}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-routes:
-  inbound:
-    keycloak:
-      enabled: true
-      gateways:
-        - {{ include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.packages.keycloak.ingress.gateway "root" .)}}
-      hosts:
-        - keycloak.{{ $domainName }}
-      service: keycloak-keycloak-http.keycloak.svc.cluster.local
-      port: {{ ternary 8443 8080 $tlsEnabled }}
-      passthrough:
-        enabled: {{ $tlsEnabled }}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.keycloak.values }}
-      hosts:
-      - repo1.dso.mil
-
-networkPolicies:
-  egress:
-    defaults:
-      allowIstiod:
-        enabled: {{ .Values.packages.istiod.enabled }}
-    from:
+bb-common:
+  routes:
+    inbound:
       keycloak:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
-  ingress:
-    defaults:
-      allowPrometheusToIstioSidecar:
-        enabled: {{ and .Values.packages.monitoring.enabled .Values.packages.istiod.enabled }}
-    to:
-      keycloak:9000:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        enabled: {{ $istioEnabled }}
+        gateways:
+          - {{ include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.packages.keycloak.ingress.gateway "root" .)}}
+        hosts:
+          - keycloak.{{ $domainName }}
+        service: keycloak-keycloak-http.keycloak.svc.cluster.local
+        port: {{ ternary 8443 8080 $tlsEnabled }}
+        passthrough:
+          enabled: {{ $tlsEnabled }}
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.keycloak.values }}
+        hosts:
+        - repo1.dso.mil
+
+  networkPolicies:
+    egress:
+      defaults:
+        allowIstiod:
+          enabled: {{ .Values.packages.istiod.enabled }}
+      from:
+        keycloak:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+            definition:
+              database-subnets: {{ $externalPostgresEnabled }}
+    ingress:
+      defaults:
+        allowPrometheusToIstioSidecar:
+          enabled: {{ and .Values.packages.monitoring.enabled .Values.packages.istiod.enabled }}
+      to:
+        keycloak:9000:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 bbtests:
   cypress:
