@@ -1,35 +1,28 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.loki.enabled }}
-{{- /* Create a cleaned copy of loki config and merge deprecated paths into current paths */ -}}
-{{- $lokiPackage := deepCopy .Values.packages.loki -}}
-{{- if .Values.packages.loki.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.loki.values) | fromYaml -}}
-{{- $lokiPackage = set $lokiPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
   "root" $ 
-  "package" $lokiPackage 
+  "package" .Values.packages.loki
   "name" "loki" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.loki" . | fromYaml) (include "bigbang.loki.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.loki" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.loki.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
+{{- /* The shared metrics helper expects mesh settings at values.istio. */ -}}
+{{- $lokiMeshConfig := deepCopy .Values.packages.loki -}}
+{{- $_ := set $lokiMeshConfig "values" (index .Values.packages.loki.values "bb-common" | default dict) -}}
 {{- $minioEnabled := dig "minio" "enabled" false .Values.packages.loki.values }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 clusterName: ""
 
 openshift: {{ .Values.openshift }}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
 
 routes:
   inbound:
@@ -119,7 +112,7 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list $lokiMeshConfig .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem

@@ -662,16 +662,21 @@ packages:
           readOnly: true
 
   loki:
+    # Development-only: remove this source override once 6.55.0-bb.10 is released.
+    git:
+      tag: ""
+      branch: 328-bb-common-subchart
     strategy: scalable
     values:
       # MinIO required for Loki Scalable
       minio:
         enabled: true
-      # Re-enable VirtualService for CI tests (alloy script test queries via VS)
-      routes:
-        inbound:
-          loki:
-            enabled: true
+      bb-common:
+        # Re-enable VirtualService for CI tests (alloy script test queries via VS)
+        routes:
+          inbound:
+            loki:
+              enabled: true
       bbtests:
         enabled: true
         scripts:
