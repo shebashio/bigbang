@@ -8,7 +8,6 @@ postRenderer:
     - "yq '.stringData.common | from_yaml'"
 tests:
   - it: should retain user route overrides in overlays
-    template: templates/mattermost/values.yaml
     postRenderer:
       cmd: sh
       args:
@@ -28,7 +27,6 @@ tests:
           path: bb-common.routes.inbound.chat.gateways[0]
           value: custom/gateway
   - it: should supply SSO provider host under bb-common
-    template: templates/mattermost/values.yaml
     set:
       packages.mattermost.enabled: true
       packages.mattermost.sso.enabled: true
@@ -40,61 +38,34 @@ tests:
       - equal:
           path: bb-common.routes.outbound.sso.hosts[0]
           value: login.example.com
-  - it: should disable package injection for ambient mode
-    template: templates/mattermost/values.yaml
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - "yq '.stringData.defaults | from_yaml'"
+  - it: should pass ambient mode without the retired injection setting
     set:
       packages.mattermost.enabled: true
       packages.istiod.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
-          path: istio.injection
-          value: disabled
-  - it: should use HTTP metrics for a nested permissive mTLS override
-    template: templates/mattermost/values.yaml
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - "yq '.stringData.defaults | from_yaml'"
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.injection
+  - it: should pass sidecar mode when the mesh is enabled without ambient
     set:
       packages.mattermost.enabled: true
       packages.istiod.enabled: true
       packages.ztunnel.enabled: false
       istio.ambient.enabled: false
-      packages.mattermost.values.bb-common.istio.mtls.mode: PERMISSIVE
-    asserts:
-      - notExists:
-          path: monitoring.serviceMonitor.tlsConfig
-      - notExists:
-          path: monitoring.serviceMonitor.scheme
-  - it: should preserve disabled namespace injection for sidecar mode
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - "yq '.stringData.defaults | from_yaml'"
-    set:
-      packages.mattermost.enabled: true
-      packages.istiod.enabled: true
-      istio.ambient.enabled: false
-      packages.ztunnel.enabled: false
-      packages.mattermost.istio.injection: disabled
     asserts:
       - equal:
-          path: istio.injection
-          value: disabled
-  - it: should not enable package injection when the mesh is disabled
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - "yq '.stringData.defaults | from_yaml'"
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: false
+  - it: should pass a disabled mesh to the package
     set:
       packages.mattermost.enabled: true
       packages.istiod.enabled: false
@@ -102,18 +73,23 @@ tests:
       istio.ambient.enabled: false
     asserts:
       - equal:
-          path: istio.injection
-          value: disabled
-  - it: should keep explicit injection overrides at the existing package path
+          path: bb-common.istio.enabled
+          value: false
+  - it: should leave ServiceMonitor mode selection to the package
     postRenderer:
       cmd: sh
       args:
         - -c
-        - "yq '.stringData.overlays | from_yaml'"
+        - "yq '.stringData.defaults | from_yaml'"
     set:
       packages.mattermost.enabled: true
-      packages.mattermost.values.istio.injection: ""
+      packages.istiod.enabled: true
+      packages.ztunnel.enabled: false
+      istio.ambient.enabled: false
     asserts:
-      - equal:
-          path: istio.injection
-          value: ""
+      - notExists:
+          path: istio
+      - notExists:
+          path: monitoring.serviceMonitor.scheme
+      - notExists:
+          path: monitoring.serviceMonitor.tlsConfig
