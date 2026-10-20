@@ -30,8 +30,8 @@ image:
 
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.packages.mattermost) "enabled") }}
 
-gossipService:
-  enabled: {{ $istioInjection }}
+istio:
+  injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
 {{- if $istioEnabled }}
 podAnnotations:
