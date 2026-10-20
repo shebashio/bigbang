@@ -98,13 +98,21 @@ Correct the declarative configuration that caused the failure. For detailed Helm
 
 #### Reconcile after Correcting the Cause
 
-Flux reconciles resources automatically. To trigger an immediate reconciliation after correcting the configuration:
+Flux reconciles resources automatically. If you changed values managed by an environment Kustomization, reconcile that Kustomization first so it applies the updated configuration. Use the name and namespace of the Kustomization that owns those values:
+
+```shell
+flux reconcile kustomization <kustomization-name> -n <namespace> --with-source
+```
+
+After the environment Kustomization finishes successfully, reconcile the Big Bang HelmRelease:
 
 ```shell
 flux reconcile helmrelease bigbang -n bigbang --with-source
 ```
 
-Then verify the release:
+The HelmRelease `--with-source` option reconciles its chart source; it does not apply changed values from the environment repository. See the [Flux Kustomization command](https://fluxcd.io/flux/cmd/flux_reconcile_kustomization/) and [HelmRelease command](https://fluxcd.io/flux/cmd/flux_reconcile_helmrelease/) references.
+
+Verify the release:
 
 ```shell
 flux get helmrelease bigbang -n bigbang
@@ -112,7 +120,7 @@ flux get helmrelease bigbang -n bigbang
 
 #### Full Reset
 
-A full reset is a **destructive recovery action that deletes the entire Big Bang deployment**. Before proceeding, confirm backup and persistent-data requirements and identify the Kustomization that will recreate the Big Bang `HelmRelease`.
+Use a full reset only after the failure cannot be corrected through declarative configuration. A full reset is a **destructive recovery action that can remove Big Bang-managed workloads and resources**. Before proceeding, confirm backup and persistent-data requirements and identify the Kustomization that will recreate the Big Bang `HelmRelease`.
 
 Delete the Big Bang `HelmRelease`:
 
@@ -125,8 +133,7 @@ If namespaces remain stuck in a terminating state, use the [`remove-ns-finalizer
 After deletion completes, reconcile the Kustomization that manages the Big Bang `HelmRelease`:
 
 ```shell
-flux reconcile kustomization <kustomization-name> \
-  -n <namespace> --with-source
+flux reconcile kustomization <kustomization-name> -n <namespace> --with-source
 ```
 
 Verify that the deployment is recreated successfully:
@@ -158,19 +165,20 @@ kubectl describe pod <pod-name> -n <namespace>
 ```
 
 Use the reported conditions and events to choose the next step.
+
 For package-specific configuration and troubleshooting, see the [Big Bang package documentation](https://docs-bigbang.dso.mil/latest/docs/packages/). Select the affected package for its Big Bang integration guide and package repository.
 
 | Problem | Continue with |
 | --- | --- |
 | Pod is `Pending`, fails to start, or repeatedly restarts | [Kubernetes application debugging](https://kubernetes.io/docs/tasks/debug/debug-application/) |
-| `ErrImagePull` or `ImagePullBackOff` | Inspect pod events, image references, and pull credentials. See [Big Bang registry credentials](https://docs-bigbang.dso.mil/latest/docs/configuration/#registrycredentials) and [Kubernetes private registry authentication](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/). |
+| `ErrImagePull` or `ImagePullBackOff` | Inspect pod events, image references, and pull credentials. See [Big Bang registry credentials](https://docs-bigbang.dso.mil/latest/values/#registrycredentials) and [Kubernetes private registry authentication](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/). For Registry1 `unauthorized: authentication required` errors, see [Iron Bank robot-account guidance](https://docs-ironbank.dso.mil/reference/cso/customer-services-and-onboarding/#robot-account). |
 | DNS failure | [Kubernetes DNS debugging](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) |
 | Service has no reachable backend | [Kubernetes Service debugging](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/) |
 | NetworkPolicy may be blocking traffic | [Big Bang Network Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/network-policies/) |
 | Istio routing, mesh, TLS, or authorization problem | [Istio diagnostic tools](https://istio.io/latest/docs/ops/diagnostic-tools/) |
 | Big Bang authorization problem | [Big Bang Authorization Policies](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/authorization-policies/) |
 | Big Bang route problem | [Big Bang Routes](https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/) |
-| Kyverno admission or policy failure | [Kyverno troubleshooting](https://kyverno.io/docs/guides/troubleshooting/). For other admission controllers, consult the documentation for the controller identified in the error. |
+| Kyverno admission or policy failure | [Kyverno troubleshooting](https://kyverno.io/docs/guides/troubleshooting/) and [Big Bang Kyverno Policies exceptions](https://repo1.dso.mil/big-bang/product/packages/kyverno-policies/-/blob/main/docs/exceptions.md). For other admission controllers, consult the documentation for the controller identified in the error. |
 | Insufficient CPU or memory | [Kubernetes resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | Storage or PersistentVolumeClaim problem | [Kubernetes persistent volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) |
 | Pod scheduling failure | [Kubernetes scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/) |
@@ -183,9 +191,7 @@ If the problem involves Service connectivity, confirm that the Service has the e
 
 ```shell
 kubectl get svc <service-name> -n <namespace>
-
-kubectl get endpointslice -n <namespace> \
-  -l kubernetes.io/service-name=<service-name>
+kubectl get endpointslice -n <namespace> -l kubernetes.io/service-name=<service-name>
 ```
 
 If the Service is expected to select workloads but has no endpoints, verify its selector and backing workloads.
