@@ -732,6 +732,13 @@ packages:
         kubeProxy:
           serviceMonitor:
             enabled: false
+        prometheus:
+          prometheusSpec:
+            additionalArgs:
+              - name: storage.tsdb.min-block-duration
+                value: 1m
+              - name: storage.tsdb.max-block-duration
+                value: 1m
       bbtests:
         enabled: true
 
