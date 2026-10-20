@@ -69,17 +69,22 @@ bb-common:
         - repo1.dso.mil
   networkPolicies:
     ingress:
+      definitions:
+        keycloak-protected:
+          from:
+            - namespaceSelector: {}
+              podSelector:
+                matchLabels:
+                  {{- $key := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+                  {{- $value := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
+                  {{ $key }}: {{ $value }}
       to:
-        # gRPC connections for pods with protect=keycloak label
         authservice:10003:
           from:
+            definition:
+              keycloak-protected: true
+            {{- if or (eq (include "monitoring.authservice.waypointEnabled" .) "true") (eq (include "thanos.authservice.waypointEnabled" .) "true") }}
             k8s:
-              '*/keycloak-protected':
-                podSelector:
-                  matchLabels:
-                    {{- $key := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
-                    {{- $value := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
-                    {{ $key }}: {{ $value }}
               {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
               # ext_authz calls originate from the monitoring package's own waypoint pod,
               # which fronts prometheus/alertmanager for authservice in ambient mode.
@@ -94,6 +99,7 @@ bb-common:
                   matchLabels:
                     gateway.networking.k8s.io/gateway-name: thanos-waypoint
               {{- end }}
+            {{- end }}
         # Grafana redis client connection
         redis-bb:6379:
           from:
