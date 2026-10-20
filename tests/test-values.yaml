@@ -1292,10 +1292,18 @@ packages:
               max_global_series_per_user: 0
 
   mattermostOperator:
-    enabled: false
+    # Paired bb-common migration; replace branch pins with release tags before merge.
+    git:
+      tag: null
+      branch: akesterson/bb-common-subchart
+    enabled: true
 
   mattermost:
-    enabled: false
+    # Paired bb-common migration; replace branch pins with release tags before merge.
+    git:
+      tag: null
+      branch: akesterson/bb-common-subchart
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_mattermost
