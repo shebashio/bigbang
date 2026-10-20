@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Headlamp workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.headlamp" -}}
-{{- if .Values.packages.headlamp.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "headlamp")) "true" }}
 # Headlamp needs its API token to interact with the cluster.
 headlamp-auto-mount:
   spec:

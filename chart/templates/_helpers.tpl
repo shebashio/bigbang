@@ -960,6 +960,13 @@ valuesFrom:
   {{- end -}}
 {{- end -}}
 
+{{- /* Returns whether an optional package is enabled without assuming its map exists. */ -}}
+{{- define "packageEnabled" -}}
+{{- $packages := default (dict) .root.Values.packages -}}
+{{- $package := default (dict) (get $packages .name) -}}
+{{- default false (get $package "enabled") }}
+{{- end -}}
+
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
 {{- $packages := default (dict) .Values.packages -}}
@@ -982,7 +989,11 @@ valuesFrom:
 
 {{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
 {{- define "ambientEnabled" -}}
-{{ or .Values.packages.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $ztunnel := default (dict) (get $packages "ztunnel") -}}
+{{- $istio := default (dict) .Values.istio -}}
+{{- $ambient := default (dict) (get $istio "ambient") -}}
+{{ or (default false (get $ztunnel "enabled")) (default false (get $ambient "enabled")) }}
 {{- end -}}
 
 {{- /* Returns true if the shared egress gateway is enabled (via istioEgressGateway package or global egressGateway flag) */ -}}
@@ -1033,8 +1044,8 @@ keeps the legacy pod-label ext_authz path.
 {{- end -}}
 
 {{- /* Returns "true" if authorization policies should be generated.
-       True when istio.hardened is enabled at the package or global istiod level,
-       OR when ambient mode is globally enabled.
+       True when legacy package-level istio.hardened is enabled, the global
+       authorizationPolicies switch is enabled, or ambient mode is enabled.
        Args (positional list):
          0 - pkg:  the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
          1 - root: the root context (.)
@@ -1042,9 +1053,12 @@ keeps the legacy pod-label ext_authz path.
 {{- define "authorizationPoliciesEnabled" -}}
 {{- $pkg  := index . 0 -}}
 {{- $root := index . 1 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.packages.istiod.values) -}}
+{{- $authorizationPoliciesEnabled := or
+  (dig "istio" "hardened" "enabled" false $pkg)
+  $root.Values.authorizationPolicies.enabled
+-}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $hardened $ambient }}
+{{ or $authorizationPoliciesEnabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly

@@ -1,4 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if and (eq .Values.packages.kyvernoPolicies.sourceType "git") (not .Values.offline) .Values.packages.kyvernoPolicies.enabled }}
-{{- include "bigbang.gitRepository" (dict "name" "kyverno-policies" "gitCredsName" "kyvernoPolicies" "git" .Values.packages.kyvernoPolicies.git "root" .) }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $kyvernoPolicies := default (dict) (get $packages "kyvernoPolicies") }}
+{{- if and (eq (get $kyvernoPolicies "sourceType") "git") (not .Values.offline) (default false (get $kyvernoPolicies "enabled")) }}
+{{- include "bigbang.gitRepository" (dict "name" "kyverno-policies" "gitCredsName" "kyvernoPolicies" "git" (default (dict) (get $kyvernoPolicies "git")) "root" .) }}
 {{- end }}

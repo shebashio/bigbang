@@ -3,7 +3,7 @@ Kyverno PolicyExceptions for Mattermost workloads.
 Aggregated into the kyverno-policies chart's additionalPolicyExceptions value.
 */ -}}
 {{- define "bigbang.kyvernoPolicyExceptions.mattermost" -}}
-{{- if .Values.packages.mattermost.enabled }}
+{{- if eq (include "packageEnabled" (dict "root" . "name" "mattermost")) "true" }}
 # Mattermost fails the default securityContext mutation; carve it out in both the
 # mattermost and mattermost-operator namespaces.
 mattermost-add-default-securitycontext:

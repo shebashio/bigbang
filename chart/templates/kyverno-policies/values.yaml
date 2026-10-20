@@ -1,7 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoPolicies" }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $kyvernoPolicies := default (dict) (get $packages $pkg) }}
 
-{{- if (get .Values.packages $pkg).enabled }}
+{{- if default false (get $kyvernoPolicies "enabled") }}
 {{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.kyverno-policies" .))) "name" "kyverno-policies" "defaults" (include "bigbang.defaults.kyverno-policies" .) "injectCommonDefaults" false) }}
 {{- end }}
 
@@ -509,8 +511,10 @@ istio:
 {{- /* The end user will not have to replicate exclusions from above when providing an overlay */ -}}
 {{- /* There is a hidden flag `skipOverlayMerge` that can be added to any policy to ignore the defaults */ -}}
 {{- define "bigbang.overlays.kyverno-policies" -}}
+  {{- $packages := default (dict) .Values.packages }}
+  {{- $kyvernoPolicies := default (dict) (get $packages "kyvernoPolicies") }}
   {{- $defaults := fromYaml (include "bigbang.defaults.kyverno-policies" .) -}}
-  {{- $overlays := dig "values" dict .Values.packages.kyvernoPolicies -}}
+  {{- $overlays := dig "values" dict $kyvernoPolicies }}
 
   {{- /* Policy specific merges.  Without these a user/test overlay REPLACES bigbang's
          policies.<policy> list values rather than appending to them. */ -}}

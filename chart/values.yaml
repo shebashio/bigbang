@@ -267,7 +267,10 @@ networkPolicies:
               cidr: 172.16.0.0/12
           - ipBlock:
               cidr: 10.0.0.0/8
-
+# -- Global AuthorizationPolicy generation settings for integrated packages.
+authorizationPolicies:
+  # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
+  enabled: false
 # bb-common route defaults passed through to every package; per-route values always win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
@@ -397,11 +400,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
       path: "./chart"
-      tag: 1.31.1-bb.0
+      tag: 1.31.1-bb.1
     helmRepo:
       repoName: "registry1"
       chartName: "istiod"
-      tag: 1.31.1-bb.0
+      tag: 1.31.1-bb.1
     # -- Values to passthrough to the istiod chart
     values: {}
     # EXAMPLE: Use Tetrate's Enterprise FIPS compliant Istio image
@@ -2143,11 +2146,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.3.2-bb.1"
+      tag: "7.3.2-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.3.2-bb.1"
+      tag: "7.3.2-bb.2"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
