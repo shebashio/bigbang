@@ -11,7 +11,7 @@ For package deprecation and downward/high-impact track changes, use [Package Lif
 - [ ] 3. [Upstream Helm Chart](upstream.md): Initialize package workspace using an upstream Helm chart
 - [ ] 4. [CICD Pipeline](pipeline.md): Establish a baseline package pipeline for testing changes
 - [ ] 5. [\*Flux Helm Chart](flux.md): Create Flux compatible GitOps Helm chart required by Big Bang
-- [ ] 6. [Big Bang Common Library](bb-common.md): Integrate with bb-common for service mesh, network policies, and Istio hardening
+- [ ] 6. [`bb-common` Subchart Integration](bb-common.md): Integrate with `bb-common` for service mesh, network policies, and authorization policies
 - [ ] 7. [Monitoring](monitoring.md): Enable metrics scraping on product
 - [ ] 8. [Database](database.md): If required, add internal and external database support using Big Bang values
 - [ ] 9. [Object Storage](storage.md): If required, add internal or external object storage support using Big Bang values

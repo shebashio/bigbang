@@ -31,12 +31,28 @@ networkPolicies:
 # turn network policies on or off for that package. User-defined packages that
 # consume bb-common as a subchart use the same nested values shape.
 packages:
-  PACKAGE_NAME:
+  LIBRARY_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:
           enabled: [true|false]
 ```
+
+## Enabling Authorization Policies
+
+AuthorizationPolicies are disabled globally by default. Enable them for
+integrated packages with:
+
+```yaml
+authorizationPolicies:
+  enabled: true
+```
+
+Ambient mode enables AuthorizationPolicies regardless of this value. A package
+can override the generated setting beneath
+`packages.<name>.values.istio.authorizationPolicies`, or beneath
+`packages.<name>.values.bb-common.istio.authorizationPolicies` after migrating
+`bb-common` to a regular subchart.
 
 ## Crafting and Delivering Additional Network Policies
 
@@ -47,13 +63,16 @@ rules beneath that dependency's values key:
 
 ```
 packages:
-  PACKAGE_NAME:
+  LIBRARY_PACKAGE_NAME:
     values:
       bb-common:
         networkPolicies:
           enabled: true
           additionalPolicies: []
 ```
+
+User-defined packages own their internal values contract. When such a package
+consumes `bb-common` as a subchart, use the same nested shape.
 
 User-defined packages own their internal values contract. When such a package
 consumes `bb-common` as a subchart, use the same nested shape.
