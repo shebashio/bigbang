@@ -1,13 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $mmOpValues := deepCopy .Values.packages.mattermostOperator -}}
-{{- $mattermostOperatorPackage := deepCopy $mmOpValues -}}
-{{- if $mmOpValues.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $mmOpValues.values) | fromYaml -}}
-  {{- $mattermostOperatorPackage = set $mattermostOperatorPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- if or $mattermostOperatorPackage.enabled .Values.packages.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" $mattermostOperatorPackage "name" "mattermost-operator" "defaults" ((mergeOverwrite (include "bigbang.defaults.mattermostOperator" . | fromYaml) (include "bigbang.mattermostOperator.bb-common-migrations" . | fromYaml)) | toYaml)) }}
+{{- if or .Values.packages.mattermostOperator.enabled .Values.packages.mattermost.enabled }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.mattermostOperator
+  "name" "mattermost-operator"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.mattermostOperator" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermostOperator" -}}

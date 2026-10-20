@@ -1,12 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $mattermostPackage := deepCopy .Values.packages.mattermost -}}
-{{- if .Values.packages.mattermost.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.mattermost.values) | fromYaml -}}
-  {{- $mattermostPackage = set $mattermostPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- if .Values.packages.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.mattermost
+  "name" "mattermost"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.mattermost" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermost" -}}
@@ -22,8 +22,6 @@
 -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
@@ -32,8 +30,8 @@ image:
 
 {{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.packages.mattermost) "enabled") }}
 
-istio:
-  injection: {{ ternary "enabled" "disabled" $istioInjection }}
+gossipService:
+  enabled: {{ $istioInjection }}
 
 {{- if $istioEnabled }}
 podAnnotations:
@@ -42,12 +40,13 @@ updateJob:
   disabled: true
 {{- end }}
 
+{{- $metricsPackage := set (deepCopy .Values.packages.mattermost) "values" (dig "bb-common" dict .Values.packages.mattermost.values) }}
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
 
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.mattermost .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list $metricsPackage .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -104,6 +103,8 @@ networkPolicies:
 routes:
   inbound:
     chat:
+      hosts:
+        - {{ printf "chat.%s" $domainName | quote }}
       gateways:
         - {{ include "getGatewayName" (dict "gateway" .Values.packages.mattermost.ingress.gateway "root" .) }}
   outbound:
@@ -138,6 +139,7 @@ bbtests:
         memory: "4Gi"
 
 global:
+  domain: {{ $domainName }}
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 {{- with .Values.packages.mattermost.enterprise }}

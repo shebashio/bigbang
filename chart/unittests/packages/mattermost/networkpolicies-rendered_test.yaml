@@ -15,6 +15,9 @@ tests:
   - it: should create database-subnets egress NetworkPolicy when external database is configured
     set:
       packages.mattermost.enabled: true
+      # Test the paired migration branch until its release tag is available.
+      packages.mattermost.git.tag: null
+      packages.mattermost.git.branch: akesterson/bb-common-subchart
       packages.mattermost.database.username: "mattermost"
       packages.mattermost.database.password: "password"
       packages.mattermost.database.host: "postgres.example.com"

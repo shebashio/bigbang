@@ -1,0 +1,75 @@
+suite: Mattermost pair bb-common subchart values
+templates:
+  - templates/mattermost/values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq '.stringData.common | from_yaml'"
+tests:
+  - it: should retain user route overrides in overlays
+    template: templates/mattermost/values.yaml
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.overlays | from_yaml'"
+    set:
+      packages.mattermost.enabled: true
+      packages.mattermost.values.bb-common.routes.inbound.chat:
+        enabled: false
+        gateways:
+          - custom/gateway
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.chat.enabled
+          value: false
+      - equal:
+          path: bb-common.routes.inbound.chat.gateways[0]
+          value: custom/gateway
+  - it: should supply SSO provider host under bb-common
+    template: templates/mattermost/values.yaml
+    set:
+      packages.mattermost.enabled: true
+      packages.mattermost.sso.enabled: true
+      sso.url: https://login.example.com/realms/test
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.sso.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.outbound.sso.hosts[0]
+          value: login.example.com
+  - it: should disable the gossip service for ambient mode
+    template: templates/mattermost/values.yaml
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.defaults | from_yaml'"
+    set:
+      packages.mattermost.enabled: true
+      packages.istiod.enabled: true
+      istio.ambient.enabled: true
+    asserts:
+      - equal:
+          path: gossipService.enabled
+          value: false
+  - it: should use HTTP metrics for a nested permissive mTLS override
+    template: templates/mattermost/values.yaml
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.defaults | from_yaml'"
+    set:
+      packages.mattermost.enabled: true
+      packages.istiod.enabled: true
+      packages.ztunnel.enabled: false
+      istio.ambient.enabled: false
+      packages.mattermost.values.bb-common.istio.mtls.mode: PERMISSIVE
+    asserts:
+      - notExists:
+          path: monitoring.serviceMonitor.tlsConfig
+      - notExists:
+          path: monitoring.serviceMonitor.scheme
