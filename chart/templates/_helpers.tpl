@@ -503,8 +503,8 @@ Args (dict):
 {{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
 {{- $remainingDefaults := $defaults }}
 {{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
-       regular subchart, drop this condition (always nest networking under bb-common,
-       keep package-owned injection separate, strip other networking from defaults) and remove the
+       regular subchart, drop this condition (always nest under bb-common, always omit
+       injection, always strip istio/networkPolicies from defaults) and remove the
        "bbCommonSubchart" arg from every values-secret call site. */ -}}
 {{- if dig "bbCommonSubchart" false . }}
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
@@ -520,11 +520,6 @@ Args (dict):
        there. Left untouched in library-chart mode, since defaults is relied on there as the
        full effective picture (e.g. by unittests asserting against stringData.defaults). */ -}}
 {{- $remainingDefaults = omit ($defaults | fromYaml) "istio" "networkPolicies" "routes" | toYaml }}
-{{- /* Some parent charts still use istio.injection for package-owned resources.
-       Preserve explicit injection defaults at their existing path. */ -}}
-{{- if hasKey ($explicitDefaults.istio | default dict) "injection" }}
-{{- $remainingDefaults = set ($remainingDefaults | fromYaml) "istio" (pick $explicitDefaults.istio "injection") | toYaml }}
-{{- end }}
 {{- end }}
 apiVersion: v1
 kind: Secret
