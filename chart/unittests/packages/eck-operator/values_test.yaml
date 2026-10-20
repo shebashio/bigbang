@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - ECK Operator - Values Tests
+templates:
+  - templates/eck-operator/values.yaml
+release:
+  name: bb
+set:
+  packages.eckOperator.enabled: true
+tests:
+  - it: nests integration values under bb-common and omits the injection key
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.common | from_yaml'
+    asserts:
+      - isNotNull:
+          path: bb-common.istio
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+
+  - it: omits integration values from defaults
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.defaults | from_yaml'
+    asserts:
+      - isNotNull:
+          path: upstream
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: bb-common
+
+  - it: drives monitoring and tempo netpols from package toggles
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.common | from_yaml'
+    set:
+      packages.monitoring.enabled: true
+      packages.tempo.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.ingress.to["elastic-operator:8080"].from.k8s["monitoring/prometheus"]
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.elastic-operator.to.k8s["tempo/tempo:9411"]
+          value: true
+
+  - it: passes global network definitions into bb-common
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.common | from_yaml'
+    set:
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 192.0.2.10/32
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI
+          value:
+            to:
+              - ipBlock:
+                  cidr: 192.0.2.10/32
+
+  - it: maps legacy hardened keys nested under bb-common
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.overlays | from_yaml'
+    set:
+      packages.eckOperator.values.bb-common.istio.hardened.customServiceEntries:
+        - name: example
+          enabled: true
+          spec:
+            hosts: [example.com]
+    asserts:
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].name
+          value: example
+      - notExists:
+          path: bb-common.istio.hardened.customServiceEntries
