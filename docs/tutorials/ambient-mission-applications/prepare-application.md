@@ -101,7 +101,7 @@ For more information about these network policies, please refer to [Istio's Ambi
 
 ## Authorization Policies
 
-Big Bang enables authorization policy generation by default for integrated packages. A chart that is not integrated with `bb-common` must provide equivalent policies itself. When an Istio `ALLOW` policy applies to a workload, requests that do not match an applicable `ALLOW` rule are denied. Most applications therefore need a policy that permits their required same-namespace traffic.
+Ambient mode enables authorization policy generation for integrated packages regardless of the global `authorizationPolicies.enabled` value. A chart that is not integrated with `bb-common` must provide equivalent policies itself. When an Istio `ALLOW` policy applies to a workload, requests that do not match an applicable `ALLOW` rule are denied. Most applications therefore need a policy that permits their required same-namespace traffic.
 
 ```yaml
 apiVersion: security.istio.io/v1
