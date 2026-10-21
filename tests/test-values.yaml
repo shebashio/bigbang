@@ -739,6 +739,13 @@ packages:
                 value: 1m
               - name: storage.tsdb.max-block-duration
                 value: 1m
+      networkPolicies:
+        egress:
+          from:
+            prometheus:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
       bbtests:
         enabled: true
 
