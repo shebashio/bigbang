@@ -46,10 +46,6 @@ bb-common:
               tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
   routes:
-    inbound:
-      console:
-        gateways:
-          - {{ include "getGatewayName" (dict "gateway" .Values.packages.minio.ingress.gateway "root" .)}}
     outbound:
       bb-tests:
         enabled: {{ dig "bbtests" "enabled" false .Values.packages.minioOperator.values }}
