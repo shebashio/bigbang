@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Velero - Values Tests
+templates:
+  - templates/velero/values.yaml
+tests:
+  - it: should pass the domain to the package defaults as global.domain
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+    asserts:
+      - equal:
+          path: global.domain
+          value: dev.bigbang.mil
+      - notExists:
+          path: domain
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: istio
+
+  - it: should nest the network policies and istio values under bb-common in the common values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+    asserts:
+      - exists:
+          path: bb-common.istio
+      - exists:
+          path: bb-common.networkPolicies.egress.from.velero-upgrade-crds
+      - equal:
+          path: bb-common.networkPolicies.ingress.to["velero:8085"].from.k8s["monitoring-monitoring-kube-prometheus@monitoring/prometheus"]
+          value: false
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: istio
+
+  - it: should build the kubeAPI definition from the control plane CIDR
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 172.16.0.0/12
+
+  - it: should add the VPC CIDR to the kubeAPI definition when it differs from the control plane CIDR
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+      networkPolicies.controlPlaneCidr: 172.20.0.0/16
+      networkPolicies.vpcCidr: 10.1.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 172.20.0.0/16
+            - ipBlock:
+                cidr: 10.1.0.0/16
+
+  - it: should exclude the metadata endpoint when the control plane CIDR is open
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+      networkPolicies.controlPlaneCidr: 0.0.0.0/0
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+                except:
+                  - 169.254.169.254/32
+
+  - it: should not replace a kubeAPI definition set at the Big Bang level
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+      networkPolicies.egress.definitions.kubeAPI.to:
+        - ipBlock:
+            cidr: 10.50.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 10.50.0.0/16
+
+  - it: should move a flat package override of networkPolicies under bb-common
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.velero.enabled: true
+      packages.velero.values.networkPolicies.egress.from.velero.to.cidr:
+        10.9.0.0/16:
+          enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from.velero.to.cidr["10.9.0.0/16"].enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.velero.to.definition["storage-subnets"]
+          value: true
