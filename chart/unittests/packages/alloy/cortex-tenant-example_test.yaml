@@ -8,7 +8,7 @@ postRenderer:
   cmd: sh
   args:
     - -c
-    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+    - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
 tests:
   - it: routes collected metrics only to the sample Cortex Tenant destination
     asserts:
@@ -22,10 +22,10 @@ tests:
           path: upstream.destinations.cortex-tenant.tls.certFile
           value: /etc/prom-certs/cert-chain.pem
       - equal:
-          path: networkPolicies.egress.from.alloy-metrics.to.k8s.cortex-tenant/cortex-tenant:8080
+          path: bb-common.networkPolicies.egress.from.alloy-metrics.to.k8s.cortex-tenant/cortex-tenant:8080
           value: true
       - equal:
-          path: networkPolicies.egress.from.alloy-metrics.to.k8s.mimir/mimir-mimir-gateway:8080
+          path: bb-common.networkPolicies.egress.from.alloy-metrics.to.k8s.mimir/mimir-mimir-gateway:8080
           value: false
       - matchRegex:
           path: upstream.collectors.alloy-metrics.extraConfig

@@ -67,15 +67,16 @@ packages:
       - name: cortex-tenant
         namespace: bigbang
     values:
-      networkPolicies:
-        egress:
-          from:
-            alloy-metrics:
-              to:
-                k8s:
-                  cortex-tenant/cortex-tenant:8080: true
-                  # Keep Alloy's built-in direct Mimir write path closed.
-                  mimir/mimir-mimir-gateway:8080: false
+      bb-common:
+        networkPolicies:
+          egress:
+            from:
+              alloy-metrics:
+                to:
+                  k8s:
+                    cortex-tenant/cortex-tenant:8080: true
+                    # Keep Alloy's built-in direct Mimir write path closed.
+                    mimir/mimir-mimir-gateway:8080: false
       upstream:
         destinations:
           cortex-tenant:
