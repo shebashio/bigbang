@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Thanos bb-common SSO host consistency
+tests:
+- it: uses the nested bb-common Thanos host for both route and Authservice callback
+  set:
+    packages:
+      thanos:
+        enabled: true
+        sso:
+          enabled: true
+        values:
+          bb-common:
+            istio:
+              thanos:
+                hosts:
+                - thanos.custom.example.test
+  template: authservice/values.yaml
+  asserts:
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "prefix: thanos.custom.example.test"
+  - matchRegex:
+      path: stringData.defaults
+      pattern: "callback_uri: https://thanos.custom.example.test/login/generic_oauth"

@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Thanos - bb-common subchart values
+templates:
+  - templates/thanos/values.yaml
+tests:
+  - it: nests common defaults under bb-common and removes the 3.x migration template
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+    asserts:
+      - isNotNull:
+          path: bb-common.istio
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - isNotNull:
+          path: bb-common.routes
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+          value: "0.0.0.0/0"
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.dev.bigbang.mil
+
+  - it: uses the new nested host override and preserves custom kubeAPI definitions
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.istio.thanos.hosts[0]: thanos.custom.example
+      networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr: 10.20.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.custom.example
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+          value: 10.20.0.0/16
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies
+
+
+  - it: uses the custom nested host as the advertised Thanos externalURL
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.istio.thanos.hosts[0]: thanos.custom.example
+    asserts:
+      - equal:
+          path: externalURL
+          value: https://thanos.custom.example
+
+  - it: templates a configured Thanos host consistently in the route and externalURL
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.istio.thanos.hosts[0]: 'thanos.{{ .Values.domain }}'
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.dev.bigbang.mil
+
+  - it: templates a configured Thanos host in the advertised externalURL
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.istio.thanos.hosts[0]: 'thanos.{{ .Values.domain }}'
+    asserts:
+      - equal:
+          path: externalURL
+          value: https://thanos.dev.bigbang.mil
+
+  - it: exposes the umbrella domain only as Thanos global.domain
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      domain: custom.example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: custom.example.test
+      - notExists:
+          path: domain

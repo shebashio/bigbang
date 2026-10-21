@@ -244,7 +244,7 @@ chains:
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.packages.thanos.values) }}
+    {{- $thanosHosts := (dig "bb-common" "istio" "thanos" "hosts" dict .Values.packages.thanos.values) }}
     {{- if $thanosHosts }}
       prefix: {{ tpl ($thanosHosts | first) $ }}
     callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
