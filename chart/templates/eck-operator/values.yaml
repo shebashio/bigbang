@@ -4,11 +4,21 @@
   {{- /* Create a cleaned copy of the config and merge deprecated paths into current paths */ -}}
   {{- $eckOperatorPackage := deepCopy .Values.packages.eckOperator -}}
   {{- if .Values.packages.eckOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.eckOperator.values) | fromYaml -}}
+    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy .Values.packages.eckOperator.values)) | fromYaml -}}
+    {{- if hasKey $cleanedValues "bb-common" -}}
+      {{- $cleanedCommon := include "mergeLegacyIstioHardenedKeys" (dict "values" (index $cleanedValues "bb-common")) | fromYaml -}}
+      {{- $cleanedValues = set $cleanedValues "bb-common" $cleanedCommon -}}
+    {{- end -}}
     {{- $eckOperatorPackage = set $eckOperatorPackage "values" $cleanedValues -}}
   {{- end }}
 
-{{- include "values-secret" (dict "root" $ "package" $eckOperatorPackage "name" "eck-operator" "defaults" (include "bigbang.defaults.eck-operator" .)) }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" $eckOperatorPackage
+  "name" "eck-operator"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.eck-operator" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.eck-operator" -}}
@@ -36,29 +46,21 @@ serviceMonitor:
     insecureSkipVerify: true
   {{- end }}
 
-networkPolicies:
-  ingress:
-    to:
-      elastic-operator:8080:
-        from:
-          k8s:
-            monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-  egress:
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-          {{- if ne .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-          {{- end }}
+bb-common:
+  networkPolicies:
+    ingress:
+      to:
+        elastic-operator:8080:
+          from:
+            k8s:
+              monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    egress:
+      from:
+        elastic-operator:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
-    from:
-      elastic-operator:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 upstream:
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
   {{- if $istioEnabled }}
