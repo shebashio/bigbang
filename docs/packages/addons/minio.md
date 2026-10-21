@@ -1,6 +1,6 @@
 # MinIO Package Boundaries
 
-The [MinIO tenant draft guide](https://repo1.dso.mil/big-bang/product/packages/minio/-/blob/1f78da20e5b20ad7fcd2d0dcf33ea895d990102b/docs/overview.md) covers tenant configuration, storage, access, networking, and operations.
+The [MinIO tenant draft guide](https://repo1.dso.mil/big-bang/product/packages/minio/-/blob/main/docs/overview.md) covers tenant configuration, storage, access, networking, and operations.
 
 MinIO Operator controller and custom-resource lifecycle guidance belongs to the separately versioned MinIO Operator package. Umbrella orchestration remains here until that migration is complete.
 

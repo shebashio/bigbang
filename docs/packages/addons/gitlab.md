@@ -1,6 +1,6 @@
 # GitLab Package Boundaries
 
-The [GitLab draft guide](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/c06248d2cbb7ea0ffe4a57df83509752b6d8930b/docs/overview.md) covers GitLab-owned integration guidance, including its data services, object storage, SSO, ingress, and operations.
+The [GitLab draft guide](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/main/docs/overview.md) covers GitLab-owned integration guidance, including its data services, object storage, SSO, ingress, and operations.
 
 GitLab Runner is a separately versioned package. Its documentation and release-specific configuration remain owned by the GitLab Runner package; umbrella dependency and orchestration behavior remains here until that owner migrates its portion.
 

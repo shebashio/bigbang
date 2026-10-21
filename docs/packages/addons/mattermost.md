@@ -1,6 +1,6 @@
 # Mattermost Package Boundaries
 
-The [Mattermost draft guide](https://repo1.dso.mil/big-bang/product/packages/mattermost/-/blob/038e9d6bd3acfebc7a8e1a6b10303e51306b8ca3/docs/overview.md) covers Mattermost-owned licensing, SSO, storage, network, monitoring, and operational integration.
+The [Mattermost draft guide](https://repo1.dso.mil/big-bang/product/packages/mattermost/-/blob/main/docs/overview.md) covers Mattermost-owned licensing, SSO, storage, network, monitoring, and operational integration.
 
 The Mattermost Operator is separately owned. Its controller and custom-resource lifecycle documentation remains pending that package's migration; umbrella orchestration remains here until then.
 
