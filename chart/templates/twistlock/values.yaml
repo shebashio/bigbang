@@ -1,21 +1,23 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.twistlock.enabled }}
-{{- /* Create a cleaned copy of twistlock config and merge deprecated paths into current paths */ -}}
-{{- $twistlockPackage := deepCopy .Values.packages.twistlock -}}
-{{- if .Values.packages.twistlock.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.twistlock.values) | fromYaml -}}
-{{- $twistlockPackage = set $twistlockPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $twistlockPackage "name" "twistlock" "defaults" ((mergeOverwrite (include "bigbang.defaults.twistlock" . | fromYaml) (include "bigbang.twistlock.bb-common-migrations" . | fromYaml)) | toYaml)) }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.twistlock
+  "name" "twistlock"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.twistlock" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.twistlock" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.packages.twistlock) "enabled") -}}
+{{- $defenderOnly := dig "deploymentMode" "defenderOnly" false .Values.packages.twistlock.values }}
+{{- $console := dig "console" dict .Values.packages.twistlock.values }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
@@ -38,38 +40,44 @@ imagePullSecretName: private-registry
 imagePullSecretName: ""
 {{- end }}
 
-networkPolicies:
-  ingress:
-    to:
-      twistlock-console:8081:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+bb-common:
+  networkPolicies:
+    {{- if $defenderOnly }}
+    enabled: false
+    {{- end }}
+    ingress:
+      to:
+        twistlock-console:8081:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
-  egress:
-    from:
-      twistlock-console:
-        to:
-          definition:
-            sso: {{ .Values.packages.twistlock.sso.enabled }}
-      "*":
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+    egress:
+      from:
+        twistlock-console:
+          to:
+            definition:
+              sso: {{ .Values.packages.twistlock.sso.enabled }}
+        "*":
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
-istio:
-  injection: {{ ternary "enabled" "disabled" $istioInjection }}
-
-routes:
-  inbound:
-    console:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.packages.twistlock.ingress.gateway "root" .)}}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.twistlock.values }}
-      hosts:
-      - repo1.dso.mil
+  routes:
+    inbound:
+      console:
+        enabled: {{ not $defenderOnly }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.twistlock.ingress.gateway "root" .)}}
+        {{- if dig "backendTLS" false $console }}
+        port: {{ dig "ports" "managementHttps" 8083 $console }}
+        {{- end }}
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.twistlock.values }}
+        hosts:
+        - repo1.dso.mil
 
 bbtests:
   scripts:
