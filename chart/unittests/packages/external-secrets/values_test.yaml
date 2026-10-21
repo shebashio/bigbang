@@ -6,7 +6,11 @@ tests:
   - it: nests the package bb-common defaults under the subchart key
     set:
       packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.bb-common.istio.hardened.enabled: true
+      packages.externalSecrets.values.istio.hardened.enabled: true
+      packages.externalSecrets.values.istio.hardened.customServiceEntries[0].name: legacy-entry
+      packages.externalSecrets.values.istio.hardened.customServiceEntries[0].spec.hosts[0]: legacy.example.test
+      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies[0].name: legacy-policy
+      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies[0].spec.action: ALLOW
       packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
@@ -17,8 +21,16 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     asserts:
       - equal:
-          path: bb-common.istio.hardened.enabled
+          path: bb-common.istio.sidecar.enabled
           value: true
+      - notExists:
+          path: bb-common.istio.hardened
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
+          value: legacy.example.test
+      - equal:
+          path: bb-common.istio.authorizationPolicies.custom[0].spec.action
+          value: ALLOW
       - exists:
           path: bb-common.networkPolicies
       - equal:

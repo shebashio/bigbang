@@ -1,12 +1,16 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.externalSecrets.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.packages.externalSecrets "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .) "bbCommonSubchart" true) }}
+{{- $externalSecretsPackage := deepCopy .Values.packages.externalSecrets -}}
+{{- if .Values.packages.externalSecrets.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.externalSecrets.values) | fromYaml -}}
+{{- $externalSecretsPackage = set $externalSecretsPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $externalSecretsPackage "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .) "bbCommonSubchart" true) }}
 {{- end }}
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $externalSecretsValues := .Values.packages.externalSecrets.values | default dict }}
-{{- $istioHardenedEnabled := or (dig "bb-common" "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $webhookEnabled := dig "upstream" "webhook" "create" false $externalSecretsValues }}
 {{- $certControllerEnabled := dig "upstream" "certController" "create" false $externalSecretsValues }}
 
@@ -30,10 +34,6 @@ monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}
 
 bb-common:
-  istio:
-    hardened:
-      enabled: {{ $istioHardenedEnabled }}
-
   networkPolicies:
     ingress:
       to:
