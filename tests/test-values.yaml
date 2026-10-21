@@ -583,30 +583,25 @@ packages:
     license:
       trial: false
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-          - name: "repo1"
-            spec:
+      bb-common:
+        routes:
+          outbound:
+            repo1:
+              enabled: true
               hosts:
-              - repo1.dso.mil
-              location: MESH_EXTERNAL
+                - repo1.dso.mil
               ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
-          - name: "cypress-service-entries-elasticsearchkibana"
-            enabled: true
-            spec:
+                - number: 443
+                  name: https
+                  protocol: TLS
+            cypress-kibana:
+              enabled: true
               hosts:
-              - 'kibana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
+                - kibana.dev.bigbang.mil
               ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+                - number: 443
+                  name: https
+                  protocol: TLS
       elasticsearch:
         master:
           count: 1
