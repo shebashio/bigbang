@@ -1,72 +1,62 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoReporter" }}
 {{- if (get .Values.packages $pkg).enabled }}
-{{- /* Create a cleaned copy of kyvernoReporter config and merge deprecated paths into current paths */ -}}
-{{- $kyvernoReporterPackage := deepCopy .Values.packages.kyvernoReporter -}}
-{{- if .Values.packages.kyvernoReporter.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.kyvernoReporter.values) | fromYaml -}}
-{{- $kyvernoReporterPackage = set $kyvernoReporterPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
 "root" $
 "package" (get .Values.packages $pkg)
 "name" ($pkg | kebabcase)
-"defaults" ((mergeOverwrite (include "bigbang.defaults.kyverno-reporter" . | fromYaml) (include "bigbang.kyverno-reporter.bb-common-migrations" . | fromYaml)) | toYaml)
+"bbCommonSubchart" true
+"defaults" (include "bigbang.defaults.kyverno-reporter" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.kyverno-reporter" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.kyvernoReporter.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
-domain: {{ $domainName }}
 
 global:
   fullnameOverride: kyverno-reporter
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-routes:
-  inbound:
-    policy-reporter-ui:
-      enabled: {{ dig "upstream" "ui" "enabled" true .Values.packages.kyvernoReporter.values }}
-      gateways:
-        - istio-gateway/public-ingressgateway
-      hosts:
-        - policyreporter.{{ $domainName }}
-      service: policy-reporter-ui.kyverno-reporter.svc.cluster.local
-      port: 8080
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.kyvernoReporter.values }}
-      hosts:
-      - repo1.dso.mil
-      - prometheus.{{ $domainName }}
-      - grafana.{{ $domainName }}
-
-networkPolicies:
-  egress:
-    from:
-      kyverno-reporter:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/instance: kyverno-reporter-kyverno-reporter
-        to:
-          definition:
-            kubeAPI: true
-        to:
-          definition:
-            sso: {{ .Values.packages.kyvernoReporter.sso.enabled }}
-  ingress:
-    to:
-      policy-reporter:8080:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-  additionalPolicies: []
+bb-common:
+  routes:
+    inbound:
+      policy-reporter-ui:
+        enabled: {{ dig "upstream" "ui" "enabled" true .Values.packages.kyvernoReporter.values }}
+        gateways:
+          - istio-gateway/public-ingressgateway
+        hosts:
+          - policyreporter.{{ $domainName }}
+        service: policy-reporter-ui.kyverno-reporter.svc.cluster.local
+        port: 8080
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.kyvernoReporter.values }}
+        hosts:
+        - repo1.dso.mil
+        - prometheus.{{ $domainName }}
+        - grafana.{{ $domainName }}
+  
+  networkPolicies:
+    egress:
+      from:
+        kyverno-reporter:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: kyverno-reporter-kyverno-reporter
+          to:
+            definition:
+              kubeAPI: true
+          to:
+            definition:
+              sso: {{ .Values.packages.kyvernoReporter.sso.enabled }}
+    ingress:
+      to:
+        policy-reporter:8080:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    additionalPolicies: []
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
