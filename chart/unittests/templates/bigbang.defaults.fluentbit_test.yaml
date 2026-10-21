@@ -22,7 +22,7 @@ tests:
   template: templates/_self-test/render.yaml
   asserts:
   - equal:
-      path: result.networkPolicies.egress.from["fluent-bit"].to.definition["storage-subnets"].enabled
+      path: result["bb-common"].networkPolicies.egress.from["fluent-bit"].to.definition["storage-subnets"].enabled
       value: true
 
 - it: must source storage-subnets from global definitions in the rendered secret
@@ -48,7 +48,7 @@ tests:
       - "yq eval '.stringData.common' - | yq eval '.'"
   asserts:
   - equal:
-      path: networkPolicies.egress.definitions["storage-subnets"]
+      path: bb-common.networkPolicies.egress.definitions["storage-subnets"]
       value:
         to:
           - ipBlock:
