@@ -881,8 +881,9 @@ packages:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
     values:
-      bbtests:
-        enabled: true
+      # Commenting out for now as its test requires SSO to be fully configured
+      # bbtests:
+      #   enabled: true
       resources:
         requests:
           memory: 100Mi
