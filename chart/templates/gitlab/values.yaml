@@ -16,7 +16,8 @@
   "root" $ 
   "package" $gitlabPackage 
   "name" "gitlab" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.gitlab" . | fromYaml) (include "bigbang.gitlab.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.gitlab" .)
 )}}
 {{- end }}
 {{- if and (ne .Values.packages.gitlab.objectStorage.iamProfile "") (ne .Values.packages.gitlab.objectStorage.accessKey "") }}{{- fail "Must choose to use an IAM profile OR an AWS accessKey/accessSecret at .Values.packages.gitlab.objectStorage" }}{{- end }}
@@ -24,7 +25,6 @@
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
-domain: {{ $domainName }}
 
 # Define variables to help with conditionals later
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
@@ -49,6 +49,34 @@ domain: {{ $domainName }}
 {{- end }}
 {{- $externalRedisHost := get $gitlabRedisValues "host" }}
 {{- $externalRedisRouteEnabled := and $externalRedisConfigured (not (empty $externalRedisHost)) }}
+{{- $gitlabUpstreamValues := (get .Values.packages.gitlab.values "upstream") | default dict }}
+{{- $externalObjectStorageConfigured := eq (include "bigbang.gitlab.externalObjectStorageConfigured" .) "true" }}
+{{- $minioEnabled := true }}
+{{- if hasKey $gitlabGlobalValues "minio" }}
+  {{- $gitlabMinioValues := get $gitlabGlobalValues "minio" }}
+  {{- if kindIs "map" $gitlabMinioValues }}
+    {{- $minioEnabled = dig "enabled" true $gitlabMinioValues }}
+  {{- else }}
+    {{- $minioEnabled = false }}
+  {{- end }}
+{{- end }}
+{{- $postgresEnabled := true }}
+{{- if hasKey $gitlabUpstreamValues "postgresql" }}
+  {{- $gitlabPostgresqlValues := get $gitlabUpstreamValues "postgresql" }}
+  {{- if kindIs "map" $gitlabPostgresqlValues }}
+    {{- $postgresEnabled = dig "install" true $gitlabPostgresqlValues }}
+  {{- else }}
+    {{- $postgresEnabled = false }}
+  {{- end }}
+{{- end }}
+{{- if $externalObjectStorageConfigured }}
+  {{- $minioEnabled = false }}
+{{- end }}
+{{- if $externalPostgresConfigured }}
+  {{- $postgresEnabled = false }}
+{{- end }}
+{{- $iamProfileUsed := dig "use_iam_profile" false .Values.packages.gitlab.values }}
+{{- $iamProfileUsed = not (empty .Values.packages.gitlab.objectStorage.iamProfile) | or $iamProfileUsed }}
 
 openshift: {{ .Values.openshift }}
 
@@ -57,9 +85,9 @@ routes:
     gitlab:
       enabled: true
       gateways:
-      - istio-gateway/public-ingressgateway
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
       hosts:
-      - gitlab.{{ .Values.domain }}
+      - "{{ .Values.packages.gitlab.hostnames.gitlab }}.{{ .Values.domain }}"
       http:
       - fault:
           abort:
@@ -94,11 +122,11 @@ routes:
         app: webservice
 
     registry:
-      enabled: false
+      enabled: true
       gateways:
-      - istio-gateway/public-ingressgateway
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
       hosts:
-      - registry.{{ .Values.domain }}
+      - "{{ .Values.packages.gitlab.hostnames.registry }}.{{ .Values.domain }}"
       service: gitlab-registry
       port: 5000
       selector:
@@ -107,7 +135,7 @@ routes:
     kas:
       enabled: {{ dig "global" "kas" "enabled" true .Values.packages.gitlab.values }}
       gateways:
-      - istio-gateway/public-ingressgateway
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
       hosts:
       - kas.{{ .Values.domain }}
       http:
@@ -125,11 +153,19 @@ routes:
 
     pages:
       enabled: false
+      gateways:
+      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+      hosts:
+      - "pages.{{ .Values.domain }}"
       service: gitlab-pages
       port: 8090
       selector:
         app: gitlab-pages
   outbound:
+    sso:
+      enabled: {{ or .Values.packages.gitlab.sso.enabled (dig "sso" "enabled" false .Values.packages.gitlab.values) }}
+      hosts:
+      - {{ coalesce (dig "sso" "host" nil .Values.packages.gitlab.values) (include "sso.host" .) }}
     external-redis:
       enabled: {{ $externalRedisRouteEnabled }}
       {{- if $externalRedisRouteEnabled }}
@@ -229,6 +265,23 @@ networkPolicies:
             alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
             monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
   egress:
+    {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
+    definitions:
+      kubeAPI:
+        to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+            except:
+            - 169.254.169.254/32
+            {{- end }}
+        {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+        {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.vpcCidr }}
+        {{- end }}
+        {{- end }}
+    {{- end }}
     from:
       "*":
         to:
@@ -238,32 +291,52 @@ networkPolicies:
             tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
       sidekiq:
         to:
+          cidr:
+            169.254.169.254/32: {{ $iamProfileUsed }}
           definition:
             storage-subnets: true
+            database-subnets: {{ not $postgresEnabled }}
             {{- if $externalRedisConfigured }}
             redis-subnets: true
             {{- end }}
       webservice:
         to:
+          cidr:
+            169.254.169.254/32: {{ $iamProfileUsed }}
           definition:
             sso: true
             database-subnets: true
+            storage-subnets: {{ not $minioEnabled }}
             {{- if $externalRedisConfigured }}
             redis-subnets: true
             {{- end }}
       migrations:
         to:
+          cidr:
+            169.254.169.254/32: {{ $iamProfileUsed }}
           definition:
             database-subnets: true
+            storage-subnets: {{ not $minioEnabled }}
             {{- if $externalRedisConfigured }}
             redis-subnets: true
             {{- end }}
-      {{- if $externalRedisConfigured }}
+      registry:
+        to:
+          cidr:
+            169.254.169.254/32: {{ $iamProfileUsed }}
+          definition:
+            storage-subnets: {{ not $minioEnabled }}
+            database-subnets: {{ not $postgresEnabled }}
       toolbox:
         to:
+          cidr:
+            169.254.169.254/32: {{ $iamProfileUsed }}
           definition:
+            storage-subnets: {{ not $minioEnabled }}
+            database-subnets: {{ not $postgresEnabled }}
+            {{- if $externalRedisConfigured }}
             redis-subnets: true
-      {{- end }}
+            {{- end }}
       {{- if eq (include "metricScrapingEnabled" .) "true" }}
       gitlab-exporter:
         podSelector:
@@ -271,6 +344,7 @@ networkPolicies:
             app: gitlab-exporter
         to:
           definition:
+            database-subnets: {{ not $postgresEnabled }}
             {{- if $externalRedisConfigured }}
             redis-subnets: true
             {{- end }}
@@ -507,6 +581,7 @@ upstream:
   {{- end }}
 
 global:
+  domain: {{ $domainName }}
   {{- if and .Values.packages.gitlab.sso.enabled (or (dig "certificateAuthority" "secretName" false .Values.sso) .Values.sso.secretName) }}
   certificates:
     customCAs:
