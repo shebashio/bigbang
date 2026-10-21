@@ -27,7 +27,7 @@ Two commands are available:
 
 | Command | Use case |
 | --- | --- |
-| `scripts/migrate-values-3-to-4.sh` | Raw values files or values embedded in a decrypted Kubernetes Secret |
+| `scripts/migrate-values-3-to-4.sh` | Raw values files, parent Big Bang HelmReleases, package HelmRelease patches, or values embedded in a decrypted Kubernetes Secret |
 | `scripts/migrate-sops-values-3-to-4.sh` | Values embedded in a SOPS-encrypted Kubernetes Secret |
 
 ## Requirements
@@ -54,7 +54,7 @@ The SOPS wrapper additionally requires:
 ### Syntax
 
 ```text
-migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
+migrate-values-3-to-4.sh [OPTIONS] [INPUT ...]
 ```
 
 ### Options
@@ -64,6 +64,8 @@ migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
 | `-o FILE`, `--output FILE` | Write the migrated document to `FILE`. The output cannot resolve to an input file. |
 | `-i`, `--in-place` | Replace one input after creating `INPUT.bak`. The command refuses to overwrite an existing backup. |
 | `-k KEY`, `--secret-key KEY` | Treat one input as a decrypted Kubernetes Secret and migrate the values stored under `data[KEY]` or `stringData[KEY]`. |
+| `--bigbang-helmrelease` | Migrate inline `spec.values` in one parent Big Bang HelmRelease or patch, preserving its wrapper and other fields. |
+| `--helmrelease-patch FILE` | Convert a package HelmRelease patch into Big Bang values. Repeat for multiple files. Each file may contain multiple HelmRelease documents. |
 | `--omit-package-configuration` | Remove `packageConfiguration` from the output. Use only for a secondary values source when another composed source supplies `packageConfiguration.version: v1`. |
 | `-h`, `--help` | Print command help and exit. |
 
@@ -118,6 +120,145 @@ source idempotent.
 Do not use this option for a standalone values document or when no other
 source in the effective Big Bang 3.x values supplies version `v1`. Without the
 discriminator, Big Bang 3.x interprets `packages` entries as custom packages.
+
+### Parent Big Bang HelmReleases and values patches
+
+Use `--bigbang-helmrelease` when a file targets the parent Big Bang release and
+stores package configuration under `spec.values`. This includes Kustomize
+patches organized into one file per package, such as:
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bigbang
+spec:
+  values:
+    monitoring:
+      enabled: true
+    addons:
+      argocd:
+        enabled: true
+```
+
+Migrate a secondary patch while preserving its HelmRelease structure:
+
+```shell
+scripts/migrate-values-3-to-4.sh \
+  --bigbang-helmrelease --omit-package-configuration \
+  --output monitoring-4.x.yaml monitoring.yaml
+```
+
+The output moves these entries to `spec.values.packages.monitoring` and
+`spec.values.packages.argocd`. Existing canonical entries take precedence over
+legacy entries, using the same merge and collision checks as raw values mode.
+Custom package entries and unrelated values retain their existing behavior.
+
+This mode preserves metadata, chart settings, `valuesFrom`, parent
+`postRenderers`, and all other fields outside `spec.values`. Package-level
+post-renderers move with their package configuration. Nested null values and
+literal `${variable}` placeholders are preserved. Anchors are expanded using
+the normal expansion checks; YAML formatting and comments may be normalized.
+
+Without `--omit-package-configuration`, the command sets
+`spec.values.packageConfiguration.version: v1`. For layered patches, designate
+one primary source to supply that contract and use the omission option on
+secondary patches. Migrate each patch independently so the Kustomize directory
+structure and overlay order can remain intact:
+
+```shell
+scripts/migrate-values-3-to-4.sh \
+  --bigbang-helmrelease --omit-package-configuration \
+  --in-place monitoring.yaml
+```
+
+In-place mode creates `monitoring.yaml.bak` and refuses to overwrite an existing
+backup. A manifest without inline `spec.values` is preserved without adding a
+values block or the package configuration discriminator. Referenced ConfigMaps
+and Secrets are not resolved; migrate their values separately. Embedded patch
+strings and JSON pointers are not rewritten.
+
+The explicit option identifies the input as a parent release, so renamed parent
+releases are supported. Inputs must contain exactly one decrypted Flux
+HelmRelease document using API version `v2`, `v2beta2`, or `v2beta1`. This mode
+cannot be combined with `--secret-key` or `--helmrelease-patch`.
+
+JSON patch operation lists require manual review. Null deletions of legacy
+package maps or package containers, and structural Kustomize directives inside
+`spec.values`, also require manual migration. The command refuses these cases
+before writing output rather than converting a deletion into an empty map.
+
+### Package HelmRelease patches
+
+Use `--helmrelease-patch` for customer overrides written as partial package
+HelmRelease manifests. For example, `monitoring-patch.yaml`:
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: monitoring
+  namespace: bigbang
+spec:
+  timeout: 20m
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    upstream:
+      prometheus:
+        prometheusSpec:
+          retention: 15d
+```
+
+Combine ordinary values and package patches:
+
+```shell
+scripts/migrate-values-3-to-4.sh \
+  --output values-4.x.yaml values.yaml \
+  --helmrelease-patch monitoring-patch.yaml \
+  --helmrelease-patch ek-patch.yaml
+```
+
+Ordinary values inputs are optional when migrating patches alone. The output
+is a Big Bang values document, with `spec.values` under
+`packages.<name>.values` and supported Flux settings under
+`packages.<name>.flux`. Resource names map to canonical package keys, including
+`ek` to `elasticsearchKibana` and `gitlab-runner` to `gitlabRunner`. The script
+does not enable packages automatically.
+
+All patches apply after the ordinary values migration, regardless of where the
+options occur on the command line. Patches are composed in option order and
+document order; later patches win. Maps merge recursively and lists replace
+earlier lists. Omitted settings retain their earlier values.
+
+Supported `spec` fields are `values`, `interval`, `timeout`, `install`,
+`upgrade`, `rollback`, `uninstall`, `test`, `driftDetection`, `suspend`,
+`maxHistory`, `persistentClient`, and `serviceAccountName`. Flux API versions
+`v2`, `v2beta2`, and `v2beta1` are accepted. Each document must identify a
+recognized built-in package by its HelmRelease `metadata.name`.
+
+The script refuses unsupported fields rather than dropping them. In particular,
+`valuesFrom` requires resolving external resources, and `dependsOn` or
+`postRenderers` replacements can differ from chart-generated behavior. Chart
+sources, extra metadata such as annotations, nulls, Kustomize directives, JSON
+patches, custom packages, and dynamically named gateways require manual
+migration. For a parent Big Bang HelmRelease, use
+[`--bigbang-helmrelease`](#parent-big-bang-helmreleases-and-values-patches).
+To convert child patches embedded in a parent post-renderer into values,
+extract those child HelmRelease patches before using `--helmrelease-patch`.
+
+Patch mode cannot be combined with `--in-place` or `--secret-key`. Inputs remain
+unchanged; output paths cannot refer to any values or patch input. If any patch
+fails validation, no migrated output is written. SOPS-encrypted patch manifests
+must be decrypted separately before conversion.
+
+Review the resulting values against the target release. Moving a child override
+into Big Bang inputs lets umbrella templates account for that setting, which
+can change generated integration configuration. Child-chart value names are
+preserved; the command does not migrate their schemas. Remove the original
+package patches from the deployment when adopting the converted values, and
+validate the resulting render and upgrade.
 
 ### Decrypted Kubernetes Secrets
 
@@ -311,7 +452,8 @@ The commands stop without replacing the input when they encounter conditions
 that cannot be migrated safely, including:
 
 - Invalid YAML or a root value that is not a mapping.
-- Multiple YAML documents.
+- Multiple YAML documents in ordinary values or Secret inputs. Files supplied
+  with `--helmrelease-patch` may contain multiple HelmRelease documents.
 - A semantic mismatch detected while automatically expanding YAML anchors and
   aliases.
 - An unsupported `packageConfiguration.version`.

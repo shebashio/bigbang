@@ -1,7 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- $pkg := "kyvernoPolicies" }}
-{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) .Values.packages.kyvernoPolicies.flux -}}
-{{- if (get .Values.packages $pkg).enabled }}
+{{- $packages := default (dict) .Values.packages }}
+{{- $kyvernoPolicies := default (dict) (get $packages $pkg) }}
+{{- $fluxSettings := mergeOverwrite (deepCopy .Values.flux) (default (dict) (get $kyvernoPolicies "flux")) -}}
+{{- if (default false (get $kyvernoPolicies "enabled")) }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -14,17 +16,17 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/kyverno-policies/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: kyverno
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "kyverno-policies" "package" (get .Values.packages $pkg) "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "kyverno-policies" "package" $kyvernoPolicies "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettings | nindent 2 }}
 
-  {{- if (get .Values.packages $pkg).postRenderers }}
+  {{- if (get $kyvernoPolicies "postRenderers") }}
   postRenderers:
-  {{ toYaml (get .Values.packages $pkg).postRenderers | nindent 4 }}
+  {{ toYaml (get $kyvernoPolicies "postRenderers") | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "kyverno-policies" "root" .) | nindent 2 }}
-  {{- if not (kindIs "invalid" .Values.packages.kyvernoPolicies.dependsOnOverride) }}
-  {{- with .Values.packages.kyvernoPolicies.dependsOnOverride }}
+  {{- if and (hasKey $kyvernoPolicies "dependsOnOverride") (not (kindIs "invalid" (get $kyvernoPolicies "dependsOnOverride"))) }}
+  {{- with (get $kyvernoPolicies "dependsOnOverride") }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -32,7 +34,7 @@ spec:
   dependsOn:
     - name: kyverno
       namespace: {{ .Release.Namespace }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.kyvernoPolicies) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" $kyvernoPolicies) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

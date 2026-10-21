@@ -114,35 +114,37 @@ networkPolicies:
   enabled: true
   controlPlaneCidr: 172.16.0.0/12
 
+authorizationPolicies:
+  enabled: true
+
 packages:
   istiod:
     enabled: true
     values:
-      hardened:
-        enabled: true
-      istio:
-        serviceEntries:
-          custom:
-          - name: external-dependencies
-            spec:
-              hosts:
-              - external-dependencies.local
-              addresses:
-              - 172.30.0.0/16
-              exportTo:
-              - "*"
-              location: MESH_EXTERNAL
-              resolution: NONE
-              ports:
-              - name: tcp-garage
-                number: 3900
-                protocol: TCP
-              - name: tcp-postgresql
-                number: 5432
-                protocol: TCP
-              - name: tcp-valkey
-                number: 6379
-                protocol: TCP
+      bb-common:
+        istio:
+          serviceEntries:
+            custom:
+            - name: external-dependencies
+              spec:
+                hosts:
+                - external-dependencies.local
+                addresses:
+                - 172.30.0.0/16
+                exportTo:
+                - "*"
+                location: MESH_EXTERNAL
+                resolution: NONE
+                ports:
+                - name: tcp-garage
+                  number: 3900
+                  protocol: TCP
+                - name: tcp-postgresql
+                  number: 5432
+                  protocol: TCP
+                - name: tcp-valkey
+                  number: 6379
+                  protocol: TCP
   istioCNI:
     enabled: false
     values:
@@ -177,7 +179,6 @@ packages:
                   monitoring/*: true
       bbtests:
         enabled: true
-
   gatekeeper:
     enabled: false
     values:
@@ -469,7 +470,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         restrict-host-path-write:
           spec:
             policyRefs:
@@ -478,7 +479,7 @@ packages:
             matchConditions:
             - name: restrict-host-path-write-exclude
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
                 (object.metadata.namespace == 'neuvector' && (
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
@@ -491,7 +492,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         require-drop-all-capabilities:
           spec:
             policyRefs:
@@ -880,6 +881,8 @@ packages:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
     values:
+      bbtests:
+        enabled: true
       resources:
         requests:
           memory: 100Mi
@@ -1379,13 +1382,14 @@ packages:
       key: "" # Gets added via chart/ingress-certs.yaml
       cert: "" # Gets added via chart/ingress-certs.yaml
     values:
-      networkPolicies:
-        egress:
-          from:
-            keycloak:
-              to:
-                cidr:
-                  15.205.173.153/32:443: true  # so it can pull the files for the provision-test-data container
+      bb-common:
+        networkPolicies:
+          egress:
+            from:
+              keycloak:
+                to:
+                  cidr:
+                    15.205.173.153/32:443: true  # so it can pull the files for the provision-test-data container
       bbtests:
         enabled: true
       upstream:

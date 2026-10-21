@@ -364,7 +364,12 @@ generate baseline network policy configurations that work in most use cases.
 - **Egress**: Gateways allow outbound connections to any Kubernetes workload
 
 This baseline configuration is set as a default value for each gateway's
-`HelmRelease`, which means your values configuration can always override it.
+`HelmRelease` under the gateway chart's `bb-common` subchart configuration,
+which means your values configuration can always override it. Configure shared
+gateway overrides under
+`istioGateway.values.shared.bb-common.networkPolicies`, or configure a specific
+gateway under
+`istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
 
 #### Modifying the Global `load-balancer-subnets` Ingress Definition
 
@@ -373,7 +378,8 @@ gateways, configure the global `load-balancer-subnets` definition:
 
 ```yaml
 # Top-level `networkPolicies` in Big Bang values
-# NOT `istioGateway.values.<gateway-name>.networkPolicies`
+# Per-gateway overrides instead use
+# `istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
 networkPolicies:
   ingress:
     definitions:
@@ -395,7 +401,8 @@ ranges (e.g., `0.0.0.0/0` for IPv4 or `::/0` for IPv6) or specific known client
 IPs.
 
 ```yaml
-networkPolicies: # globally or per-gateway with istioGateway.values.<gateway-name>.networkPolicies
+# Top-level reusable definition applied to every gateway
+networkPolicies:
   ingress:
     definitions:
       load-balancer-subnets:
@@ -415,15 +422,16 @@ istioGateway:
   values:
     gateways:
       special:
-        networkPolicies:
-          ingress:
-            definitions:
-              load-balancer-subnets:
-                from:
-                  - ipBlock:
-                      cidr: 10.200.201.0/24 # Special subnet X
-                  - ipBlock:
-                      cidr: 10.200.202.0/24 # Special subnet Y
+        bb-common:
+          networkPolicies:
+            ingress:
+              definitions:
+                load-balancer-subnets:
+                  from:
+                    - ipBlock:
+                        cidr: 10.200.201.0/24 # Special subnet X
+                    - ipBlock:
+                        cidr: 10.200.202.0/24 # Special subnet Y
 ```
 
 This overrides the global `load-balancer-subnets` definition for only the
@@ -439,16 +447,17 @@ istioGateway:
   values:
     gateways:
       <gateway-name>:
-        networkPolicies:
-          ingress:
-            to:
-              # Key format: <gateway-name>-ingressgateway:[port1,port2,...]
-              # Ports must match the gateway's server port configuration
-              <gateway-name>-ingressgateway:[8080,8443]:
-                from:
-                  definition:
-                    # Set to false to disable the generated ingress policy
-                    load-balancer-subnets: false
+        bb-common:
+          networkPolicies:
+            ingress:
+              to:
+                # Key format: <gateway-name>-ingressgateway:[port1,port2,...]
+                # Ports must match the gateway's server port configuration
+                <gateway-name>-ingressgateway:[8080,8443]:
+                  from:
+                    definition:
+                      # Set to false to disable the generated ingress policy
+                      load-balancer-subnets: false
 ```
 
 > **Note:** The key is generated based on the gateway's name
@@ -466,14 +475,15 @@ istioGateway:
   values:
     gateways:
       <gateway-name>:
-        networkPolicies:
-          egress:
-            from:
-              <gateway-name>-ingressgateway:
-                to:
-                  k8s:
-                    # Set to false to remove the default egress policy
-                    "*": false
+        bb-common:
+          networkPolicies:
+            egress:
+              from:
+                <gateway-name>-ingressgateway:
+                  to:
+                    k8s:
+                      # Set to false to remove the default egress policy
+                      "*": false
 ```
 
 After disabling the default egress policy, you can add specific egress rules as

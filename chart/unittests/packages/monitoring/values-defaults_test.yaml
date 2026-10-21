@@ -14,19 +14,29 @@ tests:
     set:
       packages.alloy.alloyMetrics.enabled: true
       packages.monitoring.values.upstream.prometheus.enabled: false
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '.stringData.common' - | yq eval '.'"
     asserts:
       - equal:
-          path: networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
+          path: bb-common.networkPolicies.ingress.to.kube-state-metrics:8080.from.k8s.alloy/alloy-metrics
           value: true
       - equal:
-          path: networkPolicies.ingress.to.prometheus-node-exporter:9100.from.k8s.alloy/alloy-metrics
+          path: bb-common.networkPolicies.ingress.to.prometheus-node-exporter:9100.from.k8s.alloy/alloy-metrics
           value: true
   - it: omits Alloy scrape ingress when metrics collection is disabled
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '.stringData.common' - | yq eval '.'"
     asserts:
       - notExists:
-          path: networkPolicies.ingress.to.kube-state-metrics:8080
+          path: bb-common.networkPolicies.ingress.to.kube-state-metrics:8080
       - notExists:
-          path: networkPolicies.ingress.to.prometheus-node-exporter:9100
+          path: bb-common.networkPolicies.ingress.to.prometheus-node-exporter:9100
   - it: disables control-plane ServiceMonitors when Prometheus is not deployed
     set:
       packages.monitoring.values.upstream.prometheus.enabled: false
@@ -38,14 +48,11 @@ tests:
     asserts:
       - notExists:
           path: upstream.kubernetesServiceMonitors
-  - it: should keep istio cert mounts when hardened sidecar is enabled
+  - it: should keep istio cert mounts when legacy package hardening is enabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
+      packages.monitoring.values.istio.hardened.enabled: true
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: true
       - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
@@ -61,11 +68,7 @@ tests:
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: false
       - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
@@ -82,11 +85,8 @@ tests:
     set:
       packages.istiod.enabled: true
       packages.istiod.values.hardened.enabled: false
-      packages.monitoring.values.istio.sidecar.enabled: true
+      packages.monitoring.values.bb-common.istio.sidecar.enabled: true
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: false
       - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
           value: /etc/prom-certs/
@@ -99,14 +99,11 @@ tests:
       - equal:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-  - it: should not inject sidecar annotations from legacy monitoring.values.istio.injection when istio is disabled
+  - it: should not inject sidecar annotations from legacy packages.monitoring.values.istio.injection when istio is disabled
     set:
       packages.istiod.enabled: false
       packages.monitoring.values.istio.injection: enabled
     asserts:
-      - equal:
-          path: istio.sidecar.enabled
-          value: false
       - notExists:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
       - notExists:
@@ -130,7 +127,6 @@ tests:
   - it: should prioritize prometheusOperatorCRDs namespace injection over grafana when CRDs own monitoring namespace
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.prometheusOperatorCRDs.enabled: true
       packages.grafana.enabled: true
       packages.grafana.istio.injection: disabled
@@ -144,7 +140,6 @@ tests:
   - it: should use grafana namespace injection when prometheusOperatorCRDs is disabled
     set:
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.prometheusOperatorCRDs.enabled: false
       packages.grafana.enabled: true
       packages.grafana.istio.injection: disabled
@@ -153,3 +148,50 @@ tests:
           path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig.caFile
       - notExists:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
+
+  - it: carries the global domain without flat bb-common configuration
+    set:
+      domain: example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: example.test
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: bb-common
+  - it: respects nested permissive mTLS overrides
+    set:
+      packages.istiod.enabled: true
+      packages.monitoring.values.bb-common.istio.mtls.mode: PERMISSIVE
+    asserts:
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig
+  - it: omits sidecar cert mounts in ambient mode
+    set:
+      packages.istiod.enabled: true
+      istio.ambient.enabled: true
+    asserts:
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.volumeMounts
+      - notExists:
+          path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
+
+  - it: enrolls ambient SSO services on the bb-common waypoint
+    set:
+      packages.istiod.enabled: true
+      istio.ambient.enabled: true
+      packages.monitoring.sso.enabled: true
+    asserts:
+      - equal:
+          path: upstream.prometheus.service.labels["istio.io/use-waypoint"]
+          value: monitoring-monitoring-waypoint
+      - equal:
+          path: upstream.alertmanager.service.labels["istio.io/use-waypoint"]
+          value: monitoring-monitoring-waypoint
