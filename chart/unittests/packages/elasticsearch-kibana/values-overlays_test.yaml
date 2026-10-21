@@ -10,54 +10,24 @@ postRenderer:
     - "-c"
     - "yq eval '.stringData.overlays' - | yq eval '.'"
 tests:
-  - it: should map customServiceEntries to istio.serviceEntries.custom
+  - it: should pass bb-common istio custom serviceEntries and authorizationPolicies through unchanged
     set:
-      packages.elasticsearchKibana.values.istio.hardened.customServiceEntries:
-        - name: "test-service-entry"
-          hosts:
-            - "example.com"
-    asserts:
-      - equal:
-          path: istio.serviceEntries.custom[0].name
-          value: "test-service-entry"
-      - equal:
-          path: istio.serviceEntries.custom[0].hosts[0]
-          value: "example.com"
-  - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
-    set:
-      packages.elasticsearchKibana.values.istio.hardened.customAuthorizationPolicies:
+      packages.elasticsearchKibana.values.bb-common.istio.serviceEntries.custom:
+        - name: "custom-entry"
+          spec:
+            hosts:
+              - "custom.example.com"
+      packages.elasticsearchKibana.values.bb-common.istio.authorizationPolicies.custom:
         - name: "test-authz-policy"
           labels:
             app: "elasticsearch-kibana"
     asserts:
       - equal:
-          path: istio.authorizationPolicies.custom[0].name
-          value: "test-authz-policy"
-      - equal:
-          path: istio.authorizationPolicies.custom[0].labels.app
-          value: "elasticsearch-kibana"
-  - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
-    set:
-      packages.elasticsearchKibana.values.istio.hardened.customServiceEntries:
-        - name: "hardened-entry"
-          spec:
-            hosts:
-              - "hardened.example.com"
-      packages.elasticsearchKibana.values.istio.serviceEntries.custom:
-        - name: "custom-entry"
-          spec:
-            hosts:
-              - "custom.example.com"
-    asserts:
-      - equal:
-          path: istio.serviceEntries.custom[0].name
-          value: "hardened-entry"
-      - equal:
-          path: istio.serviceEntries.custom[0].spec.hosts[0]
-          value: "hardened.example.com"
-      - equal:
-          path: istio.serviceEntries.custom[1].name
+          path: bb-common.istio.serviceEntries.custom[0].name
           value: "custom-entry"
       - equal:
-          path: istio.serviceEntries.custom[1].spec.hosts[0]
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
           value: "custom.example.com"
+      - equal:
+          path: bb-common.istio.authorizationPolicies.custom[0].name
+          value: "test-authz-policy"
