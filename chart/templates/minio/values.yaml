@@ -1,15 +1,11 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.minio.enabled }}
-  {{- $minioPackage := deepCopy .Values.packages.minio -}}
-  {{- if .Values.packages.minio.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.minio.values) | fromYaml -}}
-    {{- $minioPackage = set $minioPackage "values" $cleanedValues -}}
-  {{- end -}}
   {{- include "values-secret" (dict
     "root" $
-    "package" $minioPackage
+    "package" .Values.packages.minio
     "name" "minio"
-    "defaults" ((mergeOverwrite (include "bigbang.defaults.minio" . | fromYaml) (include "bigbang.minio.bb-common-migrations" . | fromYaml)) | toYaml)
+    "bbCommonSubchart" true
+    "defaults" (include "bigbang.defaults.minio" .)
   )}}
 {{- end }}
 
@@ -17,38 +13,39 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-networkPolicies:
-  egress:
-    from:
-      minio:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
-
-routes:
-  inbound:
-    api:
-      enabled: true
-      gateways:
-      - istio-gateway/public-ingressgateway
-      hosts:
-      - minio-api.{{ .Values.domain }}
-      service: minio
-      port: 80
-      containerPort: 9000
-    console:
-      enabled: true
-      gateways:
-      - istio-gateway/public-ingressgateway
-      hosts:
-      - minio.{{ .Values.domain }}
-      service: minio-minio-minio-instance-console
-      port: 9090
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.minio.values }}
-      hosts:
-      - repo1.dso.mil
+bb-common:
+  networkPolicies:
+    egress:
+      from:
+        minio:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+  
+  routes:
+    inbound:
+      api:
+        enabled: true
+        gateways:
+        - istio-gateway/public-ingressgateway
+        hosts:
+        - minio-api.{{ .Values.domain }}
+        service: minio
+        port: 80
+        containerPort: 9000
+      console:
+        enabled: true
+        gateways:
+        - istio-gateway/public-ingressgateway
+        hosts:
+        - minio.{{ .Values.domain }}
+        service: minio-minio-minio-instance-console
+        port: 9090
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.minio.values }}
+        hosts:
+        - repo1.dso.mil
 
 bbtests:
   cypress:
