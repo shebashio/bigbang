@@ -1198,28 +1198,29 @@ Args:
   {{- $ctx := index . 0 }}
   {{- $name := index . 1 }}
   {{- $ports := index . 2 }}
-networkPolicies:
-  enabled: {{ $ctx.Values.networkPolicies.enabled }}
-  ingress:
-    {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    to:
-      "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
-        from:
-          definition:
-            load-balancer-subnets: true
-  egress:
-    {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    from:
-      "{{ $name }}-ingressgateway":
-        to:
-          k8s:
-            '*': true
+bb-common:
+  networkPolicies:
+    enabled: {{ $ctx.Values.networkPolicies.enabled }}
+    ingress:
+      {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      to:
+        "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
+          from:
+            definition:
+              load-balancer-subnets: true
+    egress:
+      {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      from:
+        "{{ $name }}-ingressgateway":
+          to:
+            k8s:
+              '*': true
 {{- end }}
 
 {{- /*

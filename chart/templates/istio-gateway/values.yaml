@@ -14,6 +14,7 @@
   "defaults" ($gw.defaults | toYaml)
   "package" (dict "values" $gw.overlays)
   "injectCommonDefaults" false
+  "bbCommonSubchart" true
 ) }}
 {{- end }}
 {{- end }}
