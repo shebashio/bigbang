@@ -10,24 +10,26 @@
 "root" $ 
 "package" $vaultPackage 
 "name" "vault" 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.vault" . | fromYaml) (include "bigbang.vault.bb-common-migrations" . | fromYaml)) | toYaml) 
+"bbCommonSubchart" true
+"defaults" (include "bigbang.defaults.vault" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.vault.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 {{- $tlsEnabled := and (not (empty .Values.packages.vault.ingress.cert)) (not (empty .Values.packages.vault.ingress.key)) -}}
 {{ $gateway := include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.packages.vault.ingress.gateway "root" .)}}
 {{- $gatewayPort := ternary
-  (dig "routes" "inbound" "vault" "port" 8200 .Values.packages.vault.values)
-  (dig "routes" "inbound" "vault" "passthrough" "gatewayPort" 8443 .Values.packages.vault.values)
+  (dig "bb-common" "routes" "inbound" "vault" "port" 8200 .Values.packages.vault.values)
+  (dig "bb-common" "routes" "inbound" "vault" "passthrough" "gatewayPort" 8443 .Values.packages.vault.values)
   $tlsEnabled
   | int
 -}}
+{{- $kmsCidrs := dig "bb-common" "networkPolicies" "egress" "definitions" "kms" "to" (list (dict "ipBlock" (dict "cidr" "0.0.0.0/0"))) .Values.packages.vault.values }}
 {{ $ingressKey := dig "customAppIngressSelector" "key" "vault-ingress" .Values.packages.vault.values }}
 {{ $ingressValue := dig "customAppIngressSelector" "value" "true" .Values.packages.vault.values | quote }}
 
@@ -53,10 +55,6 @@ routes:
       enabled: {{ dig "bbtests" "enabled" false .Values.packages.vault.values }}
       hosts:
       - repo1.dso.mil
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
 
 tls:
   cert: {{ .Values.packages.vault.ingress.cert | quote }}
@@ -85,10 +83,31 @@ networkPolicies:
             0.0.0.0/0: true
   egress:
     definitions:
-      kms:
+      kubeAPI:
         to:
+          {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0")}}
           - ipBlock:
               cidr: "0.0.0.0/0"
+              except:
+              - 169.254.169.254/32
+          {{- else }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+          {{- end }}
+      kms:
+        to:
+          {{- if (eq (index $kmsCidrs 0).ipBlock.cidr "0.0.0.0/0") }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+            {{- if eq .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
+              except:
+              - 169.254.169.254/32
+            {{- end }}
+          {{- else }}
+            {{- $kmsCidrs | toYaml | nindent 10 }}
+          {{- end }}
         ports:
           - port: 443
             protocol: TCP
@@ -215,9 +234,4 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if $istioEnabled }}
-minio:
-  annotations:
-    {{ include "istioAnnotation" . }}
-{{- end }}        
 {{- end -}}
