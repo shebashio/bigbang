@@ -978,14 +978,15 @@ packages:
     flux:
       timeout: 30m
     values:
-      networkPolicies:
-        enabled: true
-        egress:
-          from:
-            "*":
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
+      bb-common:
+        networkPolicies:
+          enabled: true
+          egress:
+            from:
+              "*":
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
       global:
         redis:
           host: valkey
