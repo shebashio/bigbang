@@ -470,7 +470,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         restrict-host-path-write:
           spec:
             policyRefs:
@@ -479,7 +479,7 @@ packages:
             matchConditions:
             - name: restrict-host-path-write-exclude
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
                 (object.metadata.namespace == 'neuvector' && (
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
@@ -492,7 +492,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         require-drop-all-capabilities:
           spec:
             policyRefs:
@@ -881,6 +881,8 @@ packages:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
     values:
+      bbtests:
+        enabled: true
       resources:
         requests:
           memory: 100Mi
