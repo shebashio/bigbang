@@ -3,19 +3,9 @@
 
 {{- /* Create secret */ -}}
 {{- if (get .Values.packages $pkg).enabled }}
-{{- /* Create a cleaned copy of harbor config and merge deprecated paths into current paths */ -}}
-{{- $harborPackage := deepCopy .Values.packages.harbor -}}
-{{- if .Values.packages.harbor.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy .Values.packages.harbor.values)) | fromYaml -}}
-{{- if hasKey $cleanedValues "bb-common" -}}
-{{- $cleanedBbCommon := include "mergeLegacyIstioHardenedKeys" (dict "values" (index $cleanedValues "bb-common")) | fromYaml -}}
-{{- $cleanedValues = set $cleanedValues "bb-common" $cleanedBbCommon -}}
-{{- end -}}
-{{- $harborPackage = set $harborPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
   "root" $
-  "package" $harborPackage
+  "package" .Values.packages.harbor
   "name" $pkg
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.harbor" .)

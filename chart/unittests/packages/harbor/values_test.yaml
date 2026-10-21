@@ -125,7 +125,7 @@ tests:
           path: bb-common.networkPolicies.egress.from.harbor.to.definition.redis-subnets
           value: true
 
-  - it: should map legacy istio.hardened keys nested under bb-common in the overlay
+  - it: should pass bb-common istio custom serviceEntries and authorizationPolicies through the overlay unchanged
     postRenderer:
       cmd: "sh"
       args:
@@ -133,12 +133,12 @@ tests:
         - "yq eval 'select(.metadata.name == \"bb-harbor-values\") | .stringData.overlays' - | yq eval '.'"
     set:
       packages.harbor.enabled: true
-      packages.harbor.values.bb-common.istio.hardened.customServiceEntries:
+      packages.harbor.values.bb-common.istio.serviceEntries.custom:
         - name: test-service-entry
           spec:
             hosts:
               - example.com
-      packages.harbor.values.bb-common.istio.hardened.customAuthorizationPolicies:
+      packages.harbor.values.bb-common.istio.authorizationPolicies.custom:
         - name: test-authz-policy
           spec: {}
     asserts:
@@ -148,25 +148,3 @@ tests:
       - equal:
           path: bb-common.istio.authorizationPolicies.custom[0].name
           value: test-authz-policy
-      - notExists:
-          path: bb-common.istio.hardened
-
-  - it: should map legacy top-level istio.hardened keys in the overlay
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval 'select(.metadata.name == \"bb-harbor-values\") | .stringData.overlays' - | yq eval '.'"
-    set:
-      packages.harbor.enabled: true
-      packages.harbor.values.istio.hardened.customServiceEntries:
-        - name: test-service-entry
-          spec:
-            hosts:
-              - example.com
-    asserts:
-      - equal:
-          path: istio.serviceEntries.custom[0].name
-          value: test-service-entry
-      - notExists:
-          path: istio.hardened
