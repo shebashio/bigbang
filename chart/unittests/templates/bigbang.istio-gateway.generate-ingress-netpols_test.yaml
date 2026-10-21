@@ -19,7 +19,7 @@ tests:
                       number: 8080
   asserts:
   - equal:
-      path: result.custom.defaults.networkPolicies
+      path: result.custom.defaults.bb-common.networkPolicies
       value:
         enabled: true
         egress:
@@ -118,7 +118,7 @@ tests:
                       number: 8080
   asserts:
   - equal:
-      path: result.custom.defaults.networkPolicies
+      path: result.custom.defaults.bb-common.networkPolicies
       value:
         enabled: true
         egress:
@@ -199,13 +199,14 @@ tests:
         - helm:context
         - custom:
             defaults:
-              networkPolicies:
-                egress:
-                  from:
-                    custom-ingressgateway:
-                      to:
-                        cidr:
-                          10.200.0.0/16: true
+              bb-common:
+                networkPolicies:
+                  egress:
+                    from:
+                      custom-ingressgateway:
+                        to:
+                          cidr:
+                            10.200.0.0/16: true
             overlays:
               gateway:
                 servers:
@@ -213,7 +214,7 @@ tests:
                       number: 8080
   asserts:
   - equal:
-      path: result.custom.defaults.networkPolicies
+      path: result.custom.defaults.bb-common.networkPolicies
       value:
         enabled: true
         egress:
@@ -300,13 +301,14 @@ tests:
         - helm:context
         - custom:
             defaults:
-              networkPolicies:
-                egress:
-                  from:
-                    custom-ingressgateway:
-                      to:
-                        cidr:
-                          10.200.0.0/16: true
+              bb-common:
+                networkPolicies:
+                  egress:
+                    from:
+                      custom-ingressgateway:
+                        to:
+                          cidr:
+                            10.200.0.0/16: true
               gateway:
                 servers:
                   - port:
@@ -320,7 +322,7 @@ tests:
                       number: 443
   asserts:
   - equal:
-      path: result.custom.defaults.networkPolicies
+      path: result.custom.defaults.bb-common.networkPolicies
       value:
         enabled: true
         egress:
