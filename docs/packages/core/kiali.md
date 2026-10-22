@@ -48,11 +48,13 @@ packages:
     ingress:
       gateway: "private"
     values:
-      istio:
-        kiali:
-          # Hostname override
-          hosts:
-          - kiali.<your-domain>
+      bb-common:
+        routes:
+          inbound:
+            kiali:
+              # Hostname override
+              hosts:
+              - kiali.<your-domain>
 ```
 
 Kiali is also pre-configured with knowledge of the BB Istio stack for monitoring purposes. Kiali will monitor the status of all gateways and istiod and display a status "bubble" when a component is unreachable or down.
