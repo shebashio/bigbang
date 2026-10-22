@@ -1,6 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.gatekeeper.enabled }}
-{{- include "values-secret" (dict "root" $ "package" (dict "values" (fromYaml (include "bigbang.overlays.gatekeeper" .))) "name" "gatekeeper" "defaults" (include "bigbang.defaults.gatekeeper" .)) }}
+{{- include "values-secret" (dict 
+  "root" $ 
+  "package" (dict "values" (fromYaml (include "bigbang.overlays.gatekeeper" .))) 
+  "name" "gatekeeper"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.gatekeeper" .)
+)}}
 {{- end }}
 
 {{- define "bigbang.defaults.gatekeeper" -}}
@@ -30,68 +36,53 @@ upstream:
         pullPolicy: {{ .Values.imagePullPolicy }}
         {{- include "secretsPullSecretsWithName" . | nindent 8 }}
 
-istio:
-  # Gatekeeper is not in the service mesh
-  enabled: false
-  ambient:
+bb-common:
+  istio:
+    # Gatekeeper is not in the service mesh
     enabled: false
-  sidecar:
-    enabled: false
-  authorizationPolicies:
-    enabled: false
-
-networkPolicies:
-  # Setting to false as Gatekeeper is not in the mesh
-  hbonePortInjection:
-    enabled: false
-  ingress:
-    defaults:
-      # Gatekeeper is not in the service mesh
-      allowPrometheusToIstioSidecar:
-        enabled: false
-    to:
-      gatekeeper:8443:
-        from:
-          definition:
-            kubeAPI: true
-      gatekeeper:8888:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-  egress:
-    defaults:
-      # Gatekeeper is not in the service mesh
-      allowIstiod:
-        enabled: false
-    definitions:
-      kubeAPI:
-        to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
-              # ONLY Block requests to cloud metadata IP
-              except:
-              - 169.254.169.254/32
-              {{- end }}
-          {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
-          {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-          {{- end }}
-          {{- end }}
-    from:
-      gatekeeper:
-        to:
-          definition:
-            kubeAPI: true
-      crd-cleanup:
-        podSelector:
-          matchLabels:
-            job-name: gatekeeper-crd-cleanup
-        to:
-          definition:
-            kubeAPI: true
+    ambient:
+      enabled: false
+    sidecar:
+      enabled: false
+    authorizationPolicies:
+      enabled: false
+  
+  networkPolicies:
+    # Setting to false as Gatekeeper is not in the mesh
+    hbonePortInjection:
+      enabled: false
+    ingress:
+      defaults:
+        # Gatekeeper is not in the service mesh
+        allowPrometheusToIstioSidecar:
+          enabled: false
+      to:
+        gatekeeper:8443:
+          from:
+            definition:
+              kubeAPI: true
+        gatekeeper:8888:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    egress:
+      defaults:
+        # Gatekeeper is not in the service mesh
+        allowIstiod:
+          enabled: false
+      from:
+        gatekeeper:
+          to:
+            definition:
+              kubeAPI: true
+        crd-cleanup:
+          podSelector:
+            matchLabels:
+              job-name: gatekeeper-crd-cleanup
+          to:
+            definition:
+              kubeAPI: true
 violations:  # Try to keep this in alpha order to make it easier to find keys
 
   allowedDockerRegistries:
