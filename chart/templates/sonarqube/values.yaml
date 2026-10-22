@@ -1,22 +1,16 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.sonarqube.enabled }}
-{{- /* Create a cleaned copy of sonarqube config and merge deprecated paths into current paths */ -}}
-{{- $sonarqubePackage := deepCopy .Values.packages.sonarqube -}}
-{{- if .Values.packages.sonarqube.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.sonarqube.values) | fromYaml -}}
-{{- $sonarqubePackage = set $sonarqubePackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict 
-"root" $ 
-"package" $sonarqubePackage 
-"name" "sonarqube" 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.sonarqube" . | fromYaml) (include "bigbang.sonarqube.bb-common-migrations" . | fromYaml)) | toYaml) 
-)}}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.sonarqube
+  "name" "sonarqube"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.sonarqube" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.sonarqube" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.sonarqube.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $plugins := dig "upstream" "plugins" "install" (list) .Values.packages.sonarqube.values }}
 {{- $pluginsExist := not (empty $plugins) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
@@ -29,83 +23,93 @@ domain: {{ $domainName }}
 OpenShift:
   enabled: {{ .Values.openshift }}
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-routes:
-  inbound:
-    sonarqube:
-      enabled: true
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.packages.sonarqube.ingress.gateway "root" .)}}
-      hosts:
-        - sonarqube.{{ .Values.domain }}
-      service: sonarqube-sonarqube.sonarqube.svc.cluster.local
-      port: 9000
-      selector:
-        app: sonarqube
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.sonarqube.values }}
-      hosts:
-      - repo1.dso.mil
-    sonarqube-marketplace:
-      enabled: {{ $pluginsExist }}
-      hosts:
-      - github.com
-      - release-assets.githubusercontent.com
-      - downloads.sonarsource.com
-    sonarqube-configure-sso:
-      enabled: {{ $localSSOEnabled }}
-      hosts:
-      - {{ include "sso.host" . }}
-
-networkPolicies:
-  ingress:
-    to:
-      sonarqube:[8000,8001,9000]:
-        podSelector:
-          matchLabels:
-            app: sonarqube
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-  egress:
-    from:
+bb-common:
+  routes:
+    inbound:
       sonarqube:
-        podSelector:
-          matchLabels:
-            app: sonarqube
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
-          definition:
-            sonarsource-marketplace: {{ $pluginsExist }}
-            code-repository: true
-            database-subnets: {{ not (or (empty .Values.packages.sonarqube.database.host) (dig "upstream" "jdbcOverwrite" "enabled" false .Values.packages.sonarqube.values )) }}
+        enabled: true
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.sonarqube.ingress.gateway "root" .)}}
+        hosts:
+          - sonarqube.{{ .Values.domain }}
+        service: sonarqube-sonarqube.sonarqube.svc.cluster.local
+        port: 9000
+        selector:
+          app: sonarqube
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.sonarqube.values }}
+        hosts:
+        - repo1.dso.mil
+      sonarqube-marketplace:
+        enabled: {{ $pluginsExist }}
+        hosts:
+        - github.com
+        - release-assets.githubusercontent.com
+        - downloads.sonarsource.com
       sonarqube-configure-sso:
-        podSelector:
-          matchLabels:
-            batch.kubernetes.io/job-name: configure-sso-certificate-secret
-        to:
-          definition:
-            kubeAPI: 
-              enabled: {{ $localSSOEnabled }}
-              metadata:
-                annotations:
-                  helm.sh/hook: pre-install,pre-upgrade
-                  helm.sh/hook-weight: "-10"
-                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
-            sso: 
-              enabled: {{ $localSSOEnabled }}
-              metadata:
-                annotations:
-                  helm.sh/hook: pre-install,pre-upgrade
-                  helm.sh/hook-weight: "-10"
-                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
-
+        enabled: {{ $localSSOEnabled }}
+        hosts:
+        - {{ include "sso.host" . }}
+  networkPolicies:
+    ingress:
+      to:
+        sonarqube:[8000,8001,9000]:
+          podSelector:
+            matchLabels:
+              app: sonarqube
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    egress:
+      definitions:
+        {{- if not (hasKey .Values.networkPolicies.egress.definitions "kubeAPI") }}
+        kubeAPI:
+          to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+              except:
+              - 169.254.169.254/32
+              {{- end }}
+          {{- if and (ne .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) (ne .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+          {{- end }}
+        {{- end }}
+      from:
+        sonarqube:
+          podSelector:
+            matchLabels:
+              app: sonarqube
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+            definition:
+              sonarsource-marketplace: {{ $pluginsExist }}
+              code-repository: true
+              database-subnets: {{ not (or (empty .Values.packages.sonarqube.database.host) (dig "upstream" "jdbcOverwrite" "enabled" false .Values.packages.sonarqube.values )) }}
+        sonarqube-configure-sso:
+          podSelector:
+            matchLabels:
+              batch.kubernetes.io/job-name: configure-sso-certificate-secret
+          to:
+            definition:
+              kubeAPI:
+                enabled: {{ $localSSOEnabled }}
+                metadata:
+                  annotations:
+                    helm.sh/hook: pre-install,pre-upgrade
+                    helm.sh/hook-weight: "-10"
+                    helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+              sso:
+                enabled: {{ $localSSOEnabled }}
+                metadata:
+                  annotations:
+                    helm.sh/hook: pre-install,pre-upgrade
+                    helm.sh/hook-weight: "-10"
+                    helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:

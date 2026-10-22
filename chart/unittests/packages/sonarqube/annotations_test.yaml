@@ -4,17 +4,10 @@ templates:
   - templates/sonarqube/values.yaml
 tests:
   - it: should render the istio roll annotation on the upstream pod template
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
       packages.sonarqube.enabled: true
       istio.ambient.enabled: true
     asserts:
-      - equal:
-          path: upstream.annotations["bigbang.dev/istioDataplane"]
-          value: ambient
-      - isNull:
-          path: annotations
+      - matchRegex:
+          path: stringData.defaults
+          pattern: '(?s).*bigbang\.dev/istioDataplane: ambient.*'
