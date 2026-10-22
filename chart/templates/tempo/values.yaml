@@ -1,17 +1,10 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.tempo.enabled }}
-{{- /* Create a cleaned copy of tempo config and merge deprecated paths into current paths */ -}}
-{{- $tempoPackage := deepCopy .Values.packages.tempo -}}
-{{- if .Values.packages.tempo.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.tempo.values) | fromYaml -}}
-{{- $tempoPackage = set $tempoPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $tempoPackage "name" "tempo" "defaults" (include "bigbang.defaults.tempo" .)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.tempo "name" "tempo" "bbCommonSubchart" true "defaults" (include "bigbang.defaults.tempo" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.tempo" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.tempo.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $storageMode := dig "upstream" "tempo" "storage" "trace" "backend" "local" .Values.packages.tempo.values }}
 
 upstream:
@@ -82,55 +75,53 @@ upstream:
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
-routes:
-  inbound:
-    tempo-query:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
-      hosts:
-        - tempo.{{ .Values.domain }}
-      service: tempo-tempo.tempo.svc.cluster.local
-      port: 3200
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.tempo.values }}
-      hosts:
-      - repo1.dso.mil
-      - grafana.{{ $domainName }}
-      - grafana.com
+upgradeJob:
+  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
 
-networkPolicies:
-  ingress:
-    to:
-      tempo:3200:
-        from:
-          k8s:
-            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-            kiali-service-account@kiali/kiali: {{ .Values.packages.kiali.enabled }}
-      tempo:4317:
-        from:
-          k8s:
-            alloy-alloy-operator@alloy/alloy: {{ .Values.packages.alloy.enabled }}
-            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
-            alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.packages.alloy.enabled }}
-  egress:
-    from:
-      tempo:
-        to:
-          k8s:
-            monitoring/prometheus:9090: {{ .Values.packages.monitoring.enabled }}
-          definition:
-            # TODO: Revisit this logic for bb 4.0
-            storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.packages.tempo.objectStorage.endpoint )) }}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
+bb-common:
+  routes:
+    inbound:
+      tempo-query:
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+        hosts:
+          - tempo.{{ .Values.domain }}
+        service: tempo-tempo.tempo.svc.cluster.local
+        port: 3200
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.tempo.values }}
+        hosts:
+        - repo1.dso.mil
+        - grafana.{{ $domainName }}
+        - grafana.com
+  networkPolicies:
+    ingress:
+      to:
+        tempo:3200:
+          from:
+            k8s:
+              monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+              kiali-service-account@kiali/kiali: {{ .Values.packages.kiali.enabled }}
+        tempo:4317:
+          from:
+            k8s:
+              alloy-alloy-operator@alloy/alloy: {{ .Values.packages.alloy.enabled }}
+              alloy-alloy-logs@alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
+              alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.packages.alloy.enabled }}
+    egress:
+      from:
+        tempo:
+          to:
+            k8s:
+              monitoring/prometheus:9090: {{ .Values.packages.monitoring.enabled }}
+            definition:
+              storage-subnets: {{ or (ne $storageMode "local") (not (empty .Values.packages.tempo.objectStorage.endpoint )) }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
