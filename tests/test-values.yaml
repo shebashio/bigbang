@@ -1551,12 +1551,13 @@ packages:
     kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
     kms_secret_key: "" # gets added via CI VAULT_KMS_SECRET_KEY and 01_deploy_bigbang.sh
     values:
-      routes:
-        outbound:
-          aws-kms:
-            enabled: true
-            hosts:
-            - kms.us-gov-west-1.amazonaws.com
+      bb-common:
+        routes:
+          outbound:
+            aws-kms:
+              enabled: true
+              hosts:
+              - kms.us-gov-west-1.amazonaws.com
       upstream:
         injector:
           enabled: true
