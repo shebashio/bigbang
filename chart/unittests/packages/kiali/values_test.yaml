@@ -3,19 +3,35 @@ suite: Package - Kiali - Values Tests
 templates:
   - templates/kiali/values.yaml
 tests:
-  - it: make assertions on the default values for Kiali
+  - it: should nest integration values under bb-common and use global.domain
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml)' -"
+        - "yq eval '{\"common\": (.stringData.common | from_yaml), \"defaults\": (.stringData.defaults | from_yaml)}' -"
     asserts:
       - equal:
-          path: domain
+          path: defaults.global.domain
           value: "dev.bigbang.mil"
       - equal:
-          path: bb-common.istio.enabled
+          path: common.bb-common.istio.enabled
           value: true
+      - isNotNull:
+          path: common.bb-common.networkPolicies
+      - isNotNull:
+          path: common.bb-common.routes.inbound.kiali
+      - notExists:
+          path: common.bb-common.istio.injection
+      - notExists:
+          path: common.istio
+      - notExists:
+          path: common.networkPolicies
+      - notExists:
+          path: common.routes
+      - notExists:
+          path: defaults.domain
+      - notExists:
+          path: defaults.bb-common
   - it: should pass custom service entries under bb-common
     postRenderer:
       cmd: "sh"
@@ -60,24 +76,24 @@ tests:
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
       packages.kiali.values.bb-common.istio.serviceEntries.custom:
-        - name: "hardened-entry"
+        - name: "first-entry"
           spec:
             hosts:
-              - "hardened.example.com"
-        - name: "custom-entry"
+              - "first.example.com"
+        - name: "second-entry"
           spec:
             hosts:
-              - "custom.example.com"
+              - "second.example.com"
     asserts:
       - equal:
           path: bb-common.istio.serviceEntries.custom[0].name
-          value: "hardened-entry"
+          value: "first-entry"
       - equal:
           path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
-          value: "hardened.example.com"
+          value: "first.example.com"
       - equal:
           path: bb-common.istio.serviceEntries.custom[1].name
-          value: "custom-entry"
+          value: "second-entry"
       - equal:
           path: bb-common.istio.serviceEntries.custom[1].spec.hosts[0]
-          value: "custom.example.com"
+          value: "second.example.com"

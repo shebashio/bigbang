@@ -16,7 +16,7 @@ tests:
     packages.kiali.enabled: true
     packages.kiali.values.bb-common.istio.enabled: true
     packages.kiali.values.bb-common.istio.serviceEntries.custom:
-      - name: "test-hardened-service-entry"
+      - name: "test-tls-service-entry"
         spec:
           hosts:
             - "example.com"
@@ -28,14 +28,14 @@ tests:
           resolution: DNS
   documentSelector:
     path: metadata.name
-    value: test-hardened-service-entry
+    value: test-tls-service-entry
   asserts:
   - equal:
       path: kind
       value: ServiceEntry
   - equal:
       path: metadata.name
-      value: test-hardened-service-entry
+      value: test-tls-service-entry
   - equal:
       path: spec
       value:
@@ -94,19 +94,19 @@ tests:
     packages.kiali.values.bb-common.routes.outbound.grafana.enabled: false # Manually disable templated route for test
     packages.kiali.values.bb-common.routes.outbound.sso.enabled: false # Manually disable templated route for test
     packages.kiali.values.bb-common.istio.serviceEntries.custom:
-      - name: "hardened-entry-1"
+      - name: "service-entry-1"
         spec:
           hosts:
             - "service1.example.com"
           location: MESH_EXTERNAL
           resolution: DNS
-      - name: "hardened-entry-2"
+      - name: "service-entry-2"
         spec:
           hosts:
             - "service2.example.com"
           location: MESH_EXTERNAL
           resolution: DNS
-      - name: "istio-entry-1"
+      - name: "service-entry-3"
         spec:
           hosts:
             - "service3.example.com"
@@ -118,12 +118,12 @@ tests:
   - documentIndex: 0
     equal:
       path: metadata.name
-      value: hardened-entry-1
+      value: service-entry-1
   - documentIndex: 1
     equal:
       path: metadata.name
-      value: hardened-entry-2
+      value: service-entry-2
   - documentIndex: 2
     equal:
       path: metadata.name
-      value: istio-entry-1
+      value: service-entry-3
