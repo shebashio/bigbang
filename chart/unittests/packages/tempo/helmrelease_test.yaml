@@ -1,0 +1,74 @@
+suite: Package - Tempo - ServiceMonitor TLS
+templates:
+  - templates/tempo/helmrelease.yaml
+  - templates/tempo/values.yaml
+set:
+  packages.tempo.enabled: true
+  packages.monitoring.enabled: true
+  packages.istiod.enabled: true
+  istio.ambient.enabled: false
+tests:
+  - it: applies HTTPS and client certificates for explicit STRICT mTLS
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.bb-common.istio.mtls.mode: STRICT
+    asserts:
+      - equal:
+          path: spec.postRenderers[1].kustomize.patches[0].target.kind
+          value: ServiceMonitor
+      - matchRegex:
+          path: spec.postRenderers[1].kustomize.patches[0].patch
+          pattern: 'path: /spec/endpoints/0/scheme\s+value: https'
+      - matchRegex:
+          path: spec.postRenderers[1].kustomize.patches[0].patch
+          pattern: 'path: /spec/endpoints/0/tlsConfig'
+      - matchRegex:
+          path: spec.postRenderers[1].kustomize.patches[0].patch
+          pattern: 'certFile: /etc/prom-certs/cert-chain.pem'
+  - it: retains HTTPS scraping for the default STRICT mode
+    template: templates/tempo/helmrelease.yaml
+    asserts:
+      - matchRegex:
+          path: spec.postRenderers[1].kustomize.patches[0].patch
+          pattern: 'path: /spec/endpoints/0/scheme\s+value: https'
+  - it: omits HTTPS and client certificate patches for PERMISSIVE mTLS
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.bb-common.istio.mtls.mode: PERMISSIVE
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
+  - it: omits HTTPS and client certificate patches when mTLS is disabled
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.bb-common.istio.mtls.mode: DISABLE
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
+  - it: omits sidecar TLS patches in ambient mode
+    template: templates/tempo/helmrelease.yaml
+    set:
+      istio.ambient.enabled: true
+      packages.tempo.values.bb-common.istio.mtls.mode: STRICT
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
+  - it: omits TLS patches without Istio
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.istiod.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
+  - it: omits TLS patches without monitoring
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.monitoring.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
