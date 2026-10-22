@@ -49,32 +49,31 @@ bb-common:
         enabled: {{ dig "bbtests" "enabled" false .Values.packages.mimir.values }}
         hosts:
         - repo1.dso.mil
+      {{- /* Disable single-host entry when wildcard covers it to avoid redundant ServiceEntries */}}
+      {{- if and $kafkaBrokerRouteEnabled (not $kafkaBrokerWildcardRouteEnabled) }}
       kafka-broker:
-        {{- /* Disable single-host entry when wildcard covers it to avoid redundant ServiceEntries */}}
-        enabled: {{ and $kafkaBrokerRouteEnabled (not $kafkaBrokerWildcardRouteEnabled) }}
-        {{- if ne $kafkaBrokerHost "" }}
+        enabled: true
         hosts:
           - {{ $kafkaBrokerHost | quote }}
-        {{- end }}
         ports:
           - number: {{ $kafkaBrokerPort }}
             name: kafka
             protocol: TCP
+      {{- end }}
+      {{- if $kafkaBrokerWildcardRouteEnabled }}
       kafka-broker-wildcard:
-        enabled: {{ $kafkaBrokerWildcardRouteEnabled }}
+        enabled: true
         {{- /* resolution: NONE required — Istio rejects wildcard hosts with DNS resolution */}}
         resolution: NONE
-        {{- if ne $kafkaBrokerClusterDomain "" }}
         hosts:
           - {{ printf "*.%s" $kafkaBrokerClusterDomain | quote }}
-        {{- end }}
         ports:
           - number: {{ $kafkaBrokerPort }}
             name: kafka
             protocol: TCP
+      {{- end }}
 
   networkPolicies:
-    controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     egress:
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
       definitions:

@@ -129,7 +129,13 @@ tests:
   asserts:
   - matchRegex:
       path: stringData.common
-      pattern: "kafka-broker"
+      pattern: "(?m)^      kafka-broker:$"
+  - matchRegex:
+      path: stringData.common
+      pattern: "b-1\\.cluster\\.kafka\\.us-east-1\\.amazonaws\\.com"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker-wildcard:$"
 
 - it: should not render kafka config when kafkaIngestStorage is disabled
   set:
@@ -145,6 +151,9 @@ tests:
   - notMatchRegex:
       path: stringData.defaults
       pattern: "ingest_storage"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "kafka-broker"
 
 - it: should render wildcard kafka-broker route when brokerClusterDomain and istio are set
   set:
@@ -165,10 +174,13 @@ tests:
   asserts:
   - matchRegex:
       path: stringData.common
-      pattern: "kafka-broker-wildcard"
+      pattern: "(?m)^      kafka-broker-wildcard:$"
   - matchRegex:
       path: stringData.common
       pattern: "\\*\\.mimir-kafka-test\\.abc123\\.kafka\\.us-gov-west-1\\.amazonaws\\.com"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker:$"
 
 - it: should override kafka-subnets definition with brokerNetworkCIDR when set
   set:
