@@ -14,7 +14,8 @@
 {{- $grafanaUrl := first (dig "routes" "inbound" "grafana" "hosts" list .Values.packages.grafana.values) }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 sso:
   enabled: {{ .Values.packages.kiali.sso.enabled }}
