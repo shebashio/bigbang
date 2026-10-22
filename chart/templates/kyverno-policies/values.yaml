@@ -10,8 +10,6 @@
 {{- define "bigbang.defaults.kyverno-policies" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $packages := default (dict) .Values.packages }}
-{{- $velero := default (dict) (get $packages "velero") }}
-{{- $deployNodeAgent := and (default false (get $velero "enabled")) (dig "deployNodeAgent" false (default (dict) (get $velero "values"))) }}
 
 additionalPolicyExceptions:
   {{- include "bigbang.kyvernoPolicyExceptions.ztunnel" . | nindent 2 }}

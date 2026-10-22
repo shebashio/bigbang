@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Gatekeeper - Velero Node Agent
+templates:
+  - templates/gatekeeper/values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - yq eval 'select(.kind == "Secret" and (.metadata.name | test("gatekeeper-values$"))) | .stringData.defaults' - | yq eval '.'
+tests:
+  - it: adds host filesystem and volume type exclusions for the upstream node-agent
+    set:
+      packages.gatekeeper.enabled: true
+      packages.velero.enabled: true
+      istio.ambient.enabled: false
+      packages.monitoring.enabled: false
+      packages.fluentbit.enabled: false
+      packages.twistlock.enabled: false
+      packages.neuvector.enabled: false
+      packages.alloy.enabled: false
+      packages.ztunnel.enabled: false
+      packages.velero.values.upstream.deployNodeAgent: true
+    asserts:
+      - contains:
+          path: violations.allowedHostFilesystem.parameters.excludedResources
+          content: velero/node-agent-.*
+      - contains:
+          path: violations.volumeTypes.parameters.excludedResources
+          content: velero/node-agent-.*
+  - it: omits node-agent exclusions by default
+    set:
+      packages.gatekeeper.enabled: true
+      packages.velero.enabled: true
+      istio.ambient.enabled: false
+      packages.monitoring.enabled: false
+      packages.fluentbit.enabled: false
+      packages.twistlock.enabled: false
+      packages.neuvector.enabled: false
+      packages.alloy.enabled: false
+      packages.ztunnel.enabled: false
+    asserts:
+      - notExists:
+          path: violations.allowedHostFilesystem
+      - notExists:
+          path: violations.volumeTypes
+  - it: omits node-agent exclusions when the upstream flag is false
+    set:
+      packages.gatekeeper.enabled: true
+      packages.velero.enabled: true
+      istio.ambient.enabled: false
+      packages.monitoring.enabled: false
+      packages.fluentbit.enabled: false
+      packages.twistlock.enabled: false
+      packages.neuvector.enabled: false
+      packages.alloy.enabled: false
+      packages.ztunnel.enabled: false
+      packages.velero.values.deployNodeAgent: true
+      packages.velero.values.upstream.deployNodeAgent: false
+    asserts:
+      - notExists:
+          path: violations.allowedHostFilesystem
+      - notExists:
+          path: violations.volumeTypes
+  - it: omits node-agent exclusions when Velero is disabled
+    set:
+      packages.gatekeeper.enabled: true
+      packages.velero.enabled: false
+      istio.ambient.enabled: false
+      packages.monitoring.enabled: false
+      packages.fluentbit.enabled: false
+      packages.twistlock.enabled: false
+      packages.neuvector.enabled: false
+      packages.alloy.enabled: false
+      packages.ztunnel.enabled: false
+      packages.velero.values.upstream.deployNodeAgent: true
+    asserts:
+      - notExists:
+          path: violations.allowedHostFilesystem
+      - notExists:
+          path: violations.volumeTypes

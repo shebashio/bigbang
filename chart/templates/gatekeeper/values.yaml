@@ -5,6 +5,7 @@
 
 {{- define "bigbang.defaults.gatekeeper" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
+{{- $deployNodeAgent := eq (include "bigbang.velero.nodeAgentEnabled" .) "true" }}
 upstream:
   image:
     pullPolicy: {{ .Values.imagePullPolicy }}
@@ -100,7 +101,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
         - registry1.dso.mil
         - registry.dso.mil
 
-  {{- if or .Values.packages.monitoring.enabled .Values.packages.fluentbit.enabled .Values.packages.twistlock.enabled .Values.packages.neuvector.enabled .Values.packages.alloy.enabled (eq (include "ambientEnabled" .) "true") (and .Values.packages.velero.enabled .Values.packages.velero.values.deployNodeAgent)}}
+  {{- if or .Values.packages.monitoring.enabled .Values.packages.fluentbit.enabled .Values.packages.twistlock.enabled .Values.packages.neuvector.enabled .Values.packages.alloy.enabled (eq (include "ambientEnabled" .) "true") $deployNodeAgent }}
   allowedHostFilesystem:
     parameters:
       excludedResources:
@@ -128,7 +129,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # ztunnel requires host file system for certificates and cni integration
       - istio-system/ztunnel-.*
       {{- end }}
-      {{- if and .Values.packages.velero.enabled .Values.packages.velero.values.deployNodeAgent }}
+      {{- if $deployNodeAgent }}
       # NodeAgent requires hostpath volume mount access in order to facilitate backing up cluster PV/C resources
       - velero/node-agent-.*
       {{- end }}
@@ -246,7 +247,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       {{- end }}
   {{- end }}
 
-  {{- if or .Values.packages.fluentbit.enabled .Values.packages.twistlock.enabled .Values.packages.monitoring.enabled .Values.packages.neuvector.enabled .Values.packages.alloy.enabled (eq (include "ambientEnabled" .) "true") (and .Values.packages.velero.enabled .Values.packages.velero.values.deployNodeAgent) }}
+  {{- if or .Values.packages.fluentbit.enabled .Values.packages.twistlock.enabled .Values.packages.monitoring.enabled .Values.packages.neuvector.enabled .Values.packages.alloy.enabled (eq (include "ambientEnabled" .) "true") $deployNodeAgent }}
   volumeTypes:
     parameters:
       excludedResources:
@@ -284,7 +285,7 @@ violations:  # Try to keep this in alpha order to make it easier to find keys
       # ztunnel requires hostpath volume types for certificates and cni integration
       - istio-system/ztunnel-.*
       {{- end }}
-      {{- if and .Values.packages.velero.enabled .Values.packages.velero.values.deployNodeAgent }}
+      {{- if $deployNodeAgent }}
       # NodeAgent requires hostpath volume mounts in order to facilitate backing up cluster PV/C resources
       - velero/node-agent-.*
       {{- end }}

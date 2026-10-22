@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Kyverno Policies - Velero Node Agent
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - yq eval 'select(.kind == "Secret" and (.metadata.name | test("kyverno-policies-values$"))) | .stringData.defaults' - | yq eval '.'
+tests:
+  - it: covers every node-agent validating policy when the upstream DaemonSet is enabled
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: true
+      packages.velero.values.upstream.deployNodeAgent: true
+    asserts:
+      - contains:
+          path: additionalPolicyExceptions.velero-node-agent.spec.policyRefs
+          content:
+            name: require-non-root-group
+            kind: ValidatingPolicy
+      - contains:
+          path: additionalPolicyExceptions.velero-node-agent.spec.policyRefs
+          content:
+            name: require-non-root-user
+            kind: ValidatingPolicy
+      - contains:
+          path: additionalPolicyExceptions.velero-node-agent.spec.policyRefs
+          content:
+            name: restrict-host-path-mount
+            kind: ValidatingPolicy
+      - contains:
+          path: additionalPolicyExceptions.velero-node-agent.spec.policyRefs
+          content:
+            name: restrict-host-path-write
+            kind: ValidatingPolicy
+      - contains:
+          path: additionalPolicyExceptions.velero-node-agent.spec.policyRefs
+          content:
+            name: restrict-volume-types
+            kind: ValidatingPolicy
+      - exists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext.spec
+  - it: does not grant node-agent exceptions by default
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: true
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext
+  - it: does not grant node-agent exceptions when disabled
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: true
+      packages.velero.values.upstream.deployNodeAgent: false
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext
+  - it: ignores the obsolete top-level flag
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: true
+      packages.velero.values.deployNodeAgent: true
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext
+  - it: honors an upstream false even with the obsolete flag set
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: true
+      packages.velero.values.deployNodeAgent: true
+      packages.velero.values.upstream.deployNodeAgent: false
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext
+  - it: does not grant exceptions for a disabled package
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.velero.enabled: false
+      packages.velero.values.upstream.deployNodeAgent: true
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent
+      - notExists:
+          path: additionalPolicyExceptions.velero-node-agent-add-default-securitycontext
