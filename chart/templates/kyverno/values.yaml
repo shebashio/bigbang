@@ -78,6 +78,7 @@ bb-common:
               app.kubernetes.io/component: background-controller
           to:
             definition:
+              private-registry: {{ dig "policies" "require-image-signature" "enabled" false .Values.packages.kyvernoPolicies.values }}
               kubeAPI: true
         kyverno-cleanup-controller:
           podSelector:
