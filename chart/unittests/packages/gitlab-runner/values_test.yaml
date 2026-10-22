@@ -8,16 +8,16 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlabRunner.enabled: true
       networkPolicies.enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.from.gitlab-runner.podSelector.matchLabels.app
+          path: bb-common.networkPolicies.egress.from.gitlab-runner.podSelector.matchLabels.app
           value: gitlab-runner
       - equal:
-          path: networkPolicies.ingress.to["gitlab-runner:9252"].podSelector.matchLabels.app
+          path: bb-common.networkPolicies.ingress.to["gitlab-runner:9252"].podSelector.matchLabels.app
           value: gitlab-runner
 
   - it: should set runner secret when auto registration is enabled
