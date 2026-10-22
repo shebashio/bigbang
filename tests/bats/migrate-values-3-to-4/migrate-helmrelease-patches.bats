@@ -223,3 +223,38 @@ EOF
   [ "$status" -ne 0 ]
   [[ "$output" == *"requires a file path"* ]]
 }
+
+@test "package patch overrides receive the selected target migration and retain Flux spec settings" {
+  RAW_VALUES="${BATS_TEST_TMPDIR}/base.yaml"
+  cat >"$RAW_VALUES" <<'YAML'
+monitoring:
+  values:
+    networkPolicies:
+      enabled: false
+YAML
+  yq -i '.spec.values.networkPolicies.enabled = true |
+    .spec.values.istio.hardened.customAuthorizationPolicies = [{"name": "patch-policy"}]' "$INPUT_FILE"
+
+  for target in 3 4; do
+    run "$SCRIPT_PATH" --target "$target" --helmrelease-patch "$INPUT_FILE" \
+      -o "$OUTPUT_FILE" "$RAW_VALUES"
+
+    [ "$status" -eq 0 ]
+    [ "$(yq '.packages.monitoring.flux.interval' "$OUTPUT_FILE")" = 10m ]
+    [ "$(yq '.packages.monitoring.flux.timeout' "$OUTPUT_FILE")" = 20m ]
+    [ "$(yq '.packages.monitoring.flux.upgrade.remediation.retries' "$OUTPUT_FILE")" = 3 ]
+    if [[ "$target" == 4 ]]; then
+      [ "$(yq '.packages.monitoring.values.bb-common.networkPolicies.enabled' "$OUTPUT_FILE")" = true ]
+      [ "$(yq '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = patch-policy ]
+      [ "$(yq '.packages.monitoring.values | has("istio") or has("networkPolicies")' "$OUTPUT_FILE")" = false ]
+    else
+      [ "$(yq '.packages.monitoring.values.networkPolicies.enabled' "$OUTPUT_FILE")" = true ]
+      [ "$(yq '.packages.monitoring.values.istio.hardened.customAuthorizationPolicies[0].name' "$OUTPUT_FILE")" = patch-policy ]
+      [ "$(yq '.packages.monitoring.values | has("bb-common")' "$OUTPUT_FILE")" = false ]
+    fi
+
+    run "$SCRIPT_PATH" --target "$target" -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
+    [ "$status" -eq 0 ]
+    cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
+  done
+}

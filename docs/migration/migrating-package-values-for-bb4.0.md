@@ -41,7 +41,7 @@ for AWS KMS.
 
 | Input | Migration workflow |
 | --- | --- |
-| One plaintext values file | Run the plaintext script with its default behavior. |
+| One plaintext values file | Run the plaintext script with the desired `--target`. |
 | Multiple plaintext files that can become one file | Pass every file in Helm order and write one consolidated output. |
 | Values sources that must remain separate | Choose one primary source to own `packageConfiguration.version: v1`; use `--omit-package-configuration` on every secondary source. |
 | Parent Big Bang HelmRelease or Kustomize values patch | Use `--bigbang-helmrelease` to migrate `spec.values` and retain the manifest structure. |
@@ -247,7 +247,8 @@ Before committing migrated values:
 3. Confirm the sources remain in their original Helm or Flux order.
 4. Rerun the same migration command with the same options; the output should be
    unchanged.
-5. Render all migrated plaintext values in their effective order.
+5. Render all migrated plaintext values in their effective order with a chart
+   matching the selected target.
 
 For one consolidated output:
 

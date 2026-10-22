@@ -234,8 +234,8 @@ is a Big Bang values document, with `spec.values` under
 `ek` to `elasticsearchKibana` and `gitlab-runner` to `gitlabRunner`. The script
 does not enable packages automatically.
 
-All patches apply after the ordinary values migration, regardless of where the
-options occur on the command line. Patches are composed in option order and
+All patches apply after the ordinary package-path migration, regardless of
+where the options occur on the command line. Patches are composed in option order and
 document order; later patches win. Maps merge recursively and lists replace
 earlier lists. Omitted settings retain their earlier values.
 
@@ -263,9 +263,14 @@ must be decrypted separately before conversion.
 Review the resulting values against the target release. Moving a child override
 into Big Bang inputs lets umbrella templates account for that setting, which
 can change generated integration configuration. Child-chart value names are
-preserved; the command does not migrate their schemas. Remove the original
+preserved except for the target 4 `bb-common` and legacy hardening migration.
+Other child-chart schema changes require separate migration. Remove the original
 package patches from the deployment when adopting the converted values, and
 validate the resulting render and upgrade.
+
+Package patch values also receive the selected target migration: target 3
+retains flat library values, while target 4 nests `bb-common` values and
+migrates legacy hardening after the patch overrides have been merged.
 
 ### Decrypted Kubernetes Secrets
 

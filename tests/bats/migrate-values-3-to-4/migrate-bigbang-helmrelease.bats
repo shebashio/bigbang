@@ -246,3 +246,21 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$output" == *"name: monitoring"* ]]
 }
+
+@test "target 4 migrates parent inline bb-common values while preserving its HelmRelease spec" {
+  yq -i '.spec.values.monitoring.values.istio.hardened.customAuthorizationPolicies = [{"name": "legacy-policy"}] |
+    .spec.values.monitoring.values.networkPolicies.enabled = true' "$INPUT_FILE"
+
+  run "$SCRIPT_PATH" --target 4 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.spec.values.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = legacy-policy ]
+  [ "$(yq '.spec.values.packages.monitoring.values.bb-common.networkPolicies.enabled' "$OUTPUT_FILE")" = true ]
+  [ "$(yq '.spec.values.packages.monitoring.values | has("istio") or has("networkPolicies")' "$OUTPUT_FILE")" = false ]
+  [ "$(yq -o=json -I=0 'del(.spec.values)' "$OUTPUT_FILE")" \
+    = "$(yq -o=json -I=0 'del(.spec.values)' "$INPUT_FILE")" ]
+
+  run "$SCRIPT_PATH" --target 4 --bigbang-helmrelease -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
+}

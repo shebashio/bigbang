@@ -114,8 +114,8 @@ Usage: migrate-values-3-to-4.sh --target {3|4} [OPTIONS] [INPUT ...]
 Move Big Bang 3.x built-in package configuration from top-level and
 addons.<name> paths to the Big Bang 4.x packages.<name> paths. With target 4,
 istio, networkPolicies, and routes values for built-in packages are also moved
-under the bb-common subchart key. Unless omitted for a secondary values source, the output sets
-packageConfiguration.version to v1.
+under the bb-common subchart key. Unless omitted for a secondary values
+source, the output sets packageConfiguration.version to v1.
 Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
 names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
@@ -918,7 +918,6 @@ fi
 if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >/dev/null 2>&1; then
   yq -i 'del(.addons)' "$WORK_FILE"
 fi
-
 
 reorder_packages "$WORK_FILE"
 
