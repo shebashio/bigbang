@@ -1,14 +1,8 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.vault.enabled }}
-{{- /* Create a cleaned copy of vault config and merge deprecated paths into current paths */ -}}
-{{- $vaultPackage := deepCopy .Values.packages.vault -}}
-{{- if .Values.packages.vault.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.vault.values) | fromYaml -}}
-{{- $vaultPackage = set $vaultPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
 "root" $ 
-"package" $vaultPackage 
+"package" .Values.packages.vault 
 "name" "vault" 
 "bbCommonSubchart" true
 "defaults" (include "bigbang.defaults.vault" .)
