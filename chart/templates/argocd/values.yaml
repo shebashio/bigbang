@@ -1,13 +1,8 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.argocd.enabled }}
-# handle legacy istio hardened keys in argocd values
-{{- $argocdPackage := deepCopy .Values.packages.argocd -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.argocd.values) | fromYaml -}}
-{{- $argocdPackage = set $argocdPackage "values" $cleanedValues -}}
-
 {{- include "values-secret" (dict
   "root" $
-  "package" $argocdPackage
+  "package" .Values.packages.argocd
   "name" "argocd"
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.argocd" .)
