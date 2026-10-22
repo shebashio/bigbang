@@ -7,14 +7,9 @@
     {{- fail (printf "addons.gitlab.objectStorage.%s must begin with http:// or https:// when set" $endpointName) -}}
   {{- end -}}
 {{- end -}}
-{{- $gitlabPackage := deepCopy .Values.packages.gitlab -}}
-{{- if .Values.packages.gitlab.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.gitlab.values) | fromYaml -}}
-{{- $gitlabPackage = set $gitlabPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
   "root" $ 
-  "package" $gitlabPackage 
+  "package" .Values.packages.gitlab 
   "name" "gitlab" 
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.gitlab" .)
