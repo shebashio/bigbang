@@ -27,8 +27,10 @@ upstream:
       - name: tempo-runtime
         mountPath: /var/tempo
     pullPolicy: {{ .Values.imagePullPolicy }}
-    global_overrides:
-      ingestion_rate_limit_bytes: 30000000
+    overrides:
+      defaults:
+        ingestion:
+          rate_limit_bytes: 30000000
   {{- with .Values.packages.tempo.objectStorage }}
   {{- if and .endpoint .region .bucket }}
     storage: 
