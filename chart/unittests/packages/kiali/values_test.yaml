@@ -8,77 +8,76 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml)' -"
     asserts:
       - equal:
           path: domain
           value: "dev.bigbang.mil"
       - equal:
-          path: istio.enabled
+          path: bb-common.istio.enabled
           value: true
-  - it: should map customServiceEntries to istio.serviceEntries.custom
+  - it: should pass custom service entries under bb-common
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      packages.kiali.values.istio.hardened.customServiceEntries:
+      packages.kiali.values.bb-common.istio.serviceEntries.custom:
         - name: "test-service-entry"
           hosts:
             - "example.com"
     asserts:
       - equal:
-          path: istio.serviceEntries.custom[0].name
+          path: bb-common.istio.serviceEntries.custom[0].name
           value: "test-service-entry"
       - equal:
-          path: istio.serviceEntries.custom[0].hosts[0]
+          path: bb-common.istio.serviceEntries.custom[0].hosts[0]
           value: "example.com"
-  - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
+  - it: should pass custom authorization policies under bb-common
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      packages.kiali.values.istio.hardened.customAuthorizationPolicies:
+      packages.kiali.values.bb-common.istio.authorizationPolicies.custom:
         - name: "test-authz-policy"
           labels:
             app: "kiali"
     asserts:
       - equal:
-          path: istio.authorizationPolicies.custom[0].name
+          path: bb-common.istio.authorizationPolicies.custom[0].name
           value: "test-authz-policy"
       - equal:
-          path: istio.authorizationPolicies.custom[0].labels.app
+          path: bb-common.istio.authorizationPolicies.custom[0].labels.app
           value: "kiali"
-  - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
+  - it: should pass multiple custom service entries under bb-common
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      packages.kiali.values.istio.hardened.customServiceEntries:
+      packages.kiali.values.bb-common.istio.serviceEntries.custom:
         - name: "hardened-entry"
           spec:
             hosts:
               - "hardened.example.com"
-      packages.kiali.values.istio.serviceEntries.custom:
         - name: "custom-entry"
           spec:
             hosts:
               - "custom.example.com"
     asserts:
       - equal:
-          path: istio.serviceEntries.custom[0].name
+          path: bb-common.istio.serviceEntries.custom[0].name
           value: "hardened-entry"
       - equal:
-          path: istio.serviceEntries.custom[0].spec.hosts[0]
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
           value: "hardened.example.com"
       - equal:
-          path: istio.serviceEntries.custom[1].name
+          path: bb-common.istio.serviceEntries.custom[1].name
           value: "custom-entry"
       - equal:
-          path: istio.serviceEntries.custom[1].spec.hosts[0]
+          path: bb-common.istio.serviceEntries.custom[1].spec.hosts[0]
           value: "custom.example.com"
