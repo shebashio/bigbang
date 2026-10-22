@@ -3,7 +3,7 @@ suite: Package - Metrics Server - Namespace
 tests:
   - it: should not render a Namespace by default
     set:
-      addons:
+      packages:
         metricsServer:
           enabled: true
     template: metrics-server/namespace.yaml
@@ -13,7 +13,7 @@ tests:
 
   - it: should target kube-system by default
     set:
-      addons:
+      packages:
         metricsServer:
           enabled: true
     template: metrics-server/helmrelease.yaml
@@ -24,7 +24,7 @@ tests:
 
   - it: should target a custom namespace
     set:
-      addons:
+      packages:
         metricsServer:
           enabled: true
           namespace:
@@ -37,7 +37,7 @@ tests:
 
   - it: should render the custom namespace when create is enabled
     set:
-      addons:
+      packages:
         metricsServer:
           enabled: true
           namespace:
@@ -74,7 +74,7 @@ tests:
         registry: registry1.dso.mil
         username: test
         password: test
-      addons:
+      packages:
         metricsServer:
           enabled: true
           namespace:
@@ -89,13 +89,13 @@ tests:
 
   - it: should not duplicate the registry secret when istio-cni owns it
     set:
-      istioCNI:
-        enabled: true
       registryCredentials:
         registry: registry1.dso.mil
         username: test
         password: test
-      addons:
+      packages:
+        istioCNI:
+          enabled: true
         metricsServer:
           enabled: true
     template: metrics-server/imagepullsecret.yaml

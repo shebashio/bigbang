@@ -1,68 +1,47 @@
 {{- define "values-bigbang" -}}
-{{- /*
- * bigbang.values-bigbang: Produce a stripped version of the bigbang variables
- * in the root namespace suitable for inclusion in wrapper or package variables definitions
- */ -}}
-{{ toYaml (pick $ "domain" "openshift") }}
-{{- /* For every top level map, if it has the enable key, pass it through. */ -}}
-{{- range $bbpkg, $bbvals := $ -}}
-  {{- if kindIs "map" $bbvals -}}
-    {{- if eq $bbpkg "istio" }}
-{{ $bbpkg }}:
-      {{- if hasKey $bbvals "enabled" }}
-  enabled: {{ $bbvals.enabled }}
-      {{- end }}
+{{- $values := .Values -}}
+{{ toYaml (pick $values "domain" "openshift") }}
+{{- with $values.istio }}
+istio:
+  {{- if hasKey . "enabled" }}
+  enabled: {{ .enabled }}
+  {{- end }}
   ambient:
-    enabled: {{ include "ambientEnabled" (dict "Values" $) }}
-    {{- else if hasKey $bbvals "enabled" }}
-{{ $bbpkg }}:
-      {{- /* For network policies, we need all of its values. */ -}}
-      {{- if eq $bbpkg "networkPolicies" -}}
-        {{- toYaml $bbvals | nindent 2}}
-      {{- else }}
-  enabled: {{ $bbvals.enabled }}
-      {{- end -}}
-    {{- /* For addons, pass through the enable key. */ -}}
-    {{- else if eq $bbpkg "addons" }}
-{{ $bbpkg }}:
-      {{- range $addpkg, $addvals := $bbvals -}}
-        {{- if hasKey $addvals "enabled" }}
-  {{ $addpkg }}:
-    enabled: {{ $addvals.enabled }}
-          {{- /* For authservice, the selector values are needed. */ -}}
-          {{- if and (eq $addpkg "authservice") (or (dig "values" "selector" "key" false $addvals) (dig "values" "selector" "value" false $addvals)) }}
+    enabled: {{ include "ambientEnabled" (dict "Values" $values) }}
+{{- end }}
+{{- with $values.networkPolicies }}
+networkPolicies:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- $catalog := (.Files.Get "package-metadata.yaml" | fromYaml).packages -}}
+{{- range $name, $metadata := $catalog -}}
+  {{- $package := get $values.packages $name | default dict -}}
+  {{- if and (eq $metadata.category "core") (hasKey $package "enabled") }}
+{{ $name }}:
+  enabled: {{ $package.enabled }}
+  {{- end -}}
+{{- end }}
+addons:
+{{- range $name, $metadata := $catalog -}}
+  {{- $package := get $values.packages $name | default dict -}}
+  {{- if and (eq $metadata.category "addon") (hasKey $package "enabled") }}
+  {{ $name }}:
+    enabled: {{ $package.enabled }}
+    {{- if and (eq $name "authservice") (or (dig "values" "selector" "key" false $package) (dig "values" "selector" "value" false $package)) }}
     values:
       selector:
-              {{- if (dig "values" "selector" "key" false $addvals) }}
-        key: {{ $addvals.values.selector.key }}
-              {{- end -}}
-              {{- if (dig "values" "selector" "value" false $addvals) }}
-        value: {{ $addvals.values.selector.value }}
-              {{- end -}}
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
+      {{- with (dig "values" "selector" "key" false $package) }}
+        key: {{ . }}
+      {{- end }}
+      {{- with (dig "values" "selector" "value" false $package) }}
+        value: {{ . }}
+      {{- end }}
+    {{- end }}
   {{- end -}}
 {{- end -}}
 {{- end }}
 
-{{/*
-When packageConfiguration.version is v1, normalize the backwards-compatible
-packages.<name> configuration for built-ins onto the legacy values paths
-consumed by the existing templates. Without that explicit opt-in, every entry
-under packages retains the Big Bang 3.x custom-package meaning.
-
-Explicitly supplied built-ins remain under .Values.packages as resolved values
-so templates can use the canonical path. Unknown entries are copied into the
-internal .Values._customPackages map consumed by generic package renderers.
-New-path values take precedence over legacy-path values. Legacy-only built-ins
-are not populated under .Values.packages.
-
-This compatibility layer is temporary. Its package identities and legacy paths
-come from the package metadata catalog and can be removed with the legacy paths
-in Big Bang 4.x.
-*/}}
+{{/* Separate integrated packages from user-supplied packages and reserve their names. */}}
 {{- define "bigbang.normalizePackageAliases" -}}
 {{- $packages := .Values.packages | default dict -}}
 {{- $metadata := .Files.Get "package-metadata.yaml" | fromYaml -}}
@@ -70,12 +49,20 @@ in Big Bang 4.x.
 {{- if not $catalog -}}
   {{- fail "chart/package-metadata.yaml must define built-in packages" -}}
 {{- end -}}
-{{- $migrations := .Values._packageAliasMigrations | default list -}}
+{{- /* Reject old keys while the 4.0 schema migration is in progress. */ -}}
+{{- $addons := get .Values "addons" | default dict -}}
+{{- range $name, $package := $catalog -}}
+  {{- if and (eq $package.category "core") (hasKey $.Values $name) -}}
+    {{- fail (printf "%s is no longer supported; move its values to packages.%s" $name $name) -}}
+  {{- end -}}
+  {{- if and (eq $package.category "addon") (hasKey $addons $name) -}}
+    {{- fail (printf "addons.%s is no longer supported; move its values to packages.%s" $name $name) -}}
+  {{- end -}}
+{{- end -}}
+{{- if hasKey $addons "mattermostoperator" -}}
+  {{- fail "addons.mattermostoperator is no longer supported; move its values to packages.mattermostOperator" -}}
+{{- end -}}
 {{- $customPackages := dict -}}
-{{- $canonicalPackagesEnabled := eq (dig "version" "" (.Values.packageConfiguration | default dict)) "v1" -}}
-
-{{- if $canonicalPackagesEnabled -}}
-{{- /* Reserve canonical identities and rendered resource names. */ -}}
 {{- $reservedNames := dict -}}
 {{- range $name, $package := $catalog -}}
   {{- $identities := uniq (list (lower $name) (include "resourceName" $name) (lower $package.templateDirectory)) -}}
@@ -86,9 +73,6 @@ in Big Bang 4.x.
     {{- $_ := set $reservedNames $identity $name -}}
   {{- end -}}
 {{- end -}}
-
-{{- /* Unknown entries remain custom packages, but cannot masquerade as a built-in
-      or normalize to the same resource identity as another custom package. */ -}}
 {{- $customResourceNames := dict -}}
 {{- range $name := keys $packages | sortAlpha -}}
   {{- if not (hasKey $catalog $name) -}}
@@ -96,9 +80,7 @@ in Big Bang 4.x.
     {{- range $identity := $identities -}}
       {{- if hasKey $reservedNames $identity -}}
         {{- $owner := get $reservedNames $identity -}}
-        {{- if hasKey $catalog $owner -}}
-          {{- fail (printf "packages.%s conflicts with built-in package packages.%s; use the canonical name packages.%s" $name $owner $owner) -}}
-        {{- end -}}
+        {{- fail (printf "packages.%s conflicts with built-in package packages.%s; use the canonical name packages.%s" $name $owner $owner) -}}
       {{- end -}}
     {{- end -}}
     {{- $resourceName := include "resourceName" $name -}}
@@ -109,36 +91,6 @@ in Big Bang 4.x.
     {{- $_ := set $customPackages $name (get $packages $name) -}}
   {{- end -}}
 {{- end -}}
-
-{{- range $name, $package := $catalog -}}
-  {{- if hasKey $packages $name -}}
-    {{- $alias := get $packages $name | default dict -}}
-    {{- $legacyPath := splitList "." $package.legacyPath -}}
-    {{- if eq (len $legacyPath) 1 -}}
-      {{- $legacy := get $.Values $name | default dict -}}
-      {{- $resolved := mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias) -}}
-      {{- $_ := set $.Values $name (deepCopy $resolved) -}}
-      {{- $_ := set $packages $name $resolved -}}
-    {{- else if and (eq (len $legacyPath) 2) (eq (first $legacyPath) "addons") -}}
-      {{- $legacy := get $.Values.addons $name | default dict -}}
-      {{- $resolved := mustMergeOverwrite (deepCopy $legacy) (deepCopy $alias) -}}
-      {{- $_ := set $.Values.addons $name (deepCopy $resolved) -}}
-      {{- $_ := set $packages $name $resolved -}}
-    {{- else -}}
-      {{- fail (printf "unsupported legacyPath %s for package %s" $package.legacyPath $name) -}}
-    {{- end -}}
-    {{- $migrations = append $migrations (printf "packages.%s replaces %s" $name $package.legacyPath) -}}
-  {{- end -}}
-{{- end -}}
-{{- else -}}
-  {{- /* Preserve the pre-existing 3.x contract unless canonical package names
-        have been explicitly enabled. */ -}}
-  {{- range $name, $package := $packages -}}
-    {{- $_ := set $customPackages $name $package -}}
-  {{- end -}}
-{{- end -}}
-
-{{- $_ := set .Values "_packageAliasMigrations" (uniq $migrations) -}}
 {{- $_ := set .Values "_customPackages" $customPackages -}}
 {{- end -}}
 
@@ -402,7 +354,7 @@ Pointer to the appropriate git credentials template
 {{/*
 Merge legacy istio.hardened keys into new structure
 Args:
-  - values: The package values to clean (e.g. .Values.kiali.values)
+  - values: The package values to clean (e.g. .Values.packages.kiali.values)
 
 This helper merges:
   - istio.hardened.customServiceEntries -> istio.serviceEntries.custom
@@ -514,7 +466,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 values-secret builds the <package>-values Secret consumed by a package's HelmRelease.
 Args (dict):
   root:                 root context ($)
-  package:               the package's resolved values (e.g. .Values.kiali)
+  package:               the package's resolved values (e.g. .Values.packages.kiali)
   name:                  the rendered resource name (e.g. "kiali")
   defaults:              rendered YAML text of the package's own bigbang.defaults.<name> template
   injectCommonDefaults:  optional, default true. When true, the istio/networkPolicies bb-common
@@ -583,8 +535,8 @@ stringData:
 {{- end -}}
 
 {{- define "enabledGateways" -}}
-  {{- $userGateways := deepCopy ($.Values.istioGateway.values.gateways | default dict) -}}
-  {{- $sharedGatewayValues := deepCopy ($.Values.istioGateway.values.shared | default dict) -}}
+  {{- $userGateways := deepCopy ($.Values.packages.istioGateway.values.gateways | default dict) -}}
+  {{- $sharedGatewayValues := deepCopy ($.Values.packages.istioGateway.values.shared | default dict) -}}
   {{- $userGatewayOverrides := deepCopy $userGateways -}}
   {{- $defaults := include "bigbang.defaults.istio-gateway" $ | fromYaml -}}
   {{- $istioPodAnnotations := (include "istioAnnotation" $ | fromYaml) | default dict -}}
@@ -632,7 +584,7 @@ stringData:
         {{- $gwRecord = set $gwRecord "defaults" $gwDefaults -}}
       {{ end -}}
       
-      {{- $gwOverlays := mustMergeOverwrite (deepCopy $sharedGatewayValues) (deepCopy (dig "gateways" $name dict $.Values.istioGateway.values)) -}}
+      {{- $gwOverlays := mustMergeOverwrite (deepCopy $sharedGatewayValues) (deepCopy (dig "gateways" $name dict $.Values.packages.istioGateway.values)) -}}
       {{- if $gwOverlays }}
         {{- $gwOverlays = mustMergeOverwrite (dict "upstream" (deepCopy $defaultImagePullConfig)) $gwOverlays -}}
         {{- if $istioPodAnnotations }}
@@ -645,7 +597,7 @@ stringData:
     {{ end -}}
   {{ end -}}
   
-  {{- range $name, $gw := $.Values.istioGateway.values.gateways }}
+  {{- range $name, $gw := $.Values.packages.istioGateway.values.gateways }}
     {{- if kindIs "map" $gw }}
       {{- if eq (len $gw) 0 }}
         {{- $enabledGateways = unset $enabledGateways $name -}}
@@ -710,7 +662,7 @@ toggled; otherwise emits the Istio version so sidecar pods roll on upgrade.
 {{- if eq (include "ambientEnabled" .) "true" -}}
 bigbang.dev/istioDataplane: ambient
 {{- else -}}
-{{- $istiod := .Values.istiod | default dict -}}
+{{- $istiod := .Values.packages.istiod | default dict -}}
 {{- if (eq ($istiod.sourceType | default "git") "git") -}}
 {{- $git := $istiod.git | default dict -}}
 {{- if $git.semver -}}
@@ -758,7 +710,7 @@ bigbang.dev/istioVersion: {{ $helmRepo.tag }}
 
 {{- /* Prints istio version */ -}}
 {{- define "istioVersion" -}}
-  {{- regexReplaceAll "-bb.+$" (coalesce .Values.istiod.git.semver .Values.istiod.git.tag .Values.istiod.git.branch) "" -}}
+  {{- regexReplaceAll "-bb.+$" (coalesce .Values.packages.istiod.git.semver .Values.packages.istiod.git.tag .Values.packages.istiod.git.branch) "" -}}
 {{- end -}}
 
 {{- /* Returns an SSO host */ -}}
@@ -975,7 +927,7 @@ Returns "true" when at least one metric scraper is active:
 Used to gate ServiceMonitor/PodMonitor CRD creation across all packages.
 */}}
 {{- define "metricScrapingEnabled" -}}
-{{- or (and .Values.monitoring.enabled (dig "prometheusMetrics" "enabled" true .Values.monitoring)) (and .Values.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.alloy)) -}}
+{{- or (and .Values.packages.monitoring.enabled (dig "prometheusMetrics" "enabled" true .Values.packages.monitoring)) (and .Values.packages.alloy.enabled (dig "alloyMetrics" "enabled" false .Values.packages.alloy)) -}}
 {{- end -}}
 
 {{/*
@@ -1008,9 +960,18 @@ valuesFrom:
   {{- end -}}
 {{- end -}}
 
+{{- /* Returns whether an optional package is enabled without assuming its map exists. */ -}}
+{{- define "packageEnabled" -}}
+{{- $packages := default (dict) .root.Values.packages -}}
+{{- $package := default (dict) (get $packages .name) -}}
+{{- default false (get $package "enabled") }}
+{{- end -}}
+
 {{- /* Returns true if istiod is enabled */ -}}
 {{- define "istioEnabled" -}}
-{{ .Values.istiod.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $istiod := default (dict) (get $packages "istiod") -}}
+{{ dig "enabled" false $istiod }}
 {{- end -}}
 
 {{- /* Returns true when authservice should be deployed or referenced by integrations. */ -}}
@@ -1018,22 +979,26 @@ valuesFrom:
 {{- and
   (eq (include "istioEnabled" .) "true")
   (or
-    .Values.addons.authservice.enabled
-    (and .Values.monitoring.enabled .Values.monitoring.sso.enabled)
-    (and .Values.tempo.enabled .Values.tempo.sso.enabled)
-    (and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled)
+    .Values.packages.authservice.enabled
+    (and .Values.packages.monitoring.enabled .Values.packages.monitoring.sso.enabled)
+    (and .Values.packages.tempo.enabled .Values.packages.tempo.sso.enabled)
+    (and .Values.packages.thanos.enabled .Values.packages.thanos.sso.enabled)
   )
 -}}
 {{- end -}}
 
 {{- /* Returns true if ambient mode is enabled (via ztunnel or global ambient flag) */ -}}
 {{- define "ambientEnabled" -}}
-{{ or .Values.ztunnel.enabled .Values.istio.ambient.enabled }}
+{{- $packages := default (dict) .Values.packages -}}
+{{- $ztunnel := default (dict) (get $packages "ztunnel") -}}
+{{- $istio := default (dict) .Values.istio -}}
+{{- $ambient := default (dict) (get $istio "ambient") -}}
+{{ or (default false (get $ztunnel "enabled")) (default false (get $ambient "enabled")) }}
 {{- end -}}
 
 {{- /* Returns true if the shared egress gateway is enabled (via istioEgressGateway package or global egressGateway flag) */ -}}
 {{- define "egressGatewayEnabled" -}}
-{{ or .Values.istioEgressGateway.enabled .Values.istio.egressGateway.enabled }}
+{{ or .Values.packages.istioEgressGateway.enabled .Values.istio.egressGateway.enabled }}
 {{- end -}}
 
 {{- /*
@@ -1047,8 +1012,8 @@ mode; sidecar-mode SSO keeps the legacy pod-label ext_authz path.
 {{- and
   (eq (include "ambientEnabled" .) "true")
   (eq (include "authserviceEnabled" .) "true")
-  .Values.monitoring.enabled
-  .Values.monitoring.sso.enabled
+  .Values.packages.monitoring.enabled
+  .Values.packages.monitoring.sso.enabled
 -}}
 {{- end -}}
 
@@ -1063,8 +1028,8 @@ keeps the legacy pod-label ext_authz path.
 {{- and
   (eq (include "ambientEnabled" .) "true")
   (eq (include "authserviceEnabled" .) "true")
-  .Values.addons.thanos.enabled
-  .Values.addons.thanos.sso.enabled
+  .Values.packages.thanos.enabled
+  .Values.packages.thanos.sso.enabled
 -}}
 {{- end -}}
 
@@ -1079,18 +1044,21 @@ keeps the legacy pod-label ext_authz path.
 {{- end -}}
 
 {{- /* Returns "true" if authorization policies should be generated.
-       True when istio.hardened is enabled at the package or global istiod level,
-       OR when ambient mode is globally enabled.
+       True when legacy package-level istio.hardened is enabled, the global
+       authorizationPolicies switch is enabled, or ambient mode is enabled.
        Args (positional list):
-         0 - pkg:  the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
+         0 - pkg:  the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
          1 - root: the root context (.)
     */ -}}
 {{- define "authorizationPoliciesEnabled" -}}
 {{- $pkg  := index . 0 -}}
 {{- $root := index . 1 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
+{{- $authorizationPoliciesEnabled := or
+  (dig "istio" "hardened" "enabled" false $pkg)
+  $root.Values.authorizationPolicies.enabled
+-}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $hardened $ambient }}
+{{ or $authorizationPoliciesEnabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly
@@ -1106,8 +1074,8 @@ keeps the legacy pod-label ext_authz path.
        maps key-by-key rather than replacing them wholesale, a package adding one extra
        definitions entry doesn't need to restate the global ones.
        Args (positional list):
-         0 - pkg:    the package's values dict (e.g. .Values.loki.values, .Values.addons.argocd.values)
-         1 - pkgTop: the package's top-level dict (e.g. .Values.loki, .Values.addons.argocd) — used
+         0 - pkg:    the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
+         1 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
                      only for istio.injection, which is a top-level user knob, unlike the rest of
                      this block which reads from `.values`
          2 - root:   the root context (.)
@@ -1116,7 +1084,7 @@ keeps the legacy pod-label ext_authz path.
 {{- $pkg    := index . 0 -}}
 {{- $pkgTop := index . 1 -}}
 {{- $root   := index . 2 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.istiod.values) -}}
+{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.packages.istiod.values) -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
   sidecar:
@@ -1163,9 +1131,9 @@ This typically gates the creation of a ServiceMonitor tlsConfig with istio-provi
 insecureSkipVerify will be set to true in the tlsConfig because Prometheus does not support Istio security naming, thus skipping verifying the target pod certificate
 If any of the conditions are not met, the ServiceMonitor will be created without the tlsConfig
 Args (list):
-  - [0] pkg: the package config (e.g. .Values.loki)
+  - [0] pkg: the package config (e.g. .Values.packages.loki)
   - [1] root: root context ($)
-Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
+Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "true" }}
 */ -}}
 {{- define "metricsSidecarMtls" -}}
 {{- $pkg := index . 0 -}}
@@ -1182,7 +1150,7 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
 {{- define "istioHelmReleases" -}}
 - name: istiod
   namespace: {{ .Release.Namespace }}
-{{- if or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- if or .Values.packages.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
 - name: istio-cni
   namespace: {{ .Release.Namespace }}
 {{- end }}
@@ -1211,7 +1179,7 @@ egress: istio-system
 Gets the gateway selector configuration for a package
 Args:
     - default: The default gateway name to use if none specified (default: "public")
-    - pkg: The package values (e.g. .Values.addons.argocd)
+    - pkg: The package values (e.g. .Values.packages.argocd)
     - root: The root context
 */}}
 {{- define "getGatewaySelector" -}}
@@ -1244,28 +1212,29 @@ Args:
   {{- $ctx := index . 0 }}
   {{- $name := index . 1 }}
   {{- $ports := index . 2 }}
-networkPolicies:
-  enabled: {{ $ctx.Values.networkPolicies.enabled }}
-  ingress:
-    {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    to:
-      "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
-        from:
-          definition:
-            load-balancer-subnets: true
-  egress:
-    {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    from:
-      "{{ $name }}-ingressgateway":
-        to:
-          k8s:
-            '*': true
+bb-common:
+  networkPolicies:
+    enabled: {{ $ctx.Values.networkPolicies.enabled }}
+    ingress:
+      {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      to:
+        "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
+          from:
+            definition:
+              load-balancer-subnets: true
+    egress:
+      {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      from:
+        "{{ $name }}-ingressgateway":
+          to:
+            k8s:
+              '*': true
 {{- end }}
 
 {{- /*
@@ -1307,10 +1276,10 @@ networkPolicies:
   {{- $requested := dig "values" "bbtests" "cypress" "envs" "cypress_sso_test_requested" false $pkg -}}
   {{- $enabled = eq (toString $requested) "true" -}}
 {{- end -}}
-cypress_keycloak_test_enable: {{ and $values.addons.keycloak.enabled $enabled | quote }}
+cypress_keycloak_test_enable: {{ and $values.packages.keycloak.enabled $enabled | quote }}
 cypress_keycloak_url: {{ printf "https://keycloak.%s/" $values.domain | quote }}
-cypress_tnr_username: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_username" "cypress" $values.addons.keycloak.values | quote }}
-cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "tnr_w!G33ZyAt@C8" $values.addons.keycloak.values | quote }}
+cypress_tnr_username: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_username" "cypress" $values.packages.keycloak.values | quote }}
+cypress_tnr_password: {{ dig "bbtests" "cypress" "envs" "cypress_tnr_password" "tnr_w!G33ZyAt@C8" $values.packages.keycloak.values | quote }}
 {{- end }}
 
 #######################################################################################################################################

@@ -109,7 +109,7 @@ BUILTIN_PACKAGE_METADATA=(
 
 usage() {
   cat <<'EOF'
-Usage: migrate-values-3-to-4.sh [OPTIONS] INPUT [INPUT ...]
+Usage: migrate-values-3-to-4.sh [OPTIONS] [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
 addons.<name> paths to the Big Bang 4.x packages.<name> paths. By default, the
@@ -125,8 +125,19 @@ written to standard output and the inputs are unchanged.
 Package entries retain their first-appearance order in the composed input.
 With --secret-key, exactly one decrypted Kubernetes Secret is accepted and its
 envelope is preserved around the migrated values payload.
+With --bigbang-helmrelease, exactly one parent Big Bang HelmRelease or patch is
+accepted. Only its inline spec.values are migrated; the wrapper, valuesFrom,
+postRenderers, and other fields are preserved. Files without inline values
+remain unchanged. Use --omit-package-configuration for secondary patches.
 YAML anchors and aliases are expanded automatically and their anchor names are
 reported. Expansion must preserve the resolved values structure.
+Package HelmRelease patches can be supplied with --helmrelease-patch. Their
+spec.values and supported Flux settings override the migrated values inputs;
+later patches win. Output is Big Bang values, not a HelmRelease manifest.
+Supported spec fields: values, interval, timeout, install, upgrade, rollback,
+uninstall, test, driftDetection, suspend, maxHistory, persistentClient, and
+serviceAccountName. Other fields, nulls, and patch directives require manual
+migration. --helmrelease-patch cannot be combined with --in-place or --secret-key.
 
 Options:
   -o, --output FILE               Write migrated values to FILE.
@@ -135,6 +146,11 @@ Options:
   -k, --secret-key KEY            Migrate values stored at data[KEY] or
                                   stringData[KEY] in one decrypted Kubernetes
                                   Secret.
+      --helmrelease-patch FILE    Convert a package HelmRelease patch to values.
+                                  Repeat for multiple files; each file may
+                                  contain multiple HelmRelease documents.
+      --bigbang-helmrelease       Migrate inline spec.values in one parent
+                                  Big Bang HelmRelease, preserving its wrapper.
       --omit-package-configuration
                                   Remove packageConfiguration from the output.
                                   Use only for a secondary values source when
@@ -152,6 +168,10 @@ Examples:
   scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
   scripts/migrate-values-3-to-4.sh --in-place values.yaml
   scripts/migrate-values-3-to-4.sh --secret-key values.yaml secret.yaml
+  scripts/migrate-values-3-to-4.sh --bigbang-helmrelease \
+    --omit-package-configuration -o monitoring-4.x.yaml monitoring.yaml
+  scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml \
+    --helmrelease-patch monitoring.yaml --helmrelease-patch ek.yaml
   scripts/migrate-values-3-to-4.sh --omit-package-configuration \
     --output overlay-4.x.yaml overlay.yaml
 
@@ -291,6 +311,8 @@ validate_values_file() {
     || fail "multiple YAML documents are not supported: $display_name"
   yq -e 'tag == "!!map"' "$values_file" >/dev/null 2>&1 \
     || fail "the values document root must be a YAML mapping: $display_name"
+  yq -e '.kind == "HelmRelease"' "$values_file" >/dev/null 2>&1 \
+    && fail "use --helmrelease-patch for a package HelmRelease or --bigbang-helmrelease for a parent Big Bang HelmRelease: $display_name"
   yq -e 'has("sops") and (.sops | tag == "!!map")' "$values_file" >/dev/null 2>&1 \
     && fail "SOPS-encrypted input is not supported by this command: $display_name; use scripts/migrate-sops-values-3-to-4.sh"
   yq --yaml-fix-merge-anchor-to-spec=true -e \
@@ -307,11 +329,39 @@ validate_values_file() {
     || fail "packageConfiguration.version must be v1: $display_name"
 }
 
+validate_bigbang_helmrelease_file() {
+  local input_file=$1
+  local document_count
+
+  document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+    || fail "input is not valid YAML: $input_file"
+  [[ "$document_count" == "1" ]] \
+    || fail "--bigbang-helmrelease requires exactly one YAML document: $input_file"
+  yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
+    || fail "the HelmRelease document root must be a YAML mapping: $input_file"
+  yq -e 'has("sops")' "$input_file" >/dev/null 2>&1 \
+    && fail "--bigbang-helmrelease requires a decrypted HelmRelease: $input_file"
+  yq --yaml-fix-merge-anchor-to-spec=true -e 'explode(.) |
+    .kind == "HelmRelease" and
+    (.apiVersion == "helm.toolkit.fluxcd.io/v2" or
+     .apiVersion == "helm.toolkit.fluxcd.io/v2beta2" or
+     .apiVersion == "helm.toolkit.fluxcd.io/v2beta1") and
+    (.metadata.name | tag == "!!str") and (.metadata.name | length > 0) and
+    (.spec | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+    || fail "--bigbang-helmrelease input must be a Flux HelmRelease with metadata.name and a spec mapping: $input_file"
+  yq --yaml-fix-merge-anchor-to-spec=true -e 'explode(.) |
+    ((.spec | has("values") | not) or (.spec.values | tag == "!!map"))' "$input_file" >/dev/null 2>&1 \
+    || fail "inline spec.values must be a mapping; null deletions require manual migration: $input_file"
+}
+
 OUTPUT_FILE=""
 IN_PLACE=false
 SECRET_VALUES_KEY=""
+BIGBANG_HELMRELEASE=false
 OMIT_PACKAGE_CONFIGURATION=false
 INPUT_FILES=()
+HELMRELEASE_PATCH_FILES=()
+ALL_INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -330,6 +380,16 @@ while [[ $# -gt 0 ]]; do
       SECRET_VALUES_KEY=$2
       shift 2
       ;;
+    --helmrelease-patch)
+      [[ $# -ge 2 && -n "$2" ]] || fail "$1 requires a file path"
+      HELMRELEASE_PATCH_FILES+=("$2")
+      ALL_INPUT_FILES+=("$2")
+      shift 2
+      ;;
+    --bigbang-helmrelease)
+      BIGBANG_HELMRELEASE=true
+      shift
+      ;;
     --omit-package-configuration)
       OMIT_PACKAGE_CONFIGURATION=true
       shift
@@ -343,14 +403,25 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       INPUT_FILES+=("$1")
+      ALL_INPUT_FILES+=("$1")
       shift
       ;;
   esac
 done
 
-[[ ${#INPUT_FILES[@]} -gt 0 ]] || fail "at least one input values file is required"
+[[ ${#INPUT_FILES[@]} -gt 0 || ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]] \
+  || fail "at least one input values file or --helmrelease-patch is required"
 [[ -z "$SECRET_VALUES_KEY" || ${#INPUT_FILES[@]} -eq 1 ]] \
   || fail "--secret-key requires exactly one input Secret"
+if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+  [[ ${#INPUT_FILES[@]} -eq 1 ]] || fail "--bigbang-helmrelease requires exactly one input HelmRelease"
+  [[ -z "$SECRET_VALUES_KEY" && ${#HELMRELEASE_PATCH_FILES[@]} -eq 0 ]] \
+    || fail "--bigbang-helmrelease cannot be combined with --secret-key or --helmrelease-patch"
+fi
+if [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]]; then
+  [[ -z "$SECRET_VALUES_KEY" ]] || fail "--helmrelease-patch cannot be combined with --secret-key"
+  [[ "$IN_PLACE" != true ]] || fail "--helmrelease-patch cannot be combined with --in-place; write a separate values file with --output"
+fi
 command -v yq >/dev/null 2>&1 || fail "Mike Farah yq v4 is required"
 [[ "$(yq --version 2>/dev/null)" =~ version\ v4\. ]] || fail "Mike Farah yq v4 is required"
 yq --yaml-fix-merge-anchor-to-spec=true --null-input '.' >/dev/null 2>&1 \
@@ -367,34 +438,45 @@ if [[ -n "$OUTPUT_FILE" && -d "$OUTPUT_FILE" ]]; then
   fail "output path must be a file, not a directory: $OUTPUT_FILE"
 fi
 
-for input_file in "${INPUT_FILES[@]}"; do
-  [[ -f "$input_file" ]] || fail "input file does not exist: $input_file"
-  [[ -r "$input_file" ]] || fail "input file is not readable: $input_file"
+# Bash 3.2 treats an empty array as unset under nounset, so guard optional lists.
+if [[ ${#INPUT_FILES[@]} -gt 0 ]]; then
+  for input_file in "${INPUT_FILES[@]}"; do
+    [[ -f "$input_file" ]] || fail "input file does not exist: $input_file"
+    [[ -r "$input_file" ]] || fail "input file is not readable: $input_file"
 
-  if [[ -n "$SECRET_VALUES_KEY" ]]; then
-    document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
-      || fail "input is not valid YAML: $input_file"
-    [[ "$document_count" == "1" ]] \
-      || fail "multiple YAML documents are not supported: $input_file"
-    yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
-      || fail "the Secret document root must be a YAML mapping: $input_file"
-    yq -e 'has("sops") and (.sops | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
-      && fail "SOPS-encrypted input is not supported by this command: $input_file; use scripts/migrate-sops-values-3-to-4.sh"
-    yq -e '.kind == "Secret"' "$input_file" >/dev/null 2>&1 \
-      || fail "--secret-key input must be a Kubernetes Secret: $input_file"
-    yq --yaml-fix-merge-anchor-to-spec=true -e \
-      'explode(.) | ((.stringData == null) or ((.stringData | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
-      || fail "Secret stringData must be a mapping: $input_file"
-    yq --yaml-fix-merge-anchor-to-spec=true -e \
-      'explode(.) | ((.data == null) or ((.data | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
-      || fail "Secret data must be a mapping: $input_file"
-  else
-    validate_values_file "$input_file"
-  fi
-done
+    if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+      validate_bigbang_helmrelease_file "$input_file"
+    elif [[ -n "$SECRET_VALUES_KEY" ]]; then
+      document_count=$(yq eval-all --no-doc '1' "$input_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+        || fail "input is not valid YAML: $input_file"
+      [[ "$document_count" == "1" ]] \
+        || fail "multiple YAML documents are not supported: $input_file"
+      yq -e 'tag == "!!map"' "$input_file" >/dev/null 2>&1 \
+        || fail "the Secret document root must be a YAML mapping: $input_file"
+      yq -e 'has("sops") and (.sops | tag == "!!map")' "$input_file" >/dev/null 2>&1 \
+        && fail "SOPS-encrypted input is not supported by this command: $input_file; use scripts/migrate-sops-values-3-to-4.sh"
+      yq -e '.kind == "Secret"' "$input_file" >/dev/null 2>&1 \
+        || fail "--secret-key input must be a Kubernetes Secret: $input_file"
+      yq --yaml-fix-merge-anchor-to-spec=true -e \
+        'explode(.) | ((.stringData == null) or ((.stringData | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+        || fail "Secret stringData must be a mapping: $input_file"
+      yq --yaml-fix-merge-anchor-to-spec=true -e \
+        'explode(.) | ((.data == null) or ((.data | tag) == "!!map"))' "$input_file" >/dev/null 2>&1 \
+        || fail "Secret data must be a mapping: $input_file"
+    else
+      validate_values_file "$input_file"
+    fi
+  done
+fi
+
+if [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]]; then
+  for input_file in "${HELMRELEASE_PATCH_FILES[@]}"; do
+    [[ -f "$input_file" && -r "$input_file" ]] || fail "HelmRelease patch is not a readable file: $input_file"
+  done
+fi
 
 if [[ -n "$OUTPUT_FILE" ]]; then
-  for input_file in "${INPUT_FILES[@]}"; do
+  for input_file in "${ALL_INPUT_FILES[@]}"; do
     if [[ "$OUTPUT_FILE" == "$input_file" ]] \
       || [[ -e "$OUTPUT_FILE" && "$OUTPUT_FILE" -ef "$input_file" ]]; then
       fail "output refers to an input file; use --in-place with a single input to replace it safely"
@@ -410,7 +492,8 @@ BASE64_INPUT=$(mktemp "${TMPDIR:-/tmp}/bigbang-secret-base64.XXXXXX")
 EXPANDED_FILE=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-expanded.XXXXXX")
 BEFORE_EXPANSION_JSON=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-before-expansion.XXXXXX")
 AFTER_EXPANSION_JSON=$(mktemp "${TMPDIR:-/tmp}/bigbang-values-after-expansion.XXXXXX")
-trap 'rm -f "$WORK_FILE" "$SECRET_WORK_FILE" "$SECRET_VALUE_FILE" "$BASE64_INPUT" "$EXPANDED_FILE" "$BEFORE_EXPANSION_JSON" "$AFTER_EXPANSION_JSON"' EXIT
+PATCH_WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/bigbang-helmrelease-migration.XXXXXX")
+trap 'rm -f "$WORK_FILE" "$SECRET_WORK_FILE" "$SECRET_VALUE_FILE" "$BASE64_INPUT" "$EXPANDED_FILE" "$BEFORE_EXPANSION_JSON" "$AFTER_EXPANSION_JSON"; rm -rf "$PATCH_WORK_DIR"' EXIT
 
 expand_yaml_anchors() {
   local values_file=$1
@@ -443,7 +526,111 @@ expand_yaml_anchors() {
   printf '  %s\n' "${anchor_names[@]}" >&2
 }
 
-if [[ -n "$SECRET_VALUES_KEY" ]]; then
+# Convert only fields with a direct package-values equivalent. In particular,
+# valuesFrom needs external resources, and replacing dependency/post-renderer
+# lists is not equivalent to letting the chart generate or append them.
+convert_helmrelease_patches() {
+  local patch_file document_count document_index display_name release_name
+  local package_name package_metadata template_directory unsupported_fields
+  local patch_document="$PATCH_WORK_DIR/document.yaml"
+  local patch_json="$PATCH_WORK_DIR/document.json"
+  local converted_patch="$PATCH_WORK_DIR/converted.yaml"
+
+  printf '{}\n' >"$PATCH_WORK_DIR/values.yaml"
+  [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]] || return 0
+  for patch_file in "${HELMRELEASE_PATCH_FILES[@]}"; do
+    document_count=$(yq eval-all --no-doc '1' "$patch_file" 2>/dev/null | wc -l | tr -d '[:space:]') \
+      || fail "HelmRelease patch is not valid YAML: $patch_file"
+    for ((document_index=0; document_index<document_count; document_index++)); do
+      display_name="$patch_file document $((document_index + 1))"
+      DOCUMENT_INDEX="$document_index" yq 'select(documentIndex == env(DOCUMENT_INDEX))' \
+        "$patch_file" >"$patch_document"
+      expand_yaml_anchors "$patch_document" "$display_name"
+      yq -o=json '.' "$patch_document" >"$patch_json"
+      jq -e 'type == "object" and (has("sops") | not)' "$patch_json" >/dev/null \
+        || fail "expected a decrypted HelmRelease mapping: $display_name"
+      jq -e '.kind == "HelmRelease" and
+        (.apiVersion == "helm.toolkit.fluxcd.io/v2" or
+         .apiVersion == "helm.toolkit.fluxcd.io/v2beta2" or
+         .apiVersion == "helm.toolkit.fluxcd.io/v2beta1") and
+        (.metadata | type == "object") and (.metadata.name | type == "string") and
+        (.spec | type == "object")' "$patch_json" >/dev/null \
+        || fail "expected a Flux package HelmRelease with metadata.name and a spec mapping: $display_name"
+
+      unsupported_fields=$(jq -r '[
+        (keys[] | select(. != "apiVersion" and . != "kind" and . != "metadata" and . != "spec")),
+        (.metadata | keys[] | select(. != "name" and . != "namespace") | "metadata." + .),
+        (.spec | keys[] | select(IN("values", "interval", "timeout", "install", "upgrade",
+          "rollback", "uninstall", "test", "driftDetection", "suspend", "maxHistory",
+          "persistentClient", "serviceAccountName") | not) | "spec." + .)
+      ] | join(", ")' "$patch_json")
+      [[ -z "$unsupported_fields" ]] \
+        || fail "unsupported HelmRelease patch fields ($unsupported_fields): $display_name; migrate these manually; no output written"
+      jq -e '(.spec | has("values") | not) or (.spec.values | type == "object")' "$patch_json" >/dev/null \
+        || fail "spec.values must be a mapping: $display_name"
+      # Nulls and Kustomize directives are patch operations, not ordinary values.
+      jq -e '[.spec | paths as $p | select((getpath($p) == null) or
+        ($p[-1] | type == "string" and startswith("$")))] | length == 0' "$patch_json" >/dev/null \
+        || fail "null deletions and patch directives require manual migration: $display_name"
+
+      release_name=$(jq -r '.metadata.name' "$patch_json")
+      package_name=""
+      for package_metadata in "${BUILTIN_PACKAGE_METADATA[@]}"; do
+        template_directory=${package_metadata#*|}
+        # Gateways have dynamically named, per-instance HelmReleases.
+        [[ "$template_directory" != istio-gateway ]] || continue
+        [[ "$template_directory" != elasticsearch-kibana ]] || template_directory=ek
+        if [[ "$release_name" == "$template_directory" ]]; then
+          package_name=${package_metadata%%|*}
+          break
+        fi
+      done
+      [[ -n "$package_name" ]] \
+        || fail "cannot identify a built-in package from HelmRelease '$release_name': $display_name; migrate custom packages, gateways, and parent Big Bang patches manually"
+
+      PACKAGE_NAME="$package_name" yq '
+        .spec as $spec |
+        {"packages": {(strenv(PACKAGE_NAME)): {}}} |
+        (select($spec | has("values")) | .packages[strenv(PACKAGE_NAME)].values) = $spec.values |
+        ($spec | del(.values)) as $flux |
+        (select($flux | length > 0) | .packages[strenv(PACKAGE_NAME)].flux) = $flux
+      ' "$patch_document" >"$converted_patch"
+      yq eval-all '. as $item ireduce ({}; . * $item)' \
+        "$PATCH_WORK_DIR/values.yaml" "$converted_patch" >"$PATCH_WORK_DIR/merged.yaml"
+      mv "$PATCH_WORK_DIR/merged.yaml" "$PATCH_WORK_DIR/values.yaml"
+      printf 'Converted HelmRelease %s -> packages.%s (%s)\n' \
+        "$release_name" "$package_name" "$display_name" >&2
+    done
+  done
+}
+
+convert_helmrelease_patches
+
+if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+  BIGBANG_HELMRELEASE_FILE="$PATCH_WORK_DIR/bigbang.yaml"
+  cp "${INPUT_FILES[0]}" "$BIGBANG_HELMRELEASE_FILE"
+  expand_yaml_anchors "$BIGBANG_HELMRELEASE_FILE" "${INPUT_FILES[0]} HelmRelease envelope"
+  if yq -e '.spec | has("values")' "$BIGBANG_HELMRELEASE_FILE" >/dev/null 2>&1; then
+    BIGBANG_HAS_VALUES=true
+    yq '.spec.values' "$BIGBANG_HELMRELEASE_FILE" >"$WORK_FILE"
+    validate_values_file "$WORK_FILE" "${INPUT_FILES[0]}:spec.values"
+    # Preserve nested nulls (for example resource-limit deletions), but refuse
+    # patch operations on the maps whose contents the migration rearranges.
+    yq -e '[to_entries[] | select(.key == "packages" or .key == "addons" or
+      .key == "packageConfiguration") | select(.value | tag != "!!map")] | length == 0' \
+      "$WORK_FILE" >/dev/null 2>&1 \
+      || fail "null package-container deletions require manual migration: ${INPUT_FILES[0]}:spec.values"
+    yq -o=json '.' "$WORK_FILE" | jq -e '[.. | objects | keys[] |
+      select(. == "$patch" or . == "$retainKeys" or
+        startswith("$deleteFromPrimitiveList/") or startswith("$setElementOrder/"))] |
+      length == 0' >/dev/null \
+      || fail "Kustomize directives inside spec.values require manual migration: ${INPUT_FILES[0]}"
+  else
+    BIGBANG_HAS_VALUES=false
+    printf '{}\n' >"$WORK_FILE"
+    printf 'No inline spec.values found; preserving HelmRelease without adding values.\n' >&2
+  fi
+elif [[ -n "$SECRET_VALUES_KEY" ]]; then
   cp "${INPUT_FILES[0]}" "$SECRET_WORK_FILE"
   expand_yaml_anchors "$SECRET_WORK_FILE" "${INPUT_FILES[0]} Secret envelope"
   HAS_STRING_DATA=$(SECRET_VALUES_KEY="$SECRET_VALUES_KEY" yq -r \
@@ -473,6 +660,8 @@ if [[ -n "$SECRET_VALUES_KEY" ]]; then
     fail "Secret does not contain ${SECRET_VALUES_KEY} in data or stringData"
   fi
   validate_values_file "$WORK_FILE" "${INPUT_FILES[0]}:${SECRET_VALUES_KEY}"
+elif [[ ${#INPUT_FILES[@]} -eq 0 ]]; then
+  printf '{}\n' >"$WORK_FILE"
 elif [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
   cp "${INPUT_FILES[0]}" "$WORK_FILE"
 else
@@ -480,7 +669,9 @@ else
     '. as $item ireduce ({}; . * $item)' "${INPUT_FILES[@]}" >"$WORK_FILE"
 fi
 
-if [[ -n "$SECRET_VALUES_KEY" ]]; then
+if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+  ANCHOR_DISPLAY_NAME="${INPUT_FILES[0]}:spec.values"
+elif [[ -n "$SECRET_VALUES_KEY" ]]; then
   ANCHOR_DISPLAY_NAME="${INPUT_FILES[0]}:${SECRET_VALUES_KEY}"
 elif [[ ${#INPUT_FILES[@]} -eq 1 ]]; then
   ANCHOR_DISPLAY_NAME="${INPUT_FILES[0]}"
@@ -550,6 +741,13 @@ MIGRATED_PATHS=()
 
 for package_name in "${ROOT_PACKAGES[@]}"; do
   if PACKAGE_NAME="$package_name" yq -e 'has(strenv(PACKAGE_NAME))' "$WORK_FILE" >/dev/null 2>&1; then
+    if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+      PACKAGE_NAME="$package_name" yq -e '
+        (.[strenv(PACKAGE_NAME)] | tag == "!!map") and
+        (((.packages // {}) | has(strenv(PACKAGE_NAME)) | not) or
+         (.packages[strenv(PACKAGE_NAME)] | tag == "!!map"))' "$WORK_FILE" >/dev/null 2>&1 \
+        || fail "package-map deletions require manual migration: ${INPUT_FILES[0]}:spec.values.$package_name"
+    fi
     PACKAGE_NAME="$package_name" yq -i '
       .packages = (.packages // {}) |
       .packages[strenv(PACKAGE_NAME)] =
@@ -564,6 +762,12 @@ done
 # Normalize it first so the supported spelling, and then the canonical package
 # path, retain their existing precedence.
 if yq -e '.addons | has("mattermostoperator")' "$WORK_FILE" >/dev/null 2>&1; then
+  if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+    yq -e '(.addons.mattermostoperator | tag == "!!map") and
+      ((.addons | has("mattermostOperator") | not) or
+       (.addons.mattermostOperator | tag == "!!map"))' "$WORK_FILE" >/dev/null 2>&1 \
+      || fail "package-map deletions require manual migration: ${INPUT_FILES[0]}:spec.values.addons.mattermostoperator"
+  fi
   yq -i '
     .addons.mattermostOperator =
       ((.addons.mattermostoperator // {}) * (.addons.mattermostOperator // {})) |
@@ -574,6 +778,13 @@ fi
 
 for package_name in "${ADDON_PACKAGES[@]}"; do
   if PACKAGE_NAME="$package_name" yq -e '.addons | has(strenv(PACKAGE_NAME))' "$WORK_FILE" >/dev/null 2>&1; then
+    if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+      PACKAGE_NAME="$package_name" yq -e '
+        (.addons[strenv(PACKAGE_NAME)] | tag == "!!map") and
+        (((.packages // {}) | has(strenv(PACKAGE_NAME)) | not) or
+         (.packages[strenv(PACKAGE_NAME)] | tag == "!!map"))' "$WORK_FILE" >/dev/null 2>&1 \
+        || fail "package-map deletions require manual migration: ${INPUT_FILES[0]}:spec.values.addons.$package_name"
+    fi
     PACKAGE_NAME="$package_name" yq -i '
       .packages = (.packages // {}) |
       .packages[strenv(PACKAGE_NAME)] =
@@ -588,10 +799,22 @@ if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >
   yq -i 'del(.addons)' "$WORK_FILE"
 fi
 
+if [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]]; then
+  yq eval-all '. as $item ireduce ({}; . * $item)' \
+    "$WORK_FILE" "$PATCH_WORK_DIR/values.yaml" >"$PATCH_WORK_DIR/result.yaml"
+  cp "$PATCH_WORK_DIR/result.yaml" "$WORK_FILE"
+fi
+
 reorder_packages "$WORK_FILE"
 
 RESULT_FILE=$WORK_FILE
-if [[ -n "$SECRET_VALUES_KEY" ]]; then
+if [[ "$BIGBANG_HELMRELEASE" == true ]]; then
+  if [[ "$BIGBANG_HAS_VALUES" == true ]]; then
+    MIGRATED_VALUES_FILE="$WORK_FILE" yq -i '.spec.values = load(strenv(MIGRATED_VALUES_FILE))' \
+      "$BIGBANG_HELMRELEASE_FILE"
+  fi
+  RESULT_FILE=$BIGBANG_HELMRELEASE_FILE
+elif [[ -n "$SECRET_VALUES_KEY" ]]; then
   if [[ "$SECRET_VALUES_FIELD" == data ]]; then
     base64 <"$WORK_FILE" | tr -d '\n' >"$SECRET_VALUE_FILE"
   else

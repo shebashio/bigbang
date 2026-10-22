@@ -5,8 +5,8 @@ templates:
 tests:
   - it: should explicitly keep Kyverno outside sidecar and ambient dataplanes
     set:
-      kyverno.enabled: true
-      istiod.enabled: true
+      packages.kyverno.enabled: true
+      packages.istiod.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

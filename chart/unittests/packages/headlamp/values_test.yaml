@@ -3,21 +3,125 @@ suite: Package - Headlamp - Values Tests
 templates:
   - templates/headlamp/values.yaml
 tests:
-  - it: should enable Repo1 outbound route when bbtests are enabled
+  - it: should nest istio, networkPolicies, and routes under bb-common in the common block
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+    asserts:
+      - exists:
+          path: bb-common.istio
+      - exists:
+          path: bb-common.networkPolicies
+      - exists:
+          path: bb-common.routes
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: should not carry istio, networkPolicies, routes, or domain in defaults
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.headlamp.enabled: true
-      addons.headlamp.values.bbtests.enabled: true
+      packages.headlamp.enabled: true
+      domain: example.mil
+    asserts:
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: domain
+      - equal:
+          path: global.domain
+          value: example.mil
+
+  - it: should enable the inbound route with the domain host when istio is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.istiod.enabled: true
+      domain: example.mil
     asserts:
       - equal:
-          path: routes.outbound["headlamp-bb-tests"].enabled
+          path: bb-common.routes.inbound.headlamp.enabled
           value: true
       - equal:
-          path: routes.outbound["headlamp-bb-tests"].hosts[0]
+          path: bb-common.routes.inbound.headlamp.hosts[0]
+          value: headlamp.example.mil
+      - equal:
+          path: bb-common.routes.inbound.headlamp.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
+          path: bb-common.routes.inbound.headlamp.service
+          value: headlamp-headlamp
+      - equal:
+          path: bb-common.routes.inbound.headlamp.port
+          value: 4466
+
+  - it: should disable the inbound route when istio is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.istiod.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.headlamp.enabled
+          value: false
+
+  - it: should render http routing instead of service/port when a baseURL is set
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.headlamp.values.upstream.config.baseURL: /headlamp
+    asserts:
+      - notExists:
+          path: bb-common.routes.inbound.headlamp.service
+      - equal:
+          path: bb-common.routes.inbound.headlamp.http[0].match[0].uri.exact
+          value: /headlamp
+      - equal:
+          path: bb-common.routes.inbound.headlamp.http[1].route[0].destination.host
+          value: headlamp-headlamp
+
+  - it: should enable Repo1 outbound route when bbtests are enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.headlamp.values.bbtests.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound["headlamp-bb-tests"].enabled
+          value: true
+      - equal:
+          path: bb-common.routes.outbound["headlamp-bb-tests"].hosts[0]
           value: repo1.dso.mil
 
   - it: should disable Repo1 outbound route when bbtests are not enabled
@@ -25,10 +129,63 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.headlamp.enabled: true
+      packages.headlamp.enabled: true
     asserts:
       - equal:
-          path: routes.outbound["headlamp-bb-tests"].enabled
+          path: bb-common.routes.outbound["headlamp-bb-tests"].enabled
           value: false
+
+  - it: should add the sso outbound route and egress only when sso is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.headlamp.sso.enabled: true
+      sso.url: https://login.example.mil/auth/realms/baby-yoda
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.sso.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.outbound.sso.hosts[0]
+          value: login.example.mil
+      - equal:
+          path: bb-common.networkPolicies.egress.from.headlamp.to.definition.sso
+          value: true
+
+  - it: should omit the sso outbound route when sso is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+    asserts:
+      - notExists:
+          path: bb-common.routes.outbound.sso
+      - equal:
+          path: bb-common.networkPolicies.egress.from.headlamp.to.definition.sso
+          value: false
+
+  - it: should enable the istio sidecar when istiod is hardened and not ambient
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.headlamp.enabled: true
+      packages.istiod.enabled: true
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.injection

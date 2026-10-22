@@ -27,25 +27,26 @@ tests:
   - equal:
       path: result
       value:
-        networkPolicies:
-          enabled: true
-          ingress:
-            to:
-              test-ingressgateway:[80,443]:
-                from:
-                  definition:
-                    load-balancer-subnets: true
-            definitions:
-              load-balancer-subnets:
-                from:
-                  - ipBlock:
-                      cidr: 10.0.0.0/8
-          egress:
-            from:
-              test-ingressgateway:
-                to:
-                  k8s:
-                    '*': true
+        bb-common:
+          networkPolicies:
+            enabled: true
+            ingress:
+              to:
+                test-ingressgateway:[80,443]:
+                  from:
+                    definition:
+                      load-balancer-subnets: true
+              definitions:
+                load-balancer-subnets:
+                  from:
+                    - ipBlock:
+                        cidr: 10.0.0.0/8
+            egress:
+              from:
+                test-ingressgateway:
+                  to:
+                    k8s:
+                      '*': true
 
 - it: must handle the case when global definitions are not defined
   set:
@@ -65,17 +66,18 @@ tests:
   - equal:
       path: result
       value:
-        networkPolicies:
-          enabled: true
-          ingress:
-            to:
-              test-ingressgateway:[80,443]:
-                from:
-                  definition:
-                    load-balancer-subnets: true
-          egress:
-            from:
-              test-ingressgateway:
-                to:
-                  k8s:
-                    '*': true
+        bb-common:
+          networkPolicies:
+            enabled: true
+            ingress:
+              to:
+                test-ingressgateway:[80,443]:
+                  from:
+                    definition:
+                      load-balancer-subnets: true
+            egress:
+              from:
+                test-ingressgateway:
+                  to:
+                    k8s:
+                      '*': true

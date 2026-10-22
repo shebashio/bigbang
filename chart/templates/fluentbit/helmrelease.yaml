@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsFluentbit := mergeOverwrite (deepCopy .Values.flux) .Values.fluentbit.flux -}}
-{{- if .Values.fluentbit.enabled }}
+{{- $fluxSettingsFluentbit := mergeOverwrite (deepCopy .Values.flux) .Values.packages.fluentbit.flux -}}
+{{- if .Values.packages.fluentbit.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -16,53 +16,53 @@ metadata:
 spec:
   targetNamespace: fluentbit
   releaseName: fluentbit
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "fluentbit" "package" .Values.fluentbit "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "fluentbit" "package" .Values.packages.fluentbit "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsFluentbit | nindent 2 }}
 
   postRenderers:
   {{ include "fluentbit.podPostRenderers" . | nindent 4 }}
-  {{- if .Values.fluentbit.postRenderers }}
-  {{ toYaml .Values.fluentbit.postRenderers | nindent 4 }}
+  {{- if .Values.packages.fluentbit.postRenderers }}
+  {{ toYaml .Values.packages.fluentbit.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "fluentbit" "root" .) | nindent 2 }}
 
   {{/* To support a "standalone" fluentbit for shipping to central location we conditionally depend on logging enabled */}}
-  {{- if not (kindIs "invalid" .Values.fluentbit.dependsOnOverride) }}
-  {{- with .Values.fluentbit.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.fluentbit.dependsOnOverride) }}
+  {{- with .Values.packages.fluentbit.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.elasticsearchKibana.enabled .Values.loki.enabled .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.kyverno.enabled .Values.monitoring.enabled .Values.fluentbit.dependsOn }}
+  {{- else if or .Values.packages.elasticsearchKibana.enabled .Values.packages.loki.enabled .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.kyverno.enabled .Values.packages.monitoring.enabled .Values.packages.fluentbit.dependsOn }}
   dependsOn:
-    {{- if .Values.elasticsearchKibana.enabled }}
+    {{- if .Values.packages.elasticsearchKibana.enabled }}
     - name: ek
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if  .Values.loki.enabled }}
+    {{- if  .Values.packages.loki.enabled }}
     - name: loki
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyverno.enabled }}
+    {{- if .Values.packages.kyverno.enabled }}
     - name: kyverno
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.fluentbit) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.fluentbit) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

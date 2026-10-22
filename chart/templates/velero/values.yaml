@@ -1,32 +1,29 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.velero.enabled }}
+{{- if .Values.packages.velero.enabled }}
 {{- /* Create a cleaned copy of loki config and merge deprecated paths into current paths */ -}}
-{{- $veleroPackage := deepCopy .Values.addons.velero -}}
-{{- if .Values.addons.velero.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.velero.values) | fromYaml -}}
+{{- $veleroPackage := deepCopy .Values.packages.velero -}}
+{{- if .Values.packages.velero.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.velero.values) | fromYaml -}}
 {{- $veleroPackage = set $veleroPackage "values" $cleanedValues -}}
 {{- end -}}
-{{- include "values-secret" (dict 
-  "root" $ 
-  "package" .Values.addons.velero 
-  "name" "velero" 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.velero" . | fromYaml) (include "bigbang.velero.bb-common-migrations" . | fromYaml)) | toYaml)
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.velero
+  "name" "velero"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.velero" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.velero" -}}
 {{- $domainName := .Values.domain }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.velero.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
 
 networkPolicies:
   ingress:
@@ -34,14 +31,31 @@ networkPolicies:
       velero:8085:
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
   egress:
+    {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
+    definitions:
+      kubeAPI:
+        to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+            except:
+            - 169.254.169.254/32
+            {{- end }}
+        {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+        {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.vpcCidr }}
+        {{- end }}
+        {{- end }}
+    {{- end }}
     from:
       "*":
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             kubeAPI: true
       velero:
@@ -93,7 +107,7 @@ upstream:
     serviceMonitor:
       enabled: true
       additionalLabels: {}
-      {{- if eq (include "metricsSidecarMtls" (list .Values.addons.velero .)) "true" }}
+      {{- if eq (include "metricsSidecarMtls" (list .Values.packages.velero .)) "true" }}
       scheme: https
       tlsConfig:
         caFile: /etc/prom-certs/root-cert.pem

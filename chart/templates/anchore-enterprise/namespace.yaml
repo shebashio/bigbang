@@ -1,4 +1,4 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.anchoreEnterprise.enabled }}
-{{- include "bigbang.namespace" (dict "root" . "name" "anchore" "appName" "anchore-enterprise" "component" "security" "package" .Values.addons.anchoreEnterprise) }}
+{{- if .Values.packages.anchoreEnterprise.enabled }}
+{{- include "bigbang.namespace" (dict "root" . "name" "anchore" "appName" "anchore-enterprise" "component" "security" "package" .Values.packages.anchoreEnterprise) }}
 {{- end }}

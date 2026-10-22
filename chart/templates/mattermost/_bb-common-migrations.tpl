@@ -23,8 +23,8 @@ networkPolicies:
 routes:
   inbound:
     chat:
-      enabled: {{ dig "istio" "chat" "enabled" true .Values.addons.mattermost.values }}
-      {{- $hosts := dig "istio" "chat" "hosts" list .Values.addons.mattermost.values }}
+      enabled: {{ dig "istio" "chat" "enabled" true .Values.packages.mattermost.values }}
+      {{- $hosts := dig "istio" "chat" "hosts" list .Values.packages.mattermost.values }}
       hosts:
       {{- if $hosts }}
       {{- $hosts | toYaml | nindent 8 }}
@@ -32,10 +32,10 @@ routes:
       - chat.{{ .Values.domain }}
       {{- end }}
       gateways:
-      {{- $gateways := dig "istio" "chat" "gateways" list .Values.addons.mattermost.values }}
+      {{- $gateways := dig "istio" "chat" "gateways" list .Values.packages.mattermost.values }}
       {{- if $gateways }}
       {{- $gateways | toYaml | nindent 8 }}
       {{- else }}
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.mattermost.ingress.gateway "root" .) }}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.mattermost.ingress.gateway "root" .) }}
       {{- end }}
 {{- end }}

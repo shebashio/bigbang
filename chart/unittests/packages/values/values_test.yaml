@@ -16,7 +16,6 @@ templates:
   - templates/grafana/values.yaml
   - templates/harbor/values.yaml
   - templates/headlamp/values.yaml
-  - templates/istiod/values.yaml
   - templates/keycloak/values.yaml
   - templates/kiali/values.yaml
   - templates/kyverno-reporter/values.yaml
@@ -25,7 +24,6 @@ templates:
   - templates/mattermost-operator/values.yaml
   - templates/mimir/values.yaml
   - templates/minio/values.yaml
-  - templates/monitoring/values.yaml
   - templates/renovate/values.yaml
   - templates/sonarqube/values.yaml
   - templates/tempo/values.yaml
@@ -34,12 +32,28 @@ templates:
   - templates/velero/values.yaml
   - templates/minio-operator/values.yaml
 tests:
+  - it: enables authorization policies when globally enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
+    set:
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: istio.authorizationPolicies.generateFromNetpol
+          value: true
+
   - it: enables authorization policies if ambient is enabled
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       istio:
         ambient:
@@ -53,7 +67,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false
@@ -69,12 +83,13 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false
-      ztunnel:
-        enabled: true
+      packages:
+        ztunnel:
+          enabled: true
     asserts:
       - equal:
           path: networkPolicies.enabled
@@ -84,7 +99,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
       networkPolicies:
         enabled: false

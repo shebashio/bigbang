@@ -1,8 +1,7 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsAlloy := mergeOverwrite (deepCopy .Values.flux) .Values.alloy.flux -}}
-{{- if .Values.alloy.enabled }}
+{{- $fluxSettingsAlloy := mergeOverwrite (deepCopy .Values.flux) .Values.packages.alloy.flux -}}
+{{- if .Values.packages.alloy.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $isStrictIstio := and $istioEnabled (eq (dig "istio" "mtls" "mode" "STRICT" .Values.alloy.values) "STRICT") -}}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -16,45 +15,44 @@ metadata:
 spec:
   targetNamespace: alloy
   releaseName: alloy
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "alloy" "package" .Values.alloy "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "alloy" "package" .Values.packages.alloy "root" .) | nindent 2 }}
   {{- toYaml $fluxSettingsAlloy | nindent 2 }}
-  {{- if .Values.alloy.postRenderers }}
+  {{- if .Values.packages.alloy.postRenderers }}
   postRenderers:
-  {{- with .Values.alloy.postRenderers }}
+  {{- with .Values.packages.alloy.postRenderers }}
   {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "alloy" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.alloy.dependsOnOverride) }}
-  {{- with .Values.alloy.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.alloy.dependsOnOverride) }}
+  {{- with .Values.packages.alloy.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.loki.enabled .Values.alloy.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled .Values.packages.loki.enabled .Values.packages.alloy.dependsOn }}
   dependsOn:
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.loki.enabled }}
+  {{- if .Values.packages.loki.enabled }}
     - name: loki
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.alloy) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.alloy) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}
 {{- end }}
-

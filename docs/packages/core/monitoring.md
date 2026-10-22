@@ -42,7 +42,60 @@ graph LR
   end
 ```
 
+## Upgrade Notices: bb-common subchart
+
+Monitoring 91.4.1-bb.2 requires the paired umbrella wiring for bb-common subchart
+mode. Move package overrides from `monitoring.values.istio`,
+`monitoring.values.networkPolicies`, and `monitoring.values.routes` to
+`monitoring.values.bb-common.istio`, `monitoring.values.bb-common.networkPolicies`,
+and `monitoring.values.bb-common.routes`. With package configuration v1, use
+`packages.monitoring` instead of `monitoring`.
+
+Replace package `domain` and `upstream.domain` overrides with `global.domain`.
+Remove package `istio.injection`; the umbrella controls namespace injection and
+sets mesh mode in bb-common. Standalone chart users must explicitly enable each
+inbound route and keep its service and port aligned with upstream overrides.
+Custom route templates run in the bb-common scope and cannot read parent
+`upstream` values.
+
+Configure API-server egress through
+`networkPolicies.egress.definitions.kubeAPI`. Monitoring no longer builds this
+definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
+`controlPlaneCidr` continues to control admission-webhook ingress.
+
+Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
+`bb-common.istio.authorizationPolicies.custom`. The umbrella still translates
+legacy hardened custom resource lists at both the flat and nested paths.
+Ambient SSO enrollment and client policies now reference the rendered
+`monitoring-waypoint` Gateway; update external policies that selected
+`monitoring-monitoring-waypoint`.
+
 ## Big Bang Touchpoints
+
+### Cortex Tenant remote write
+
+The [Alloy → Cortex Tenant → Mimir example values](../../reference/configs/example/alloy-cortex-tenant-mimir-values.yaml)
+show how to deploy Cortex Tenant as a custom package, select it as Alloy's
+remote-write destination, enable both sides of the required network-policy
+connections, and order the HelmReleases. The umbrella does not configure this
+path automatically because Cortex Tenant is not a built-in package.
+
+The example assumes Istio sidecars and uses Alloy's mounted Istio certificates
+to scrape kube-state-metrics and node-exporter and to write to Cortex Tenant.
+The example disables server certificate verification for these three TLS
+connections because Istio workload certificates lack the Service DNS names or
+Pod IP addresses Alloy uses. Traffic is encrypted, but Alloy does not verify
+the server's identity. Use verifiable serving certificates and enable
+verification where possible. For ambient or non-Istio deployments, configure
+TLS for the destination and direct exporter scrapes where available. HTTP sends
+metrics without transport encryption; use it only when that is acceptable for
+your environment. Review the `extraConfig` override if you already provide
+custom Alloy metrics pipelines.
+Set `extraLabels.tenant` to the desired tenant; Cortex Tenant rejects series
+without a tenant label by default. The example disables Prometheus while
+retaining monitoring's exporters. With Prometheus disabled, the umbrella
+disables its token-dependent control-plane ServiceMonitors by default; operators
+who provide independent scrape credentials can enable them explicitly.
 
 ### UI
 
@@ -55,18 +108,19 @@ Alertmanager, Prometheus and Grafana within the monitoring Package have UIs that
 Persistent storage values for Alert Manager can be set/modified in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    alertmanager:
-      alertmanagerSpec:
-        storage:
-          volumeClaimTemplate:
-            spec:
-                storageClassName: 
-                accessModes: ["ReadWriteOnce"]
-                resources:
-                  requests:
-                    storage: 50Gi
+packages:
+  monitoring:
+    values:
+      alertmanager:
+        alertmanagerSpec:
+          storage:
+            volumeClaimTemplate:
+              spec:
+                  storageClassName:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 50Gi
               selector: {}
 ```
 
@@ -75,18 +129,19 @@ monitoring:
 Persistent storage values for Prometheus-Operator can be set/modified in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    prometheus:
-      prometheusSpec:
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-                storageClassName: 
-                accessModes: ["ReadWriteOnce"]
-                resources:
-                  requests:
-                    storage: 50Gi
+packages:
+  monitoring:
+    values:
+      prometheus:
+        prometheusSpec:
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                  storageClassName:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 50Gi
               selector: {}
 ```
 
@@ -95,22 +150,23 @@ monitoring:
 Persistent storage values for Grafana can be set/modified in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    grafana:
-      persistence:
-        type: pvc
-        enabled: false
-        # storageClassName: default
-        accessModes:
-          - ReadWriteOnce
-        size: 10Gi
-        # annotations: {}
-        finalizers:
-          - kubernetes.io/pvc-protection
-        # selectorLabels: {}
-        # subPath: ""
-        # existingClaim:
+packages:
+  monitoring:
+    values:
+      grafana:
+        persistence:
+          type: pvc
+          enabled: false
+          # storageClassName: default
+          accessModes:
+            - ReadWriteOnce
+          size: 10Gi
+          # annotations: {}
+          finalizers:
+            - kubernetes.io/pvc-protection
+          # selectorLabels: {}
+          # subPath: ""
+          # existingClaim:
 ```
 
 ### Logging
@@ -123,11 +179,12 @@ Note: within Big Bang, logs are captured by fluentbit and shipped to elastic by 
 LogFormat and LogLevel can be set for Prometheus-Operator via the following values in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    prometheusOperator:
-      logFormat: logfmt
-      logLevel: info
+packages:
+  monitoring:
+    values:
+      prometheusOperator:
+        logFormat: logfmt
+        logLevel: info
 ```
 
 #### Prometheus
@@ -135,12 +192,13 @@ monitoring:
 LogFormat and LogLevel can be set for Prometheus via the following values in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    prometheus:
-      prometheusSpec:
-         logFormat: logfmt
-         logLevel: info
+packages:
+  monitoring:
+    values:
+      prometheus:
+        prometheusSpec:
+           logFormat: logfmt
+           logLevel: info
 ```
 
 #### Alertmanager
@@ -148,12 +206,13 @@ monitoring:
 LogFormat and LogLevel can be set for Alertmanager via the following values in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    alertmanager:
-      alertmanagerSpec:
-        logFormat: logfmt
-        logLevel: info
+packages:
+  monitoring:
+    values:
+      alertmanager:
+        alertmanagerSpec:
+          logFormat: logfmt
+          logLevel: info
 ```
 
 #### Grafana
@@ -161,12 +220,13 @@ monitoring:
 LogLevel can be set for Grafana via the following values in the Big Bang chart:
 
 ```yaml
-monitoring:
-  values:
-    grafana:
-      grafana.ini:
-        log:
-          mode: console
+packages:
+  monitoring:
+    values:
+      grafana:
+        grafana.ini:
+          log:
+            mode: console
 ```
 
 ## Single Sign on (SSO)
@@ -204,54 +264,56 @@ Support for Prometheus and other apps within the package are being researched an
 
 High Availability can be accomplished by increasing the number of replicas for the deployment of Alertmanager;
 ```yaml
-monitoring:
-  values:
-    alertmanager:
-      alertmanagerSpec:
-        replicas: 3
+packages:
+  monitoring:
+    values:
+      alertmanager:
+        alertmanagerSpec:
+          replicas: 3
 ```
 
 #### Prometheus
 
 High Availability can be accomplished by increasing the number of replicas for the deployment of Prometheus. [Thanos](https://repo1.dso.mil/big-bang/product/packages/thanos/-/tree/main) must also be installed in the same namespace as the monitoring package in order for data to replicate across pods. An example of a Thanos object storage config using minIO [is located here](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/main/tests/test-values.yaml). Thanos also supports cloud object storage endpoints.
 ```yaml
-monitoring:
-  values:
-    thanosRuler:
-      enabled: true
-    prometheusOperator:
-      clusterDomain: "cluster.local"
-    prometheus:
-      thanosService:
+packages:
+  monitoring:
+    values:
+      thanosRuler:
         enabled: true
-      thanosServiceMonitor:
-        enabled: true
-      prometheusSpec:
-        replicas: 3
-        thanos:
-          baseImage: registry1.dso.mil/ironbank/opensource/thanos/thanos
-          version: v0.29.0
-          objectStorageConfig:
-            key: objstore.yml
-            name: thanos-objstore-secret
+      prometheusOperator:
+        clusterDomain: "cluster.local"
+      prometheus:
+        thanosService:
+          enabled: true
+        thanosServiceMonitor:
+          enabled: true
+        prometheusSpec:
+          replicas: 3
+          thanos:
+            baseImage: registry1.dso.mil/ironbank/opensource/thanos/thanos
+            version: v0.29.0
+            objectStorageConfig:
+              key: objstore.yml
+              name: thanos-objstore-secret
 ```
 
 #### Grafana
 
 High Availability can be accomplished by increasing the number of replicas for the deployment of Grafana and configuring an external database connection (postgresql/mysql) so users and dashboard information can be centrally located for the replicas to have a source of truth. See Grafana's [upstream documentation](https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#database)
 ```yaml
-monitoring:
-  values:
-    grafana:
-      replicas: 3
-      grafana.ini:
-        ...
-	database:
-	  type: [postgres|mysql]
-	  host: external-db:5432
-	  name: grafana
-	  user: ""
-	  password: ""
+packages:
+  monitoring:
+    values:
+      grafana:
+        replicas: 3
+        grafana.ini:
+          database:
+            type: postgres
+            host: external-db:5432
+            name: grafana
+            user: ""
+            password: ""
 ```
 
 ### Dependency Packages
@@ -259,17 +321,17 @@ monitoring:
 When deploying BigBang, monitoring depends on gatekeeper/kyverno and istio being installed prior.
 
 ```yaml
-  {{- if or .Values.gatekeeper.enabled .Values.istiod.enabled .Values.kyvernoPolicies.enabled }}
+  {{- if or .Values.packages.gatekeeper.enabled .Values.packages.istiod.enabled .Values.packages.kyvernoPolicies.enabled }}
   dependsOn:
-  {{- if .Values.istiod.enabled }}
+  {{- if .Values.packages.istiod.enabled }}
     - name: istio
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}

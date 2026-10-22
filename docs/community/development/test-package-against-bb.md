@@ -13,10 +13,8 @@ As part of your MR that modifies istio you will need to run bigbang tests agains
       git:
         tag: null
         branch: my-package-branch-that-needs-testing
-      values:
-        istio:
-          hardened:
-            enabled: true
+    authorizationPolicies:
+      enabled: true
     ```
 1. Stage your changes `git add -A.`
 1. Commit your changes `git commit -m "prepping for test."`

@@ -3,112 +3,18 @@ suite: Package - Grafana - Values Tests
 templates:
   - templates/grafana/values.yaml
 tests:
-  - it: should enable istio sidecar when istiod hardened is enabled
+  - it: should honor legacy package-level hardening for the Istio sidecar
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      istiod.values.hardened.enabled: true
+      packages.grafana.values.istio.hardened.enabled: true
     asserts:
       - equal:
-          path: istio.sidecar.enabled
+          path: bb-common.istio.sidecar.enabled
           value: true
-  - it: should map customServiceEntries to istio.serviceEntries.custom
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.overlays' - | yq eval '.'"
-    set:
-      grafana.values.istio.hardened.customServiceEntries:
-        - name: "test-service-entry"
-          hosts:
-            - "example.com"
-    asserts:
-      - equal:
-          path: istio.serviceEntries.custom[0].name
-          value: "test-service-entry"
-      - equal:
-          path: istio.serviceEntries.custom[0].hosts[0]
-          value: "example.com"
-  - it: should map customAuthorizationPolicies to istio.authorizationPolicies.custom
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.overlays' - | yq eval '.'"
-    set:
-      grafana.values.istio.hardened.customAuthorizationPolicies:
-        - name: "test-authz-policy"
-          labels:
-            app: "grafana"
-    asserts:
-      - equal:
-          path: istio.authorizationPolicies.custom[0].name
-          value: "test-authz-policy"
-      - equal:
-          path: istio.authorizationPolicies.custom[0].labels.app
-          value: "grafana"
-  - it: should merge both istio.serviceEntries.custom and istio.hardened.customServiceEntries
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.overlays' - | yq eval '.'"
-    set:
-      grafana.values.istio.hardened.customServiceEntries:
-        - name: "hardened-entry"
-          spec:
-            hosts:
-              - "hardened.example.com"
-      grafana.values.istio.serviceEntries.custom:
-        - name: "custom-entry"
-          spec:
-            hosts:
-              - "custom.example.com"
-    asserts:
-      - equal:
-          path: istio.serviceEntries.custom[0].name
-          value: "hardened-entry"
-      - equal:
-          path: istio.serviceEntries.custom[0].spec.hosts[0]
-          value: "hardened.example.com"
-      - equal:
-          path: istio.serviceEntries.custom[1].name
-          value: "custom-entry"
-      - equal:
-          path: istio.serviceEntries.custom[1].spec.hosts[0]
-          value: "custom.example.com"
-  - it: should merge both istio.authorizationPolicies.custom and istio.hardened.customAuthorizationPolicies
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.overlays' - | yq eval '.'"
-    set:
-      grafana.values.istio.hardened.customAuthorizationPolicies:
-        - name: "hardened-authz"
-          labels:
-            app: "grafana"
-      grafana.values.istio.authorizationPolicies.custom:
-        - name: "custom-authz"
-          labels:
-            app: "grafana-custom"
-    asserts:
-      - equal:
-          path: istio.authorizationPolicies.custom[0].name
-          value: "hardened-authz"
-      - equal:
-          path: istio.authorizationPolicies.custom[0].labels.app
-          value: "grafana"
-      - equal:
-          path: istio.authorizationPolicies.custom[1].name
-          value: "custom-authz"
-      - equal:
-          path: istio.authorizationPolicies.custom[1].labels.app
-          value: "grafana-custom"
   - it: should point the GitLab Redis datasource at the configured external service
     postRenderer:
       cmd: "sh"
@@ -116,42 +22,65 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.gitlab.enabled: true
-      addons.gitlab.redis.password: test-password
-      addons.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
-      addons.gitlab.values.global.redis.port: 6379
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
+      packages.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
+      packages.gitlab.values.global.redis.port: 6379
     asserts:
       - equal:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[1].url
           value: redis-master.redis.svc.cluster.local:6379
+  - it: should open the bb-common outbound route and egress for external GitLab Redis
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.redis.password: test-password
+      packages.gitlab.values.global.redis.host: redis-master.redis.svc.cluster.local
+      packages.gitlab.values.global.redis.port: 6379
+    asserts:
       - equal:
-          path: routes.outbound["external-gitlab-redis"].enabled
+          path: bb-common.routes.outbound["external-gitlab-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-gitlab-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-gitlab-redis"].hosts[0]
           value: redis-master.redis.svc.cluster.local
       - equal:
-          path: networkPolicies.egress.from.grafana.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.grafana.to.definition.redis-subnets
           value: true
 
-  - it: should not access Argo CD external Redis
+  - it: should not create a datasource for Argo CD external Redis
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.argocd.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.argocd.example.internal
     asserts:
-      - notExists:
-          path: routes.outbound["external-argocd-redis"]
       - notEqual:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[0].name
           value: Argo External
       - notEqual:
           path: upstream.datasources["datasourcesbb.yaml"].datasources[0].url
           value: redis.argocd.example.internal:6379
+
+  - it: should not open bb-common egress for Argo CD external Redis
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.argocd.example.internal
+    asserts:
+      - notExists:
+          path: bb-common.routes.outbound["external-argocd-redis"]
       - notEqual:
-          path: networkPolicies.egress.from.grafana.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.grafana.to.definition.redis-subnets
           value: true

@@ -18,7 +18,7 @@ At minimum, a production deployment should:
 The following Big Bang example shows the relevant value paths for a three-node Raft deployment using AWS KMS auto-unseal. Replace the domain, certificate, storage, resource, and KMS settings for the environment.
 
 ```yaml
-addons:
+packages:
   vault:
     enabled: true
     ingress:

@@ -1,0 +1,147 @@
+# Example: Alloy collects metrics, Cortex Tenant applies the tenant label, and
+# Mimir stores them. This example assumes Big Bang Istio sidecar injection.
+packageConfiguration:
+  version: v1
+
+packages:
+  monitoring:
+    enabled: true
+    prometheusMetrics:
+      enabled: false
+    values:
+      upstream:
+        prometheus:
+          enabled: false
+        # Alloy scrapes these exporters directly with its mounted Istio certs.
+        # Disable their ServiceMonitors to avoid duplicate scrapes.
+        kube-state-metrics:
+          prometheus:
+            monitor:
+              enabled: false
+        prometheus-node-exporter:
+          prometheus:
+            monitor:
+              enabled: false
+
+  mimir:
+    enabled: true
+    values:
+      networkPolicies:
+        ingress:
+          to:
+            mimir-distributor:8080:
+              from:
+                k8s:
+                  cortex-tenant/cortex-tenant: true
+
+  cortex-tenant:
+    enabled: true
+    namespace:
+      name: cortex-tenant
+    helmRelease:
+      namespace: bigbang
+    dependsOn:
+      - name: mimir
+        namespace: bigbang
+    sourceType: git
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/maintained/cortex-tenant.git
+      path: ./chart
+      tag: "0.8.1-bb.2"
+    values:
+      bb-common:
+        networkPolicies:
+          ingress:
+            to:
+              cortex-tenant:8080:
+                from:
+                  k8s:
+                    # Prometheus is disabled in this example.
+                    monitoring/monitoring-monitoring-kube-prometheus: false
+
+  alloy:
+    enabled: true
+    alloyMetrics:
+      enabled: true
+    dependsOn:
+      - name: cortex-tenant
+        namespace: bigbang
+    values:
+      bb-common:
+        networkPolicies:
+          egress:
+            from:
+              alloy-metrics:
+                to:
+                  k8s:
+                    cortex-tenant/cortex-tenant:8080: true
+                    # Keep Alloy's built-in direct Mimir write path closed.
+                    mimir/mimir-mimir-gateway:8080: false
+      upstream:
+        destinations:
+          cortex-tenant:
+            type: prometheus
+            # Alloy bypasses outbound sidecar interception and originates mTLS.
+            url: https://cortex-tenant.cortex-tenant.svc.cluster.local:8080/push
+            tls:
+              caFile: /etc/prom-certs/root-cert.pem
+              certFile: /etc/prom-certs/cert-chain.pem
+              keyFile: /etc/prom-certs/key.pem
+              # SECURITY: Istio workload certs lack this Service's DNS name.
+              # TLS encrypts traffic, but this skips server identity verification.
+              # Use a certificate with a matching DNS name and set false when possible.
+              insecureSkipVerify: true
+            extraLabels:
+              tenant: example-tenant
+        prometheusOperatorObjects:
+          destinations:
+            - cortex-tenant
+        collectors:
+          alloy-metrics:
+            # Alloy 1.18 cannot use local certificate files in ServiceMonitors.
+            # Use the certs already mounted by the built-in Alloy configuration.
+            extraConfig: |
+              prometheus.scrape "bigbang_kube_state_metrics" {
+                targets = [{"__address__" = "monitoring-monitoring-kube-state-metrics.monitoring.svc.cluster.local:8080"}]
+                scheme = "https"
+                tls_config {
+                  ca_file = "/etc/prom-certs/root-cert.pem"
+                  cert_file = "/etc/prom-certs/cert-chain.pem"
+                  key_file = "/etc/prom-certs/key.pem"
+                  // SECURITY: Istio workload certs lack this Service's DNS name.
+                  // This skips server identity verification; use a matching cert when possible.
+                  insecure_skip_verify = true
+                }
+                clustering {
+                  enabled = true
+                }
+                forward_to = [prometheus.remote_write.cortex_tenant.receiver]
+              }
+
+              discovery.kubernetes "bigbang_node_exporter" {
+                role = "pod"
+                namespaces {
+                  names = ["monitoring"]
+                }
+                selectors {
+                  role = "pod"
+                  label = "app.kubernetes.io/name=prometheus-node-exporter"
+                }
+              }
+
+              prometheus.scrape "bigbang_node_exporter" {
+                targets = discovery.kubernetes.bigbang_node_exporter.targets
+                scheme = "https"
+                tls_config {
+                  ca_file = "/etc/prom-certs/root-cert.pem"
+                  cert_file = "/etc/prom-certs/cert-chain.pem"
+                  key_file = "/etc/prom-certs/key.pem"
+                  // SECURITY: Istio workload certs lack the discovered Pod IP.
+                  // This skips server identity verification; use a matching cert when possible.
+                  insecure_skip_verify = true
+                }
+                clustering {
+                  enabled = true
+                }
+                forward_to = [prometheus.remote_write.cortex_tenant.receiver]
+              }

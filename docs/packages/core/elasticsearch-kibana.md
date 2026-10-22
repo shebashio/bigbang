@@ -8,7 +8,7 @@ The [ECK Operator package](https://repo1.dso.mil/big-bang/product/packages/eck-o
 
 ## Big Bang Touch Points
 
-With `packageConfiguration.version: v1`, use `packages.elasticsearchKibana` for the workload and `packages.eckOperator` for the operator. Legacy root-level configuration remains supported; see [Package Management](../../concepts/package-management.md).
+Use `packages.elasticsearchKibana` for the workload and `packages.eckOperator` for the operator. Big Bang 4.x rejects legacy root-level package configuration; see [Package Management](../../concepts/package-management.md).
 
 - Enabling Elasticsearch/Kibana also renders the ECK Operator release, even when the operator's explicit enablement is false. ECK Operator can also be enabled independently.
 - By default, the `ek` HelmRelease targets namespace `logging` and depends on `eck-operator`; the operator release targets namespace `eck-operator`.
@@ -17,6 +17,6 @@ With `packageConfiguration.version: v1`, use `packages.elasticsearchKibana` for 
 
 ## Licensing
 
-The umbrella accepts license inputs under `packages.elasticsearchKibana.license` when using the v1 configuration contract, or `elasticsearchKibana.license` for legacy configuration. It forwards `trial` and `keyJSON` into the ECK Operator package's generated `license` values, not into the Elasticsearch/Kibana workload chart. The operator package manages the corresponding license resources in its release namespace.
+The umbrella accepts license inputs under `packages.elasticsearchKibana.license`. It forwards `trial` and `keyJSON` into the ECK Operator package's generated `license` values, not into the Elasticsearch/Kibana workload chart. The operator package manages the corresponding license resources in its release namespace.
 
 Treat license JSON as sensitive deployment data: use protected, encrypted deployment inputs rather than committing license material to documentation or plaintext values. Setting `trial: true` requests the operator package's trial resource; trial eligibility, terms, licensed features, and expiry behavior remain defined by Elastic. See [Elastic's ECK license management](https://www.elastic.co/docs/deploy-manage/license/manage-your-license-in-eck) and [subscriptions](https://www.elastic.co/subscriptions) rather than a copied feature matrix.

@@ -1,9 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.loki.enabled }}
+{{- if .Values.packages.loki.enabled }}
 {{- /* Create a cleaned copy of loki config and merge deprecated paths into current paths */ -}}
-{{- $lokiPackage := deepCopy .Values.loki -}}
-{{- if .Values.loki.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.loki.values) | fromYaml -}}
+{{- $lokiPackage := deepCopy .Values.packages.loki -}}
+{{- if .Values.packages.loki.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.loki.values) | fromYaml -}}
 {{- $lokiPackage = set $lokiPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- include "values-secret" (dict 
@@ -16,8 +16,8 @@
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.loki.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
-{{- $minioEnabled := dig "minio" "enabled" false .Values.loki.values }}
+{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.loki.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
+{{- $minioEnabled := dig "minio" "enabled" false .Values.packages.loki.values }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
@@ -38,24 +38,24 @@ routes:
         - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
       hosts:
         - loki.{{ .Values.domain }}
-      {{- if ne .Values.loki.strategy "monolith" }}
+      {{- if ne .Values.packages.loki.strategy "monolith" }}
       service: logging-loki-gateway.logging.svc.cluster.local
-      port: {{ dig "gateway" "service" "port" 80 .Values.loki.values }}
-      containerPort: {{ dig "gateway" "containerPort" 8080 .Values.loki.values }}
+      port: {{ dig "gateway" "service" "port" 80 .Values.packages.loki.values }}
+      containerPort: {{ dig "gateway" "containerPort" 8080 .Values.packages.loki.values }}
       {{- else }}
       service: logging-loki.logging.svc.cluster.local
-      port: {{ dig "loki" "server" "http_listen_port" 3100 .Values.loki.values }}
-      containerPort: {{ dig "loki" "server" "http_listen_port" 3100 .Values.loki.values }}
+      port: {{ dig "loki" "server" "http_listen_port" 3100 .Values.packages.loki.values }}
+      containerPort: {{ dig "loki" "server" "http_listen_port" 3100 .Values.packages.loki.values }}
       {{- end }}
       selector:
         app.kubernetes.io/name: logging-loki
         # Be more specific when using a distributed so simple scalable deployment mode
-        {{- if ne .Values.loki.strategy "monolith" }}
+        {{- if ne .Values.packages.loki.strategy "monolith" }}
         app.kubernetes.io/component: gateway
         {{- end }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.loki.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.loki.values }}
       hosts:
       - repo1.dso.mil
       - grafana.{{ $domainName }}
@@ -71,13 +71,13 @@ networkPolicies:
       logging-loki:3100:
         from:
           k8s:
-            alloy-alloy-operator@alloy/alloy: {{ .Values.alloy.enabled }}
-            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.alloy.enabled }}
-            alloy-alloy-singleton@alloy/alloy-singleton: {{ and .Values.alloy.enabled (dig "alloyClusterEvents" "enabled" false .Values.alloy) }}
-            fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.fluentbit.enabled }}
-            monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (eq .Values.loki.strategy "monolith") }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-operator@alloy/alloy: {{ .Values.packages.alloy.enabled }}
+            alloy-alloy-logs@alloy/alloy-logs: {{ .Values.packages.alloy.enabled }}
+            alloy-alloy-singleton@alloy/alloy-singleton: {{ and .Values.packages.alloy.enabled (dig "alloyClusterEvents" "enabled" false .Values.packages.alloy) }}
+            fluentbit-fluent-bit@fluentbit/fluent-bit: {{ .Values.packages.fluentbit.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ and .Values.packages.grafana.enabled (eq .Values.packages.loki.strategy "monolith") }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       loki:8080:
         podSelector:
           matchLabels:
@@ -85,7 +85,7 @@ networkPolicies:
             app.kubernetes.io/component: gateway
         from:
           k8s:
-            monitoring-grafana@monitoring/grafana: {{ and .Values.grafana.enabled (ne .Values.loki.strategy "monolith") }}
+            monitoring-grafana@monitoring/grafana: {{ and .Values.packages.grafana.enabled (ne .Values.packages.loki.strategy "monolith") }}
       minio:9000:
         from:
           k8s:
@@ -95,7 +95,7 @@ networkPolicies:
       logging-loki:
         to:
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             storage-subnets: {{ not $minioEnabled }}
       minio:
@@ -109,7 +109,7 @@ networkPolicies:
 bbtests:
   cypress:
     envs:
-      cypress_check_datasource: {{ .Values.grafana.enabled | quote }}
+      cypress_check_datasource: {{ .Values.packages.grafana.enabled | quote }}
       cypress_grafana_url: {{ printf "https://grafana.%s" $domainName | quote }}
   scripts:
     envs:
@@ -119,7 +119,7 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.loki .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -131,8 +131,8 @@ monitoring:
     enabled: true
     alerting: true
 
-{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- if and .Values.fluentbit.enabled (not $disableDefaultFLB) }}
+{{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.packages.fluentbit.values }}
+{{- if and .Values.packages.fluentbit.enabled (not $disableDefaultFLB) }}
 fluentbit:
   enabled: true
 {{- end }}
@@ -142,19 +142,19 @@ loki:
     bind_addr:
       - ${MY_POD_IP}
   storage:
-    {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+    {{- if (and (eq .Values.packages.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.loki.values))) }}
     type: "filesystem"
     {{- else }}
     type: "s3"
     bucketNames:
-      {{- toYaml .Values.loki.objectStorage.bucketNames | nindent 6 }}
+      {{- toYaml .Values.packages.loki.objectStorage.bucketNames | nindent 6 }}
     s3:
-      endpoint: {{ .Values.loki.objectStorage.endpoint }}
-      region: {{ .Values.loki.objectStorage.region }}
-      accessKeyId: {{ .Values.loki.objectStorage.accessKey }}
-      secretAccessKey: {{ .Values.loki.objectStorage.accessSecret }}
+      endpoint: {{ .Values.packages.loki.objectStorage.endpoint }}
+      region: {{ .Values.packages.loki.objectStorage.region }}
+      accessKeyId: {{ .Values.packages.loki.objectStorage.accessKey }}
+      secretAccessKey: {{ .Values.packages.loki.objectStorage.accessSecret }}
     {{- end }}
-  {{- if (and (eq .Values.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.loki.values))) }}
+  {{- if (and (eq .Values.packages.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.loki.values))) }}
   rulerConfig:
     storage:
       type: local
@@ -170,12 +170,12 @@ loki:
   podAnnotations:
     {{ include "istioAnnotation" . }}
   {{- end }}
-  {{- if .Values.kiali.enabled }}
+  {{- if .Values.packages.kiali.enabled }}
   podLabels:
     service.istio.io/canonical-name: logging-loki
   {{- end }}
 
-{{- if (eq .Values.loki.strategy "monolith") }}
+{{- if (eq .Values.packages.loki.strategy "monolith") }}
 deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
@@ -188,7 +188,7 @@ singleBinary:
           fieldPath: status.podIP
 {{- end }}
 
-{{- if (eq .Values.loki.strategy "scalable") }}
+{{- if (eq .Values.packages.loki.strategy "scalable") }}
 deploymentMode: SimpleScalable
 singleBinary:
   replicas: 0
@@ -235,7 +235,7 @@ gateway:
 {{- end }}
 
 # Allows users to deploy distributed mode but calls out that we do not support it
-{{- if (eq .Values.loki.strategy "distributed") }}
+{{- if (eq .Values.packages.loki.strategy "distributed") }}
 deploymentMode: Distributed
 singleBinary:
   replicas: 0

@@ -10,9 +10,9 @@ configuration and operation guides now live with their package repositories:
 
 ## Big Bang orchestration
 
-With `packageConfiguration.version: v1`, configure the component packages as
-`packages.istioCRDs`, `packages.istiod`, `packages.istioCNI`, and
-`packages.istioGateway`. Legacy root-level names remain supported; see
+Configure the component packages as `packages.istioCRDs`, `packages.istiod`,
+`packages.istioCNI`, and `packages.istioGateway`. Big Bang 4.x rejects legacy
+root-level package configuration; see
 [Package Management](../../concepts/package-management.md).
 
 The umbrella creates the Istio namespaces, injects common images and values,
