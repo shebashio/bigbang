@@ -1,17 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
 {{- if .Values.packages.mimir.enabled }}
-{{- /* Create a cleaned copy of mimir config and merge deprecated paths into current paths */ -}}
-{{- $mimirPackage := deepCopy .Values.packages.mimir -}}
-{{- if .Values.packages.mimir.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.mimir.values) | fromYaml -}}
-{{- $mimirPackage = set $mimirPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
   "root" $
-  "package" $mimirPackage
+  "package" Values.packages.mimir
   "name" "mimir"
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.mimir" . | fromYaml) (include "bigbang.mimir.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.mimir" .)
 )}}
 {{- end }}
 
@@ -37,123 +32,124 @@ upgradeJob:
 monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-routes:
-  inbound:
-    mimir-gateway:
-      enabled: false
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
-      hosts:
-        - mimir.{{ .Values.domain }}
-      service: mimir-mimir-gateway.mimir.svc.cluster.local
-      port: 8080
-      selector:
-        app.kubernetes.io/component: gateway
-        app.kubernetes.io/name: mimir
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.mimir.values }}
-      hosts:
-      - repo1.dso.mil
-    kafka-broker:
-      {{- /* Disable single-host entry when wildcard covers it to avoid redundant ServiceEntries */}}
-      enabled: {{ and $kafkaBrokerRouteEnabled (not $kafkaBrokerWildcardRouteEnabled) }}
-      {{- if ne $kafkaBrokerHost "" }}
-      hosts:
-        - {{ $kafkaBrokerHost | quote }}
-      {{- end }}
-      ports:
-        - number: {{ $kafkaBrokerPort }}
-          name: kafka
-          protocol: TCP
-    kafka-broker-wildcard:
-      enabled: {{ $kafkaBrokerWildcardRouteEnabled }}
-      {{- /* resolution: NONE required — Istio rejects wildcard hosts with DNS resolution */}}
-      resolution: NONE
-      {{- if ne $kafkaBrokerClusterDomain "" }}
-      hosts:
-        - {{ printf "*.%s" $kafkaBrokerClusterDomain | quote }}
-      {{- end }}
-      ports:
-        - number: {{ $kafkaBrokerPort }}
-          name: kafka
-          protocol: TCP
-
-networkPolicies:
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  egress:
-    {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
-    definitions:
-      {{- /* Override kafka-subnets with the specific broker CIDR and only the configured port */}}
-      kafka-subnets:
-        to:
-          - ipBlock:
-              cidr: {{ $kafkaBrokerNetworkCIDR }}
+bb-common:
+  istio:
+    hardened:
+      enabled: {{ $istioHardenedEnabled }}
+  
+  routes:
+    inbound:
+      mimir-gateway:
+        enabled: false
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" "public" "root" .)}}
+        hosts:
+          - mimir.{{ .Values.domain }}
+        service: mimir-mimir-gateway.mimir.svc.cluster.local
+        port: 8080
+        selector:
+          app.kubernetes.io/component: gateway
+          app.kubernetes.io/name: mimir
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.mimir.values }}
+        hosts:
+        - repo1.dso.mil
+      kafka-broker:
+        {{- /* Disable single-host entry when wildcard covers it to avoid redundant ServiceEntries */}}
+        enabled: {{ and $kafkaBrokerRouteEnabled (not $kafkaBrokerWildcardRouteEnabled) }}
+        {{- if ne $kafkaBrokerHost "" }}
+        hosts:
+          - {{ $kafkaBrokerHost | quote }}
+        {{- end }}
         ports:
-          - port: {{ $kafkaBrokerPort }}
+          - number: {{ $kafkaBrokerPort }}
+            name: kafka
             protocol: TCP
-    {{- end }}
-    from:
-      mimir:
-        to:
-          k8s:
-            monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
-          definition:
-            storage-subnets: {{ $s3Enabled }}
+      kafka-broker-wildcard:
+        enabled: {{ $kafkaBrokerWildcardRouteEnabled }}
+        {{- /* resolution: NONE required — Istio rejects wildcard hosts with DNS resolution */}}
+        resolution: NONE
+        {{- if ne $kafkaBrokerClusterDomain "" }}
+        hosts:
+          - {{ printf "*.%s" $kafkaBrokerClusterDomain | quote }}
+        {{- end }}
+        ports:
+          - number: {{ $kafkaBrokerPort }}
+            name: kafka
+            protocol: TCP
+  
+  networkPolicies:
+    controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+    egress:
       {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
-      # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
-      # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
-      # operators must provide their broker subnet CIDR to enable network access.
-      # Scoped to distributor (producer) and ingester (consumer) only.
-      mimir-distributor:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: mimir
-            app.kubernetes.io/component: distributor
-        to:
-          definition:
-            kafka-subnets: true
-      mimir-ingester:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: mimir
-            app.kubernetes.io/component: ingester
-        to:
-          definition:
-            kafka-subnets: true
+      definitions:
+        {{- /* Override kafka-subnets with the specific broker CIDR and only the configured port */}}
+        kafka-subnets:
+          to:
+            - ipBlock:
+                cidr: {{ $kafkaBrokerNetworkCIDR }}
+          ports:
+            - port: {{ $kafkaBrokerPort }}
+              protocol: TCP
       {{- end }}
-      rollout-operator:
-        to:
-          k8s:
-            monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
-  ingress:
-    to:
-      mimir:[15020]:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
-      mimir:[8080,9095]:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
-      rollout-operator:[8080,9095]:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
-      rollout-operator:[15020]:
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
+      from:
+        mimir:
+          to:
+            k8s:
+              monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
+            definition:
+              storage-subnets: {{ $s3Enabled }}
+        {{- if and $kafkaEnabled $kafkaBrokerNetworkCIDR }}
+        # Kafka egress is only rendered when brokerNetworkCIDR is explicitly set.
+        # Leaving brokerNetworkCIDR empty intentionally suppresses the egress rule —
+        # operators must provide their broker subnet CIDR to enable network access.
+        # Scoped to distributor (producer) and ingester (consumer) only.
+        mimir-distributor:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: mimir
+              app.kubernetes.io/component: distributor
+          to:
+            definition:
+              kafka-subnets: true
+        mimir-ingester:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: mimir
+              app.kubernetes.io/component: ingester
+          to:
+            definition:
+              kafka-subnets: true
+        {{- end }}
+        rollout-operator:
+          to:
+            k8s:
+              monitoring/grafana:3000: {{ .Values.packages.grafana.enabled }}
+    ingress:
+      to:
+        mimir:[15020]:
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
+        mimir:[8080,9095]:
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+              monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
+        rollout-operator:[8080,9095]:
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+              monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
+        rollout-operator:[15020]:
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ $prometheusEnabled }}
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ .Values.packages.alloy.alloyMetrics.enabled }}
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
