@@ -470,7 +470,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         restrict-host-path-write:
           spec:
             policyRefs:
@@ -479,7 +479,7 @@ packages:
             matchConditions:
             - name: restrict-host-path-write-exclude
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test')) ||
                 (object.metadata.namespace == 'neuvector' && (
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-enforcer-') ||
                   object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('neuvector-manager-')
@@ -492,7 +492,7 @@ packages:
             matchConditions:
             - name: cypress-test
               expression: |-
-                ((object.metadata.namespace in ['anchore', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
+                ((object.metadata.namespace in ['anchore', 'authservice', 'gitlab', 'gitlab-runner', 'kiali', 'cluster-auditor', 'mattermost', 'keycloak', 'kyverno-reporter', 'mimir', 'monitoring', 'vault', 'logging', 'twistlock', 'sonarqube', 'tempo', 'argocd', 'minio', 'minio-operator', 'neuvector', 'harbor', 'fortify', 'thanos', 'alloy', 'headlamp']) && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).contains('-cypress-test'))
         require-drop-all-capabilities:
           spec:
             policyRefs:
@@ -583,30 +583,25 @@ packages:
     license:
       trial: false
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-          - name: "repo1"
-            spec:
+      bb-common:
+        routes:
+          outbound:
+            repo1:
+              enabled: true
               hosts:
-              - repo1.dso.mil
-              location: MESH_EXTERNAL
+                - repo1.dso.mil
               ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
-          - name: "cypress-service-entries-elasticsearchkibana"
-            enabled: true
-            spec:
+                - number: 443
+                  name: https
+                  protocol: TLS
+            cypress-kibana:
+              enabled: true
               hosts:
-              - 'kibana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
+                - kibana.dev.bigbang.mil
               ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
+                - number: 443
+                  name: https
+                  protocol: TLS
       elasticsearch:
         master:
           count: 1
@@ -737,6 +732,20 @@ packages:
         kubeProxy:
           serviceMonitor:
             enabled: false
+        prometheus:
+          prometheusSpec:
+            additionalArgs:
+              - name: storage.tsdb.min-block-duration
+                value: 1m
+              - name: storage.tsdb.max-block-duration
+                value: 1m
+      networkPolicies:
+        egress:
+          from:
+            prometheus:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
       bbtests:
         enabled: true
 
@@ -881,6 +890,9 @@ packages:
       minimal:
         callback_uri: "https://minimal.dev.bigbang.mil/login"
     values:
+      # Commenting out for now as its test requires SSO to be fully configured
+      # bbtests:
+      #   enabled: true
       resources:
         requests:
           memory: 100Mi
@@ -1334,17 +1346,18 @@ packages:
     enabled: false
     values:
       # Minio is only enabled for velero in our test-values so including the netpol required for it here as well
-      networkPolicies:
-        egress:
-          from:
-            velero:
-              to:
-                k8s:
-                  minio/minio-instance:9000:
-                    enabled: true
-                    podSelector:
-                      matchLabels:
-                        v1.min.io/tenant: minio-minio-minio-instance
+      bb-common:
+        networkPolicies:
+          egress:
+            from:
+              velero:
+                to:
+                  k8s:
+                    minio/minio-instance:9000:
+                      enabled: true
+                      podSelector:
+                        matchLabels:
+                          v1.min.io/tenant: minio-minio-minio-instance
       upstream:
         configuration:
           backupStorageLocation:
@@ -1668,21 +1681,21 @@ packages:
                 name: https
               resolution: DNS
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-thanos"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - thanos
-                    - monitoring
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       bbtests:
         enabled: true
         cypress:
           envs:
-            cypress_prometheus_integration_enabled: true
+            cypress_prometheus_integration_enabled: 'true'
         scripts:
           envs:
             THANOS_S3_ENDPOINT: "http://garage:3900"
