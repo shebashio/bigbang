@@ -368,3 +368,71 @@ tests:
       - equal:
           path: bb-common.networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: true
+
+  - it: enables the gitlab and registry routes by default
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.inbound.registry.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.inbound.pages.enabled
+          value: false
+
+  - it: passes a bb-common route disable through to the package overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.bb-common.routes.inbound.gitlab.enabled: false
+      packages.gitlab.values.bb-common.routes.inbound.registry.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: false
+      - equal:
+          path: bb-common.routes.inbound.registry.enabled
+          value: false
+
+  - it: passes bb-common custom route hosts through to the package overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.bb-common.routes.inbound.gitlab.hosts[0]: code.example.com
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.hosts[0]
+          value: code.example.com
+
+  - it: leaves legacy istio route settings under bb-common.istio so the package schema rejects them
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.istio.gitlab.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.gitlab.enabled
+          value: false
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: true
