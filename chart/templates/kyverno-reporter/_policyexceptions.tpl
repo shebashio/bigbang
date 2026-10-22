@@ -13,6 +13,6 @@ kyverno-reporter-auto-mount:
     matchConditions:
       - name: kyverno-reporter
         expression: >-
-          (object.metadata.namespace == 'kyverno-reporter' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).startsWith('kyverno-reporter'))
+          (object.metadata.namespace == 'kyverno-reporter' && object.metadata.?name.orValue(object.metadata.?generateName.orValue('')).matches('^(policy-reporter|kyverno-reporter)(-.*)?$'))
 {{- end }}
 {{- end -}}

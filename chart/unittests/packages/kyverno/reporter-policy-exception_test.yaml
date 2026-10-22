@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Kyverno Policies - Policy Reporter
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - yq eval 'select(.kind == "Secret" and (.metadata.name | test("kyverno-policies-values$"))) | .stringData.defaults' - | yq eval '.'
+tests:
+  - it: includes Policy Reporter workload names and the legacy prefix in its scoped token exception
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.kyvernoReporter.enabled: true
+    asserts:
+      - contains:
+          path: additionalPolicyExceptions.kyverno-reporter-auto-mount.spec.policyRefs
+          content:
+            name: disallow-auto-mount-service-account-token
+            kind: ValidatingPolicy
+      - matchRegex:
+          path: additionalPolicyExceptions.kyverno-reporter-auto-mount.spec.matchConditions[0].expression
+          pattern: namespace == 'kyverno-reporter'
+      - equal:
+          path: _workloadNameMatches
+          value:
+            - name: policy-reporter
+              allowed: true
+            - name: policy-reporter-kyverno-plugin
+              allowed: true
+            - name: policy-reporter-ui
+              allowed: true
+            - name: policy-reporter-abcde-fghij
+              allowed: true
+            - name: policy-reporter-kyverno-plugin-abcde-fghij
+              allowed: true
+            - name: policy-reporter-ui-abcde-fghij
+              allowed: true
+            - name: kyverno-reporter
+              allowed: true
+            - name: kyverno-reporter-abcde-fghij
+              allowed: true
+            - name: policy-reporterevil
+              allowed: false
+            - name: kyverno-reporterevil
+              allowed: false
+            - name: unrelated
+              allowed: false
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - |
+          yq eval 'select(.kind == "Secret" and (.metadata.name | test("kyverno-policies-values$"))) | .stringData.defaults' - |
+          yq eval '
+          (.additionalPolicyExceptions.kyverno-reporter-auto-mount.spec.matchConditions[0].expression |
+            capture("matches[(]\x27(?P<pattern>[^\x27]+)\x27[)]").pattern
+          ) as $pattern |
+          ._workloadNameMatches = (
+            [
+            "policy-reporter",
+            "policy-reporter-kyverno-plugin",
+            "policy-reporter-ui",
+            "policy-reporter-abcde-fghij",
+            "policy-reporter-kyverno-plugin-abcde-fghij",
+            "policy-reporter-ui-abcde-fghij",
+            "kyverno-reporter",
+            "kyverno-reporter-abcde-fghij",
+            "policy-reporterevil",
+            "kyverno-reporterevil",
+            "unrelated"
+          ] |
+            map(. as $name | {"name": $name, "allowed": ($name | test($pattern))})
+          )
+          ' -
+  - it: does not grant the exception when Policy Reporter is disabled
+    set:
+      packages.kyvernoPolicies.enabled: true
+      packages.kyvernoReporter.enabled: false
+    asserts:
+      - notExists:
+          path: additionalPolicyExceptions.kyverno-reporter-auto-mount
