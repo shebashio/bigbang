@@ -116,3 +116,50 @@ tests:
           path: domain
       - notExists:
           path: minio
+
+  - it: configures the Garage S3 route with its explicit host, port, and protocol
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: http://garage:3900
+      packages.thanos.objectStorage.insecure: true
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: garage
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].number
+          value: 3900
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].protocol
+          value: HTTP
+
+  - it: configures an HTTPS S3 endpoint without its scheme in the host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: https://garage.example:9443
+      packages.thanos.objectStorage.insecure: false
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: garage.example
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].number
+          value: 9443
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].protocol
+          value: HTTPS

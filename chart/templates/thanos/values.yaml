@@ -34,6 +34,11 @@
 {{- if and (empty $s3Endpoint) (not (empty $s3Bucket)) (not (empty $s3Region)) }}
   {{- $s3Endpoint = printf "%s.s3.%s.amazonaws.com" $s3Bucket $s3Region }}
 {{- end }}
+{{- $s3HostFull := $s3Endpoint | trimPrefix "https://" | trimPrefix "http://" }}
+{{- $s3Host := index (splitList ":" $s3HostFull) 0 }}
+{{- $s3Host = index (splitList "/" $s3Host) 0 }}
+{{- $s3Port := ternary 80 443 .Values.packages.thanos.objectStorage.insecure }}
+{{- if contains ":" $s3HostFull }}{{- $s3Port = index (splitList ":" $s3HostFull) 1 | int }}{{- end }}
 
 {{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.packages.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
@@ -62,7 +67,11 @@ routes:
     s3:
       enabled: {{ and $istioHardened (not (empty $s3Endpoint)) }}
       hosts:
-      - {{ $s3Endpoint }}
+      - {{ $s3Host }}
+      ports:
+      - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
+        number: {{ $s3Port }}
+        protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
   inbound:
     query-frontend:
       enabled: {{ $istioEnabled }}
