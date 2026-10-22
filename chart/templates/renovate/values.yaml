@@ -1,48 +1,34 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- /* Create secret */ -}}
 {{- if .Values.packages.renovate.enabled }}
-{{- /* Create a cleaned copy of renovate config and merge deprecated paths into current paths */ -}}
-{{- $renovatePackage := deepCopy .Values.packages.renovate -}}
-{{- if .Values.packages.renovate.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.renovate.values) | fromYaml -}}
-{{- $renovatePackage = set $renovatePackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
   "root" $
-  "package" $renovatePackage
+  "package" .Values.packages.renovate
   "name" "renovate"
-  "defaults" (include "bigbang.defaults.renovate" . | fromYaml | toYaml)
-)}}
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.renovate" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.renovate" -}}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.renovate.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
-# hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-  sidecar:
-    enabled: {{ $istioHardenedEnabled }}
 
 {{- include "secretsImagePullSecretsWithName" . }}
 
 image:
   pullPolicy: {{ .Values.imagePullPolicy }}
 
-networkPolicies:
-  egress:
-    from:
-      renovate:
-        to:
-          definition:
-            storage-subnets: true
+bb-common:
+  networkPolicies:
+    egress:
+      from:
+        renovate:
+          to:
+            definition:
+              storage-subnets: true
 
 monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
