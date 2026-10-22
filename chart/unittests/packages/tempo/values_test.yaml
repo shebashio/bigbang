@@ -62,6 +62,20 @@ tests:
       - equal:
           path: upstream.tempo.metricsGenerator.enabled
           value: true
+      - equal:
+          path: upstream.tempo.overrides.defaults.ingestion.rate_limit_bytes
+          value: 30000000
+      - equal:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.ingestion.rate_limit_bytes
+          value: 10485760
+      - equal:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator.processors
+          value: [service-graphs, span-metrics]
+      - lengthEqual:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator.processor.span_metrics.histogram_buckets
+          count: 14
+      - notExists:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator_processors
       - notExists:
           path: networkPolicies
       - notExists:
