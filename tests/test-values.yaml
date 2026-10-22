@@ -808,6 +808,10 @@ packages:
         persistence:
           size: 5Gi
         localVolumeUpgrade: true
+        # Console holds ~9GB of CVE feed in memory; cap the Go heap below the 16Gi limit to avoid OOMKills
+        extraEnv:
+          - name: GOMEMLIMIT
+            value: 13GiB
       defender:
         dockerSocket: "/run/k3s/containerd/containerd.sock"
         selinux: false
