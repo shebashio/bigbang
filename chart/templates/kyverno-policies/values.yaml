@@ -167,8 +167,9 @@ policies:
         pods:
           allow:
             - velero-cleanup-crds-.*
-            - velero-velero-.*
-            - node-agent-.*
+            # Include controller names as well as their generated Pods.
+            - velero(-.*)?
+            - node-agent(-.*)?
             - velero-label-namespace-.*
             - velero-backup-restore-test
       - namespace: neuvector
@@ -239,6 +240,7 @@ policies:
             - monitoring-monitoring-kube-admission-patch.*
             - monitoring-monitoring-kube-admission-create.*
             - monitoring-monitoring-kube-state-metrics.*
+            - monitoring-monitoring-kube-operator(-.*)?
             - monitoring-operator.*
             - prometheus-monitoring-prometheus.*
       - namespace: alloy
