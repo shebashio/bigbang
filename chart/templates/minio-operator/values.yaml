@@ -1,17 +1,11 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if or .Values.packages.minioOperator.enabled .Values.packages.minio.enabled }}
-  {{- $minioOperatorPackage := deepCopy .Values.packages.minioOperator -}}
-
-  {{- if .Values.packages.minioOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.minioOperator.values) | fromYaml -}}
-    {{- $minioOperatorPackage = set $minioOperatorPackage "values" $cleanedValues -}}
-  {{- end -}}
-
   {{- include "values-secret" (dict 
     "root" $ 
-    "package" $minioOperatorPackage 
-    "name" "minio-operator" 
-    "defaults" ((mergeOverwrite (include "bigbang.defaults.minio-operator" . | fromYaml) (include "bigbang.minio-operator.bb-common-migrations" . | fromYaml)) | toYaml)
+    "package" .Values.packages.minioOperator
+    "name" "minio-operator"
+    "bbCommonSubchart" true
+    "defaults" (include "bigbang.defaults.minio-operator" .)
   )}}
 {{- end }}
 
@@ -42,25 +36,21 @@ upstream:
         value: "monitoring"
     {{- end }}
 
-networkPolicies:
-  egress:
-    from:
-      minio-operator:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+bb-common:
+  networkPolicies:
+    egress:
+      from:
+        minio-operator:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
-istio:
-  console:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.packages.minio.ingress.gateway "root" .)}}
-
-routes:
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.minioOperator.values }}
-      hosts:
-      - repo1.dso.mil
+  routes:
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.minioOperator.values }}
+        hosts:
+        - repo1.dso.mil
 
 monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}

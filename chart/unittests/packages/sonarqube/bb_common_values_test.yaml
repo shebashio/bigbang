@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - SonarQube - bb-common migration
+templates:
+  - templates/sonarqube/values.yaml
+tests:
+  - it: nests defaults under bb-common and preserves the kubeAPI CIDR fallback
+    set:
+      packages.sonarqube.enabled: true
+      networkPolicies.controlPlaneCidr: 10.20.0.0/16
+      networkPolicies.vpcCidr: 192.168.0.0/16
+    asserts:
+      - matchRegex:
+          path: stringData.common
+          pattern: '(?s).*bb-common:.*routes:.*'
+      - matchRegex:
+          path: stringData.common
+          pattern: '(?s).*kubeAPI:.*cidr: 10.20.0.0/16.*cidr: 192.168.0.0/16.*'
+      - notMatchRegex:
+          path: stringData.common
+          pattern: '(?m)^networkPolicies:'
+
+  - it: no longer lets legacy allowEgress enable marketplace access
+    set:
+      packages.sonarqube.enabled: true
+      packages.sonarqube.values.networkPolicies.allowEgress.enabled: true
+    asserts:
+      - matchRegex:
+          path: stringData.common
+          pattern: '(?s).*sonarqube-marketplace:\n\s+enabled: false.*'
+      - matchRegex:
+          path: stringData.common
+          pattern: '(?s).*sonarsource-marketplace: false.*'

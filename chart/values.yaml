@@ -380,11 +380,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gateway-api.git
       path: "./chart"
-      tag: 1.6.2-bb.0
+      tag: 1.6.3-bb.0
     helmRepo:
       repoName: "registry1"
       chartName: "gateway-api"
-      tag: 1.6.2-bb.0
+      tag: 1.6.3-bb.0
     # -- Values to passthrough to the Gateway API chart
     values: {}
     # -- Flux reconciliation overrides specifically for the Gateway API Package
@@ -612,11 +612,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
       path: "./chart"
-      tag: "2.33.0-bb.0"
+      tag: "2.33.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "kiali"
-      tag: "2.33.0-bb.0"
+      tag: "2.33.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Kiali Package
     flux:
@@ -931,11 +931,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/fluentbit.git
       path: "./chart"
-      tag: "0.58.3-bb.1"
+      tag: "0.58.3-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "fluentbit"
-      tag: "0.58.3-bb.1"
+      tag: "0.58.3-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Fluent-Bit Package
     flux: {}
@@ -1209,11 +1209,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
       path: "./chart"
-      tag: 31.0.1-bb.0
+      tag: 32.0.1-bb.0
     helmRepo:
       repoName: "registry1"
       chartName: "prometheus-operator-crds"
-      tag: 31.0.1-bb.0
+      tag: 32.0.1-bb.0
     # -- Values to passthrough to the Prometheus Operator CRDs chart
     values: {}
     # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1362,11 +1362,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/twistlock.git
       path: "./chart"
-      tag: "0.31.0-bb.0"
+      tag: "0.31.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "twistlock"
-      tag: "0.31.0-bb.0"
+      tag: "0.31.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Twistlock Package
     flux: {}
@@ -1563,11 +1563,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio-operator.git
       path: "./chart"
-      tag: "7.1.1-bb.11"
+      tag: "7.1.1-bb.13"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-operator"
-      tag: "7.1.1-bb.11"
+      tag: "7.1.1-bb.13"
 
     # -- Flux reconciliation overrides specifically for the Minio Operator Package
     flux: {}
@@ -1592,11 +1592,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/minio.git
       path: "./chart"
-      tag: "7.1.1-bb.25"
+      tag: "7.1.1-bb.26"
     helmRepo:
       repoName: "registry1"
       chartName: "minio-instance"
-      tag: "7.1.1-bb.25"
+      tag: "7.1.1-bb.26"
 
     # -- Flux reconciliation overrides specifically for the Minio Package
     flux: {}
@@ -1792,11 +1792,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/sonarqube.git
       path: "./chart"
-      tag: "2026.5.1002-bb.0"
+      tag: "2026.5.1002-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "sonarqube"
-      tag: "2026.5.1002-bb.0"
+      tag: "2026.5.1002-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Sonarqube Package
     flux: {}
@@ -2212,11 +2212,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/vault.git
       path: "./chart"
-      tag: "0.34.1-bb.3"
+      tag: "0.34.1-bb.5"
     helmRepo:
       repoName: "registry1"
       chartName: "vault"
-      tag: "0.34.1-bb.3"
+      tag: "0.34.1-bb.5"
 
     # -- Flux reconciliation overrides specifically for the Vault Package
     flux:
@@ -2533,12 +2533,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/headlamp.git
-      tag: "0.45.0-bb.2"
+      tag: "0.46.0-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "headlamp"
-      tag: "0.45.0-bb.2"
+      tag: "0.46.0-bb.0"
 
     # -- Override flux settings for this package
     flux: {}

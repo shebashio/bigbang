@@ -10,26 +10,57 @@ tests:
       cmd: "sh"
       args:
         - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.vault.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.vault.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
+          path: bb-common.routes.inbound.vault.passthrough.enabled
+          value: false
+      - equal:
+          path: bb-common.networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/public-ingressgateway:8443"]
+          value: true
+
+  - it: should disable TLS in the package defaults when ingress cert and key are empty
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
         - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
     set:
       packages.vault.enabled: true
     asserts:
       - equal:
-          path: routes.inbound.vault.gateways[0]
-          value: istio-gateway/public-ingressgateway
-      - equal:
-          path: routes.inbound.vault.passthrough.enabled
-          value: false
-      - equal:
           path: upstream.global.tlsDisable
           value: true
       - notExists:
           path: upstream.server.volumes
-      - equal:
-          path: networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/public-ingressgateway:8443"]
-          value: true
 
   - it: should use the passthrough gateway when ingress cert and key are set
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.vault.enabled: true
+      packages.vault.ingress.cert: test-cert
+      packages.vault.ingress.key: test-key
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.vault.gateways[0]
+          value: istio-gateway/passthrough-ingressgateway
+      - equal:
+          path: bb-common.routes.inbound.vault.passthrough.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/passthrough-ingressgateway:8200"]
+          value: true
+
+  - it: should mount the TLS secret in the package defaults when ingress cert and key are set
     postRenderer:
       cmd: "sh"
       args:
@@ -40,12 +71,6 @@ tests:
       packages.vault.ingress.cert: test-cert
       packages.vault.ingress.key: test-key
     asserts:
-      - equal:
-          path: routes.inbound.vault.gateways[0]
-          value: istio-gateway/passthrough-ingressgateway
-      - equal:
-          path: routes.inbound.vault.passthrough.enabled
-          value: true
       - equal:
           path: upstream.global.tlsDisable
           value: false
@@ -61,6 +86,55 @@ tests:
             name: tls
             mountPath: /vault/tls
             readOnly: true
+
+  - it: should read the passthrough gatewayPort override from the bb-common values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.vault.enabled: true
+      packages.vault.ingress.gateway: passthrough
+      packages.vault.values.bb-common.routes.inbound.vault.passthrough.gatewayPort: 9443
+    asserts:
       - equal:
-          path: networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/passthrough-ingressgateway:8200"]
+          path: bb-common.networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/passthrough-ingressgateway:9443"]
           value: true
+
+  - it: should define the kubeAPI and kms egress definitions under bb-common
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.common' - | yq eval '.'"
+    set:
+      packages.vault.enabled: true
+    asserts:
+      - isNotNull:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+      - isNotNull:
+          path: bb-common.networkPolicies.egress.definitions.kms.to[0].ipBlock.cidr
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kms.ports[0].port
+          value: 443
+
+  - it: should move istio, routes and networkPolicies out of the defaults and set global.domain
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval 'select(.metadata.name == \"bb-vault-values\") | .stringData.defaults' - | yq eval '.'"
+    set:
+      packages.vault.enabled: true
+    asserts:
+      - isNotNull:
+          path: global.domain
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies
