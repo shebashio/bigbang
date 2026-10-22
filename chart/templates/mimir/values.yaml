@@ -3,7 +3,7 @@
 {{- if .Values.packages.mimir.enabled }}
 {{- include "values-secret" (dict
   "root" $
-  "package" Values.packages.mimir
+  "package" .Values.packages.mimir
   "name" "mimir"
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.mimir" .)
@@ -12,8 +12,6 @@
 
 {{- define "bigbang.defaults.mimir" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.mimir.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
-
 {{- $s3Enabled := (.Values.packages.mimir.s3ObjectStorage.enabled) }}
 {{- $mimirEnterpriseEnabled := (.Values.packages.mimir.enterprise.enabled) }}
 {{- $prometheusEnabled := and .Values.packages.monitoring.enabled (dig "values" "upstream" "prometheus" "enabled" true .Values.packages.monitoring) }}
@@ -33,10 +31,6 @@ monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}
 
 bb-common:
-  istio:
-    hardened:
-      enabled: {{ $istioHardenedEnabled }}
-  
   routes:
     inbound:
       mimir-gateway:
@@ -78,7 +72,7 @@ bb-common:
           - number: {{ $kafkaBrokerPort }}
             name: kafka
             protocol: TCP
-  
+
   networkPolicies:
     controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
     egress:

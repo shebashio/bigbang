@@ -128,7 +128,7 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "kafka-broker"
 
 - it: should not render kafka config when kafkaIngestStorage is disabled
@@ -164,10 +164,10 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "kafka-broker-wildcard"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "\\*\\.mimir-kafka-test\\.abc123\\.kafka\\.us-gov-west-1\\.amazonaws\\.com"
 
 - it: should override kafka-subnets definition with brokerNetworkCIDR when set
@@ -186,7 +186,7 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "172\\.31\\.0\\.0/16"
 
 - it: should scope kafka egress to distributor and ingester pod selectors only
@@ -205,14 +205,14 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "mimir-distributor"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "mimir-ingester"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "app.kubernetes.io/component: distributor"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "app.kubernetes.io/component: ingester"
