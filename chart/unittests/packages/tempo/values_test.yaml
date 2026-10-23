@@ -42,23 +42,21 @@ tests:
       - equal:
           path: bb-common.networkPolicies.hbonePortInjection.enabled
           value: true
-  - it: maps domain and upgrade CIDR without flattening subchart values
+  - it: maps domain and runtime overrides without flattening subchart values
     postRenderer:
       cmd: sh
       args: ["-c", "yq '.stringData.defaults | from_yaml'"]
     set:
       packages.tempo.enabled: true
       domain: example.mil
-      networkPolicies.controlPlaneCidr: 10.0.0.1/32
       packages.tempo.metricsGenerator.enabled: true
       packages.monitoring.enabled: true
     asserts:
       - equal:
           path: global.domain
           value: example.mil
-      - equal:
+      - notExists:
           path: upgradeJob.controlPlaneCidr
-          value: 10.0.0.1/32
       - equal:
           path: upstream.tempo.metricsGenerator.enabled
           value: true
@@ -80,6 +78,29 @@ tests:
           path: networkPolicies
       - notExists:
           path: routes
+  - it: passes the shared kubeAPI definition to the subchart
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 10.0.0.10/32
+        ports:
+          - port: 6443
+            protocol: TCP
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI
+          value:
+            to:
+              - ipBlock:
+                  cidr: 10.0.0.10/32
+            ports:
+              - port: 6443
+                protocol: TCP
   - it: allows storage egress when object storage is configured
     postRenderer:
       cmd: sh

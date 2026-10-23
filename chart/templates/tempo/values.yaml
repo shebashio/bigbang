@@ -76,9 +76,6 @@ upstream:
 global:
   domain: {{ $domainName }}
 
-upgradeJob:
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-
 bb-common:
   routes:
     inbound:
