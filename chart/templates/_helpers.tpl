@@ -510,8 +510,9 @@ Args (dict):
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}
-{{- /* injection is a library-chart-era concept; drop it once bb-common is a real subchart. */ -}}
-{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection") }}
+{{- /* injection and hardened are Big Bang-only controls, not bb-common subchart values.
+       commonPackageDefaults has already derived hardened.enabled into sidecar.enabled. */ -}}
+{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection" "hardened") }}
 {{- end }}
 {{- $commonBlock = dict "bb-common" $commonBlock }}
 {{- /* istio/networkPolicies/routes are fully captured above (common already reflects
