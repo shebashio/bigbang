@@ -1139,14 +1139,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/tempo.git
       path: "./chart"
-      # Draft migration testing; replace branch with tag 3.2.0-bb.1 after publication.
-      tag: ""
-      branch: "168-bb-common-subchart"
+      tag: "3.2.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "tempo"
-      # Helm repository deployment requires the published 3.2.0-bb.1 artifact.
-      tag: ""
+      tag: "3.2.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Tempo Package
     flux: {}

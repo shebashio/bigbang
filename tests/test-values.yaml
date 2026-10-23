@@ -686,10 +686,6 @@ packages:
         replicas: 3
 
   tempo:
-    # Test the coordinated subchart migration until 3.2.0-bb.1 is published.
-    git:
-      tag: ""
-      branch: 168-bb-common-subchart
     values:
       bbtests:
         enabled: true
