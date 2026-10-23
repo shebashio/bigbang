@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 setup() {
-    export REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/../../.." && pwd)"
+    export REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}" && git rev-parse --show-toplevel)"
 }
 
 @test "ambient overlay retains Vault ingress certificates" {
