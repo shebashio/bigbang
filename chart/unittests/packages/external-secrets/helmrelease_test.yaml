@@ -103,5 +103,5 @@ tests:
           values: {}
     asserts:
       - matchRegex:
-          path: stringData.defaults
-          pattern: "kubeAPI: false"
+          path: stringData.common
+          pattern: "(?s)bb-common:.*kubeAPI: false"
