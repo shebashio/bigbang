@@ -118,6 +118,12 @@ bb-common:
               alloy-alloy-receiver@alloy/alloy-receiver: {{ .Values.packages.alloy.enabled }}
     egress:
       from:
+        {{- with (dig "upgradeJob" "name" "" .Values.packages.tempo.values) }}
+        tempo-upgrade-job:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ . | quote }}
+        {{- end }}
         tempo:
           to:
             k8s:
