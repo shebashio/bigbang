@@ -78,6 +78,18 @@ tests:
           path: networkPolicies
       - notExists:
           path: routes
+  - it: keeps the upgrade policy selector aligned with a custom Job name
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.tempo.values.upgradeJob.name: custom-tempo-upgrade
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from.tempo-upgrade-job.podSelector.matchLabels
+          value:
+            app.kubernetes.io/name: custom-tempo-upgrade
   - it: passes the shared kubeAPI definition to the subchart
     postRenderer:
       cmd: sh
