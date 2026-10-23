@@ -8,26 +8,71 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.argocd.enabled: true
-      addons.argocd.redis.host: redis.example.internal
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.example.internal
     asserts:
       - equal:
-          path: routes.outbound["external-redis"].enabled
+          path: bb-common.routes.outbound["external-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-redis"].hosts[0]
           value: redis.example.internal
       - equal:
-          path: routes.outbound["external-redis"].ports[0].number
+          path: bb-common.routes.outbound["external-redis"].ports[0].number
           value: 6379
+      - equal:
+          path: bb-common.networkPolicies.egress.from["*"].to.definition.redis-subnets
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
+          value: false
+
+  - it: should configure the external Redis endpoint in the package defaults
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+      packages.argocd.redis.host: redis.example.internal
+    asserts:
       - equal:
           path: upstream.externalRedis.port
           value: 6379
-      - equal:
-          path: networkPolicies.egress.from["*"].to.definition.redis-subnets
-          value: true
-      - equal:
-          path: networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
-          value: false
+
+  - it: should only render the external Redis route when an external Redis host is set
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+    asserts:
+      - notExists:
+          path: bb-common.routes.outbound["external-redis"]
+
+  - it: should move istio, routes and networkPolicies out of the defaults and under bb-common
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+    asserts:
+      - isNotNull:
+          path: global.domain
+      - notExists:
+          path: domain
+      - notExists:
+          path: hostname
+      - notExists:
+          path: istio
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Mimir - Cortex Tenant example values
+templates:
+  - templates/mimir/values.yaml
+values:
+  - ../../../../docs/reference/configs/example/alloy-cortex-tenant-mimir-values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+tests:
+  - it: allows Cortex Tenant to reach only the distributor write endpoint
+    asserts:
+      - equal:
+          path: networkPolicies.ingress.to.mimir-distributor:8080.from.k8s.cortex-tenant/cortex-tenant
+          value: true

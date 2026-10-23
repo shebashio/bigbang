@@ -1,27 +1,20 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.argocd.enabled }}
-# handle legacy istio hardened keys in argocd values
-{{- $argocdPackage := deepCopy .Values.addons.argocd -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.argocd.values) | fromYaml -}}
-{{- $argocdPackage = set $argocdPackage "values" $cleanedValues -}}
-
+{{- if .Values.packages.argocd.enabled }}
 {{- include "values-secret" (dict
   "root" $
-  "package" $argocdPackage
+  "package" .Values.packages.argocd
   "name" "argocd"
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.argocd" . | fromYaml) (include "bigbang.argocd.bb-common-migrations" . | fromYaml)) | toYaml)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.argocd" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.argocd" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $externalRedisEnabled := not (empty .Values.addons.argocd.redis.host) }}
-{{- $externalRedisPort := default 6379 .Values.addons.argocd.redis.port }}
+{{- $externalRedisEnabled := not (empty .Values.packages.argocd.redis.host) }}
+{{- $externalRedisPort := default 6379 .Values.packages.argocd.redis.port }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
-
 redis-bb:
   networkPolicy:
     enabled: {{ .Values.networkPolicies.enabled }}
@@ -48,7 +41,7 @@ redis-bb:
         selector:
           app.kubernetes.io/name: redis-bb
           app.kubernetes.io/instance: argocd-argocd
-        {{- if eq (include "metricsSidecarMtls" (list .Values.addons.argocd .)) "true" }}
+        {{- if eq (include "metricsSidecarMtls" (list .Values.packages.argocd .)) "true" }}
         scheme: https
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
@@ -75,7 +68,7 @@ redis-bb:
 createNamespace: false
 
 global:
-  {{- $argocdHosts := (dig "istio" "argocd" "hosts" dict .Values.addons.argocd.values) }}
+  {{- $argocdHosts := (dig "bb-common" "routes" "inbound" "argocd" "hosts" list .Values.packages.argocd.values) }}
   {{- if $argocdHosts }}
   domain: {{ tpl ($argocdHosts | first) $ }}
   {{- else }}
@@ -88,7 +81,7 @@ global:
   podAnnotations:
     {{ include "istioAnnotation" . }}
 {{- end }}
-{{- if .Values.kiali.enabled }}
+{{- if .Values.packages.kiali.enabled }}
   podLabels:
     service.istio.io/canonical-name: argocd-argocd
 {{- end }}
@@ -101,7 +94,7 @@ routes:
     argocd:
       enabled: true
       gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.argocd.ingress.gateway "root" .)}}
+      - {{ include "getGatewayName" (dict "gateway" .Values.packages.argocd.ingress.gateway "root" .)}}
       hosts:
       - argocd.{{ $domainName }}
       service: argocd-argocd-server
@@ -111,19 +104,19 @@ routes:
         app.kubernetes.io/name: argocd-server
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.argocd.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.argocd.values }}
       hosts:
       - 'repo1.dso.mil'
+    {{- if $externalRedisEnabled }}
     external-redis:
-      enabled: {{ $externalRedisEnabled }}
-      {{- if $externalRedisEnabled }}
+      enabled: true
       hosts:
-      - {{ .Values.addons.argocd.redis.host | quote }}
+      - {{ .Values.packages.argocd.redis.host | quote }}
       ports:
       - number: {{ $externalRedisPort }}
         name: redis
         protocol: TCP
-      {{- end }}
+    {{- end }}
 
 networkPolicies:
   ingress:
@@ -132,28 +125,45 @@ networkPolicies:
       argocd-server:8083:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       # -- Ingress to argocd-repo-server for metrics from prometheus
       argocd-repo-server:8084:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       # -- Ingress to argocd-application-controller for metrics from prometheus
       argocd-application-controller:8082:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       # -- Ingress to redis from grafana for dashboards
       redis-bb:6379:
         from:
           k8s:
-            monitoring/grafana: {{ and (not $externalRedisEnabled) (dig "redis-bb" "enabled" true .Values.addons.argocd.values) .Values.grafana.enabled }}
+            monitoring/grafana: {{ and (not $externalRedisEnabled) (dig "redis-bb" "enabled" true .Values.packages.argocd.values) .Values.packages.grafana.enabled }}
       # -- Ingress to redis-exporter for metrics from prometheus
       redis-bb:9121:
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisEnabled) (dig "redis-bb" "enabled" true .Values.addons.argocd.values) .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisEnabled) (dig "redis-bb" "enabled" true .Values.packages.argocd.values) .Values.packages.monitoring.enabled }}
   egress:
+  {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
+    definitions:
+      kubeAPI:
+        to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+            except:
+            - 169.254.169.254/32
+            {{- end }}
+        {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+        {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.vpcCidr }}
+        {{- end }}
+        {{- end }}
+  {{- end }}
     from:
       # -- Egress to tempo for tracing from all pods
       "*":
@@ -161,46 +171,46 @@ networkPolicies:
           definition:
             redis-subnets: {{ $externalRedisEnabled }}
           k8s:
-            tempo/tempo:9411: {{ and .Values.tempo.enabled (ne (include "ambientEnabled" .) "true") }}
+            tempo/tempo:9411: {{ and .Values.packages.tempo.enabled (ne (include "ambientEnabled" .) "true") }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
   cypress:
     envs:
       cypress_url: {{ printf "https://argocd.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.argocd "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.argocd "values" .Values) | nindent 6 }}
   scripts:
     envs:
       ARGOCD_SERVER: {{ printf "https://argocd.%s" $domainName | quote }}
 
 upstream:
-  {{- if .Values.addons.argocd.redis.host }}
+  {{- if .Values.packages.argocd.redis.host }}
   externalRedis: 
-    host: {{ default "argocd-argocd-redis-bb-headless.argocd.svc.cluster.local" .Values.addons.argocd.redis.host }}
-    port: {{ default 6379 .Values.addons.argocd.redis.port }}
+    host: {{ default "argocd-argocd-redis-bb-headless.argocd.svc.cluster.local" .Values.packages.argocd.redis.host }}
+    port: {{ default 6379 .Values.packages.argocd.redis.port }}
   {{- end }}
-  {{- if .Values.addons.argocd.sso.enabled }}
+  {{- if .Values.packages.argocd.sso.enabled }}
   configs:
     cm:
       oidc.config: |
-        name: {{ default .Values.sso.name .Values.addons.argocd.sso.provider_name }}
+        name: {{ default .Values.sso.name .Values.packages.argocd.sso.provider_name }}
         issuer: {{ include "sso.url" . }}
-        clientID: {{ .Values.addons.argocd.sso.client_id }}
-        clientSecret: {{ .Values.addons.argocd.sso.client_secret }}
+        clientID: {{ .Values.packages.argocd.sso.client_id }}
+        clientSecret: {{ .Values.packages.argocd.sso.client_secret }}
         requestedScopes: ["openid","ArgoCD"]
         {{- if (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
         rootCA: |
           {{- default (dig "certificateAuthority" "cert" "" .Values.sso) .Values.sso.certificate_authority | nindent 10 }}
         {{- end }}
-    {{- if .Values.addons.argocd.sso.groups }}
+    {{- if .Values.packages.argocd.sso.groups }}
     rbac:
       policy.csv: |
-        {{- .Values.addons.argocd.sso.groups | nindent 8 }}
+        {{- .Values.packages.argocd.sso.groups | nindent 8 }}
     {{- end }}
-    {{- if .Values.addons.argocd.sso.client_secret }}
+    {{- if .Values.packages.argocd.sso.client_secret }}
     secret:
       extra:
-        keycloakClientSecret: {{ .Values.addons.argocd.sso.client_secret }}
+        keycloakClientSecret: {{ .Values.packages.argocd.sso.client_secret }}
     {{- end }} 
   {{- end }}
   openshift:
@@ -209,7 +219,7 @@ upstream:
   controller:
     image:
       imagePullPolicy: {{ .Values.imagePullPolicy }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.argocd .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.argocd .)) "true" }}
     metrics:
       serviceMonitor:
         scheme: https
@@ -232,7 +242,7 @@ upstream:
     config:
       # Must be enabled for plugins included in PlatformOne image.
       kustomize.buildOptions: "--enable-alpha-plugins"
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.argocd .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.argocd .)) "true" }}
     metrics:
       serviceMonitor:
         scheme: https
@@ -256,7 +266,7 @@ upstream:
     - secretRef:
         name: argocd-iam-secret
     {{- end }}     
-    {{- if eq (include "metricsSidecarMtls" (list .Values.addons.argocd .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.argocd .)) "true" }}
     metrics:
       serviceMonitor:
         scheme: https

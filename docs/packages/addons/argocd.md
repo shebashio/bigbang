@@ -51,7 +51,7 @@ ArgoCD an be configured to support user login to the UI using identities from ex
 See below for an example of the values to provide to argocd for SSO setup:
 
 ```yaml
-addons:
+packages:
   argocd:
     sso:
       enabled: true
@@ -80,7 +80,7 @@ Caveats:
 The following is an example of how to modify the Big Bang values to accommodate a HA deployment.
 
 ```yaml
-addons:
+packages:
   argocd:
     values:
       controller:
@@ -125,7 +125,7 @@ istio:
 If you need to alter the VirtualService host out of band you will also need to configure the argocd `config.url` to match:
 
 ```yaml
-addons:
+packages:
   argocd:
     values:
       # -- Manage Argo CD configmap (Declarative Setup)
@@ -145,7 +145,7 @@ Argo CD logs payloads of most API requests except request that are considered se
 An example of how to modify the argocd logging values within Big Bang is as follows:
 
 ```yaml
-addons:
+packages:
   argocd:
     values:
       controller:

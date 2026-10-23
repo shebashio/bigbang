@@ -3,6 +3,55 @@ suite: Package - Fluentbit - Values Tests
 templates:
   - templates/fluentbit/values.yaml
 tests:
+  - it: should nest bb-common config in the common block
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.fluentbit.enabled: true
+      packages.fluentbit.values.bbtests.enabled: true
+    asserts:
+      - exists:
+          path: bb-common.istio
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+      - notExists:
+          path: bb-common.networkPolicies.controlPlaneCidr
+      - equal:
+          path: bb-common.routes.outbound.bb-tests.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.fluent-bit.to.definition.kubeAPI.enabled
+          value: true
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: should not carry bb-common config in the defaults block
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.fluentbit.enabled: true
+    asserts:
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: bb-common
+
   - it: should merge external elastic definition and enable egress rule
     postRenderer:
       cmd: "sh"
@@ -10,25 +59,25 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      fluentbit.values.networkPolicies.egress.definitions.external-elastic:
+      packages.fluentbit.enabled: true
+      packages.fluentbit.values.bb-common.networkPolicies.egress.definitions.external-elastic:
         to:
           - ipBlock:
               cidr: 203.0.113.10/32
         ports:
           - port: 9200
             protocol: TCP
-      fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-elastic:
+      packages.fluentbit.values.bb-common.networkPolicies.egress.from.fluent-bit.to.definition.external-elastic:
         enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.definitions.external-elastic.to[0].ipBlock.cidr
+          path: bb-common.networkPolicies.egress.definitions.external-elastic.to[0].ipBlock.cidr
           value: 203.0.113.10/32
       - equal:
-          path: networkPolicies.egress.definitions.external-elastic.ports[0].port
+          path: bb-common.networkPolicies.egress.definitions.external-elastic.ports[0].port
           value: 9200
       - equal:
-          path: networkPolicies.egress.from.fluent-bit.to.definition.external-elastic.enabled
+          path: bb-common.networkPolicies.egress.from.fluent-bit.to.definition.external-elastic.enabled
           value: true
 
   - it: should use label allowlist with auto_kubernetes_labels off when loki is enabled
@@ -38,8 +87,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      loki.enabled: true
+      packages.fluentbit.enabled: true
+      packages.loki.enabled: true
     asserts:
       - matchRegex:
           path: upstream.config.outputs
@@ -51,30 +100,30 @@ tests:
           path: upstream.config.outputs
           pattern: "auto_kubernetes_labels on"
 
-  - it: should merge external fluentd definition and enable egress rule
+  - it: should fold flat networkPolicies overrides into the bb-common common block
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.overlays' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      fluentbit.enabled: true
-      fluentbit.values.networkPolicies.egress.definitions.external-fluentd:
+      packages.fluentbit.enabled: true
+      packages.fluentbit.values.networkPolicies.egress.definitions.external-fluentd:
         to:
           - ipBlock:
               cidr: 198.51.100.0/24
         ports:
           - port: 24224
             protocol: TCP
-      fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd:
+      packages.fluentbit.values.networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd:
         enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.definitions.external-fluentd.to[0].ipBlock.cidr
+          path: bb-common.networkPolicies.egress.definitions.external-fluentd.to[0].ipBlock.cidr
           value: 198.51.100.0/24
       - equal:
-          path: networkPolicies.egress.definitions.external-fluentd.ports[0].port
+          path: bb-common.networkPolicies.egress.definitions.external-fluentd.ports[0].port
           value: 24224
       - equal:
-          path: networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd.enabled
+          path: bb-common.networkPolicies.egress.from.fluent-bit.to.definition.external-fluentd.enabled
           value: true

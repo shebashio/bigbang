@@ -4,8 +4,8 @@ tests:
   - it: should render the GitRepository when ambient is enabled via ztunnel
     template: gateway-api/gitrepository.yaml
     set:
-      ztunnel.enabled: true
-      gatewayAPI.sourceType: git
+      packages.ztunnel.enabled: true
+      packages.gatewayAPI.sourceType: git
       offline: false
     asserts:
       - isKind:
@@ -17,7 +17,7 @@ tests:
   - it: should render the values secret when ambient is enabled via ztunnel
     template: gateway-api/values.yaml
     set:
-      ztunnel.enabled: true
+      packages.ztunnel.enabled: true
     asserts:
       - isKind:
           of: Secret

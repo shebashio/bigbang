@@ -2,8 +2,8 @@
 {{- $pkg := "thanos" }}
 
 {{- /* Create secret */ -}}
-{{- if (get .Values.addons $pkg).enabled }}
-  {{- $package := deepCopy (get .Values.addons $pkg) -}}
+{{- if (get .Values.packages $pkg).enabled }}
+  {{- $package := deepCopy (get .Values.packages $pkg) -}}
   {{- if $package.values -}}
     {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $package.values) | fromYaml -}}
     {{- $package = set $package "values" $cleanedValues -}}
@@ -20,23 +20,27 @@
 {{- define "bigbang.defaults.thanos" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $authserviceEnabled := eq (include "authserviceEnabled" .) "true" }}
-{{- $thanosUsesAuthservice := or .Values.addons.authservice.enabled (and .Values.addons.thanos.sso.enabled $authserviceEnabled) }}
+{{- $thanosUsesAuthservice := or .Values.packages.authservice.enabled (and .Values.packages.thanos.sso.enabled $authserviceEnabled) }}
 {{- $thanosAuthserviceWaypoint := eq (include "thanos.authservice.waypointEnabled" .) "true" }}
 {{- $istioHardened := or
-  (dig "istio" "hardened" "enabled" false .Values.addons.thanos.values)
-  (dig "hardened" "enabled" false .Values.istiod.values)
+  (dig "istio" "hardened" "enabled" false .Values.packages.thanos.values)
+  (dig "hardened" "enabled" false .Values.packages.istiod.values)
 }}
 
-{{- $s3Bucket := .Values.addons.thanos.objectStorage.bucket }}
-{{- $s3Region := .Values.addons.thanos.objectStorage.region }}
-{{- $s3Endpoint := .Values.addons.thanos.objectStorage.endpoint }}
+{{- $s3Bucket := .Values.packages.thanos.objectStorage.bucket }}
+{{- $s3Region := .Values.packages.thanos.objectStorage.region }}
+{{- $s3Endpoint := .Values.packages.thanos.objectStorage.endpoint }}
 {{- if and (empty $s3Endpoint) (not (empty $s3Bucket)) (not (empty $s3Region)) }}
   {{- $s3Endpoint = printf "%s.s3.%s.amazonaws.com" $s3Bucket $s3Region }}
 {{- end }}
+{{- $s3HostFull := $s3Endpoint | trimPrefix "https://" | trimPrefix "http://" }}
+{{- $s3Host := index (splitList ":" $s3HostFull) 0 }}
+{{- $s3Host = index (splitList "/" $s3Host) 0 }}
+{{- $s3Port := ternary 80 443 .Values.packages.thanos.objectStorage.insecure }}
+{{- if contains ":" $s3HostFull }}{{- $s3Port = index (splitList ":" $s3HostFull) 1 | int }}{{- end }}
 
-{{- $shouldEnableMinio := or (and (eq .Values.addons.thanos.strategy "scalable") (not (and .Values.addons.thanos.objectStorage.endpoint .Values.addons.thanos.objectStorage.region))) (dig "minio" "enabled" false .Values.addons.thanos.values) -}}
-{{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.addons.thanos.values }}
-{{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.addons.thanos.objectStorage.endpoint)) }}
+{{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.packages.thanos.values }}
+{{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
 
 image:
   {{- include "secretsPullSecretsWithName" . | nindent 2 }}
@@ -50,12 +54,60 @@ externalURL: https://thanos.{{ .Values.domain }}
 
 domain: {{ .Values.domain }}
 
+istio:
+  {{- if $thanosAuthserviceWaypoint }}
+  prependReleaseName: true
+  {{- end }}
+  sidecar:
+    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+    outboundTrafficPolicyMode: REGISTRY_ONLY
+  {{- if and $istioHardened (contains "s3" $s3Endpoint) }}
+  serviceEntries:
+    custom:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - "{{ .Values.packages.thanos.objectStorage.bucket }}.{{ $s3Host }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: 443
+              protocol: TLS
+              name: https
+          resolution: DNS
+  {{- else if and $istioHardened (not (empty $s3Endpoint)) }}
+  serviceEntries:
+    custom:
+      - name: egress-object-store
+        enabled: true
+        spec:
+          hosts:
+          - "{{ $s3Host }}"
+          location: MESH_EXTERNAL
+          ports:
+            - number: {{ $s3Port }}
+              {{- if .Values.packages.thanos.objectStorage.insecure }}
+              protocol: HTTP
+              name: http
+              {{- else }}
+              protocol: TLS
+              name: https
+              {{- end }}
+          resolution: DNS
+  {{- else }}
+  serviceEntries:
+    custom: []
+  {{- end }}
 routes:
   outbound:
     s3:
       enabled: {{ and $istioHardened (not (empty $s3Endpoint)) }}
       hosts:
-      - {{ $s3Endpoint }}
+      - {{ $s3Host }}
+      ports:
+      - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
+        number: {{ $s3Port }}
+        protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
   inbound:
     query-frontend:
       enabled: {{ $istioEnabled }}
@@ -68,29 +120,8 @@ routes:
         enabled: true
         ingressOnly: true
         issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.addons.thanos.sso.client_id | quote }}
+        clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
       {{- end }}
-    minio:
-      enabled: {{ and $istioEnabled $shouldEnableMinio }}
-      gateways:
-      - istio-gateway/public-ingressgateway
-      hosts:
-      - thanos-minio.{{ .Values.domain }}
-
-{{- if $thanosAuthserviceWaypoint }}
-istio:
-  prependReleaseName: true
-{{- end }}
-
-minio:
-  enabled: {{ $shouldEnableMinio }}
-  {{- if $shouldEnableMinio }}
-  upstream:
-    tenant:
-      {{- include "secretsImagePullSecretWithName" . | nindent 6 }}
-      metrics:
-        enabled: {{ .Values.monitoring.enabled }}
-  {{- end }}
 
 networkPolicies:
   egress:
@@ -106,7 +137,7 @@ networkPolicies:
             app.kubernetes.io/component: query
         to:
           k8s:
-            monitoring/prometheus:10901: {{ .Values.monitoring.enabled }}
+            monitoring/prometheus:10901: {{ .Values.packages.monitoring.enabled }}
       thanos-query-frontend:
         podSelector:
           matchLabels:
@@ -125,12 +156,6 @@ networkPolicies:
             storage-subnets: {{ $storeGatewayEnabled }}
   ingress:
     to:
-      minio:9000:
-        from:
-          k8s:
-            minio-operator@minio-operator/minio-operator: {{ $shouldEnableMinio }}
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
       thanos-query-frontend:9090:
         podSelector:
           matchLabels:
@@ -138,10 +163,10 @@ networkPolicies:
             app.kubernetes.io/component: query-frontend
         from:
           definition:
-            gateway: {{ .Values.istioGateway.enabled }}
+            gateway: {{ .Values.packages.istioGateway.enabled }}
           k8s:
-            authservice/authservice: {{ and .Values.addons.thanos.sso.enabled (not .Values.addons.authservice.enabled) }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            authservice/authservice: {{ and .Values.packages.thanos.sso.enabled (not .Values.packages.authservice.enabled) }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-query:10902:
         podSelector:
           matchLabels:
@@ -149,8 +174,8 @@ networkPolicies:
             app.kubernetes.io/component: query
         from:
           k8s:
-            monitoring-grafana@monitoring/grafana: {{ .Values.grafana.enabled }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-storegateway:10902:
         podSelector:
           matchLabels:
@@ -158,7 +183,7 @@ networkPolicies:
             app.kubernetes.io/component: storegateway
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-compactor:10902:
         podSelector:
           matchLabels:
@@ -166,7 +191,7 @@ networkPolicies:
             app.kubernetes.io/component: compactor
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-bucketweb:8080:
         podSelector:
           matchLabels:
@@ -174,7 +199,7 @@ networkPolicies:
             app.kubernetes.io/component: bucketweb
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-ruler:10902:
         podSelector:
           matchLabels:
@@ -182,7 +207,7 @@ networkPolicies:
             app.kubernetes.io/component: ruler
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
       thanos-receive:10902:
         podSelector:
           matchLabels:
@@ -190,13 +215,13 @@ networkPolicies:
             app.kubernetes.io/component: receive
         from:
           k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 upstream:
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.monitoring.enabled }}
   metrics:
     enabled: true
     image:
@@ -213,10 +238,10 @@ upstream:
       # With Istio, the combination of headless service + TCP port will create an entry
       # for each pod IP:PORT and that makes communication via IP:PORT viable
       enabled: false
-    {{- if or .Values.monitoring.enabled $storeGatewayEnabled }}
+    {{- if or .Values.packages.monitoring.enabled $storeGatewayEnabled }}
     stores:
     {{- end }}
-      {{- if .Values.monitoring.enabled }}
+      {{- if .Values.packages.monitoring.enabled }}
       - dns+monitoring-monitoring-kube-thanos-discovery.monitoring.svc.cluster.local:10901
       {{- end }}
       {{- if $storeGatewayEnabled }}
@@ -226,11 +251,11 @@ upstream:
       enabled: false
 
   queryFrontend:
-    {{- if or .Values.addons.thanos.sso.enabled .Values.kiali.enabled }}
+    {{- if or .Values.packages.thanos.sso.enabled .Values.packages.kiali.enabled }}
     podLabels:
-      {{- if .Values.addons.thanos.sso.enabled }}
-      {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-      {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+      {{- if .Values.packages.thanos.sso.enabled }}
+      {{- $thanosAuthserviceKey := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+      {{- $thanosAuthserviceValue := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
       {{ $thanosAuthserviceKey }}: {{ $thanosAuthserviceValue }}
       {{- end }}
     {{- end }}
@@ -256,22 +281,22 @@ upstream:
     networkPolicy:
       enabled: false
 
-  {{- if or (dig "values" "upstream" "compactor" "enabled" false .Values.addons.thanos) .Values.addons.thanos.objectStorage.endpoint }}
+  {{- if or (dig "values" "upstream" "compactor" "enabled" false .Values.packages.thanos) .Values.packages.thanos.objectStorage.endpoint }}
   compactor:
     enabled: true
     networkPolicy:
       enabled: false
   {{- end }}
 
-  {{- if .Values.addons.thanos.objectStorage.endpoint }}
+  {{- if .Values.packages.thanos.objectStorage.endpoint }}
   objstoreConfig: |-
     type: s3
     config:
-      bucket: {{ .Values.addons.thanos.objectStorage.bucket }}
-      endpoint: {{ .Values.addons.thanos.objectStorage.endpoint }}
-      access_key: {{ .Values.addons.thanos.objectStorage.accessKey }}
-      secret_key: {{ .Values.addons.thanos.objectStorage.accessSecret }}
-      insecure: {{ .Values.addons.thanos.objectStorage.insecure }}
+      bucket: {{ .Values.packages.thanos.objectStorage.bucket }}
+      endpoint: {{ .Values.packages.thanos.objectStorage.endpoint }}
+      access_key: {{ .Values.packages.thanos.objectStorage.accessKey }}
+      secret_key: {{ .Values.packages.thanos.objectStorage.accessSecret }}
+      insecure: {{ .Values.packages.thanos.objectStorage.insecure }}
   {{- end }}
 
   storegateway:
@@ -283,6 +308,6 @@ bbtests:
   cypress:
     envs:
       cypress_thanos_url: https://thanos.{{ .Values.domain }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.thanos "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.thanos "values" .Values) | nindent 6 }}
 
 {{- end }}

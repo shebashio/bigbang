@@ -10,8 +10,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.overlays' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
-      addons.mattermost.values:
+      packages.mattermost.enabled: true
+      packages.mattermost.values:
         routes:
           inbound:
             chat:
@@ -29,7 +29,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
+      packages.mattermost.enabled: true
       networkPolicies.controlPlaneCidr: "10.0.0.0/8"
     asserts:
       - exists:
@@ -45,7 +45,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
+      packages.mattermost.enabled: true
       networkPolicies.controlPlaneCidr: "10.0.0.0/8"
       networkPolicies.vpcCidr: "172.16.0.0/12"
     asserts:

@@ -12,7 +12,7 @@ postRenderer:
 tests:
   - it: should create kubeAPI ingress NetworkPolicy for webhook with default CIDRs
     set:
-      gatekeeper.enabled: true
+      packages.gatekeeper.enabled: true
       networkPolicies.enabled: true
     documentSelector:
       path: metadata.name
@@ -39,7 +39,7 @@ tests:
 
   - it: should create kubeAPI ingress NetworkPolicy with custom CIDRs when overridden
     set:
-      gatekeeper.enabled: true
+      packages.gatekeeper.enabled: true
       networkPolicies.enabled: true
       networkPolicies.ingress.definitions.kubeAPI:
         from:

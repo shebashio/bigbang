@@ -3,55 +3,59 @@ suite: Schema - Base Package Helm Repo
 tests:
   - it: should pass validation with valid helmRepo configuration
     set:
-      kiali:
-        enabled: true
-        sourceType: "helmRepo"
-        helmRepo:
-          repoName: "repo"
-          chartName: "kiali"
-          tag: "1.65.0-bb.0"
+      packages:
+        kiali:
+          enabled: true
+          sourceType: "helmRepo"
+          helmRepo:
+            repoName: "repo"
+            chartName: "kiali"
+            tag: "1.65.0-bb.0"
     asserts:
       - notFailedTemplate: {}
 
   - it: should pass validation with helmRepo even when git config is invalid
     set:
-      kiali:
-        sourceType: "helmRepo"
-        helmRepo:
-          repoName: "registry1"
-          chartName: "kiali"
-          tag: "1.65.0-bb.0"
-        git:
-          repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
-          path: "./chart"
-          tag: null
-          commit: "1234"
+      packages:
+        kiali:
+          sourceType: "helmRepo"
+          helmRepo:
+            repoName: "registry1"
+            chartName: "kiali"
+            tag: "1.65.0-bb.0"
+          git:
+            repo: https://repo1.dso.mil/big-bang/product/packages/kiali.git
+            path: "./chart"
+            tag: null
+            commit: "1234"
     asserts:
       - notFailedTemplate: {}
 
-  - it: should fail validation with helmRepo missing required repoName
+  - it: should fail validation with helmRepo invalid repoName type
     set:
-      kiali:
-        enabled: true
-        sourceType: "helmRepo"
-        helmRepo:
-          repoName: null
-          chartName: "kiali"
-          tag: "1.65.0-bb.0"
+      packages:
+        kiali:
+          enabled: true
+          sourceType: "helmRepo"
+          helmRepo:
+            repoName: 123
+            chartName: "kiali"
+            tag: "1.65.0-bb.0"
     asserts:
       - failedTemplate:
           errorPattern: ".*"
 
-  - it: should fail validation with helmRepo missing repoName and extra key
+  - it: should fail validation with helmRepo invalid repoName type and extra key
     set:
-      kiali:
-        enabled: true
-        sourceType: "helmRepo"
-        helmRepo:
-          repoName: null
-          chartName: "kiali"
-          tag: "1.65.0-bb.0"
-          extra: key
+      packages:
+        kiali:
+          enabled: true
+          sourceType: "helmRepo"
+          helmRepo:
+            repoName: 123
+            chartName: "kiali"
+            tag: "1.65.0-bb.0"
+            extra: key
     asserts:
       - failedTemplate:
           errorPattern: ".*"

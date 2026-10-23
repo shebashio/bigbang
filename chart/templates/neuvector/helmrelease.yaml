@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsNeuvector := mergeOverwrite (deepCopy .Values.flux) .Values.neuvector.flux -}}
-{{- if .Values.neuvector.enabled }}
+{{- $fluxSettingsNeuvector := mergeOverwrite (deepCopy .Values.flux) .Values.packages.neuvector.flux -}}
+{{- if .Values.packages.neuvector.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -15,43 +15,43 @@ metadata:
     checksum/bigbang-values: {{ include (print $.Template.BasePath "/neuvector/values.yaml") . | sha256sum }}
 spec:
   targetNamespace: neuvector
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "neuvector" "package" .Values.neuvector "root" . "emitReleaseName" true) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "neuvector" "package" .Values.packages.neuvector "root" . "emitReleaseName" true) | nindent 2 }}
 
   {{- toYaml $fluxSettingsNeuvector | nindent 2 }}
 
-  {{- if .Values.neuvector.postRenderers }}
+  {{- if .Values.packages.neuvector.postRenderers }}
   postRenderers:
-  {{ toYaml .Values.neuvector.postRenderers | nindent 4 }}
+  {{ toYaml .Values.packages.neuvector.postRenderers | nindent 4 }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "neuvector" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.neuvector.dependsOnOverride) }}
-  {{- with .Values.neuvector.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.neuvector.dependsOnOverride) }}
+  {{- with .Values.packages.neuvector.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled $istioEnabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled (and .Values.addons.keycloak.enabled .Values.neuvector.sso.enabled) .Values.neuvector.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled $istioEnabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled (and .Values.packages.keycloak.enabled .Values.packages.neuvector.sso.enabled) .Values.packages.neuvector.dependsOn }}
   dependsOn:
-    {{- if .Values.gatekeeper.enabled }}
+    {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
     {{- end }}
     {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
     {{- end }}
-    {{- if .Values.kyvernoPolicies.enabled }}
+    {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if and .Values.addons.keycloak.enabled .Values.neuvector.sso.enabled }}
+    {{- if and .Values.packages.keycloak.enabled .Values.packages.neuvector.sso.enabled }}
     - name: keycloak
       namespace: {{ .Release.Namespace }}
     {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.neuvector) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.neuvector) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

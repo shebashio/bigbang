@@ -52,8 +52,8 @@ _Note:_ within Big Bang, logs are captured by fluentbit and shipped to elastic b
 External Secrets Operator loglevels are controllable through the values passed to the addon. Here is an example of configuring debug log levels for the ESO controller, certificate controller and webhook:
 
 ```yaml
-addons:
-  vault:
+packages:
+  externalSecrets:
     values:
       extraArgs:
         loglevel: debug

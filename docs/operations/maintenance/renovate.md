@@ -22,10 +22,11 @@ renovate:
     repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
     tag: 46.31.6-bb.4
   values:
-    networkPolicies:
-      enabled: "{{ $.Values.networkPolicies.enabled }}"
-    istio:
-      enabled: "{{ $.Values.istiod.enabled }}"
+    bb-common:
+      networkPolicies:
+        enabled: "{{ $.Values.networkPolicies.enabled }}"
+      istio:
+        enabled: "{{ $.Values.istiod.enabled }}"
     cronjob:
       schedule: '0 1 * * *'
     renovate:

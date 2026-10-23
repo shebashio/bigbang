@@ -13,11 +13,11 @@ postRenderer:
 tests:
 - it: should render ServiceMonitor tlsConfig when istio mTLS is strict
   set:
-    istiod.enabled: true
-    monitoring.enabled: true
-    addons.gitlabRunner.enabled: true
-    addons.gitlabRunner.istio.injection: enabled
-    addons.gitlabRunner.values.istio.mtls.mode: STRICT
+    packages.istiod.enabled: true
+    packages.monitoring.enabled: true
+    packages.gitlabRunner.enabled: true
+    packages.gitlabRunner.istio.injection: enabled
+    packages.gitlabRunner.values.istio.mtls.mode: STRICT
   asserts:
   - equal:
       path: kind

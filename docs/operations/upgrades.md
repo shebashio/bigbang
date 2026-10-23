@@ -12,6 +12,8 @@ There are two important things to review when upgrading:
   - Oftentimes individual packages could have breaking changes depending on your configuration. 
   - It is important to review the changes included with those packages and determine if your configuration needs to be adjusted as a result.
 
+**Big Bang 4.0:** Built-in package configuration must use `packages.<name>` instead of the previous top-level or `addons` paths. Existing values using the old paths will fail schema validation. Use `scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml` to generate migrated values, then review the output before upgrading.
+
 ## Supported Upgrades
 Generally, we expect upgrades to be done one minor release at a time.  If necessary, it is possible to jump past several versions provided there is careful review of the release notes in between the versions and there are no problems.
 
@@ -24,23 +26,25 @@ Packages in Big Bang can be updated one at a time by changing the version tag in
 For a Git repository:
 
 ```yaml
-istiod:
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
-    path: "./chart"
-    tag: "<package-version>"
+packages:
+  istiod:
+    sourceType: "git"
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
+      path: "./chart"
+      tag: "<package-version>"
 ```
 
 For a Helm repository:
 
 ```yaml
-istiod:
-  sourceType: "helmRepo"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istiod"
-    tag: "<package-version>"
+packages:
+  istiod:
+    sourceType: "helmRepo"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "istiod"
+      tag: "<package-version>"
 ```
 
 These values are defined in `chart/values.yaml` of the Big Bang Helm chart.
@@ -134,7 +138,7 @@ kubectl get pod <pod-name> -n <namespace> -o jsonpath='{.spec.containers[*].imag
 
 Image versions may differ from Helm chart versions, so compare them with the expected versions for your upgrade.
 
-For workloads using Istio sidecars, verify that the sidecar versions are compatible with the upgraded Istio control plane, including workloads outside Big Bang core and addons.
+For workloads using Istio sidecars, verify that the sidecar versions are compatible with the upgraded Istio control plane, including workloads outside Big Bang's built-in packages.
 
 ### Check Package Usability
 
@@ -143,6 +147,4 @@ For workloads using Istio sidecars, verify that the sidecar versions are compati
 
 ## Upgrade Troubleshooting
 
-If an upgrade fails, identify the affected package and review its release notes and changelog for changes that may have been missed.
-
-See [Troubleshoot a Big Bang deployment](troubleshooting/index.md) for steps to diagnose Flux and HelmRelease failures.
+If an upgrade fails, see [Troubleshoot a Big Bang deployment](troubleshooting/index.md#upgrade-problems) to identify the first resource that is not ready and troubleshoot the failure.

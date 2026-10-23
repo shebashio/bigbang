@@ -1,18 +1,38 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: Package - MinIO - Istio Annotation Routing
+suite: Package - MinIO - Values
 templates:
   - templates/minio/values.yaml
 tests:
-  - it: should render the istio roll annotation on the tenant pool metadata
+  - it: should scope common values under bb-common and render the istio roll annotation
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '{\"common\": (.stringData.common | from_yaml), \"defaults\": (.stringData.defaults | from_yaml)}' -"
     set:
-      addons.minio.enabled: true
+      packages.minio.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:
-          path: upstream.tenant.poolsMetadata.annotations["bigbang.dev/istioDataplane"]
+          path: defaults.upstream.tenant.poolsMetadata.annotations["bigbang.dev/istioDataplane"]
           value: ambient
+      - exists:
+          path: common.bb-common.istio
+      - exists:
+          path: common.bb-common.networkPolicies
+      - exists:
+          path: common.bb-common.routes
+      - notExists:
+          path: common.istio
+      - notExists:
+          path: common.networkPolicies
+      - notExists:
+          path: common.routes
+      - notExists:
+          path: defaults.bb-common
+      - notExists:
+          path: defaults.istio
+      - notExists:
+          path: defaults.networkPolicies
+      - notExists:
+          path: defaults.routes

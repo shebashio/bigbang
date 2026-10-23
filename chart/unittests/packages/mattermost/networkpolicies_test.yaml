@@ -10,8 +10,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
-      addons.mattermost.database:
+      packages.mattermost.enabled: true
+      packages.mattermost.database:
         username: "mattermost"
         password: "password"
         host: "postgres.example.com"
@@ -30,7 +30,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
+      packages.mattermost.enabled: true
       networkPolicies.enabled: true
     asserts:
       - equal:
@@ -44,8 +44,8 @@ tests:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.mattermost.enabled: true
-      addons.mattermost.database:
+      packages.mattermost.enabled: true
+      packages.mattermost.database:
         username: "mattermost"
         password: "password"
         # host is missing

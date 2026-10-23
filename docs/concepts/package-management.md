@@ -10,12 +10,7 @@ Big Bang organizes packages into three main categories:
 - **Add-on Packages**: Optional but commonly used applications (ArgoCD, GitLab, etc.)
 - **Custom Packages**: User-defined applications following Big Bang patterns
 
-All built-in packages can be configured through the unified `packages.<name>`
-path. Existing top-level and `addons.<name>` paths remain supported until Big
-Bang 4.x. In Big Bang 3.x, set `packageConfiguration.version` to `v1` to opt in
-to the unified built-in package paths. The v1 discriminator remains supported
-and becomes the default package contract in Big Bang 4.x. When both paths are
-present, `packages.<name>` takes precedence.
+All built-in packages use the unified `packages.<name>` path. Legacy top-level and `addons.<name>` paths are migration inputs only and are rejected by the Big Bang 4.x schema. In Big Bang 3.x, set `packageConfiguration.version` to `v1` to opt in to the unified built-in package paths. The v1 discriminator remains supported and becomes the default package contract in Big Bang 4.x. When both paths are present, `packages.<name>` takes precedence.
 
 ```yaml
 packageConfiguration:
@@ -210,7 +205,7 @@ HelmRelease dependencies. Two keys are available with distinct semantics:
 (istio, kyverno-policies, etc.):
 
 ```yaml
-addons:
+packages:
   argocd:
     dependsOn:
       - name: external-operator
@@ -222,7 +217,7 @@ defaults are dropped; only the provided entries are used. It is mutually
 exclusive with `dependsOn`:
 
 ```yaml
-addons:
+packages:
   argocd:
     dependsOnOverride:
       - name: external-operator
@@ -257,4 +252,4 @@ packages:
 
 Look at [test values](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/tests/test-values.yaml) for comprehensive examples of (non-production) package configurations.
 
-For detailed package-specific configuration options, refer to each package's individual documentation and the [Package Troubleshooting](../operations/troubleshooting/packages.md) guide for resolving configuration issues.
+For package-specific configuration options, refer to the individual package documentation. If a package fails to deploy or its workloads are not healthy, see [Package or workload troubleshooting](../operations/troubleshooting/index.md#package-or-workload).

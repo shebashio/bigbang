@@ -8,44 +8,44 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.authservice.enabled: true
-      addons.authservice.values.global.redis_server_uri: tcp://redis.example.internal:6379
-      addons.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
+      packages.authservice.enabled: true
+      packages.authservice.values.global.redis_server_uri: tcp://redis.example.internal:6379
+      packages.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
     asserts:
       - equal:
-          path: routes.outbound["external-redis"].enabled
+          path: bb-common.routes.outbound["external-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-redis"].hosts[0]
           value: redis.example.internal
       - equal:
-          path: routes.outbound["external-redis"].ports[0].number
+          path: bb-common.routes.outbound["external-redis"].ports[0].number
           value: 6379
       - equal:
-          path: networkPolicies.egress.from.authservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.authservice.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
+          path: bb-common.networkPolicies.ingress.to["redis-bb:6379"].from.k8s["monitoring/grafana"]
           value: false
   - it: should account for chain-level external Redis in routes and network policies
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.authservice.enabled: true
-      addons.authservice.values.redis.enabled: true
-      addons.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
+      packages.authservice.enabled: true
+      packages.authservice.values.redis.enabled: true
+      packages.authservice.chains.minimal.redis_server_uri: tcp://chain-redis.example.internal:6379
     asserts:
       - equal:
-          path: routes.outbound["external-redis"].enabled
+          path: bb-common.routes.outbound["external-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-redis"].hosts[0]
           value: chain-redis.example.internal
       - equal:
-          path: networkPolicies.egress.from.authservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.authservice.to.definition.redis-subnets
           value: true

@@ -1,27 +1,27 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.fluentbit.enabled }}
-{{- $fluentbitPackage := deepCopy .Values.fluentbit -}}
-{{- if .Values.fluentbit.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.fluentbit.values) | fromYaml -}}
-{{- $fluentbitPackage = set $fluentbitPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $fluentbitPackage "name" "fluentbit" "defaults" (include "bigbang.defaults.fluentbit" .)) }}
+{{- if .Values.packages.fluentbit.enabled }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.fluentbit
+  "name" "fluentbit"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.fluentbit" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.fluentbit" -}}
 {{- $domainName := .Values.domain }}
-{{- $disableDefault := dig "additionalOutputs" "disableDefault" false .Values.fluentbit.values }}
-{{- $clusterName := ( default "logging-loki" .Values.loki.clusterName ) }}
+{{- $disableDefault := dig "additionalOutputs" "disableDefault" false .Values.packages.fluentbit.values }}
+{{- $clusterName := ( default "logging-loki" .Values.packages.loki.clusterName ) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.fluentbit.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $additionalS3 := (and
-  (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
-  (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values)
+  (dig "additionalOutputs" "s3" "bucket" false .Values.packages.fluentbit.values)
+  (dig "additionalOutputs" "s3" "region" false .Values.packages.fluentbit.values)
   (or
     (and
-      (dig "additionalOutputs" "s3" "aws_secret_access_key" false .Values.fluentbit.values)
-      (dig "additionalOutputs" "s3" "aws_access_key_id" false .Values.fluentbit.values))
-      (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values))
+      (dig "additionalOutputs" "s3" "aws_secret_access_key" false .Values.packages.fluentbit.values)
+      (dig "additionalOutputs" "s3" "aws_access_key_id" false .Values.packages.fluentbit.values))
+      (dig "additionalOutputs" "s3" "existingSecret" false .Values.packages.fluentbit.values))
   true)
 }}
 
@@ -30,57 +30,51 @@
     "scalable" "logging-loki-write"
     "distributed" "logging-loki-distributor"
 }}
-{{- $lokiServiceName := index $lokiServiceMap .Values.loki.strategy }}
+{{- $lokiServiceName := index $lokiServiceMap .Values.packages.loki.strategy }}
 {{- $lokiWriteDestUrl := printf "%s.logging" $lokiServiceName }}
 
-networkPolicies:
-  controlPlaneCidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-  vpcCidr: {{ .Values.networkPolicies.vpcCidr }}
-  istioNamespaceSelector:
-  {{ include "istioNamespaceSelector" . | nindent 4 }}
-  egress:
-    from:
-      fluent-bit:
-        to:
-          definition:
-            external-elastic:
-              enabled: false
-            external-loki:
-              enabled: false
-            external-fluentd:
-              enabled: false
-            storage-subnets:
-              enabled: {{ $additionalS3 }} # NOTE: S3 output requires storage subnet egress
-            kubeAPI:
-              enabled: true
-          k8s:
-            logging/elasticsearch:9200:
-              enabled: {{ .Values.elasticsearchKibana.enabled }}
-              podSelector:
-                matchLabels:
-                  common.k8s.elastic.co/type: elasticsearch
-            logging/logging-loki:3100:
-              enabled: {{ .Values.loki.enabled }}
-            tempo/tempo:9411:
-              enabled: {{ .Values.tempo.enabled }}
-  ingress:
-    to:
-      "fluent-bit:2020":
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
+bb-common:
+  routes:
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.fluentbit.values }}
+        hosts:
+        - 'repo1.dso.mil'
+        - grafana.{{ $domainName }}
 
-routes:
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.fluentbit.values }}
-      hosts:
-      - 'repo1.dso.mil'
-      - grafana.{{ $domainName }}
+  networkPolicies:
+    egress:
+      from:
+        fluent-bit:
+          to:
+            definition:
+              external-elastic:
+                enabled: false
+              external-loki:
+                enabled: false
+              external-fluentd:
+                enabled: false
+              storage-subnets:
+                enabled: {{ $additionalS3 }} # NOTE: S3 output requires storage subnet egress
+              kubeAPI:
+                enabled: true
+            k8s:
+              logging/elasticsearch:9200:
+                enabled: {{ .Values.packages.elasticsearchKibana.enabled }}
+                podSelector:
+                  matchLabels:
+                    common.k8s.elastic.co/type: elasticsearch
+              logging/logging-loki:3100:
+                enabled: {{ .Values.packages.loki.enabled }}
+              tempo/tempo:9411:
+                enabled: {{ .Values.packages.tempo.enabled }}
+    ingress:
+      to:
+        "fluent-bit:2020":
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -105,7 +99,7 @@ upstream:
     scrapeTimeout: 10s
     selector:
       prometheus: monitoring-monitoring-kube-prometheus
-    {{- if eq (include "metricsSidecarMtls" (list .Values.fluentbit .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.fluentbit .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -125,7 +119,7 @@ upstream:
     {{ include "istioAnnotation" . }}
   {{- end }}
 
-  {{- if .Values.kiali.enabled }}
+  {{- if .Values.packages.kiali.enabled }}
   podLabels:
     service.istio.io/canonical-name: fluentbit-fluent-bit
   {{- end }}
@@ -147,25 +141,25 @@ upstream:
 
 {{- if (not $disableDefault) }}
   {{- $additionalElasticsearch := (and
-    (dig "additionalOutputs" "elasticsearch" "host" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "elasticsearch" "port" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "elasticsearch" "user" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "elasticsearch" "password" false .Values.fluentbit.values))
+    (dig "additionalOutputs" "elasticsearch" "host" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "port" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "user" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "password" false .Values.packages.fluentbit.values))
   }}
   {{- $additionalFluentd := (and
-    (dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "host" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "port" false .Values.packages.fluentbit.values)
     (or
       (and
-        (dig "additionalOutputs" "fluentd" "user" false .Values.fluentbit.values)
-        (dig "additionalOutputs" "fluentd" "password" false .Values.fluentbit.values))
-      (dig "additionalOutputs" "fluentd" "sharedKey" false .Values.fluentbit.values)))
+        (dig "additionalOutputs" "fluentd" "user" false .Values.packages.fluentbit.values)
+        (dig "additionalOutputs" "fluentd" "password" false .Values.packages.fluentbit.values))
+      (dig "additionalOutputs" "fluentd" "sharedKey" false .Values.packages.fluentbit.values)))
   }}
   {{- $additionalLoki := (and
-    (dig "additionalOutputs" "loki" "host" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "loki" "port" false .Values.fluentbit.values))
+    (dig "additionalOutputs" "loki" "host" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "loki" "port" false .Values.packages.fluentbit.values))
   }}
-  {{- $envFrom := (dig "upstream" "envFrom" false .Values.fluentbit.values) }}
+  {{- $envFrom := (dig "upstream" "envFrom" false .Values.packages.fluentbit.values) }}
   {{- if or
     $additionalElasticsearch
     $additionalLoki
@@ -189,15 +183,15 @@ upstream:
     - secretRef:
         name: external-fluentd-config
     {{- end }}
-    {{- if and $additionalS3 (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values) }}
+    {{- if and $additionalS3 (dig "additionalOutputs" "s3" "existingSecret" false .Values.packages.fluentbit.values) }}
     - secretRef:
-        name: {{ (dig "additionalOutputs" "s3" "existingSecret" false .Values.fluentbit.values) }}
+        name: {{ (dig "additionalOutputs" "s3" "existingSecret" false .Values.packages.fluentbit.values) }}
     {{- else if $additionalS3 }}
     - secretRef:
         name: external-s3-config
     {{- end }}
   {{- end }}
-  {{- if .Values.elasticsearchKibana.enabled }}
+  {{- if .Values.packages.elasticsearchKibana.enabled }}
   env:
     - name: FLUENT_ELASTICSEARCH_PASSWORD
       valueFrom:
@@ -206,26 +200,26 @@ upstream:
           key: elastic
   {{- end }}
   {{- $additionalElasticsearchCerts := and
-    (dig "additionalOutputs" "elasticsearch" "tlsVerify" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "elasticsearch" "caCert" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "tlsVerify" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "elasticsearch" "caCert" false .Values.packages.fluentbit.values)
   }}
   {{- $additionalFluentdCerts := and
-    (dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "fluentd" "caCert" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "fluentd" "caCert" false .Values.packages.fluentbit.values)
   }}
   {{- $additionalLokiCerts := and
-    (dig "additionalOutputs" "loki" "tlsVerify" false .Values.fluentbit.values)
-    (dig "additionalOutputs" "loki" "caCert" false .Values.fluentbit.values)
+    (dig "additionalOutputs" "loki" "tlsVerify" false .Values.packages.fluentbit.values)
+    (dig "additionalOutputs" "loki" "caCert" false .Values.packages.fluentbit.values)
   }}
   {{- if or
-    .Values.elasticsearchKibana.enabled
+    .Values.packages.elasticsearchKibana.enabled
     $additionalElasticsearchCerts
     $additionalFluentdCerts
     $additionalLokiCerts
     $additionalS3
   }}
   extraVolumes:
-    {{- if .Values.elasticsearchKibana.enabled }}
+    {{- if .Values.packages.elasticsearchKibana.enabled }}
     - hostPath:
         path: /var/log/flb-storage/
         type: DirectoryOrCreate
@@ -255,14 +249,14 @@ upstream:
     {{- end }}
   {{- end }}
   {{-  if or
-    .Values.elasticsearchKibana.enabled
+    .Values.packages.elasticsearchKibana.enabled
     $additionalElasticsearchCerts
     $additionalFluentdCerts
     $additionalLokiCerts
     $additionalS3
   }}
   extraVolumeMounts:
-    {{- if .Values.elasticsearchKibana.enabled }}
+    {{- if .Values.packages.elasticsearchKibana.enabled }}
     - mountPath: /var/log/flb-storage/
       name: flb-storage
       readOnly: false
@@ -287,27 +281,27 @@ upstream:
     {{- end }}
   {{- end}}
   {{- if or
-    .Values.elasticsearchKibana.enabled
-    .Values.loki.enabled
+    .Values.packages.elasticsearchKibana.enabled
+    .Values.packages.loki.enabled
     $additionalFluentd
     (and
-      (dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values)
-      (dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values))
+      (dig "additionalOutputs" "s3" "bucket" false .Values.packages.fluentbit.values)
+      (dig "additionalOutputs" "s3" "region" false .Values.packages.fluentbit.values))
   }}
   config:
     outputs: |
-      {{- if .Values.elasticsearchKibana.enabled }}
+      {{- if .Values.packages.elasticsearchKibana.enabled }}
       [OUTPUT]
           Name                     es
           Match                    kube.*
-          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.packages.fluentbit.values }}-es-http.logging
           HTTP_User                elastic
           HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
           Logstash_Format          On
           Suppress_Type_Name       On
           Retry_Limit              False
           Replace_Dots             On
-          {{- if and $istioEnabled (dig "istio" "elasticsearch" "enabled" false .Values.elasticsearchKibana.values) }}
+          {{- if and $istioEnabled (dig "istio" "elasticsearch" "enabled" false .Values.packages.elasticsearchKibana.values) }}
           tls                      Off
           {{- else }}
           tls                      On
@@ -315,11 +309,11 @@ upstream:
           tls.ca_file              /etc/elasticsearch/certs/ca.crt
           {{- end }}
           net.keepalive            Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
       [OUTPUT]
           Name                     es
           Match                    host.*
-          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.fluentbit.values }}-es-http.logging
+          Host                     {{ dig "elasticsearch" "name" "logging-ek" .Values.packages.fluentbit.values }}-es-http.logging
           HTTP_User                elastic
           HTTP_Passwd              ${FLUENT_ELASTICSEARCH_PASSWORD}
           Logstash_Format          On
@@ -330,10 +324,10 @@ upstream:
           tls.verify               On
           tls.ca_file              /etc/elasticsearch/certs/ca.crt
           net.keepalive            Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
       {{- end }}
 
-      {{- if .Values.loki.enabled }}
+      {{- if .Values.packages.loki.enabled }}
       [OUTPUT]
           name                   loki
           match                  kube.*
@@ -344,7 +338,7 @@ upstream:
           Retry_Limit            False
           tls                    Off
           net.keepalive          Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
       [OUTPUT]
           name                   loki
           match                  host.*
@@ -355,22 +349,22 @@ upstream:
           Retry_Limit            False
           tls                    Off
           net.keepalive          Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
       {{- end }}
 
       {{- if $additionalFluentd }}
-      {{- $fluentdUser := dig "additionalOutputs" "fluentd" "user" false .Values.fluentbit.values }}
-      {{- $fluentdPassword := dig "additionalOutputs" "fluentd" "password" false .Values.fluentbit.values }}
-      {{- $fluentdSharedKey := dig "additionalOutputs" "fluentd" "sharedKey" false .Values.fluentbit.values }}
-      {{- $fluentdTls := dig "additionalOutputs" "fluentd" "tls" false .Values.fluentbit.values }}
-      {{- $fluentdTlsVerify := dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.fluentbit.values }}
-      {{- $fluentdCaCert := dig "additionalOutputs" "fluentd" "caCert" false .Values.fluentbit.values }}
-      {{- $fluentdAdditionalConfig := dig "additionalOutputs" "fluentd" "additionalConfig" false .Values.fluentbit.values }}
+      {{- $fluentdUser := dig "additionalOutputs" "fluentd" "user" false .Values.packages.fluentbit.values }}
+      {{- $fluentdPassword := dig "additionalOutputs" "fluentd" "password" false .Values.packages.fluentbit.values }}
+      {{- $fluentdSharedKey := dig "additionalOutputs" "fluentd" "sharedKey" false .Values.packages.fluentbit.values }}
+      {{- $fluentdTls := dig "additionalOutputs" "fluentd" "tls" false .Values.packages.fluentbit.values }}
+      {{- $fluentdTlsVerify := dig "additionalOutputs" "fluentd" "tlsVerify" false .Values.packages.fluentbit.values }}
+      {{- $fluentdCaCert := dig "additionalOutputs" "fluentd" "caCert" false .Values.packages.fluentbit.values }}
+      {{- $fluentdAdditionalConfig := dig "additionalOutputs" "fluentd" "additionalConfig" false .Values.packages.fluentbit.values }}
       [OUTPUT]
           Name          forward
           Match         kube.*
-          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values }}
-          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values }}
+          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.packages.fluentbit.values }}
+          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.packages.fluentbit.values }}
           {{- if and $fluentdUser $fluentdPassword }}
           Username      {{ $fluentdUser }}
           Password      {{ $fluentdPassword }}
@@ -379,7 +373,7 @@ upstream:
           {{- end }}
           Retry_Limit   False
           net.keepalive Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
           tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
           tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
           {{- if and $fluentdTlsVerify $fluentdCaCert }}
@@ -398,8 +392,8 @@ upstream:
       [OUTPUT]
           Name          forward
           Match         host.*
-          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.fluentbit.values }}
-          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.fluentbit.values }}
+          Host          {{ dig "additionalOutputs" "fluentd" "host" false .Values.packages.fluentbit.values }}
+          Port          {{ dig "additionalOutputs" "fluentd" "port" false .Values.packages.fluentbit.values }}
           {{- if and $fluentdUser $fluentdPassword }}
           Username      {{ $fluentdUser }}
           Password      {{ $fluentdPassword }}
@@ -408,7 +402,7 @@ upstream:
           {{- end }}
           Retry_Limit   False
           net.keepalive Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
           tls {{ if $fluentdTls }}On{{ else }}Off{{ end }}
           tls.verify {{ if and $fluentdTlsVerify $fluentdCaCert }}On{{ else }}Off{{ end }}
           {{- if and $fluentdTlsVerify $fluentdCaCert }}
@@ -426,9 +420,9 @@ upstream:
           {{- end }}
       {{- end }}
 
-      {{- $bucket := dig "additionalOutputs" "s3" "bucket" false .Values.fluentbit.values }}
-      {{- $region := dig "additionalOutputs" "s3" "region" false .Values.fluentbit.values }}
-      {{- $additionalConfig := dig "additionalOutputs" "s3" "additionalConfig" false .Values.fluentbit.values }}
+      {{- $bucket := dig "additionalOutputs" "s3" "bucket" false .Values.packages.fluentbit.values }}
+      {{- $region := dig "additionalOutputs" "s3" "region" false .Values.packages.fluentbit.values }}
+      {{- $additionalConfig := dig "additionalOutputs" "s3" "additionalConfig" false .Values.packages.fluentbit.values }}
       {{- if and $bucket $region }}
       [OUTPUT]
           Name          s3
@@ -437,7 +431,7 @@ upstream:
           region        {{ $region }}
           Retry_Limit   False
           net.keepalive Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
           {{- if $additionalConfig }}
           {{- range $key, $value := $additionalConfig }}
           {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit" "net.keepalive") }}
@@ -455,7 +449,7 @@ upstream:
           region        {{ $region }}
           Retry_Limit   False
           net.keepalive Off
-          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.fluentbit.values }}
+          storage.total_limit_size {{ dig "storage" "total_limit_size" "10G" .Values.packages.fluentbit.values }}
           {{- if $additionalConfig }}
           {{- range $key, $value := $additionalConfig }}
           {{- $preset := (list "Name" "Match" "bucket" "region" "Retry_Limit" "net.keepalive") }}
@@ -488,9 +482,9 @@ upstream:
   {{- end }}
 
 loki:
-  enabled: {{ .Values.loki.enabled }}
+  enabled: {{ .Values.packages.loki.enabled }}
 
 elasticsearchKibana:
-  enabled: {{ .Values.elasticsearchKibana.enabled }}
+  enabled: {{ .Values.packages.elasticsearchKibana.enabled }}
 {{- end }}
 {{- end -}}

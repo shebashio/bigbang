@@ -3,86 +3,148 @@ suite: Package - Fortify - Values Tests
 templates:
   - templates/fortify/values.yaml
 tests:
-  - it: should enable external-mysql egress when mysql is disabled and CIDRs are provided
+  - it: should nest bb-common config under the bb-common key in the common block
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.fortify.enabled: true
+    asserts:
+      - isSubset:
+          path: bb-common.routes.inbound.fortify
+          content:
+            enabled: true
+            service: fortify-ssc-service
+            port: 80
+      - equal:
+          path: bb-common.routes.inbound.fortify.hosts[0]
+          value: fortify.dev.bigbang.mil
+      - exists:
+          path: bb-common.networkPolicies.egress.from["fortify-webapp"]
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+  - it: should keep istio, networkPolicies, and routes out of defaults and set global.domain
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
         - "yq eval '.stringData.defaults' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
-      addons.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
+      packages.fortify.enabled: true
+      domain: example.mil
     asserts:
       - equal:
-          path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
+          path: global.domain
+          value: example.mil
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - notExists:
+          path: bb-common
+  - it: should enable external-mysql egress when mysql is disabled and CIDRs are provided
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
+      packages.fortify.values.bb-common.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
           value: true
   - it: should disable external-mysql egress when mysql is disabled but no CIDRs are provided
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
     asserts:
       - equal:
-          path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
+          path: bb-common.networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
           value: false
   - it: should disable external-mysql egress when mysql is enabled even if CIDRs are provided
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: true
-      addons.fortify.values.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: true
+      packages.fortify.values.bb-common.networkPolicies.egress.definitions.external-mysql.to[0].ipBlock.cidr: "10.20.30.0/24"
     asserts:
       - equal:
-          path: networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
+          path: bb-common.networkPolicies.egress.from["fortify-webapp"].to.definition["external-mysql"]
           value: false
       - notExists:
-          path: networkPolicies.egress.from["keystore-job"]
+          path: bb-common.networkPolicies.egress.from["keystore-job"]
   - it: should enable external-mysql outbound route when mysql is disabled and a database host is provided
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      istiod.enabled: true
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: false
-      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
-      addons.fortify.externalDatabase.port: 3307
+      packages.istiod.enabled: true
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
+      packages.fortify.externalDatabase.host: "external-mysql.example.internal"
+      packages.fortify.externalDatabase.port: 3307
     asserts:
       - equal:
-          path: routes.outbound["external-mysql"].enabled
+          path: bb-common.routes.outbound["external-mysql"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-mysql"].hosts[0]
+          path: bb-common.routes.outbound["external-mysql"].hosts[0]
           value: external-mysql.example.internal
       - equal:
-          path: routes.outbound["external-mysql"].ports[0].number
+          path: bb-common.routes.outbound["external-mysql"].ports[0].number
           value: 3307
       - equal:
-          path: routes.outbound["external-mysql"].ports[0].protocol
+          path: bb-common.routes.outbound["external-mysql"].ports[0].protocol
           value: TCP
   - it: should disable external-mysql outbound route when mysql is enabled even if a database host is provided
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
-      istiod.enabled: true
-      addons.fortify.enabled: true
-      addons.fortify.values.mysql.enabled: true
-      addons.fortify.externalDatabase.host: "external-mysql.example.internal"
+      packages.istiod.enabled: true
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: true
+      packages.fortify.externalDatabase.host: "external-mysql.example.internal"
     asserts:
       - equal:
-          path: routes.outbound["external-mysql"].enabled
+          path: bb-common.routes.outbound["external-mysql"].enabled
           value: false
+  - it: should omit the external-mysql outbound route when no database host is provided
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.istiod.enabled: true
+      packages.fortify.enabled: true
+      packages.fortify.values.mysql.enabled: false
+    asserts:
+      - notExists:
+          path: bb-common.routes.outbound["external-mysql"]

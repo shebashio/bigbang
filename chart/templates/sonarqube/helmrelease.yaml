@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- $fluxSettingsSonarqube := mergeOverwrite (deepCopy .Values.flux) .Values.addons.sonarqube.flux -}}
-{{- if .Values.addons.sonarqube.enabled }}
+{{- $fluxSettingsSonarqube := mergeOverwrite (deepCopy .Values.flux) .Values.packages.sonarqube.flux -}}
+{{- if .Values.packages.sonarqube.enabled }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -16,48 +16,48 @@ metadata:
 spec:
   releaseName: sonarqube
   targetNamespace: sonarqube
-  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "sonarqube" "package" .Values.addons.sonarqube "root" .) | nindent 2 }}
+  {{- include "bigbang.helmRelease.chartSpec" (dict "name" "sonarqube" "package" .Values.packages.sonarqube "root" .) | nindent 2 }}
 
   {{- toYaml $fluxSettingsSonarqube | nindent 2 }}
   
-  {{- if or .Values.addons.sonarqube.postRenderers (and $istioEnabled .Values.monitoring.enabled) }}
+  {{- if or .Values.packages.sonarqube.postRenderers (and $istioEnabled .Values.packages.monitoring.enabled) }}
   postRenderers:
-  {{- if and $istioEnabled .Values.monitoring.enabled }}
+  {{- if and $istioEnabled .Values.packages.monitoring.enabled }}
   {{ include "sonarqube.istioPrometheusPostRenderers" . | nindent 2 }}
   {{- end }}
-  {{- with .Values.addons.sonarqube.postRenderers }}
+  {{- with .Values.packages.sonarqube.postRenderers }}
   {{ toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
   {{- include "bigbang.helmRelease.valuesFrom" (dict "name" "sonarqube" "root" .) | nindent 2 }}
 
-  {{- if not (kindIs "invalid" .Values.addons.sonarqube.dependsOnOverride) }}
-  {{- with .Values.addons.sonarqube.dependsOnOverride }}
+  {{- if not (kindIs "invalid" .Values.packages.sonarqube.dependsOnOverride) }}
+  {{- with .Values.packages.sonarqube.dependsOnOverride }}
   dependsOn:
   {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- else if or .Values.gatekeeper.enabled .Values.kyvernoPolicies.enabled .Values.monitoring.enabled .Values.addons.keycloak.enabled $istioEnabled .Values.addons.sonarqube.dependsOn }}
+  {{- else if or .Values.packages.gatekeeper.enabled .Values.packages.kyvernoPolicies.enabled .Values.packages.monitoring.enabled .Values.packages.keycloak.enabled $istioEnabled .Values.packages.sonarqube.dependsOn }}
   dependsOn:
-  {{- if .Values.gatekeeper.enabled }}
+  {{- if .Values.packages.gatekeeper.enabled }}
     - name: gatekeeper
       namespace: {{ .Release.Namespace }}
   {{- end }}
   {{- if $istioEnabled }}
     {{- include "istioHelmReleases" . | nindent 4 }}
   {{- end }}
-  {{- if .Values.kyvernoPolicies.enabled }}
+  {{- if .Values.packages.kyvernoPolicies.enabled }}
     - name: kyverno-policies
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if .Values.monitoring.enabled }}
+  {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- if and .Values.addons.keycloak.enabled .Values.addons.sonarqube.sso.enabled}}
+  {{- if and .Values.packages.keycloak.enabled .Values.packages.sonarqube.sso.enabled}}
     - name: keycloak
       namespace: {{ .Release.Namespace }}
   {{- end }}
-  {{- with (include "bigbang.helmRelease.dependsOn" .Values.addons.sonarqube) }}
+  {{- with (include "bigbang.helmRelease.dependsOn" .Values.packages.sonarqube) }}
   {{- . | nindent 4 }}
   {{- end }}
   {{- end }}

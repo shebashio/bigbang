@@ -1,35 +1,31 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.addons.vault.enabled }}
-{{- /* Create a cleaned copy of vault config and merge deprecated paths into current paths */ -}}
-{{- $vaultPackage := deepCopy .Values.addons.vault -}}
-{{- if .Values.addons.vault.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.vault.values) | fromYaml -}}
-{{- $vaultPackage = set $vaultPackage "values" $cleanedValues -}}
-{{- end -}}
+{{- if .Values.packages.vault.enabled }}
 {{- include "values-secret" (dict 
 "root" $ 
-"package" $vaultPackage 
+"package" .Values.packages.vault 
 "name" "vault" 
-"defaults" ((mergeOverwrite (include "bigbang.defaults.vault" . | fromYaml) (include "bigbang.vault.bb-common-migrations" . | fromYaml)) | toYaml) 
+"bbCommonSubchart" true
+"defaults" (include "bigbang.defaults.vault" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.vault" -}}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.addons.vault.values) (dig "hardened" "enabled" false .Values.istiod.values) }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
-{{- $tlsEnabled := and (not (empty .Values.addons.vault.ingress.cert)) (not (empty .Values.addons.vault.ingress.key)) -}}
-{{ $gateway := include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.addons.vault.ingress.gateway "root" .)}}
+global:
+  domain: {{ $domainName }}
+{{- $tlsEnabled := and (not (empty .Values.packages.vault.ingress.cert)) (not (empty .Values.packages.vault.ingress.key)) -}}
+{{ $gateway := include "getGatewayName" (dict "default" (ternary "passthrough" "public" $tlsEnabled) "gateway" .Values.packages.vault.ingress.gateway "root" .)}}
 {{- $gatewayPort := ternary
-  (dig "routes" "inbound" "vault" "port" 8200 .Values.addons.vault.values)
-  (dig "routes" "inbound" "vault" "passthrough" "gatewayPort" 8443 .Values.addons.vault.values)
+  (dig "bb-common" "routes" "inbound" "vault" "port" 8200 .Values.packages.vault.values)
+  (dig "bb-common" "routes" "inbound" "vault" "passthrough" "gatewayPort" 8443 .Values.packages.vault.values)
   $tlsEnabled
   | int
 -}}
-{{ $ingressKey := dig "customAppIngressSelector" "key" "vault-ingress" .Values.addons.vault.values }}
-{{ $ingressValue := dig "customAppIngressSelector" "value" "true" .Values.addons.vault.values | quote }}
+{{- $kmsCidrs := dig "bb-common" "networkPolicies" "egress" "definitions" "kms" "to" (list (dict "ipBlock" (dict "cidr" "0.0.0.0/0"))) .Values.packages.vault.values }}
+{{ $ingressKey := dig "customAppIngressSelector" "key" "vault-ingress" .Values.packages.vault.values }}
+{{ $ingressValue := dig "customAppIngressSelector" "value" "true" .Values.packages.vault.values | quote }}
 
 openshift: {{ .Values.openshift }}
 
@@ -50,17 +46,13 @@ routes:
         enabled: {{ $tlsEnabled }}
   outbound:
     bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.vault.values }}
+      enabled: {{ dig "bbtests" "enabled" false .Values.packages.vault.values }}
       hosts:
       - repo1.dso.mil
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
 tls:
-  cert: {{ .Values.addons.vault.ingress.cert | quote }}
-  key: {{ .Values.addons.vault.ingress.key | quote }}
+  cert: {{ .Values.packages.vault.ingress.cert | quote }}
+  key: {{ .Values.packages.vault.ingress.key | quote }}
 
 networkPolicies:
   ingress:
@@ -75,8 +67,8 @@ networkPolicies:
       vault:8200:
         from:
           k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
           definition:
             custom-app-ingress: true
       vault-agent-injector:8080:
@@ -85,10 +77,31 @@ networkPolicies:
             0.0.0.0/0: true
   egress:
     definitions:
-      kms:
+      kubeAPI:
         to:
+          {{- if or (eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0") (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0")}}
           - ipBlock:
               cidr: "0.0.0.0/0"
+              except:
+              - 169.254.169.254/32
+          {{- else }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+          {{- end }}
+      kms:
+        to:
+          {{- if (eq (index $kmsCidrs 0).ipBlock.cidr "0.0.0.0/0") }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+            {{- if eq .Values.networkPolicies.vpcCidr "0.0.0.0/0" }}
+              except:
+              - 169.254.169.254/32
+            {{- end }}
+          {{- else }}
+            {{- $kmsCidrs | toYaml | nindent 10 }}
+          {{- end }}
         ports:
           - port: 443
             protocol: TCP
@@ -98,7 +111,7 @@ networkPolicies:
           cidr:
             169.254.169.254/32: true
           k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
           definition:
             kubeAPI: true
             kms: true
@@ -121,7 +134,7 @@ bbtests:
   cypress:
     envs:
       cypress_vault_url: {{ printf "https://vault.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.addons.vault "values" .Values "testOnly" true) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.vault "values" .Values "testOnly" true) | nindent 6 }}
 
 upstream:
   global:
@@ -136,7 +149,7 @@ upstream:
       {{ include "istioAnnotation" . }}
       traffic.sidecar.istio.io/excludeInboundPorts: "8080"
     {{- end }}
-    {{- if .Values.kiali.enabled }}
+    {{- if .Values.packages.kiali.enabled }}
     extraLabels:
       service.istio.io/canonical-name: vault-vault-agent-injector
     {{- end }}
@@ -148,7 +161,7 @@ upstream:
     {{- end }}
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
-    {{- if .Values.kiali.enabled }}
+    {{- if .Values.packages.kiali.enabled }}
     extraLabels:
       service.istio.io/canonical-name: vault-vault
     {{- end }}
@@ -163,7 +176,7 @@ upstream:
       readOnly: true
     {{- end }}
     # bbtests specific config for allowing auto-unseal and kms access
-    {{- if (dig "values" "bbtests" "enabled" false .Values.addons.vault) }}
+    {{- if (dig "values" "bbtests" "enabled" false .Values.packages.vault) }}
     ha:
       raft:
         config: |
@@ -197,9 +210,9 @@ upstream:
 
           seal "awskms" {
             region     = "us-gov-west-1"
-            access_key = "{{ .Values.addons.vault.kms_access_key }}"
-            secret_key = "{{ .Values.addons.vault.kms_secret_key }}"
-            kms_key_id = "{{ .Values.addons.vault.kms_key_id }}"
+            access_key = "{{ .Values.packages.vault.kms_access_key }}"
+            secret_key = "{{ .Values.packages.vault.kms_secret_key }}"
+            kms_key_id = "{{ .Values.packages.vault.kms_key_id }}"
             endpoint   = "https://kms.us-gov-west-1.amazonaws.com"
           }
 
@@ -215,9 +228,4 @@ upstream:
     image:
       pullPolicy: {{ .Values.imagePullPolicy }}
 
-{{- if $istioEnabled }}
-minio:
-  annotations:
-    {{ include "istioAnnotation" . }}
-{{- end }}        
 {{- end -}}

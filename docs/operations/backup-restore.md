@@ -26,7 +26,7 @@ Before backing up or restoring GitLab:
 
 - **Protect Rails secrets.** GitLab backups do not include them. Preserve the secrets required to decrypt restored application data.
 - **Configure backup storage.** Provision the required backup and temporary object-storage buckets and ensure the Toolbox can access them. Big Bang does not create external buckets.
-- **Verify storage authentication.** Configure `addons.gitlab.objectStorage.iamProfile` or both `accessKey` and `accessSecret`, as appropriate for your environment.
+- **Verify storage authentication.** Configure `packages.gitlab.objectStorage.iamProfile` or both `packages.gitlab.objectStorage.accessKey` and `packages.gitlab.objectStorage.accessSecret`, as appropriate for your environment. Set `packages.gitlab.objectStorage.bucketPrefix` or configure the backup bucket name explicitly.
 - **Check Toolbox storage.** Ensure the Toolbox has sufficient temporary disk space for backup creation and extraction. For manual backups, verify that the temporary directory has the required persistent storage. See [GitLab Toolbox configuration](https://docs.gitlab.com/charts/charts/gitlab/toolbox/).
 - **Confirm backup coverage.** Identify external PostgreSQL, Redis or Valkey, object storage, and other services that require separate protection.
 

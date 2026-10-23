@@ -1,31 +1,23 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if eq (include "authserviceEnabled" .) "true" }}
-
-{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $authservicePackage := deepCopy .Values.addons.authservice -}}
-{{- if .Values.addons.authservice.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.authservice.values) | fromYaml -}}
-  {{- $authservicePackage = set $authservicePackage "values" $cleanedValues -}}
-{{- end -}}
-
 {{- include "values-secret" (dict
   "root" $
-  "package" $authservicePackage
+  "package" .Values.packages.authservice
   "name" "authservice"
+  "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.authservice" .)
 )}}
-
 {{- end }}
 
 {{- define "bigbang.defaults.authservice" -}}
 {{- $ambientEnabled := eq (include "ambientEnabled" .) "true" }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-{{- $authserviceValues := .Values.addons.authservice.values | default dict }}
+{{- $authserviceValues := .Values.packages.authservice.values | default dict }}
 {{- $internalRedisEnabled := dig "redis" "enabled" false $authserviceValues }}
 {{- $externalRedisUri := dig "global" "redis_server_uri" "" $authserviceValues }}
 {{- /* Generate one automatic route; additional chain-specific Redis hosts require explicit outbound routes. */ -}}
-{{- range $_, $chain := (.Values.addons.authservice.chains | default dict) }}
+{{- range $_, $chain := (.Values.packages.authservice.chains | default dict) }}
 {{- if and (empty $externalRedisUri) (kindIs "map" $chain) }}
 {{- $externalRedisUri = get $chain "redis_server_uri" | default "" }}
 {{- end }}
@@ -39,38 +31,6 @@
 {{- $externalRedisAddress := regexReplaceAll "^[a-zA-Z][a-zA-Z0-9+.-]*://" $externalRedisUri "" }}
 {{- $externalRedisAddress = regexReplaceAll "^.*@" $externalRedisAddress "" }}
 {{- $externalRedisHost := trimSuffix ":6379" $externalRedisAddress }}
-{{- $istioHardenedEnabled := or
-    (dig "istio" "hardened" "enabled" false .Values.monitoring.values)
-    (dig "istio" "hardened" "enabled" false .Values.addons.authservice.values)
-    (dig "hardened" "enabled" false .Values.istiod.values)
-    (dig "istio" "hardened" "enabled" false .Values.grafana.values)
-    (dig "istio" "hardened" "enabled" false .Values.loki.values)
-    (dig "istio" "hardened" "enabled" false .Values.eckOperator.values)
-    (dig "istio" "hardened" "enabled" false .Values.elasticsearchKibana.values)
-}}
-
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-  clusterWideHardenedEnabled: {{ dig "hardened" "enabled" false .Values.istiod.values }}
-
-routes:
-  outbound:
-    external-redis:
-      enabled: {{ $externalRedisEnabled }}
-      {{- if $externalRedisEnabled }}
-      hosts:
-      - {{ $externalRedisHost | quote }}
-      ports:
-      - number: 6379
-        name: redis
-        protocol: TCP
-      {{- end }}
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.authservice.values }}
-      hosts:
-      - repo1.dso.mil
 
 image: 
   pullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
@@ -80,7 +40,7 @@ image:
 podAnnotations:
   {{ include "istioAnnotation" . }}
 
-{{- if .Values.kiali.enabled }}
+{{- if .Values.packages.kiali.enabled }}
 podLabels:
   service.istio.io/canonical-name: authservice
 {{- end }}
@@ -88,73 +48,87 @@ podLabels:
 openshift: {{ .Values.openshift | default false }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled | default false }}
+  enabled: {{ .Values.packages.monitoring.enabled | default false }}
 
-networkPolicies:
-  ingress:
-    to:
-      # gRPC connections for pods with protect=keycloak label
-      authservice:10003:
-        from:
-          k8s:
-            '*/keycloak-protected':
+bb-common:
+  routes:
+    outbound:
+      {{- if $externalRedisEnabled }}
+      external-redis:
+        enabled: {{ $externalRedisEnabled }}
+        hosts:
+        - {{ $externalRedisHost | quote }}
+        ports:
+        - number: 6379
+          name: redis
+          protocol: TCP
+      {{- end }}
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.authservice.values }}
+        hosts:
+        - repo1.dso.mil
+  networkPolicies:
+    ingress:
+      definitions:
+        keycloak-protected:
+          from:
+            - namespaceSelector: {}
               podSelector:
                 matchLabels:
-                  {{- $key := (dig "selector" "key" "protect" .Values.addons.authservice.values) }}
-                  {{- $value := (dig "selector" "value" "keycloak" .Values.addons.authservice.values) }}
+                  {{- $key := (dig "selector" "key" "protect" .Values.packages.authservice.values) }}
+                  {{- $value := (dig "selector" "value" "keycloak" .Values.packages.authservice.values) }}
                   {{ $key }}: {{ $value }}
-            {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
-            # ext_authz calls originate from the monitoring package's own waypoint pod,
-            # which fronts prometheus/alertmanager for authservice in ambient mode.
-            monitoring/waypoint:
-              podSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+      to:
+        authservice:10003:
+          from:
+            definition:
+              keycloak-protected: true
+            {{- if or (eq (include "monitoring.authservice.waypointEnabled" .) "true") (eq (include "thanos.authservice.waypointEnabled" .) "true") }}
+            k8s:
+              {{- if eq (include "monitoring.authservice.waypointEnabled" .) "true" }}
+              # ext_authz calls originate from the monitoring package's own waypoint pod,
+              # which fronts prometheus/alertmanager for authservice in ambient mode.
+              monitoring/waypoint:
+                podSelector:
+                  matchLabels:
+                    gateway.networking.k8s.io/gateway-name: monitoring-monitoring-waypoint
+              {{- end }}
+              {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
+              thanos/waypoint:
+                podSelector:
+                  matchLabels:
+                    gateway.networking.k8s.io/gateway-name: thanos-waypoint
+              {{- end }}
             {{- end }}
-            {{- if eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-            thanos/waypoint:
-              podSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: thanos-waypoint
-            {{- end }}
-      # Grafana redis client connection
-      redis-bb:6379:
-        from:
-          k8s:
-            monitoring/grafana: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
-      haproxy:8080:
-        from:
-          k8s:
-            "istio-gateway/*": {{ ((.Values.packages).haproxy).enabled }}
-      # Redis exporter metrics
-      redis-bb:9121:
-        from:
-          k8s:
-            monitoring/prometheus: {{ and $internalRedisEnabled .Values.monitoring.enabled }}
-      # HBONE ingress from istio-gateway to the authservice waypoint (ambient)
-      authservice-waypoint:15008:
-        podSelector:
-          matchLabels:
-            gateway.networking.k8s.io/gateway-name: authservice-waypoint
-        from:
-          k8s:
-            "istio-gateway/*": {{ and $ambientEnabled .Values.istioGateway.enabled }}
-            kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.kiali.enabled }}
-  egress:
-    from:
-      authservice:
-        to:
-          definition:
-            sso: true
-            redis-subnets: {{ $externalRedisEnabled }}
-          k8s:
-            # Tempo trace data
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
-      haproxy:
-        to:
-          k8s:
-            monitoring/alertmanager:9093: {{ ((.Values.packages).haproxy).enabled }}
-            monitoring/prometheus:9090: {{ ((.Values.packages).haproxy).enabled }}
+        # Grafana redis client connection
+        redis-bb:6379:
+          from:
+            k8s:
+              monitoring/grafana: {{ and $internalRedisEnabled .Values.packages.monitoring.enabled }}
+        # Redis exporter metrics
+        redis-bb:9121:
+          from:
+            k8s:
+              monitoring/prometheus: {{ and $internalRedisEnabled .Values.packages.monitoring.enabled }}
+        # HBONE ingress from istio-gateway to the authservice waypoint (ambient)
+        authservice-waypoint:15008:
+          podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: authservice-waypoint
+          from:
+            k8s:
+              "istio-gateway/*": {{ and $ambientEnabled .Values.packages.istioGateway.enabled }}
+              kiali-service-account@kiali/kiali: {{ and $ambientEnabled .Values.packages.kiali.enabled }}
+    egress:
+      from:
+        authservice:
+          to:
+            definition:
+              sso: true
+              redis-subnets: {{ $externalRedisEnabled }}
+            k8s:
+              # Tempo trace data
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
 {{- if or $internalRedisEnabled $externalRedisEnabled }}
 autoscaling:
@@ -163,7 +137,7 @@ autoscaling:
   maxReplicas: 3
 {{- end }}
 
-{{- if and $internalRedisEnabled (or .Values.monitoring.enabled .Values.kiali.enabled) }}
+{{- if and $internalRedisEnabled (or .Values.packages.monitoring.enabled .Values.packages.kiali.enabled) }}
 redis-bb:
   upstream:
     global:
@@ -180,7 +154,7 @@ redis-bb:
         selector: 
           app.kubernetes.io/name: redis-bb
           app.kubernetes.io/instance: authservice-authservice
-        {{- if eq (include "metricsSidecarMtls" (list .Values.addons.authservice .)) "true" }}
+        {{- if eq (include "metricsSidecarMtls" (list .Values.packages.authservice .)) "true" }}
         scheme: https
         tlsConfig:
           caFile: /etc/prom-certs/root-cert.pem
@@ -210,12 +184,12 @@ global:
   jwks: {{ default (dig "oidc" "jwks" "" .Values.sso) .Values.sso.jwks | quote }}
   {{- end }}
 
-  {{- if or .Values.sso.client_id (dig "sso" "client_id" false .Values.addons.authservice) }}
-  client_id: {{ default (dig "sso" "client_id" "" .Values.addons.authservice) .Values.sso.client_id }}
+  {{- if or .Values.sso.client_id (dig "sso" "client_id" false .Values.packages.authservice) }}
+  client_id: {{ default (dig "sso" "client_id" "" .Values.packages.authservice) .Values.sso.client_id }}
   {{- end }}
 
-  {{- if or .Values.sso.client_secret (dig "sso" "client_secret" false .Values.addons.authservice) }}
-  client_secret: {{ default (dig "sso" "client_secret" "" .Values.addons.authservice) .Values.sso.client_secret }}
+  {{- if or .Values.sso.client_secret (dig "sso" "client_secret" false .Values.packages.authservice) }}
+  client_secret: {{ default (dig "sso" "client_secret" "" .Values.packages.authservice) .Values.sso.client_secret }}
   {{- end }}
 
   {{- if (or .Values.sso.certificate_authority (dig "certificateAuthority" "cert" false .Values.sso)) }}
@@ -236,15 +210,15 @@ global:
   {{- end }}
 
 chains:
-  {{- if .Values.addons.authservice.chains }}
-  {{ .Values.addons.authservice.chains | toYaml | nindent 2 }}
+  {{- if .Values.packages.authservice.chains }}
+  {{ .Values.packages.authservice.chains | toYaml | nindent 2 }}
   {{- end }}
 
-  {{- if and .Values.addons.thanos.enabled .Values.addons.thanos.sso.enabled (not (hasKey (.Values.addons.authservice.chains | default dict) "thanos")) }}
+  {{- if and .Values.packages.thanos.enabled .Values.packages.thanos.sso.enabled (not (hasKey (.Values.packages.authservice.chains | default dict) "thanos")) }}
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.addons.thanos.values) }}
+    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.packages.thanos.values) }}
     {{- if $thanosHosts }}
       prefix: {{ tpl ($thanosHosts | first) $ }}
     callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
@@ -252,8 +226,8 @@ chains:
       prefix: {{ printf "thanos.%s" $domainName }}
     callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: "{{ .Values.addons.thanos.sso.client_id }}"
-    client_secret: "{{ .Values.addons.thanos.sso.client_secret }}"
+    client_id: "{{ .Values.packages.thanos.sso.client_id }}"
+    client_secret: "{{ .Values.packages.thanos.sso.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -261,12 +235,12 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if and .Values.monitoring.enabled .Values.monitoring.sso.enabled }}
-  {{- if not (hasKey (.Values.addons.authservice.chains | default dict) "prometheus") }}
+  {{- if and .Values.packages.monitoring.enabled .Values.packages.monitoring.sso.enabled }}
+  {{- if not (hasKey (.Values.packages.authservice.chains | default dict) "prometheus") }}
   prometheus:
     match:
       header: ":authority"
-    {{- $prometheusHosts := (dig "istio" "prometheus" "hosts" dict .Values.monitoring.values) }}
+    {{- $prometheusHosts := (dig "istio" "prometheus" "hosts" dict .Values.packages.monitoring.values) }}
     {{- if $prometheusHosts }}
       prefix: {{ tpl ($prometheusHosts | first) $ }}
     callback_uri: https://{{ tpl ($prometheusHosts | first) $ }}/login/generic_oauth
@@ -274,8 +248,8 @@ chains:
       prefix: {{ printf "prometheus.%s" $domainName }}
     callback_uri: https://prometheus.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: {{ .Values.monitoring.sso.prometheus.client_id }}
-    client_secret: "{{ .Values.monitoring.sso.prometheus.client_secret }}"
+    client_id: {{ .Values.packages.monitoring.sso.prometheus.client_id }}
+    client_secret: "{{ .Values.packages.monitoring.sso.prometheus.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}
@@ -283,11 +257,11 @@ chains:
     {{- end }}
   {{- end }}
 
-  {{- if not (hasKey (.Values.addons.authservice.chains | default dict) "alertmanager") }}
+  {{- if not (hasKey (.Values.packages.authservice.chains | default dict) "alertmanager") }}
   alertmanager:
     match:
       header: ":authority"
-    {{- $alertmanagerHosts := (dig "istio" "alertmanager" "hosts" dict .Values.monitoring.values) }}
+    {{- $alertmanagerHosts := (dig "istio" "alertmanager" "hosts" dict .Values.packages.monitoring.values) }}
     {{- if $alertmanagerHosts }}
       prefix: {{ tpl ($alertmanagerHosts | first) $ }}
     callback_uri: https://{{ tpl ($alertmanagerHosts | first) $ }}/login/generic_oauth
@@ -295,8 +269,8 @@ chains:
       prefix: {{ printf "alertmanager.%s" $domainName }}
     callback_uri: https://alertmanager.{{ $domainName }}/login/generic_oauth
     {{- end }}
-    client_id: {{ .Values.monitoring.sso.alertmanager.client_id }}
-    client_secret: "{{ .Values.monitoring.sso.alertmanager.client_secret }}"
+    client_id: {{ .Values.packages.monitoring.sso.alertmanager.client_id }}
+    client_secret: "{{ .Values.packages.monitoring.sso.alertmanager.client_secret }}"
     {{- if not $legacy }}
     authorization_uri: {{ include "sso.oidc.auth" . }}
     token_uri: {{ include "sso.oidc.token" . }}

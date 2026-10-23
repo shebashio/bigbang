@@ -42,10 +42,10 @@ In `bigbang/templates/podinfo/values.yaml`, add the following to pass down the v
 
 ```yaml
 serviceMonitor:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
   dashboards:
     namespace: monitoring
-    label: {{ dig "values" "grafana" "sidecar" "dashboards" "label" "grafana_dashboard" .Values.monitoring }}
+    label: {{ dig "values" "grafana" "sidecar" "dashboards" "label" "grafana_dashboard" .Values.packages.monitoring }}
 ```
 
 ### Dependency
@@ -54,13 +54,13 @@ If we plan to scrape metrics from the application with the monitoring stack, we 
 
 ```yaml
 spec:
-  {{- if or .Values.istiod.enabled .Values.monitoring.enabled }}
+  {{- if or .Values.packages.istiod.enabled .Values.packages.monitoring.enabled }}
   dependsOn:
-    {{- if .Values.istiod.enabled }}
+    {{- if .Values.packages.istiod.enabled }}
     - name: istiod
       namespace: {{ .Release.Namespace }}
     {{- end }}
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     - name: monitoring
       namespace: {{ .Release.Namespace }}
     {{- end }}
@@ -71,7 +71,7 @@ spec:
 
 ### Service Monitor
 
-If the upstream Helm chart provides you with a `ServiceMonitor` and `Service` for scraping metrics, verify that there is a conditional around each one to only deploy them if monitoring is enabled (e.g., `{{- if .Values.serviceMonitor.enabled }}` or `{{- if .Values.monitoring.enabled }}`).
+If the upstream Helm chart provides you with a `ServiceMonitor` and `Service` for scraping metrics, verify that there is a conditional around each one to only deploy them if monitoring is enabled (e.g., `{{- if .Values.serviceMonitor.enabled }}` or `{{- if .Values.packages.monitoring.enabled }}`).
 
 If the upstream chart does **not** provide a `ServiceMonitor` and `Service` for scraping metrics, you will need to create one yourself using the [Prometheus instructions for running an exporter](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/running-exporters.md).
 

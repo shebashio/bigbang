@@ -1,21 +1,23 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if .Values.twistlock.enabled }}
-{{- /* Create a cleaned copy of twistlock config and merge deprecated paths into current paths */ -}}
-{{- $twistlockPackage := deepCopy .Values.twistlock -}}
-{{- if .Values.twistlock.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.twistlock.values) | fromYaml -}}
-{{- $twistlockPackage = set $twistlockPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $twistlockPackage "name" "twistlock" "defaults" ((mergeOverwrite (include "bigbang.defaults.twistlock" . | fromYaml) (include "bigbang.twistlock.bb-common-migrations" . | fromYaml)) | toYaml)) }}
+{{- if .Values.packages.twistlock.enabled }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.twistlock
+  "name" "twistlock"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.twistlock" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.twistlock" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.twistlock) "enabled") -}}
+{{- $defenderOnly := dig "deploymentMode" "defenderOnly" false .Values.packages.twistlock.values }}
+{{- $console := dig "console" dict .Values.packages.twistlock.values }}
 
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
@@ -23,7 +25,7 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.twistlock .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.twistlock .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem
@@ -38,38 +40,44 @@ imagePullSecretName: private-registry
 imagePullSecretName: ""
 {{- end }}
 
-networkPolicies:
-  ingress:
-    to:
-      twistlock-console:8081:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.monitoring.enabled }}
+bb-common:
+  networkPolicies:
+    {{- if $defenderOnly }}
+    enabled: false
+    {{- end }}
+    ingress:
+      to:
+        twistlock-console:8081:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
-  egress:
-    from:
-      twistlock-console:
-        to:
-          definition:
-            sso: {{ .Values.twistlock.sso.enabled }}
-      "*":
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+    egress:
+      from:
+        twistlock-console:
+          to:
+            definition:
+              sso: {{ .Values.packages.twistlock.sso.enabled }}
+        "*":
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
-istio:
-  injection: {{ ternary "enabled" "disabled" $istioInjection }}
-
-routes:
-  inbound:
-    console:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.twistlock.ingress.gateway "root" .)}}
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.twistlock.values }}
-      hosts:
-      - repo1.dso.mil
+  routes:
+    inbound:
+      console:
+        enabled: {{ not $defenderOnly }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.twistlock.ingress.gateway "root" .)}}
+        {{- if dig "backendTLS" false $console }}
+        port: {{ dig "ports" "managementHttps" 8083 $console }}
+        {{- end }}
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.twistlock.values }}
+        hosts:
+        - repo1.dso.mil
 
 bbtests:
   scripts:
@@ -78,7 +86,7 @@ bbtests:
   cypress:
     envs:
       cypress_twistlock_url: {{ printf "https://twistlock.%s" $domainName | quote }}
-      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.twistlock "values" .Values) | nindent 6 }}
+      {{- include "bigbang.cypressKeycloakValues" (dict "package" .Values.packages.twistlock "values" .Values) | nindent 6 }}
 
 {{- if $istioEnabled }}
 annotations:
@@ -90,14 +98,14 @@ console:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
 
 sso:
-  enabled: {{ .Values.twistlock.sso.enabled }}
-  client_id: {{ .Values.twistlock.sso.client_id }}
-  provider_name: {{ default .Values.sso.name .Values.twistlock.sso.provider_name }}
-  provider_type: {{ .Values.twistlock.sso.provider_type }}
-  issuer_uri: {{ default (include "sso.url" .) (tpl (default "" .Values.twistlock.sso.issuer_uri) .) }}
-  idp_url: {{ default (include "sso.saml.service" .) (tpl (default "" .Values.twistlock.sso.idp_url) .) }}
-  {{- $console := first (dig "istio" "console" "hosts" (list (printf "twistlock.%s" $domainName)) .Values.twistlock.values) }}
-  console_url: {{ tpl (default (printf "https://%s" $console) .Values.twistlock.sso.console_url) . }}
-  groups: {{ .Values.twistlock.sso.groups }}
-  cert: {{ default (include "sso.saml.cert.withheaders" .) .Values.twistlock.sso.cert | quote }}
+  enabled: {{ .Values.packages.twistlock.sso.enabled }}
+  client_id: {{ .Values.packages.twistlock.sso.client_id }}
+  provider_name: {{ default .Values.sso.name .Values.packages.twistlock.sso.provider_name }}
+  provider_type: {{ .Values.packages.twistlock.sso.provider_type }}
+  issuer_uri: {{ default (include "sso.url" .) (tpl (default "" .Values.packages.twistlock.sso.issuer_uri) .) }}
+  idp_url: {{ default (include "sso.saml.service" .) (tpl (default "" .Values.packages.twistlock.sso.idp_url) .) }}
+  {{- $console := first (dig "istio" "console" "hosts" (list (printf "twistlock.%s" $domainName)) .Values.packages.twistlock.values) }}
+  console_url: {{ tpl (default (printf "https://%s" $console) .Values.packages.twistlock.sso.console_url) . }}
+  groups: {{ .Values.packages.twistlock.sso.groups }}
+  cert: {{ default (include "sso.saml.cert.withheaders" .) .Values.packages.twistlock.sso.cert | quote }}
 {{- end -}}

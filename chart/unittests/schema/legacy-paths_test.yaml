@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Schema - Legacy Built-in Paths
+tests:
+  - it: should reject a former top-level built-in package
+    set:
+      kiali:
+        enabled: false
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*additional properties 'kiali' not allowed.*"
+
+  - it: should reject the former addons map
+    set:
+      addons:
+        gitlab:
+          enabled: true
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*additional properties 'addons' not allowed.*"
+
+  - it: should accept built-in and custom packages in the unified map
+    set:
+      packages:
+        kiali:
+          enabled: false
+        podinfo:
+          enabled: false
+    asserts:
+      - notFailedTemplate: {}

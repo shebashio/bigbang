@@ -1,17 +1,11 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- if or .Values.addons.minioOperator.enabled .Values.addons.minio.enabled }}
-  {{- $minioOperatorPackage := deepCopy .Values.addons.minioOperator -}}
-
-  {{- if .Values.addons.minioOperator.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.addons.minioOperator.values) | fromYaml -}}
-    {{- $minioOperatorPackage = set $minioOperatorPackage "values" $cleanedValues -}}
-  {{- end -}}
-
+{{- if or .Values.packages.minioOperator.enabled .Values.packages.minio.enabled }}
   {{- include "values-secret" (dict 
     "root" $ 
-    "package" $minioOperatorPackage 
-    "name" "minio-operator" 
-    "defaults" ((mergeOverwrite (include "bigbang.defaults.minio-operator" . | fromYaml) (include "bigbang.minio-operator.bb-common-migrations" . | fromYaml)) | toYaml)
+    "package" .Values.packages.minioOperator
+    "name" "minio-operator"
+    "bbCommonSubchart" true
+    "defaults" (include "bigbang.defaults.minio-operator" .)
   )}}
 {{- end }}
 
@@ -32,7 +26,7 @@ upstream:
       pullPolicy: {{ .Values.imagePullPolicy}}
     {{- include "secretsImagePullSecretsWithName" . | nindent 4 }}
 
-    {{- if .Values.monitoring.enabled }}
+    {{- if .Values.packages.monitoring.enabled }}
     env:
       - name: CLUSTER_DOMAIN
         value: "cluster.local"
@@ -42,26 +36,22 @@ upstream:
         value: "monitoring"
     {{- end }}
 
-networkPolicies:
-  egress:
-    from:
-      minio-operator:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.tempo.enabled }}
+bb-common:
+  networkPolicies:
+    egress:
+      from:
+        minio-operator:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
 
-istio:
-  console:
-    gateways:
-      - {{ include "getGatewayName" (dict "gateway" .Values.addons.minio.ingress.gateway "root" .)}}
-
-routes:
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.addons.minioOperator.values }}
-      hosts:
-      - repo1.dso.mil
+  routes:
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.minioOperator.values }}
+        hosts:
+        - repo1.dso.mil
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 {{- end -}}

@@ -39,19 +39,22 @@ Kiali does not have any persistent storage, all data is accessed live/directly f
 
 ### Istio Configuration
 
-The Istio VirtualService is created automatically (hosted at `kiali.{{ .Values.hostname }}`) and can be configured with the following values:
+The Istio VirtualService is created automatically (hosted at `kiali.<your-domain>`) and can be configured with the following values. Replace `<your-domain>` with the deployment domain:
 
 ```yaml
-kiali:
-  # Gateway override
-  ingress:
-    gateway: "private"
-  values:
-    istio:
-      kiali:
-        # Hostname override
-        hosts:
-        - kiali.{{ .Values.hostname }}
+packages:
+  kiali:
+    # Gateway override
+    ingress:
+      gateway: "private"
+    values:
+      bb-common:
+        routes:
+          inbound:
+            kiali:
+              # Hostname override
+              hosts:
+              - kiali.<your-domain>
 ```
 
 Kiali is also pre-configured with knowledge of the BB Istio stack for monitoring purposes. Kiali will monitor the status of all gateways and istiod and display a status "bubble" when a component is unreachable or down.
@@ -61,33 +64,33 @@ Kiali is also pre-configured with knowledge of the BB Istio stack for monitoring
 Kiali in Big Bang is preconfigured with the service information to connect to Big Bang's deployments of Prometheus, Grafana, and Tempo. If you wish to configure Kiali with different external services rather than the BB provided ones, you can do that via values overrides:
 
 ```yaml
-kiali:
-  values:
-    cr:
-      spec:
-        external_services:
-          ...
-          # Fill in with your custom overrides
+packages:
+  kiali:
+    values:
+      cr:
+        spec:
+          external_services: {}
+          # Add custom overrides under this mapping.
           # See https://github.com/kiali/kiali-operator/blob/master/deploy/kiali/kiali_cr.yaml#L422 for available options
-          ...
 ```
 
 Since both Prometheus and Tempo are open to Kiali via the service address there is no authentication needed for them. Grafana authentication will be set up automatically using the admin account for Grafana.
 
-Important note: If you modify the Grafana admin username/password via the UI or another method besides Helm values (`monitoring.values.grafana.adminPassword` or `monitoring.values.grafana.admin.existingSecret`), Kiali will not be autoconfigured with this knowledge. This is due to limitations in where/how Grafana stores the "live" password. If you do modify your Grafana username/password in one of these ways, it is recommended to pass these values to your Grafana install via one of the below methods where they will also be picked up by Kiali:
+Important note: If you modify the Grafana admin username/password via the UI or another method besides Helm values (`packages.monitoring.values.grafana.adminPassword` or `packages.monitoring.values.grafana.admin.existingSecret`), Kiali will not be autoconfigured with this knowledge. This is due to limitations in where/how Grafana stores the "live" password. If you do modify your Grafana username/password in one of these ways, it is recommended to pass these values to your Grafana install via one of the below methods where they will also be picked up by Kiali:
 
 ```yaml
-monitoring:
-  values:
-    grafana:
-      # Direct passing via values (method 1)
-      adminUser: myadminuser
-      adminPassword: myadminpassword
-      # Passing via secret (method 2)
-      admin:
-        existingSecret: mygrafanasecret
-        userKey: myusernamekey
-        passwordKey: mypasswordkey
+packages:
+  monitoring:
+    values:
+      grafana:
+        # Direct passing via values (method 1)
+        adminUser: myadminuser
+        adminPassword: myadminpassword
+        # Passing via secret (method 2)
+        admin:
+          existingSecret: mygrafanasecret
+          userKey: myusernamekey
+          passwordKey: mypasswordkey
 ```
 
 ## High Availability
@@ -100,25 +103,27 @@ Both methods are shown below:
 
 - Specific number of replicas
 ```yaml
-kiali:
-  values:
-    cr:
-      spec:
-        deployment:
-          replicas: 3
+packages:
+  kiali:
+    values:
+      cr:
+        spec:
+          deployment:
+            replicas: 3
 ```
 
 - HPA with min/max replicas
 ```yaml
-kiali:
-  values:
-    cr:
-      spec:
-        deployment:
-          hpa:
-            spec:
-              maxReplicas: 5
-              minReplicas: 3
+packages:
+  kiali:
+    values:
+      cr:
+        spec:
+          deployment:
+            hpa:
+              spec:
+                maxReplicas: 5
+                minReplicas: 3
 ```
 
 ## Single Sign on (SSO)
@@ -126,15 +131,16 @@ kiali:
 SSO for Kiali is done via [built in OIDC](https://kiali.io/docs/configuration/authentication/openid/). Big Bang abstracts and simplifies the settings required for SSO setup. The following values can be used to configure SSO for Kiali:
 
 ```yaml
-kiali:
-  sso:
-    enabled: true
-    client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-kiali
-    client_secret: your_client_secret_or_empty_string
-# Kiali inherits/uses the global SSO settings at .sso
+packages:
+  kiali:
+    sso:
+      enabled: true
+      client_id: platform1_a8604cc9-f5e9-4656-802d-d05624370245_bb8-kiali
+      client_secret: your_client_secret_or_empty_string
+  # Kiali inherits/uses the global SSO settings at .sso
 ```
 
-If you require a more advanced SSO configuration there are additional ways to customize that are detailed in the [upstream OIDC docs](https://kiali.io/docs/configuration/authentication/openid/). This doc includes details on how to configure username, scope, timeout, proxies, and more. It also lists some [SSO provider specifics](https://kiali.io/docs/configuration/authentication/openid/#_provider_specific_instructions) which may be needed for configuring with different providers. If you want to provide any further configuration than what is included in the `kiali.sso` block, you can override the BB pre-configured SSO and pass values via `kiali.values.cr.spec.auth`.
+If you require a more advanced SSO configuration there are additional ways to customize that are detailed in the [upstream OIDC docs](https://kiali.io/docs/configuration/authentication/openid/). This doc includes details on how to configure username, scope, timeout, proxies, and more. It also lists some [SSO provider specifics](https://kiali.io/docs/configuration/authentication/openid/#_provider_specific_instructions) which may be needed for configuring with different providers. If you want to provide any further configuration than what is included in the `packages.kiali.sso` block, you can override the BB pre-configured SSO and pass values via `packages.kiali.values.cr.spec.auth`.
 
 ## Non-SSO Login
 
@@ -148,12 +154,13 @@ If you do not configure Kiali with SSO you will have [4 options](https://kiali.i
 
 Example of how to override the authentication method:
 ```yaml
-kiali:
-  values:
-    cr:
-      spec:
-        auth:
-          strategy: "anonymous"
+packages:
+  kiali:
+    values:
+      cr:
+        spec:
+          auth:
+            strategy: "anonymous"
 ```
 
 ## Licensing

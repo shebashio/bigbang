@@ -2,57 +2,54 @@
 {{- $pkg := "istiod" }}
 
 {{- /* Create secret */ -}}
-{{- if (get .Values $pkg).enabled }}
-{{- include "values-secret" (dict 
-  "root" $ 
-  "package" (get .Values $pkg) 
-  "name" ($pkg | kebabcase) 
-  "defaults" ((mergeOverwrite (include "bigbang.defaults.istiod" . | fromYaml) (include "bigbang.istiod.bb-common-migrations" . | fromYaml)) | toYaml)
+{{- if (get .Values.packages $pkg).enabled }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" (get .Values.packages $pkg)
+  "name" ($pkg | kebabcase)
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.istiod" .)
 )}}
 {{- end }}
 
 {{- define "bigbang.defaults.istiod" -}}
-{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.istiod.values }}
 {{- $authserviceEnabled := eq (include "authserviceEnabled" .) "true" }}
 
-istio:
-  sidecar:
-    enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
-networkPolicies:
-  egress:
-    {{- if eq (include "ambientEnabled" .) "true" }}
-    defaults:
-      allowInNamespace:
-        enabled: true
-    {{- end }}
-    from:
-      istiod:
-        to:
-          definition:
-            sso: {{ $authserviceEnabled }}
-  ingress:
-    {{- if eq (include "ambientEnabled" .) "true" }}
-    defaults:
-      allowInNamespace:
-        enabled: true
-    {{- end }}
-    to:
-      istiod:15014:
-        from:
-          k8s:
-            kiali/kiali: {{ .Values.kiali.enabled }}
-            monitoring/prometheus: {{ .Values.monitoring.enabled }}
+bb-common:
+  networkPolicies:
+    egress:
+      {{- if eq (include "ambientEnabled" .) "true" }}
+      defaults:
+        allowInNamespace:
+          enabled: true
+      {{- end }}
+      from:
+        istiod:
+          to:
+            definition:
+              sso: {{ $authserviceEnabled }}
+    ingress:
+      {{- if eq (include "ambientEnabled" .) "true" }}
+      defaults:
+        allowInNamespace:
+          enabled: true
+      {{- end }}
+      to:
+        istiod:15014:
+          from:
+            k8s:
+              kiali/kiali: {{ .Values.packages.kiali.enabled }}
+              monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 monitoring:
-  enabled: {{ .Values.monitoring.enabled }}
+  enabled: {{ .Values.packages.monitoring.enabled }}
 
 authservice:
   enabled: {{ $authserviceEnabled }}
 
 upstream:
   cni:
-    enabled: {{ or .Values.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
+    enabled: {{ or .Values.packages.istioCNI.enabled (eq (include "ambientEnabled" .) "true") }}
   global:
     imagePullPolicy: {{ .Values.imagePullPolicy }}
     {{- include "secretsImagePullSecrets" . | nindent 4 }}
@@ -66,11 +63,11 @@ upstream:
     defaultConfig:
       proxyMetadata:
         ISTIO_META_ENABLE_HBONE: "true"
-      {{- if .Values.tempo.enabled }}
+      {{- if .Values.packages.tempo.enabled }}
       tracing:
         sampling: 10
       {{- end }}
-    {{- if .Values.tempo.enabled }}
+    {{- if .Values.packages.tempo.enabled }}
     accessLogFormat: |
       [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS% %RESPONSE_CODE_DETAILS% %CONNECTION_TERMINATION_DETAILS% "%UPSTREAM_TRANSPORT_FAILURE_REASON%" %BYTES_RECEIVED% %BYTES_SENT% %DURATION% %RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)% "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%" %UPSTREAM_CLUSTER% %UPSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_LOCAL_ADDRESS% %DOWNSTREAM_REMOTE_ADDRESS% %REQUESTED_SERVER_NAME% %ROUTE_NAME% traceID=%REQ(x-b3-traceid)%
     enableTracing: true
@@ -80,7 +77,7 @@ upstream:
       metrics:
         - prometheus
     {{- end }}
-    {{- if or $authserviceEnabled .Values.tempo.enabled }}
+    {{- if or $authserviceEnabled .Values.packages.tempo.enabled }}
     extensionProviders:
     {{- if $authserviceEnabled }}
       - name: "authservice"
@@ -88,7 +85,7 @@ upstream:
           service: "authservice.authservice.svc.cluster.local"
           port: "10003"
     {{- end }}
-    {{- if .Values.tempo.enabled }}
+    {{- if .Values.packages.tempo.enabled }}
       - name: "otel-tracing"
         opentelemetry:
           service: "alloy-alloy-receiver.alloy.svc.cluster.local"
