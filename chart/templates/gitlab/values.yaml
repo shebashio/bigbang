@@ -75,272 +75,290 @@ hostname: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
-routes:
-  inbound:
-    gitlab:
-      enabled: true
-      gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
-      hosts:
-      - "{{ .Values.packages.gitlab.hostnames.gitlab }}.{{ .Values.domain }}"
-      http:
-      - fault:
-          abort:
-            httpStatus: 403
-            percentage:
-              value: 100
-        match:
-        - uri:
-            prefix: /-/metrics
-        route:
-        - destination:
-            host: gitlab-webservice-default
-            port:
-              number: 8181
-      - match:
-        - uri:
-            prefix: /
-        route:
-        - destination:
-            host: gitlab-webservice-default
-            port:
-              number: 8181
-      - match:
-        - uri:
-            prefix: /admin/sidekiq
-        route:
-        - destination:
-            host: gitlab-webservice-default
-            port:
-              number: 8080
-      selector:
-        app: webservice
+bb-common:
+  routes:
+    inbound:
+      gitlab:
+        enabled: true
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - "{{ .Values.packages.gitlab.hostnames.gitlab }}.{{ .Values.domain }}"
+        http:
+        - fault:
+            abort:
+              httpStatus: 403
+              percentage:
+                value: 100
+          match:
+          - uri:
+              prefix: /-/metrics
+          route:
+          - destination:
+              host: gitlab-webservice-default
+              port:
+                number: 8181
+        - match:
+          - uri:
+              prefix: /
+          route:
+          - destination:
+              host: gitlab-webservice-default
+              port:
+                number: 8181
+        - match:
+          - uri:
+              prefix: /admin/sidekiq
+          route:
+          - destination:
+              host: gitlab-webservice-default
+              port:
+                number: 8080
+        selector:
+          app: webservice
 
-    registry:
-      enabled: true
-      gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
-      hosts:
-      - "{{ .Values.packages.gitlab.hostnames.registry }}.{{ .Values.domain }}"
-      service: gitlab-registry
-      port: 5000
-      selector:
-        app: registry
+      registry:
+        enabled: true
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - "{{ .Values.packages.gitlab.hostnames.registry }}.{{ .Values.domain }}"
+        service: gitlab-registry
+        port: 5000
+        selector:
+          app: registry
     {{- if $kasEnabled }}
-    kas:
-      enabled: {{ dig "global" "kas" "enabled" true .Values.packages.gitlab.values }}
-      gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
-      hosts:
-      - kas.{{ .Values.domain }}
-      http:
-      - match:
-        - uri:
-            prefix: /-/kubernetes-agent
-        route:
-        - destination:
-            host: gitlab-kas
-            port:
-              number: 8150
-      selector:
-        app: kas
+      kas:
+        enabled: {{ dig "global" "kas" "enabled" true .Values.packages.gitlab.values }}
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - kas.{{ .Values.domain }}
+        http:
+        - match:
+          - uri:
+              prefix: /-/kubernetes-agent
+          route:
+          - destination:
+              host: gitlab-kas
+              port:
+                number: 8150
+        selector:
+          app: kas
     {{- end }}
 
-    pages:
-      enabled: false
-      gateways:
-      - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
-      hosts:
-      - "pages.{{ .Values.domain }}"
-      service: gitlab-pages
-      port: 8090
-      selector:
-        app: gitlab-pages
-  outbound:
-    sso:
-      enabled: {{ or .Values.packages.gitlab.sso.enabled (dig "sso" "enabled" false .Values.packages.gitlab.values) }}
-      hosts:
-      - {{ coalesce (dig "sso" "host" nil .Values.packages.gitlab.values) (include "sso.host" .) }}
-    external-redis:
-      enabled: {{ $externalRedisRouteEnabled }}
+      pages:
+        enabled: false
+        gateways:
+        - {{ include "getGatewayName" (dict "gateway" (.Values.packages.gitlab.ingress.gateway | default "public") "root" .)}}
+        hosts:
+        - "pages.{{ .Values.domain }}"
+        service: gitlab-pages
+        port: 8090
+        selector:
+          app: gitlab-pages
+    outbound:
+      sso:
+        enabled: {{ or .Values.packages.gitlab.sso.enabled (dig "sso" "enabled" false .Values.packages.gitlab.values) }}
+        hosts:
+        - {{ coalesce (dig "sso" "host" nil .Values.packages.gitlab.values) (include "sso.host" .) }}
+      external-redis:
+        enabled: {{ $externalRedisRouteEnabled }}
       {{- if $externalRedisRouteEnabled }}
-      hosts:
-      - {{ $externalRedisHost | quote }}
-      ports:
-      - number: {{ default 6379 (get $gitlabRedisValues "port") }}
-        name: redis
-        protocol: TCP
+        hosts:
+        - {{ $externalRedisHost | quote }}
+        ports:
+        - number: {{ default 6379 (get $gitlabRedisValues "port") }}
+          name: redis
+          protocol: TCP
       {{- end }}
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlab.values }}
-      hosts:
-      - 'repo1.dso.mil'
-      - 'registry1.dso.mil'
-      - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
-      - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
-      - registry.{{ $domainName }}
-      - keycloak.{{ $domainName }}
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlab.values }}
+        hosts:
+        - 'repo1.dso.mil'
+        - 'registry1.dso.mil'
+        - 'ib-prod-harbor-storage.s3.us-gov-west-1.amazonaws.com'
+        - 'ib-prod-harbor-storage.s3.us-gov-east-1.amazonaws.com'
+        - registry.{{ $domainName }}
+        - keycloak.{{ $domainName }}
 
 {{- $istioHardened := dig "hardened" "enabled" false .Values.packages.istiod.values }}
-istio:
-  sidecar:
-    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
+  istio:
+    sidecar:
+      enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
 
-networkPolicies:
-  ingress:
-    to:
-      redis:9121: 
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisConfigured) .Values.packages.monitoring.enabled (dig "redis" "install" true .Values.packages.gitlab.values) }}
-      gitlab-exporter:9168:
-        podSelector:
-          matchLabels:
-            app: gitlab-exporter
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
-      gitaly:9236:
-        podSelector:
-          matchLabels:
-            app: gitaly
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
-      webservice:8181:
-        podSelector:
-          matchLabels:
-            app: webservice
-        from:
-          k8s:
-            # Allow any service account from the gitlab-runner namespace; the runner 
-            # coordinator has a different service account to the jobs it runs
-            gitlab-runner/gitlab-runner: 
-              enabled: {{ .Values.packages.gitlabRunner.enabled }}
-              podSelector:
-                matchLabels:
-                  app: gitlab-runner
-      webservice:[8083,8084,9229]:
-        podSelector:
-          matchLabels:
-            app: webservice
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+  networkPolicies:
+    ingress:
+      to:
+        redis:9121: 
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and (not $externalRedisConfigured) .Values.packages.monitoring.enabled (dig "redis" "install" true .Values.packages.gitlab.values) }}
+        gitlab-exporter:9168:
+          podSelector:
+            matchLabels:
+              app: gitlab-exporter
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+        gitaly:9236:
+          podSelector:
+            matchLabels:
+              app: gitaly
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+        webservice:8181:
+          podSelector:
+            matchLabels:
+              app: webservice
+          from:
+            k8s:
+              # Allow any service account from the gitlab-runner namespace; the runner 
+              # coordinator has a different service account to the jobs it runs
+              gitlab-runner/gitlab-runner: 
+                enabled: {{ .Values.packages.gitlabRunner.enabled }}
+                podSelector:
+                  matchLabels:
+                    app: gitlab-runner
+        webservice:[8083,8084,9229]:
+          podSelector:
+            matchLabels:
+              app: webservice
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
 
-      registry:5001:
-        podSelector:
-          matchLabels:
-            app: registry
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+        registry:5001:
+          podSelector:
+            matchLabels:
+              app: registry
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       {{- if $kasEnabled }}
-      kas:[8150,8153]:
-        podSelector:
-          matchLabels:
-            app: kas
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+        kas:[8150,8153]:
+          podSelector:
+            matchLabels:
+              app: kas
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
       {{- end }}
 
-      gitlab-runner:9252:
-        podSelector:
-          matchLabels:
-            app: gitlab-runner
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
-  egress:
-    from:
-      "*":
-        to:
-          definition:
-            kubeAPI: true
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
-      sidekiq:
-        to:
-          cidr:
-            169.254.169.254/32: {{ $iamProfileUsed }}
-          definition:
-            storage-subnets: true
-            database-subnets: {{ not $postgresEnabled }}
+        gitlab-runner:9252:
+          podSelector:
+            matchLabels:
+              app: gitlab-runner
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled }}
+    egress:
+      {{- if empty .Values.networkPolicies.egress.definitions.kubeAPI }}
+      definitions:
+        kubeAPI:
+          to:
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+              except:
+              - 169.254.169.254/32
+              {{- end }}
+          {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+          {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+          - ipBlock:
+              cidr: {{ .Values.networkPolicies.vpcCidr }}
+          {{- end }}
+          {{- end }}
+      {{- end }}
+      from:
+        "*":
+          to:
+            definition:
+              kubeAPI: true
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+        sidekiq:
+          to:
+            cidr:
+              169.254.169.254/32: {{ $iamProfileUsed }}
+            definition:
+              storage-subnets: true
+              database-subnets: {{ not $postgresEnabled }}
             {{- if $externalRedisConfigured }}
-            redis-subnets: true
+              redis-subnets: true
             {{- end }}
-      webservice:
-        to:
-          cidr:
-            169.254.169.254/32: {{ $iamProfileUsed }}
-          definition:
-            sso: true
-            database-subnets: true
-            storage-subnets: {{ not $minioEnabled }}
+        webservice:
+          to:
+            cidr:
+              169.254.169.254/32: {{ $iamProfileUsed }}
+            definition:
+              sso: true
+              database-subnets: true
+              storage-subnets: {{ not $minioEnabled }}
             {{- if $externalRedisConfigured }}
-            redis-subnets: true
+              redis-subnets: true
             {{- end }}
-      migrations:
-        to:
-          cidr:
-            169.254.169.254/32: {{ $iamProfileUsed }}
-          definition:
-            database-subnets: true
-            storage-subnets: {{ not $minioEnabled }}
+        migrations:
+          to:
+            cidr:
+              169.254.169.254/32: {{ $iamProfileUsed }}
+            definition:
+              database-subnets: true
+              storage-subnets: {{ not $minioEnabled }}
             {{- if $externalRedisConfigured }}
-            redis-subnets: true
+              redis-subnets: true
             {{- end }}
-      registry:
-        to:
-          cidr:
-            169.254.169.254/32: {{ $iamProfileUsed }}
-          definition:
-            storage-subnets: {{ not $minioEnabled }}
-            database-subnets: {{ not $postgresEnabled }}
-      toolbox:
-        to:
-          cidr:
-            169.254.169.254/32: {{ $iamProfileUsed }}
-          definition:
-            storage-subnets: {{ not $minioEnabled }}
-            database-subnets: {{ not $postgresEnabled }}
+        registry:
+          to:
+            cidr:
+              169.254.169.254/32: {{ $iamProfileUsed }}
+            definition:
+              storage-subnets: {{ not $minioEnabled }}
+              database-subnets: {{ not $postgresEnabled }}
+        toolbox:
+          to:
+            cidr:
+              169.254.169.254/32: {{ $iamProfileUsed }}
+            definition:
+              storage-subnets: {{ not $minioEnabled }}
+              database-subnets: {{ not $postgresEnabled }}
             {{- if $externalRedisConfigured }}
-            redis-subnets: true
+              redis-subnets: true
             {{- end }}
       {{- if eq (include "metricScrapingEnabled" .) "true" }}
-      gitlab-exporter:
-        podSelector:
-          matchLabels:
-            app: gitlab-exporter
-        to:
-          definition:
-            database-subnets: {{ not $postgresEnabled }}
+        gitlab-exporter:
+          podSelector:
+            matchLabels:
+              app: gitlab-exporter
+          to:
+            definition:
+              database-subnets: {{ not $postgresEnabled }}
             {{- if $externalRedisConfigured }}
-            redis-subnets: true
+              redis-subnets: true
             {{- end }}
       {{- end }}
       {{- if and $externalRedisConfigured $kasEnabled }}
-      kas:
-        to:
-          definition:
-            redis-subnets: true
+        kas:
+          to:
+            definition:
+              redis-subnets: true
       {{- end }}
       {{- if and $externalRedisConfigured (dig "upstream" "gitlab" "mailroom" "enabled" false .Values.packages.gitlab.values) }}
-      mailroom:
-        podSelector:
-          matchLabels:
-            app: mailroom
-        to:
-          definition:
-            redis-subnets: true
+        mailroom:
+          podSelector:
+            matchLabels:
+              app: mailroom
+          to:
+            definition:
+              redis-subnets: true
       {{- end }}
 
 bbtests:
@@ -831,70 +849,4 @@ use_iam_profile: true
     {{- end }}
   {{- end }}
 {{ toYaml $overlays }}
-{{- end }}
-
-{{- define "bigbang.gitlab.externalObjectStorageConfigured" -}}
-{{- $configured := or (not (empty .Values.packages.gitlab.objectStorage.region)) (not (empty .Values.packages.gitlab.objectStorage.endpoint)) -}}
-{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
-{{- $gitlabGlobalValues := dict -}}
-{{- if kindIs "map" $gitlabValues -}}
-  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
-{{- end -}}
-{{- if kindIs "map" $gitlabGlobalValues -}}
-  {{- $gitlabAppConfigValues := (get $gitlabGlobalValues "appConfig") | default dict -}}
-  {{- if kindIs "map" $gitlabAppConfigValues -}}
-    {{- $gitlabObjectStoreValues := (get $gitlabAppConfigValues "object_store") | default dict -}}
-    {{- if kindIs "map" $gitlabObjectStoreValues -}}
-      {{- $configured = or $configured (dig "enabled" false $gitlabObjectStoreValues) -}}
-    {{- end -}}
-    {{- range $storeName := list "lfs" "artifacts" "uploads" "packages" "externalDiffs" "terraformState" "ciSecureFiles" "agentPlanContent" "dependencyProxy" -}}
-      {{- $storeValues := (get $gitlabAppConfigValues $storeName) | default dict -}}
-      {{- if kindIs "map" $storeValues -}}
-        {{- $connectionValues := (get $storeValues "connection") | default dict -}}
-        {{- if kindIs "map" $connectionValues -}}
-          {{- $configured = or $configured (not (empty $connectionValues)) -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- $configured -}}
-{{- end }}
-
-{{- define "bigbang.gitlab.externalRedisConfigured" -}}
-{{- $configured := false -}}
-{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
-{{- $gitlabGlobalValues := dict -}}
-{{- if kindIs "map" $gitlabValues -}}
-  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
-{{- end -}}
-{{- if kindIs "map" $gitlabGlobalValues -}}
-  {{- $gitlabRedisValues := (get $gitlabGlobalValues "redis") | default dict -}}
-  {{- if kindIs "map" $gitlabRedisValues -}}
-    {{- $configured = or
-      (not (empty (get $gitlabRedisValues "host")))
-      (not (empty (get $gitlabRedisValues "redisYmlOverride"))) -}}
-  {{- end -}}
-{{- end -}}
-{{- $configured -}}
-{{- end }}
-
-{{- define "bigbang.gitlab.externalPostgresConfigured" -}}
-{{- $configured := not (empty .Values.packages.gitlab.database.host) -}}
-{{- $gitlabValues := .Values.packages.gitlab.values | default dict -}}
-{{- $gitlabGlobalValues := dict -}}
-{{- if kindIs "map" $gitlabValues -}}
-  {{- $gitlabGlobalValues = (get $gitlabValues "global") | default dict -}}
-{{- end -}}
-{{- if kindIs "map" $gitlabGlobalValues -}}
-  {{- $gitlabPsqlValues := (get $gitlabGlobalValues "psql") | default dict -}}
-  {{- if kindIs "map" $gitlabPsqlValues -}}
-    {{- $configured = or $configured (not (empty (get $gitlabPsqlValues "host"))) -}}
-    {{- $gitlabMainPsqlValues := (get $gitlabPsqlValues "main") | default dict -}}
-    {{- if kindIs "map" $gitlabMainPsqlValues -}}
-      {{- $configured = or $configured (not (empty (get $gitlabMainPsqlValues "host"))) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- $configured -}}
 {{- end }}
