@@ -1140,10 +1140,12 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "
 {{- $pkg := index . 0 -}}
 {{- $root := index . 1 -}}
 {{- $globalIstioEnabled := eq (include "istioEnabled" $root) "true" -}}
-{{- $pkgIstioEnabled := dig "values" "istio" "enabled" true $pkg -}}
+{{- $pkgValues := default (dict) (get $pkg "values") -}}
+{{- $bbCommonIstio := dig "bb-common" "istio" (dict) $pkgValues -}}
+{{- $pkgIstioEnabled := dig "enabled" (dig "istio" "enabled" true $pkgValues) $bbCommonIstio -}}
 {{- $injectionEnabled := ne (dig "istio" "injection" "enabled" $pkg) "disabled" -}}
 {{- $ambientEnabled := eq (include "ambientEnabled" $root) "true" -}}
-{{- $mtlsStrict := eq (dig "values" "istio" "mtls" "mode" "STRICT" $pkg) "STRICT" -}}
+{{- $mtlsStrict := eq (dig "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" $pkgValues) $bbCommonIstio) "STRICT" -}}
 {{- and $globalIstioEnabled $pkgIstioEnabled $injectionEnabled (not $ambientEnabled) $mtlsStrict -}}
 {{- end -}}
 
