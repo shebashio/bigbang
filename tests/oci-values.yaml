@@ -72,9 +72,7 @@ packages:
       cosignVerify: false
 
   tempo:
-    # Draft-only: exercise the migration from Git until 3.2.0-bb.1 is published.
-    # Restore helmRepo along with the release pins before merging this MR.
-    sourceType: "git"
+    sourceType: "helmRepo"
     helmRepo:
       cosignVerify: false
 
