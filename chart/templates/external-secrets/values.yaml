@@ -1,12 +1,16 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.externalSecrets.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.packages.externalSecrets "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .)) }}
+{{- $externalSecretsPackage := deepCopy .Values.packages.externalSecrets -}}
+{{- if .Values.packages.externalSecrets.values -}}
+{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.externalSecrets.values) | fromYaml -}}
+{{- $externalSecretsPackage = set $externalSecretsPackage "values" $cleanedValues -}}
+{{- end -}}
+{{- include "values-secret" (dict "root" $ "package" $externalSecretsPackage "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .) "bbCommonSubchart" true) }}
 {{- end }}
 
 {{- define "bigbang.defaults.external-secrets" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $externalSecretsValues := .Values.packages.externalSecrets.values | default dict }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false $externalSecretsValues) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
 {{- $webhookEnabled := dig "upstream" "webhook" "create" false $externalSecretsValues }}
 {{- $certControllerEnabled := dig "upstream" "certController" "create" false $externalSecretsValues }}
 
@@ -29,31 +33,28 @@ upstream:
 monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-networkPolicies:
-  ingress:
-    to:
-      external-secrets-webhook:10250:
-        from:
-          definition:
-            kubeAPI: {{ $webhookEnabled }}
-  egress:
-    from:
-      external-secrets:
-        to:
-          k8s:
-            vault/vault:8200: {{ .Values.packages.vault.enabled }}
-      external-secrets-webhook:
-        to:
-          definition:
-            kubeAPI: {{ $webhookEnabled }}
-      external-secrets-cert-controller:
-        to:
-          definition:
-            kubeAPI: {{ $certControllerEnabled }}
+bb-common:
+  networkPolicies:
+    ingress:
+      to:
+        external-secrets-webhook:10250:
+          from:
+            definition:
+              kubeAPI: {{ $webhookEnabled }}
+    egress:
+      from:
+        external-secrets:
+          to:
+            k8s:
+              vault/vault:8200: {{ .Values.packages.vault.enabled }}
+        external-secrets-webhook:
+          to:
+            definition:
+              kubeAPI: {{ $webhookEnabled }}
+        external-secrets-cert-controller:
+          to:
+            definition:
+              kubeAPI: {{ $certControllerEnabled }}
 
 openshift: {{ .Values.openshift }}
 {{- end -}}
