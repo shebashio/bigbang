@@ -1303,17 +1303,9 @@ packages:
               max_global_series_per_user: 0
 
   mattermostOperator:
-    # Paired bb-common migration; replace branch pins with release tags before merge.
-    git:
-      tag: ""
-      branch: akesterson/bb-common-subchart
     enabled: true
 
   mattermost:
-    # Paired bb-common migration; replace branch pins with release tags before merge.
-    git:
-      tag: ""
-      branch: akesterson/bb-common-subchart
     enabled: true
     sso:
       enabled: false
