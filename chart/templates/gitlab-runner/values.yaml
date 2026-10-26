@@ -2,13 +2,7 @@
 {{- $pkg := "gitlab-runner" }}
 
 {{- if .Values.packages.gitlabRunner.enabled }}
-{{- /* Create a cleaned copy of gitlab-runner config and merge deprecated paths into current paths */ -}}
-{{- $gitlabRunnerPackage := deepCopy .Values.packages.gitlabRunner -}}
-{{- if .Values.packages.gitlabRunner.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.gitlabRunner.values) | fromYaml -}}
-{{- $gitlabRunnerPackage = set $gitlabRunnerPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $gitlabRunnerPackage "name" $pkg "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.gitlabRunner "name" $pkg "bbCommonSubchart" true "defaults" (include "bigbang.defaults.gitlab-runner" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.gitlab-runner" -}}
@@ -16,37 +10,38 @@
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $autoRegisterEnabled := and .Values.packages.kyverno.enabled .Values.packages.gitlab.enabled (dig "autoRegister" "enabled" true .Values.packages.gitlabRunner) }}
 
-routes:
-  outbound:
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlabRunner.values }}
-      hosts:
-      - 'repo1.dso.mil'
-      - gitlab.{{ $domainName }}
+bb-common:
+  routes:
+    outbound:
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.gitlabRunner.values }}
+        hosts:
+        - 'repo1.dso.mil'
+        - gitlab.{{ $domainName }}
 
-networkPolicies:
-  egress:
-    from:
-      gitlab-runner:
-        podSelector:
-          matchLabels:
-            app: gitlab-runner
-        to:
-          k8s:
-            gitlab/*: true
-          definition:
-            kubeAPI: true
-  ingress:
-    to:
-      gitlab-runner:9252:
-        podSelector:
-          matchLabels:
-            app: gitlab-runner
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-  additionalPolicies: []
+  networkPolicies:
+    egress:
+      from:
+        gitlab-runner:
+          podSelector:
+            matchLabels:
+              app: gitlab-runner
+          to:
+            k8s:
+              gitlab/*: true
+            definition:
+              kubeAPI: true
+    ingress:
+      to:
+        gitlab-runner:9252:
+          podSelector:
+            matchLabels:
+              app: gitlab-runner
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+    additionalPolicies: []
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}

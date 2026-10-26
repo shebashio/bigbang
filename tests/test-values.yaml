@@ -1081,17 +1081,18 @@ packages:
       upstream:
         runners:
           protected: false
-      networkPolicies:
-        additionalPolicies:
-        - name: egress-runner-jobs
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Egress
-            egress:
-            - to:
-              - ipBlock:
-                  cidr: 0.0.0.0/0
+      bb-common:
+        networkPolicies:
+          additionalPolicies:
+          - name: egress-runner-jobs
+            spec:
+              podSelector: {}
+              policyTypes:
+              - Egress
+              egress:
+              - to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
