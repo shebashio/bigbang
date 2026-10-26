@@ -217,8 +217,11 @@ bbtests:
 sso:
   enabled: {{ .Values.packages.anchoreEnterprise.sso.enabled }}
   spEntityId: {{ .Values.packages.anchoreEnterprise.sso.client_id }}
-  {{- $anchoreUrl := first (dig "bb-common" "routes" "inbound" "anchore-ui" "hosts" list .Values.packages.anchoreEnterprise.values) }}
-  acsUrl: https://{{ tpl ($anchoreUrl | default (printf "%s.%s" "anchore" $domainName)) . }}/service/sso/auth/keycloak
+  {{- $pkgValues := .Values.packages.anchoreEnterprise.values | default dict }}
+  {{- $anchoreUrl := first (dig "bb-common" "routes" "inbound" "anchore-ui" "hosts" list $pkgValues) }}
+  {{- /* Template the host in bb-common's subchart scope so it resolves exactly as the package's VirtualService does */}}
+  {{- $bbCommonValues := merge (deepCopy (index $pkgValues "bb-common" | default dict)) (dict "global" (merge (deepCopy ($pkgValues.global | default dict)) (dict "domain" $domainName))) }}
+  acsUrl: https://{{ tpl ($anchoreUrl | default (printf "%s.%s" "anchore" $domainName)) (dict "Values" $bbCommonValues "Template" .Template) }}/service/sso/auth/keycloak
   idpMetadataUrl: "{{ include "sso.saml.descriptor" . }}"
   {{- if .Values.sso.saml.metadata }}
   idpMetadataXml: |

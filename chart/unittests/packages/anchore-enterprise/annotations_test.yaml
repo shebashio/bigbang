@@ -144,3 +144,69 @@ tests:
       - equal:
           path: bb-common.istio.serviceEntries.custom[0].name
           value: custom-egress
+
+  - it: should default the SSO ACS URL to the anchore host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://anchore.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should resolve a templated UI host in package scope with SSO disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.sso.enabled: false
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should resolve a templated UI host in package scope with SSO enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.sso.enabled: true
+      sso.url: https://login.dso.mil/auth/realms/baby-yoda
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.enabled
+          value: true
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should prefer a package-level global.domain when templating the UI host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.values.global.domain: other.mil
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.other.mil/service/sso/auth/keycloak
+
