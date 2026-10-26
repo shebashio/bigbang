@@ -287,6 +287,8 @@ policies:
         serviceAccounts: ['.*']
         pods:
           allow:
+            # The Gluon script-test init container queries the Kubernetes API.
+            - thanos-script-test
             - thanos-minio-.*
           deny:
             - thanos-query-frontend-.*
