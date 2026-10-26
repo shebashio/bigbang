@@ -47,6 +47,32 @@ tests:
       - lengthEqual:
           path: spec.postRenderers
           count: 1
+  - it: omits TLS patches for legacy disabled mTLS
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.istio.mtls.mode: DISABLE
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
+  - it: prefers nested STRICT mode over legacy disabled mTLS
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.istio.mtls.mode: DISABLE
+      packages.tempo.values.bb-common.istio.mtls.mode: STRICT
+    asserts:
+      - matchRegex:
+          path: spec.postRenderers[1].kustomize.patches[0].patch
+          pattern: 'path: /spec/endpoints/0/scheme\s+value: https'
+  - it: prefers nested disabled mTLS over legacy STRICT mode
+    template: templates/tempo/helmrelease.yaml
+    set:
+      packages.tempo.values.istio.mtls.mode: STRICT
+      packages.tempo.values.bb-common.istio.mtls.mode: DISABLE
+    asserts:
+      - lengthEqual:
+          path: spec.postRenderers
+          count: 1
   - it: omits sidecar TLS patches in ambient mode
     template: templates/tempo/helmrelease.yaml
     set:
