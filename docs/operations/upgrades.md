@@ -118,4 +118,4 @@ monitoring          alertmanager-monitoring-monitoring-kube-alertmanager-0      
 
 ## Upgrade Troubleshooting
 
-See the [Troubleshooting Upgrades](troubleshooting/upgrades.md) page for help with common upgrade issues.
+If an upgrade fails, see [Troubleshoot a Big Bang deployment](troubleshooting/index.md#upgrade-problems) to identify the first resource that is not ready and troubleshoot the failure.

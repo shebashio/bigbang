@@ -19,4 +19,4 @@ All patterns use the same chart and must satisfy the selected release's [prerequ
 
 - Configure package behavior through [Configuration](../configuration/).
 - Validate the deployment and establish [Operations](../operations/).
-- Use [Installation Troubleshooting](../operations/troubleshooting/installation.md) when bootstrap or initial reconciliation fails.
+- If your deployment fails or becomes stuck during installation, see [Troubleshoot a Big Bang deployment](../operations/troubleshooting/index.md).

@@ -41,12 +41,6 @@ tests:
       domain: example.com
     asserts:
       - equal:
-          path: routes.inbound.gitlab.hosts[0]
-          value: "custom-gitlab.example.com"
-      - equal:
-          path: routes.inbound.registry.hosts[0]
-          value: "custom-registry.example.com"
-      - equal:
           path: global.hosts.domain
           value: "example.com"
       - equal:
@@ -54,6 +48,25 @@ tests:
           value: "custom-gitlab.example.com"
       - equal:
           path: global.hosts.registry.name
+          value: "custom-registry.example.com"
+
+  - it: sets the registry host from addons.gitlab.hostnames.registry (bb-common values)
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.hostnames.gitlab: custom-gitlab
+      packages.gitlab.hostnames.registry: custom-registry
+      domain: example.com
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.hosts[0]
+          value: "custom-gitlab.example.com"
+      - equal:
+          path: bb-common.routes.inbound.registry.hosts[0]
           value: "custom-registry.example.com"
 
   - it: configures the Big Bang Redis secret with the shared auth values shape
@@ -100,8 +113,23 @@ tests:
       - equal:
           path: global.appConfig.artifacts.connection.key
           value: rails
+
+  - it: preserves per-bucket object storage connections by default (bb-common values)
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.objectStorage.type: minio
+      packages.gitlab.objectStorage.endpoint: http://garage.garage.svc.cluster.local:3900
+      packages.gitlab.objectStorage.region: garage
+      packages.gitlab.objectStorage.accessKey: test-access-key
+      packages.gitlab.objectStorage.accessSecret: test-secret-key
+    asserts:
       - equal:
-          path: networkPolicies.egress.definitions.storage-subnets.ports
+          path: bb-common.networkPolicies.egress.definitions.storage-subnets.ports
           value:
             - port: 443
               protocol: TCP
@@ -146,7 +174,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.database.host: postgresql-rw.postgresql.svc.cluster.local
@@ -155,13 +183,13 @@ tests:
       packages.gitlab.objectStorage.region: garage
     asserts:
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.storage-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
+          path: bb-common.networkPolicies.egress.from.gitlab-exporter.to.definition.database-subnets
           value: true
 
   - it: enables external subnet egress for direct upstream GitLab 19 values
@@ -169,7 +197,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.psql.host: postgres.example.internal
@@ -177,25 +205,25 @@ tests:
       packages.gitlab.values.global.appConfig.object_store.enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.storage-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.database-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.webservice.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.sidekiq.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.sidekiq.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.toolbox.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.toolbox.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.gitlab-exporter.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.gitlab-exporter.to.definition.redis-subnets
           value: true
 
   - it: enables external storage subnet egress for direct per-feature object storage values
@@ -203,7 +231,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.appConfig.artifacts.connection:
@@ -211,7 +239,7 @@ tests:
         key: rails
     asserts:
       - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.storage-subnets
           value: true
 
   - it: enables external Redis subnet egress for upstream Sentinel values
@@ -219,7 +247,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.redis.host: redis-sentinel.example.internal
@@ -228,17 +256,17 @@ tests:
           port: 26379
     asserts:
       - equal:
-          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.webservice.to.definition.redis-subnets
           value: true
       - exists:
-          path: networkPolicies.egress.definitions.redis-subnets
+          path: bb-common.networkPolicies.egress.definitions.redis-subnets
 
   - it: enables external Redis subnet egress for an upstream redis.yml override
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.redis.redisYmlOverride:
@@ -247,7 +275,7 @@ tests:
           key: redis.yml
     asserts:
       - equal:
-          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.webservice.to.definition.redis-subnets
           value: true
 
   - it: enables external Redis subnet egress when password authentication is disabled
@@ -255,40 +283,40 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.redis.host: redis.example.internal
       packages.gitlab.values.global.redis.auth.enabled: false
     asserts:
       - equal:
-          path: networkPolicies.egress.from.webservice.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.webservice.to.definition.redis-subnets
           value: true
       - exists:
-          path: networkPolicies.egress.definitions.redis-subnets
+          path: bb-common.networkPolicies.egress.definitions.redis-subnets
 
   - it: should account for external Redis in routes and disable internal Redis metrics ingress
     postRenderer:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.gitlab.enabled: true
       packages.gitlab.values.global.redis.host: redis.example.internal
       packages.gitlab.values.global.redis.port: 6380
     asserts:
       - equal:
-          path: routes.outbound["external-redis"].enabled
+          path: bb-common.routes.outbound["external-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-redis"].hosts[0]
           value: redis.example.internal
       - equal:
-          path: routes.outbound["external-redis"].ports[0].number
+          path: bb-common.routes.outbound["external-redis"].ports[0].number
           value: 6380
       - equal:
-          path: networkPolicies.ingress.to["redis:9121"].from.k8s["monitoring-monitoring-kube-prometheus@monitoring/prometheus"]
+          path: bb-common.networkPolicies.ingress.to["redis:9121"].from.k8s["monitoring-monitoring-kube-prometheus@monitoring/prometheus"]
           value: false
 
   - it: tolerates null GitLab 19 removed service blocks without enabling replacements
@@ -309,15 +337,174 @@ tests:
               redis: null
               minio: null
     asserts:
-      - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.storage-subnets
-          value: true
-      - equal:
-          path: networkPolicies.egress.from.migrations.to.definition.database-subnets
-          value: true
       - notExists:
           path: redis-bb
       - notExists:
           path: garage
       - notExists:
           path: postgresql.enabled
+
+  - it: tolerates null GitLab 19 removed service blocks without enabling replacements (bb-common values)
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages:
+        gitlab:
+          enabled: true
+          values:
+            global:
+              minio: null
+            upstream:
+              postgresql: null
+              redis: null
+              minio: null
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.storage-subnets
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.migrations.to.definition.database-subnets
+          value: true
+
+  - it: enables the gitlab and registry routes by default
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.inbound.registry.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.inbound.pages.enabled
+          value: false
+
+  - it: passes a bb-common route disable through to the package overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.bb-common.routes.inbound.gitlab.enabled: false
+      packages.gitlab.values.bb-common.routes.inbound.registry.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: false
+      - equal:
+          path: bb-common.routes.inbound.registry.enabled
+          value: false
+
+  - it: passes bb-common custom route hosts through to the package overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.bb-common.routes.inbound.gitlab.hosts[0]: code.example.com
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.gitlab.hosts[0]
+          value: code.example.com
+
+  - it: leaves legacy istio route settings under bb-common.istio so the package schema rejects them
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      packages.gitlab.values.istio.gitlab.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.gitlab.enabled
+          value: false
+      - equal:
+          path: bb-common.routes.inbound.gitlab.enabled
+          value: true
+
+  - it: should build the kubeAPI definition from the control plane CIDR
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      networkPolicies.controlPlaneCidr: 172.16.0.0/12
+      networkPolicies.vpcCidr: 172.16.0.0/12
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 172.16.0.0/12
+
+  - it: should add the VPC CIDR to the kubeAPI definition when it differs from the control plane CIDR
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      networkPolicies.controlPlaneCidr: 172.20.0.0/16
+      networkPolicies.vpcCidr: 10.1.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 172.20.0.0/16
+            - ipBlock:
+                cidr: 10.1.0.0/16
+
+  - it: should exclude the metadata endpoint when the control plane CIDR is open
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      networkPolicies.controlPlaneCidr: 0.0.0.0/0
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+                except:
+                  - 169.254.169.254/32
+
+  - it: should not replace a kubeAPI definition set at the Big Bang level
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.gitlab.enabled: true
+      networkPolicies.egress.definitions.kubeAPI.to:
+        - ipBlock:
+            cidr: 10.50.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 10.50.0.0/16

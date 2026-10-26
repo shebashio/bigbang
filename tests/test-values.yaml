@@ -170,13 +170,14 @@ packages:
               # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
               # strategy defaults to "openid"
               strategy: "anonymous"
-      networkPolicies:
-        ingress:
-          to:
-            kiali:20001:
-              from:
-                k8s:
-                  monitoring/*: true
+      bb-common:
+        networkPolicies:
+          ingress:
+            to:
+              kiali:20001:
+                from:
+                  k8s:
+                    monitoring/*: true
       bbtests:
         enabled: true
   gatekeeper:
@@ -808,6 +809,10 @@ packages:
         persistence:
           size: 5Gi
         localVolumeUpgrade: true
+        # Console holds ~9GB of CVE feed in memory; cap the Go heap below the 16Gi limit to avoid OOMKills
+        extraEnv:
+          - name: GOMEMLIMIT
+            value: 13GiB
       defender:
         dockerSocket: "/run/k3s/containerd/containerd.sock"
         selinux: false
@@ -988,14 +993,15 @@ packages:
     flux:
       timeout: 30m
     values:
-      networkPolicies:
-        enabled: true
-        egress:
-          from:
-            "*":
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
+      bb-common:
+        networkPolicies:
+          enabled: true
+          egress:
+            from:
+              "*":
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
       global:
         redis:
           host: valkey
@@ -1551,12 +1557,13 @@ packages:
     kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
     kms_secret_key: "" # gets added via CI VAULT_KMS_SECRET_KEY and 01_deploy_bigbang.sh
     values:
-      routes:
-        outbound:
-          aws-kms:
-            enabled: true
-            hosts:
-            - kms.us-gov-west-1.amazonaws.com
+      bb-common:
+        routes:
+          outbound:
+            aws-kms:
+              enabled: true
+              hosts:
+              - kms.us-gov-west-1.amazonaws.com
       upstream:
         injector:
           enabled: true

@@ -9,7 +9,7 @@ postRenderer:
   cmd: sh
   args:
     - -c
-    - "yq eval '.stringData.defaults' - | yq eval '.'"
+    - "yq eval '.stringData.common' - | yq eval '.'"
 tests:
   - it: allows the monitoring waypoint when ambient SSO enrolls Prometheus
     set:
@@ -17,20 +17,20 @@ tests:
       packages.monitoring.sso.enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"].podSelector.matchLabels["gateway.networking.k8s.io/gateway-name"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"].podSelector.matchLabels["gateway.networking.k8s.io/gateway-name"]
           value: monitoring-monitoring-waypoint
       - notExists:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
   - it: keeps direct Prometheus egress in ambient mode without SSO
     set:
       istio.ambient.enabled: true
       packages.monitoring.sso.enabled: false
     asserts:
       - equal:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
           value: true
       - notExists:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]
   - it: keeps direct Prometheus egress for sidecar SSO
     set:
       istio.ambient.enabled: false
@@ -38,7 +38,7 @@ tests:
       packages.monitoring.sso.enabled: true
     asserts:
       - equal:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/prometheus:9090"]
           value: true
       - notExists:
-          path: networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]
+          path: bb-common.networkPolicies.egress.from.kiali.to.k8s["monitoring/waypoint:15008"]

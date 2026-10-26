@@ -1,0 +1,136 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Renovate - Values Tests
+templates:
+  - templates/renovate/values.yaml
+tests:
+  - it: should nest istio and networkPolicies under bb-common in the common block
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+    asserts:
+      - exists:
+          path: bb-common.istio
+      - exists:
+          path: bb-common.networkPolicies
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+
+  - it: should not carry istio, networkPolicies, or domain in defaults
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      domain: example.mil
+    asserts:
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: domain
+      - notExists:
+          path: hostname
+      - equal:
+          path: global.domain
+          value: example.mil
+
+  - it: should enable istio in the common block when istiod is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      packages.istiod.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+
+  - it: should enable the sidecar when istiod is hardened
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      packages.istiod.enabled: true
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+
+  - it: should not enable the sidecar when istiod is hardened in ambient mode
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      packages.istiod.enabled: true
+      packages.istiod.values.hardened.enabled: true
+      istio.ambient.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+
+  - it: should follow the global networkPolicies toggle and add the storage-subnets egress
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      networkPolicies.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.renovate.to.definition.storage-subnets
+          value: true
+      - exists:
+          path: bb-common.networkPolicies.egress.definitions.storage-subnets
+
+  - it: should pass bb-common overrides through the overlays block unchanged
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.renovate.enabled: true
+      packages.renovate.values.bb-common.istio.serviceEntries.custom:
+        - name: custom-se
+          spec:
+            hosts:
+              - example.com
+    asserts:
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].name
+          value: custom-se

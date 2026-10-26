@@ -510,8 +510,9 @@ Args (dict):
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}
-{{- /* injection is a library-chart-era concept; drop it once bb-common is a real subchart. */ -}}
-{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection") }}
+{{- /* injection and hardened are Big Bang-only controls, not bb-common subchart values.
+       commonPackageDefaults has already derived hardened.enabled into sidecar.enabled. */ -}}
+{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection" "hardened") }}
 {{- end }}
 {{- $commonBlock = dict "bb-common" $commonBlock }}
 {{- /* istio/networkPolicies/routes are fully captured above (common already reflects
@@ -1139,10 +1140,12 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "
 {{- $pkg := index . 0 -}}
 {{- $root := index . 1 -}}
 {{- $globalIstioEnabled := eq (include "istioEnabled" $root) "true" -}}
-{{- $pkgIstioEnabled := dig "values" "istio" "enabled" true $pkg -}}
+{{- $pkgValues := default (dict) (get $pkg "values") -}}
+{{- $bbCommonIstio := dig "bb-common" "istio" (dict) $pkgValues -}}
+{{- $pkgIstioEnabled := dig "enabled" (dig "istio" "enabled" true $pkgValues) $bbCommonIstio -}}
 {{- $injectionEnabled := ne (dig "istio" "injection" "enabled" $pkg) "disabled" -}}
 {{- $ambientEnabled := eq (include "ambientEnabled" $root) "true" -}}
-{{- $mtlsStrict := eq (dig "values" "istio" "mtls" "mode" "STRICT" $pkg) "STRICT" -}}
+{{- $mtlsStrict := eq (dig "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" $pkgValues) $bbCommonIstio) "STRICT" -}}
 {{- and $globalIstioEnabled $pkgIstioEnabled $injectionEnabled (not $ambientEnabled) $mtlsStrict -}}
 {{- end -}}
 
@@ -1212,28 +1215,29 @@ Args:
   {{- $ctx := index . 0 }}
   {{- $name := index . 1 }}
   {{- $ports := index . 2 }}
-networkPolicies:
-  enabled: {{ $ctx.Values.networkPolicies.enabled }}
-  ingress:
-    {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    to:
-      "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
-        from:
-          definition:
-            load-balancer-subnets: true
-  egress:
-    {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
-    definitions:
-      {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 8 }}
-    {{- end }}
-    from:
-      "{{ $name }}-ingressgateway":
-        to:
-          k8s:
-            '*': true
+bb-common:
+  networkPolicies:
+    enabled: {{ $ctx.Values.networkPolicies.enabled }}
+    ingress:
+      {{- if dig "ingress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.ingress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      to:
+        "{{ $name }}-ingressgateway:{{ $ports | toJson }}":
+          from:
+            definition:
+              load-balancer-subnets: true
+    egress:
+      {{- if dig "egress" "definitions" dict $ctx.Values.networkPolicies }}
+      definitions:
+        {{- $ctx.Values.networkPolicies.egress.definitions | toYaml | nindent 10 }}
+      {{- end }}
+      from:
+        "{{ $name }}-ingressgateway":
+          to:
+            k8s:
+              '*': true
 {{- end }}
 
 {{- /*

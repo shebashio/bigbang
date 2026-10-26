@@ -1,12 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.elasticsearchKibana.enabled }}
-{{- /* Create a cleaned copy of elasticsearchKibana config and merge deprecated paths into current paths */ -}}
-{{- $elasticsearchKibanaPackage := deepCopy .Values.packages.elasticsearchKibana -}}
-{{- if .Values.packages.elasticsearchKibana.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.elasticsearchKibana.values) | fromYaml -}}
-{{- $elasticsearchKibanaPackage = set $elasticsearchKibanaPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $elasticsearchKibanaPackage "name" "ek" "defaults" (mergeOverwrite (include "bigbang.elasticsearchKibana.bb-common-migrations" . | fromYaml) (include "bigbang.defaults.logging" . | fromYaml) | toYaml)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.elasticsearchKibana "name" "ek" "bbCommonSubchart" true "defaults" (include "bigbang.defaults.logging" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.logging" -}}
@@ -14,48 +8,64 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
 {{- $disableDefaultFLB := dig "additionalOutputs" "disableDefault" false .Values.packages.fluentbit.values }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
+global:
+  domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
-networkPolicies:
-  egress:
-    definitions:
-      sso:
-        {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 8 }}
-    from:
+bb-common:
+  networkPolicies:
+    egress:
+      definitions:
+        sso:
+          {{ toYaml .Values.networkPolicies.egress.definitions.sso | nindent 10 }}
+      from:
+        elasticsearch:
+          podSelector:
+            matchLabels:
+              common.k8s.elastic.co/type: elasticsearch
+          to:
+            definition:
+              sso: {{ .Values.packages.elasticsearchKibana.sso.enabled }}
+    ingress:
+      to:
+        # Elasticsearch ingress policies
+        elasticsearch:9200:
+          podSelector:
+            matchLabels:
+              common.k8s.elastic.co/type: elasticsearch
+          from:
+            k8s:
+              # Allow Fluentbit to write logs to Elasticsearch
+              fluentbit-fluent-bit@fluentbit/fluent-bit: {{ and .Values.packages.fluentbit.enabled (not $disableDefaultFLB)  }}
+
+              # Allow Mattermost to write to Elasticsearch
+              mattermost@mattermost/mattermost: {{ and .Values.packages.mattermost.elasticsearch.enabled .Values.packages.mattermost.enabled  }}
+
+
+        # Metrics exporter ingress
+        metrics:9108:
+          from:
+            k8s:
+              # Allow Prometheus to scrape metrics
+              monitoring/prometheus: {{ .Values.packages.monitoring.enabled  }}
+
+  routes:
+    inbound:
+      kibana:
+        enabled: true
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.elasticsearchKibana.ingress.gateway "root" .) }}
+        hosts:
+          - kibana.{{ $domainName }}
       elasticsearch:
-        podSelector:
-          matchLabels:
-            common.k8s.elastic.co/type: elasticsearch
-        to:
-          definition:
-            sso: {{ .Values.packages.elasticsearchKibana.sso.enabled }}
-  ingress:
-    to:
-      # Elasticsearch ingress policies
-      elasticsearch:9200:
-        podSelector:
-          matchLabels:
-            common.k8s.elastic.co/type: elasticsearch
-        from:
-          k8s:
-            # Allow Fluentbit to write logs to Elasticsearch
-            fluentbit-fluent-bit@fluentbit/fluent-bit: {{ and .Values.packages.fluentbit.enabled (not $disableDefaultFLB)  }}
-
-            # Allow Mattermost to write to Elasticsearch 
-            mattermost@mattermost/mattermost: {{ and .Values.packages.mattermost.elasticsearch.enabled .Values.packages.mattermost.enabled  }}
-
-
-      # Metrics exporter ingress
-      metrics:9108:
-        from:
-          k8s:
-            # Allow Prometheus to scrape metrics
-            monitoring/prometheus: {{ .Values.packages.monitoring.enabled  }}
+        enabled: false
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.elasticsearchKibana.ingress.gateway "root" .) }}
+        hosts:
+          - elasticsearch.{{ $domainName }}
 
 bbtests:
   cypress:
