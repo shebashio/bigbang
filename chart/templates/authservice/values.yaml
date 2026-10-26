@@ -218,14 +218,8 @@ chains:
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.packages.thanos.values) }}
-    {{- if $thanosHosts }}
-      prefix: {{ tpl ($thanosHosts | first) $ }}
-    callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
-    {{- else }}
-      prefix: {{ printf "thanos.%s" $domainName }}
-    callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
-    {{- end }}
+      prefix: thanos.{{ .Values.domain }}
+    callback_uri: https://thanos.{{ .Values.domain }}/login/generic_oauth
     client_id: "{{ .Values.packages.thanos.sso.client_id }}"
     client_secret: "{{ .Values.packages.thanos.sso.client_secret }}"
     {{- if not $legacy }}
