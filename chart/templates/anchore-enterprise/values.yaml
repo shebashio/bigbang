@@ -1,22 +1,23 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.anchoreEnterprise.enabled }}
-{{- /* Create a cleaned copy of anchore config and merge deprecated paths into current paths */ -}}
-{{- $anchorePackage := deepCopy .Values.packages.anchoreEnterprise -}}
-{{- if .Values.packages.anchoreEnterprise.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.anchoreEnterprise.values) | fromYaml -}}
-{{- $anchorePackage = set $anchorePackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $anchorePackage "name" "anchore-enterprise" "defaults" (include "bigbang.defaults.anchoreEnterprise" .)) }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.anchoreEnterprise
+  "name" "anchore-enterprise"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.anchoreEnterprise" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.anchoreEnterprise" -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := or (dig "istio" "hardened" "enabled" false .Values.packages.anchoreEnterprise.values) (dig "hardened" "enabled" false .Values.packages.istiod.values) }}
-{{- $externalRedisEnabled := and .Values.packages.anchoreEnterprise.redis.host .Values.packages.anchoreEnterprise.redis.port .Values.packages.anchoreEnterprise.redis.password "true" }}
-{{- $externalPostgresEnabled := and .Values.packages.anchoreEnterprise.database.host .Values.packages.anchoreEnterprise.database.port .Values.packages.anchoreEnterprise.database.username .Values.packages.anchoreEnterprise.database.password .Values.packages.anchoreEnterprise.database.database "true" }}
-domain: {{ $domainName }}
+{{- $externalRedisEnabled := not (empty (and .Values.packages.anchoreEnterprise.redis.host .Values.packages.anchoreEnterprise.redis.port .Values.packages.anchoreEnterprise.redis.password)) }}
+{{- $externalPostgresEnabled := not (empty (and .Values.packages.anchoreEnterprise.database.host .Values.packages.anchoreEnterprise.database.port .Values.packages.anchoreEnterprise.database.username .Values.packages.anchoreEnterprise.database.password .Values.packages.anchoreEnterprise.database.database)) }}
+global:
+  domain: {{ $domainName }}
+  {{- include "secretsImagePullSecrets" . | nindent 2 }}
 
 openshift: {{ .Values.openshift }}
 
@@ -32,180 +33,176 @@ monitoring:
       insecureSkipVerify: true
   {{- end }}
 
-routes:
-  inbound:
-    anchore-api:
-      enabled: true
-      selector:
-        app.kubernetes.io/component: api
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.packages.anchoreEnterprise.ingress.gateway "root" .)}}
-      hosts:
-        - anchore-api.{{ $domainName }}
-      http:
-        # Disable ability to hit metrics on virtual service
-        - match:
-            - uri:
-                prefix: /metrics
-          route:
-            - destination:
-                host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
-                port:
-                  number: 8228
-          fault:
-            abort:
-              percentage:
-                value: 100
-              httpStatus: 403
-        # Default route for everything else
-        - match:
-            - uri:
-                prefix: /
-          route:
-            - destination:
-                host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
-                port:
-                  number: 8228
-    anchore-ui:
-      enabled: true
-      selector:
-        app.kubernetes.io/component: ui
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.packages.anchoreEnterprise.ingress.gateway "root" .)}}
-      hosts:
-        - anchore.{{ $domainName }}
-      service: anchore-enterprise-anchore-enterprise-ui.anchore.svc.cluster.local
-      port: 3000
-  outbound:
-    external-redis:
-      enabled: {{ $externalRedisEnabled }}
+bb-common:
+  routes:
+    inbound:
+      anchore-api:
+        enabled: true
+        selector:
+          app.kubernetes.io/component: api
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.anchoreEnterprise.ingress.gateway "root" .)}}
+        hosts:
+          - anchore-api.{{ $domainName }}
+        http:
+          # Disable ability to hit metrics on virtual service
+          - match:
+              - uri:
+                  prefix: /metrics
+            route:
+              - destination:
+                  host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
+                  port:
+                    number: 8228
+            fault:
+              abort:
+                percentage:
+                  value: 100
+                httpStatus: 403
+          # Default route for everything else
+          - match:
+              - uri:
+                  prefix: /
+            route:
+              - destination:
+                  host: anchore-enterprise-anchore-enterprise-api.anchore.svc.cluster.local
+                  port:
+                    number: 8228
+      anchore-ui:
+        enabled: true
+        selector:
+          app.kubernetes.io/component: ui
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.anchoreEnterprise.ingress.gateway "root" .)}}
+        hosts:
+          - anchore.{{ $domainName }}
+        service: anchore-enterprise-anchore-enterprise-ui.anchore.svc.cluster.local
+        port: 3000
+    outbound:
       {{- if $externalRedisEnabled }}
-      hosts:
-      - {{ .Values.packages.anchoreEnterprise.redis.host | quote }}
-      ports:
-      - number: {{ .Values.packages.anchoreEnterprise.redis.port }}
-        name: redis
-        protocol: TCP
+      external-redis:
+        enabled: true
+        hosts:
+        - {{ .Values.packages.anchoreEnterprise.redis.host | quote }}
+        ports:
+        - number: {{ .Values.packages.anchoreEnterprise.redis.port }}
+          name: redis
+          protocol: TCP
       {{- end }}
-    anchore-data-service:
-      enabled: true
-      hosts:
-      - data.anchore-enterprise.com
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.anchoreEnterprise.values }}
-      hosts:
-      - 'repo1.dso.mil'
-      - 'auth.docker.io'
-      - 'registry-1.docker.io'
-      - 'index.docker.io'
-      - 'production.cloudflare.docker.com'
-      - 'production.cloudfront.docker.com'
-      - 'docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com' # https://docs.docker.com/desktop/setup/allow-list/
+      anchore-data-service:
+        enabled: true
+        hosts:
+        - data.anchore-enterprise.com
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.anchoreEnterprise.values }}
+        hosts:
+        - 'repo1.dso.mil'
+        - 'auth.docker.io'
+        - 'registry-1.docker.io'
+        - 'index.docker.io'
+        - 'production.cloudflare.docker.com'
+        - 'production.cloudfront.docker.com'
+        - 'docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com' # https://docs.docker.com/desktop/setup/allow-list/
 
-istio:
-  hardened:
-    enabled: {{ $istioHardenedEnabled }}
-
-networkPolicies:
-  ingress:
-    to:
-      catalog:8082:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: catalog
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      simplequeue:8083:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: simplequeue
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      analyzer:8084:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: analyzer
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      policy:8087:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: policyengine
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      api:8228:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: api
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      reports:8558:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: reports
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      notifications:8668:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: notifications
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      ui-redis:9121:
-        from:
-          k8s:
-            alloy-alloy-metrics@alloy/alloy-metrics: {{ and (dig "alloyMetrics" "enabled" false .Values.packages.alloy) (not $externalRedisEnabled) }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled (not $externalRedisEnabled) }}
-  egress:
-    from:
-      "*":
-        to:
-          k8s:
-            tempo/tempo:9411: {{ and .Values.packages.tempo.enabled (ne (include "ambientEnabled" .) "true") }}
-          definition:
-            database-subnets: {{ $externalPostgresEnabled }}
-      api:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: api
-        to:
-          definition:
-            redis-subnets: {{ $externalRedisEnabled }}
-      configure-sso:
-        podSelector:
-          matchLabels:
-            batch.kubernetes.io/job-name: configure-sso
-        to:
-          definition:
-            sso: 
-              enabled: {{ .Values.packages.anchoreEnterprise.sso.enabled }}
-              metadata:
-                annotations:
-                  helm.sh/hook: post-install,post-upgrade
-                  helm.sh/hook-weight: "-10"
-                  helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
-      ui:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/component: ui
-        to:
-          definition:
-            redis-subnets: {{ $externalRedisEnabled }}
-  additionalPolicies: []
+  networkPolicies:
+    ingress:
+      to:
+        catalog:8082:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: catalog
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        simplequeue:8083:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: simplequeue
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        analyzer:8084:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: analyzer
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        policy:8087:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: policyengine
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        api:8228:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: api
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        reports:8558:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: reports
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        notifications:8668:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: notifications
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        ui-redis:9121:
+          from:
+            k8s:
+              alloy-alloy-metrics@alloy/alloy-metrics: {{ and (dig "alloyMetrics" "enabled" false .Values.packages.alloy) (not $externalRedisEnabled) }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ and .Values.packages.monitoring.enabled (not $externalRedisEnabled) }}
+    egress:
+      from:
+        "*":
+          to:
+            k8s:
+              tempo/tempo:9411: {{ and .Values.packages.tempo.enabled (ne (include "ambientEnabled" .) "true") }}
+            definition:
+              database-subnets: {{ $externalPostgresEnabled }}
+        api:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: api
+          to:
+            definition:
+              redis-subnets: {{ $externalRedisEnabled }}
+        configure-sso:
+          podSelector:
+            matchLabels:
+              batch.kubernetes.io/job-name: configure-sso
+          to:
+            definition:
+              sso: 
+                enabled: {{ .Values.packages.anchoreEnterprise.sso.enabled }}
+                metadata:
+                  annotations:
+                    helm.sh/hook: post-install,post-upgrade
+                    helm.sh/hook-weight: "-10"
+                    helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+        ui:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: ui
+          to:
+            definition:
+              redis-subnets: {{ $externalRedisEnabled }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -220,17 +217,17 @@ bbtests:
 sso:
   enabled: {{ .Values.packages.anchoreEnterprise.sso.enabled }}
   spEntityId: {{ .Values.packages.anchoreEnterprise.sso.client_id }}
-  {{- $anchoreUrl := first (dig "istio" "ui" "hosts" list .Values.packages.anchoreEnterprise.values) }}
-  acsUrl: https://{{ tpl ($anchoreUrl | default (printf "%s.%s" "anchore" $domainName)) . }}/service/sso/auth/keycloak
+  {{- $pkgValues := .Values.packages.anchoreEnterprise.values | default dict }}
+  {{- $anchoreUrl := first (dig "bb-common" "routes" "inbound" "anchore-ui" "hosts" list $pkgValues) }}
+  {{- /* Template the host in bb-common's subchart scope so it resolves exactly as the package's VirtualService does */}}
+  {{- $bbCommonValues := merge (deepCopy (index $pkgValues "bb-common" | default dict)) (dict "global" (merge (deepCopy ($pkgValues.global | default dict)) (dict "domain" $domainName))) }}
+  acsUrl: https://{{ tpl ($anchoreUrl | default (printf "%s.%s" "anchore" $domainName)) (dict "Values" $bbCommonValues "Template" .Template) }}/service/sso/auth/keycloak
   idpMetadataUrl: "{{ include "sso.saml.descriptor" . }}"
   {{- if .Values.sso.saml.metadata }}
   idpMetadataXml: |
     {{ .Values.sso.saml.metadata | nindent 4 }}
   {{- end }}
   roleAttribute: {{ .Values.packages.anchoreEnterprise.sso.role_attribute }}
-
-global:
-  {{- include "secretsImagePullSecrets" . | nindent 2 }}
 
 imagePullPolicy: {{ .Values.imagePullPolicy }}
 
