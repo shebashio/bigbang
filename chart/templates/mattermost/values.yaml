@@ -6,7 +6,7 @@
   {{- $mattermostPackage = set $mattermostPackage "values" $cleanedValues -}}
 {{- end -}}
 {{- if .Values.packages.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
+{{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "bbCommonSubchart" true "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermost" -}}
