@@ -1,0 +1,110 @@
+suite: Package - Loki - bb-common subchart values
+templates:
+  - templates/loki/values.yaml
+set:
+  packages.loki.enabled: true
+  packages.istiod.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.common' - | yq eval '.'"
+tests:
+  - it: nests shared mesh and networking defaults without legacy keys
+    set:
+      packages.istiod.values.hardened.enabled: true
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: maps the monolith route to its HTTP endpoint
+    set:
+      packages.loki.strategy: monolith
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.loki.service
+          value: logging-loki.logging.svc.cluster.local
+      - equal:
+          path: bb-common.routes.inbound.loki.containerPort
+          value: 3100
+      - equal:
+          path: bb-common.routes.inbound.loki.selector
+          value:
+            app.kubernetes.io/name: logging-loki
+
+  - it: maps scalable routes and collector identities to the gateway and write services
+    set:
+      packages.loki.strategy: scalable
+      packages.alloy.enabled: true
+      packages.fluentbit.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.loki.service
+          value: logging-loki-gateway.logging.svc.cluster.local
+      - equal:
+          path: bb-common.routes.inbound.loki.containerPort
+          value: 8080
+      - equal:
+          path: bb-common.routes.inbound.loki.selector["app.kubernetes.io/component"]
+          value: gateway
+      - equal:
+          path: bb-common.networkPolicies.ingress.to["logging-loki:3100"].from.k8s["alloy-alloy-logs@alloy/alloy-logs"]
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.ingress.to["logging-loki:3100"].from.k8s["fluentbit-fluent-bit@fluentbit/fluent-bit"]
+          value: true
+
+  - it: maps a custom domain into the scoped route
+    set:
+      domain: review.example.test
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.loki.hosts
+          value: [loki.review.example.test]
+
+  - it: passes through explicit shared Kubernetes API egress definitions
+    set:
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 192.0.2.10/32
+        ports:
+          - port: 6443
+            protocol: TCP
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
+          value:
+            - ipBlock:
+                cidr: 192.0.2.10/32
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.ports[0].port
+          value: 6443
+
+  - it: does not reconstruct the removed controlPlaneCidr fallback
+    set:
+      networkPolicies.controlPlaneCidr: 192.0.2.10/32
+    asserts:
+      - notExists:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI

@@ -1,0 +1,23 @@
+suite: Package - Loki - scoped user overlays
+templates:
+  - templates/loki/values.yaml
+set:
+  packages.loki.enabled: true
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq eval '.stringData.overlays' - | yq eval '.'"
+tests:
+  - it: preserves scoped route and networking overrides in the final values layer
+    set:
+      packages.loki.values.bb-common.routes.inbound.loki.hosts:
+        - custom.example.test
+      packages.loki.values.bb-common.networkPolicies.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.loki.hosts
+          value: [custom.example.test]
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: false

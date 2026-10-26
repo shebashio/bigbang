@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Template - bigbang.defaults.loki
+templates:
+  - templates/_self-test/render.yaml
+  - templates/loki/values.yaml
+set:
+  _selfTest:
+    bigbang.defaults.loki:
+      resultIsYaml: true
+      args: helm:context
+tests:
+  - it: declares monolith route and networking defaults explicitly under bb-common
+    set:
+      packages.loki.strategy: monolith
+      packages.grafana.enabled: true
+    template: templates/_self-test/render.yaml
+    asserts:
+      - notExists:
+          path: result.routes
+      - notExists:
+          path: result.networkPolicies
+      - equal:
+          path: result["bb-common"].routes.inbound.loki.service
+          value: logging-loki.logging.svc.cluster.local
+      - equal:
+          path: result["bb-common"].routes.inbound.loki.containerPort
+          value: 3100
+      - equal:
+          path: result["bb-common"].networkPolicies.ingress.to["logging-loki:3100"].from.k8s["monitoring-grafana@monitoring/grafana"]
+          value: true
+
+  - it: keeps scalable gateway and MinIO networking defaults in the same scoped block
+    set:
+      packages.loki.strategy: scalable
+      packages.loki.values.minio.enabled: true
+      packages.grafana.enabled: true
+    template: templates/_self-test/render.yaml
+    asserts:
+      - equal:
+          path: result["bb-common"].routes.inbound.loki.service
+          value: logging-loki-gateway.logging.svc.cluster.local
+      - equal:
+          path: result["bb-common"].routes.inbound.loki.containerPort
+          value: 8080
+      - equal:
+          path: result["bb-common"].networkPolicies.ingress.to["loki:8080"].from.k8s["monitoring-grafana@monitoring/grafana"]
+          value: true
+      - equal:
+          path: result["bb-common"].networkPolicies.egress.from.minio.to.definition.kubeAPI
+          value: true

@@ -11,10 +11,24 @@ postRenderer:
     - -c
     - "yq eval '.stringData.defaults' - | yq eval '.'"
 tests:
+  - it: passes the shared domain without flat mesh defaults
+    set:
+      domain: example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: example.test
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
   - it: should render tlsConfig when istio enabled with STRICT mTLS (injection defaults to enabled)
     set:
       packages.istiod.enabled: true
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - equal:
           path: monitoring.serviceMonitor.scheme
@@ -35,7 +49,7 @@ tests:
   - it: should not render tlsConfig when istio is disabled
     set:
       packages.istiod.enabled: false
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
@@ -45,7 +59,7 @@ tests:
   - it: should not render tlsConfig when mTLS mode is PERMISSIVE
     set:
       packages.istiod.enabled: true
-      packages.loki.values.istio.mtls.mode: PERMISSIVE
+      packages.loki.values.bb-common.istio.mtls.mode: PERMISSIVE
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
@@ -56,7 +70,7 @@ tests:
     set:
       packages.istiod.enabled: true
       packages.ztunnel.enabled: true
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
@@ -67,7 +81,7 @@ tests:
     set:
       packages.istiod.enabled: true
       istio.ambient.enabled: true
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
@@ -77,8 +91,8 @@ tests:
   - it: should not render tlsConfig when package istio.enabled is false
     set:
       packages.istiod.enabled: true
-      packages.loki.values.istio.enabled: false
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.enabled: false
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
@@ -89,7 +103,7 @@ tests:
     set:
       packages.istiod.enabled: true
       packages.loki.istio.injection: disabled
-      packages.loki.values.istio.mtls.mode: STRICT
+      packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:
       - notExists:
           path: monitoring.serviceMonitor.scheme
