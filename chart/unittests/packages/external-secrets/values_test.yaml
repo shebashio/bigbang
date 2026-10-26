@@ -7,10 +7,16 @@ tests:
     set:
       packages.externalSecrets.enabled: true
       packages.externalSecrets.values.istio.hardened.enabled: true
-      packages.externalSecrets.values.istio.hardened.customServiceEntries[0].name: legacy-entry
-      packages.externalSecrets.values.istio.hardened.customServiceEntries[0].spec.hosts[0]: legacy.example.test
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies[0].name: legacy-policy
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies[0].spec.action: ALLOW
+      # Set complete list items so separate set paths cannot overwrite the same index.
+      packages.externalSecrets.values.istio.hardened.customServiceEntries:
+        - name: legacy-entry
+          spec:
+            hosts:
+              - legacy.example.test
+      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
+        - name: legacy-policy
+          spec:
+            action: ALLOW
       packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
