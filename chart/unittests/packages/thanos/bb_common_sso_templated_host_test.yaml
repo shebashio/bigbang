@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: Package - Authservice Thanos templated SSO host
+suite: Package - Authservice Thanos independent SSO host
 tests:
-- it: templates nested Thanos SSO host for both prefix and callback
+- it: uses the umbrella domain independently of package route templates and domain overrides
   set:
+    domain: custom.example.test
     packages:
       istiod:
         enabled: true
@@ -13,16 +14,20 @@ tests:
         sso:
           enabled: true
         values:
+          global:
+            domain: package.example.test
+          externalURL: https://external.example.test
           bb-common:
-            istio:
-              thanos:
-                hosts:
-                - 'thanos.{{ .Values.domain }}'
+            routes:
+              inbound:
+                query-frontend:
+                  hosts:
+                  - 'metrics.{{ .Values.global.domain }}'
   template: authservice/values.yaml
   asserts:
   - matchRegex:
       path: stringData.defaults
-      pattern: "prefix: thanos.dev.bigbang.mil"
+      pattern: "prefix: thanos.custom.example.test"
   - matchRegex:
       path: stringData.defaults
-      pattern: "callback_uri: https://thanos.dev.bigbang.mil/login/generic_oauth"
+      pattern: "callback_uri: https://thanos.custom.example.test/login/generic_oauth"

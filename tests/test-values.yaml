@@ -1656,7 +1656,11 @@ packages:
   # Thanos
   #
   thanos:
-    enabled: false
+    # Exercise the coupled package MR until 17.6.0-bb.6 is published.
+    enabled: true
+    git:
+      tag: ""
+      branch: 155-convert-bb-common-to-sub-chart
     objectStorage:
       endpoint: "garage:3900"
       region: "garage"
@@ -1668,27 +1672,29 @@ packages:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
     values:
-      istio:
-        hardened:
-          customServiceEntries:
-          - name: "cypress-service-entries-thanos"
-            enabled: true
-            spec:
-              hosts:
-              - 'registry.npmjs.org'
-              - 'download.cypress.io'
-              - 'cdn.cypress.io'
-              - 'repo1.dso.mil'
-              - 'thanos.dev.bigbang.mil'
-              - 'grafana.dev.bigbang.mil'
-              location: MESH_EXTERNAL
-              ports:
-              - number: 443
-                protocol: TLS
-                name: https
-              resolution: DNS
-          customAuthorizationPolicies:
-            - name: "allow-intranamespace-thanos"
+      bb-common:
+        istio:
+          serviceEntries:
+            custom:
+            - name: cypress-service-entries-thanos
+              enabled: true
+              spec:
+                hosts:
+                - registry.npmjs.org
+                - download.cypress.io
+                - cdn.cypress.io
+                - repo1.dso.mil
+                - thanos.dev.bigbang.mil
+                - grafana.dev.bigbang.mil
+                location: MESH_EXTERNAL
+                ports:
+                - number: 443
+                  protocol: TLS
+                  name: https
+                resolution: DNS
+          authorizationPolicies:
+            custom:
+            - name: allow-intranamespace-thanos
               enabled: true
               spec:
                 action: ALLOW
@@ -1698,6 +1704,27 @@ packages:
                       namespaces:
                       - thanos
                       - monitoring
+        networkPolicies:
+          egress:
+            from:
+              thanos-storegateway:
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
+              thanos-compactor:
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
+          ingress:
+            to:
+              thanos-query:9090:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: query
+                    app.kubernetes.io/name: thanos
+                from:
+                  k8s:
+                    thanos/thanos-cypress-test: true
       bbtests:
         enabled: true
         cypress:
@@ -1708,27 +1735,6 @@ packages:
             THANOS_S3_ENDPOINT: "http://garage:3900"
             THANOS_S3_ACCESS_KEY: "GKbb0000000000000000000000"
             THANOS_S3_SECRET_KEY: "bb00000000000000000000000000000000000000000000000000000000000000"
-      networkPolicies:
-        egress:
-          from:
-            thanos-storegateway:
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
-            thanos-compactor:
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
-        ingress:
-          to:
-            thanos-query:9090:
-              podSelector:
-                matchLabels:
-                  app.kubernetes.io/component: query
-                  app.kubernetes.io/name: thanos
-              from:
-                k8s:
-                  thanos/thanos-cypress-test: true
 
   # ----------------------------------------------------------------------------------------------------------------------
   # External Secrets

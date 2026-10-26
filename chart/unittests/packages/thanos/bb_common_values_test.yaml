@@ -34,7 +34,7 @@ tests:
           path: bb-common.routes.inbound.query-frontend.hosts[0]
           value: thanos.dev.bigbang.mil
 
-  - it: uses the new nested host override and preserves custom kubeAPI definitions
+  - it: keeps predictable generated hosts and preserves custom kubeAPI definitions
     postRenderer:
       cmd: "sh"
       args:
@@ -42,12 +42,12 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.thanos.enabled: true
-      packages.thanos.values.bb-common.istio.thanos.hosts[0]: thanos.custom.example
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: thanos.custom.example
       networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr: 10.20.0.0/16
     asserts:
       - equal:
           path: bb-common.routes.inbound.query-frontend.hosts[0]
-          value: thanos.custom.example
+          value: thanos.dev.bigbang.mil
       - equal:
           path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
           value: 10.20.0.0/16
@@ -57,7 +57,7 @@ tests:
           path: networkPolicies
 
 
-  - it: uses the custom nested host as the advertised Thanos externalURL
+  - it: does not derive the advertised externalURL from route overlays
     postRenderer:
       cmd: "sh"
       args:
@@ -65,13 +65,13 @@ tests:
         - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
     set:
       packages.thanos.enabled: true
-      packages.thanos.values.bb-common.istio.thanos.hosts[0]: thanos.custom.example
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: thanos.custom.example
     asserts:
       - equal:
           path: externalURL
-          value: https://thanos.custom.example
+          value: https://thanos.dev.bigbang.mil
 
-  - it: templates a configured Thanos host consistently in the route and externalURL
+  - it: does not resolve route templates in generated common defaults
     postRenderer:
       cmd: "sh"
       args:
@@ -79,13 +79,13 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.thanos.enabled: true
-      packages.thanos.values.bb-common.istio.thanos.hosts[0]: 'thanos.{{ .Values.domain }}'
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: 'thanos.{{ .Values.global.domain }}'
     asserts:
       - equal:
           path: bb-common.routes.inbound.query-frontend.hosts[0]
           value: thanos.dev.bigbang.mil
 
-  - it: templates a configured Thanos host in the advertised externalURL
+  - it: keeps the default externalURL independent of route templates
     postRenderer:
       cmd: "sh"
       args:
@@ -93,7 +93,7 @@ tests:
         - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
     set:
       packages.thanos.enabled: true
-      packages.thanos.values.bb-common.istio.thanos.hosts[0]: 'thanos.{{ .Values.domain }}'
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: 'thanos.{{ .Values.global.domain }}'
     asserts:
       - equal:
           path: externalURL

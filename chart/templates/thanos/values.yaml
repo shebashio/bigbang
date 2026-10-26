@@ -4,10 +4,6 @@
 {{- /* Create secret */ -}}
 {{- if (get .Values.packages $pkg).enabled }}
   {{- $package := deepCopy (get .Values.packages $pkg) -}}
-  {{- if $package.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $package.values) | fromYaml -}}
-    {{- $package = set $package "values" $cleanedValues -}}
-  {{- end -}}
   {{- include "values-secret" (dict
     "root" $
     "package" $package
@@ -24,7 +20,7 @@
 {{- $thanosUsesAuthservice := or .Values.packages.authservice.enabled (and .Values.packages.thanos.sso.enabled $authserviceEnabled) }}
 {{- $thanosAuthserviceWaypoint := eq (include "thanos.authservice.waypointEnabled" .) "true" }}
 {{- $istioHardened := or
-  (dig "istio" "hardened" "enabled" false .Values.packages.thanos.values)
+  (dig "bb-common" "istio" "sidecar" "enabled" false .Values.packages.thanos.values)
   (dig "hardened" "enabled" false .Values.packages.istiod.values)
 }}
 
@@ -43,7 +39,6 @@
 {{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.packages.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
 {{- $routeGateway := include "getGatewayName" (dict "gateway" (.Values.packages.thanos.ingress.gateway | default "public") "root" .) }}
-{{- $thanosHosts := dig "bb-common" "istio" "thanos" "hosts" list .Values.packages.thanos.values }}
 
 image:
   {{- include "secretsPullSecretsWithName" . | nindent 2 }}
@@ -53,11 +48,7 @@ upgradeJob:
   image:
     {{- include "secretsPullSecretsSingle" . | nindent 4 }}
 
-{{- $thanosExternalHost := printf "thanos.%s" .Values.domain -}}
-{{- if $thanosHosts -}}
-{{- $thanosExternalHost = tpl (first $thanosHosts) . -}}
-{{- end }}
-externalURL: https://{{ $thanosExternalHost }}
+externalURL: https://thanos.{{ .Values.domain }}
 
 global:
   domain: {{ .Values.domain }}
@@ -107,28 +98,24 @@ istio:
     custom: []
   {{- end }}
 routes:
+  {{- if not (empty $s3Endpoint) }}
   outbound:
     s3:
-      enabled: {{ and $istioHardened (not (empty $s3Endpoint)) }}
+      enabled: {{ $istioHardened }}
       hosts:
       - {{ $s3Host }}
       ports:
       - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
         number: {{ $s3Port }}
         protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
+  {{- end }}
   inbound:
     query-frontend:
       enabled: {{ $istioEnabled }}
       gateways:
       - {{ $routeGateway }}
       hosts:
-      {{- if $thanosHosts }}
-      {{- range $thanosHosts }}
-      - {{ tpl . $ | quote }}
-      {{- end }}
-      {{- else }}
       - thanos.{{ .Values.domain }}
-      {{- end }}
       {{- if $thanosAuthserviceWaypoint }}
       authservice:
         enabled: true
