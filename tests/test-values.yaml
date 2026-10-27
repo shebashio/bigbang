@@ -1329,6 +1329,16 @@ packages:
       mattermostEnvs:
         MM_EMAILSETTINGS_SENDEMAILNOTIFICATIONS: "false"
         MM_PLUGINSETTINGS_PLUGINSTATES: '{"com.mattermost.calls":{"Enable":false}}'
+      networkPolicies:
+        egress:
+          from:
+            script-test:
+              podSelector:
+                matchLabels:
+                  helm-test: enabled
+              to:
+                definition:
+                  kubeAPI: true
       monitoring:
         enabled: true
       postgresql:
