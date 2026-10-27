@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: Package - Authservice Thanos independent SSO host
+suite: Package - Authservice Thanos templated SSO host
 tests:
-- it: uses the umbrella domain independently of package route templates and domain overrides
+- it: falls back to the umbrella domain for a templated host
   set:
     domain: custom.example.test
     packages:
@@ -27,7 +27,7 @@ tests:
   asserts:
   - matchRegex:
       path: stringData.defaults
-      pattern: "prefix: thanos.custom.example.test"
+      pattern: 'prefix: thanos.custom.example.test'
   - matchRegex:
       path: stringData.defaults
-      pattern: "callback_uri: https://thanos.custom.example.test/login/generic_oauth"
+      pattern: 'callback_uri: https://thanos.custom.example.test/login/generic_oauth'
