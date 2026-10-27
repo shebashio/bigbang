@@ -14,7 +14,6 @@
 {{- /* The shared metrics helper expects mesh settings at values.istio. */ -}}
 {{- $lokiMeshConfig := deepCopy .Values.packages.loki -}}
 {{- $_ := set $lokiMeshConfig "values" (index .Values.packages.loki.values "bb-common" | default dict) -}}
-{{- $minioEnabled := dig "minio" "enabled" false .Values.packages.loki.values }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
 global:
@@ -75,10 +74,6 @@ bb-common:
           from:
             k8s:
               monitoring-grafana@monitoring/grafana: {{ and .Values.packages.grafana.enabled (ne .Values.packages.loki.strategy "monolith") }}
-        minio:9000:
-          from:
-            k8s:
-              minio-operator@minio-operator/minio-operator: {{ $minioEnabled }}
     egress:
       from:
         logging-loki:
@@ -86,14 +81,7 @@ bb-common:
             k8s:
               tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
             definition:
-              storage-subnets: {{ not $minioEnabled }}
-        minio:
-          to:
-            k8s:
-              minio-operator/minio-operator:4222: {{ $minioEnabled }}
-            definition:
-              storage-subnets: {{ $minioEnabled }}
-              kubeAPI: {{ $minioEnabled }}
+              storage-subnets: true
 
 {{- include "secretsImagePullSecretsWithName" . }}
 
@@ -136,7 +124,7 @@ loki:
     bind_addr:
       - ${MY_POD_IP}
   storage:
-    {{- if (and (eq .Values.packages.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.loki.values))) }}
+    {{- if (and (eq .Values.packages.loki.strategy "monolith") (eq .Values.packages.loki.objectStorage.endpoint "")) }}
     type: "filesystem"
     {{- else }}
     type: "s3"
@@ -148,7 +136,7 @@ loki:
       accessKeyId: {{ .Values.packages.loki.objectStorage.accessKey }}
       secretAccessKey: {{ .Values.packages.loki.objectStorage.accessSecret }}
     {{- end }}
-  {{- if (and (eq .Values.packages.loki.strategy "monolith") (not (dig "minio" "enabled" false .Values.packages.loki.values))) }}
+  {{- if (and (eq .Values.packages.loki.strategy "monolith") (eq .Values.packages.loki.objectStorage.endpoint "")) }}
   rulerConfig:
     storage:
       type: local
