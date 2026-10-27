@@ -1,12 +1,12 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
-{{- /* Create a cleaned copy of package config and merge deprecated paths into current paths */ -}}
-{{- $mattermostPackage := deepCopy .Values.packages.mattermost -}}
-{{- if .Values.packages.mattermost.values -}}
-  {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.mattermost.values) | fromYaml -}}
-  {{- $mattermostPackage = set $mattermostPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- if .Values.packages.mattermost.enabled }}
-{{- include "values-secret" (dict "root" $ "package" $mattermostPackage "name" "mattermost" "defaults" (mergeOverwrite (include "bigbang.defaults.mattermost" . | fromYaml) (include "bigbang.mattermost.bb-common-migrations" . | fromYaml) | toYaml)) }}
+{{- include "values-secret" (dict
+  "root" $
+  "package" .Values.packages.mattermost
+  "name" "mattermost"
+  "bbCommonSubchart" true
+  "defaults" (include "bigbang.defaults.mattermost" .)
+) }}
 {{- end }}
 
 {{- define "bigbang.defaults.mattermost" -}}
@@ -22,18 +22,11 @@
 -}}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
-hostname: {{ $domainName }}
-domain: {{ $domainName }}
 
 openshift: {{ .Values.openshift }}
 
 image:
   imagePullPolicy: {{ .Values.imagePullPolicy }}
-
-{{- $istioInjection := and $istioEnabled (ne (include "ambientEnabled" .) "true") (eq (dig "istio" "injection" "enabled" .Values.packages.mattermost) "enabled") }}
-
-istio:
-  injection: {{ ternary "enabled" "disabled" $istioInjection }}
 
 {{- if $istioEnabled }}
 podAnnotations:
@@ -47,14 +40,6 @@ monitoring:
 
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.mattermost .)) "true" }}
-    scheme: https
-    tlsConfig:
-      caFile: /etc/prom-certs/root-cert.pem
-      certFile: /etc/prom-certs/cert-chain.pem
-      keyFile: /etc/prom-certs/key.pem
-      insecureSkipVerify: true
-    {{- end }}
 
 {{- with .Values.packages.mattermost.sso }}
 sso:
@@ -69,56 +54,59 @@ sso:
   {{- list "enable_sign_in_with_username" .enable_sign_in_with_username | include "bigbang.addValueIfSet" | indent 2 }}
 {{- end }}
 
-networkPolicies:
-  egress:
-    from:
-      mattermost:
-        to:
-          k8s:
-            tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
-            {{- if .Values.packages.elasticsearchKibana.enabled }}
-            logging/logging-ek-es-http:9200: {{ .Values.packages.mattermost.elasticsearch.enabled }}
-            {{- end }}
-          definition:
-            kubeAPI: true
-            database-subnets: {{ $externalPostgresEnabled }}
-            sso: {{ .Values.packages.mattermost.sso.enabled }}
-            sentry-subnets: {{ $sentryEnabled }}
-      {{- if dig "waitJob" "enabled" true .Values.packages.mattermost.values }}
-      wait-job:
-        to:
-          definition:
-            kubeAPI: true
-      {{- end }}
-  ingress:
-    to:
-      mattermost:8067:
-        from:
-          k8s:
-            monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+bb-common:
+  networkPolicies:
+    egress:
+      from:
+        mattermost:
+          to:
+            k8s:
+              tempo/tempo:9411: {{ .Values.packages.tempo.enabled }}
+              {{- if .Values.packages.elasticsearchKibana.enabled }}
+              logging/logging-ek-es-http:9200: {{ .Values.packages.mattermost.elasticsearch.enabled }}
+              {{- end }}
+            definition:
+              kubeAPI: true
+              database-subnets: {{ $externalPostgresEnabled }}
+              sso: {{ .Values.packages.mattermost.sso.enabled }}
+              sentry-subnets: {{ $sentryEnabled }}
+        {{- if dig "waitJob" "enabled" true .Values.packages.mattermost.values }}
+        wait-job:
+          to:
+            definition:
+              kubeAPI: true
+        {{- end }}
+    ingress:
+      to:
+        mattermost:8067:
+          from:
+            k8s:
+              monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
-{{- $ssoHost := "" }}
-{{- if .Values.packages.mattermost.sso.enabled }}
-{{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
-{{- end }}
-routes:
-  inbound:
-    chat:
-      gateways:
-        - {{ include "getGatewayName" (dict "gateway" .Values.packages.mattermost.ingress.gateway "root" .) }}
-  outbound:
-    mattermost-sentry:
-      enabled: {{ $sentryEnabled }}
-    sso:
-      enabled: {{ .Values.packages.mattermost.sso.enabled }}
-      {{- if $ssoHost }}
-      hosts:
-        - {{ $ssoHost }}
-      {{- end }}
-    bb-tests:
-      enabled: {{ dig "bbtests" "enabled" false .Values.packages.mattermost.values }}
-      hosts:
-      - 'repo1.dso.mil'
+  {{- $ssoHost := "" }}
+  {{- if .Values.packages.mattermost.sso.enabled }}
+  {{- $ssoHost = include "sso.url" . | trimPrefix "https://" | regexFind "^[^/]+" }}
+  {{- end }}
+  routes:
+    inbound:
+      chat:
+        hosts:
+          - {{ printf "chat.%s" $domainName | quote }}
+        gateways:
+          - {{ include "getGatewayName" (dict "gateway" .Values.packages.mattermost.ingress.gateway "root" .) }}
+    outbound:
+      mattermost-sentry:
+        enabled: {{ $sentryEnabled }}
+      sso:
+        enabled: {{ .Values.packages.mattermost.sso.enabled }}
+        {{- if $ssoHost }}
+        hosts:
+          - {{ $ssoHost }}
+        {{- end }}
+      bb-tests:
+        enabled: {{ dig "bbtests" "enabled" false .Values.packages.mattermost.values }}
+        hosts:
+        - 'repo1.dso.mil'
 
 waitJob:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
@@ -138,6 +126,7 @@ bbtests:
         memory: "4Gi"
 
 global:
+  domain: {{ $domainName }}
   {{- include "secretsImagePullSecretsWithName" . | nindent 2 }}
 
 {{- with .Values.packages.mattermost.enterprise }}
