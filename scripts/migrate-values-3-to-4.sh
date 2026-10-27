@@ -109,15 +109,22 @@ BUILTIN_PACKAGE_METADATA=(
 
 usage() {
   cat <<'EOF'
-Usage: migrate-values-3-to-4.sh [OPTIONS] [INPUT ...]
+Usage: migrate-values-3-to-4.sh --target {3|4} [OPTIONS] [INPUT ...]
 
 Move Big Bang 3.x built-in package configuration from top-level and
-addons.<name> paths to the Big Bang 4.x packages.<name> paths. By default, the
-output sets packageConfiguration.version to v1. Starting with Big Bang 3.32,
-the 3.x chart uses it to interpret catalog package names as canonical built-ins
-rather than existing custom packages.
+addons.<name> paths to the Big Bang 4.x packages.<name> paths. With target 4,
+istio, networkPolicies, and routes values for built-in packages are also moved
+under the bb-common subchart key. Unless omitted for a secondary values
+source, the output sets packageConfiguration.version to v1.
+Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
+names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
-it from a standalone migrated configuration when upgrading.
+it from the migrated output when upgrading.
+Target 3 performs only the unified package-path migration and retains the flat
+bb-common library values and legacy hardening used by Big Bang 3.x. Target 4
+also converts bb-common values to the subchart layout and removes legacy
+hardening for Big Bang 4.x. Target 4 output must not be deployed to a 3.x
+release.
 
 Inputs are composed in order using Helm values precedence (later files win),
 then migrated into one consolidated document. By default, migrated YAML is
@@ -140,6 +147,7 @@ serviceAccountName. Other fields, nulls, and patch directives require manual
 migration. --helmrelease-patch cannot be combined with --in-place or --secret-key.
 
 Options:
+  -t, --target {3|4}               Required target Big Bang major version.
   -o, --output FILE               Write migrated values to FILE.
   -i, --in-place                  Replace a single INPUT after creating
                                   INPUT.bak.
@@ -163,16 +171,17 @@ and packages.<name> takes precedence. Unrecognized package entries are left
 unchanged. The migration is idempotent.
 
 Examples:
-  scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml
-  scripts/migrate-values-3-to-4.sh -o values-4.x.yaml base.yaml production.yaml
-  scripts/migrate-values-3-to-4.sh values.yaml > values-4.x.yaml
-  scripts/migrate-values-3-to-4.sh --in-place values.yaml
-  scripts/migrate-values-3-to-4.sh --secret-key values.yaml secret.yaml
-  scripts/migrate-values-3-to-4.sh --bigbang-helmrelease \
+  scripts/migrate-values-3-to-4.sh --target 3 -o values-v1.yaml values.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 -o values-4.x.yaml values.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 -o values-4.x.yaml base.yaml production.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 values.yaml > values-4.x.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 --in-place values.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 --secret-key values.yaml secret.yaml
+  scripts/migrate-values-3-to-4.sh --target 4 --bigbang-helmrelease \
     --omit-package-configuration -o monitoring-4.x.yaml monitoring.yaml
-  scripts/migrate-values-3-to-4.sh -o values-4.x.yaml values.yaml \
+  scripts/migrate-values-3-to-4.sh --target 4 -o values-4.x.yaml values.yaml \
     --helmrelease-patch monitoring.yaml --helmrelease-patch ek.yaml
-  scripts/migrate-values-3-to-4.sh --omit-package-configuration \
+  scripts/migrate-values-3-to-4.sh --target 4 --omit-package-configuration \
     --output overlay-4.x.yaml overlay.yaml
 
 For values embedded in a SOPS-encrypted Kubernetes Secret, use
@@ -359,12 +368,22 @@ IN_PLACE=false
 SECRET_VALUES_KEY=""
 BIGBANG_HELMRELEASE=false
 OMIT_PACKAGE_CONFIGURATION=false
+TARGET_VERSION=""
 INPUT_FILES=()
 HELMRELEASE_PATCH_FILES=()
 ALL_INPUT_FILES=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -t|--target)
+      [[ $# -ge 2 ]] || fail "$1 requires 3 or 4"
+      [[ -z "$TARGET_VERSION" ]] || fail "--target may only be specified once"
+      case "$2" in
+        3|4) TARGET_VERSION=$2 ;;
+        *) fail "$1 must be 3 or 4" ;;
+      esac
+      shift 2
+      ;;
     -o|--output)
       [[ $# -ge 2 ]] || fail "$1 requires a file path"
       OUTPUT_FILE=$2
@@ -409,6 +428,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+[[ -n "$TARGET_VERSION" ]] || fail "--target is required and must be 3 or 4"
 [[ ${#INPUT_FILES[@]} -gt 0 || ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]] \
   || fail "at least one input values file or --helmrelease-patch is required"
 [[ -z "$SECRET_VALUES_KEY" || ${#INPUT_FILES[@]} -eq 1 ]] \
@@ -795,14 +815,108 @@ for package_name in "${ADDON_PACKAGES[@]}"; do
   fi
 done
 
-if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >/dev/null 2>&1; then
-  yq -i 'del(.addons)' "$WORK_FILE"
-fi
-
 if [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]]; then
   yq eval-all '. as $item ireduce ({}; . * $item)' \
     "$WORK_FILE" "$PATCH_WORK_DIR/values.yaml" >"$PATCH_WORK_DIR/result.yaml"
   cp "$PATCH_WORK_DIR/result.yaml" "$WORK_FILE"
+fi
+
+SERVICE_ENTRY_REVIEW=()
+if [[ "$TARGET_VERSION" == 4 ]]; then
+  # Big Bang 4.x packages consume bb-common as a subchart. Move the values that
+  # belonged to the former library chart into the subchart's values scope after
+  # legacy and canonical package paths have been merged.
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    for value_key in istio networkPolicies routes; do
+      if PACKAGE_NAME="$package_name" VALUE_KEY="$value_key" yq -e '
+        (.packages[strenv(PACKAGE_NAME)].values | tag == "!!map") and
+        (.packages[strenv(PACKAGE_NAME)].values | has(strenv(VALUE_KEY)))
+      ' "$WORK_FILE" >/dev/null 2>&1; then
+        PACKAGE_NAME="$package_name" VALUE_KEY="$value_key" yq -i '
+          .packages[strenv(PACKAGE_NAME)].values |= (
+            ."bb-common" = (."bb-common" // {}) |
+            ."bb-common"[strenv(VALUE_KEY)] =
+              ((.[strenv(VALUE_KEY)] // {}) *
+               (."bb-common"[strenv(VALUE_KEY)] // {})) |
+            del(.[strenv(VALUE_KEY)])
+          )
+        ' "$WORK_FILE"
+
+        MIGRATED_PATHS+=(
+          "packages.$package_name.values.$value_key -> packages.$package_name.values.bb-common.$value_key"
+        )
+      fi
+    done
+  done
+
+  # Final legacy cleanup and hardened removal to ensure bb-common usage is schema valid.
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    PACKAGE_NAME="$package_name" yq -e \
+      '.packages[strenv(PACKAGE_NAME)].values.bb-common.istio | tag == "!!map"' \
+      "$WORK_FILE" >/dev/null 2>&1 || continue
+
+    # Capture the legacy ServiceEntry names before they are folded in — these stay
+    # cluster-wide under serviceEntries.custom and are flagged for review afterwards.
+    hardened_se_names=$(PACKAGE_NAME="$package_name" yq -r '
+      (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // [])
+      | select(length > 0)
+      | map(.name // "(unnamed)") | join(", ")
+    ' "$WORK_FILE")
+    hardened_authz_count=$(PACKAGE_NAME="$package_name" yq -r '
+      (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customAuthorizationPolicies // [])
+      | length
+    ' "$WORK_FILE")
+
+    PACKAGE_NAME="$package_name" yq -i '
+      with(.packages[strenv(PACKAGE_NAME)].values.bb-common.istio;
+          with(select((.hardened.customServiceEntries // []) | length > 0);
+            .serviceEntries.custom =
+              (.hardened.customServiceEntries + (.serviceEntries.custom // [])))
+        | with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
+            .authorizationPolicies.custom =
+              (.hardened.customAuthorizationPolicies + (.authorizationPolicies.custom // [])))
+        | del(.hardened)
+      )
+    ' "$WORK_FILE"
+
+    if [[ -n "$hardened_se_names" ]]; then
+      MIGRATED_PATHS+=("packages.$package_name.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom")
+      # istiod's ServiceEntries were always intended to be global, so don't prompt a review for it.
+      if [[ "$package_name" != "istiod" ]]; then
+        SERVICE_ENTRY_REVIEW+=("packages.$package_name.values.bb-common.istio.serviceEntries.custom: $hardened_se_names")
+      fi
+    fi
+    if [[ "$hardened_authz_count" -gt 0 ]]; then
+      MIGRATED_PATHS+=("packages.$package_name.values.bb-common.istio.hardened.customAuthorizationPolicies -> authorizationPolicies.custom")
+    fi
+  done
+
+  # Remove deprecated global hardening key from istiod.
+  if yq -e '.packages.istiod.values | has("hardened")' "$WORK_FILE" >/dev/null 2>&1; then
+    istiod_hardened_authz_count=$(yq -r '
+      (.packages.istiod.values.hardened.customAuthorizationPolicies // []) | length
+    ' "$WORK_FILE")
+
+    yq -i '
+      with(.packages.istiod.values;
+          with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
+            ."bb-common".istio.authorizationPolicies.custom =
+              (.hardened.customAuthorizationPolicies +
+               (."bb-common".istio.authorizationPolicies.custom // [])))
+        | del(.hardened)
+      )
+    ' "$WORK_FILE"
+
+    if [[ "$istiod_hardened_authz_count" -gt 0 ]]; then
+      MIGRATED_PATHS+=("packages.istiod.values.hardened.customAuthorizationPolicies -> packages.istiod.values.bb-common.istio.authorizationPolicies.custom")
+    fi
+    yq -i 'del(.packages.istiod.values | select(tag == "!!map" and length == 0))' "$WORK_FILE"
+    MIGRATED_PATHS+=("packages.istiod.values.hardened -> removed (hardening deprecated in 4.x)")
+  fi
+fi
+
+if yq -e '(.addons | tag == "!!map") and (.addons | length == 0)' "$WORK_FILE" >/dev/null 2>&1; then
+  yq -i 'del(.addons)' "$WORK_FILE"
 fi
 
 reorder_packages "$WORK_FILE"
@@ -849,4 +963,12 @@ if [[ ${#MIGRATED_PATHS[@]} -eq 0 ]]; then
 else
   printf 'Migrated package paths:\n' >&2
   printf '  %s\n' "${MIGRATED_PATHS[@]}" >&2
+fi
+
+if [[ ${#SERVICE_ENTRY_REVIEW[@]} -gt 0 ]]; then
+  printf '\nReview: the following ServiceEntries were migrated from hardened.customServiceEntries and\n' >&2
+  printf 'remain cluster-wide (istio.serviceEntries.custom). If namespace-scoped egress is sufficient,\n' >&2
+  printf "consider moving each to that package's bb-common.routes.outbound instead:\n" >&2
+  printf '  %s\n' "${SERVICE_ENTRY_REVIEW[@]}" >&2
+  printf '\nReference: https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/\n' >&2
 fi

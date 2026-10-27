@@ -26,13 +26,14 @@ packages:
   mimir:
     enabled: true
     values:
-      networkPolicies:
-        ingress:
-          to:
-            mimir-distributor:8080:
-              from:
-                k8s:
-                  cortex-tenant/cortex-tenant: true
+      bb-common:
+        networkPolicies:
+          ingress:
+            to:
+              mimir-distributor:8080:
+                from:
+                  k8s:
+                    cortex-tenant/cortex-tenant: true
 
   cortex-tenant:
     enabled: true

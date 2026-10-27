@@ -32,6 +32,10 @@ packages:
                 resolution: DNS
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            # The health check exercises Podinfo, not remote fonts or UI images.
+            CYPRESS_BLOCK_HOSTS: '["fonts.googleapis.com","raw.githubusercontent.com","upload.wikimedia.org","www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com"]'
 
   gatekeeper:
     values:
@@ -94,7 +98,7 @@ packages:
   kyvernoReporter:
     enabled: false
   kiali:
-    enabled: false
+    enabled: true
   alloy:
     enabled: false
   minioOperator:

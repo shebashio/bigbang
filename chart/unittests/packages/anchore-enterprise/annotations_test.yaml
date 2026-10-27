@@ -66,7 +66,7 @@ tests:
       cmd: "sh"
       args:
         - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.anchoreEnterprise.enabled: true
       packages.anchoreEnterprise.redis.host: redis.example.internal
@@ -74,17 +74,139 @@ tests:
       packages.anchoreEnterprise.redis.password: test-password
     asserts:
       - equal:
-          path: routes.outbound["external-redis"].enabled
+          path: bb-common.routes.outbound["external-redis"].enabled
           value: true
       - equal:
-          path: routes.outbound["external-redis"].hosts[0]
+          path: bb-common.routes.outbound["external-redis"].hosts[0]
           value: redis.example.internal
       - equal:
-          path: routes.outbound["external-redis"].ports[0].number
+          path: bb-common.routes.outbound["external-redis"].ports[0].number
           value: 6380
       - equal:
-          path: networkPolicies.egress.from.api.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.api.to.definition.redis-subnets
           value: true
       - equal:
-          path: networkPolicies.egress.from.ui.to.definition.redis-subnets
+          path: bb-common.networkPolicies.egress.from.ui.to.definition.redis-subnets
           value: true
+
+  - it: should omit the external Redis outbound route when external Redis is not configured
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+    asserts:
+      - notExists:
+          path: bb-common.routes.outbound["external-redis"]
+      - equal:
+          path: bb-common.routes.outbound["anchore-data-service"].enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.injection
+
+  - it: should nest istio config under bb-common and keep the flat keys out of defaults
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+    asserts:
+      - equal:
+          path: global.domain
+          value: dev.bigbang.mil
+      - notExists:
+          path: domain
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: should pass custom service entries set under bb-common through in the overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.values.bb-common.istio.serviceEntries.custom:
+        - name: custom-egress
+          spec:
+            hosts:
+              - example.com
+    asserts:
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].name
+          value: custom-egress
+
+  - it: should default the SSO ACS URL to the anchore host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://anchore.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should resolve a templated UI host in package scope with SSO disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.sso.enabled: false
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should resolve a templated UI host in package scope with SSO enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.sso.enabled: true
+      sso.url: https://login.dso.mil/auth/realms/baby-yoda
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.enabled
+          value: true
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.dev.bigbang.mil/service/sso/auth/keycloak
+
+  - it: should prefer a package-level global.domain when templating the UI host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    set:
+      packages.anchoreEnterprise.enabled: true
+      packages.anchoreEnterprise.values.global.domain: other.mil
+      packages.anchoreEnterprise.values.bb-common.routes.inbound.anchore-ui.hosts:
+        - "scanner.{{ .Values.global.domain }}"
+    asserts:
+      - equal:
+          path: sso.acsUrl
+          value: https://scanner.other.mil/service/sso/auth/keycloak
+

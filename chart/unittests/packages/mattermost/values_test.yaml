@@ -12,46 +12,69 @@ tests:
     set:
       packages.mattermost.enabled: true
       packages.mattermost.values:
-        routes:
-          inbound:
-            chat:
-              hosts:
-                - "custom-chat.example.com"
+        bb-common:
+          routes:
+            inbound:
+              chat:
+                hosts:
+                  - "custom-chat.example.com"
     asserts:
       - equal:
-          path: routes.inbound.chat.hosts[0]
+          path: bb-common.routes.inbound.chat.hosts[0]
           value: "custom-chat.example.com"
 
-  - it: should include kubeAPI egress definition from top level controlPlaneCidr
+  - it: should pass explicit kubeAPI definitions under bb-common
     postRenderer:
-      cmd: "sh"
+      cmd: sh
       args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - -c
+        - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       packages.mattermost.enabled: true
-      networkPolicies.controlPlaneCidr: "10.0.0.0/8"
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 10.0.0.0/8
+          - ipBlock:
+              cidr: 172.16.0.0/12
     asserts:
-      - exists:
-          path: networkPolicies.egress.definitions.kubeAPI
       - equal:
-          path: networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
-          value: "10.0.0.0/8"
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+          value: 10.0.0.0/8
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[1].ipBlock.cidr
+          value: 172.16.0.0/12
 
-  - it: should include vpcCidr in kubeAPI egress definition when different from controlPlaneCidr
+  - it: should derive chat host and pass the mesh mode to the package
     postRenderer:
-      cmd: "sh"
+      cmd: sh
       args:
-        - "-c"
-        - "yq eval '.stringData.defaults' - | yq eval '.'"
+        - -c
+        - "yq eval-all '[.stringData.common, .stringData.defaults] | map(from_yaml) | .[0] * .[1]' -"
     set:
       packages.mattermost.enabled: true
-      networkPolicies.controlPlaneCidr: "10.0.0.0/8"
-      networkPolicies.vpcCidr: "172.16.0.0/12"
+      domain: example.com
+      packages.istiod.enabled: true
+      packages.istioCNI.enabled: false
+      packages.ztunnel.enabled: false
     asserts:
       - equal:
-          path: networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
-          value: "10.0.0.0/8"
+          path: bb-common.routes.inbound.chat.hosts[0]
+          value: chat.example.com
       - equal:
-          path: networkPolicies.egress.definitions.kubeAPI.to[1].ipBlock.cidr
-          value: "172.16.0.0/12"
+          path: global.domain
+          value: example.com
+      - equal:
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: false
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes

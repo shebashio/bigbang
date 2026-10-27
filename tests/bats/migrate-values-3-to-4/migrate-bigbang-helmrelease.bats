@@ -71,7 +71,7 @@ EOF
 
 @test "migrates parent inline values and preserves the complete surrounding manifest" {
   cp "$INPUT_FILE" "${INPUT_FILE}.original"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.spec.values.packageConfiguration.version' "$OUTPUT_FILE")" = v1 ]
@@ -87,18 +87,18 @@ EOF
     = "$(yq -o=json -I=0 '.spec.values.addons.argocd' "$INPUT_FILE")" ]
   cmp "$INPUT_FILE" "${INPUT_FILE}.original"
 
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
 }
 
 @test "secondary parent patches omit the discriminator and stay idempotent" {
-  run "$SCRIPT_PATH" --bigbang-helmrelease --omit-package-configuration \
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --omit-package-configuration \
     -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -eq 0 ]
   [ "$(yq '.spec.values | has("packageConfiguration")' "$OUTPUT_FILE")" = false ]
 
-  run /bin/bash "$SCRIPT_PATH" --bigbang-helmrelease --omit-package-configuration \
+  run /bin/bash "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --omit-package-configuration \
     -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
   [ "$status" -eq 0 ]
   cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
@@ -109,7 +109,7 @@ EOF
     .spec.values.packages.monitoring.enabled = false |
     .spec.values.packages.podinfo.enabled = true |
     .spec.values.addons.mattermostoperator.enabled = true' "$INPUT_FILE"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [ "$(yq '.spec.values.packages.monitoring.enabled' "$OUTPUT_FILE")" = false ]
@@ -121,13 +121,13 @@ EOF
 
 @test "in-place parent migration creates a backup and refuses to overwrite it" {
   cp "$INPUT_FILE" "${INPUT_FILE}.original"
-  run "$SCRIPT_PATH" --bigbang-helmrelease --in-place "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --in-place "$INPUT_FILE"
   [ "$status" -eq 0 ]
   cmp "${INPUT_FILE}.bak" "${INPUT_FILE}.original"
   [ "$(yq '.spec.values.packages.monitoring.enabled' "$INPUT_FILE")" = true ]
 
   cp "$INPUT_FILE" "${INPUT_FILE}.migrated"
-  run "$SCRIPT_PATH" --bigbang-helmrelease --in-place "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --in-place "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"backup already exists"* ]]
   cmp "$INPUT_FILE" "${INPUT_FILE}.migrated"
@@ -135,7 +135,7 @@ EOF
 
 @test "parent patches without inline values remain byte-for-byte unchanged" {
   yq -i 'del(.spec.values)' "$INPUT_FILE"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -eq 0 ]
   cmp "$INPUT_FILE" "$OUTPUT_FILE"
   [ "$(yq '.spec | has("values")' "$OUTPUT_FILE")" = false ]
@@ -145,7 +145,7 @@ EOF
   yq -i '.metadata.annotations."example.com/shared" = "example.test" |
     .metadata.annotations."example.com/shared" anchor = "domain" |
     .spec.values.domain alias = "domain"' "$INPUT_FILE"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
 
   [ "$status" -eq 0 ]
   [[ "$output" == *"Expanded anchors:"* ]]
@@ -157,7 +157,7 @@ EOF
   for api_version in v2 v2beta2 v2beta1; do
     API_VERSION="$api_version" yq -i '.apiVersion = "helm.toolkit.fluxcd.io/" + strenv(API_VERSION) |
       .metadata.name = "platform"' "$INPUT_FILE"
-    run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+    run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
     [ "$status" -eq 0 ]
     [ "$(yq '.apiVersion' "$OUTPUT_FILE")" = "helm.toolkit.fluxcd.io/$api_version" ]
     [ "$(yq '.metadata.name' "$OUTPUT_FILE")" = platform ]
@@ -168,7 +168,7 @@ EOF
   for expression in '.spec.values = []' '.spec.values = null' '.spec = null' '.kind = "Secret"' '.apiVersion = "example.com/v1"' '.metadata.name = null' '.sops = {}' '.spec.values.packages = []'; do
     cp "$INPUT_FILE" "${INPUT_FILE}.invalid"
     EXPRESSION="$expression" yq -i 'eval(strenv(EXPRESSION))' "${INPUT_FILE}.invalid"
-    run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
+    run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
     [ "$status" -ne 0 ]
     [ ! -e "$OUTPUT_FILE" ]
   done
@@ -176,7 +176,7 @@ EOF
   cat "$INPUT_FILE" >"${INPUT_FILE}.invalid"
   printf '\n---\n' >>"${INPUT_FILE}.invalid"
   cat "$INPUT_FILE" >>"${INPUT_FILE}.invalid"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
   [ "$status" -ne 0 ]
   [[ "$output" == *"requires exactly one YAML document"* ]]
   [ ! -e "$OUTPUT_FILE" ]
@@ -186,7 +186,7 @@ EOF
   for expression in '.spec.values.monitoring = null' '.spec.values.addons.argocd = null' '.spec.values.addons.mattermostoperator = null' '.spec.values.packages = null' '.spec.values.packageConfiguration.version = "v1" | .spec.values.packages.monitoring = null' '.spec.values.monitoring.$patch = "replace"'; do
     cp "$INPUT_FILE" "${INPUT_FILE}.invalid"
     EXPRESSION="$expression" yq -i 'eval(strenv(EXPRESSION))' "${INPUT_FILE}.invalid"
-    run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
+    run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "${INPUT_FILE}.invalid"
     [ "$status" -ne 0 ]
     [[ "$output" == *"require manual migration"* ]]
     [ ! -e "$OUTPUT_FILE" ]
@@ -195,33 +195,33 @@ EOF
 
 @test "parent mode retains the existing custom-package collision safeguard" {
   yq -i '.spec.values.packages.monitoring.enabled = false' "$INPUT_FILE"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"existing 3.x custom package"* ]]
   [ ! -e "$OUTPUT_FILE" ]
 }
 
 @test "parent mode rejects incompatible options and unsafe output targets" {
-  run "$SCRIPT_PATH" --bigbang-helmrelease "$INPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease "$INPUT_FILE" "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"requires exactly one input"* ]]
 
-  run "$SCRIPT_PATH" --bigbang-helmrelease --secret-key values.yaml "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --secret-key values.yaml "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"cannot be combined"* ]]
 
-  run "$SCRIPT_PATH" --bigbang-helmrelease --helmrelease-patch "$INPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease --helmrelease-patch "$INPUT_FILE" "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"cannot be combined"* ]]
 
   ln "$INPUT_FILE" "$OUTPUT_FILE"
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -ne 0 ]
   [[ "$output" == *"output refers to an input file"* ]]
 }
 
 @test "migrated parent overlays compose through Kustomize and render with Big Bang" {
-  run "$SCRIPT_PATH" --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 3 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -eq 0 ]
   yq -i '.spec.values = {}' "$INPUT_FILE"
   cat >"${BATS_TEST_TMPDIR}/kustomization.yaml" <<'EOF'
@@ -245,4 +245,22 @@ EOF
     --kube-version 1.35.0 --show-only templates/monitoring/helmrelease.yaml
   [ "$status" -eq 0 ]
   [[ "$output" == *"name: monitoring"* ]]
+}
+
+@test "target 4 migrates parent inline bb-common values while preserving its HelmRelease spec" {
+  yq -i '.spec.values.monitoring.values.istio.hardened.customAuthorizationPolicies = [{"name": "legacy-policy"}] |
+    .spec.values.monitoring.values.networkPolicies.enabled = true' "$INPUT_FILE"
+
+  run "$SCRIPT_PATH" --target 4 --bigbang-helmrelease -o "$OUTPUT_FILE" "$INPUT_FILE"
+
+  [ "$status" -eq 0 ]
+  [ "$(yq '.spec.values.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = legacy-policy ]
+  [ "$(yq '.spec.values.packages.monitoring.values.bb-common.networkPolicies.enabled' "$OUTPUT_FILE")" = true ]
+  [ "$(yq '.spec.values.packages.monitoring.values | has("istio") or has("networkPolicies")' "$OUTPUT_FILE")" = false ]
+  [ "$(yq -o=json -I=0 'del(.spec.values)' "$OUTPUT_FILE")" \
+    = "$(yq -o=json -I=0 'del(.spec.values)' "$INPUT_FILE")" ]
+
+  run "$SCRIPT_PATH" --target 4 --bigbang-helmrelease -o "${OUTPUT_FILE}.second" "$OUTPUT_FILE"
+  [ "$status" -eq 0 ]
+  cmp "$OUTPUT_FILE" "${OUTPUT_FILE}.second"
 }

@@ -105,6 +105,29 @@ bb-common:
                 protocol: TLS
                 name: https
             resolution: DNS
+    {{- else if and $istioHardenedEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
+    {{- $objFull := .Values.packages.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
+    {{- $objHost := index (splitList ":" $objFull) 0 }}
+    {{- $objPort := 80 }}
+    {{- if contains ":" $objFull }}{{- $objPort = index (splitList ":" $objFull) 1 | int }}{{- end }}
+    serviceEntries:
+      custom:
+        - name: egress-object-store
+          enabled: true
+          spec:
+            hosts:
+            - "{{ $objHost }}"
+            location: MESH_EXTERNAL
+            ports:
+              - number: {{ $objPort }}
+                {{- if .Values.packages.thanos.objectStorage.insecure }}
+                protocol: HTTP
+                name: http
+                {{- else }}
+                protocol: TLS
+                name: https
+                {{- end }}
+            resolution: DNS
     {{- else }}
     serviceEntries:
       custom: []
@@ -404,7 +427,7 @@ upstream:
         {{- else }}
         - url: http://mimir-mimir-gateway.mimir.svc.cluster.local/api/v1/push
         {{- end }}
-        {{- if and $monitoringMtlsStrict (eq (dig "istio" "mtls" "mode" "STRICT" .Values.packages.mimir.values) "STRICT") }}
+        {{- if and $monitoringMtlsStrict (eq (dig "bb-common" "istio" "mtls" "mode" "STRICT" .Values.packages.mimir.values) "STRICT") }}
           tlsConfig:
             caFile: /etc/prom-certs/root-cert.pem
             certFile: /etc/prom-certs/cert-chain.pem
@@ -419,11 +442,11 @@ upstream:
           secret:
             type: s3
             config:
-              bucket: "thanos"
-              endpoint: minio.thanos.svc.cluster.local:80
-              access_key: "minio"
-              secret_key: "minio123"
-              insecure: false
+              bucket: {{ .Values.packages.thanos.objectStorage.bucket | quote }}
+              endpoint: {{ .Values.packages.thanos.objectStorage.endpoint | quote }}
+              access_key: {{ .Values.packages.thanos.objectStorage.accessKey | quote }}
+              secret_key: {{ .Values.packages.thanos.objectStorage.accessSecret | quote }}
+              insecure: {{ .Values.packages.thanos.objectStorage.insecure }}
               trace:
                 enable: true
               {{- if $monitoringMtlsStrict }}
@@ -435,7 +458,7 @@ upstream:
                 insecure_skip_verify: true
               {{- end }}
         # by default, the object stores only sync every 2 hours
-        # increase the frequency so the tests will pass 
+        # increase the frequency so the tests will pass
         blockSize: 1m
         {{- else if not ( .Values.packages.thanos.objectStorage.endpoint | empty) }}
         objectStorageConfig:

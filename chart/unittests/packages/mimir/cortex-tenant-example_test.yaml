@@ -8,10 +8,10 @@ postRenderer:
   cmd: sh
   args:
     - -c
-    - "yq eval '(.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+    - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
 tests:
   - it: allows Cortex Tenant to reach only the distributor write endpoint
     asserts:
       - equal:
-          path: networkPolicies.ingress.to.mimir-distributor:8080.from.k8s.cortex-tenant/cortex-tenant
+          path: bb-common.networkPolicies.ingress.to.mimir-distributor:8080.from.k8s.cortex-tenant/cortex-tenant
           value: true

@@ -1,11 +1,5 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.velero.enabled }}
-{{- /* Create a cleaned copy of loki config and merge deprecated paths into current paths */ -}}
-{{- $veleroPackage := deepCopy .Values.packages.velero -}}
-{{- if .Values.packages.velero.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.velero.values) | fromYaml -}}
-{{- $veleroPackage = set $veleroPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict
   "root" $
   "package" .Values.packages.velero

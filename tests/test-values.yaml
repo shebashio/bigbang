@@ -170,13 +170,14 @@ packages:
               # if enabling the keycloak SSO integration test, comment out or change strategy to "openid".
               # strategy defaults to "openid"
               strategy: "anonymous"
-      networkPolicies:
-        ingress:
-          to:
-            kiali:20001:
-              from:
-                k8s:
-                  monitoring/*: true
+      bb-common:
+        networkPolicies:
+          ingress:
+            to:
+              kiali:20001:
+                from:
+                  k8s:
+                    monitoring/*: true
       bbtests:
         enabled: true
   gatekeeper:
@@ -615,7 +616,7 @@ packages:
             min: 1g
             max: 1g
         data:
-          count: 1
+          count: 2
           persistence:
             size: 256Mi
           resources:
@@ -627,8 +628,19 @@ packages:
             max: 1g
       kibana:
         count: 1
+        config:
+          # CI has no Elastic package registry or telemetry egress. Prometheus
+          # supplies monitoring; do not call the deprecated _monitoring/bulk API.
+          xpack.fleet.isAirGapped: true
+          telemetry.enabled: false
+          newsfeed.enabled: false
+          monitoring.kibana.collection.enabled: false
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            # Browser background services are outside this application test.
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com"]'
 
   fluentbit:
     enabled: false
@@ -666,11 +678,12 @@ packages:
       # MinIO required for Loki Scalable
       minio:
         enabled: true
-      # Re-enable VirtualService for CI tests (alloy script test queries via VS)
-      routes:
-        inbound:
-          loki:
-            enabled: true
+      bb-common:
+        # Re-enable VirtualService for CI tests (alloy script test queries via VS)
+        routes:
+          inbound:
+            loki:
+              enabled: true
       bbtests:
         enabled: true
         scripts:
@@ -732,6 +745,20 @@ packages:
         kubeProxy:
           serviceMonitor:
             enabled: false
+        prometheus:
+          prometheusSpec:
+            additionalArgs:
+              - name: storage.tsdb.min-block-duration
+                value: 1m
+              - name: storage.tsdb.max-block-duration
+                value: 1m
+      networkPolicies:
+        egress:
+          from:
+            prometheus:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
       bbtests:
         enabled: true
 
@@ -794,6 +821,10 @@ packages:
         persistence:
           size: 5Gi
         localVolumeUpgrade: true
+        # Console holds ~9GB of CVE feed in memory; cap the Go heap below the 16Gi limit to avoid OOMKills
+        extraEnv:
+          - name: GOMEMLIMIT
+            value: 13GiB
       defender:
         dockerSocket: "/run/k3s/containerd/containerd.sock"
         selinux: false
@@ -974,14 +1005,15 @@ packages:
     flux:
       timeout: 30m
     values:
-      networkPolicies:
-        enabled: true
-        egress:
-          from:
-            "*":
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
+      bb-common:
+        networkPolicies:
+          enabled: true
+          egress:
+            from:
+              "*":
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
       global:
         redis:
           host: valkey
@@ -1062,17 +1094,18 @@ packages:
       upstream:
         runners:
           protected: false
-      networkPolicies:
-        additionalPolicies:
-        - name: egress-runner-jobs
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Egress
-            egress:
-            - to:
-              - ipBlock:
-                  cidr: 0.0.0.0/0
+      bb-common:
+        networkPolicies:
+          additionalPolicies:
+          - name: egress-runner-jobs
+            spec:
+              podSelector: {}
+              policyTypes:
+              - Egress
+              egress:
+              - to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
@@ -1284,6 +1317,11 @@ packages:
     elasticsearch:
       enabled: true
     values:
+      # The chat/file-storage smoke test does not deploy SMTP or a Calls STUN
+      # service. Keep these overrides in CI rather than changing package defaults.
+      mattermostEnvs:
+        MM_EMAILSETTINGS_SENDEMAILNOTIFICATIONS: "false"
+        MM_PLUGINSETTINGS_PLUGINSTATES: '{"com.mattermost.calls":{"Enable":false}}'
       monitoring:
         enabled: true
       postgresql:
@@ -1327,6 +1365,9 @@ packages:
                   - ALL
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com","update.googleapis.com","passwordsleakcheck-pa.googleapis.com","safebrowsing.googleapis.com"]'
 
   velero:
     enabled: false
@@ -1537,12 +1578,13 @@ packages:
     kms_access_key: "" # gets added via CI VAULT_KMS_ACCESS_KEY and 01_deploy_bigbang.sh
     kms_secret_key: "" # gets added via CI VAULT_KMS_SECRET_KEY and 01_deploy_bigbang.sh
     values:
-      routes:
-        outbound:
-          aws-kms:
-            enabled: true
-            hosts:
-            - kms.us-gov-west-1.amazonaws.com
+      bb-common:
+        routes:
+          outbound:
+            aws-kms:
+              enabled: true
+              hosts:
+              - kms.us-gov-west-1.amazonaws.com
       upstream:
         injector:
           enabled: true
@@ -1635,8 +1677,14 @@ packages:
   # Thanos
   #
   thanos:
-    # -- Toggle deployment of thanos
     enabled: false
+    objectStorage:
+      endpoint: "garage:3900"
+      region: "garage"
+      accessKey: "GKbb0000000000000000000000"
+      accessSecret: "bb00000000000000000000000000000000000000000000000000000000000000"
+      bucket: "thanos"
+      insecure: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_thanos
@@ -1661,76 +1709,47 @@ packages:
                 name: https
               resolution: DNS
           customAuthorizationPolicies:
-          - name: "allow-intranamespace-thanos"
-            enabled: true
-            spec:
-              action: ALLOW
-              rules:
-              - from:
-                - source:
-                    namespaces:
-                    - thanos
-                    - monitoring
-      minio:
-        enabled: true
-        upstream:
-          tenant:
-            pools:
-            - name: pool-0
-              labels:
-                app: minio
-                app.kubernetes.io/name: minio
-              servers: 1
-              volumesPerServer: 4
-              size: 256Mi
-              resources:
-                requests:
-                  cpu: 250m
-                  memory: 1Gi
-                limits:
-                  cpu: 250m
-                  memory: 2Gi
-              securityContext:
-                runAsUser: 1001
-                runAsGroup: 1001
-                fsGroup: 1001
-                runAsNonRoot: true
-              containerSecurityContext:
-                runAsUser: 1001
-                runAsGroup: 1001
-                runAsNonRoot: true
-                capabilities:
-                  drop:
-                  - ALL
+            - name: "allow-intranamespace-thanos"
+              enabled: true
+              spec:
+                action: ALLOW
+                rules:
+                - from:
+                  - source:
+                      namespaces:
+                      - thanos
+                      - monitoring
       bbtests:
         enabled: true
         cypress:
           envs:
-            cypress_url: "https://thanos.dev.bigbang.mil"
-            cypress_prometheus_integration_enabled: "true"
-            cypress_objstorage_integration_enabled: "true"
+            cypress_prometheus_integration_enabled: 'true'
         scripts:
-          image: "registry1.dso.mil/bigbang-ci/gitlab-tester:0.0.4"
           envs:
-            THANOS_REGISTRY: "thanos.dev.bigbang.mil"
-      upstream:
-        storegateway:
-          enabled: true
-        compactor:
-          enabled: true
-          retentionResolutionRaw: 30d
-          retentionResolution5m: 30d
-          retentionResolution1h: 30d
-        objstoreConfig: |-
-          type: s3
-          config:
-            bucket: "thanos"
-            endpoint: minio.thanos.svc.cluster.local:80
-            access_key: "minio"
-            secret_key: "minio123"
-            insecure: true
-            trace:
-              enable: true
+            THANOS_S3_ENDPOINT: "http://garage:3900"
+            THANOS_S3_ACCESS_KEY: "GKbb0000000000000000000000"
+            THANOS_S3_SECRET_KEY: "bb00000000000000000000000000000000000000000000000000000000000000"
+      networkPolicies:
+        egress:
+          from:
+            thanos-storegateway:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
+            thanos-compactor:
+              to:
+                cidr:
+                  172.30.0.0/16:3900: true
+        ingress:
+          to:
+            thanos-query:9090:
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/component: query
+                  app.kubernetes.io/name: thanos
+              from:
+                k8s:
+                  thanos/thanos-cypress-test: true
 
   # ----------------------------------------------------------------------------------------------------------------------
   # External Secrets
