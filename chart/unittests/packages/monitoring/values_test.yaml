@@ -56,6 +56,7 @@ tests:
       value: false
 - it: sets sidecar policy from hardening True
   set:
+    istio.ambient.enabled: false
     packages.istiod.enabled: true
     packages.istiod.values.hardened.enabled: true
   asserts:
@@ -187,6 +188,7 @@ tests:
       value: true
 - it: disables networkPolicies when both networkPolicies.enabled and ambient are false
   set:
+    istio.ambient.enabled: false
     networkPolicies:
       enabled: false
   asserts:

@@ -50,6 +50,7 @@ tests:
           path: upstream.kubernetesServiceMonitors
   - it: should keep istio cert mounts when legacy package hardening is enabled
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: true
       packages.monitoring.values.istio.hardened.enabled: true
     asserts:
@@ -67,6 +68,7 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: true
     asserts:
       - equal:
@@ -83,6 +85,7 @@ tests:
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: true
       packages.istiod.values.hardened.enabled: false
       packages.monitoring.values.bb-common.istio.sidecar.enabled: true
@@ -126,6 +129,7 @@ tests:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
   - it: should prioritize prometheusOperatorCRDs namespace injection over grafana when CRDs own monitoring namespace
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: true
       packages.prometheusOperatorCRDs.enabled: true
       packages.grafana.enabled: true

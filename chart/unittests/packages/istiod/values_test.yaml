@@ -10,13 +10,27 @@ postRenderer:
     - -c
     - "yq eval '.stringData.common' - | yq eval '.'"
 tests:
-  - it: nests shared values beneath the bb-common subchart key
+  - it: nests shared values beneath the bb-common subchart key in sidecar mode
+    set:
+      istio.ambient.enabled: false
     asserts:
       - isNotNull:
           path: bb-common.networkPolicies
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled
           value: false
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: istio
+
+  - it: nests shared values beneath the bb-common subchart key in ambient mode (default)
+    asserts:
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
       - notExists:
           path: networkPolicies
       - notExists:

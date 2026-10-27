@@ -69,13 +69,16 @@ tests:
 
   - it: should honor legacy package-level hardening for the Istio sidecar
     set:
+      istio.ambient.enabled: false
       packages.sample.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: true
 
-  - it: should have authorizationPolicies disabled by default
+  - it: should have authorizationPolicies disabled in sidecar mode
+    set:
+      istio.ambient.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled
@@ -83,6 +86,15 @@ tests:
       - equal:
           path: bb-common.istio.authorizationPolicies.generateFromNetpol
           value: false
+
+  - it: should enable authorizationPolicies by default in ambient mode
+    asserts:
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: true
 
   - it: should have authorizationPolicies enabled when globally enabled
     set:
@@ -103,6 +115,7 @@ tests:
 
   - it: should have networkPolicies disabled when set
     set:
+      istio.ambient.enabled: false
       networkPolicies.enabled: false
     asserts:
       - equal:

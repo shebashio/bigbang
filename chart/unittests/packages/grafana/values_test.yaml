@@ -10,6 +10,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
+      istio.ambient.enabled: false
       packages.grafana.values.istio.hardened.enabled: true
     asserts:
       - equal:

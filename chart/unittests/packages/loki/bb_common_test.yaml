@@ -10,8 +10,9 @@ postRenderer:
     - -c
     - "yq eval '.stringData.common' - | yq eval '.'"
 tests:
-  - it: nests shared mesh and networking defaults without legacy keys
+  - it: nests shared mesh and networking defaults without legacy keys in sidecar mode
     set:
+      istio.ambient.enabled: false
       packages.istiod.values.hardened.enabled: true
       authorizationPolicies.enabled: true
     asserts:
@@ -21,6 +22,34 @@ tests:
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: nests shared mesh and networking defaults without legacy keys in ambient mode (default)
+    set:
+      packages.istiod.values.hardened.enabled: true
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled
           value: true
