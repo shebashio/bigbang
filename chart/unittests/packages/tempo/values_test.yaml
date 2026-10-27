@@ -1,0 +1,131 @@
+suite: Package - Tempo - Subchart Values
+templates:
+  - templates/tempo/values.yaml
+tests:
+  - it: nests networking and routes and excludes library-only keys
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.istiod.enabled: true
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+      - exists:
+          path: bb-common.routes.inbound.tempo-query
+      - exists:
+          path: bb-common.networkPolicies.ingress.to["tempo:4317"].from.k8s["alloy-alloy-receiver@alloy/alloy-receiver"]
+      - notExists:
+          path: istio
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+  - it: enables ambient networking without a Sidecar resource
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.istiod.values.hardened.enabled: true
+      istio.ambient.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.hbonePortInjection.enabled
+          value: true
+  - it: maps domain and runtime overrides without flattening subchart values
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.defaults | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      domain: example.mil
+      packages.tempo.metricsGenerator.enabled: true
+      packages.monitoring.enabled: true
+    asserts:
+      - equal:
+          path: global.domain
+          value: example.mil
+      - notExists:
+          path: upgradeJob.controlPlaneCidr
+      - equal:
+          path: upstream.tempo.metricsGenerator.enabled
+          value: true
+      - equal:
+          path: upstream.tempo.overrides.defaults.ingestion.rate_limit_bytes
+          value: 30000000
+      - equal:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.ingestion.rate_limit_bytes
+          value: 10485760
+      - equal:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator.processors
+          value: [service-graphs, span-metrics]
+      - lengthEqual:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator.processor.span_metrics.histogram_buckets
+          count: 14
+      - notExists:
+          path: upstream.tempo.per_tenant_overrides.single-tenant.metrics_generator_processors
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+  - it: passes the shared kubeAPI definition to the subchart
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      networkPolicies.egress.definitions.kubeAPI:
+        to:
+          - ipBlock:
+              cidr: 10.0.0.10/32
+        ports:
+          - port: 6443
+            protocol: TCP
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI
+          value:
+            to:
+              - ipBlock:
+                  cidr: 10.0.0.10/32
+            ports:
+              - port: 6443
+                protocol: TCP
+  - it: allows storage egress when object storage is configured
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.tempo.objectStorage.endpoint: s3.example.mil
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from.tempo.to.definition.storage-subnets
+          value: true
+  - it: preserves explicit nested user overrides in the final overlay
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.overlays | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.tempo.values.bb-common.networkPolicies.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: false
+  - it: emits no values when Tempo is disabled
+    set:
+      packages.tempo.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

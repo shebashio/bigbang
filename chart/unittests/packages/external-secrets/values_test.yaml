@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Packages - external-secrets - bb-common subchart values
+templates:
+  - templates/external-secrets/values.yaml
+tests:
+  - it: nests the package bb-common defaults under the subchart key
+    set:
+      packages.externalSecrets.enabled: true
+      packages.externalSecrets.values.istio.hardened.enabled: true
+      # Set complete list items so separate set paths cannot overwrite the same index.
+      packages.externalSecrets.values.istio.hardened.customServiceEntries:
+        - name: legacy-entry
+          spec:
+            hosts:
+              - legacy.example.test
+      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
+        - name: legacy-policy
+          spec:
+            action: ALLOW
+      packages.istiod.values.hardened.enabled: false
+      packages.externalSecrets.values.upstream.webhook.create: true
+      packages.externalSecrets.values.upstream.certController.create: true
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+      - notExists:
+          path: bb-common.istio.hardened
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
+          value: legacy.example.test
+      - equal:
+          path: bb-common.istio.authorizationPolicies.custom[0].spec.action
+          value: ALLOW
+      - exists:
+          path: bb-common.networkPolicies
+      - equal:
+          path: bb-common.networkPolicies.ingress.to.external-secrets-webhook:10250.from.definition.kubeAPI
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.external-secrets-webhook.to.definition.kubeAPI
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.external-secrets-cert-controller.to.definition.kubeAPI
+          value: true
+
+  - it: preserves user bb-common overrides in the package overlays
+    set:
+      packages.externalSecrets.enabled: true
+      packages.externalSecrets.values.bb-common.networkPolicies.enabled: true
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '.stringData.overlays' - | yq eval '.'"
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.enabled
+          value: true
+
+  - it: keeps package-local defaults outside the bb-common subchart values
+    set:
+      packages.externalSecrets.enabled: true
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '.stringData.defaults' - | yq eval '.'"
+    asserts:
+      - equal:
+          path: monitoring.enabled
+          value: true
+      - equal:
+          path: openshift
+          value: false
+      - notExists:
+          path: bb-common
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies

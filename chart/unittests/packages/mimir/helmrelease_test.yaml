@@ -128,8 +128,14 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
-      pattern: "kafka-broker"
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker:$"
+  - matchRegex:
+      path: stringData.common
+      pattern: "b-1\\.cluster\\.kafka\\.us-east-1\\.amazonaws\\.com"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker-wildcard:$"
 
 - it: should not render kafka config when kafkaIngestStorage is disabled
   set:
@@ -145,6 +151,9 @@ tests:
   - notMatchRegex:
       path: stringData.defaults
       pattern: "ingest_storage"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "kafka-broker"
 
 - it: should render wildcard kafka-broker route when brokerClusterDomain and istio are set
   set:
@@ -164,11 +173,14 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
-      pattern: "kafka-broker-wildcard"
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker-wildcard:$"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "\\*\\.mimir-kafka-test\\.abc123\\.kafka\\.us-gov-west-1\\.amazonaws\\.com"
+  - notMatchRegex:
+      path: stringData.common
+      pattern: "(?m)^      kafka-broker:$"
 
 - it: should override kafka-subnets definition with brokerNetworkCIDR when set
   set:
@@ -186,7 +198,7 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "172\\.31\\.0\\.0/16"
 
 - it: should scope kafka egress to distributor and ingester pod selectors only
@@ -205,14 +217,14 @@ tests:
   template: mimir/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "mimir-distributor"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "mimir-ingester"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "app.kubernetes.io/component: distributor"
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "app.kubernetes.io/component: ingester"

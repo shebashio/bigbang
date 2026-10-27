@@ -1,7 +1,8 @@
 #!/usr/bin/env bats
 
 setup() {
-    export REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}" && git rev-parse --show-toplevel)"
+    # Git hooks export repository paths that override discovery after changing directories.
+    export REPO_ROOT="$(unset GIT_DIR GIT_WORK_TREE GIT_IMPLICIT_WORK_TREE; cd "${BATS_TEST_DIRNAME}" && git rev-parse --show-toplevel)"
 }
 
 @test "ambient overlay retains Vault ingress certificates" {

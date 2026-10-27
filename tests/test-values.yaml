@@ -616,7 +616,7 @@ packages:
             min: 1g
             max: 1g
         data:
-          count: 1
+          count: 2
           persistence:
             size: 256Mi
           resources:
@@ -628,8 +628,19 @@ packages:
             max: 1g
       kibana:
         count: 1
+        config:
+          # CI has no Elastic package registry or telemetry egress. Prometheus
+          # supplies monitoring; do not call the deprecated _monitoring/bulk API.
+          xpack.fleet.isAirGapped: true
+          telemetry.enabled: false
+          newsfeed.enabled: false
+          monitoring.kibana.collection.enabled: false
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            # Browser background services are outside this application test.
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com"]'
 
   fluentbit:
     enabled: false
@@ -667,11 +678,12 @@ packages:
       # MinIO required for Loki Scalable
       minio:
         enabled: true
-      # Re-enable VirtualService for CI tests (alloy script test queries via VS)
-      routes:
-        inbound:
-          loki:
-            enabled: true
+      bb-common:
+        # Re-enable VirtualService for CI tests (alloy script test queries via VS)
+        routes:
+          inbound:
+            loki:
+              enabled: true
       bbtests:
         enabled: true
         scripts:
@@ -993,14 +1005,15 @@ packages:
     flux:
       timeout: 30m
     values:
-      networkPolicies:
-        enabled: true
-        egress:
-          from:
-            "*":
-              to:
-                cidr:
-                  172.30.0.0/16:3900: true
+      bb-common:
+        networkPolicies:
+          enabled: true
+          egress:
+            from:
+              "*":
+                to:
+                  cidr:
+                    172.30.0.0/16:3900: true
       global:
         redis:
           host: valkey
@@ -1081,17 +1094,18 @@ packages:
       upstream:
         runners:
           protected: false
-      networkPolicies:
-        additionalPolicies:
-        - name: egress-runner-jobs
-          spec:
-            podSelector: {}
-            policyTypes:
-            - Egress
-            egress:
-            - to:
-              - ipBlock:
-                  cidr: 0.0.0.0/0
+      bb-common:
+        networkPolicies:
+          additionalPolicies:
+          - name: egress-runner-jobs
+            spec:
+              podSelector: {}
+              policyTypes:
+              - Egress
+              egress:
+              - to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
       bbtests:
         enabled: true
         cypress:
@@ -1303,6 +1317,11 @@ packages:
     elasticsearch:
       enabled: true
     values:
+      # The chat/file-storage smoke test does not deploy SMTP or a Calls STUN
+      # service. Keep these overrides in CI rather than changing package defaults.
+      mattermostEnvs:
+        MM_EMAILSETTINGS_SENDEMAILNOTIFICATIONS: "false"
+        MM_PLUGINSETTINGS_PLUGINSTATES: '{"com.mattermost.calls":{"Enable":false}}'
       monitoring:
         enabled: true
       postgresql:
@@ -1346,6 +1365,9 @@ packages:
                   - ALL
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com","update.googleapis.com","passwordsleakcheck-pa.googleapis.com","safebrowsing.googleapis.com"]'
 
   velero:
     enabled: false
