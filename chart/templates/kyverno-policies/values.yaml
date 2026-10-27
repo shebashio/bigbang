@@ -296,9 +296,8 @@ policies:
         serviceAccounts: ['.*']
         pods:
           allow:
-            - default-minio-bucket-creation-.*
-            - mattermost-minio-.*
             - mattermost-wait-job-.*
+            - mattermost-script-test
       - namespace: mattermost-operator
         serviceAccounts: ['.*']
         pods:
