@@ -238,12 +238,16 @@ upstream:
       {{- end }}
       {{- if and .Values.packages.loki.enabled .Values.packages.tempo.enabled }}
         jsonData:
+          httpHeaderName1: X-Scope-OrgID
+          {{- if .Values.packages.tempo.enabled }}
           derivedFields:
             - datasourceName: Tempo
               matcherRegex: "traceID=(\\w+)"
               name: TraceID
               url: "$${__value.raw}"
-              datasourceUid: tempo
+            {{- end }}
+        secureJsonData:
+          httpHeaderValue1: self-monitoring
       {{- end }}
       {{- if .Values.packages.tempo.enabled }}
       - name: Tempo
