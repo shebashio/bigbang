@@ -39,7 +39,8 @@ pre-push:
   commands:
     bats-shell-scripts:
       glob: "**/*.{sh,bats}"
-      run: bats --jobs 4 --recursive tests/bats/
+      # Let suites discover their repository root after changing directories.
+      run: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_IMPLICIT_WORK_TREE bats --jobs 4 --recursive tests/bats/
     generated-package-schemas:
       glob: "{chart/package-metadata.yaml,chart/values.schema.json,scripts/generate-package-schemas.jq,scripts/generate-package-schemas.sh,scripts/migrate-values-3-to-4.sh}"
       run: scripts/generate-package-schemas.sh --check
