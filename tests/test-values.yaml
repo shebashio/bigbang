@@ -628,8 +628,19 @@ packages:
             max: 1g
       kibana:
         count: 1
+        config:
+          # CI has no Elastic package registry or telemetry egress. Prometheus
+          # supplies monitoring; do not call the deprecated _monitoring/bulk API.
+          xpack.fleet.isAirGapped: true
+          telemetry.enabled: false
+          newsfeed.enabled: false
+          monitoring.kibana.collection.enabled: false
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            # Browser background services are outside this application test.
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com"]'
 
   fluentbit:
     enabled: false
@@ -1295,10 +1306,10 @@ packages:
               max_global_series_per_user: 0
 
   mattermostOperator:
-    enabled: false
+    enabled: true
 
   mattermost:
-    enabled: false
+    enabled: true
     sso:
       enabled: false
       client_id: dev_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_mattermost
@@ -1306,6 +1317,11 @@ packages:
     elasticsearch:
       enabled: true
     values:
+      # The chat/file-storage smoke test does not deploy SMTP or a Calls STUN
+      # service. Keep these overrides in CI rather than changing package defaults.
+      mattermostEnvs:
+        MM_EMAILSETTINGS_SENDEMAILNOTIFICATIONS: "false"
+        MM_PLUGINSETTINGS_PLUGINSTATES: '{"com.mattermost.calls":{"Enable":false}}'
       monitoring:
         enabled: true
       postgresql:
@@ -1349,6 +1365,9 @@ packages:
                   - ALL
       bbtests:
         enabled: true
+        cypress:
+          envs:
+            CYPRESS_BLOCK_HOSTS: '["www.gstatic.com","clientservices.googleapis.com","accounts.google.com","www.google.com","android.clients.google.com","content-autofill.googleapis.com","update.googleapis.com","passwordsleakcheck-pa.googleapis.com","safebrowsing.googleapis.com"]'
 
   velero:
     enabled: false
