@@ -20,7 +20,8 @@ For package deprecation and downward/high-impact track changes, use [Package Lif
 - [ ] 12. [Policy Enforcement](policy-enforcement.md): Update package to comply with default security and governance policies in Big Bang
 - [ ] 13. Cyber Review: Complete Cyber security review and address any findings required by the governance process.
 - [ ] 14. [Supported Package](supported.md): Migrate package into the Big Bang repo as an integrated or maintained package
-- [ ] 15. [Final Documentation](documentation.md): Add additional Big Bang documentation for final release
-- [ ] 16. Development: Add any subdomains exposed by the package to [the k3d-dev script](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/reference/scripts/developer/k3d-dev.sh?ref_type=heads#L24).
-- [ ] 17. Team Repositories: Add the package project ID to [bigbang-bot's project whitelist](https://repo1.dso.mil/big-bang/team/tools/bigbang-bot/-/blob/main/src/whitelist/projects.json) and [team-charter's mission team charter data](https://repo1.dso.mil/big-bang/team/team-charter/-/blob/main/data/mission_team_charter.json).
-- [ ] 18. [\*Big Bang Merge Request](bigbang-merge-request.md): Create Big Bang Merge Request and run all packages pipeline
+- [ ] 15. Package Mapping: Add the package to [`tests/package-mapping.yaml`](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/tests/package-mapping.yaml?ref_type=heads) so CI can map its repo name to its values key
+- [ ] 16. [Final Documentation](documentation.md): Add additional Big Bang documentation for final release
+- [ ] 17. Development: Add any subdomains exposed by the package to [the k3d-dev script](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/docs/reference/scripts/developer/k3d-dev.sh?ref_type=heads#L24).
+- [ ] 18. Team Repositories: Add the package project ID to [bigbang-bot's project whitelist](https://repo1.dso.mil/big-bang/team/tools/bigbang-bot/-/blob/main/src/whitelist/projects.json) and [team-charter's mission team charter data](https://repo1.dso.mil/big-bang/team/team-charter/-/blob/main/data/mission_team_charter.json).
+- [ ] 19. [\*Big Bang Merge Request](bigbang-merge-request.md): Create Big Bang Merge Request and run all packages pipeline
