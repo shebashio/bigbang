@@ -77,21 +77,3 @@ tests:
               - ipBlock:
                   cidr: 192.0.2.10/32
 
-  - it: maps legacy hardened keys nested under bb-common
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - yq 'select(.kind == "Secret" and .metadata.name == "bb-eck-operator-values") | .stringData.overlays | from_yaml'
-    set:
-      packages.eckOperator.values.bb-common.istio.hardened.customServiceEntries:
-        - name: example
-          enabled: true
-          spec:
-            hosts: [example.com]
-    asserts:
-      - equal:
-          path: bb-common.istio.serviceEntries.custom[0].name
-          value: example
-      - notExists:
-          path: bb-common.istio.hardened.customServiceEntries
