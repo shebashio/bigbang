@@ -1,9 +1,10 @@
 # Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode
 
 > [!NOTE]
-> Ambient mode is generally available as of Big Bang 3.32. It remains opt-in
-> throughout Big Bang 3.x and becomes the default Istio configuration in Big
-> Bang 4.0. Users should begin migrating before 4.0 and test mission-specific
+> Ambient mode is the default Istio configuration as of Big Bang 4.0. An
+> environment upgrading from 3.x that never set `istio.ambient.enabled` migrates
+> to ambient during the upgrade, so follow this procedure for that upgrade, or set
+> `istio.ambient.enabled: false` to stay on sidecar mode. Test mission-specific
 > traffic and integrations in a development or test environment first.
 
 [[_TOC_]]

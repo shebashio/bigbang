@@ -70,6 +70,7 @@ tests:
 
   - it: should render the registry secret in the custom namespace
     set:
+      istio.ambient.enabled: false
       registryCredentials:
         registry: registry1.dso.mil
         username: test
