@@ -19,10 +19,6 @@
 {{- $authserviceEnabled := eq (include "authserviceEnabled" .) "true" }}
 {{- $thanosUsesAuthservice := or .Values.packages.authservice.enabled (and .Values.packages.thanos.sso.enabled $authserviceEnabled) }}
 {{- $thanosAuthserviceWaypoint := eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-{{- $istioHardened := or
-  (dig "bb-common" "istio" "sidecar" "enabled" false .Values.packages.thanos.values)
-  (dig "hardened" "enabled" false .Values.packages.istiod.values)
-}}
 
 {{- $s3Bucket := .Values.packages.thanos.objectStorage.bucket }}
 {{- $s3Region := .Values.packages.thanos.objectStorage.region }}
@@ -43,7 +39,7 @@
 image:
   {{- include "secretsPullSecretsWithName" . | nindent 2 }}
   pullPolicy: {{ .Values.imagePullPolicy }}
-  
+
 upgradeJob:
   image:
     {{- include "secretsPullSecretsSingle" . | nindent 4 }}
@@ -53,170 +49,133 @@ externalURL: https://thanos.{{ .Values.domain }}
 global:
   domain: {{ .Values.domain }}
 
-istio:
-  {{- if $thanosAuthserviceWaypoint }}
-  prependReleaseName: true
-  {{- end }}
-  sidecar:
-    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
-    outboundTrafficPolicyMode: REGISTRY_ONLY
-  {{- if and $istioHardened (contains "s3" $s3Endpoint) }}
-  serviceEntries:
-    custom:
-      - name: egress-object-store
-        enabled: true
-        spec:
-          hosts:
-          - "{{ .Values.packages.thanos.objectStorage.bucket }}.{{ $s3Host }}"
-          location: MESH_EXTERNAL
-          ports:
-            - number: 443
-              protocol: TLS
-              name: https
-          resolution: DNS
-  {{- else if and $istioHardened (not (empty $s3Endpoint)) }}
-  serviceEntries:
-    custom:
-      - name: egress-object-store
-        enabled: true
-        spec:
-          hosts:
-          - "{{ $s3Host }}"
-          location: MESH_EXTERNAL
-          ports:
-            - number: {{ $s3Port }}
-              {{- if .Values.packages.thanos.objectStorage.insecure }}
-              protocol: HTTP
-              name: http
-              {{- else }}
-              protocol: TLS
-              name: https
-              {{- end }}
-          resolution: DNS
-  {{- else }}
-  serviceEntries:
-    custom: []
-  {{- end }}
-routes:
-  {{- if not (empty $s3Endpoint) }}
-  outbound:
-    s3:
-      enabled: {{ $istioHardened }}
-      hosts:
-      - {{ $s3Host }}
-      ports:
-      - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
-        number: {{ $s3Port }}
-        protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
-  {{- end }}
-  inbound:
-    query-frontend:
-      enabled: {{ $istioEnabled }}
-      gateways:
-      - {{ $routeGateway }}
-      hosts:
-      - thanos.{{ .Values.domain }}
-      {{- if $thanosAuthserviceWaypoint }}
-      authservice:
-        enabled: true
-        ingressOnly: true
-        issuer: {{ include "sso.url" . | quote }}
-        clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
-      {{- end }}
+bb-common:
+  istio:
+    {{- if $thanosAuthserviceWaypoint }}
+    prependReleaseName: true
+    {{- end }}
+    serviceEntries:
+      custom: []
+  routes:
+    {{- if not (empty $s3Endpoint) }}
+    outbound:
+      s3:
+        enabled: {{ eq (dig "bb-common" "istio" "sidecar" "outboundTrafficPolicyMode" "ALLOW_ANY" .Values.packages.thanos.values) "REGISTRY_ONLY" }}
+        hosts:
+        - {{ $s3Host }}
+        ports:
+        - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
+          number: {{ $s3Port }}
+          protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
+    {{- end }}
+    inbound:
+      query-frontend:
+        enabled: {{ $istioEnabled }}
+        gateways:
+        - {{ $routeGateway }}
+        hosts:
+        - thanos.{{ .Values.domain }}
+        {{- if $thanosAuthserviceWaypoint }}
+        authservice:
+          enabled: true
+          ingressOnly: true
+          issuer: {{ include "sso.url" . | quote }}
+          clientId: {{ .Values.packages.thanos.sso.client_id | quote }}
+        {{- end }}
 
-networkPolicies:
-  egress:
-    from:
-      '*':
-        to:
-          definition:
-            kubeAPI: true
-      thanos-query:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: query
-        to:
-          k8s:
-            monitoring/prometheus:10901: {{ .Values.packages.monitoring.enabled }}
-      thanos-query-frontend:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: query-frontend
-        to:
-          k8s:
-            authservice/authservice:10003: {{ $thanosUsesAuthservice }}
-      thanos-storegateway:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: storegateway
-        to:
-          definition:
-            storage-subnets: {{ $storeGatewayEnabled }}
-  ingress:
-    to:
-      thanos-query-frontend:9090:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: query-frontend
-        from:
-          definition:
-            gateway: {{ .Values.packages.istioGateway.enabled }}
-          k8s:
-            authservice/authservice: {{ and .Values.packages.thanos.sso.enabled (not .Values.packages.authservice.enabled) }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-query:10902:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: query
-        from:
-          k8s:
-            monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-storegateway:10902:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: storegateway
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-compactor:10902:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: compactor
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-bucketweb:8080:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: bucketweb
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-ruler:10902:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: ruler
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
-      thanos-receive:10902:
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: thanos
-            app.kubernetes.io/component: receive
-        from:
-          k8s:
-            monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+  networkPolicies:
+    egress:
+      from:
+        '*':
+          to:
+            definition:
+              kubeAPI: true
+        thanos-query:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: query
+          to:
+            k8s:
+              monitoring/prometheus:10901: {{ .Values.packages.monitoring.enabled }}
+        thanos-query-frontend:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: query-frontend
+          to:
+            k8s:
+              authservice/authservice:10003: {{ $thanosUsesAuthservice }}
+        thanos-storegateway:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: storegateway
+          to:
+            definition:
+              storage-subnets: {{ $storeGatewayEnabled }}
+    ingress:
+      to:
+        thanos-query-frontend:9090:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: query-frontend
+          from:
+            definition:
+              gateway: {{ .Values.packages.istioGateway.enabled }}
+            k8s:
+              authservice/authservice: {{ and .Values.packages.thanos.sso.enabled (not .Values.packages.authservice.enabled) }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-query:10902:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: query
+          from:
+            k8s:
+              monitoring-grafana@monitoring/grafana: {{ .Values.packages.grafana.enabled }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-storegateway:10902:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: storegateway
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-compactor:10902:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: compactor
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-bucketweb:8080:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: bucketweb
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-ruler:10902:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: ruler
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+        thanos-receive:10902:
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: thanos
+              app.kubernetes.io/component: receive
+          from:
+            k8s:
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
 monitoring:
   enabled: {{ .Values.packages.monitoring.enabled }}

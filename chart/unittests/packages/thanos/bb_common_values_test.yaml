@@ -127,7 +127,7 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: http://garage:3900
       packages.thanos.objectStorage.insecure: true
-      packages.istiod.values.hardened.enabled: true
+      packages.thanos.values.bb-common.istio.sidecar.outboundTrafficPolicyMode: REGISTRY_ONLY
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.enabled
@@ -152,7 +152,7 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: https://garage.example:9443
       packages.thanos.objectStorage.insecure: false
-      packages.istiod.values.hardened.enabled: true
+      packages.thanos.values.bb-common.istio.sidecar.outboundTrafficPolicyMode: REGISTRY_ONLY
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.hosts[0]
@@ -163,3 +163,18 @@ tests:
       - equal:
           path: bb-common.routes.outbound.s3.ports[0].protocol
           value: HTTPS
+
+  - it: disables the S3 route when outbound traffic allows unknown destinations
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: https://garage.example:9443
+      packages.thanos.values.bb-common.istio.sidecar.outboundTrafficPolicyMode: ALLOW_ANY
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.enabled
+          value: false
