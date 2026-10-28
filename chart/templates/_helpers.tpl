@@ -352,53 +352,6 @@ Pointer to the appropriate git credentials template
 {{- end -}}
 
 {{/*
-Merge legacy istio.hardened keys into new structure
-Args:
-  - values: The package values to clean (e.g. .Values.packages.kiali.values)
-
-This helper merges:
-  - istio.hardened.customServiceEntries -> istio.serviceEntries.custom
-  - istio.hardened.customAuthorizationPolicies -> istio.authorizationPolicies.custom
-
-Returns cleaned values with hardened key removed.
-*/}}
-{{- define "mergeLegacyIstioHardenedKeys" -}}
-{{- $values := .values -}}
-{{- if $values.istio -}}
-{{- $cleanedIstio := deepCopy $values.istio -}}
-
-{{- /* Merge hardened.customServiceEntries into serviceEntries.custom */ -}}
-{{- $hardenedServiceEntries := dig "hardened" "customServiceEntries" list $values.istio }}
-{{- $currentServiceEntries := dig "serviceEntries" "custom" list $values.istio }}
-{{- $mergedServiceEntries := concat $hardenedServiceEntries $currentServiceEntries }}
-{{- if $mergedServiceEntries }}
-{{- $_ := set $cleanedIstio "serviceEntries" (dict "custom" $mergedServiceEntries) }}
-{{- end }}
-
-{{- /* Merge hardened.customAuthorizationPolicies into authorizationPolicies.custom */ -}}
-{{- $hardenedAuthzPolicies := dig "hardened" "customAuthorizationPolicies" list $values.istio }}
-{{- $currentAuthzPolicies := dig "authorizationPolicies" "custom" list $values.istio }}
-{{- $mergedAuthzPolicies := concat $hardenedAuthzPolicies $currentAuthzPolicies }}
-{{- if $mergedAuthzPolicies }}
-{{- $_ := set $cleanedIstio "authorizationPolicies" (dict "custom" $mergedAuthzPolicies) }}
-{{- end }}
-
-{{- /* Drop only the two sub-fields that were migrated above; anything else under
-       hardened (notably hardened.enabled, still read by commonPackageDefaults and
-       authorizationPoliciesEnabled) must survive. */ -}}
-{{- $hardenedRemaining := omit (dig "hardened" dict $values.istio) "customServiceEntries" "customAuthorizationPolicies" -}}
-{{- if $hardenedRemaining -}}
-{{- $_ := set $cleanedIstio "hardened" $hardenedRemaining -}}
-{{- else -}}
-{{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
-{{- end -}}
-
-{{- $values = set $values "istio" $cleanedIstio -}}
-{{- end -}}
-{{- toYaml $values -}}
-{{- end -}}
-
-{{/*
 Shared GitRepository resource template.
 Args (dict):
   - name: resource name (kebab-case, e.g. "kyverno-policies")
