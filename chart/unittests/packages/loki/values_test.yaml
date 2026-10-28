@@ -27,6 +27,7 @@ tests:
 
   - it: should render tlsConfig when istio enabled with STRICT mTLS (injection defaults to enabled)
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: true
       packages.loki.values.bb-common.istio.mtls.mode: STRICT
     asserts:

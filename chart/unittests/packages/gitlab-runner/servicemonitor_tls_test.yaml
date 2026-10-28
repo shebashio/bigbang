@@ -13,6 +13,7 @@ postRenderer:
 tests:
 - it: should render ServiceMonitor tlsConfig when istio mTLS is strict
   set:
+    istio.ambient.enabled: false
     packages.istiod.enabled: true
     packages.monitoring.enabled: true
     packages.gitlabRunner.enabled: true

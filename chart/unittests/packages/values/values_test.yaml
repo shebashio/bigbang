@@ -101,6 +101,7 @@ tests:
         - "-c"
         - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
+      istio.ambient.enabled: false
       networkPolicies:
         enabled: false
     asserts:
