@@ -440,6 +440,13 @@ Args (dict):
 */ -}}
 {{- define "values-secret" -}}
 {{- $packageValues := default dict .package.values -}}
+{{- $bbCommonSubchart := dig "bbCommonSubchart" false . -}}
+{{- /* Migrated packages must configure Istio through values.bb-common.istio. Do not
+       translate the removed flat values.istio contract into the subchart namespace. */ -}}
+{{- $packageValuesForCommon := deepCopy $packageValues -}}
+{{- if $bbCommonSubchart }}
+{{- $packageValuesForCommon = omit $packageValuesForCommon "istio" -}}
+{{- end }}
 {{- $explicitDefaults := default (dict) (fromYaml .defaults) -}}
 {{- /* A package's own defaults may declare istio/networkPolicies/routes either flat or nested 
        under bb-common when used as a sub-chart. Normalize to flat here so everything below 
@@ -449,17 +456,17 @@ Args (dict):
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValuesForCommon .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
-{{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValues) }}
+{{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValuesForCommon) }}
 {{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
 {{- $remainingDefaults := $defaults }}
 {{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
        regular subchart, drop this condition (always nest under bb-common, always omit
        injection, always strip istio/networkPolicies from defaults) and remove the
        "bbCommonSubchart" arg from every values-secret call site. */ -}}
-{{- if dig "bbCommonSubchart" false . }}
+{{- if $bbCommonSubchart }}
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}

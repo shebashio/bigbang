@@ -420,7 +420,7 @@ tests:
           path: bb-common.routes.inbound.gitlab.hosts[0]
           value: code.example.com
 
-  - it: leaves legacy istio route settings under bb-common.istio so the package schema rejects them
+  - it: does not translate legacy istio route settings into bb-common
     postRenderer:
       cmd: "sh"
       args:
@@ -430,9 +430,8 @@ tests:
       packages.gitlab.enabled: true
       packages.gitlab.values.istio.gitlab.enabled: false
     asserts:
-      - equal:
+      - notExists:
           path: bb-common.istio.gitlab.enabled
-          value: false
       - equal:
           path: bb-common.routes.inbound.gitlab.enabled
           value: true
