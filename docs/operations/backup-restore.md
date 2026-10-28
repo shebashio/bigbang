@@ -9,10 +9,10 @@ GitOps preserves deployment configuration, but does not back up application data
 ### Gitlab Helm Chart Configuration
 
 1. Follow the [Protect the Rails Secret](../configuration/production-considerations/gitlab.md#protect-the-rails-secret) guidance. Rails secrets are not included in the application backup and must be preserved separately.
-2. Configure the required external services using [GitLab production considerations](../configuration/production-considerations/gitlab.md#configure-required-external-services). Provision the backup and temporary buckets and verify that Toolbox can access them; Big Bang does not create the buckets. With `packages.gitlab.objectStorage.bucketPrefix: production`, the generated names include `production-gitlab-backup` and `production-gitlab-backup-tmp`.
+2. Configure the required external services using [GitLab production considerations](../configuration/production-considerations/gitlab.md#configure-required-external-services). Provision the backup and temporary buckets and verify that Toolbox can access them; Big Bang does not create the buckets. When using `packages.gitlab.objectStorage.bucketPrefix`, use the generated bucket names reported in the Helm notes.
 3. Use either `packages.gitlab.objectStorage.iamProfile` or `accessKey` and `accessSecret`, together with the endpoint/region configuration appropriate for your storage. Keep credentials in encrypted values.
 
-To override the backup bucket names, use these **umbrella values**. Both buckets must already exist:
+To override the backup bucket names, use these **umbrella values**. Replace `BUCKET_NAME` and `TMP_BUCKET_NAME` with your backup and temporary bucket names. Both buckets must already exist:
 
 ```yaml
 packages:
@@ -21,8 +21,8 @@ packages:
       global:
         appConfig:
           backups:
-            bucket: production-gitlab-backup
-            tmpBucket: production-gitlab-backup-tmp
+            bucket: BUCKET_NAME
+            tmpBucket: TMP_BUCKET_NAME
 ```
 
 For manual backups and restores, size Toolbox's temporary disk for the backup and its extracted contents. This **umbrella values** example enables a PVC; adjust its size and storage class for your installation:
@@ -97,7 +97,7 @@ Restoration replaces existing database and application data. Use the intended re
 1. Verify the archive, matching Rails secrets, external-service access, and sufficient Toolbox disk space. Discover the latest archive in the **configured** backup bucket, rather than assuming it is named `gitlab-backups`:
 
    ```shell
-   aws s3api list-objects-v2 --bucket production-gitlab-backup \
+   aws s3api list-objects-v2 --bucket BUCKET_NAME \
      --query 'reverse(sort_by(Contents[?ends_with(Key, `_gitlab_backup.tar`)], &LastModified))[0].Key' \
      --output json
    ```
