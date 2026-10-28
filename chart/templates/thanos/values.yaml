@@ -4,15 +4,12 @@
 {{- /* Create secret */ -}}
 {{- if (get .Values.packages $pkg).enabled }}
   {{- $package := deepCopy (get .Values.packages $pkg) -}}
-  {{- if $package.values -}}
-    {{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" $package.values) | fromYaml -}}
-    {{- $package = set $package "values" $cleanedValues -}}
-  {{- end -}}
   {{- include "values-secret" (dict
     "root" $
     "package" $package
     "name" "thanos"
-    "defaults" ((mergeOverwrite (include "bigbang.defaults.thanos" . | fromYaml) (include "bigbang.thanos.bb-common-migrations" . | fromYaml)) | toYaml)
+    "defaults" (include "bigbang.defaults.thanos" . | fromYaml | toYaml)
+    "bbCommonSubchart" true
   )}}
 {{- end }}
 
@@ -23,7 +20,7 @@
 {{- $thanosUsesAuthservice := or .Values.packages.authservice.enabled (and .Values.packages.thanos.sso.enabled $authserviceEnabled) }}
 {{- $thanosAuthserviceWaypoint := eq (include "thanos.authservice.waypointEnabled" .) "true" }}
 {{- $istioHardened := or
-  (dig "istio" "hardened" "enabled" false .Values.packages.thanos.values)
+  (dig "bb-common" "istio" "sidecar" "enabled" false .Values.packages.thanos.values)
   (dig "hardened" "enabled" false .Values.packages.istiod.values)
 }}
 
@@ -41,6 +38,7 @@
 
 {{- $storeGatewayEnabled := dig "upstream" "storegateway" "enabled" false .Values.packages.thanos.values }}
 {{- $storeGatewayEnabled = or $storeGatewayEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
+{{- $routeGateway := include "getGatewayName" (dict "gateway" (.Values.packages.thanos.ingress.gateway | default "public") "root" .) }}
 
 image:
   {{- include "secretsPullSecretsWithName" . | nindent 2 }}
@@ -52,7 +50,8 @@ upgradeJob:
 
 externalURL: https://thanos.{{ .Values.domain }}
 
-domain: {{ .Values.domain }}
+global:
+  domain: {{ .Values.domain }}
 
 istio:
   {{- if $thanosAuthserviceWaypoint }}
@@ -99,20 +98,22 @@ istio:
     custom: []
   {{- end }}
 routes:
+  {{- if not (empty $s3Endpoint) }}
   outbound:
     s3:
-      enabled: {{ and $istioHardened (not (empty $s3Endpoint)) }}
+      enabled: {{ $istioHardened }}
       hosts:
       - {{ $s3Host }}
       ports:
       - name: {{ ternary "http" "https" .Values.packages.thanos.objectStorage.insecure }}
         number: {{ $s3Port }}
         protocol: {{ ternary "HTTP" "HTTPS" .Values.packages.thanos.objectStorage.insecure }}
+  {{- end }}
   inbound:
     query-frontend:
       enabled: {{ $istioEnabled }}
       gateways:
-      - istio-gateway/public-ingressgateway
+      - {{ $routeGateway }}
       hosts:
       - thanos.{{ .Values.domain }}
       {{- if $thanosAuthserviceWaypoint }}
@@ -125,6 +126,23 @@ routes:
 
 networkPolicies:
   egress:
+    {{- if empty (dig "egress" "definitions" "kubeAPI" nil .Values.networkPolicies) }}
+    definitions:
+      kubeAPI:
+        to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
+            {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
+            except:
+            - 169.254.169.254/32
+            {{- end }}
+        {{- if not (eq .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) }}
+        {{- if not (eq .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
+        - ipBlock:
+            cidr: {{ .Values.networkPolicies.vpcCidr }}
+        {{- end }}
+        {{- end }}
+    {{- end }}
     from:
       '*':
         to:
