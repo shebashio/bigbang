@@ -20,10 +20,6 @@ global:
   domain: {{ $domainName }}
 
 bb-common:
-  istio:
-    sidecar:
-      enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
-
   networkPolicies:
     egress:
       from:
