@@ -20,15 +20,12 @@ Gitlab has a logging mechanism built in that logs all relevant events in a json 
 
 ### Monitoring
 
-Monitoring has been configured to use the Bigbang monitoring package (Prometheus and Grafana). This is automatically enabled by having monitoring enabled in the main values file.
+GitLab metrics integration is enabled when the Big Bang monitoring package is enabled. Grafana is deployed separately by `packages.grafana`. For example, in **umbrella values**:
 
 ```yaml
-# Monitoring
-#
-monitoring:
-  # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
-  enabled: true
-
+packages:
+  monitoring:
+    enabled: true
 ```
 
 ### Health Checks
@@ -74,33 +71,36 @@ More information can be found in the gitlab documentation [here](https://docs.gi
 
 GitLab deployed on a Kubernetes(K8S) cluster can achieve “self healing”. In other words, if a container goes down, K8S replaces it with a new one. K8S can also provide rolling upgrades. However, a K8S deployment by itself does not provide full high availablity(HA). Refer to the upstream [Gitlab HA reference achitectures](https://docs.gitlab.com/ee/administration/reference_architectures/). The Gitlab helm chart provides the ability to set replica counts for some of the services as shown in the BigBang values override example below. 
 
-Note that the gitaly service requires a significant and non-trivial amout of configuration to acheive HA. Gitaly provides high-level RPC access to Git repositories. It is used by GitLab to read and write Git data. A Gitaly cluster must be created on Praefect nodes. The Big Bang Product Team has not yet tested use of a Gitaly cluster and will not be able to provide support. If you require Gitaly HA refer to the upstream [Gitaly Cluster documentation](https://docs.gitlab.com/ee/administration/gitaly/praefect.html) and leverage a support contact with Gitlab. For small to medum sized deployments you can simply increase the gitaly resources as shown in the example below.
+Note that the gitaly service requires a significant and non-trivial amout of configuration to acheive HA. Gitaly provides high-level RPC access to Git repositories. It is used by GitLab to read and write Git data. A Gitaly cluster must be created on Praefect nodes. The Big Bang Product Team has not yet tested use of a Gitaly cluster and will not be able to provide support. If you require Gitaly HA refer to the upstream [Gitaly Cluster documentation](https://docs.gitlab.com/ee/administration/gitaly/praefect.html) and leverage a support contact with Gitlab. For small to medium deployments, increasing Gitaly resources as shown below does not make Gitaly highly available.
+
+The following **umbrella values** pass component overrides to the GitLab upstream chart. Provision the external services described in [GitLab production considerations](../../configuration/production-considerations/gitlab.md) first, and size replicas and resources for the environment:
 ```yaml
 packages:
   gitlab:
     values:
-      gitlab:
-        webservice:
-          minReplicas: 3
-          maxReplicas: 3
-        gitlab-shell:
-          minReplicas: 3
-          maxReplicas: 3
-        sidekiq:
-          minReplicas: 3
-          maxReplicas: 3
-        gitaly:
-          resources:
-            limits:
-              cpu: 2
-              memory: 4G
-            requests:
-              cpu: 2
-              memory: 4G
-      registry:
-        hpa:
-          minReplicas: 3
-          maxReplicas: 3
+      upstream:
+        gitlab:
+          webservice:
+            minReplicas: 3
+            maxReplicas: 3
+          gitlab-shell:
+            minReplicas: 3
+            maxReplicas: 3
+          sidekiq:
+            minReplicas: 3
+            maxReplicas: 3
+          gitaly:
+            resources:
+              limits:
+                cpu: 2
+                memory: 4G
+              requests:
+                cpu: 2
+                memory: 4G
+        registry:
+          hpa:
+            minReplicas: 3
+            maxReplicas: 3
 ```
 
 ## Single Sign On (SSO)
@@ -113,12 +113,11 @@ GitLab is built on an open core model. GitLab Community Edition is open source, 
 
 GitLab Enterprise Edition uses the same core, but adds additional features and functionality on top of that. These additional features are under a proprietary license that makes the code published source-available.
 
-Bigbang currently used the community edition. This can be overwritten in the values.yaml file.
-
-```yaml
-## doc/installation/deployment.md#deploy-the-community-edition
-  edition: ce
-```
+The pinned upstream GitLab chart defaults to Enterprise Edition (`ee`), and the
+Big Bang package pins EE images. The edition is separate from license
+entitlement: installing EE does not by itself grant paid features. Consult the
+[upstream edition guidance](https://docs.gitlab.com/charts/installation/deployment/#deploy-the-community-edition)
+and the package's pinned images before changing editions.
 
 More information about GitLab licensing can be found [here](https://about.gitlab.com/install/ce-or-ee/) for the information page and [here](https://gitlab.com/gitlab-org/gitlab/-/blob/master/LICENSE) for the actual license.
 
@@ -126,65 +125,26 @@ More information about GitLab licensing can be found [here](https://about.gitlab
 
 ### Database Storage
 
-Gitlab uses a Postgresql database to store all metadata for git repositories as well as all business logic around the UI and workflows within the application. By default Bigbang will install a internal Postgres instance to support Gitlab. The recommended approach is to provision and use an external Postgres instance.
-
-You can configure an external database by providing the values needed in the Bigbang values.yaml file under the Gitlab section. Entering connection info will automatically disable the deployment of an internal database and will deploy using the external instance.
-
-```yaml
-    database:
-      # -- Hostname of a pre-existing PostgreSQL database to use for Gitlab.
-      # Entering connection info will disable the deployment of an internal database and will auto-create any required secrets.
-      host: ""
-
-      # -- Port of a pre-existing PostgreSQL database to use for Gitlab.
-      port: 5432
-
-      # -- Database name to connect to on host.
-      database: "" # example: gitlab
-
-      # -- Username to connect as to external database, the user must have all privileges on the database.
-      username: ""
-
-      # -- Database password for the username used to connect to the existing database.
-      password: ""
-
-```
+GitLab requires an independently provisioned PostgreSQL database. GitLab 19 and
+chart 10 no longer bundle PostgreSQL, Redis, or MinIO. See the
+[external-service prerequisites and umbrella values example](../../configuration/production-considerations/gitlab.md#configure-required-external-services).
+Existing installations must migrate their bundled services before upgrading; follow
+the [GitLab 19 upgrade notes](https://repo1.dso.mil/big-bang/product/packages/gitlab/-/blob/main/docs/gitlab-19-upgrade.md).
 
 ### File Storage
 
-Gitlab uses S3, Minio, or another S3-style storage for file storage. By default Big Bang deploys an in-cluster Minio instance for this purpose, but you have the option to point to an external Minio or S3 if desired. See the below example for the values to supply:
-
-```yaml
-    objectStorage:
-      # -- Type of object storage to use for Gitlab, setting to s3 will assume an external, pre-existing object storage is to be used.
-      # Entering connection info will enable this option and will auto-create any required secrets
-      type: ""         # supported types are "s3" or "minio"
-
-      # -- S3 compatible endpoint to use for connection information.
-      # examples: "https://s3.amazonaws.com" "https://s3.us-gov-west-1.amazonaws.com" "http://minio.minio.svc.cluster.local:9000"
-      endpoint: ""
-
-      # -- S3 compatible region to use for connection information.
-      region: ""
-
-      # -- Access key for connecting to object storage endpoint.
-      accessKey: ""
-
-      # -- Secret key for connecting to object storage endpoint.
-      # Unencoded string data. This should be placed in the secret values and then encrypted
-      accessSecret: ""
-
-      # -- Bucket prefix to use for identifying buckets.
-      # Example: "prod" will produce "prod-gitlab-bucket"
-      bucketPrefix: ""
-
-```
+GitLab requires independently provisioned object storage and buckets. The
+[external-service example](../../configuration/production-considerations/gitlab.md#configure-required-external-services)
+shows S3-compatible configuration and explains endpoint, credential, and bucket
+requirements. Big Bang does not create the buckets.
 
 ## Dependencies
 
-Additional pass-throughs for dependencies that deviate from rationalized standards can be passed using the values: tag in the main Bigbang values.yaml.
+Pass GitLab upstream chart overrides through `packages.gitlab.values.upstream` in umbrella values. See the [upstream chart 10.5.1 values](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/v10.5.1/values.yaml) for the complete configuration.
 
 ```yaml
-# -- Values to passthrough to the gitlab runner chart: https://repo1.dso.mil/big-bang/product/packages/gitlab-runner.git
-    values: {}
+packages:
+  gitlab:
+    values:
+      upstream: {}
 ```
