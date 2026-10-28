@@ -351,53 +351,8 @@ Pointer to the appropriate git credentials template
 {{- include "gitCredsGlobal" . }}
 {{- end -}}
 
-{{/*
-Merge legacy istio.hardened keys into new structure
-Args:
-  - values: The package values to clean (e.g. .Values.packages.kiali.values)
-
-This helper merges:
-  - istio.hardened.customServiceEntries -> istio.serviceEntries.custom
-  - istio.hardened.customAuthorizationPolicies -> istio.authorizationPolicies.custom
-
-Returns cleaned values with hardened key removed.
-*/}}
-{{- define "mergeLegacyIstioHardenedKeys" -}}
-{{- $values := .values -}}
-{{- if $values.istio -}}
-{{- $cleanedIstio := deepCopy $values.istio -}}
-
-{{- /* Merge hardened.customServiceEntries into serviceEntries.custom */ -}}
-{{- $hardenedServiceEntries := dig "hardened" "customServiceEntries" list $values.istio }}
-{{- $currentServiceEntries := dig "serviceEntries" "custom" list $values.istio }}
-{{- $mergedServiceEntries := concat $hardenedServiceEntries $currentServiceEntries }}
-{{- if $mergedServiceEntries }}
-{{- $_ := set $cleanedIstio "serviceEntries" (dict "custom" $mergedServiceEntries) }}
-{{- end }}
-
-{{- /* Merge hardened.customAuthorizationPolicies into authorizationPolicies.custom */ -}}
-{{- $hardenedAuthzPolicies := dig "hardened" "customAuthorizationPolicies" list $values.istio }}
-{{- $currentAuthzPolicies := dig "authorizationPolicies" "custom" list $values.istio }}
-{{- $mergedAuthzPolicies := concat $hardenedAuthzPolicies $currentAuthzPolicies }}
-{{- if $mergedAuthzPolicies }}
-{{- $_ := set $cleanedIstio "authorizationPolicies" (dict "custom" $mergedAuthzPolicies) }}
-{{- end }}
-
-{{- /* Drop only the two sub-fields that were migrated above; anything else under
-       hardened (notably hardened.enabled, still read by commonPackageDefaults and
-       authorizationPoliciesEnabled) must survive. */ -}}
-{{- $hardenedRemaining := omit (dig "hardened" dict $values.istio) "customServiceEntries" "customAuthorizationPolicies" -}}
-{{- if $hardenedRemaining -}}
-{{- $_ := set $cleanedIstio "hardened" $hardenedRemaining -}}
-{{- else -}}
-{{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
-{{- end -}}
-
-{{- $values = set $values "istio" $cleanedIstio -}}
-{{- end -}}
-{{- toYaml $values -}}
-{{- end -}}
-
+{{/* Big Bang 4.0 release boundary: legacy hardened-key merging was removed.
+     Do not backport this removal to a 3.x release; migrate values before upgrading. */}}
 {{/*
 Shared GitRepository resource template.
 Args (dict):
@@ -475,6 +430,8 @@ Args (dict):
                          Set to false for packages with no running workload that shouldn't get
                          istio/networkPolicies values at all (e.g. CRD-only packages like
                          istio-crds, prometheus-operator-crds).
+  supportsRouteDefaults: optional, default false. Set only when the pinned bb-common schema
+                         accepts routes.defaults. Custom source/version overrides may differ.
   bbCommonSubchart:      optional, default false. bb-common is currently consumed as a library
                          chart, which reads its istio/networkPolicies/routes values from the top
                          level of the values passed to the HelmRelease. Once a package's bb-common
@@ -493,6 +450,10 @@ Args (dict):
        only has to handle one shape, regardless of usage or use of the bbCommonSubchart flag. */ -}}
 {{- if hasKey $explicitDefaults "bb-common" }}
 {{- $explicitDefaults = mustMergeOverwrite (omit $explicitDefaults "bb-common") (deepCopy (index $explicitDefaults "bb-common")) -}}
+{{- end }}
+{{- if dig "supportsRouteDefaults" false . }}
+{{- $routeDefaults := dict "routes" (include "bigbang.routeDefaults" .root | fromYaml) -}}
+{{- $explicitDefaults = mustMergeOverwrite (deepCopy $routeDefaults) (deepCopy $explicitDefaults) -}}
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
@@ -1110,9 +1071,9 @@ networkPolicies:
        Included per-package (only packages on a bb-common release with routes.defaults
        support) until every bb-common package supports it; then fold this into
        bigbang.commonPackageDefaults.
-       outbound.egressGateway is blanked unless ambient and the egress gateway package
-       are both enabled, so ServiceEntries are never bound to a waypoint that will not
-       exist (Istio fails open and traffic would egress directly). */ -}}
+       outbound.egressGateway defaults to false unless ambient and the egress gateway
+       package are enabled. Explicit package or per-route bindings can override this;
+       operators must ensure their selected waypoint exists (Istio otherwise fails open). */ -}}
 {{- define "bigbang.routeDefaults" -}}
 {{- $routeDefaults := dig "defaults" dict (.Values.routes | default dict) }}
 {{- $egressGatewayActive := and (eq (include "ambientEnabled" .) "true") (eq (include "egressGatewayEnabled" .) "true") }}

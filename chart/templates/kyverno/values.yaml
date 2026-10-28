@@ -5,6 +5,7 @@
 "package" .Values.packages.kyverno
 "name" "kyverno"
 "bbCommonSubchart" true
+"supportsRouteDefaults" true
 "defaults" (include "bigbang.defaults.kyverno" .)
 )}}
 {{- end }}

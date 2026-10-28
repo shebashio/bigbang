@@ -5,6 +5,7 @@
   "package" .Values.packages.mattermostOperator
   "name" "mattermost-operator"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.mattermostOperator" .)
 ) }}
 {{- end }}

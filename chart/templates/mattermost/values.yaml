@@ -5,6 +5,7 @@
   "package" .Values.packages.mattermost
   "name" "mattermost"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.mattermost" .)
 ) }}
 {{- end }}
@@ -81,7 +82,7 @@ bb-common:
         mattermost:8067:
           from:
             k8s:
-              monitoring-monitoring-prometheus-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
+              monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
 
   {{- $ssoHost := "" }}
   {{- if .Values.packages.mattermost.sso.enabled }}

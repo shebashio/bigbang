@@ -209,13 +209,20 @@ The migration script makes the following changes:
 | `<package>.values.istio.hardened.customAuthorizationPolicies` | Moved to `packages.<package>.values.bb-common.istio.authorizationPolicies.custom`. |
 
 When the destination already contains custom ServiceEntries or
-AuthorizationPolicies, the migrated legacy entries are prepended to the
-existing entries. All other values beneath the legacy `hardened` key are
-removed.
+AuthorizationPolicies, retained legacy entries are prepended to the existing
+entries. Legacy entries with `enabled: false` are dropped and reported by name;
+entries with `enabled: true` or no `enabled` are retained with the legacy
+`enabled` field removed. This also applies to
+`istiod.values.hardened.customAuthorizationPolicies`. Existing destination
+entries are not changed. All other values beneath the legacy `hardened` key are
+removed. Review the report and the resulting configuration: older bb-common
+versions did not necessarily honor individual entry flags, and the new custom
+entry templates render entries without consulting `enabled`.
 
 AuthorizationPolicies can be disabled for an individual package when the
-default posture is not appropriate. Custom ServiceEntries can likewise be
-removed, or individual entries can be disabled when supported by the package:
+default posture is not appropriate. Remove unwanted custom ServiceEntries or
+AuthorizationPolicies from their custom lists; setting an individual entry's
+`enabled` field does not disable it in bb-common:
 
 ```yaml
 packages:

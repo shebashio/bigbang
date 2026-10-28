@@ -271,7 +271,7 @@ networkPolicies:
 authorizationPolicies:
   # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
   enabled: false
-# bb-common route defaults passed through to every package; per-route values always win.
+# bb-common route defaults passed to compatible opted-in packages; per-route values win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
   defaults:

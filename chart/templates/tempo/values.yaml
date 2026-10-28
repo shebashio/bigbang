@@ -1,6 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.tempo.enabled }}
-{{- include "values-secret" (dict "root" $ "package" .Values.packages.tempo "name" "tempo" "bbCommonSubchart" true "defaults" (include "bigbang.defaults.tempo" .)) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.tempo "name" "tempo" "bbCommonSubchart" true "supportsRouteDefaults" true "defaults" (include "bigbang.defaults.tempo" .)) }}
 {{- end }}
 
 {{- define "bigbang.defaults.tempo" -}}

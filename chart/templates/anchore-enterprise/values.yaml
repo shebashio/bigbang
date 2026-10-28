@@ -5,6 +5,7 @@
   "package" .Values.packages.anchoreEnterprise
   "name" "anchore-enterprise"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.anchoreEnterprise" .)
 ) }}
 {{- end }}

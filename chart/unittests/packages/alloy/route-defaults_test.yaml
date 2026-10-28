@@ -1,0 +1,85 @@
+suite: Global route defaults
+templates:
+  - templates/alloy/values.yaml
+postRenderer:
+  cmd: sh
+  args:
+    - -c
+    - "yq '.stringData.common | from_yaml'"
+tests:
+  - it: supplies an inbound fallback to a compatible package
+    set:
+      packages.alloy.enabled: true
+      routes.defaults.inbound.gateways: ["istio-gateway/custom"]
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.inbound.gateways[0]
+          value: istio-gateway/custom
+  - it: suppresses global egress without ambient
+    set:
+      packages.alloy.enabled: true
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: false
+      packages.istioEgressGateway.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.outbound.egressGateway
+          value: false
+  - it: suppresses global egress without an enabled gateway
+    set:
+      packages.alloy.enabled: true
+      istio.ambient.enabled: true
+      packages.istioEgressGateway.enabled: false
+      istio.egressGateway.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.outbound.egressGateway
+          value: false
+  - it: enables global egress with ambient and the package gateway
+    set:
+      packages.alloy.enabled: true
+      istio.ambient.enabled: true
+      packages.istioEgressGateway.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.outbound.egressGateway
+          value: istio-egress/egress-waypoint
+  - it: preserves an explicit package override even when the global gate is off
+    set:
+      packages.alloy.enabled: true
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: false
+      packages.alloy.values.bb-common.routes.defaults.outbound.egressGateway: other/waypoint
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.overlays | from_yaml'"
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.outbound.egressGateway
+          value: other/waypoint
+  - it: preserves a per-route opt out
+    set:
+      packages.alloy.enabled: true
+      packages.alloy.values.bb-common.routes.outbound.bb-tests.egressGateway: false
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.overlays | from_yaml'"
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.bb-tests.egressGateway
+          value: false
+  - it: enables global egress with ztunnel and the global gateway
+    set:
+      packages.alloy.enabled: true
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: true
+      packages.istioEgressGateway.enabled: false
+      istio.egressGateway.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.defaults.outbound.egressGateway
+          value: istio-egress/egress-waypoint

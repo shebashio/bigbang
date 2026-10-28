@@ -8,6 +8,7 @@
   "package" .Values.packages.harbor
   "name" $pkg
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.harbor" .)
 )}}
 {{- end }}

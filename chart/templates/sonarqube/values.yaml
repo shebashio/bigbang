@@ -5,6 +5,7 @@
   "package" .Values.packages.sonarqube
   "name" "sonarqube"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.sonarqube" .)
 ) }}
 {{- end }}

@@ -6,6 +6,7 @@
   "package" .Values.packages.mimir
   "name" "mimir"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.mimir" .)
 )}}
 {{- end }}

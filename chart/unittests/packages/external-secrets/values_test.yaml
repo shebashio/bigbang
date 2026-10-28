@@ -3,21 +3,27 @@ suite: Packages - external-secrets - bb-common subchart values
 templates:
   - templates/external-secrets/values.yaml
 tests:
+  - it: does not translate legacy hardened policy values
+    set:
+      packages.externalSecrets.enabled: true
+      packages.externalSecrets.values.istio.hardened.customServiceEntries:
+        - name: legacy-entry
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq '.stringData.overlays | from_yaml'"
+    asserts:
+      - equal:
+          path: istio.hardened.customServiceEntries[0].name
+          value: legacy-entry
+      - notExists:
+          path: istio.serviceEntries
   - it: nests the package bb-common defaults under the subchart key in sidecar mode
     set:
       istio.ambient.enabled: false
       packages.externalSecrets.enabled: true
       packages.externalSecrets.values.istio.hardened.enabled: true
-      # Set complete list items so separate set paths cannot overwrite the same index.
-      packages.externalSecrets.values.istio.hardened.customServiceEntries:
-        - name: legacy-entry
-          spec:
-            hosts:
-              - legacy.example.test
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
-        - name: legacy-policy
-          spec:
-            action: ALLOW
       packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
@@ -32,12 +38,6 @@ tests:
           value: true
       - notExists:
           path: bb-common.istio.hardened
-      - equal:
-          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
-          value: legacy.example.test
-      - equal:
-          path: bb-common.istio.authorizationPolicies.custom[0].spec.action
-          value: ALLOW
       - exists:
           path: bb-common.networkPolicies
       - equal:
@@ -54,15 +54,6 @@ tests:
     set:
       packages.externalSecrets.enabled: true
       packages.externalSecrets.values.istio.hardened.enabled: true
-      packages.externalSecrets.values.istio.hardened.customServiceEntries:
-        - name: legacy-entry
-          spec:
-            hosts:
-              - legacy.example.test
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
-        - name: legacy-policy
-          spec:
-            action: ALLOW
       packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
@@ -77,12 +68,6 @@ tests:
           value: false
       - notExists:
           path: bb-common.istio.hardened
-      - equal:
-          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
-          value: legacy.example.test
-      - equal:
-          path: bb-common.istio.authorizationPolicies.custom[0].spec.action
-          value: ALLOW
       - exists:
           path: bb-common.networkPolicies
       - equal:

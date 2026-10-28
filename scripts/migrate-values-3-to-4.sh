@@ -849,32 +849,103 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
     done
   done
 
+  # Validate all legacy lists before dropping or transforming any hardening data.
+  validate_legacy_list() {
+    local path="$1" index count
+    if ! yq -e "($path | tag) == \"!!seq\"" "$WORK_FILE" >/dev/null 2>&1; then
+      fail "$path must be an array of mappings with boolean enabled or no enabled; no output written"
+    fi
+    count=$(yq "$path | length" "$WORK_FILE")
+    for ((index=0; index<count; index++)); do
+      if ! yq -e "($path[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1; then
+        fail "$path[$index] must be a mapping; no output written"
+      fi
+      if ! yq -e "(($path[$index] | has(\"enabled\") | not) or ($path[$index].enabled | tag == \"!!bool\"))" "$WORK_FILE" >/dev/null 2>&1; then
+        fail "$path[$index].enabled must be boolean or absent; no output written"
+      fi
+    done
+  }
+  validate_mapping_member() {
+    local parent="$1" key="$2" path="$1.$2"
+    if yq -e "($parent | tag == \"!!map\") and ($parent | has(\"$key\"))" "$WORK_FILE" >/dev/null 2>&1; then
+      yq -e "($path | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1 || fail "$path must be a mapping; no output written"
+    fi
+  }
+  validate_destination_list() {
+    local parent="$1" path="$1.custom" index count
+    if yq -e "($parent | tag == \"!!map\") and ($parent | has(\"custom\"))" "$WORK_FILE" >/dev/null 2>&1; then
+      yq -e "($path | tag) == \"!!seq\"" "$WORK_FILE" >/dev/null 2>&1 || fail "$path must be an array of mappings; no output written"
+      count=$(yq "$path | length" "$WORK_FILE")
+      for ((index=0; index<count; index++)); do
+        yq -e "($path[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1 || fail "$path[$index] must be a mapping; no output written"
+      done
+    fi
+  }
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    validate_mapping_member ".packages.${package_name}.values.bb-common.istio" hardened
+    for destination in serviceEntries authorizationPolicies; do
+      validate_destination_list ".packages.${package_name}.values.bb-common.istio.${destination}"
+    done
+    for legacy_key in customServiceEntries customAuthorizationPolicies; do
+      path=".packages.${package_name}.values.bb-common.istio.hardened.${legacy_key}"
+      if yq -e "(.packages.${package_name}.values.bb-common.istio.hardened | tag == \"!!map\") and (.packages.${package_name}.values.bb-common.istio.hardened | has(\"$legacy_key\"))" "$WORK_FILE" >/dev/null 2>&1; then
+        validate_legacy_list "$path"
+      fi
+    done
+  done
+  validate_mapping_member '.packages.istiod.values' hardened
+  if yq -e '(.packages.istiod.values.hardened | tag == "!!map") and (.packages.istiod.values.hardened | has("customAuthorizationPolicies"))' "$WORK_FILE" >/dev/null 2>&1; then
+    validate_legacy_list '.packages.istiod.values.hardened.customAuthorizationPolicies'
+  fi
+
   # Final legacy cleanup and hardened removal to ensure bb-common usage is schema valid.
   for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
     PACKAGE_NAME="$package_name" yq -e \
       '.packages[strenv(PACKAGE_NAME)].values.bb-common.istio | tag == "!!map"' \
       "$WORK_FILE" >/dev/null 2>&1 || continue
 
+    # Existing destination entries are preserved, but their opt-outs may not be honored.
+    for destination in serviceEntries authorizationPolicies; do
+      existing_disabled=$(PACKAGE_NAME="$package_name" DESTINATION="$destination" yq -r '
+        (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio[strenv(DESTINATION)].custom // [])
+        | select(tag == "!!seq") | map(select(tag == "!!map" and .enabled == false) | .name // "(unnamed)") | join(", ")
+      ' "$WORK_FILE")
+      if [[ -n "$existing_disabled" ]]; then
+        printf 'Review existing enabled:false entries at packages.%s.values.bb-common.istio.%s.custom: %s; destination entries are unchanged and may not honor enabled\n' "$package_name" "$destination" "$existing_disabled" >&2
+      fi
+    done
+
+    # Report explicit opt-outs before dropping them; new custom lists are untouched.
+    for legacy_key in customServiceEntries customAuthorizationPolicies; do
+      disabled_names=$(PACKAGE_NAME="$package_name" LEGACY_KEY="$legacy_key" yq -r '
+        (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened[strenv(LEGACY_KEY)] // [])
+        | map(select(.enabled == false) | .name // "(unnamed)") | join(", ")
+      ' "$WORK_FILE")
+      if [[ -n "$disabled_names" ]]; then
+        printf 'Dropped disabled legacy entries at packages.%s.values.bb-common.istio.hardened.%s: %s\n' "$package_name" "$legacy_key" "$disabled_names" >&2
+      fi
+    done
+
     # Capture the legacy ServiceEntry names before they are folded in — these stay
     # cluster-wide under serviceEntries.custom and are flagged for review afterwards.
     hardened_se_names=$(PACKAGE_NAME="$package_name" yq -r '
       (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customServiceEntries // [])
       | select(length > 0)
-      | map(.name // "(unnamed)") | join(", ")
+      | map(select(.enabled != false) | .name // "(unnamed)") | join(", ")
     ' "$WORK_FILE")
     hardened_authz_count=$(PACKAGE_NAME="$package_name" yq -r '
       (.packages[strenv(PACKAGE_NAME)].values.bb-common.istio.hardened.customAuthorizationPolicies // [])
-      | length
+      | map(select(.enabled != false)) | length
     ' "$WORK_FILE")
 
     PACKAGE_NAME="$package_name" yq -i '
       with(.packages[strenv(PACKAGE_NAME)].values.bb-common.istio;
           with(select((.hardened.customServiceEntries // []) | length > 0);
             .serviceEntries.custom =
-              (.hardened.customServiceEntries + (.serviceEntries.custom // [])))
+              ((.hardened.customServiceEntries | map(select(.enabled != false) | del(.enabled))) + (.serviceEntries.custom // [])))
         | with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
             .authorizationPolicies.custom =
-              (.hardened.customAuthorizationPolicies + (.authorizationPolicies.custom // [])))
+              ((.hardened.customAuthorizationPolicies | map(select(.enabled != false) | del(.enabled))) + (.authorizationPolicies.custom // [])))
         | del(.hardened)
       )
     ' "$WORK_FILE"
@@ -893,15 +964,22 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
 
   # Remove deprecated global hardening key from istiod.
   if yq -e '.packages.istiod.values | has("hardened")' "$WORK_FILE" >/dev/null 2>&1; then
+    disabled_names=$(yq -r '
+      (.packages.istiod.values.hardened.customAuthorizationPolicies // [])
+      | map(select(.enabled == false) | .name // "(unnamed)") | join(", ")
+    ' "$WORK_FILE")
+    if [[ -n "$disabled_names" ]]; then
+      printf 'Dropped disabled legacy entries at packages.istiod.values.hardened.customAuthorizationPolicies: %s\n' "$disabled_names" >&2
+    fi
     istiod_hardened_authz_count=$(yq -r '
-      (.packages.istiod.values.hardened.customAuthorizationPolicies // []) | length
+      (.packages.istiod.values.hardened.customAuthorizationPolicies // []) | map(select(.enabled != false)) | length
     ' "$WORK_FILE")
 
     yq -i '
       with(.packages.istiod.values;
           with(select((.hardened.customAuthorizationPolicies // []) | length > 0);
             ."bb-common".istio.authorizationPolicies.custom =
-              (.hardened.customAuthorizationPolicies +
+              ((.hardened.customAuthorizationPolicies | map(select(.enabled != false) | del(.enabled))) +
                (."bb-common".istio.authorizationPolicies.custom // [])))
         | del(.hardened)
       )

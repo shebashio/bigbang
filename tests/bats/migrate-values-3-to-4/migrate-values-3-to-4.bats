@@ -9,6 +9,116 @@ setup() {
   OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x.yaml"
 }
 
+@test "target 4 rejects malformed legacy lists without clobbering output" {
+  for path in ".packages.monitoring.values.istio.hardened.customServiceEntries" ".packages.monitoring.values.istio.hardened.customAuthorizationPolicies" ".packages.istiod.values.hardened.customAuthorizationPolicies"; do
+    for value in '{bad: map}' '[scalar]' '[{name: bad, enabled: "false"}]' '[{name: bad, enabled: null}]'; do
+      printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+      VALUE="$value" yq -i "$path = (strenv(VALUE) | from_yaml)" "$INPUT_FILE"
+      printf '%s\n' sentinel >"$OUTPUT_FILE"
+      run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+      [ "$status" -ne 0 ]
+      [[ "$output" == *"custom"*"must be"*"no output written"* ]]
+      [ "$(<"$OUTPUT_FILE")" = sentinel ]
+    done
+  done
+}
+
+@test "target 4 rejects malformed hardened containers without clobbering output" {
+  for path in '.packages.monitoring.values.bb-common.istio.hardened' '.packages.istiod.values.hardened'; do
+    for value in 'broken' '[]' 'null'; do
+      printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+      VALUE="$value" yq -i "$path = (strenv(VALUE) | from_yaml)" "$INPUT_FILE"
+      printf '%s\n' sentinel >"$OUTPUT_FILE"
+      run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+      [ "$status" -ne 0 ]
+      [[ "$output" == *"$path"*"must be a mapping"*"no output written"* ]]
+      [ "$(<"$OUTPUT_FILE")" = sentinel ]
+    done
+  done
+}
+
+@test "target 4 rejects malformed destination custom lists and entries without clobbering output" {
+  for package in monitoring istiod; do
+    for kind in serviceEntries authorizationPolicies; do
+      path=".packages.$package.values.bb-common.istio.$kind.custom"
+      for value in 'broken' '{bad: map}' '[broken]' '[null]'; do
+        printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+        VALUE="$value" yq -i "$path = (strenv(VALUE) | from_yaml)" "$INPUT_FILE"
+        if [ "$package" = istiod ]; then
+          yq -i '.packages.istiod.values.hardened.customAuthorizationPolicies = [{"name": "old"}]' "$INPUT_FILE"
+        else
+          yq -i ".packages.monitoring.values.bb-common.istio.hardened.customAuthorizationPolicies = [{\"name\": \"old\"}] | .packages.monitoring.values.bb-common.istio.hardened.customServiceEntries = [{\"name\": \"old\"}]" "$INPUT_FILE"
+        fi
+        printf '%s\n' sentinel >"$OUTPUT_FILE"
+        run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+        [ "$status" -ne 0 ]
+        [[ "$output" == *"$path"*"must be"*"no output written"* ]]
+        [ "$(<"$OUTPUT_FILE")" = sentinel ]
+      done
+    done
+  done
+}
+
+@test "all disabled entries are dropped without reporting migration and existing opt-outs are warned" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration: {version: v1}
+packages:
+  monitoring:
+    values:
+      istio:
+        hardened:
+          customAuthorizationPolicies: [{name: old, enabled: false}]
+        authorizationPolicies:
+          custom: [{name: existing, enabled: false}]
+  istiod:
+    values:
+      hardened:
+        customAuthorizationPolicies: [{name: global, enabled: false}]
+EOF
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [[ "$stderr" == *"Review existing enabled:false entries"*"existing"* ]]
+  [[ "$stderr" != *"customAuthorizationPolicies ->"* ]]
+  [ "$(yq '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].enabled' "$OUTPUT_FILE")" = false ]
+}
+
+@test "target 4 drops explicitly disabled legacy custom entries and reports them" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration: {version: v1}
+packages:
+  monitoring:
+    values:
+      istio:
+        hardened:
+          customServiceEntries:
+            - {name: se-disabled, enabled: false}
+            - {name: se-true, enabled: true}
+            - {name: se-omitted}
+          customAuthorizationPolicies:
+            - {name: ap-disabled, enabled: false}
+            - {name: ap-true, enabled: true}
+            - {name: ap-omitted}
+        serviceEntries:
+          custom: [{name: se-new, enabled: false}]
+        authorizationPolicies:
+          custom: [{name: ap-new, enabled: false}]
+  istiod:
+    values:
+      hardened:
+        customAuthorizationPolicies:
+          - {name: global-disabled, enabled: false}
+          - {name: global-true, enabled: true}
+          - {name: global-omitted}
+EOF
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  if [ "$status" -ne 0 ]; then printf '%s\n' "$stderr" >&2; fi
+  [ "$status" -eq 0 ]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.serviceEntries.custom' "$OUTPUT_FILE")" = '[{"name":"se-true"},{"name":"se-omitted"},{"name":"se-new","enabled":false}]' ]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"ap-true"},{"name":"ap-omitted"},{"name":"ap-new","enabled":false}]' ]
+  [ "$(yq -o=json -I=0 '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"global-true"},{"name":"global-omitted"}]' ]
+  [[ "$stderr" == *"se-disabled"* && "$stderr" == *"ap-disabled"* && "$stderr" == *"global-disabled"* ]]
+}
+
 @test "documents v1 as the retained Big Bang 4.x package contract" {
   run "$SCRIPT_PATH" --target 4 --help
 

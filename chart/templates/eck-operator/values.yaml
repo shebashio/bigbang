@@ -5,6 +5,7 @@
   "package" .Values.packages.eckOperator
   "name" "eck-operator"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.eck-operator" .)
 ) }}
 {{- end }}

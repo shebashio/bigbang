@@ -5,6 +5,7 @@
   "package" .Values.packages.fortify
   "name" "fortify"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.fortify" .)
 )}}
 {{- end }}

@@ -5,6 +5,7 @@
     "package" .Values.packages.minioOperator
     "name" "minio-operator"
     "bbCommonSubchart" true
+    "supportsRouteDefaults" true
     "defaults" (include "bigbang.defaults.minio-operator" .)
   )}}
 {{- end }}

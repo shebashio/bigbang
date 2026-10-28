@@ -5,6 +5,7 @@
   "package" .Values.packages.velero
   "name" "velero"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.velero" .)
 )}}
 {{- end }}

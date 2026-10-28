@@ -5,6 +5,7 @@
   "package" .Values.packages.renovate
   "name" "renovate"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.renovate" .)
 ) }}
 {{- end }}
