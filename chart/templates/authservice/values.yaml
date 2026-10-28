@@ -215,17 +215,24 @@ chains:
   {{- end }}
 
   {{- if and .Values.packages.thanos.enabled .Values.packages.thanos.sso.enabled (not (hasKey (.Values.packages.authservice.chains | default dict) "thanos")) }}
+  {{- $host := printf "thanos.%s" .Values.domain }}
+  {{- $common := index (.Values.packages.thanos.values | default dict) "bb-common" | default dict }}
+  {{- $routes := $common.routes | default dict }}
+  {{- $inbound := $routes.inbound | default dict }}
+  {{- $queryFrontend := index $inbound "query-frontend" | default dict }}
+  {{- $hosts := $queryFrontend.hosts | default list }}
+  {{- if $hosts }}
+    {{- $first := first $hosts }}
+    {{- /* Wildcard and templated routes need an explicit Authservice chain. */ -}}
+    {{- if and $first (not (contains "*" $first)) (not (contains "{{" $first)) (not (contains "}}" $first)) }}
+      {{- $host = $first }}
+    {{- end }}
+  {{- end }}
   thanos:
     match:
       header: ":authority"
-    {{- $thanosHosts := (dig "istio" "thanos" "hosts" dict .Values.packages.thanos.values) }}
-    {{- if $thanosHosts }}
-      prefix: {{ tpl ($thanosHosts | first) $ }}
-    callback_uri: https://{{ tpl ($thanosHosts | first) $ }}/login/generic_oauth
-    {{- else }}
-      prefix: {{ printf "thanos.%s" $domainName }}
-    callback_uri: https://thanos.{{ $domainName }}/login/generic_oauth
-    {{- end }}
+      prefix: {{ $host | quote }}
+    callback_uri: {{ printf "https://%s/login/generic_oauth" $host | quote }}
     client_id: "{{ .Values.packages.thanos.sso.client_id }}"
     client_secret: "{{ .Values.packages.thanos.sso.client_secret }}"
     {{- if not $legacy }}

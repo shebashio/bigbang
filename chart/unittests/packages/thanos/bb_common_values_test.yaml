@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Package - Thanos - bb-common subchart values
+templates:
+  - templates/thanos/values.yaml
+tests:
+  - it: nests common defaults under bb-common and removes the 3.x migration template
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+    asserts:
+      - isNotNull:
+          path: bb-common.istio
+      - isNotNull:
+          path: bb-common.networkPolicies
+      - isNotNull:
+          path: bb-common.routes
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+          value: "0.0.0.0/0"
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.gateways[0]
+          value: istio-gateway/public-ingressgateway
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.dev.bigbang.mil
+
+  - it: keeps predictable generated hosts and preserves custom kubeAPI definitions
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: thanos.custom.example
+      networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr: 10.20.0.0/16
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.dev.bigbang.mil
+      - equal:
+          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
+          value: 10.20.0.0/16
+      - notExists:
+          path: routes
+      - notExists:
+          path: networkPolicies
+
+
+  - it: does not derive the advertised externalURL from route overlays
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: thanos.custom.example
+    asserts:
+      - equal:
+          path: externalURL
+          value: https://thanos.dev.bigbang.mil
+
+  - it: does not resolve route templates in generated common defaults
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: 'thanos.{{ .Values.global.domain }}'
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.query-frontend.hosts[0]
+          value: thanos.dev.bigbang.mil
+
+  - it: keeps the default externalURL independent of route templates
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.values.bb-common.routes.inbound.query-frontend.hosts[0]: 'thanos.{{ .Values.global.domain }}'
+    asserts:
+      - equal:
+          path: externalURL
+          value: https://thanos.dev.bigbang.mil
+
+  - it: exposes the umbrella domain only as Thanos global.domain
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval ' .stringData.defaults ' - | yq eval ' . '"
+    set:
+      packages.thanos.enabled: true
+      domain: custom.example.test
+    asserts:
+      - equal:
+          path: global.domain
+          value: custom.example.test
+      - notExists:
+          path: domain
+      - notExists:
+          path: minio
+
+  - it: configures the Garage S3 route with its explicit host, port, and protocol
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: http://garage:3900
+      packages.thanos.objectStorage.insecure: true
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.enabled
+          value: true
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: garage
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].number
+          value: 3900
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].protocol
+          value: HTTP
+
+  - it: configures an HTTPS S3 endpoint without its scheme in the host
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: https://garage.example:9443
+      packages.thanos.objectStorage.insecure: false
+      packages.istiod.values.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: garage.example
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].number
+          value: 9443
+      - equal:
+          path: bb-common.routes.outbound.s3.ports[0].protocol
+          value: HTTPS
