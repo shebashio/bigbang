@@ -32,9 +32,9 @@ packages:
     enabled: true
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     flux:
       timeout: 5m
     postRenderers: []
@@ -42,14 +42,15 @@ packages:
       - name: monitoring
         namespace: bigbang
     values:
-      replicaCount: 3
+      upstream:
+        replicaCount: 3
 ```
 
 In this example, we are doing three things:
 
 * Overriding the Flux timeout on our `HelmRelease` to be five minutes.
 * Adding a dependency on the `monitoring` HelmRelease in the `bigbang` namespace to ensure `podinfo` doesn't deploy until after `monitoring.`
-* Passing a value directly to the Podinfo chart to create three replicas.
+* Passing a value through the Podinfo package's `upstream` dependency to create three replicas.
 
 We could also specify a `postRenderers` value here, which is documented well in [this document](../../configuration/postrenderers.md).
 
@@ -61,8 +62,9 @@ message based on the built-in Istio control plane setting:
 packages:
   podinfo:
     values:
-      ui:
-        message: '{{ if .Values.packages.istiod.enabled }}Istio enabled{{ else }}Istio disabled{{ end }}'
+      upstream:
+        ui:
+          message: '{{ if .Values.packages.istiod.enabled }}Istio enabled{{ else }}Istio disabled{{ end }}'
 ```
 
 Big Bang evaluates the template when rendering the package values Secret. This
@@ -87,9 +89,9 @@ packages:
     enabled: true
     sourceType: "git"
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      path: charts/podinfo
-      tag: 6.3.4
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      path: chart
+      tag: 6.17.0-bb.0
 ```
 
 This creates the Podinfo HelmRelease in `bigbang` and targets the existing
@@ -123,9 +125,9 @@ packages:
     enabled: true
     sourceType: "git"
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      path: charts/podinfo
-      tag: 6.3.4
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      path: chart
+      tag: 6.17.0-bb.0
 ```
 
 This suppresses Big Bang's registry Secret for this package's target namespace.
@@ -141,9 +143,9 @@ packages:
       enabled: true
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     flux:
       timeout: 5m
     postRenderers: []
@@ -178,12 +180,12 @@ packages:
     wrapper:
       enabled: true
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
 ```
 
-**NOTE:** The wrapper is an opt-in feature. Without enabling the wrapper, the `packages` will default to just deploying the pieces [mentioned above](#package-deployment).
+**NOTE:** The wrapper is an opt-in feature. Without enabling the wrapper, the `packages` will default to just deploying the pieces [mentioned above](#package-deployment). The maintained Podinfo package already includes bb-common integrations; avoid duplicating its routes and policies when using it to explore the wrapper. For example, the [quickstart](../../getting-started/quick-start.md#implementing-mission-applications-within-your-big-bang-environment) disables the package-owned inbound route when configuring the wrapper route.
 
 The package also has HelmRepository support for sourcing the artifacts from a HelmRepo (of normal or OCI type). Usage of HelmRepos is encouraged if you have access to these types of artifacts.
 
@@ -198,9 +200,9 @@ packages:
   podinfo:
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     wrapper:
       enabled: true
     istio:
@@ -226,9 +228,9 @@ packages:
   podinfo:
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     wrapper:
       enabled: true
     monitor:
@@ -251,9 +253,9 @@ packages:
   podinfo:
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     wrapper:
       enabled: true
     network:
@@ -285,9 +287,9 @@ packages:
   podinfo:
     sourceType: git
     git:
-      repo: https://github.com/stefanprodan/podinfo.git
-      tag: 6.3.4
-      path: charts/podinfo
+      repo: https://repo1.dso.mil/big-bang/product/maintained/podinfo.git
+      tag: 6.17.0-bb.0
+      path: chart
     wrapper:
       enabled: true
     configMaps:
