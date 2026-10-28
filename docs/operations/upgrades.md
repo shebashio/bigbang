@@ -3,6 +3,14 @@
 ## Before Upgrading
 Before upgrading Big Bang, please first check the Release Notes and the Changelog to look for any notes that apply to Big Bang Updates and Package Updates.
 
+For Big Bang 4.0, follow [Migrating package values](../migration/migrating-package-values-for-bb4.0.md) before changing the deployment version. Built-in packages now use `packages.<name>`; the old top-level and `addons.<name>` paths fail schema validation. The migration also handles the `bb-common` values layout. For a plaintext values file:
+
+```shell
+scripts/migrate-values-3-to-4.sh --target 4 --output values-4.x.yaml values.yaml
+```
+
+Review the output and preserve values-source precedence. The migration guide covers embedded HelmRelease values, multiple sources, and SOPS-encrypted inputs. Do not deploy target-4 output to Big Bang 3.x.
+
 There are two important things to review when upgrading:
 1. "Upgrade Notices" in the Big Bang release notes: 
   - These capture any critical notes that the Big Bang development team identified during the release process. 
@@ -20,48 +28,88 @@ NOTE: It is recommended that upgrades first be tested in a staging environment t
 Packages in Big Bang can be updated one at a time.
 Upgrading a single package in Big Bang is done by changing the tag in the values for that package.  This should be done in the overriding values in the customer template.
 
-For a git repository:
+For a Git repository, use these **umbrella values**, replacing the tag with the desired package version:
 
 ```yaml
-istiod:
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
-    path: "./chart"
-    tag: "1.26.0-bb.0"
-
+packages:
+  istiod:
+    sourceType: "git"
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
+      path: "./chart"
+      tag: "PACKAGE_VERSION"
 ```
 
-For a helm repository:
+For a Helm repository, use these **umbrella values**:
 
 ```yaml
-istiod:
-  sourceType: "helmRepo"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istiod"
-    tag: "1.26.0-bb.0"
+packages:
+  istiod:
+    sourceType: "helmRepo"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "istiod"
+      tag: "PACKAGE_VERSION"
 ```
 
 These values are in `chart/values.yaml` of the Big Bang helm chart.
-When using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template) you can make these changes in either the base values (`bigbang/base/values.yaml`) or in each environment's values file (ex: `bigbang/dev/configmap.yaml`).
+Review the package's upgrade notes for required umbrella and dependency changes; changing a tag alone does not establish compatibility. Istio components, for example, may require coordinated version changes.
+
+When using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template), choose the directory for your deployment strategy:
+
+| Strategy | Shared values | Environment values |
+| --- | --- | --- |
+| `gitRepo` | `gitRepo/base/configmap.yaml` | `gitRepo/dev/configmap.yaml` |
+| `helmRepo` | `helmRepo/base/configmap.yaml` | `helmRepo/dev/configmap.yaml` |
+
+In `gitRepo`, these are raw values files consumed by Kustomize's ConfigMap generator. In `helmRepo`, edit the values embedded under `data.values.yaml` in the ConfigMap, preserving its metadata and other values. Adapt paths if you copied a strategy directory into your own repository root.
 
 ## Upgrading Big Bang umbrella deployment
-To upgrade your umbrella deployment of Big Bang when using the [Customer Template](https://repo1.dso.mil/big-bang/customers/template) you have two options:
-- Edit `base/kustomization.yaml` and change the value for the [base `ref`](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/base/kustomization.yaml#L4) to the new version. This will update all environments leveraging this base (dev, prod, etc).
+Replace `BIG_BANG_VERSION` below with the target release. Keep other resources and patches already present in your files.
+
+### Git repository strategy
+
+To update every environment using the shared base, edit the remote resource `ref` in [`gitRepo/base/kustomization.yaml`](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/gitRepo/base/kustomization.yaml). This **Kustomization fragment** shows the versioned resource; retain the existing `flux-components.yaml` resource and ConfigMap/Secret configuration:
 ```yaml
-namespace: bigbang
 resources:
-  - https://repo1.dso.mil/big-bang/bigbang.git//base?ref=1.57.1
+  - https://repo1.dso.mil/big-bang/bigbang.git//base?ref=BIG_BANG_VERSION
+  - flux-components.yaml
 ```
 
-- Edit the environment specific Kustomization (ex: `dev/kustomization.yaml`) to use the new version under the [ref/patch section](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/dev/kustomization.yaml#L18-21).
+To test a version in one environment, edit the existing `GitRepository/bigbang` patch in [`gitRepo/dev/kustomization.yaml`](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/gitRepo/dev/kustomization.yaml). The following is a **resource patch fragment**, not a standalone Kustomization:
 ```yaml
-  spec:
-    interval: 1m
-    ref:
-      $patch: replace
-      tag: "1.57.1"
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: bigbang
+spec:
+  ref:
+    $patch: replace
+    tag: "BIG_BANG_VERSION"
+```
+
+### Helm repository strategy
+
+To update all environments using the shared base, edit `spec.chart.spec.version` in [`helmRepo/base/helmrelease.yaml`](https://repo1.dso.mil/big-bang/customers/template/-/blob/main/helmRepo/base/helmrelease.yaml). The base's Kustomize replacement copies that version into `GitRepository/bigbang.spec.ref.tag` for Flux controller manifests.
+
+To override one environment, append both patches below to its existing `patches` list, for example in `helmRepo/dev/kustomization.yaml`. This **Kustomization fragment** keeps the chart and controller source versions aligned; preserve the existing values-source patches:
+
+```yaml
+patches:
+  - target:
+      kind: HelmRelease
+      name: bigbang
+    patch: |-
+      - op: replace
+        path: /spec/chart/spec/version
+        value: "BIG_BANG_VERSION"
+  - target:
+      kind: GitRepository
+      name: bigbang
+    patch: |-
+      - op: replace
+        path: /spec/ref/tag
+        value: "BIG_BANG_VERSION"
 ```
 
 ### Flux controller alignment in Customer Template
@@ -69,33 +117,34 @@ resources:
 The customer template includes a `flux-components` Kustomization in base for both `gitRepo` and `helmRepo` strategies so Flux can reconcile Flux controller manifests from Big Bang `base/flux`.
 
 - For `gitRepo`, update the base `ref` and Flux components follow that same source revision.
-- For `helmRepo`, update `base/helmrelease.yaml` `spec.chart.spec.version`; the template syncs the `GitRepository/bigbang` tag from that version.
+- For `helmRepo`, update `helmRepo/base/helmrelease.yaml` `spec.chart.spec.version`; the template syncs the `GitRepository/bigbang` tag from that version.
 
 If you override the Big Bang version in an environment overlay, also override the `GitRepository/bigbang.spec.ref.tag` in that overlay to keep Flux controllers and Big Bang on matching revisions.
 
 ## Verifying the Upgrade
 After upgrading the cluster, there are some places to look to verify that the upgrade was completed successfully.
 
-### Verify Helm releases 
-Verify all the helm releases have succeeded
-   
-   If everything has updated successfully you should see `Release reconciliation succeeded` as the status for each HelmRelease.
-```bash
-❯ k get hr -A
-NAMESPACE   NAME              AGE    READY   STATUS
-bigbang     kyverno           5h1m   True    Release reconciliation succeeded
-bigbang     kyvernopolicies   5h1m   True    Release reconciliation succeeded
-bigbang     istio-crds        5h1m   True    Release reconciliation succeeded
-bigbang     istiod            5h1m   True    Release reconciliation succeeded
-bigbang     istio-gateway     5h1m   True    Release reconciliation succeeded
+### Verify Helm releases
+
+Successful HelmReleases should report `READY=True`. Check that the applied revision is the intended version; a Ready resource may still represent the previous release if its source has not updated. Also check sources and Kustomizations:
+
+```shell
+flux get helmreleases -A
+flux get sources all -A
+flux get kustomizations -A
 ```
 
 ### Verify Pods
- - Verify that there are all pods are either `Running` or `Completed.`
- - Look for any pods that recently restarted (crashing recently).
-   - Below see an example of a pod that has restarted multiple times in a short time.
-```bash
-❯ k get pod -A
+
+Verify that long-running Pods are Ready and that Jobs have completed successfully. Investigate failed Pods and repeated restarts:
+
+```shell
+kubectl get pods -A
+```
+
+Example output:
+
+```text
 NAMESPACE           NAME                                                        READY   STATUS    RESTARTS   AGE
 kube-system         local-path-provisioner-5ff76fc89d-xd85h                     1/1     Running   0          22m
 ...
@@ -103,13 +152,16 @@ monitoring          alertmanager-monitoring-monitoring-kube-alertmanager-0      
 ```
 
 ### Verify Image Versions for Specific Packages
- - Check for specific package versions (image version on pods).
-   - There may be cases where you are hoping to use new features in a new package version, as such it can be beneficial to validate that package did update to the new version as expected.
-   - It can also be important to validate Istio sidecar versions, especially for packages outside of Big Bang core/addons. See an example of checking the image version of the running pod below:
-```bash
-❯ kubectl get po -n istio-system -o yaml|grep image|head -1
-      image: registry1.dso.mil/ironbank/opensource/istio/pilot:1.25.2
+
+For sidecar-mode workloads, check the workload's `istio-proxy` image as well as the Istio control plane, including mission applications. The first image in `istio-system` does not establish the sidecar versions running elsewhere. For ambient deployments, also verify Istio CNI, ztunnel, and any waypoints against the target release.
+
+List container names and images for a selected Pod; compare with the target package's image metadata, since chart and application versions can differ:
+
+```shell
+kubectl get pod POD_NAME -n NAMESPACE \
+  -o jsonpath='{range .spec.containers[*]}{.name}{"\t"}{.image}{"\n"}{end}'
 ```
+
 ### Check Package Usability
  - Validate the UI for web applications loads properly.
    - This could be through a basic `curl` check or similar to confirm UIs are up and healthy.
