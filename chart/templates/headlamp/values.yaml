@@ -12,7 +12,6 @@
 {{- define "bigbang.defaults.headlamp" -}}
 {{- $domainName := default .Values.domain .Values.hostname }}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- $istioHardenedEnabled := dig "hardened" "enabled" false .Values.packages.istiod.values }}
 {{- $baseURL := dig "upstream" "config" "baseURL" "" .Values.packages.headlamp.values }}
 {{- $port := dig "upstream" "service" "port" 4466 .Values.packages.headlamp.values }}
 {{- $serviceName := "headlamp-headlamp" }}
