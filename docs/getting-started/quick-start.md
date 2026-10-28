@@ -227,9 +227,12 @@ Big Bang by itself serves as a jumping-off point, but many users will want to im
 
 We will implement a simple additional utility as a proof of concept, starting with a basic podinfo client. This will use the `wrapper` key to provide integration between Big Bang and the Mission Application, without requiring the full Istio configuration to be placed inside Big Bang specific keys of the dependent chart.
 
+This example fetches the upstream chart from GitHub and its default image from
+GHCR. The cluster needs access to both; use an approved mirrored chart and image
+for environments that require restricted or Iron Bank-only artifacts.
 
 ```shell
-cat << EOF > ~/podinfo_wrapper.yaml
+cat << 'EOF' > ~/podinfo_wrapper.yaml
 packages:
   # -- Package name.  Each package will be independently wrapped for Big Bang integration.
   podinfo:
@@ -262,19 +265,19 @@ packages:
     # -- Git source is supported for both Helm and Kustomize deployments and is selected with `sourceType: git`.
     git:
       # -- Git repo URL holding the helm chart for this package, required if using git
-      repo: "https://repo1.dso.mil/big-bang/product/packages/podinfo.git"
+      repo: "https://github.com/stefanprodan/podinfo.git"
       # -- Git commit to check out.  Takes precedence over semver, tag, and branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference)
       commit:
       # -- Git semVer tag expression to check out.  Takes precedence over tag. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference)
       semver:
       # -- Git tag to check out.  Takes precedence over branch. [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference)
-      tag: "6.0.0-bb.7"
+      tag: "6.3.4"
       # -- Git branch to check out.  [More info](https://fluxcd.io/flux/components/source/gitrepositories/#reference).
       # @default -- When no other reference is specified, `master` branch is used
       branch:
       # -- Path inside the Git repository to the Helm chart or Kustomization. Required for Kustomize packages.
       # @default -- For Helm packages, `chart`. No default is applied to Kustomize packages.
-      path: "chart"
+      path: "charts/podinfo"
 
     # -- Override flux settings for this package
     flux: {}
@@ -293,7 +296,7 @@ packages:
           gateways:
             - public
           destination:
-            service: missionapp-missionapp
+            service: podinfo
             port: 9898
 
     # -- Package details for monitoring.  See [wrapper values](https://repo1.dso.mil/big-bang/apps/wrapper/-/blob/main/chart/values.yaml) for settings.
@@ -310,8 +313,6 @@ packages:
 
     # -- Values to pass through to package Helm chart
     values:
-      istio:
-        enabled: "{{ .Values.istiod.enabled }}"
       ui:
         color: "#fcba03" #yellow
 
@@ -335,12 +336,14 @@ If you're using the script to provision your own infrastructure on AWS:
 bash quickstart.sh --deploy -- -f $HOME/podinfo_wrapper.yaml
 ```
 
-Now missionapp should show up, if it doesn't wait a minute and rerun the command
+The wrapper exposes the Podinfo service at the `missionapp` host. The package is
+installed in the `podinfo` namespace. Allow time for Flux reconciliation, then
+check the route and Pods:
 
 ```
 kubectl get vs -A
 
-kubectl get po -n=missionapp
+kubectl get po -n=podinfo
 # Once these are all Running you can visit missionapp's webpage after editing DNS to include the new host
 ```
 

@@ -29,6 +29,7 @@ There are some basic override values provided to modify your Helm chart installa
 ```yaml
 packages:
   podinfo:
+    enabled: true
     sourceType: git
     git:
       repo: https://github.com/stefanprodan/podinfo.git
@@ -52,42 +53,49 @@ In this example, we are doing three things:
 
 We could also specify a `postRenderers` value here, which is documented well in [this document](../../configuration/postrenderers.md).
 
-If you would like to have values for your extra package deployment adapt based on your Big Bang configuration, you could do something like what is listed in the following:
+To adapt a custom chart value to Big Bang configuration, merge this **umbrella
+values overlay** with the Podinfo source above. This example sets Podinfo's UI
+message based on the built-in Istio control plane setting:
 
 ```yaml
 packages:
   podinfo:
     values:
-      istio:
-        enabled: "{{ .Values.istiod.enabled }}"
+      ui:
+        message: '{{ if .Values.packages.istiod.enabled }}Istio enabled{{ else }}Istio disabled{{ end }}'
 ```
 
-In this example, Istio will only be configured for podinfo if Istio is enabled for Big Bang.
+Big Bang evaluates the template when rendering the package values Secret. This
+changes only the UI message; use the wrapper or a chart's own supported settings
+to configure mesh integration. The Istio setting does not indicate whether the
+mesh uses sidecars or ambient mode.
 
 #### Additional Scenarios
 
-In some cases, you may want to deploy an additional package to a namespace that already exists which can be done by setting the `<package>.namespace.create` value to false as shown below:
+To deploy a custom package into an existing namespace, set
+`<package>.namespace.create` to false. For example, create the `applications`
+namespace independently before using these **umbrella values**:
 
 ```yaml
 packages:
-  istio-cni:
+  podinfo:
     namespace:
       create: false
-      name: kube-system
+      name: applications
     helmRelease:
       namespace: bigbang
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
     enabled: true
     sourceType: "git"
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-cni.git
-      path: "./chart"
-      tag: 1.27.0-bb.0
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: 6.3.4
 ```
 
-This deploys the istio-cni package with tag of `1.27.0-bb.0` to the kube-system namespace which already exists within the cluster.
+This creates the Podinfo HelmRelease in `bigbang` and targets the existing
+`applications` namespace. `istioCNI` and `ztunnel` are built-in packages; use
+their canonical `packages.istioCNI` and `packages.ztunnel` configuration rather
+than defining custom packages with those identities.
 
 Package namespaces can be assigned custom labels with `<package>.namespace.labels`. These labels are merged with labels rendered by Big Bang and can be used to set package-specific namespace metadata or override generated labels when needed:
 
@@ -100,51 +108,29 @@ packages:
         custom-label: custom-value
 ```
 
-It is also possible to disable the creation of the `imagePullSecret` by setting the `<package>.namespace.createRegistrySecret` to false:
+To use an existing registry pull Secret in the target namespace, set
+`<package>.namespace.createRegistrySecret` to false. For example:
 
 ```yaml
 packages:
-  istio-cni:
+  podinfo:
     namespace:
       create: false
-      name: kube-system
-    helmRelease:
-      namespace: bigbang
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
-    enabled: true
-    sourceType: "git"
-    git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-cni.git
-      path: "./chart"
-      tag: 1.27.0-bb.0
-    values:
-      upstream:
-        # Enable ambient mode
-        ambient:
-          enabled: true
-        global:
-          platform: k3s
-  ztunnel:
-    namespace:
-      create: false
-      name: istio-system
+      name: applications
       createRegistrySecret: false
     helmRelease:
       namespace: bigbang
-    dependsOn:
-      - name: istio-cni
-        namespace: bigbang
     enabled: true
     sourceType: "git"
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/ztunnel.git
-      path: "./chart"
-      branch: "main"
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: 6.3.4
 ```
 
-In this example, we are deploying the istio-cni package to the kube-system namepace where it will need to create the secret required to pull the image.  We are also deploying the ztunnel package which is reliant on the istio-cni package.  It deploys to another existing namespace (istio-system in this case) where that secret already exists so we have set the `createRegistrySecret` value to false to prevent duplication and errors.
+This suppresses Big Bang's registry Secret for this package's target namespace.
+Ensure any required pull Secret and workload references already exist there;
+another enabled package targeting the same namespace can still create a Secret.
 
 Another available feature is to have the package automatically deploy a secret containing the SSO certificate authority based on the global key for `sso` in the umbrella template by setting the `<package>.sso.enabled` to true.
 
@@ -227,7 +213,7 @@ packages:
             port: 9898
 ```
 
-In this example, we are primarily adding a virtual service for ingress to our application (i.e., leveraging defaults to select the proper service). By using the wrapper we are also getting several default options including istio sidecar injection and STRICT mTLS.
+In this example, we are primarily adding a virtual service for ingress to our application (i.e., leveraging defaults to select the proper service). Namespace enrollment follows Big Bang's effective mesh mode: ambient enrollment when enabled, or sidecar injection in sidecar mode. Verify that the wrapper's policies and the workload's mesh configuration match your environment.
 
 There are more ways to modify the virtual service creation and mTLS config. Additional values can be referenced in the [wrapper chart istio section](https://repo1.dso.mil/big-bang/product/packages/wrapper/-/blob/6536759fef016db8b5504ad6c237f2daffe22844/chart/values.yaml#L31-75).
 
