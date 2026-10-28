@@ -456,7 +456,7 @@ Args (dict):
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValuesForCommon .package .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValuesForCommon) }}
@@ -1005,21 +1005,13 @@ keeps the legacy pod-label ext_authz path.
 {{- end -}}
 
 {{- /* Returns "true" if authorization policies should be generated.
-       True when legacy package-level istio.hardened is enabled, the global
-       authorizationPolicies switch is enabled, or ambient mode is enabled.
-       Args (positional list):
-         0 - pkg:  the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - root: the root context (.)
+       True when the global authorizationPolicies switch or ambient mode is enabled.
+       Explicit package-level bb-common values are merged over this default.
+       Takes the root context (.).
     */ -}}
 {{- define "authorizationPoliciesEnabled" -}}
-{{- $pkg  := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- $authorizationPoliciesEnabled := or
-  (dig "istio" "hardened" "enabled" false $pkg)
-  $root.Values.authorizationPolicies.enabled
--}}
-{{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $authorizationPoliciesEnabled $ambient }}
+{{- $ambient := eq (include "ambientEnabled" .) "true" -}}
+{{ or .Values.authorizationPolicies.enabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly
@@ -1035,27 +1027,24 @@ keeps the legacy pod-label ext_authz path.
        maps key-by-key rather than replacing them wholesale, a package adding one extra
        definitions entry doesn't need to restate the global ones.
        Args (positional list):
-         0 - pkg:    the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
-                     only for istio.injection, which is a top-level user knob, unlike the rest of
-                     this block which reads from `.values`
-         2 - root:   the root context (.)
+         0 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
+                     only for istio.injection, which is a top-level user knob
+         1 - root:   the root context (.)
     */ -}}
 {{- define "bigbang.commonPackageDefaults" -}}
-{{- $pkg    := index . 0 -}}
-{{- $pkgTop := index . 1 -}}
-{{- $root   := index . 2 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.packages.istiod.values) -}}
+{{- $pkgTop := index . 0 -}}
+{{- $root   := index . 1 -}}
+{{- $sidecarDefaultEnabled := dig "hardened" "enabled" false $root.Values.packages.istiod.values -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
   sidecar:
-    enabled: {{ and $hardened (ne (include "ambientEnabled" $root) "true") }}
+    enabled: {{ and $sidecarDefaultEnabled (ne (include "ambientEnabled" $root) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" $root }}
   injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" $pkgTop) (eq (include "ambientEnabled" $root) "true") }}
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
+    enabled: {{ include "authorizationPoliciesEnabled" $root }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" $root }}
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" $root }}
   hbonePortInjection:
