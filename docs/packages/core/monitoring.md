@@ -13,10 +13,6 @@ graph LR
     alertmanagerservice{{AlertManager Service}} --> alertmanagerpods("AlertManager Pod(s)")
     alertmanagersvcmonitor("Service Monitor") --"Metrics Port"--> alertmanagerservice
     Prometheus --> alertmanagersvcmonitor("Service Monitor")
-    grafanapods("Grafana Pod(s)") --> monitoringpods("Monitoring Pod(s)")
-    grafanaservice{{Grafana Service}} --> grafanapods("Grafana Pod(s)")
-    grafanasvcmonitor("Service Monitor") --"Metrics Port"--> grafanaservice
-    Prometheus --> grafanasvcmonitor("Service Monitor")
     nodeexporterpods("Node-Exporter Pod(s)") --> monitoringpods("Monitoring Pod(s)")
     nodeexporterservice{{Node-Exporter Service}} -->  nodeexporterpods("Node-Exporter Pod(s)")
     nodeexportersvcmonitor("Service Monitor") --"Metrics Port"-->  nodeexporterservice
@@ -30,12 +26,16 @@ graph LR
     prmetheussservice{{Prometheus Service}} --> Prometheus
     PromOperator ---|Manages/Creates| Prometheus
     VirtualServices --"App Port"--> alertmanagerservice
-    VirtualServices --"App Port"--> grafanaservice
     VirtualServices --"App Port"--> Prometheus
   end
   subgraph "Logging"
-    monitoringpods("Monitoring Pod(s)") ---|Logs|fluent(Fluentbit) --> logging-ek-es-http
-    logging-ek-es-http{{Elastic Service<br />logging-ek-es-http}} --> elastic[(Elastic Storage)]
+    monitoringpods("Monitoring Pod(s)") ---|Logs|alloy(Alloy) --> loki[(Loki)]
+  end
+  subgraph "Grafana package"
+    grafanaservice{{Grafana Service}} --> grafanapods("Grafana Pod(s)")
+    grafanasvcmonitor("Service Monitor") --"Metrics Port"--> grafanaservice
+    Prometheus --> grafanasvcmonitor
+    VirtualServices --"App Port"--> grafanaservice
   end
   subgraph "Istio-system (Ingress)"
     ig(Ingress Gateway, Gateway) --> VirtualServices
@@ -64,8 +64,9 @@ definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
 `controlPlaneCidr` continues to control admission-webhook ingress.
 
 Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
-`bb-common.istio.authorizationPolicies.custom`. The umbrella still translates
-legacy hardened custom resource lists at both the flat and nested paths.
+`bb-common.istio.authorizationPolicies.custom`. Migrate legacy hardened custom
+resource lists to these paths; the monitoring umbrella integration no longer
+automatically translates them.
 Ambient SSO enrollment and client policies now reference the rendered
 `monitoring-waypoint` Gateway; update external policies that selected
 `monitoring-monitoring-waypoint`.
@@ -74,7 +75,17 @@ Ambient SSO enrollment and client policies now reference the rendered
 
 ### UI
 
-Alertmanager, Prometheus and Grafana within the monitoring Package have UIs that are accessible and configurable. By default they are externally available behind an Istio installation.
+Alertmanager and Prometheus in the monitoring package have UIs. Big Bang deploys
+Grafana as a separate, enabled-by-default `packages.grafana` package. Monitoring's
+optional upstream Grafana is disabled by default; enabling it creates a separate
+Grafana installation and requires independent routing and integration. The
+default UIs are accessible through Istio when its gateway is enabled.
+
+The examples below are **umbrella values**. Monitoring's upstream chart settings
+belong under `packages.monitoring.values.upstream`; the separate Grafana
+package's upstream settings belong under `packages.grafana.values.upstream`.
+See the version-pinned [monitoring upstream values](https://github.com/prometheus-community/helm-charts/blob/kube-prometheus-stack-92.13.1/charts/kube-prometheus-stack/values.yaml)
+and [Grafana package values](https://repo1.dso.mil/big-bang/product/packages/grafana/-/blob/14.0.1-bb.0/chart/values.yaml).
 
 ### Storage
 
@@ -86,17 +97,16 @@ Persistent storage values for Alert Manager can be set/modified in the Big Bang 
 packages:
   monitoring:
     values:
-      alertmanager:
-        alertmanagerSpec:
-          storage:
-            volumeClaimTemplate:
-              spec:
-                  storageClassName:
+      upstream:
+        alertmanager:
+          alertmanagerSpec:
+            storage:
+              volumeClaimTemplate:
+                spec:
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
                       storage: 50Gi
-              selector: {}
 ```
 
 #### Prometheus-Operator
@@ -107,32 +117,31 @@ Persistent storage values for Prometheus-Operator can be set/modified in the Big
 packages:
   monitoring:
     values:
-      prometheus:
-        prometheusSpec:
-          storageSpec:
-            volumeClaimTemplate:
-              spec:
-                  storageClassName:
+      upstream:
+        prometheus:
+          prometheusSpec:
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
                       storage: 50Gi
-              selector: {}
 ```
 
 #### Grafana
 
-Persistent storage values for Grafana can be set/modified in the Big Bang chart:
+Enable persistent storage for the separate Grafana package. Select an appropriate
+storage class for your environment if the default is unsuitable:
 
 ```yaml
 packages:
-  monitoring:
+  grafana:
     values:
-      grafana:
+      upstream:
         persistence:
           type: pvc
-          enabled: false
-          # storageClassName: default
+          enabled: true
           accessModes:
             - ReadWriteOnce
           size: 10Gi
@@ -147,7 +156,7 @@ packages:
 ### Logging
 
 Within the kube-prometheus-stack chart, you can customize both the LogFormat and LogLevel for the following components:
-Note: within Big Bang, logs are captured by fluentbit and shipped to elastic by default.
+By default, Big Bang collects logs with Alloy and sends them to Loki.
 
 #### Prometheus-Operator
 
@@ -157,9 +166,10 @@ LogFormat and LogLevel can be set for Prometheus-Operator via the following valu
 packages:
   monitoring:
     values:
-      prometheusOperator:
-        logFormat: logfmt
-        logLevel: info
+      upstream:
+        prometheusOperator:
+          logFormat: logfmt
+          logLevel: info
 ```
 
 #### Prometheus
@@ -170,10 +180,11 @@ LogFormat and LogLevel can be set for Prometheus via the following values in the
 packages:
   monitoring:
     values:
-      prometheus:
-        prometheusSpec:
-           logFormat: logfmt
-           logLevel: info
+      upstream:
+        prometheus:
+          prometheusSpec:
+            logFormat: logfmt
+            logLevel: info
 ```
 
 #### Alertmanager
@@ -184,21 +195,22 @@ LogFormat and LogLevel can be set for Alertmanager via the following values in t
 packages:
   monitoring:
     values:
-      alertmanager:
-        alertmanagerSpec:
-          logFormat: logfmt
-          logLevel: info
+      upstream:
+        alertmanager:
+          alertmanagerSpec:
+            logFormat: logfmt
+            logLevel: info
 ```
 
 #### Grafana
 
-LogLevel can be set for Grafana via the following values in the Big Bang chart:
+Set logging for the separate Grafana package using these umbrella values:
 
 ```yaml
 packages:
-  monitoring:
+  grafana:
     values:
-      grafana:
+      upstream:
         grafana.ini:
           log:
             mode: console
@@ -242,53 +254,45 @@ High Availability can be accomplished by increasing the number of replicas for t
 packages:
   monitoring:
     values:
-      alertmanager:
-        alertmanagerSpec:
-          replicas: 3
+      upstream:
+        alertmanager:
+          alertmanagerSpec:
+            replicas: 3
 ```
 
 #### Prometheus
 
-High Availability can be accomplished by increasing the number of replicas for the deployment of Prometheus. [Thanos](https://repo1.dso.mil/big-bang/product/packages/thanos/-/tree/main) must also be installed in the same namespace as the monitoring package in order for data to replicate across pods. An example of a Thanos object storage config using minIO [is located here](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/main/tests/test-values.yaml). Thanos also supports cloud object storage endpoints.
+Increase Prometheus replicas for availability. Replicas scrape independently;
+use [Thanos](https://repo1.dso.mil/big-bang/product/packages/thanos/-/tree/main)
+for a deduplicated query view and long-term object storage. Configure its object
+store and network access separately; see the [Thanos test values](https://repo1.dso.mil/big-bang/product/packages/thanos/-/blob/main/tests/test-values.yaml)
+for an example.
 ```yaml
 packages:
   monitoring:
     values:
-      thanosRuler:
-        enabled: true
-      prometheusOperator:
-        clusterDomain: "cluster.local"
-      prometheus:
-        thanosService:
-          enabled: true
-        thanosServiceMonitor:
-          enabled: true
-        prometheusSpec:
-          replicas: 3
-          thanos:
-            baseImage: registry1.dso.mil/ironbank/opensource/thanos/thanos
-            version: v0.29.0
-            objectStorageConfig:
-              key: objstore.yml
-              name: thanos-objstore-secret
+      upstream:
+        prometheus:
+          prometheusSpec:
+            replicas: 3
 ```
 
 #### Grafana
 
-High Availability can be accomplished by increasing the number of replicas for the deployment of Grafana and configuring an external database connection (postgresql/mysql) so users and dashboard information can be centrally located for the replicas to have a source of truth. See Grafana's [upstream documentation](https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#database)
+For the separate Grafana package, configure an external database (PostgreSQL or
+MySQL) shared by the replicas. Supply credentials securely rather than in this
+example. See Grafana's [database documentation](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#database).
 ```yaml
 packages:
-  monitoring:
+  grafana:
     values:
-      grafana:
+      upstream:
         replicas: 3
         grafana.ini:
           database:
             type: postgres
-            host: external-db:5432
+            host: DATABASE_HOST:5432
             name: grafana
-            user: ""
-            password: ""
 ```
 
 ### Dependency Packages
