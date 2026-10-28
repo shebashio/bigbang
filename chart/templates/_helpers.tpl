@@ -352,53 +352,6 @@ Pointer to the appropriate git credentials template
 {{- end -}}
 
 {{/*
-Merge legacy istio.hardened keys into new structure
-Args:
-  - values: The package values to clean (e.g. .Values.packages.kiali.values)
-
-This helper merges:
-  - istio.hardened.customServiceEntries -> istio.serviceEntries.custom
-  - istio.hardened.customAuthorizationPolicies -> istio.authorizationPolicies.custom
-
-Returns cleaned values with hardened key removed.
-*/}}
-{{- define "mergeLegacyIstioHardenedKeys" -}}
-{{- $values := .values -}}
-{{- if $values.istio -}}
-{{- $cleanedIstio := deepCopy $values.istio -}}
-
-{{- /* Merge hardened.customServiceEntries into serviceEntries.custom */ -}}
-{{- $hardenedServiceEntries := dig "hardened" "customServiceEntries" list $values.istio }}
-{{- $currentServiceEntries := dig "serviceEntries" "custom" list $values.istio }}
-{{- $mergedServiceEntries := concat $hardenedServiceEntries $currentServiceEntries }}
-{{- if $mergedServiceEntries }}
-{{- $_ := set $cleanedIstio "serviceEntries" (dict "custom" $mergedServiceEntries) }}
-{{- end }}
-
-{{- /* Merge hardened.customAuthorizationPolicies into authorizationPolicies.custom */ -}}
-{{- $hardenedAuthzPolicies := dig "hardened" "customAuthorizationPolicies" list $values.istio }}
-{{- $currentAuthzPolicies := dig "authorizationPolicies" "custom" list $values.istio }}
-{{- $mergedAuthzPolicies := concat $hardenedAuthzPolicies $currentAuthzPolicies }}
-{{- if $mergedAuthzPolicies }}
-{{- $_ := set $cleanedIstio "authorizationPolicies" (dict "custom" $mergedAuthzPolicies) }}
-{{- end }}
-
-{{- /* Drop only the two sub-fields that were migrated above; anything else under
-       hardened (notably hardened.enabled, still read by commonPackageDefaults and
-       authorizationPoliciesEnabled) must survive. */ -}}
-{{- $hardenedRemaining := omit (dig "hardened" dict $values.istio) "customServiceEntries" "customAuthorizationPolicies" -}}
-{{- if $hardenedRemaining -}}
-{{- $_ := set $cleanedIstio "hardened" $hardenedRemaining -}}
-{{- else -}}
-{{- $cleanedIstio = unset $cleanedIstio "hardened" -}}
-{{- end -}}
-
-{{- $values = set $values "istio" $cleanedIstio -}}
-{{- end -}}
-{{- toYaml $values -}}
-{{- end -}}
-
-{{/*
 Shared GitRepository resource template.
 Args (dict):
   - name: resource name (kebab-case, e.g. "kyverno-policies")
@@ -496,7 +449,7 @@ Args (dict):
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
 {{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValues) }}
@@ -510,9 +463,8 @@ Args (dict):
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}
-{{- /* injection and hardened are Big Bang-only controls, not bb-common subchart values.
-       commonPackageDefaults has already derived hardened.enabled into sidecar.enabled. */ -}}
-{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection" "hardened") }}
+{{- /* injection is an umbrella control, not a bb-common subchart value. */ -}}
+{{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection") }}
 {{- end }}
 {{- $commonBlock = dict "bb-common" $commonBlock }}
 {{- /* istio/networkPolicies/routes are fully captured above (common already reflects
@@ -1044,22 +996,19 @@ keeps the legacy pod-label ext_authz path.
 {{ or .Values.networkPolicies.enabled (eq (include "ambientEnabled" .) "true") }}
 {{- end -}}
 
-{{- /* Returns "true" if authorization policies should be generated.
-       True when legacy package-level istio.hardened is enabled, the global
-       authorizationPolicies switch is enabled, or ambient mode is enabled.
-       Args (positional list):
-         0 - pkg:  the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - root: the root context (.)
+{{- /* Returns "true" if the global authorizationPolicies switch or ambient mode
+       is enabled. Args: the root context (.). Package overrides are applied later
+       through bb-common.istio.authorizationPolicies.
     */ -}}
 {{- define "authorizationPoliciesEnabled" -}}
-{{- $pkg  := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- $authorizationPoliciesEnabled := or
-  (dig "istio" "hardened" "enabled" false $pkg)
-  $root.Values.authorizationPolicies.enabled
--}}
-{{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $authorizationPoliciesEnabled $ambient }}
+{{ or .Values.authorizationPolicies.enabled (eq (include "ambientEnabled" .) "true") }}
+{{- end -}}
+
+{{- /* Default Sidecar resource posture when Istio is enabled without ambient mode.
+       Args: the root context (.). Package bb-common.istio.sidecar overrides win.
+    */ -}}
+{{- define "sidecarEnabled" -}}
+{{ and (eq (include "istioEnabled" .) "true") (ne (include "ambientEnabled" .) "true") }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly
@@ -1075,27 +1024,24 @@ keeps the legacy pod-label ext_authz path.
        maps key-by-key rather than replacing them wholesale, a package adding one extra
        definitions entry doesn't need to restate the global ones.
        Args (positional list):
-         0 - pkg:    the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
+         0 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
                      only for istio.injection, which is a top-level user knob, unlike the rest of
-                     this block which reads from `.values`
-         2 - root:   the root context (.)
+                     this block which reads global defaults
+         1 - root:   the root context (.)
     */ -}}
 {{- define "bigbang.commonPackageDefaults" -}}
-{{- $pkg    := index . 0 -}}
-{{- $pkgTop := index . 1 -}}
-{{- $root   := index . 2 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.packages.istiod.values) -}}
+{{- $pkgTop := index . 0 -}}
+{{- $root   := index . 1 -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
   sidecar:
-    enabled: {{ and $hardened (ne (include "ambientEnabled" $root) "true") }}
+    enabled: {{ include "sidecarEnabled" $root }}
   ambient:
     enabled: {{ include "ambientEnabled" $root }}
   injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" $pkgTop) (eq (include "ambientEnabled" $root) "true") }}
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
+    enabled: {{ include "authorizationPoliciesEnabled" $root }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" $root }}
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" $root }}
   hbonePortInjection:

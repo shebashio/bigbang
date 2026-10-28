@@ -64,8 +64,9 @@ definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
 `controlPlaneCidr` continues to control admission-webhook ingress.
 
 Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
-`bb-common.istio.authorizationPolicies.custom`. The umbrella still translates
-legacy hardened custom resource lists at both the flat and nested paths.
+`bb-common.istio.authorizationPolicies.custom`. Use the
+[values migration script](../../migration/migrating-package-values-for-bb4.0.md#istio-hardening-changes)
+to move legacy custom resource lists to these paths before upgrading.
 Ambient SSO enrollment and client policies now reference the rendered
 `monitoring-waypoint` Gateway; update external policies that selected
 `monitoring-monitoring-waypoint`.

@@ -127,7 +127,6 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: http://garage:3900
       packages.thanos.objectStorage.insecure: true
-      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.enabled
@@ -152,7 +151,6 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: https://garage.example:9443
       packages.thanos.objectStorage.insecure: false
-      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.hosts[0]
@@ -163,3 +161,31 @@ tests:
       - equal:
           path: bb-common.routes.outbound.s3.ports[0].protocol
           value: HTTPS
+
+  - it: configures object-store ServiceEntries without a legacy hardening switch
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: garage.example.test:443
+    asserts:
+      - equal:
+          path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
+          value: garage.example.test
+  - it: omits object-store ServiceEntries when Istio is disabled
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.thanos.enabled: true
+      packages.istiod.enabled: false
+      istio.ambient.enabled: false
+      packages.thanos.objectStorage.endpoint: garage.example.test:443
+    asserts:
+      - equal:
+          path: bb-common.istio.serviceEntries.custom
+          value: []
+      - equal:
+          path: bb-common.routes.outbound.s3.enabled
+          value: false

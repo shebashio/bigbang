@@ -3,7 +3,7 @@ suite: Package - Grafana - Values Tests
 templates:
   - templates/grafana/values.yaml
 tests:
-  - it: should honor legacy package-level hardening for the Istio sidecar
+  - it: should enable the Istio sidecar by default in sidecar mode
     postRenderer:
       cmd: "sh"
       args:
@@ -11,11 +11,75 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       istio.ambient.enabled: false
-      packages.grafana.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: false
+  - it: should disable the Sidecar resource when Istio is disabled
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      istio.ambient.enabled: false
+      packages.istiod.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+  - it: should disable the Sidecar resource when ztunnel enables ambient mode
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+  - it: should enable authorization policies from the global switch in sidecar mode
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      istio.ambient.enabled: false
+      authorizationPolicies.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: true
+  - it: should preserve explicit bb-common overrides over the shared defaults
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData | (.common | from_yaml) * (.overlays | from_yaml)'"]
+    set:
+      istio.ambient.enabled: false
+      authorizationPolicies.enabled: true
+      packages.grafana.values.bb-common.istio.sidecar.enabled: false
+      packages.grafana.values.bb-common.istio.authorizationPolicies.enabled: false
+      packages.grafana.values.bb-common.istio.authorizationPolicies.generateFromNetpol: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.authorizationPolicies.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.authorizationPolicies.generateFromNetpol
+          value: false
   - it: should point the GitLab Redis datasource at the configured external service
     postRenderer:
       cmd: "sh"

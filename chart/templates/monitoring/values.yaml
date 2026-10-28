@@ -15,17 +15,6 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 {{/*
-Derived hardened posture for Monitoring.
-This boolean drives bb-common Istio defaults rendered in this file, including
-sidecar defaults, generated authorization policies, and hardened service entries.
-It folds umbrella hardening and legacy package hardening key paths together.
-*/}}
-{{- $istioHardenedEnabled := or
-  (dig "hardened" "enabled" false .Values.packages.istiod.values)
-  (dig "values" "istio" "hardened" "enabled" false .Values.packages.monitoring)
-  (dig "values" "hardened" "enabled" false .Values.packages.monitoring)
-}}
-{{/*
 Effective gate for monitoring workload injection/cert wiring.
 When true, render annotations and cert output wiring that depend on Istio sidecar
 injection in the monitoring namespace.
@@ -79,7 +68,7 @@ flux:
   enabled: true
 
 
-{{/* bb-common Istio defaults for monitoring follow hardened posture. */}}
+{{/* bb-common Istio defaults for monitoring. */}}
 bb-common:
   istio:
     {{- if $monitoringAuthserviceWaypoint }}
@@ -89,9 +78,8 @@ bb-common:
     prependReleaseName: true
     {{- end }}
     sidecar:
-      enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
       outboundTrafficPolicyMode: REGISTRY_ONLY
-    {{- if and $istioHardenedEnabled (contains "s3" .Values.packages.thanos.objectStorage.endpoint) }}
+    {{- if and $istioEnabled (contains "s3" .Values.packages.thanos.objectStorage.endpoint) }}
     serviceEntries:
       custom:
         - name: egress-object-store
@@ -105,7 +93,7 @@ bb-common:
                 protocol: TLS
                 name: https
             resolution: DNS
-    {{- else if and $istioHardenedEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
+    {{- else if and $istioEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
     {{- $objFull := .Values.packages.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
     {{- $objHost := index (splitList ":" $objFull) 0 }}
     {{- $objPort := 80 }}

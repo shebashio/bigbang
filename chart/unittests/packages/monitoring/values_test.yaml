@@ -54,19 +54,17 @@ tests:
   - equal:
       path: bb-common.routes.inbound.monitoring-alertmanager.enabled
       value: false
-- it: sets sidecar policy from hardening True
+- it: enables sidecar policy by default in sidecar mode
   set:
     istio.ambient.enabled: false
     packages.istiod.enabled: true
-    packages.istiod.values.hardened.enabled: true
   asserts:
   - equal:
       path: bb-common.istio.sidecar.enabled
       value: true
-- it: sets sidecar policy from hardening False
+- it: disables sidecar policy by default in ambient mode
   set:
     packages.istiod.enabled: true
-    packages.istiod.values.hardened.enabled: false
   asserts:
   - equal:
       path: bb-common.istio.sidecar.enabled
@@ -74,7 +72,6 @@ tests:
 - it: disables sidecar policy in ambient mode
   set:
     packages.istiod.enabled: true
-    packages.istiod.values.hardened.enabled: true
     istio.ambient.enabled: true
   asserts:
   - equal:
@@ -147,3 +144,28 @@ tests:
   - equal:
       path: bb-common.networkPolicies.enabled
       value: false
+
+- it: configures object-store ServiceEntries without a legacy hardening switch
+  postRenderer:
+    cmd: sh
+    args: ["-c", "yq '.stringData.common | from_yaml'"]
+  set:
+    packages.monitoring.enabled: true
+    packages.thanos.objectStorage.endpoint: garage.example.test:443
+  asserts:
+    - equal:
+        path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
+        value: garage.example.test
+- it: omits object-store ServiceEntries when Istio is disabled
+  postRenderer:
+    cmd: sh
+    args: ["-c", "yq '.stringData.common | from_yaml'"]
+  set:
+    packages.monitoring.enabled: true
+    packages.istiod.enabled: false
+    istio.ambient.enabled: false
+    packages.thanos.objectStorage.endpoint: garage.example.test:443
+  asserts:
+    - equal:
+        path: bb-common.istio.serviceEntries.custom
+        value: []

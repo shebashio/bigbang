@@ -19,10 +19,6 @@
 {{- $authserviceEnabled := eq (include "authserviceEnabled" .) "true" }}
 {{- $thanosUsesAuthservice := or .Values.packages.authservice.enabled (and .Values.packages.thanos.sso.enabled $authserviceEnabled) }}
 {{- $thanosAuthserviceWaypoint := eq (include "thanos.authservice.waypointEnabled" .) "true" }}
-{{- $istioHardened := or
-  (dig "bb-common" "istio" "sidecar" "enabled" false .Values.packages.thanos.values)
-  (dig "hardened" "enabled" false .Values.packages.istiod.values)
-}}
 
 {{- $s3Bucket := .Values.packages.thanos.objectStorage.bucket }}
 {{- $s3Region := .Values.packages.thanos.objectStorage.region }}
@@ -58,9 +54,8 @@ istio:
   prependReleaseName: true
   {{- end }}
   sidecar:
-    enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
     outboundTrafficPolicyMode: REGISTRY_ONLY
-  {{- if and $istioHardened (contains "s3" $s3Endpoint) }}
+  {{- if and $istioEnabled (contains "s3" $s3Endpoint) }}
   serviceEntries:
     custom:
       - name: egress-object-store
@@ -74,7 +69,7 @@ istio:
               protocol: TLS
               name: https
           resolution: DNS
-  {{- else if and $istioHardened (not (empty $s3Endpoint)) }}
+  {{- else if and $istioEnabled (not (empty $s3Endpoint)) }}
   serviceEntries:
     custom:
       - name: egress-object-store
@@ -101,7 +96,7 @@ routes:
   {{- if not (empty $s3Endpoint) }}
   outbound:
     s3:
-      enabled: {{ $istioHardened }}
+      enabled: {{ $istioEnabled }}
       hosts:
       - {{ $s3Host }}
       ports:

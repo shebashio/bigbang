@@ -55,10 +55,14 @@ tests:
 
   - it: should have istio disabled when istiod is disabled
     set:
+      istio.ambient.enabled: false
       packages.istiod.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.sidecar.enabled
           value: false
 
   - it: should have istio sidecar disabled by default
@@ -67,10 +71,9 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
-  - it: should honor legacy package-level hardening for the Istio sidecar
+  - it: should enable the Istio sidecar by default in sidecar mode
     set:
       istio.ambient.enabled: false
-      packages.sample.values.istio.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -98,6 +101,7 @@ tests:
 
   - it: should have authorizationPolicies enabled when globally enabled
     set:
+      istio.ambient.enabled: false
       authorizationPolicies.enabled: true
     asserts:
       - equal:
@@ -139,12 +143,16 @@ tests:
 
   - it: should enable networkPolicies when ambient is enabled via ztunnel
     set:
+      istio.ambient.enabled: false
       networkPolicies.enabled: false
       packages.ztunnel.enabled: true
     asserts:
       - equal:
           path: bb-common.networkPolicies.enabled
           value: true
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
 
   - it: should pass through networkPolicies egress settings
     set:

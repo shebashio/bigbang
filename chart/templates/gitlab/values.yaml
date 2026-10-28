@@ -182,11 +182,6 @@ bb-common:
         - registry.{{ $domainName }}
         - keycloak.{{ $domainName }}
 
-{{- $istioHardened := dig "hardened" "enabled" false .Values.packages.istiod.values }}
-  istio:
-    sidecar:
-      enabled: {{ and $istioHardened (ne (include "ambientEnabled" .) "true") }}
-
   networkPolicies:
     ingress:
       to:

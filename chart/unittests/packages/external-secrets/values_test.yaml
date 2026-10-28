@@ -7,25 +7,23 @@ tests:
     set:
       istio.ambient.enabled: false
       packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.istio.hardened.enabled: true
       # Set complete list items so separate set paths cannot overwrite the same index.
-      packages.externalSecrets.values.istio.hardened.customServiceEntries:
-        - name: legacy-entry
+      packages.externalSecrets.values.bb-common.istio.serviceEntries.custom:
+        - name: custom-entry
           spec:
             hosts:
-              - legacy.example.test
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
-        - name: legacy-policy
+              - custom.example.test
+      packages.externalSecrets.values.bb-common.istio.authorizationPolicies.custom:
+        - name: custom-policy
           spec:
             action: ALLOW
-      packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
     postRenderer:
       cmd: sh
       args:
         - -c
-        - "yq eval '.stringData.common' - | yq eval '.'"
+        - "yq eval '.stringData | (.common | from_yaml) * (.overlays | from_yaml)' -"
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -34,7 +32,7 @@ tests:
           path: bb-common.istio.hardened
       - equal:
           path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
-          value: legacy.example.test
+          value: custom.example.test
       - equal:
           path: bb-common.istio.authorizationPolicies.custom[0].spec.action
           value: ALLOW
@@ -53,24 +51,22 @@ tests:
   - it: nests the package bb-common defaults under the subchart key in ambient mode (default)
     set:
       packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.istio.hardened.enabled: true
-      packages.externalSecrets.values.istio.hardened.customServiceEntries:
-        - name: legacy-entry
+      packages.externalSecrets.values.bb-common.istio.serviceEntries.custom:
+        - name: custom-entry
           spec:
             hosts:
-              - legacy.example.test
-      packages.externalSecrets.values.istio.hardened.customAuthorizationPolicies:
-        - name: legacy-policy
+              - custom.example.test
+      packages.externalSecrets.values.bb-common.istio.authorizationPolicies.custom:
+        - name: custom-policy
           spec:
             action: ALLOW
-      packages.istiod.values.hardened.enabled: false
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
     postRenderer:
       cmd: sh
       args:
         - -c
-        - yq eval '.stringData.common' - | yq eval '.'
+        - yq eval '.stringData | (.common | from_yaml) * (.overlays | from_yaml)' -
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -79,7 +75,7 @@ tests:
           path: bb-common.istio.hardened
       - equal:
           path: bb-common.istio.serviceEntries.custom[0].spec.hosts[0]
-          value: legacy.example.test
+          value: custom.example.test
       - equal:
           path: bb-common.istio.authorizationPolicies.custom[0].spec.action
           value: ALLOW

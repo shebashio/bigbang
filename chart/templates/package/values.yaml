@@ -19,8 +19,7 @@ type: Opaque
 stringData:
 {{- if (not $vals.kustomize) }}
 {{- if dig "bbCommonValues" true $vals }}
-{{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
-{{- $istioHardened := or (dig "istio" "hardened" "enabled" false (default (dict) $vals.values)) (dig "hardened" "enabled" false $.Values.packages.istiod.values) }}
+{{- $istioEnabled := eq (include "istioEnabled" $) "true" }}
   common.yaml: |
     global:
       domain: {{ $.Values.domain }}
@@ -32,10 +31,10 @@ stringData:
         ambient:
           enabled: {{ include "ambientEnabled" $ }}
         sidecar:
-          enabled: {{ and $istioHardened (ne (include "ambientEnabled" $) "true") }}
+          enabled: {{ include "sidecarEnabled" $ }}
         authorizationPolicies:
-          enabled: {{ include "authorizationPoliciesEnabled" (list (default (dict) $vals.values) $) }}
-          generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list (default (dict) $vals.values) $) }}
+          enabled: {{ include "authorizationPoliciesEnabled" $ }}
+          generateFromNetpol: {{ include "authorizationPoliciesEnabled" $ }}
       networkPolicies:
         enabled: {{ include "networkPoliciesEnabled" $ }}
         hbonePortInjection:

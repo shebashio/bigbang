@@ -14,6 +14,12 @@
 global:
   domain: {{ $domainName }}
 
+bb-common:
+  istio:
+    # The integrated cert-manager namespace does not use sidecar injection.
+    sidecar:
+      enabled: false
+
 upstream:
   prometheus:
     servicemonitor:

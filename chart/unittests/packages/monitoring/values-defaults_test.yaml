@@ -48,24 +48,6 @@ tests:
     asserts:
       - notExists:
           path: upstream.kubernetesServiceMonitors
-  - it: should keep istio cert mounts when legacy package hardening is enabled
-    set:
-      istio.ambient.enabled: false
-      packages.istiod.enabled: true
-      packages.monitoring.values.istio.hardened.enabled: true
-    asserts:
-      - equal:
-          path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
-          value: /etc/prom-certs/
-      - equal:
-          path: upstream.prometheus.prometheusSpec.volumes[0].name
-          value: istio-certs
-      - equal:
-          path: upstream.prometheus.prometheusSpec.alertingEndpoints[0].tlsConfig.caFile
-          value: /etc/prom-certs/root-cert.pem
-      - equal:
-          path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
-          value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
   - it: should inject istio cert mounts when istiod and namespace injection are enabled
     set:
       istio.ambient.enabled: false
@@ -83,12 +65,11 @@ tests:
       - equal:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-  - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
+  - it: should keep istio cert mounts when the Sidecar resource is disabled
     set:
       istio.ambient.enabled: false
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
-      packages.monitoring.values.bb-common.istio.sidecar.enabled: true
+      packages.monitoring.values.bb-common.istio.sidecar.enabled: false
     asserts:
       - equal:
           path: upstream.prometheus.prometheusSpec.volumeMounts[0].mountPath
