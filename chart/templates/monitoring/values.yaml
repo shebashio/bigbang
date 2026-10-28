@@ -42,11 +42,13 @@ When ambient mode is enabled, sidecar injection is disabled since sidecars are n
 Sidecar-specific annotations and cert mounting don't apply in ambient mode.
 */}}
 {{- $sidecarInjectionEnabled := and $monitoringInjectionEnabled (not $ambientEnabled) }}
-{{- $mtlsStrict := and $istioEnabled (eq (dig "bb-common" "istio" "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" .Values.packages.monitoring.values) .Values.packages.monitoring.values) "STRICT") }}
+{{- $monitoringIstio := dig "bb-common" "istio" dict .Values.packages.monitoring.values }}
+{{- $monitoringIstioEnabled := dig "enabled" true $monitoringIstio }}
+{{- $mtlsStrict := eq (dig "mtls" "mode" "STRICT" $monitoringIstio) "STRICT" }}
 {{/*
 mTLS strict mode with sidecar certs is only applicable when sidecars are used (not ambient mode).
 */}}
-{{- $monitoringMtlsStrict := and $mtlsStrict $sidecarInjectionEnabled }}
+{{- $monitoringMtlsStrict := and $sidecarInjectionEnabled $monitoringIstioEnabled $mtlsStrict }}
 {{- $gitlabRedis := (and (ne .Values.packages.gitlab.redis.password "" ) (or .Values.packages.gitlab.enabled .Values.packages.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.packages.authservice) .Values.packages.authservice.enabled) }}
 
