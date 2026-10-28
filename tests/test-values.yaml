@@ -673,11 +673,8 @@ packages:
           readOnly: true
 
   loki:
-    strategy: scalable
+    strategy: monolith
     values:
-      # MinIO required for Loki Scalable
-      minio:
-        enabled: true
       bb-common:
         # Re-enable VirtualService for CI tests (alloy script test queries via VS)
         routes:
@@ -688,14 +685,7 @@ packages:
         enabled: true
         scripts:
           envs:
-            LOKI_URL: 'http://logging-loki-write.logging.svc:3100'
-      read:
-        replicas: 3
-      write:
-        replicas: 3
-      backend:
-        # Loki requires at least two backend replicas outside SingleBinary mode.
-        replicas: 3
+            LOKI_URL: 'http://logging-loki.logging.svc:3100'
 
   tempo:
     values:
