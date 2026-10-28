@@ -22,7 +22,7 @@ tests:
   - notExists:
       path: bb-common.istio.injection
   - equal:
-      path: bb-common.networkPolicies.ingress.to["kube-prometheus-stack-prometheus-operator:10250"].from.cidr["0.0.0.0/0"]
+      path: bb-common.networkPolicies.ingress.to["kube-prometheus-stack-prometheus-operator:10250"].from.definition.kubeAPI
       value: true
   - equal:
       path: bb-common.networkPolicies.ingress.to["prometheus:9090"].from.k8s["authservice/haproxy"]
@@ -32,7 +32,7 @@ tests:
     packages.monitoring.values.upstream.nameOverride: testing
   asserts:
   - equal:
-      path: bb-common.networkPolicies.ingress.to["testing-prometheus-operator:10250"].from.cidr["0.0.0.0/0"]
+      path: bb-common.networkPolicies.ingress.to["testing-prometheus-operator:10250"].from.definition.kubeAPI
       value: true
 - it: sets inbound routes with Istio enabled
   set:

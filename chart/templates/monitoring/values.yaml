@@ -230,9 +230,9 @@ bb-common:
         {{- end }}
         {{ $kpsName }}:10250:
           from:
-            cidr:
-              # Needed for kube-api to call the prometheus operator webhook endpoint
-              {{ .Values.networkPolicies.controlPlaneCidr }}: true
+            # Needed for kube-api to call the prometheus operator webhook endpoint
+            definition:
+              kubeAPI: true
         prometheus:10901:
           from:
             k8s:

@@ -25,8 +25,8 @@ tests:
       - notExists:
           path: routes
       - equal:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
-          value: "0.0.0.0/0"
+          path: bb-common.networkPolicies.egress.from["*"].to.definition.kubeAPI
+          value: true
       - equal:
           path: bb-common.routes.inbound.query-frontend.gateways[0]
           value: istio-gateway/public-ingressgateway
