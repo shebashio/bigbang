@@ -2,6 +2,47 @@ suite: Package - Tempo - Subchart Values
 templates:
   - templates/tempo/values.yaml
 tests:
+  - it: nests networking and routes and excludes library-only keys
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.istiod.enabled: true
+      packages.istiod.values.hardened.enabled: true
+      istio.ambient.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+      - exists:
+          path: bb-common.routes.inbound.tempo-query
+      - exists:
+          path: bb-common.networkPolicies.ingress.to["tempo:4317"].from.k8s["alloy-alloy-receiver@alloy/alloy-receiver"]
+      - notExists:
+          path: istio
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: bb-common.istio.hardened
+  - it: defaults to ambient networking without a Sidecar resource
+    postRenderer:
+      cmd: sh
+      args: ["-c", "yq '.stringData.common | from_yaml'"]
+    set:
+      packages.tempo.enabled: true
+      packages.istiod.values.hardened.enabled: true
+
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.hbonePortInjection.enabled
+          value: true
   - it: maps domain and runtime overrides without flattening subchart values
     postRenderer:
       cmd: sh

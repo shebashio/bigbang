@@ -59,27 +59,34 @@ istio:
 For a live sidecar→ambient migration, pair the switch with the temporary bridge for any
 clustered package rolling through the mixed window (see
 [Handling Special Cases](#clustered-workloads-that-break-under-strict-mtls-during-the-mixed-window)).
-The complete values look like:
+The example below shows the ambient switch and temporary NeuVector settings. Before applying it, record the
+existing `packages.neuvector.values.bb-common.istio.mtls.mode` and custom authorization
+policies. Helm replaces lists rather than appending them: if custom policies already exist,
+include **all existing entries** in the `custom` list alongside the temporary entry below.
+Do not replace or delete unrelated NeuVector settings. The permissive mode and namespace-wide
+allow policy weaken isolation during migration; use them only for the mixed-mode window.
 
 ```yaml
 istio:
   ambient:
     enabled: true
 
-# Temporary during sidecar to ambient migration only. Remove this whole block once
-# every neuvector pod is ambient.
-neuvector:
-  values:
-    istio:
-      mtls:
-        mode: PERMISSIVE
-      authorizationPolicies:
-        custom:
-          - name: neuvector-migration-allow-all
-            spec:
-              action: ALLOW
-              rules:
-                - {}
+# Temporary during sidecar to ambient migration only. Restore previous settings once
+# every neuvector pod is ambient; preserve other NeuVector values and custom policies.
+packages:
+  neuvector:
+    values:
+      bb-common:
+        istio:
+          mtls:
+            mode: PERMISSIVE
+          authorizationPolicies:
+            custom:
+              - name: neuvector-migration-allow-all
+                spec:
+                  action: ALLOW
+                  rules:
+                    - {}
 ```
 
 ### Step 2: Deploy the change and roll out the infrastructure
@@ -145,12 +152,15 @@ in the ztunnel log is a denied connection with a populated `src.workload` but **
 identity and passes STRICT.
 
 **Bridge.** Relax both layers through the package's `values` so bb-common owns the objects:
-set `istio.mtls.mode: PERMISSIVE` and add an allow-all custom authz policy (the default
+set `bb-common.istio.mtls.mode: PERMISSIVE` and add an allow-all custom authz policy (the default
 allow-in-namespace matches on identity, which passthrough lacks). This is the issue addressed in the neuvector block shown in [Step 1](#step-1-enable-ambient-mode). 
 
-**Follow-up (required).** Once every pod in the package is ambient, remove the block:
-dropping `istio.mtls.mode` reverts to the default (**STRICT**) and dropping the custom
-policy restores default-deny; the HelmRelease prunes both on reconcile.
+**Follow-up (required).** Once every pod in the package is ambient, remove only the temporary
+`neuvector-migration-allow-all` entry and restore the previous `bb-common.istio.mtls.mode`
+and custom policy list, preserving all other settings. If there was no prior mTLS override,
+remove the temporary override; the default is **STRICT**. After reconciliation, verify the
+effective PeerAuthentication and authorization policies, including that the temporary policy
+is gone and all pre-existing policies remain. Existing overrides can change the effective mode.
 
 ### Workloads that need Authservice
 
