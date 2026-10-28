@@ -243,18 +243,25 @@ chains:
   {{- end }}
 
   {{- if and .Values.packages.monitoring.enabled .Values.packages.monitoring.sso.enabled }}
+  {{- $monitoringValues := .Values.packages.monitoring.values | default dict }}
+  {{- $monitoringCommon := index $monitoringValues "bb-common" | default dict }}
+  {{- $monitoringRoutes := $monitoringCommon.routes | default dict }}
+  {{- $monitoringInbound := $monitoringRoutes.inbound | default dict }}
   {{- if not (hasKey (.Values.packages.authservice.chains | default dict) "prometheus") }}
+  {{- $prometheusHost := printf "prometheus.%s" $domainName }}
+  {{- $prometheusRoute := index $monitoringInbound "monitoring-prometheus" | default dict }}
+  {{- $prometheusHosts := $prometheusRoute.hosts | default list }}
+  {{- if $prometheusHosts }}
+    {{- $first := first $prometheusHosts }}
+    {{- if and $first (not (contains "*" $first)) (not (contains "{{" $first)) (not (contains "}}" $first)) }}
+      {{- $prometheusHost = $first }}
+    {{- end }}
+  {{- end }}
   prometheus:
     match:
       header: ":authority"
-    {{- $prometheusHosts := (dig "istio" "prometheus" "hosts" dict .Values.packages.monitoring.values) }}
-    {{- if $prometheusHosts }}
-      prefix: {{ tpl ($prometheusHosts | first) $ }}
-    callback_uri: https://{{ tpl ($prometheusHosts | first) $ }}/login/generic_oauth
-    {{- else }}
-      prefix: {{ printf "prometheus.%s" $domainName }}
-    callback_uri: https://prometheus.{{ $domainName }}/login/generic_oauth
-    {{- end }}
+      prefix: {{ $prometheusHost | quote }}
+    callback_uri: {{ printf "https://%s/login/generic_oauth" $prometheusHost | quote }}
     client_id: {{ .Values.packages.monitoring.sso.prometheus.client_id }}
     client_secret: "{{ .Values.packages.monitoring.sso.prometheus.client_secret }}"
     {{- if not $legacy }}
@@ -265,17 +272,20 @@ chains:
   {{- end }}
 
   {{- if not (hasKey (.Values.packages.authservice.chains | default dict) "alertmanager") }}
+  {{- $alertmanagerHost := printf "alertmanager.%s" $domainName }}
+  {{- $alertmanagerRoute := index $monitoringInbound "monitoring-alertmanager" | default dict }}
+  {{- $alertmanagerHosts := $alertmanagerRoute.hosts | default list }}
+  {{- if $alertmanagerHosts }}
+    {{- $first := first $alertmanagerHosts }}
+    {{- if and $first (not (contains "*" $first)) (not (contains "{{" $first)) (not (contains "}}" $first)) }}
+      {{- $alertmanagerHost = $first }}
+    {{- end }}
+  {{- end }}
   alertmanager:
     match:
       header: ":authority"
-    {{- $alertmanagerHosts := (dig "istio" "alertmanager" "hosts" dict .Values.packages.monitoring.values) }}
-    {{- if $alertmanagerHosts }}
-      prefix: {{ tpl ($alertmanagerHosts | first) $ }}
-    callback_uri: https://{{ tpl ($alertmanagerHosts | first) $ }}/login/generic_oauth
-    {{- else }}
-      prefix: {{ printf "alertmanager.%s" $domainName }}
-    callback_uri: https://alertmanager.{{ $domainName }}/login/generic_oauth
-    {{- end }}
+      prefix: {{ $alertmanagerHost | quote }}
+    callback_uri: {{ printf "https://%s/login/generic_oauth" $alertmanagerHost | quote }}
     client_id: {{ .Values.packages.monitoring.sso.alertmanager.client_id }}
     client_secret: "{{ .Values.packages.monitoring.sso.alertmanager.client_secret }}"
     {{- if not $legacy }}
