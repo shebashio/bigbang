@@ -67,10 +67,10 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
-  - it: should honor legacy package-level hardening for the Istio sidecar
+  - it: should default the Istio sidecar from global Istiod hardening
     set:
       istio.ambient.enabled: false
-      packages.sample.values.istio.hardened.enabled: true
+      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled

@@ -112,7 +112,6 @@ flux:
 
 networkPolicies:
   enabled: true
-  controlPlaneCidr: 172.16.0.0/12
 
 istio:
   authorizationPolicies:
@@ -1678,7 +1677,7 @@ packages:
   # Thanos
   #
   thanos:
-    enabled: true
+    enabled: false
     objectStorage:
       endpoint: "garage:3900"
       region: "garage"

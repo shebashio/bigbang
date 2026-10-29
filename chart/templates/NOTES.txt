@@ -381,7 +381,7 @@ DEPRECATION NOTICE:
         idp_url: {{ .packages.twistlock.sso.idp_url }}
         {{- end }}
         {{- if .packages.twistlock.sso.console_url }}
-        # "console_url" deprecated.  It will be created from "twistlock.values.istio.console.hosts" or "twistlock.<domain>"
+        # "console_url" deprecated. It will be created from the first host in "packages.twistlock.values.bb-common.routes.inbound.console.hosts" or "twistlock.<domain>"
         console_url: {{ .packages.twistlock.sso.console_url }}
         {{- end }}
         {{- if .packages.twistlock.sso.cert }}

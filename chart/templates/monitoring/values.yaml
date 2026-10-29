@@ -15,17 +15,6 @@
 {{- $domainName := default .Values.domain .Values.hostname }}
 hostname: {{ $domainName }}
 {{/*
-Derived hardened posture for Monitoring.
-This boolean drives bb-common Istio defaults rendered in this file, including
-sidecar defaults, generated authorization policies, and hardened service entries.
-It folds umbrella hardening and legacy package hardening key paths together.
-*/}}
-{{- $istioHardenedEnabled := or
-  (dig "hardened" "enabled" false .Values.packages.istiod.values)
-  (dig "values" "istio" "hardened" "enabled" false .Values.packages.monitoring)
-  (dig "values" "hardened" "enabled" false .Values.packages.monitoring)
-}}
-{{/*
 Effective gate for monitoring workload injection/cert wiring.
 When true, render annotations and cert output wiring that depend on Istio sidecar
 injection in the monitoring namespace.
@@ -42,11 +31,13 @@ When ambient mode is enabled, sidecar injection is disabled since sidecars are n
 Sidecar-specific annotations and cert mounting don't apply in ambient mode.
 */}}
 {{- $sidecarInjectionEnabled := and $monitoringInjectionEnabled (not $ambientEnabled) }}
-{{- $mtlsStrict := and $istioEnabled (eq (dig "bb-common" "istio" "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" .Values.packages.monitoring.values) .Values.packages.monitoring.values) "STRICT") }}
+{{- $monitoringIstio := dig "bb-common" "istio" dict .Values.packages.monitoring.values }}
+{{- $monitoringIstioEnabled := dig "enabled" true $monitoringIstio }}
+{{- $mtlsStrict := eq (dig "mtls" "mode" "STRICT" $monitoringIstio) "STRICT" }}
 {{/*
 mTLS strict mode with sidecar certs is only applicable when sidecars are used (not ambient mode).
 */}}
-{{- $monitoringMtlsStrict := and $mtlsStrict $sidecarInjectionEnabled }}
+{{- $monitoringMtlsStrict := and $sidecarInjectionEnabled $monitoringIstioEnabled $mtlsStrict }}
 {{- $gitlabRedis := (and (ne .Values.packages.gitlab.redis.password "" ) (or .Values.packages.gitlab.enabled .Values.packages.gitlabRunner.enabled)) }}
 {{- $authserviceRedisEnabled := (and (dig "values" "redis" "enabled" false .Values.packages.authservice) .Values.packages.authservice.enabled) }}
 
@@ -63,7 +54,20 @@ prependReleaseName (so the waypoint is named monitoring-monitoring-waypoint).
 {{- $thanosEnabled := (.Values.packages.thanos.enabled) }}
 {{- $lokiEnabled := (.Values.packages.loki.enabled) }}
 {{- $clusterName := ( default "logging-loki" .Values.packages.loki.clusterName ) }}
-{{- $vaultIstioHosts := (dig "routes" "inbound" "vault" "hosts" dict .Values.packages.vault.values) }}
+{{- $vaultHosts := dig "bb-common" "routes" "inbound" "vault" "hosts" list (.Values.packages.vault.values | default dict) }}
+{{- $objectStoreEndpoint := .Values.packages.thanos.objectStorage.endpoint }}
+{{- $objectStoreFull := $objectStoreEndpoint | trimPrefix "https://" | trimPrefix "http://" }}
+{{- $objectStoreAuthority := index (splitList "/" $objectStoreFull) 0 }}
+{{- $objectStoreHost := index (splitList ":" $objectStoreAuthority) 0 }}
+{{- $objectStoreInsecure := .Values.packages.thanos.objectStorage.insecure }}
+{{- $objectStorePort := ternary 80 443 $objectStoreInsecure }}
+{{- if contains "s3" $objectStoreEndpoint }}
+{{- $objectStoreHost = printf "%s.%s" .Values.packages.thanos.objectStorage.bucket $objectStoreHost }}
+{{- $objectStoreInsecure = false }}
+{{- $objectStorePort = 443 }}
+{{- end }}
+{{- if contains ":" $objectStoreAuthority }}{{- $objectStorePort = index (splitList ":" $objectStoreAuthority) 1 | int }}{{- end }}
+{{- $monitoringOutboundMode := dig "bb-common" "istio" "sidecar" "outboundTrafficPolicyMode" "REGISTRY_ONLY" .Values.packages.monitoring.values }}
 
 
 # Reproducing the naming convention based on the upstream chart: 
@@ -79,7 +83,6 @@ flux:
   enabled: true
 
 
-{{/* bb-common Istio defaults for monitoring follow hardened posture. */}}
 bb-common:
   istio:
     {{- if $monitoringAuthserviceWaypoint }}
@@ -89,49 +92,9 @@ bb-common:
     prependReleaseName: true
     {{- end }}
     sidecar:
-      enabled: {{ and $istioHardenedEnabled (ne (include "ambientEnabled" .) "true") }}
       outboundTrafficPolicyMode: REGISTRY_ONLY
-    {{- if and $istioHardenedEnabled (contains "s3" .Values.packages.thanos.objectStorage.endpoint) }}
-    serviceEntries:
-      custom:
-        - name: egress-object-store
-          enabled: true
-          spec:
-            hosts:
-            - "{{ .Values.packages.thanos.objectStorage.bucket }}.{{ .Values.packages.thanos.objectStorage.endpoint }}"
-            location: MESH_EXTERNAL
-            ports:
-              - number: 443
-                protocol: TLS
-                name: https
-            resolution: DNS
-    {{- else if and $istioHardenedEnabled (not (empty .Values.packages.thanos.objectStorage.endpoint)) }}
-    {{- $objFull := .Values.packages.thanos.objectStorage.endpoint | trimPrefix "https://" | trimPrefix "http://" }}
-    {{- $objHost := index (splitList ":" $objFull) 0 }}
-    {{- $objPort := 80 }}
-    {{- if contains ":" $objFull }}{{- $objPort = index (splitList ":" $objFull) 1 | int }}{{- end }}
-    serviceEntries:
-      custom:
-        - name: egress-object-store
-          enabled: true
-          spec:
-            hosts:
-            - "{{ $objHost }}"
-            location: MESH_EXTERNAL
-            ports:
-              - number: {{ $objPort }}
-                {{- if .Values.packages.thanos.objectStorage.insecure }}
-                protocol: HTTP
-                name: http
-                {{- else }}
-                protocol: TLS
-                name: https
-                {{- end }}
-            resolution: DNS
-    {{- else }}
     serviceEntries:
       custom: []
-    {{- end }}
   routes:
     inbound:
       monitoring-prometheus:
@@ -163,6 +126,16 @@ bb-common:
           clientId: {{ .Values.packages.monitoring.sso.alertmanager.client_id | quote }}
         {{- end }}
     outbound:
+      {{- if not (empty $objectStoreEndpoint) }}
+      object-store:
+        enabled: {{ eq $monitoringOutboundMode "REGISTRY_ONLY" }}
+        hosts:
+        - {{ $objectStoreHost }}
+        ports:
+        - name: {{ ternary "http" "https" $objectStoreInsecure }}
+          number: {{ $objectStorePort }}
+          protocol: {{ ternary "HTTP" "HTTPS" $objectStoreInsecure }}
+      {{- end }}
       monitoring-bb-tests:
         enabled: {{ dig "bbtests" "enabled" false .Values.packages.monitoring.values }}
         hosts:
@@ -228,9 +201,9 @@ bb-common:
         {{- end }}
         {{ $kpsName }}:10250:
           from:
-            cidr:
-              # Needed for kube-api to call the prometheus operator webhook endpoint
-              {{ .Values.networkPolicies.controlPlaneCidr }}: true
+            # Needed for kube-api to call the prometheus operator webhook endpoint
+            definition:
+              kubeAPI: true
         prometheus:10901:
           from:
             k8s:
@@ -531,8 +504,8 @@ upstream:
           vault.hashicorp.com/agent-run-as-user : "1000"
           vault.hashicorp.com/agent-run-as-group : "2000"
           vault.hashicorp.com/service: "https://vault.{{ $domainName }}" # Without this it will try and use https://vault-vault.vault.svc:8200 which isn't covered by a cert
-          {{- if and $istioEnabled $vaultIstioHosts }} # the 1st istio vault host will be used for the tls server name
-          vault.hashicorp.com/tls-server-name: {{ tpl ($vaultIstioHosts | first) $ }}
+          {{- if and $istioEnabled $vaultHosts }} # the first Vault route host will be used for the TLS server name
+          vault.hashicorp.com/tls-server-name: {{ tpl ($vaultHosts | first) $ }}
           {{- else }} # the vault certificate is expected to contain the CN or X509v3 Subject Alternative Name of vault.domain
           vault.hashicorp.com/tls-server-name: vault.{{ $domainName }}
           {{- end }}
@@ -547,7 +520,6 @@ upstream:
         scheme: https
         authorization:
           credentials_file: /vault/secrets/token
-        {{- $vaultHosts := (dig "istio" "vault" "hosts" dict .Values.packages.vault.values) }}
         {{- if $vaultHosts }}
         static_configs:
         - targets: [{{ tpl ($vaultHosts | first) $ }}]
