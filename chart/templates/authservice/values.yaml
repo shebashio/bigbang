@@ -5,6 +5,7 @@
   "package" .Values.packages.authservice
   "name" "authservice"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.authservice" .)
 )}}
 {{- end }}

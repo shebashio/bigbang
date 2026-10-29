@@ -5,6 +5,7 @@
   "package" .Values.packages.certManager
   "name" "cert-manager"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.cert-manager" .)
 ) }}
 {{- end }}

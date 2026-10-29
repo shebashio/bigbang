@@ -5,6 +5,7 @@
   "package" .Values.packages.argocd
   "name" "argocd"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.argocd" .)
 )}}
 {{- end }}

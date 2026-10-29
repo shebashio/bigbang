@@ -5,6 +5,7 @@
   "package" (dict "values" (fromYaml (include "bigbang.overlays.gatekeeper" .))) 
   "name" "gatekeeper"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.gatekeeper" .)
 )}}
 {{- end }}

@@ -155,6 +155,7 @@ monitor:
   "package" .Values.packages.neuvector
   "name" "neuvector"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.neuvector" .)
 ) }}
 {{- end }}

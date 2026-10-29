@@ -5,6 +5,7 @@
     "package" .Values.packages.minio
     "name" "minio"
     "bbCommonSubchart" true
+    "supportsRouteDefaults" true
     "defaults" (include "bigbang.defaults.minio" .)
   )}}
 {{- end }}

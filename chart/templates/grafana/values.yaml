@@ -8,6 +8,7 @@
   "package" $grafanaPackage
   "name" "grafana"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.grafana" .)
 )}}
 {{- end }}

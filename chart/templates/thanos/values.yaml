@@ -10,6 +10,7 @@
     "name" "thanos"
     "defaults" (include "bigbang.defaults.thanos" . | fromYaml | toYaml)
     "bbCommonSubchart" true
+    "supportsRouteDefaults" true
   )}}
 {{- end }}
 

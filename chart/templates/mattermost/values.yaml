@@ -5,6 +5,7 @@
   "package" .Values.packages.mattermost
   "name" "mattermost"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.mattermost" .)
 ) }}
 {{- end }}

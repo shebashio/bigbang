@@ -5,6 +5,7 @@
   "package" .Values.packages.loki
   "name" "loki" 
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.loki" .)
 )}}
 {{- end }}

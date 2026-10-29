@@ -271,7 +271,7 @@ networkPolicies:
               cidr: 172.16.0.0/12
           - ipBlock:
               cidr: 10.0.0.0/8
-# bb-common route defaults passed through to every package; per-route values always win.
+# bb-common route defaults passed to compatible opted-in packages; per-route values win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
   defaults:

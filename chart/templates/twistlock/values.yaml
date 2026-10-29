@@ -5,6 +5,7 @@
   "package" .Values.packages.twistlock
   "name" "twistlock"
   "bbCommonSubchart" true
+  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.twistlock" .)
 ) }}
 {{- end }}
