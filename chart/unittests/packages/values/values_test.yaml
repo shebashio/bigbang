@@ -39,7 +39,7 @@ tests:
         - "-c"
         - "yq '. as $secret | ($secret.stringData.common | from_yaml | .[\"bb-common\"]) // ($secret.stringData.defaults | from_yaml)'"
     set:
-      authorizationPolicies.enabled: true
+      istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: istio.authorizationPolicies.enabled

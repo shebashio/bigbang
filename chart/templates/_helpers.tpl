@@ -1010,8 +1010,14 @@ keeps the legacy pod-label ext_authz path.
        Takes the root context (.).
     */ -}}
 {{- define "authorizationPoliciesEnabled" -}}
-{{- $ambient := eq (include "ambientEnabled" .) "true" -}}
-{{ or .Values.authorizationPolicies.enabled $ambient }}
+{{- $pkg  := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- $authorizationPoliciesEnabled := or
+  (dig "istio" "hardened" "enabled" false $pkg)
+  $root.Values.istio.authorizationPolicies.enabled
+-}}
+{{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
+{{ or $authorizationPoliciesEnabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly

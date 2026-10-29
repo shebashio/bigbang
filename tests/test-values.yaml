@@ -113,8 +113,9 @@ flux:
 networkPolicies:
   enabled: true
 
-authorizationPolicies:
-  enabled: true
+istio:
+  authorizationPolicies:
+    enabled: true
 
 packages:
   istiod:
