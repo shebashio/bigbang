@@ -60,7 +60,7 @@ bb-common:
     {{- if not (empty $s3Endpoint) }}
     outbound:
       s3:
-        enabled: {{ eq (dig "bb-common" "istio" "sidecar" "outboundTrafficPolicyMode" "ALLOW_ANY" .Values.packages.thanos.values) "REGISTRY_ONLY" }}
+        enabled: {{ eq (dig "bb-common" "istio" "sidecar" "outboundTrafficPolicyMode" "REGISTRY_ONLY" .Values.packages.thanos.values) "REGISTRY_ONLY" }}
         hosts:
         - {{ $s3Host }}
         ports:
