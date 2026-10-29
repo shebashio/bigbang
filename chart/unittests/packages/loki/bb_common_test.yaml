@@ -14,7 +14,7 @@ tests:
     set:
       istio.ambient.enabled: false
       packages.istiod.values.hardened.enabled: true
-      authorizationPolicies.enabled: true
+      istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.enabled
@@ -42,7 +42,7 @@ tests:
   - it: nests shared mesh and networking defaults without legacy keys in ambient mode (default)
     set:
       packages.istiod.values.hardened.enabled: true
-      authorizationPolicies.enabled: true
+      istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.enabled

@@ -38,7 +38,7 @@ tests:
 
   - it: enables authorization policies through the global switch
     set:
-      authorizationPolicies.enabled: true
+      istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled

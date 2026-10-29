@@ -1056,7 +1056,7 @@ keeps the legacy pod-label ext_authz path.
 {{- $root := index . 1 -}}
 {{- $authorizationPoliciesEnabled := or
   (dig "istio" "hardened" "enabled" false $pkg)
-  $root.Values.authorizationPolicies.enabled
+  $root.Values.istio.authorizationPolicies.enabled
 -}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
 {{ or $authorizationPoliciesEnabled $ambient }}

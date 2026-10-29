@@ -15,6 +15,10 @@ istio:
     # This automatically enables the istioEgressGateway package.
     # NOTE: The egress gateway is an alpha feature.
     enabled: false
+  # -- Global AuthorizationPolicy generation settings for integrated packages.
+  authorizationPolicies:
+    # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
+    enabled: false
 
 # -- Prevent Big Bang from creating GitRepository resources. HelmReleases configured with Git sources
 # will continue to reference those resources, so they must already exist in the expected namespaces.
@@ -267,10 +271,6 @@ networkPolicies:
               cidr: 172.16.0.0/12
           - ipBlock:
               cidr: 10.0.0.0/8
-# -- Global AuthorizationPolicy generation settings for integrated packages.
-authorizationPolicies:
-  # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
-  enabled: false
 # bb-common route defaults passed through to every package; per-route values always win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
