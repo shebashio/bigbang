@@ -1,0 +1,14 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      bb-common: {}
+  monitoring:
+    values:
+      bb-common:
+        istio: {enabled: false}
+  kiali:
+    values:
+      bb-common:
+        istio: {enabled: true}

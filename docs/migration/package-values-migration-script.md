@@ -23,6 +23,7 @@ Target 3 stops after the unified package-path migration, retaining flat
 `bb-common` library values and legacy hardening for use with Big Bang 3.x.
 Target 4 additionally nests `istio`, `networkPolicies`, and `routes` beneath
 the `bb-common` subchart key, migrates legacy custom Istio resources, and
+converts recognized legacy Istio hostname overrides to inbound routes. It also
 removes legacy hardening. The commands do not rewrite other unrelated
 deprecated settings or values passed through to child charts. Target 4 output
 must not be deployed to Big Bang 3.x.
@@ -109,6 +110,117 @@ existing `packages` entries retain that relative order as they are consolidated.
 When more than one path configures the same package, its first appearance
 determines its position while the normal canonical-value precedence still
 determines its merged content.
+
+### Legacy Istio hostname overrides
+
+Target 4 converts recognized legacy host lists to:
+
+```text
+packages.<package>.values.bb-common.routes.inbound.<route>.hosts
+```
+
+Supported inputs include:
+
+- Historical root/addon chart values, such as
+  `tempo.values.istio.tempoQuery.hosts` and
+  `addons.gitlab.values.istio.registry.hosts`.
+- Canonical `packages.<package>.values.istio.<endpoint>.hosts`.
+- Already-relocated
+  `packages.<package>.values.bb-common.istio.<endpoint>.hosts`.
+- Flat `istio.hosts` at package level or within chart values when the built-in
+  package has one unambiguous inbound route. This includes the reported
+  `packages.<package>.istio.hosts` form and root/addon equivalents. Historical
+  package-level Istio controls were not a generic hostname passthrough; the
+  migration accepts this form as a compatibility input.
+- Named endpoint hosts at package level when the endpoint has an inventoried
+  mapping.
+
+For example, this hostname override from the release environment:
+
+```yaml
+tempo:
+  values:
+    istio:
+      tempoQuery:
+        hosts:
+          - tempo.{{ .Values.domain }}
+```
+
+becomes:
+
+```yaml
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            tempo-query:
+              hosts:
+                - tempo.{{ .Values.domain }}
+```
+
+For a package-level override, the corresponding input is:
+
+```yaml
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    istio:
+      hosts:
+        - tempo.{{ .Values.domain }}
+```
+
+It produces the same inbound-route override. Other package controls, such as
+`istio.injection`, remain at their existing locations.
+
+Endpoint names are package-specific. For example, Monitoring's
+`istio.prometheus.hosts` maps to `monitoring-prometheus.hosts`, while
+`istio.alertmanager.hosts` maps to `monitoring-alertmanager.hosts`. GitLab's
+`gitlab`, `registry`, and `pages` endpoints retain distinct host lists. The
+[mapping inventory and input/output fixtures](../../tests/bats/migrate-values-3-to-4/fixtures/istio-hosts/README.md)
+list all supported mappings and their historical sources.
+
+Existing route hosts take precedence, including explicit empty lists or null
+values. Existing flat `values.routes` are relocated before host conversion and
+receive the same precedence. Otherwise, chart-value endpoint hosts take
+precedence over flat chart-value hosts, followed by package-level endpoint
+hosts and flat package-level hosts. Already-relocated chart values take
+precedence over their flat aliases. File composition and package HelmRelease
+patches happen before conversion, using their normal precedence.
+
+The conversion preserves host order, duplicates, wildcards, Helm template
+strings, and literal `${variable}` placeholders without evaluating them. It
+removes handled legacy host keys and containers emptied by that removal, while
+preserving sibling settings and other route fields. Missing, empty-list, and
+null legacy hosts do not create routes. Other legacy endpoint settings are
+preserved and may need separate migration. Target 3 retains the 3.x hostname
+configuration.
+
+#### Manual hostname migration
+
+A flat host list on a multi-endpoint package does not identify its intended
+route. Custom packages, unknown endpoints, and endpoints with no supported
+replacement also require manual selection. These hosts remain in the output,
+and stderr reports the source path and the destination pattern, for example:
+
+```text
+Review: the following legacy Istio hosts require manual migration:
+  packages.monitoring.istio.hosts: no unambiguous built-in endpoint mapping; hosts preserved. Set packages.monitoring.values.bb-common.routes.inbound.<route>.hosts explicitly, then remove the legacy hosts key.
+```
+
+This review diagnostic does not change the exit status: a successful command
+can still produce values requiring manual work. Select the correct endpoint,
+move the retained list to its inbound route, and remove the obsolete host key
+before deployment. The script never copies one flat list to every endpoint.
+
+Malformed recognized host lists or non-mapping destination ancestors cause a
+nonzero exit before output is written. Nested ServiceEntry hosts, outbound
+routes, and upstream ingress settings are not inbound hostname inputs and are
+preserved.
 
 ### Separately stored values sources
 
@@ -263,7 +375,7 @@ must be decrypted separately before conversion.
 Review the resulting values against the target release. Moving a child override
 into Big Bang inputs lets umbrella templates account for that setting, which
 can change generated integration configuration. Child-chart value names are
-preserved except for the target 4 `bb-common` and legacy hardening migration.
+preserved except for the target 4 `bb-common`, legacy Istio hosts, and hardening migration.
 Other child-chart schema changes require separate migration. Remove the original
 package patches from the deployment when adopting the converted values, and
 validate the resulting render and upgrade.

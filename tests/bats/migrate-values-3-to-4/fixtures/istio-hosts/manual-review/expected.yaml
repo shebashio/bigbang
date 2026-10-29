@@ -1,0 +1,23 @@
+packageConfiguration:
+  version: v1
+packages:
+  monitoring:
+    istio:
+      hosts: [ambiguous.example.test]
+  tempo:
+    values:
+      bb-common:
+        istio:
+          unknownEndpoint: {hosts: [unknown.example.test]}
+  custom-app:
+    istio: {hosts: [custom.example.test]}
+    values:
+      istio:
+        app: {hosts: [custom-values.example.test]}
+      bb-common:
+        istio: {hosts: [custom-relocated.example.test]}
+  minioOperator:
+    values:
+      bb-common:
+        istio:
+          console: {hosts: [removed-console.example.test]}

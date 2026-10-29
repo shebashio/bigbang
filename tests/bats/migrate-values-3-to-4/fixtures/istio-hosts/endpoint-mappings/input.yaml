@@ -1,0 +1,65 @@
+packageConfiguration:
+  version: v1
+packages:
+  anchoreEnterprise:
+    values:
+      istio:
+        api: {hosts: [anchore-api.example.test]}
+        ui: {hosts: [anchore-ui.example.test]}
+  argocd:
+    values: {istio: {argocd: {hosts: [argocd.example.test]}}}
+  elasticsearchKibana:
+    istio: {}
+    values:
+      istio:
+        elasticsearch: {hosts: [elasticsearch.example.test]}
+        kibana: {hosts: [kibana.example.test]}
+  fortify:
+    values: {istio: {fortify: {hosts: [fortify.example.test]}}}
+  gitlab:
+    values:
+      istio:
+        gitlab: {hosts: [gitlab.example.test, gitlab-alt.example.test]}
+        registry: {hosts: [registry.example.test]}
+        pages: {hosts: ["*.pages.example.test"]}
+  grafana:
+    values: {istio: {grafana: {hosts: [grafana.example.test]}}}
+  harbor:
+    values: {istio: {harbor: {hosts: [harbor.example.test]}}}
+  headlamp:
+    values: {istio: {headlamp: {hosts: [headlamp.example.test]}}}
+  keycloak:
+    values: {istio: {keycloak: {hosts: [keycloak.example.test]}}}
+  kiali:
+    values: {istio: {kiali: {hosts: [kiali.example.test]}}}
+  kyvernoReporter:
+    values: {istio: {kyvernoReporter: {hosts: [reporter.example.test]}}}
+  loki:
+    values: {istio: {loki: {hosts: [loki.example.test]}}}
+  mattermost:
+    values: {istio: {chat: {hosts: [chat.example.test]}}}
+  mimir:
+    istio: {hosts: [mimir.example.test]}
+  minio:
+    values:
+      istio:
+        api: {hosts: [minio-api.example.test]}
+        console: {hosts: [minio-console.example.test]}
+  monitoring:
+    values:
+      istio:
+        enabled: true
+        prometheus: {hosts: [metrics.example.test, "*.metrics.example.test"]}
+        alertmanager: {hosts: ["alerts.{{ .Values.domain }}"]}
+  neuvector:
+    values: {istio: {neuvector: {hosts: [neuvector.example.test]}}}
+  sonarqube:
+    values: {istio: {sonarqube: {hosts: [sonarqube.example.test]}}}
+  tempo:
+    values: {istio: {tempoQuery: {hosts: [tempo.example.test]}}}
+  thanos:
+    values: {istio: {thanos: {hosts: [thanos.example.test]}}}
+  twistlock:
+    values: {istio: {console: {hosts: [twistlock.example.test]}}}
+  vault:
+    values: {istio: {vault: {hosts: [vault.example.test]}}}
