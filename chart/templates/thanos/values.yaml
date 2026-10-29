@@ -29,6 +29,9 @@
 {{- $s3HostFull := $s3Endpoint | trimPrefix "https://" | trimPrefix "http://" }}
 {{- $s3Host := index (splitList ":" $s3HostFull) 0 }}
 {{- $s3Host = index (splitList "/" $s3Host) 0 }}
+{{- if and (contains "s3" $s3Host) (not (hasPrefix (printf "%s." $s3Bucket) $s3Host)) }}
+  {{- $s3Host = printf "%s.%s" $s3Bucket $s3Host }}
+{{- end }}
 {{- $s3Port := ternary 80 443 .Values.packages.thanos.objectStorage.insecure }}
 {{- if contains ":" $s3HostFull }}{{- $s3Port = index (splitList ":" $s3HostFull) 1 | int }}{{- end }}
 

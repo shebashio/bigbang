@@ -141,6 +141,21 @@ tests:
           path: bb-common.routes.outbound.s3.ports[0].protocol
           value: HTTP
 
+  - it: prefixes the AWS S3 route host with the bucket name
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: s3.us-gov-west-1.amazonaws.com
+      packages.thanos.objectStorage.bucket: mybkt
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: mybkt.s3.us-gov-west-1.amazonaws.com
+
   - it: configures an HTTPS S3 endpoint without its scheme in the host
     postRenderer:
       cmd: "sh"
