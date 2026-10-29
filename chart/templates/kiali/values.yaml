@@ -4,7 +4,7 @@
   "root" $ 
   "package" .Values.packages.kiali
   "name" "kiali"
-  "bbCommonSubchart" true
+  "bbCommonSubchart" true 
   "defaults" (include "bigbang.defaults.kiali" .)
 )}}
 {{- end }}

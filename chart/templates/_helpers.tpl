@@ -1,6 +1,3 @@
-{{/* Big Bang 4.0 release boundary: legacy hardened-key merging was removed.
-     Do not backport this removal to a 3.x release; migrate values before upgrading. */}}
-
 {{- define "values-bigbang" -}}
 {{- $values := .Values -}}
 {{ toYaml (pick $values "domain" "openshift") }}

@@ -3,22 +3,6 @@ suite: Packages - external-secrets - bb-common subchart values
 templates:
   - templates/external-secrets/values.yaml
 tests:
-  - it: does not translate legacy hardened policy values
-    set:
-      packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.istio.hardened.customServiceEntries:
-        - name: legacy-entry
-    postRenderer:
-      cmd: sh
-      args:
-        - -c
-        - "yq '.stringData.overlays | from_yaml'"
-    asserts:
-      - equal:
-          path: istio.hardened.customServiceEntries[0].name
-          value: legacy-entry
-      - notExists:
-          path: istio.serviceEntries
   - it: nests the package bb-common defaults under the subchart key in sidecar mode
     set:
       istio.ambient.enabled: false

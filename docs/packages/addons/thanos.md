@@ -16,11 +16,6 @@ The integration:
 - Supports optional SSO and exposure through the selected Big Bang Istio gateway.
 - Applies common Big Bang network-policy, authorization-policy, monitoring, and test settings.
 
-For templated or wildcard query-frontend hosts, configure an explicit
-`packages.authservice.chains.thanos` with a matching authority prefix and concrete
-callback URI. The generated chain cannot infer those hosts and falls back to
-`thanos.<domain>`; keep the route, callback, and identity-provider redirect aligned.
-
 Thanos is disabled by default. Plan object-store availability, retention, credentials, encryption, capacity, and recovery before using it for production metrics retention. Store access credentials in encrypted secret values.
 
 Use the generated [Values Reference](../../configuration/base-config.md) for the exact Big Bang configuration contract. Use the [Thanos package repository](https://repo1.dso.mil/big-bang/product/packages/thanos) for packaged chart values, implementation details, and its changelog.
