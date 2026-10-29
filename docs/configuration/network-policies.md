@@ -20,22 +20,29 @@ For the purposes of this document, "customer defined package" and "community sup
 
 ## Enabling or Disabling Network Policies
 
-BigBang core and addon packages ship with various network policies already configured. You can turn these networking policies on and off by setting a global flag and a per-component flag. Community supported packages may or may not provide the same mechanism for managing networking policies - check the documentation for the given community supported package for confirmation or additional instructions.
+Big Bang core and addon packages ship with network policies already configured.
+The global `networkPolicies.enabled` setting enables the shared package policy
+defaults. Those defaults are also enabled whenever ambient mode is effective,
+even if the global flag is false. Ambient mode is effective when either
+`istio.ambient.enabled` or `packages.ztunnel.enabled` is true; policy rendering
+also supports ambient authorization-policy generation. Package-level values can
+override the generated setting. Community packages may use different controls;
+check the package's documentation.
 
-```
-# This will turn support on or off for network policies writ-large across the bigbang suite
+```yaml
+# Ambient mode also enables the generated package policy defaults.
 networkPolicies:
-  enabled: [true|false]
+  enabled: true
 
 # For an integrated package that consumes bb-common as a subchart, this will
 # turn network policies on or off for that package. User-defined packages that
 # consume bb-common as a subchart use the same nested values shape.
 packages:
-  LIBRARY_PACKAGE_NAME:
+  monitoring:
     values:
       bb-common:
         networkPolicies:
-          enabled: [true|false]
+          enabled: true
 ```
 
 ## Enabling Authorization Policies
@@ -58,48 +65,45 @@ can override the generated setting beneath
 
 Sometimes you will want to apply additional [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to further isolate certain pods in your deployment. BigBang has adopted standardized mechanisms for crafting and deploying these Network Policies through the values provided to your BigBang core, supported addon or packages deployed with the big bang wrapper chart.
 
-For an integrated package that consumes `bb-common` as a subchart, place these
-rules beneath that dependency's values key:
+For packages that consume `bb-common` as a subchart, put `additionalPolicies`
+under the package's `bb-common.networkPolicies` values. The following **umbrella
+values** add an egress policy to the Monitoring package's Prometheus Pods:
 
-```
+```yaml
 packages:
-  LIBRARY_PACKAGE_NAME:
+  monitoring:
     values:
       bb-common:
         networkPolicies:
-          enabled: true
-          additionalPolicies: []
+          additionalPolicies:
+            - name: example-prometheus-egress
+              spec:
+                podSelector:
+                  matchLabels:
+                    app: prometheus
+                policyTypes:
+                  - Egress
+                egress:
+                  - to:
+                      - ipBlock:
+                          cidr: 192.0.2.0/24
+                    ports:
+                      - protocol: TCP
+                        port: 443
 ```
+
+`192.0.2.0/24` is a documentation CIDR, not a working destination; replace it
+with the actual permitted range. Verify that the selector matches the intended
+Pods. Kubernetes combines allow rules from all policies selecting a Pod, so an
+additional policy does not restrict traffic already allowed by another policy.
+The list replaces any existing `additionalPolicies` list at this values path;
+include existing entries that must be retained. In ambient mode, also configure
+any required Istio authorization and egress routing for the destination.
 
 User-defined packages own their internal values contract. When such a package
-consumes `bb-common` as a subchart, use the same nested shape.
-
-User-defined packages own their internal values contract. When such a package
-consumes `bb-common` as a subchart, use the same nested shape.
-
-In all cases, the `additionalPolicies` entry should be a list of YAML objects, each describing a single [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/). You can add as many of these as you like. Consult [the upstream Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/) for more information on Network Policies, and what you can do with them.
-
-```
-additionalPolicies:
-  - name: example-egress-policy-all-pods
-      spec:
-      podSelector: {}
-      policyTypes:
-      - Egress
-      egress:
-      - to:
-          - ipBlock:
-              cidr: 172.20.0.0/12
-  - name: example-ingress-policy-all-pods
-      spec:
-      podSelector: {}
-      policyTypes:
-      - Ingress
-      ingress:
-      - from:
-          - ipBlock:
-              cidr: 172.20.0.0/12
-```
+consumes `bb-common` as a subchart, use the same nested shape. Consult the
+[Kubernetes NetworkPolicy documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+and the package's configuration for selectors and supported policy options.
 
 ## References
 
