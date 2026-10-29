@@ -430,8 +430,6 @@ Args (dict):
                          Set to false for packages with no running workload that shouldn't get
                          istio/networkPolicies values at all (e.g. CRD-only packages like
                          istio-crds, prometheus-operator-crds).
-  supportsRouteDefaults: optional, default false. Set only when the pinned bb-common schema
-                         accepts routes.defaults. Custom source/version overrides may differ.
   bbCommonSubchart:      optional, default false. bb-common is currently consumed as a library
                          chart, which reads its istio/networkPolicies/routes values from the top
                          level of the values passed to the HelmRelease. Once a package's bb-common
@@ -450,10 +448,6 @@ Args (dict):
        only has to handle one shape, regardless of usage or use of the bbCommonSubchart flag. */ -}}
 {{- if hasKey $explicitDefaults "bb-common" }}
 {{- $explicitDefaults = mustMergeOverwrite (omit $explicitDefaults "bb-common") (deepCopy (index $explicitDefaults "bb-common")) -}}
-{{- end }}
-{{- if dig "supportsRouteDefaults" false . }}
-{{- $routeDefaults := dict "routes" (include "bigbang.routeDefaults" .root | fromYaml) -}}
-{{- $explicitDefaults = mustMergeOverwrite (deepCopy $routeDefaults) (deepCopy $explicitDefaults) -}}
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
@@ -1017,7 +1011,7 @@ keeps the legacy pod-label ext_authz path.
 {{- $root := index . 1 -}}
 {{- $authorizationPoliciesEnabled := or
   (dig "istio" "hardened" "enabled" false $pkg)
-  $root.Values.authorizationPolicies.enabled
+  $root.Values.istio.authorizationPolicies.enabled
 -}}
 {{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
 {{ or $authorizationPoliciesEnabled $ambient }}
@@ -1071,9 +1065,9 @@ networkPolicies:
        Included per-package (only packages on a bb-common release with routes.defaults
        support) until every bb-common package supports it; then fold this into
        bigbang.commonPackageDefaults.
-       outbound.egressGateway defaults to false unless ambient and the egress gateway
-       package are enabled. Explicit package or per-route bindings can override this;
-       operators must ensure their selected waypoint exists (Istio otherwise fails open). */ -}}
+       outbound.egressGateway is blanked unless ambient and the egress gateway package
+       are both enabled, so ServiceEntries are never bound to a waypoint that will not
+       exist (Istio fails open and traffic would egress directly). */ -}}
 {{- define "bigbang.routeDefaults" -}}
 {{- $routeDefaults := dig "defaults" dict (.Values.routes | default dict) }}
 {{- $egressGatewayActive := and (eq (include "ambientEnabled" .) "true") (eq (include "egressGatewayEnabled" .) "true") }}

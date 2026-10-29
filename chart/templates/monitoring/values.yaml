@@ -5,7 +5,6 @@
   "package" (dict "values" (fromYaml (include "bigbang.overlays.monitoring" .))) 
   "name" "monitoring" 
   "bbCommonSubchart" true
-  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.monitoring" .)
 )}}
 {{- end }}

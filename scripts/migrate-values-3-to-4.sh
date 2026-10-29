@@ -823,6 +823,18 @@ fi
 
 SERVICE_ENTRY_REVIEW=()
 if [[ "$TARGET_VERSION" == 4 ]]; then
+  # Reject malformed destination ancestors before any move can discard flat data.
+  # This also protects the later istiod root-hardening migration.
+  for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
+    if PACKAGE_NAME="$package_name" yq -e '
+      (.packages[strenv(PACKAGE_NAME)].values | tag == "!!map") and
+      (.packages[strenv(PACKAGE_NAME)].values | has("bb-common")) and
+      (.packages[strenv(PACKAGE_NAME)].values."bb-common" | tag != "!!map")
+    ' "$WORK_FILE" >/dev/null 2>&1; then
+      fail ".packages.${package_name}.values.bb-common must be a mapping; no output written"
+    fi
+  done
+
   # Big Bang 4.x packages consume bb-common as a subchart. Move the values that
   # belonged to the former library chart into the subchart's values scope after
   # legacy and canonical package paths have been merged.
@@ -857,11 +869,11 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
     fi
     count=$(yq "$path | length" "$WORK_FILE")
     for ((index=0; index<count; index++)); do
-      if ! yq -e "($path[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1; then
-        fail "$path[$index] must be a mapping; no output written"
+      if ! yq -e "(${path}[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1; then
+        fail "${path}[$index] must be a mapping; no output written"
       fi
-      if ! yq -e "(($path[$index] | has(\"enabled\") | not) or ($path[$index].enabled | tag == \"!!bool\"))" "$WORK_FILE" >/dev/null 2>&1; then
-        fail "$path[$index].enabled must be boolean or absent; no output written"
+      if ! yq -e "((${path}[$index] | has(\"enabled\") | not) or (${path}[$index].enabled | tag == \"!!bool\"))" "$WORK_FILE" >/dev/null 2>&1; then
+        fail "${path}[$index].enabled must be boolean or absent; no output written"
       fi
     done
   }
@@ -877,13 +889,14 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
       yq -e "($path | tag) == \"!!seq\"" "$WORK_FILE" >/dev/null 2>&1 || fail "$path must be an array of mappings; no output written"
       count=$(yq "$path | length" "$WORK_FILE")
       for ((index=0; index<count; index++)); do
-        yq -e "($path[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1 || fail "$path[$index] must be a mapping; no output written"
+        yq -e "(${path}[$index] | tag) == \"!!map\"" "$WORK_FILE" >/dev/null 2>&1 || fail "${path}[$index] must be a mapping; no output written"
       done
     fi
   }
   for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
     validate_mapping_member ".packages.${package_name}.values.bb-common.istio" hardened
     for destination in serviceEntries authorizationPolicies; do
+      validate_mapping_member ".packages.${package_name}.values.bb-common.istio" "$destination"
       validate_destination_list ".packages.${package_name}.values.bb-common.istio.${destination}"
     done
     for legacy_key in customServiceEntries customAuthorizationPolicies; do

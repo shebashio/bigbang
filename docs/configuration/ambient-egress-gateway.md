@@ -37,7 +37,7 @@ istio:
 
 This flag enables:
 - `istioEgressGateway` package which creates the default `egress-waypoint` and  `istio-egress` namespace
-- a default egress waypoint binding for outbound routes in compatible, opted-in integrated packages
+- default egress routing through the `egress-waypoint` for all outbound routes configured by integrated packages
 
 ### Complete example
 
@@ -45,8 +45,6 @@ Once the gateway is deployed, a package routes an external host through it by
 declaring an outbound route in its bb-common values. For supported Big Bang
 packages the umbrella configures the default `egressGateway` (see
 [Default waypoint binding for packages](#default-waypoint-binding-for-packages)):
-
-The following is the **effective bb-common values**, not umbrella values:
 
 ```yaml
 routes:
@@ -118,14 +116,6 @@ you must ensure external traffic has no path except HBONE (15008) to the waypoin
 reference the umbrella passes to packages; a package's outbound routes bind to
 it unless a route sets its own `egressGateway`:
 
-Propagation is an explicit per-package capability opt-in based on the pinned
-bb-common version. GitLab Runner's pinned bb-common 1.4.0 does not support
-`routes.defaults` and is excluded; the Istio Egress Gateway does not consume
-these common defaults. Custom package sources or versions may have different
-schema support and must be checked before overriding a pin. Custom packages
-are not automatically given these defaults; their integration must implement
-an appropriate capability-aware opt-in.
-
 ```yaml
 routes:
   defaults:
@@ -134,22 +124,18 @@ routes:
 ```
 
 The default matches the default waypoint deployed by the istio-egress-gateway package, so it normally does not need to be
-changed. The umbrella sets the global default to `false` unless ambient mode
-and the egress gateway are both enabled. Package and per-route overrides take
-precedence over this gate, including explicit `false` or another waypoint.
+changed.
 
 To override the Big Bang specified egress gateway set the binding explicitly
 in the package's values, which win over the umbrella default:
 
 ```yaml
-packages:
-  alloy:
-    values:
-      bb-common:
-        routes:
-          defaults:
-            outbound:
-              egressGateway: istio-egress/egress-waypoint
+<package>:
+  values:
+    routes:
+      defaults:
+        outbound:
+          egressGateway: istio-egress/egress-waypoint
 ```
 
 Only set an explicit binding when the waypoint already exists: Istio fails

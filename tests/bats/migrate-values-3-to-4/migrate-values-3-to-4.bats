@@ -9,6 +9,63 @@ setup() {
   OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x.yaml"
 }
 
+@test "target 4 rejects malformed bb-common ancestors before moving flat values" {
+  for key in istio networkPolicies routes; do
+    for value in 'oops' '[]' 'null' 'false'; do
+      printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+      yq -i ".packages.kiali.values.$key = {\"marker\": \"preserved\"}" "$INPUT_FILE"
+      VALUE="$value" yq -i '.packages.kiali.values.bb-common = (strenv(VALUE) | from_yaml)' "$INPUT_FILE"
+      cp "$INPUT_FILE" "$BATS_TEST_TMPDIR/input-expected"
+      printf 'sentinel\000bytes\n\n' >"$OUTPUT_FILE"
+      cp "$OUTPUT_FILE" "$BATS_TEST_TMPDIR/output-expected"
+      run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+      [ "$status" -ne 0 ]
+      [[ "$output" == *".packages.kiali.values.bb-common"*"must be a mapping"*"no output written"* ]]
+      cmp "$BATS_TEST_TMPDIR/input-expected" "$INPUT_FILE"
+      cmp "$BATS_TEST_TMPDIR/output-expected" "$OUTPUT_FILE"
+    done
+  done
+}
+
+@test "target 4 rejects malformed bb-common for legacy root kiali and istiod hardening" {
+  for package in kiali istiod; do
+    printf '%s\n' "$package:" '  values:' '    istio:' '      hardened:' '        customServiceEntries: [{name: old}]' '    bb-common: oops' >"$INPUT_FILE"
+    if [ "$package" = istiod ]; then
+      yq -i '.istiod.values.hardened.customAuthorizationPolicies = [{"name":"global"}]' "$INPUT_FILE"
+    fi
+    cp "$INPUT_FILE" "$BATS_TEST_TMPDIR/input-expected"
+    printf 'unchanged\000output\n' >"$OUTPUT_FILE"
+    cp "$OUTPUT_FILE" "$BATS_TEST_TMPDIR/output-expected"
+    run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *".packages.$package.values.bb-common"*"must be a mapping"*"no output written"* ]]
+    cmp "$BATS_TEST_TMPDIR/input-expected" "$INPUT_FILE"
+    cmp "$BATS_TEST_TMPDIR/output-expected" "$OUTPUT_FILE"
+  done
+}
+
+@test "target 4 validates bb-common after canonical package precedence" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration: {version: v1}
+kiali:
+  values:
+    bb-common: oops
+    routes:
+      outbound:
+        shared: {hosts: [legacy.example.com]}
+packages:
+  kiali:
+    values:
+      bb-common:
+        routes:
+          outbound:
+            shared: {hosts: [canonical.example.com]}
+EOF
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.kiali.values.bb-common.routes.outbound.shared.hosts[0]' "$OUTPUT_FILE")" = canonical.example.com ]
+}
+
 @test "target 4 rejects malformed legacy lists without clobbering output" {
   for path in ".packages.monitoring.values.istio.hardened.customServiceEntries" ".packages.monitoring.values.istio.hardened.customAuthorizationPolicies" ".packages.istiod.values.hardened.customAuthorizationPolicies"; do
     for value in '{bad: map}' '[scalar]' '[{name: bad, enabled: "false"}]' '[{name: bad, enabled: null}]'; do
@@ -54,6 +111,30 @@ setup() {
         [ "$status" -ne 0 ]
         [[ "$output" == *"$path"*"must be"*"no output written"* ]]
         [ "$(<"$OUTPUT_FILE")" = sentinel ]
+      done
+    done
+  done
+}
+
+@test "target 4 rejects non-mapping destination parents without changing output" {
+  for package in monitoring istiod; do
+    for kind in serviceEntries authorizationPolicies; do
+      for value in 'broken' '[]' 'null' 'false'; do
+        printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+        path=".packages.$package.values.bb-common.istio.$kind"
+        VALUE="$value" yq -i "$path = (strenv(VALUE) | from_yaml)" "$INPUT_FILE"
+        if [ "$package" = istiod ] && [ "$kind" = authorizationPolicies ]; then
+          yq -i '.packages.istiod.values.hardened.customAuthorizationPolicies = [{"name": "global"}]' "$INPUT_FILE"
+        else
+          yq -i ".packages.$package.values.bb-common.istio.hardened.customServiceEntries = [{\"name\": \"service\"}] | .packages.$package.values.bb-common.istio.hardened.customAuthorizationPolicies = [{\"name\": \"policy\"}]" "$INPUT_FILE"
+        fi
+        printf 'sentinel\000with trailing newlines\n\n' >"$OUTPUT_FILE"
+        cp "$OUTPUT_FILE" "$BATS_TEST_TMPDIR/expected"
+        run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+        [ "$status" -ne 0 ]
+        if [[ "$output" != *"$path"*"must be a mapping"*"no output written"* ]]; then printf '%s\n' "$output" >&2; fi
+        [[ "$output" == *"$path"*"must be a mapping"*"no output written"* ]]
+        cmp "$BATS_TEST_TMPDIR/expected" "$OUTPUT_FILE"
       done
     done
   done

@@ -5,7 +5,6 @@
   "package" .Values.packages.headlamp
   "name" "headlamp"
   "bbCommonSubchart" true
-  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.headlamp" .)
 )}}
 {{- end }}

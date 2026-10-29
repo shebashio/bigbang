@@ -12,7 +12,6 @@
   "package" .Values.packages.gitlab 
   "name" "gitlab" 
   "bbCommonSubchart" true
-  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.gitlab" .)
 )}}
 {{- end }}

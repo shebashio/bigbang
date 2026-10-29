@@ -5,7 +5,6 @@
   "package" .Values.packages.kiali
   "name" "kiali"
   "bbCommonSubchart" true
-  "supportsRouteDefaults" true
   "defaults" (include "bigbang.defaults.kiali" .)
 )}}
 {{- end }}

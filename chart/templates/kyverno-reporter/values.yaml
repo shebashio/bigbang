@@ -6,7 +6,6 @@
 "package" (get .Values.packages $pkg)
 "name" ($pkg | kebabcase)
 "bbCommonSubchart" true
-"supportsRouteDefaults" true
 "defaults" (include "bigbang.defaults.kyverno-reporter" .)
 )}}
 {{- end }}

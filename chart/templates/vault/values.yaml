@@ -5,7 +5,6 @@
 "package" .Values.packages.vault 
 "name" "vault" 
 "bbCommonSubchart" true
-"supportsRouteDefaults" true
 "defaults" (include "bigbang.defaults.vault" .)
 )}}
 {{- end }}
