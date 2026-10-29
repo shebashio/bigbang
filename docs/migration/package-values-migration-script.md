@@ -159,7 +159,7 @@ packages:
           inbound:
             tempo-query:
               hosts:
-                - tempo.{{ .Values.domain }}
+                - tempo.{{ .Values.global.domain }}
 ```
 
 For a package-level override, the corresponding input is:
@@ -192,8 +192,12 @@ hosts and flat package-level hosts. Already-relocated chart values take
 precedence over their flat aliases. File composition and package HelmRelease
 patches happen before conversion, using their normal precedence.
 
-The conversion preserves host order, duplicates, wildcards, Helm template
-strings, and literal `${variable}` placeholders without evaluating them. It
+The conversion preserves host order, duplicates, wildcards, and literal
+`${variable}` placeholders. Since inbound routes render in the `bb-common`
+subchart context, direct `{{ .Values.domain }}` expressions in legacy hosts
+become `{{ .Values.global.domain }}` when the package passes the Big Bang
+domain to the subchart. Whitespace-trimming markers are retained, and existing
+`{{ .Values.global.domain }}` expressions remain unchanged. It
 removes handled legacy host keys and containers emptied by that removal, while
 preserving sibling settings and other route fields. Missing, empty-list, and
 null legacy hosts do not create routes. Other legacy endpoint settings are
@@ -204,7 +208,16 @@ configuration.
 
 A flat host list on a multi-endpoint package does not identify its intended
 route. Custom packages, unknown endpoints, and endpoints with no supported
-replacement also require manual selection. These hosts remain in the output,
+replacement also require manual selection. Unsupported Helm templates, such as
+`{{ .Values.customDomain }}` or `{{ include "custom.host" . }}`, also require
+manual translation because their meaning in the subchart cannot be inferred.
+Domain templates also require manual migration for `argocd`, `kyvernoReporter`,
+`mimir`, `minio`, and `sonarqube`: these umbrella integrations do not pass the
+Big Bang domain as `bb-common`'s `global.domain`. For Argo CD, the value is
+instead derived from the application's host.
+The script retains the whole host list and any lower-precedence legacy hosts
+for that route rather than applying a potentially misleading fallback. These
+hosts remain in the output,
 and stderr reports the source path and the destination pattern, for example:
 
 ```text

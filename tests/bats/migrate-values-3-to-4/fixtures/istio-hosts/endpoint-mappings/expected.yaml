@@ -61,7 +61,7 @@ packages:
         routes:
           inbound:
             monitoring-prometheus: {hosts: [metrics.example.test, "*.metrics.example.test"]}
-            monitoring-alertmanager: {hosts: ["alerts.{{ .Values.domain }}"]}
+            monitoring-alertmanager: {hosts: ["alerts.{{ .Values.global.domain }}"]}
   neuvector:
     values: {bb-common: {routes: {inbound: {neuvector: {hosts: [neuvector.example.test]}}}}}
   sonarqube:

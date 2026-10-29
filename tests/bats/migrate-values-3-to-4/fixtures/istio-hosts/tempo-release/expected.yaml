@@ -8,4 +8,4 @@ packages:
           inbound:
             tempo-query:
               hosts:
-                - tempo.{{ .Values.domain }}
+                - tempo.{{ .Values.global.domain }}

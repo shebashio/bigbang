@@ -156,6 +156,8 @@ packages.<name>.istio.hosts for single-route built-ins, to
 packages.<name>.values.bb-common.routes.inbound.<route>.hosts. Explicit route
 hosts win. Ambiguous or custom-package hosts are preserved and reported for
 manual migration; a flat host list is never copied to multiple endpoints.
+Legacy {{ .Values.domain }} hostname templates are translated to the bb-common
+global domain context. Other Helm templates are retained for manual review.
 Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
 names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
@@ -410,7 +412,10 @@ validate_bigbang_helmrelease_file() {
 migrate_inbound_hosts() {
   local candidate package_name endpoint source_path istio_path source_display host_route
   local mapping mapping_package mapping_endpoint mapping_route ambiguous
+  local destination_present blocked blocked_route route_identity
+  local blocked_routes=()
   local candidates_file="$PATCH_WORK_DIR/host-candidates.jsonl"
+  local translated_hosts_file="$PATCH_WORK_DIR/translated-hosts.json"
 
   yq -o=json '.' "$WORK_FILE" | jq -c '
     def object_at($path):
@@ -479,11 +484,55 @@ migrate_inbound_hosts() {
       ' >/dev/null \
         || fail "$source_display cannot be migrated into packages.$package_name.values.bb-common.routes.inbound.$host_route: destination ancestors must be mappings; migrate manually; no output written"
 
-      PACKAGE_NAME="$package_name" HOST_ROUTE="$host_route" HOST_SOURCE="$source_path" yq -i '
-        with(select((.packages[strenv(PACKAGE_NAME)].values.bb-common.routes.inbound[strenv(HOST_ROUTE)] // {}) | has("hosts") | not);
+      destination_present=$(PACKAGE_NAME="$package_name" HOST_ROUTE="$host_route" yq -r '
+        (.packages[strenv(PACKAGE_NAME)].values.bb-common.routes.inbound[strenv(HOST_ROUTE)] // {}) | has("hosts")
+      ' "$WORK_FILE")
+      route_identity="$package_name|$host_route"
+      blocked=false
+      if [[ ${#blocked_routes[@]} -gt 0 ]]; then
+        for blocked_route in "${blocked_routes[@]}"; do
+          [[ "$blocked_route" == "$route_identity" ]] && blocked=true
+        done
+      fi
+
+      if [[ "$destination_present" != true ]]; then
+        if [[ "$blocked" == true ]]; then
+          HOST_MIGRATION_REVIEW+=("$source_display: a higher-precedence legacy hostname override requires manual template migration; hosts preserved. Resolve all legacy hosts for packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts.")
+          continue
+        fi
+
+        # These umbrella integrations do not pass the umbrella domain as the
+        # child chart's global.domain. Argo CD instead derives it from its host.
+        case "$package_name" in
+          argocd|kyvernoReporter|mimir|minio|sonarqube)
+            if jq -e '[.hosts[] | select(test("\\{\\{-?\\s*\\.Values\\.(global\\.)?domain\\s*-?\\}\\}"))] | length > 0' \
+              <<<"$candidate" >/dev/null; then
+              blocked_routes+=("$route_identity")
+              HOST_MIGRATION_REVIEW+=("$source_display: the package does not expose the umbrella domain as bb-common global.domain; hosts preserved. Set packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts manually using the package's target values context.")
+              continue
+            fi
+            ;;
+        esac
+
+        # A child-chart route is evaluated in bb-common's values context.
+        # Only direct domain references can be translated without evaluating
+        # user-supplied templates; all other actions must be reviewed manually.
+        if ! jq -e '
+          [.hosts[] | gsub("\\{\\{-?\\s*\\.Values\\.(global\\.)?domain\\s*-?\\}\\}"; "") |
+            select(test("\\{\\{|\\}\\}"))] | length == 0
+        ' <<<"$candidate" >/dev/null; then
+          blocked_routes+=("$route_identity")
+          HOST_MIGRATION_REVIEW+=("$source_display: unsupported Helm template; hosts preserved. Translate the template for the bb-common values context and set packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts manually.")
+          continue
+        fi
+
+        jq '.hosts | map(gsub("\\{\\{(?<left>-?)\\s*\\.Values\\.domain\\s*(?<right>-?)\\}\\}";
+          "{{\(.left) .Values.global.domain \(.right)}}"))' <<<"$candidate" >"$translated_hosts_file"
+        PACKAGE_NAME="$package_name" HOST_ROUTE="$host_route" HOSTS_FILE="$translated_hosts_file" yq -i '
           .packages[strenv(PACKAGE_NAME)].values.bb-common.routes.inbound[strenv(HOST_ROUTE)].hosts =
-            eval(strenv(HOST_SOURCE)).hosts)
-      ' "$WORK_FILE"
+            load(strenv(HOSTS_FILE))
+        ' "$WORK_FILE"
+      fi
       MIGRATED_PATHS+=("$source_display -> packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts (explicit route hosts take precedence)")
     else
       MIGRATED_PATHS+=("$source_display -> removed empty legacy hosts (no route created)")

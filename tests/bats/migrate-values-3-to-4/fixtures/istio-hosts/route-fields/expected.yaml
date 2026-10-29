@@ -21,6 +21,6 @@ packages:
               enabled: false
               gateways: [custom/custom-gateway]
               port: 3200
-              hosts: ["tempo.{{ .Values.domain }}", "*.traces.example.test", "${TRACE_HOST}", "${TRACE_HOST}"]
+              hosts: ["tempo.{{ .Values.global.domain }}", "*.traces.example.test", "${TRACE_HOST}", "${TRACE_HOST}"]
           outbound:
             external: {hosts: [external.example.test]}

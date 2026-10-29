@@ -50,6 +50,16 @@ assert_fixture() {
   assert_fixture route-fields
 }
 
+@test "translates domain templates and preserves unsupported templates for review" {
+  assert_fixture host-templates
+  [[ "$stderr" == *"packages.monitoring.values.bb-common.istio.prometheus.hosts: unsupported Helm template; hosts preserved"* ]]
+  [[ "$stderr" == *"packages.monitoring.istio.prometheus.hosts: a higher-precedence legacy hostname override requires manual template migration"* ]]
+  [[ "$stderr" == *"packages.argocd.values.bb-common.istio.argocd.hosts: the package does not expose the umbrella domain"* ]]
+  [[ "$stderr" == *"packages.minio.values.bb-common.istio.api.hosts: the package does not expose the umbrella domain"* ]]
+  [[ "$stderr" != *"packages.kiali.values.bb-common.istio.kiali.hosts: unsupported"* ]]
+  [[ "$stderr" != *"customDomain"* ]]
+}
+
 @test "empty and absent legacy hosts do not create inbound routes" {
   assert_fixture empty-hosts
   [ "$(yq '[.packages[].values.bb-common.routes.inbound | select(. != null)] | length' "$OUTPUT_FILE")" -eq 0 ]
@@ -241,4 +251,28 @@ assert_fixture() {
     [ "$(PACKAGE="$package" yq -o=json -I=0 'select(.kind == "HelmRelease" and .metadata.name == strenv(PACKAGE)) |
       .spec.valuesFrom' "${OUTPUT_FILE}.rendered" | jq -c 'map(.valuesKey)')" = '["common","defaults","overlays"]' ]
   done
+}
+
+@test "migrated Tempo hostname renders in the actual pinned package VirtualService" {
+  [ -n "${TEMPO_CHART_PATH:-}" ] || skip "Set TEMPO_CHART_PATH to the pinned Tempo 3.2.1-bb.1 chart with dependencies"
+  [ "$(yq '.version' "$TEMPO_CHART_PATH/Chart.yaml")" = 3.2.1-bb.1 ]
+  [ -f "$TEMPO_CHART_PATH/charts/bb-common-1.6.1.tgz" ]
+
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$FIXTURES/tempo-release/input.yaml"
+  [ "$status" -eq 0 ]
+  run helm template bigbang "$REPO_ROOT/chart" -f "$OUTPUT_FILE" \
+    --set domain=release.example.test --set packages.tempo.enabled=true
+  [ "$status" -eq 0 ]
+  printf '%s\n' "$output" >"${OUTPUT_FILE}.rendered"
+  yq 'select(.kind == "Secret" and .metadata.name == "bigbang-tempo-values") |
+    (.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml) |
+    .bb-common.routes.inbound.tempo-query.enabled = true' \
+    "${OUTPUT_FILE}.rendered" >"${OUTPUT_FILE}.package-values"
+
+  run helm template tempo "$TEMPO_CHART_PATH" --api-versions networking.istio.io/v1 \
+    -f "${OUTPUT_FILE}.package-values"
+  [ "$status" -eq 0 ]
+  printf '%s\n' "$output" >"${OUTPUT_FILE}.package-rendered"
+  [ "$(yq -o=json -I=0 'select(.kind == "VirtualService" and .metadata.name == "tempo-query") |
+    .spec.hosts' "${OUTPUT_FILE}.package-rendered")" = '["tempo.release.example.test"]' ]
 }

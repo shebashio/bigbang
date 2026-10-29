@@ -20,6 +20,7 @@ documents must be maintained independently of the script's mapping table.
 | `endpoint-mappings` | 0 | Every mapped endpoint, distinct endpoint lists, multiple hosts, and templates |
 | `canonical-conflicts` | 0 | Canonical route hosts win, including explicit `[]` and `null` |
 | `route-fields` | 0 | Already-relocated inputs, chart-value precedence over package-level hosts, literal strings, duplicates, siblings, and unrelated hosts |
+| `host-templates` | 0, review diagnostic | Translate supported domain templates; preserve unsupported expressions, package-specific domain contexts, and lower-precedence hosts |
 | `empty-hosts` | 0 | Absent, empty-list, and null hosts do not create routes |
 | `manual-review` | 0, review diagnostic | Unknown/custom/removed endpoints and ambiguous flat lists remain in output for manual migration |
 
@@ -28,6 +29,20 @@ HelmRelease patches, and decrypted Secret `stringData`/`data`; tests ordered
 composition, target 3, secondary sources, and malformed-input failures; and
 inspects rendered package values Secrets. The existing SOPS suite covers the
 encrypted-wrapper handoff with its fake SOPS executable.
+
+To test the final VirtualService with the actual pinned Tempo package chart,
+provide a checkout of Tempo chart version `3.2.1-bb.1` with its Helm
+dependencies, including `bb-common` `1.6.1`, already present:
+
+```shell
+TEMPO_CHART_PATH=/path/to/tempo/chart \
+  bats --filter 'actual pinned package VirtualService' \
+  tests/bats/migrate-values-3-to-4/migrate-istio-hosts.bats
+```
+
+The package-chart test is skipped when `TEMPO_CHART_PATH` is unset. It renders
+the umbrella values Secret, composes its common/defaults/overlays, then renders
+the real package with the Istio API enabled and checks the VirtualService host.
 
 For an individual pair:
 

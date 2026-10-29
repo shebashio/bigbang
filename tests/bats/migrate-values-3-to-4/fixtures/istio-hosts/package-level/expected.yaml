@@ -24,4 +24,4 @@ packages:
         routes:
           inbound:
             kiali:
-              hosts: ["kiali.{{ .Values.domain }}", "${KIALI_HOST}"]
+              hosts: ["kiali.{{ .Values.global.domain }}", "${KIALI_HOST}"]
