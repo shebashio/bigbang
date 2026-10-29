@@ -470,8 +470,7 @@ Args (dict):
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}
-{{- /* injection and hardened are Big Bang-only controls, not bb-common subchart values.
-       commonPackageDefaults has already derived hardened.enabled into sidecar.enabled. */ -}}
+{{- /* injection and the retired hardened key are not bb-common subchart values. */ -}}
 {{- $commonBlock = set $commonBlock "istio" (omit $commonBlock.istio "injection" "hardened") }}
 {{- end }}
 {{- $commonBlock = dict "bb-common" $commonBlock }}
@@ -1034,11 +1033,10 @@ keeps the legacy pod-label ext_authz path.
 {{- define "bigbang.commonPackageDefaults" -}}
 {{- $pkgTop := index . 0 -}}
 {{- $root   := index . 1 -}}
-{{- $sidecarDefaultEnabled := dig "hardened" "enabled" false $root.Values.packages.istiod.values -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
   sidecar:
-    enabled: {{ and $sidecarDefaultEnabled (ne (include "ambientEnabled" $root) "true") }}
+    enabled: {{ and (eq (include "istioEnabled" $root) "true") (ne (include "ambientEnabled" $root) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" $root }}
   injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" $pkgTop) (eq (include "ambientEnabled" $root) "true") }}

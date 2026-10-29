@@ -14,6 +14,12 @@
 global:
   domain: {{ $domainName }}
 
+bb-common:
+  istio:
+    # The integrated cert-manager namespace is excluded from the mesh.
+    sidecar:
+      enabled: false
+
 upstream:
   prometheus:
     servicemonitor:

@@ -40,6 +40,21 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
+  - it: preserves an explicit sidecar policy override in the effective values
+    set:
+      istio.ambient.enabled: false
+      packages.certManager.enabled: true
+      packages.certManager.values.bb-common.istio.sidecar.enabled: true
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+
   - it: keeps metrics TLS disabled for the integrated ambient path
     set:
       packages.certManager.enabled: true

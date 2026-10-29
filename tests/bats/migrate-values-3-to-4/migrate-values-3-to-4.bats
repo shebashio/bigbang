@@ -805,6 +805,53 @@ EOF
   [[ "$output" == *"--in-place requires exactly one input file"* ]]
 }
 
+@test "target 4 migration retains sidecar policy defaults for built-in and custom packages" {
+  cat >"$INPUT_FILE" <<'EOF'
+istio:
+  ambient:
+    enabled: false
+istiod:
+  values:
+    hardened:
+      enabled: true
+packages:
+  sample:
+    enabled: true
+    git:
+      repo: https://example.com/sample.git
+      path: chart
+      tag: 1.0.0
+EOF
+
+  run "$SCRIPT_PATH" --target 4 --output "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.istiod.values | has("hardened")' "$OUTPUT_FILE")" = "false" ]
+
+  run helm template bigbang "${REPO_ROOT}/chart" --kube-version 1.35.0 -f "$OUTPUT_FILE"
+  [ "$status" -eq 0 ]
+  RENDERED_FILE="${BATS_TEST_TMPDIR}/rendered.yaml"
+  printf '%s\n' "$output" >"$RENDERED_FILE"
+
+  for name in bigbang-istiod-values bigbang-monitoring-values; do
+    run env SECRET_NAME="$name" yq -e '
+      select(.kind == "Secret" and .metadata.name == strenv(SECRET_NAME)) |
+      ((.stringData.common | from_yaml) *
+       (.stringData.defaults | from_yaml) *
+       (.stringData.overlays | from_yaml)) |
+      ."bb-common".istio.sidecar.enabled == true
+    ' "$RENDERED_FILE"
+    [ "$status" -eq 0 ]
+  done
+
+  run yq -e '
+    select(.kind == "Secret" and .metadata.name == "sample-values") |
+    ((.stringData."common.yaml" | from_yaml) *
+     (.stringData."values.yaml" | from_yaml)) |
+    ."bb-common".istio.sidecar.enabled == true
+  ' "$RENDERED_FILE"
+  [ "$status" -eq 0 ]
+}
+
 @test "migrated maintained values remain idempotent and render with the chart" {
   SECOND_OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x-second.yaml"
 

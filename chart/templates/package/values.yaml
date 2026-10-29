@@ -19,8 +19,7 @@ type: Opaque
 stringData:
 {{- if (not $vals.kustomize) }}
 {{- if dig "bbCommonValues" true $vals }}
-{{- $istioEnabled := eq (include "istioEnabled" $) "true" -}}
-{{- $sidecarDefaultEnabled := dig "hardened" "enabled" false $.Values.packages.istiod.values }}
+{{- $istioEnabled := eq (include "istioEnabled" $) "true" }}
   common.yaml: |
     global:
       domain: {{ $.Values.domain }}
@@ -32,7 +31,7 @@ stringData:
         ambient:
           enabled: {{ include "ambientEnabled" $ }}
         sidecar:
-          enabled: {{ and $sidecarDefaultEnabled (ne (include "ambientEnabled" $) "true") }}
+          enabled: {{ and $istioEnabled (ne (include "ambientEnabled" $) "true") }}
         authorizationPolicies:
           enabled: {{ include "authorizationPoliciesEnabled" $ }}
           generateFromNetpol: {{ include "authorizationPoliciesEnabled" $ }}

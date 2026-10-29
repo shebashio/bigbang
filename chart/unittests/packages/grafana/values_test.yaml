@@ -11,12 +11,11 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       istio.ambient.enabled: false
-      packages.grafana.values.istio.hardened.enabled: true
-      packages.istiod.values.hardened.enabled: false
+      packages.grafana.values.istio.sidecar.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
-          value: false
+          value: true
   - it: should preserve nested bb-common Istio values in the effective values
     postRenderer:
       cmd: "sh"
@@ -25,12 +24,11 @@ tests:
         - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
     set:
       istio.ambient.enabled: false
-      packages.grafana.values.bb-common.istio.sidecar.enabled: true
-      packages.istiod.values.hardened.enabled: false
+      packages.grafana.values.bb-common.istio.sidecar.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
-          value: true
+          value: false
   - it: should point the GitLab Redis datasource at the configured external service
     postRenderer:
       cmd: "sh"
