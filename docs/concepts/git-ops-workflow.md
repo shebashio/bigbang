@@ -65,9 +65,10 @@ big-bang-deployment/
 
 Each environment uses Kustomize overlays to manage configuration:
 
-**Base Configuration** (`base/bigbang/bigbang.yaml`):
+**Base Configuration** (`base/bigbang/bigbang.yaml`): This is an illustrative
+Flux resource; its GitRepository must already exist in `bigbang`.
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: bigbang
@@ -109,19 +110,9 @@ generatorOptions:
 ```yaml
 domain: dev.bigbang.mil
 
-istio:
-  enabled: true
-
-monitoring:
-  enabled: true
-
 packages:
-  gitlab:
+  monitoring:
     enabled: true
-    values:
-      global:
-        hosts:
-          domain: dev.bigbang.mil
 ```
 
 ## Development Workflow
