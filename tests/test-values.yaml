@@ -673,9 +673,6 @@ packages:
           readOnly: true
 
   loki:
-    git:
-      tag: null
-      branch: "refactor-staging-branch"
     strategy: scalable
     values:
       # MinIO required for Loki Scalable
