@@ -12,7 +12,6 @@
     "sso",
     "flux",
     "networkPolicies",
-    "authorizationPolicies",
     "imagePullPolicy"
   ],
   "additionalProperties": false,
@@ -63,6 +62,20 @@
               "description": "Enable the shared egress waypoint gateway (requires ambient mode). Automatically enables the istioEgressGateway package."
             }
           }
+        },
+        "authorizationPolicies": {
+          "type": "object",
+          "description": "Global AuthorizationPolicy generation settings for integrated packages.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value."
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "additionalProperties": false
         }
       }
     },
@@ -254,20 +267,6 @@
       "required": [
         "enabled"
       ]
-    },
-    "authorizationPolicies": {
-      "type": "object",
-      "description": "Global AuthorizationPolicy generation settings for integrated packages.",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value."
-        }
-      },
-      "required": [
-        "enabled"
-      ],
-      "additionalProperties": false
     },
     "routes": {
       "type": "object",

@@ -98,7 +98,7 @@ tests:
 
   - it: should have authorizationPolicies enabled when globally enabled
     set:
-      authorizationPolicies.enabled: true
+      istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.authorizationPolicies.enabled
