@@ -3,18 +3,13 @@ suite: Package - SonarQube - bb-common migration
 templates:
   - templates/sonarqube/values.yaml
 tests:
-  - it: nests defaults under bb-common and preserves the kubeAPI CIDR fallback
+  - it: nests defaults under bb-common
     set:
       packages.sonarqube.enabled: true
-      networkPolicies.controlPlaneCidr: 10.20.0.0/16
-      networkPolicies.vpcCidr: 192.168.0.0/16
     asserts:
       - matchRegex:
           path: stringData.common
           pattern: '(?s).*bb-common:.*routes:.*'
-      - matchRegex:
-          path: stringData.common
-          pattern: '(?s).*kubeAPI:.*cidr: 10.20.0.0/16.*cidr: 192.168.0.0/16.*'
       - notMatchRegex:
           path: stringData.common
           pattern: '(?m)^networkPolicies:'

@@ -208,16 +208,19 @@ The migration script makes the following changes:
 | `<package>.values.istio.hardened.customServiceEntries` | Moved to `packages.<package>.values.bb-common.istio.serviceEntries.custom`. |
 | `<package>.values.istio.hardened.customAuthorizationPolicies` | Moved to `packages.<package>.values.bb-common.istio.authorizationPolicies.custom`. |
 
+When both flat `values.istio.hardened` and nested
+`values.bb-common.istio.hardened` contain the same legacy list, the nested
+canonical list takes precedence; the two lists are not concatenated.
+
 When the destination already contains custom ServiceEntries or
-AuthorizationPolicies, retained legacy entries are prepended to the existing
-entries. Legacy entries with `enabled: false` are dropped and reported by name;
-entries with `enabled: true` or no `enabled` are retained with the legacy
-`enabled` field removed. This also applies to
-`istiod.values.hardened.customAuthorizationPolicies`. Existing destination
+AuthorizationPolicies, all legacy entries are prepended to the existing entries
+with their contents, including any `enabled` field, preserved. This also applies
+to `istiod.values.hardened.customAuthorizationPolicies`. Existing destination
 entries are not changed. All other values beneath the legacy `hardened` key are
-removed. Review the report and the resulting configuration: older bb-common
-versions did not necessarily honor individual entry flags, and the new custom
-entry templates render entries without consulting `enabled`.
+removed. The script warns about entries marked `enabled: false`: the destination
+custom entry renderer ignores `enabled`, so those entries can still render.
+Review the report and resulting configuration; older bb-common versions did not
+necessarily honor individual entry flags either.
 
 AuthorizationPolicies can be disabled for an individual package when the
 default posture is not appropriate. Remove unwanted custom ServiceEntries or

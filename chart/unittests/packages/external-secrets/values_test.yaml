@@ -23,8 +23,7 @@ tests:
     set:
       istio.ambient.enabled: false
       packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.istio.hardened.enabled: true
-      packages.istiod.values.hardened.enabled: false
+      packages.istiod.values.hardened.enabled: true
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
     postRenderer:
@@ -53,8 +52,7 @@ tests:
   - it: nests the package bb-common defaults under the subchart key in ambient mode (default)
     set:
       packages.externalSecrets.enabled: true
-      packages.externalSecrets.values.istio.hardened.enabled: true
-      packages.istiod.values.hardened.enabled: false
+      packages.istiod.values.hardened.enabled: true
       packages.externalSecrets.values.upstream.webhook.create: true
       packages.externalSecrets.values.upstream.certController.create: true
     postRenderer:

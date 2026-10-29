@@ -59,9 +59,8 @@ Custom route templates run in the bb-common scope and cannot read parent
 `upstream` values.
 
 Configure API-server egress through
-`networkPolicies.egress.definitions.kubeAPI`. Monitoring no longer builds this
-definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
-`controlPlaneCidr` continues to control admission-webhook ingress.
+`networkPolicies.egress.definitions.kubeAPI` and admission-webhook ingress
+through `networkPolicies.ingress.definitions.kubeAPI`.
 
 Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
 `bb-common.istio.authorizationPolicies.custom`. Migrate legacy hardened custom

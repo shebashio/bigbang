@@ -102,7 +102,7 @@ tests:
           path: bb-common.networkPolicies.egress.from.vault-autoinit.to.k8s["istio-gateway/passthrough-ingressgateway:9443"]
           value: true
 
-  - it: should define the kubeAPI and kms egress definitions under bb-common
+  - it: should enable the kubeAPI and kms egress definitions for Vault
     postRenderer:
       cmd: "sh"
       args:
@@ -111,13 +111,12 @@ tests:
     set:
       packages.vault.enabled: true
     asserts:
-      - isNotNull:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
-      - isNotNull:
-          path: bb-common.networkPolicies.egress.definitions.kms.to[0].ipBlock.cidr
       - equal:
-          path: bb-common.networkPolicies.egress.definitions.kms.ports[0].port
-          value: 443
+          path: bb-common.networkPolicies.egress.from.vault.to.definition.kubeAPI
+          value: true
+      - equal:
+          path: bb-common.networkPolicies.egress.from.vault.to.definition.kms
+          value: true
 
   - it: should move istio, routes and networkPolicies out of the defaults and set global.domain
     postRenderer:

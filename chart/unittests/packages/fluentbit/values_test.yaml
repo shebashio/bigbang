@@ -19,8 +19,6 @@ tests:
           path: bb-common.istio.injection
       - notExists:
           path: bb-common.istio.hardened
-      - notExists:
-          path: bb-common.networkPolicies.controlPlaneCidr
       - equal:
           path: bb-common.routes.outbound.bb-tests.enabled
           value: true

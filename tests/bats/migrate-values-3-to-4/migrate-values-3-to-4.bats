@@ -9,6 +9,41 @@ setup() {
   OUTPUT_FILE="${BATS_TEST_TMPDIR}/values-4.x.yaml"
 }
 
+@test "colliding flat and nested legacy security lists use canonical precedence" {
+  for key in customServiceEntries customAuthorizationPolicies; do
+    printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+    yq -i ".packages.monitoring.values.istio.hardened.$key = [{\"name\": \"flat\"}] | .packages.monitoring.values.bb-common.istio.hardened.$key = [{\"name\": \"nested\"}]" "$INPUT_FILE"
+    run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+    [ "$status" -eq 0 ]
+    case "$key" in
+      customServiceEntries) destination=serviceEntries ;;
+      customAuthorizationPolicies) destination=authorizationPolicies ;;
+    esac
+    [ "$(yq ".packages.monitoring.values.bb-common.istio.$destination.custom | map(.name) | join(\",\")" "$OUTPUT_FILE")" = nested ]
+  done
+}
+
+@test "noncolliding legacy security lists retain canonical precedence for other fields" {
+  printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+  yq -i '.packages.monitoring.values.istio = {"marker": "flat", "hardened": {"customServiceEntries": [{"name": "flat"}]}} | .packages.monitoring.values.bb-common.istio = {"marker": "nested", "hardened": {"customAuthorizationPolicies": [{"name": "nested"}]}}' "$INPUT_FILE"
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.monitoring.values.bb-common.istio.marker' "$OUTPUT_FILE")" = nested ]
+  [ "$(yq '.packages.monitoring.values.bb-common.istio.serviceEntries.custom[0].name' "$OUTPUT_FILE")" = flat ]
+  [ "$(yq '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].name' "$OUTPUT_FILE")" = nested ]
+}
+
+@test "unnamed ServiceEntries produce migration and review reports" {
+  for entry in '{enabled: true}' '{name: "", enabled: true}'; do
+    printf '%s\n' 'packageConfiguration: {version: v1}' 'packages:' '  monitoring:' '    values:' '      bb-common:' '        istio:' '          hardened:' "            customServiceEntries: [$entry]" >"$INPUT_FILE"
+    run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+    [ "$status" -eq 0 ]
+    [ "$(yq '.packages.monitoring.values.bb-common.istio.serviceEntries.custom | length' "$OUTPUT_FILE")" = 1 ]
+    [[ "$stderr" == *"packages.monitoring.values.bb-common.istio.hardened.customServiceEntries -> serviceEntries.custom"* ]]
+    [[ "$stderr" == *"packages.monitoring.values.bb-common.istio.serviceEntries.custom: (unnamed)"* ]]
+  done
+}
+
 @test "target 4 rejects malformed bb-common ancestors before moving flat values" {
   for key in istio networkPolicies routes; do
     for value in 'oops' '[]' 'null' 'false'; do
@@ -66,6 +101,57 @@ EOF
   [ "$(yq '.packages.kiali.values.bb-common.routes.outbound.shared.hosts[0]' "$OUTPUT_FILE")" = canonical.example.com ]
 }
 
+@test "target 4 rejects malformed flat and destination istio ancestors before merge" {
+  for package in monitoring istiod; do
+    for bad in flat destination; do
+      for value in false null '[]' broken; do
+        printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+        yq -i ".packages.$package.values.istio.hardened.customAuthorizationPolicies = [{\"name\": \"old\", \"enabled\": true}]" "$INPUT_FILE"
+        if [ "$package" = istiod ]; then
+          yq -i '.packages.istiod.values.hardened.customAuthorizationPolicies = [{"name":"global"}]' "$INPUT_FILE"
+        fi
+        path=".packages.$package.values.istio"
+        [ "$bad" = destination ] && path=".packages.$package.values.bb-common.istio"
+        VALUE="$value" yq -i "$path = (strenv(VALUE) | from_yaml)" "$INPUT_FILE"
+        cp "$INPUT_FILE" "$BATS_TEST_TMPDIR/input-expected"
+        printf 'sentinel\000bytes\n' >"$OUTPUT_FILE"
+        cp "$OUTPUT_FILE" "$BATS_TEST_TMPDIR/output-expected"
+        run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+        [ "$status" -ne 0 ]
+        [[ "$output" == *"$path must be a mapping"*"no output written"* ]]
+        cmp "$BATS_TEST_TMPDIR/input-expected" "$INPUT_FILE"
+        cmp "$BATS_TEST_TMPDIR/output-expected" "$OUTPUT_FILE"
+      done
+    done
+  done
+}
+
+@test "istio migration retains canonical precedence after root package merge" {
+  cat >"$INPUT_FILE" <<'EOF'
+packageConfiguration: {version: v1}
+monitoring:
+  values:
+    istio:
+      hardened:
+        customAuthorizationPolicies: [{name: legacy, enabled: false}]
+      marker: legacy
+    bb-common:
+      istio: false
+packages:
+  monitoring:
+    values:
+      bb-common:
+        istio:
+          marker: canonical
+          authorizationPolicies:
+            custom: [{name: existing, enabled: true}]
+EOF
+  run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.monitoring.values.bb-common.istio.marker' "$OUTPUT_FILE")" = canonical ]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"legacy","enabled":false},{"name":"existing","enabled":true}]' ]
+}
+
 @test "target 4 rejects malformed legacy lists without clobbering output" {
   for path in ".packages.monitoring.values.istio.hardened.customServiceEntries" ".packages.monitoring.values.istio.hardened.customAuthorizationPolicies" ".packages.istiod.values.hardened.customAuthorizationPolicies"; do
     for value in '{bad: map}' '[scalar]' '[{name: bad, enabled: "false"}]' '[{name: bad, enabled: null}]'; do
@@ -77,6 +163,21 @@ EOF
       [[ "$output" == *"custom"*"must be"*"no output written"* ]]
       [ "$(<"$OUTPUT_FILE")" = sentinel ]
     done
+  done
+}
+
+@test "target 4 rejects malformed istiod istio ancestor without clobbering output" {
+  for value in 'broken' '[]' 'null' 'false'; do
+    printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+    VALUE="$value" yq -i '.packages.istiod.values.bb-common.istio = (strenv(VALUE) | from_yaml) | .packages.istiod.values.hardened.customAuthorizationPolicies = [{"name": "global", "enabled": false}]' "$INPUT_FILE"
+    cp "$INPUT_FILE" "$BATS_TEST_TMPDIR/input-expected"
+    printf 'sentinel\000bytes\n\n' >"$OUTPUT_FILE"
+    cp "$OUTPUT_FILE" "$BATS_TEST_TMPDIR/output-expected"
+    run "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *".packages.istiod.values.bb-common.istio"*"must be a mapping"*"no output written"* ]]
+    cmp "$BATS_TEST_TMPDIR/input-expected" "$INPUT_FILE"
+    cmp "$BATS_TEST_TMPDIR/output-expected" "$OUTPUT_FILE"
   done
 }
 
@@ -140,7 +241,24 @@ EOF
   done
 }
 
-@test "all disabled entries are dropped without reporting migration and existing opt-outs are warned" {
+@test "empty disabled names warn independently for legacy existing and global entries" {
+  for case_name in legacy-service legacy-policy existing-service existing-policy global; do
+    printf '%s\n' 'packageConfiguration: {version: v1}' >"$INPUT_FILE"
+    case "$case_name" in
+      legacy-service) path='.packages.monitoring.values.istio.hardened.customServiceEntries'; warning='Review legacy enabled:false entries at packages.monitoring.values.bb-common.istio.hardened.customServiceEntries' ;;
+      legacy-policy) path='.packages.monitoring.values.istio.hardened.customAuthorizationPolicies'; warning='Review legacy enabled:false entries at packages.monitoring.values.bb-common.istio.hardened.customAuthorizationPolicies' ;;
+      existing-service) path='.packages.monitoring.values.bb-common.istio.serviceEntries.custom'; warning='Review existing enabled:false entries at packages.monitoring.values.bb-common.istio.serviceEntries.custom' ;;
+      existing-policy) path='.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom'; warning='Review existing enabled:false entries at packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' ;;
+      global) path='.packages.istiod.values.hardened.customAuthorizationPolicies'; warning='Review legacy enabled:false entries at packages.istiod.values.hardened.customAuthorizationPolicies' ;;
+    esac
+    yq -i "$path = [{\"name\": \"\", \"enabled\": false}]" "$INPUT_FILE"
+    run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+    [ "$status" -eq 0 ]
+    [[ "$stderr" == *"$warning"*"(unnamed)"* ]]
+  done
+}
+
+@test "all disabled entries are migrated and existing opt-outs are warned" {
   cat >"$INPUT_FILE" <<'EOF'
 packageConfiguration: {version: v1}
 packages:
@@ -159,11 +277,11 @@ EOF
   run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
   [ "$status" -eq 0 ]
   [[ "$stderr" == *"Review existing enabled:false entries"*"existing"* ]]
-  [[ "$stderr" != *"customAuthorizationPolicies ->"* ]]
-  [ "$(yq '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom[0].enabled' "$OUTPUT_FILE")" = false ]
+  [[ "$stderr" == *"customAuthorizationPolicies ->"* ]]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"old","enabled":false},{"name":"existing","enabled":false}]' ]
 }
 
-@test "target 4 drops explicitly disabled legacy custom entries and reports them" {
+@test "target 4 preserves explicitly disabled legacy custom entries and warns" {
   cat >"$INPUT_FILE" <<'EOF'
 packageConfiguration: {version: v1}
 packages:
@@ -172,7 +290,7 @@ packages:
       istio:
         hardened:
           customServiceEntries:
-            - {name: se-disabled, enabled: false}
+            - {name: se-disabled, enabled: false, hosts: [example.test]}
             - {name: se-true, enabled: true}
             - {name: se-omitted}
           customAuthorizationPolicies:
@@ -194,10 +312,12 @@ EOF
   run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
   if [ "$status" -ne 0 ]; then printf '%s\n' "$stderr" >&2; fi
   [ "$status" -eq 0 ]
-  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.serviceEntries.custom' "$OUTPUT_FILE")" = '[{"name":"se-true"},{"name":"se-omitted"},{"name":"se-new","enabled":false}]' ]
-  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"ap-true"},{"name":"ap-omitted"},{"name":"ap-new","enabled":false}]' ]
-  [ "$(yq -o=json -I=0 '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"global-true"},{"name":"global-omitted"}]' ]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.serviceEntries.custom' "$OUTPUT_FILE")" = '[{"name":"se-disabled","enabled":false,"hosts":["example.test"]},{"name":"se-true","enabled":true},{"name":"se-omitted"},{"name":"se-new","enabled":false}]' ]
+  [ "$(yq -o=json -I=0 '.packages.monitoring.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"ap-disabled","enabled":false},{"name":"ap-true","enabled":true},{"name":"ap-omitted"},{"name":"ap-new","enabled":false}]' ]
+  [ "$(yq -o=json -I=0 '.packages.istiod.values.bb-common.istio.authorizationPolicies.custom' "$OUTPUT_FILE")" = '[{"name":"global-disabled","enabled":false},{"name":"global-true","enabled":true},{"name":"global-omitted"}]' ]
   [[ "$stderr" == *"se-disabled"* && "$stderr" == *"ap-disabled"* && "$stderr" == *"global-disabled"* ]]
+  [[ "$stderr" == *"renderer ignores enabled"* ]]
+  [[ "$stderr" != *"Dropped disabled"* ]]
 }
 
 @test "documents v1 as the retained Big Bang 4.x package contract" {

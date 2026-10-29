@@ -130,10 +130,3 @@ tests:
       - equal:
           path: bb-common.networkPolicies.egress.definitions.kubeAPI.ports[0].port
           value: 6443
-
-  - it: does not reconstruct the removed controlPlaneCidr fallback
-    set:
-      networkPolicies.controlPlaneCidr: 192.0.2.10/32
-    asserts:
-      - notExists:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI

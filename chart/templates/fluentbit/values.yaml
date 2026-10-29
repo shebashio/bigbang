@@ -301,7 +301,7 @@ upstream:
           Suppress_Type_Name       On
           Retry_Limit              False
           Replace_Dots             On
-          {{- if and $istioEnabled (dig "istio" "elasticsearch" "enabled" false .Values.packages.elasticsearchKibana.values) }}
+          {{- if and $istioEnabled (dig "bb-common" "routes" "inbound" "elasticsearch" "enabled" false (.Values.packages.elasticsearchKibana.values | default dict)) }}
           tls                      Off
           {{- else }}
           tls                      On

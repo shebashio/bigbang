@@ -1,3 +1,6 @@
+{{/* Big Bang 4.0 release boundary: legacy hardened-key merging was removed.
+     Do not backport this removal to a 3.x release; migrate values before upgrading. */}}
+
 {{- define "values-bigbang" -}}
 {{- $values := .Values -}}
 {{ toYaml (pick $values "domain" "openshift") }}
@@ -351,8 +354,6 @@ Pointer to the appropriate git credentials template
 {{- include "gitCredsGlobal" . }}
 {{- end -}}
 
-{{/* Big Bang 4.0 release boundary: legacy hardened-key merging was removed.
-     Do not backport this removal to a 3.x release; migrate values before upgrading. */}}
 {{/*
 Shared GitRepository resource template.
 Args (dict):
@@ -442,6 +443,13 @@ Args (dict):
 */ -}}
 {{- define "values-secret" -}}
 {{- $packageValues := default dict .package.values -}}
+{{- $bbCommonSubchart := dig "bbCommonSubchart" false . -}}
+{{- /* Migrated packages must configure Istio through values.bb-common.istio. Do not
+       translate the removed flat values.istio contract into the subchart namespace. */ -}}
+{{- $packageValuesForCommon := deepCopy $packageValues -}}
+{{- if $bbCommonSubchart }}
+{{- $packageValuesForCommon = omit $packageValuesForCommon "istio" -}}
+{{- end }}
 {{- $explicitDefaults := default (dict) (fromYaml .defaults) -}}
 {{- /* A package's own defaults may declare istio/networkPolicies/routes either flat or nested 
        under bb-common when used as a sub-chart. Normalize to flat here so everything below 
@@ -451,17 +459,17 @@ Args (dict):
 {{- end }}
 {{- $defaults := $explicitDefaults | toYaml -}}
 {{- if dig "injectCommonDefaults" true . }}
-{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list $packageValues .package .root) | fromYaml -}}
+{{- $sharedDefaults := include "bigbang.commonPackageDefaults" (list .package .root) | fromYaml -}}
 {{- $defaults = mustMergeOverwrite (deepCopy $sharedDefaults) (deepCopy $explicitDefaults) | toYaml -}}
 {{- end }}
-{{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValues) }}
+{{- $commonValues := mustMergeOverwrite (deepCopy ($defaults | fromYaml)) (deepCopy $packageValuesForCommon) }}
 {{- $commonBlock := pick $commonValues "istio" "networkPolicies" }}
 {{- $remainingDefaults := $defaults }}
 {{- /* TODO(bb-common-subchart-migration): once every package's bb-common dependency is a
        regular subchart, drop this condition (always nest under bb-common, always omit
        injection, always strip istio/networkPolicies from defaults) and remove the
        "bbCommonSubchart" arg from every values-secret call site. */ -}}
-{{- if dig "bbCommonSubchart" false . }}
+{{- if $bbCommonSubchart }}
 {{- /* routes is a top-level bb-common key too, but not every package declares one. */ -}}
 {{- $commonBlock = merge $commonBlock (pick $commonValues "routes") }}
 {{- if hasKey $commonBlock "istio" }}
@@ -1000,21 +1008,13 @@ keeps the legacy pod-label ext_authz path.
 {{- end -}}
 
 {{- /* Returns "true" if authorization policies should be generated.
-       True when legacy package-level istio.hardened is enabled, the global
-       authorizationPolicies switch is enabled, or ambient mode is enabled.
-       Args (positional list):
-         0 - pkg:  the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - root: the root context (.)
+       True when the global authorizationPolicies switch or ambient mode is enabled.
+       Explicit package-level bb-common values are merged over this default.
+       Takes the root context (.).
     */ -}}
 {{- define "authorizationPoliciesEnabled" -}}
-{{- $pkg  := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- $authorizationPoliciesEnabled := or
-  (dig "istio" "hardened" "enabled" false $pkg)
-  $root.Values.istio.authorizationPolicies.enabled
--}}
-{{- $ambient  := eq (include "ambientEnabled" $root) "true" -}}
-{{ or $authorizationPoliciesEnabled $ambient }}
+{{- $ambient := eq (include "ambientEnabled" .) "true" -}}
+{{ or .Values.istio.authorizationPolicies.enabled $ambient }}
 {{- end -}}
 
 {{- /* Returns the `istio` and `networkPolicies` bb-common scaffolding shared by nearly
@@ -1030,27 +1030,24 @@ keeps the legacy pod-label ext_authz path.
        maps key-by-key rather than replacing them wholesale, a package adding one extra
        definitions entry doesn't need to restate the global ones.
        Args (positional list):
-         0 - pkg:    the package's values dict (e.g. .Values.packages.loki.values, .Values.packages.argocd.values)
-         1 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
-                     only for istio.injection, which is a top-level user knob, unlike the rest of
-                     this block which reads from `.values`
-         2 - root:   the root context (.)
+         0 - pkgTop: the package's top-level dict (e.g. .Values.packages.loki, .Values.packages.argocd) — used
+                     only for istio.injection, which is a top-level user knob
+         1 - root:   the root context (.)
     */ -}}
 {{- define "bigbang.commonPackageDefaults" -}}
-{{- $pkg    := index . 0 -}}
-{{- $pkgTop := index . 1 -}}
-{{- $root   := index . 2 -}}
-{{- $hardened := or (dig "istio" "hardened" "enabled" false $pkg) (dig "hardened" "enabled" false $root.Values.packages.istiod.values) -}}
+{{- $pkgTop := index . 0 -}}
+{{- $root   := index . 1 -}}
+{{- $sidecarDefaultEnabled := dig "hardened" "enabled" false $root.Values.packages.istiod.values -}}
 istio:
   enabled: {{ eq (include "istioEnabled" $root) "true" }}
   sidecar:
-    enabled: {{ and $hardened (ne (include "ambientEnabled" $root) "true") }}
+    enabled: {{ and $sidecarDefaultEnabled (ne (include "ambientEnabled" $root) "true") }}
   ambient:
     enabled: {{ include "ambientEnabled" $root }}
   injection: {{ ternary "disabled" (dig "istio" "injection" "enabled" $pkgTop) (eq (include "ambientEnabled" $root) "true") }}
   authorizationPolicies:
-    enabled: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
-    generateFromNetpol: {{ include "authorizationPoliciesEnabled" (list $pkg $root) }}
+    enabled: {{ include "authorizationPoliciesEnabled" $root }}
+    generateFromNetpol: {{ include "authorizationPoliciesEnabled" $root }}
 networkPolicies:
   enabled: {{ include "networkPoliciesEnabled" $root }}
   hbonePortInjection:
@@ -1097,10 +1094,10 @@ Usage: {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "
 {{- $globalIstioEnabled := eq (include "istioEnabled" $root) "true" -}}
 {{- $pkgValues := default (dict) (get $pkg "values") -}}
 {{- $bbCommonIstio := dig "bb-common" "istio" (dict) $pkgValues -}}
-{{- $pkgIstioEnabled := dig "enabled" (dig "istio" "enabled" true $pkgValues) $bbCommonIstio -}}
+{{- $pkgIstioEnabled := dig "enabled" true $bbCommonIstio -}}
 {{- $injectionEnabled := ne (dig "istio" "injection" "enabled" $pkg) "disabled" -}}
 {{- $ambientEnabled := eq (include "ambientEnabled" $root) "true" -}}
-{{- $mtlsStrict := eq (dig "mtls" "mode" (dig "istio" "mtls" "mode" "STRICT" $pkgValues) $bbCommonIstio) "STRICT" -}}
+{{- $mtlsStrict := eq (dig "mtls" "mode" "STRICT" $bbCommonIstio) "STRICT" -}}
 {{- and $globalIstioEnabled $pkgIstioEnabled $injectionEnabled (not $ambientEnabled) $mtlsStrict -}}
 {{- end -}}
 
