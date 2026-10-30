@@ -1,0 +1,36 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    istio:
+      injection: enabled
+      hosts: [package-level.example.test]
+    values:
+      istio:
+        tempoQuery:
+          hosts: [flat-values.example.test]
+      routes:
+        inbound:
+          tempo-query:
+            hosts: [flat-route.example.test]
+      bb-common:
+        istio:
+          tempoQuery:
+            hosts: [relocated.example.test]
+        routes:
+          inbound:
+            tempo-query:
+              enabled: false
+              hosts: [canonical.example.test]
+              gateways: [custom/custom-gateway]
+              port: 3200
+  monitoring:
+    values:
+      istio:
+        prometheus: {hosts: [old-metrics.example.test]}
+        alertmanager: {hosts: [old-alerts.example.test]}
+      bb-common:
+        routes:
+          inbound:
+            monitoring-prometheus: {hosts: []}
+            monitoring-alertmanager: {hosts: null}

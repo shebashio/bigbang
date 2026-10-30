@@ -1,0 +1,76 @@
+packageConfiguration:
+  version: v1
+packages:
+  anchoreEnterprise:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            anchore-api: {hosts: [anchore-api.example.test]}
+            anchore-ui: {hosts: [anchore-ui.example.test]}
+  argocd:
+    values: {bb-common: {routes: {inbound: {argocd: {hosts: [argocd.example.test]}}}}}
+  elasticsearchKibana:
+    istio: {}
+    values:
+      bb-common:
+        routes:
+          inbound:
+            elasticsearch: {hosts: [elasticsearch.example.test]}
+            kibana: {hosts: [kibana.example.test]}
+  fortify:
+    values: {bb-common: {routes: {inbound: {fortify: {hosts: [fortify.example.test]}}}}}
+  gitlab:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            gitlab: {hosts: [gitlab.example.test, gitlab-alt.example.test]}
+            registry: {hosts: [registry.example.test]}
+            pages: {hosts: ["*.pages.example.test"]}
+  grafana:
+    values: {bb-common: {routes: {inbound: {grafana: {hosts: [grafana.example.test]}}}}}
+  harbor:
+    values: {bb-common: {routes: {inbound: {harbor: {hosts: [harbor.example.test]}}}}}
+  headlamp:
+    values: {bb-common: {routes: {inbound: {headlamp: {hosts: [headlamp.example.test]}}}}}
+  keycloak:
+    values: {bb-common: {routes: {inbound: {keycloak: {hosts: [keycloak.example.test]}}}}}
+  kiali:
+    values: {bb-common: {routes: {inbound: {kiali: {hosts: [kiali.example.test]}}}}}
+  kyvernoReporter:
+    values: {bb-common: {routes: {inbound: {policy-reporter-ui: {hosts: [reporter.example.test]}}}}}
+  loki:
+    values: {bb-common: {routes: {inbound: {loki: {hosts: [loki.example.test]}}}}}
+  mattermost:
+    values: {bb-common: {routes: {inbound: {chat: {hosts: [chat.example.test]}}}}}
+  mimir:
+    values: {bb-common: {routes: {inbound: {mimir-gateway: {hosts: [mimir.example.test]}}}}}
+  minio:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            api: {hosts: [minio-api.example.test]}
+            console: {hosts: [minio-console.example.test]}
+  monitoring:
+    values:
+      bb-common:
+        istio:
+          enabled: true
+        routes:
+          inbound:
+            monitoring-prometheus: {hosts: [metrics.example.test, "*.metrics.example.test"]}
+            monitoring-alertmanager: {hosts: ["alerts.{{ .Values.global.domain }}"]}
+  neuvector:
+    values: {bb-common: {routes: {inbound: {neuvector: {hosts: [neuvector.example.test]}}}}}
+  sonarqube:
+    values: {bb-common: {routes: {inbound: {sonarqube: {hosts: [sonarqube.example.test]}}}}}
+  tempo:
+    values: {bb-common: {routes: {inbound: {tempo-query: {hosts: [tempo.example.test]}}}}}
+  thanos:
+    values: {bb-common: {routes: {inbound: {query-frontend: {hosts: [thanos.example.test]}}}}}
+  twistlock:
+    values: {bb-common: {routes: {inbound: {console: {hosts: [twistlock.example.test]}}}}}
+  vault:
+    values: {bb-common: {routes: {inbound: {vault: {hosts: [vault.example.test]}}}}}
