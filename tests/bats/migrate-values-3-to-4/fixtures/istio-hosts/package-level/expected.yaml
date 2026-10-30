@@ -1,0 +1,27 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      bb-common:
+        istio: {}
+        routes:
+          inbound:
+            tempo-query:
+              hosts: [tempo.example.test, "*.traces.example.test"]
+  argocd:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            argocd:
+              hosts: [argocd.example.test]
+  kiali:
+    istio:
+      injection: enabled
+    values:
+      bb-common:
+        routes:
+          inbound:
+            kiali:
+              hosts: ["kiali.{{ .Values.global.domain }}", "${KIALI_HOST}"]

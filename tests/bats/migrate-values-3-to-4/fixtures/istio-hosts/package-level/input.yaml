@@ -1,0 +1,17 @@
+packageConfiguration:
+  version: v1
+tempo:
+  istio:
+    hosts: [tempo.example.test, "*.traces.example.test"]
+  values:
+    bb-common:
+      istio: {}
+addons:
+  argocd:
+    istio:
+      hosts: [argocd.example.test]
+packages:
+  kiali:
+    istio:
+      injection: enabled
+      hosts: ["kiali.{{ .Values.domain }}", "${KIALI_HOST}"]
