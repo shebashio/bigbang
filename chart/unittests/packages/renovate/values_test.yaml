@@ -64,7 +64,7 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
-  - it: should enable the sidecar when istiod is hardened
+  - it: should enable the sidecar when istiod is enabled and not ambient
     postRenderer:
       cmd: "sh"
       args:
@@ -74,13 +74,12 @@ tests:
       istio.ambient.enabled: false
       packages.renovate.enabled: true
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: true
 
-  - it: should not enable the sidecar when istiod is hardened in ambient mode
+  - it: should not enable the sidecar in ambient mode
     postRenderer:
       cmd: "sh"
       args:
@@ -89,7 +88,6 @@ tests:
     set:
       packages.renovate.enabled: true
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
       istio.ambient.enabled: true
     asserts:
       - equal:

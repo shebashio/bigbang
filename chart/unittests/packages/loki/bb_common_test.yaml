@@ -13,7 +13,6 @@ tests:
   - it: nests shared mesh and networking defaults without legacy keys in sidecar mode
     set:
       istio.ambient.enabled: false
-      packages.istiod.values.hardened.enabled: true
       istio.authorizationPolicies.enabled: true
     asserts:
       - equal:
@@ -41,7 +40,6 @@ tests:
 
   - it: nests shared mesh and networking defaults without legacy keys in ambient mode (default)
     set:
-      packages.istiod.values.hardened.enabled: true
       istio.authorizationPolicies.enabled: true
     asserts:
       - equal:

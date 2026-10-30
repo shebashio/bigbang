@@ -173,7 +173,7 @@ tests:
           path: bb-common.networkPolicies.egress.from.headlamp.to.definition.sso
           value: false
 
-  - it: should enable the istio sidecar when istiod is hardened and not ambient
+  - it: should enable the istio sidecar when istiod is enabled and not ambient
     postRenderer:
       cmd: "sh"
       args:
@@ -183,7 +183,6 @@ tests:
       istio.ambient.enabled: false
       packages.headlamp.enabled: true
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled

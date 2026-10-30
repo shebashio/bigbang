@@ -9,7 +9,6 @@ tests:
     set:
       packages.tempo.enabled: true
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: true
       istio.ambient.enabled: false
     asserts:
       - equal:
@@ -31,7 +30,6 @@ tests:
       args: ["-c", "yq '.stringData.common | from_yaml'"]
     set:
       packages.tempo.enabled: true
-      packages.istiod.values.hardened.enabled: true
 
     asserts:
       - equal:

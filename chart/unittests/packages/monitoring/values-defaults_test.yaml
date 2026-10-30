@@ -65,11 +65,10 @@ tests:
       - equal:
           path: upstream.prometheus.prometheusSpec.podMetadata.annotations["sidecar.istio.io/userVolumeMount"]
           value: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
-  - it: should keep istio cert mounts when sidecar is explicitly enabled and hardened is disabled
+  - it: should keep istio cert mounts when sidecar is explicitly enabled
     set:
       istio.ambient.enabled: false
       packages.istiod.enabled: true
-      packages.istiod.values.hardened.enabled: false
       packages.monitoring.values.bb-common.istio.sidecar.enabled: true
     asserts:
       - equal:
