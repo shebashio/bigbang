@@ -153,20 +153,42 @@ the standard subchart model consistently.
 
 This transition changes the values shape for these packages, so existing users
 will need to migrate their package overrides. Big Bang's
-[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) is being
-delivered in two phases. The current script migrates the unified package
-configuration change: it moves legacy top-level and `addons.<name>` package
-configuration into the consistent `packages.<name>` map. It does not yet
-rewrite package overrides from the Helm library-chart values shape to the
-scoped `bb-common` subchart shape.
+[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) requires
+an explicit `--target` to select the values format for the destination Big Bang
+major version:
 
-Support for migrating the `bb-common` values shape is planned for the final
-Big Bang 3.x minor release. Users can run the script now to adopt and validate
-the unified package configuration on 3.x. After consuming the final 3.x minor
-release, they can run the script again to apply the `bb-common` migration before
-upgrading to 4.x. The script is designed to support this phased workflow, but
-users should review and validate the generated values after each run and before
-deployment.
+- **`--target 3`:** Adopt the unified `packages.<name>` configuration on Big
+  Bang 3.32 or later 3.x while retaining flat `bb-common` library values and
+  legacy hardening.
+- **`--target 4`:** Prepare values for the Big Bang 4.0 upgrade. This includes
+  the unified package configuration, moves package `istio`, `networkPolicies`,
+  and `routes` overrides beneath `values.bb-common`, migrates legacy custom
+  Istio resources and recognized hostname overrides, and removes legacy
+  hardening settings.
+
+For a staged migration, first generate and validate values for use on 3.x:
+
+```shell
+scripts/migrate-values-3-to-4.sh --target 3 \
+  --output values-v1.yaml values.yaml
+```
+
+When preparing the 4.0 upgrade, run the script again against those values:
+
+```shell
+scripts/migrate-values-3-to-4.sh --target 4 \
+  --output values-4.x.yaml values-v1.yaml
+```
+
+Users can also migrate directly from their original 3.x values with
+`--target 4`; the target 3 step is optional. **Do not deploy target 4 output to
+Big Bang 3.x.** Prepare and review it before upgrading, validate it against the
+4.0 chart, and deploy it with the 4.0 upgrade. Review script warnings for values
+that require manual migration. The
+[package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md)
+covers layered values, HelmRelease patches, and encrypted Secrets; the
+[script reference](../../docs/migration/package-values-migration-script.md)
+documents requirements and all options.
 
 Bring your own packages and mission applications remain under their owners'
 control: packages already using `bb-common` as a subchart do not need this
