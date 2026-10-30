@@ -178,10 +178,6 @@ flux:
 networkPolicies:
   # -- Toggle all package NetworkPolicies. For integrated packages that consume bb-common as a subchart, use `packages.<name>.values.bb-common.networkPolicies.enabled` to override a specific package.
   enabled: true
-  # -- Node CIDR, defaults to allowing "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" "100.64.0.0/10" networks.
-  # use `kubectl get nodes -owide` and review the `INTERNAL-IP` column to derive CIDR range.
-  # Must be an IP CIDR range (x.x.x.x/x - ideally a /16 or /24 to include multiple IPs)
-  nodeCidr: ""
   # bb-common-related values below; See [the documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies.md#definition-rules-definition)
   # for more details.
   egress:
