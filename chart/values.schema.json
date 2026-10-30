@@ -253,11 +253,33 @@
       "properties": {
         "enabled": {
           "type": "boolean"
+        },
+        "hbonePortInjection": {
+          "type": "object"
+        },
+        "prependReleaseName": {
+          "type": "boolean"
+        },
+        "defaultsAsHooks": {
+          "type": "object"
+        },
+        "additionalPolicies": {
+          "type": "array"
+        },
+        "additional": {
+          "type": "array"
+        },
+        "egress": {
+          "type": "object"
+        },
+        "ingress": {
+          "type": "object"
         }
       },
       "required": [
         "enabled"
-      ]
+      ],
+      "additionalProperties": false
     },
     "routes": {
       "type": "object",
