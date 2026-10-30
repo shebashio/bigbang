@@ -25,8 +25,8 @@ tests:
       - notExists:
           path: routes
       - equal:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[0].ipBlock.cidr
-          value: "0.0.0.0/0"
+          path: bb-common.networkPolicies.egress.from["*"].to.definition.kubeAPI
+          value: true
       - equal:
           path: bb-common.routes.inbound.query-frontend.gateways[0]
           value: istio-gateway/public-ingressgateway
@@ -117,7 +117,7 @@ tests:
       - notExists:
           path: minio
 
-  - it: configures the Garage S3 route with its explicit host, port, and protocol
+  - it: enables the Garage S3 route with the default REGISTRY_ONLY policy
     postRenderer:
       cmd: "sh"
       args:
@@ -127,7 +127,6 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: http://garage:3900
       packages.thanos.objectStorage.insecure: true
-      packages.istiod.values.hardened.enabled: true
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.enabled
@@ -142,6 +141,21 @@ tests:
           path: bb-common.routes.outbound.s3.ports[0].protocol
           value: HTTP
 
+  - it: prefixes the AWS S3 route host with the bucket name
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: s3.us-gov-west-1.amazonaws.com
+      packages.thanos.objectStorage.bucket: mybkt
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.hosts[0]
+          value: mybkt.s3.us-gov-west-1.amazonaws.com
+
   - it: configures an HTTPS S3 endpoint without its scheme in the host
     postRenderer:
       cmd: "sh"
@@ -152,7 +166,7 @@ tests:
       packages.thanos.enabled: true
       packages.thanos.objectStorage.endpoint: https://garage.example:9443
       packages.thanos.objectStorage.insecure: false
-      packages.istiod.values.hardened.enabled: true
+      packages.thanos.values.bb-common.istio.sidecar.outboundTrafficPolicyMode: REGISTRY_ONLY
     asserts:
       - equal:
           path: bb-common.routes.outbound.s3.hosts[0]
@@ -163,3 +177,18 @@ tests:
       - equal:
           path: bb-common.routes.outbound.s3.ports[0].protocol
           value: HTTPS
+
+  - it: disables the S3 route when outbound traffic allows unknown destinations
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.thanos.enabled: true
+      packages.thanos.objectStorage.endpoint: https://garage.example:9443
+      packages.thanos.values.bb-common.istio.sidecar.outboundTrafficPolicyMode: ALLOW_ANY
+    asserts:
+      - equal:
+          path: bb-common.routes.outbound.s3.enabled
+          value: false

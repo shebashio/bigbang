@@ -67,10 +67,50 @@ tests:
           path: bb-common.istio.sidecar.enabled
           value: false
 
-  - it: should honor legacy package-level hardening for the Istio sidecar
+  - it: should enable sidecar policy by default without the retired hardening flag
     set:
       istio.ambient.enabled: false
-      packages.sample.values.istio.hardened.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: true
+
+  - it: should disable sidecar policy when Istio is disabled
+    set:
+      istio.ambient.enabled: false
+      packages.istiod.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+
+  - it: should disable sidecar policy when ztunnel enables ambient mode
+    set:
+      istio.ambient.enabled: false
+      packages.ztunnel.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+
+  - it: should preserve an explicit custom package sidecar policy opt-out
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '(.stringData.\"common.yaml\" | from_yaml) * (.stringData.\"values.yaml\" | from_yaml)' -"
+    set:
+      istio.ambient.enabled: false
+      packages.sample.values.bb-common.istio.sidecar.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
+
+  - it: should ignore the retired global hardening opt-out
+    set:
+      istio.ambient.enabled: false
+      packages.istiod.values.hardened.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled

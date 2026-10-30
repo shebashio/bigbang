@@ -105,8 +105,11 @@ sso:
   provider_type: {{ .Values.packages.twistlock.sso.provider_type }}
   issuer_uri: {{ default (include "sso.url" .) (tpl (default "" .Values.packages.twistlock.sso.issuer_uri) .) }}
   idp_url: {{ default (include "sso.saml.service" .) (tpl (default "" .Values.packages.twistlock.sso.idp_url) .) }}
-  {{- $console := first (dig "istio" "console" "hosts" (list (printf "twistlock.%s" $domainName)) .Values.packages.twistlock.values) }}
-  console_url: {{ tpl (default (printf "https://%s" $console) .Values.packages.twistlock.sso.console_url) . }}
+  {{- $consoleHost := default
+    (printf "twistlock.%s" $domainName)
+    (first (dig "bb-common" "routes" "inbound" "console" "hosts" list (.Values.packages.twistlock.values | default dict)))
+  }}
+  console_url: {{ tpl (default (printf "https://%s" $consoleHost) .Values.packages.twistlock.sso.console_url) . }}
   groups: {{ .Values.packages.twistlock.sso.groups }}
   cert: {{ default (include "sso.saml.cert.withheaders" .) .Values.packages.twistlock.sso.cert | quote }}
 {{- end -}}

@@ -1,0 +1,22 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    istio:
+      injection: enabled
+    values:
+      bb-common:
+        routes:
+          inbound:
+            tempo-query:
+              enabled: false
+              hosts: [canonical.example.test]
+              gateways: [custom/custom-gateway]
+              port: 3200
+  monitoring:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            monitoring-prometheus: {hosts: []}
+            monitoring-alertmanager: {hosts: null}

@@ -3,7 +3,7 @@ suite: Package - Grafana - Values Tests
 templates:
   - templates/grafana/values.yaml
 tests:
-  - it: should honor legacy package-level hardening for the Istio sidecar
+  - it: should not translate flat package Istio values for a bb-common subchart
     postRenderer:
       cmd: "sh"
       args:
@@ -11,11 +11,24 @@ tests:
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
       istio.ambient.enabled: false
-      packages.grafana.values.istio.hardened.enabled: true
+      packages.grafana.values.istio.sidecar.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
           value: true
+  - it: should preserve nested bb-common Istio values in the effective values
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '(.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml)' -"
+    set:
+      istio.ambient.enabled: false
+      packages.grafana.values.bb-common.istio.sidecar.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.istio.sidecar.enabled
+          value: false
   - it: should point the GitLab Redis datasource at the configured external service
     postRenderer:
       cmd: "sh"
