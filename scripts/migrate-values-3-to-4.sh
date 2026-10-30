@@ -501,6 +501,17 @@ migrate_inbound_hosts() {
           continue
         fi
 
+        if yq -o=json '.' "$WORK_FILE" | jq -e --arg package "$package_name" '
+          .packages[$package].values |
+          type == "object" and (has("domain") or (.global | type == "object" and has("domain")))
+        ' >/dev/null && jq -e '
+          [.hosts[] | select(test("\\{\\{-?\\s*\\.Values\\.domain\\s*-?\\}\\}"))] | length > 0
+        ' <<<"$candidate" >/dev/null; then
+          blocked_routes+=("$route_identity")
+          HOST_MIGRATION_REVIEW+=("$source_display: packages.$package_name.values.domain or values.global.domain overrides a template context; hosts preserved. Set packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts manually using the intended domain.")
+          continue
+        fi
+
         # These umbrella integrations do not pass the umbrella domain as the
         # child chart's global.domain. Argo CD instead derives it from its host.
         case "$package_name" in

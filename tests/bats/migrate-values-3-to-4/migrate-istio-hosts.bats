@@ -60,6 +60,36 @@ assert_fixture() {
   [[ "$stderr" != *"customDomain"* ]]
 }
 
+@test "preserves domain templates with an explicit package domain for manual review" {
+  assert_fixture package-domain
+  [[ "$stderr" == *"packages.tempo.values.domain"*"hosts preserved"* ]]
+}
+
+@test "package domain does not block literal or canonical hostname overrides" {
+  yq '.tempo.values.istio.tempoQuery.hosts = ["literal.example.test"]' \
+    "$FIXTURES/package-domain/input.yaml" >"$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.tempo.values.bb-common.routes.inbound.tempo-query.hosts[0]' "$OUTPUT_FILE")" = literal.example.test ]
+  [[ "$stderr" != *"hosts preserved"* ]]
+  yq '.tempo.values.routes.inbound.tempo-query.hosts = ["canonical.example.test"]' \
+    "$FIXTURES/package-domain/input.yaml" >"$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.tempo.values.bb-common.routes.inbound.tempo-query.hosts[0]' "$OUTPUT_FILE")" = canonical.example.test ]
+  [[ "$stderr" != *"hosts preserved"* ]]
+}
+
+@test "preserves legacy host templates when package global domain is overridden" {
+  yq 'del(.tempo.values.domain) | .tempo.values.global.domain = "different.example.test"' \
+    "$FIXTURES/package-domain/input.yaml" >"$INPUT_FILE"
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$INPUT_FILE"
+  [ "$status" -eq 0 ]
+  [ "$(yq '.packages.tempo.values.bb-common.istio.tempoQuery.hosts[0]' "$OUTPUT_FILE")" = 'tempo.{{ .Values.domain }}' ]
+  [ "$(yq '.packages.tempo.values.bb-common | has("routes")' "$OUTPUT_FILE")" = false ]
+  [[ "$stderr" == *"values.global.domain overrides a template context"* ]]
+}
+
 @test "empty and absent legacy hosts do not create inbound routes" {
   assert_fixture empty-hosts
   [ "$(yq '[.packages[].values.bb-common.routes.inbound | select(. != null)] | length' "$OUTPUT_FILE")" -eq 0 ]
@@ -275,4 +305,31 @@ assert_fixture() {
   printf '%s\n' "$output" >"${OUTPUT_FILE}.package-rendered"
   [ "$(yq -o=json -I=0 'select(.kind == "VirtualService" and .metadata.name == "tempo-query") |
     .spec.hosts' "${OUTPUT_FILE}.package-rendered")" = '["tempo.release.example.test"]' ]
+}
+
+@test "package-specific domain is preserved for manual migration and the correct Tempo route renders" {
+  [ -n "${TEMPO_CHART_PATH:-}" ] || skip "Set TEMPO_CHART_PATH to the pinned Tempo 3.2.1-bb.1 chart with dependencies"
+  [ "$(yq '.version' "$TEMPO_CHART_PATH/Chart.yaml")" = 3.2.1-bb.1 ]
+  [ -f "$TEMPO_CHART_PATH/charts/bb-common-1.6.1.tgz" ]
+
+  run --separate-stderr "$SCRIPT_PATH" --target 4 -o "$OUTPUT_FILE" "$FIXTURES/package-domain/input.yaml"
+  [ "$status" -eq 0 ]
+  [[ "$stderr" == *"packages.tempo.values.domain"*"hosts preserved"* ]]
+  [ "$(yq '.packages.tempo.values.bb-common | has("routes")' "$OUTPUT_FILE")" = false ]
+  # Apply the diagnostic's manual migration using the package-specific domain.
+  yq -i '.packages.tempo.values.bb-common.routes.inbound.tempo-query.hosts = ["tempo.traces.example.test"] |
+    del(.packages.tempo.values.bb-common.istio.tempoQuery)' "$OUTPUT_FILE"
+  run helm template bigbang "$REPO_ROOT/chart" -f "$OUTPUT_FILE" --set packages.tempo.enabled=true
+  [ "$status" -eq 0 ]
+  printf '%s\n' "$output" >"${OUTPUT_FILE}.rendered"
+  yq 'select(.kind == "Secret" and .metadata.name == "bigbang-tempo-values") |
+    (.stringData.common | from_yaml) * (.stringData.defaults | from_yaml) * (.stringData.overlays | from_yaml) |
+    .bb-common.routes.inbound.tempo-query.enabled = true' \
+    "${OUTPUT_FILE}.rendered" >"${OUTPUT_FILE}.package-values"
+  run helm template tempo "$TEMPO_CHART_PATH" --api-versions networking.istio.io/v1 \
+    -f "${OUTPUT_FILE}.package-values"
+  [ "$status" -eq 0 ]
+  printf '%s\n' "$output" >"${OUTPUT_FILE}.package-rendered"
+  [ "$(yq -o=json -I=0 'select(.kind == "VirtualService" and .metadata.name == "tempo-query") |
+    .spec.hosts' "${OUTPUT_FILE}.package-rendered")" = '["tempo.traces.example.test"]' ]
 }

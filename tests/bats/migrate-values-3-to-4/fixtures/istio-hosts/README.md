@@ -21,6 +21,7 @@ documents must be maintained independently of the script's mapping table.
 | `canonical-conflicts` | 0 | Canonical route hosts win, including explicit `[]` and `null` |
 | `route-fields` | 0 | Already-relocated inputs, chart-value precedence over package-level hosts, literal strings, duplicates, siblings, and unrelated hosts |
 | `host-templates` | 0, review diagnostic | Translate supported domain templates; preserve unsupported expressions, package-specific domain contexts, and lower-precedence hosts |
+| `package-domain` | 0, review diagnostic | Preserve templated hosts when the package sets its own `values.domain` |
 | `empty-hosts` | 0 | Absent, empty-list, and null hosts do not create routes |
 | `manual-review` | 0, review diagnostic | Unknown/custom/removed endpoints and ambiguous flat lists remain in output for manual migration |
 

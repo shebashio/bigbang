@@ -215,6 +215,11 @@ Domain templates also require manual migration for `argocd`, `kyvernoReporter`,
 `mimir`, `minio`, and `sonarqube`: these umbrella integrations do not pass the
 Big Bang domain as `bb-common`'s `global.domain`. For Argo CD, the value is
 instead derived from the application's host.
+When a package explicitly sets `values.domain` or `values.global.domain`,
+legacy `{{ .Values.domain }}` hosts also require review: the old package domain
+and the target subchart's global domain may differ. Compose all values sources
+before migration when possible; otherwise, check for these overrides across
+the separately migrated sources.
 The script retains the whole host list and any lower-precedence legacy hosts
 for that route rather than applying a potentially misleading fallback. These
 hosts remain in the output,
