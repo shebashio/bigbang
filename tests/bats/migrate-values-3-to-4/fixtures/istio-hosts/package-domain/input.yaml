@@ -1,0 +1,8 @@
+domain: umbrella.example.test
+tempo:
+  values:
+    domain: traces.example.test
+    istio:
+      tempoQuery:
+        hosts:
+          - tempo.{{ .Values.domain }}

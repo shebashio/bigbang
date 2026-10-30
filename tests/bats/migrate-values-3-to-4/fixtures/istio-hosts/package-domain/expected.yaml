@@ -1,0 +1,12 @@
+domain: umbrella.example.test
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      domain: traces.example.test
+      bb-common:
+        istio:
+          tempoQuery:
+            hosts:
+              - tempo.{{ .Values.domain }}
