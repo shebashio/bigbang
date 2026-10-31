@@ -155,6 +155,11 @@ networkPolicies:
             redis-subnets: {{ $externalRedisEnabled }}
           k8s:
             tempo/tempo:9411: {{ and .Values.packages.tempo.enabled (ne (include "ambientEnabled" .) "true") }}
+      # -- Egress to the SSO provider for OIDC discovery and token exchange
+      argocd-server:
+        to:
+          definition:
+            sso: {{ .Values.packages.argocd.sso.enabled }}
 
 bbtests:
   enableImagePullSecrets: {{ ne .Values.registryCredentials nil }}
