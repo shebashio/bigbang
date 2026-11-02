@@ -35,9 +35,9 @@ By default logs are also shipped to Elastic via Fluentbit for advanced searching
 Monitoring is provided via a Prometheus capable endpoint. MinIO also provides a Grafana dashboard for use in viewing metrics. Monitoring in the Big Bang config can be enabled using the following format.
 
 ```yaml
-monitoring:
-  enabled: false
-  namespace: monitoring
+packages:
+  monitoring:
+    enabled: true
 ```
 
 ### Health Checks

@@ -35,8 +35,9 @@ Gateway API CRDs are installed into the `kube-system` namespace. The package can
 
 ```yaml
 # Explicit enable
-gatewayAPI:
-  enabled: true
+packages:
+  gatewayAPI:
+    enabled: true
 
 # Or via ambient mode (auto-enables gateway-api)
 istio:
@@ -64,8 +65,9 @@ Gateway API has no required dependencies within Big Bang. However, it is typical
 This package installs only the Gateway API CRDs and does not deploy any controllers or workloads. There are no upstream chart values to configure.
 
 ```yaml
-gatewayAPI:
-  enabled: true
+packages:
+  gatewayAPI:
+    enabled: true
 ```
 
 The actual Gateway API controller functionality is provided by Istio (istiod) when it reconciles Gateway and HTTPRoute resources.

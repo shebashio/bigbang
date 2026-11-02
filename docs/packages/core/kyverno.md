@@ -15,7 +15,12 @@ Data from Kyverno is not stored by the app directly, it is stored as objects in 
 
 ### Istio Configuration
 
-When deploying to k3d, istio-system should be added from `excludedNamespaces` under the `allowedDockerRegistries` violations. This can be done by modifying `chart/values.yaml` file or passing an override file with the values set as seen below. This is for development purposes only: production should not allow containers in the `istio-system` namespace to be pulled from outside of Registry1. 
+For a k3d development environment, a load-balancer workload in `istio-system`
+may need an exception to `restrict-external-ips`. Use the CEL-based exception
+shape shown below in an environment override. This exception is limited to
+that policy and workload; it does not change the allowed image registries.
+Review the [4.0 Kyverno policies migration guide](../../migration/migrating-kyverno-policies-for-bb4.0.md)
+when converting existing exclusions or exceptions.
 
 ```yaml
 packages:

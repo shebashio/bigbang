@@ -299,17 +299,19 @@ the image **after** rewriting. You must allowlist the registry you rewrote **to*
 though every manifest you authored names `registry1.dso.mil`:
 
 ```yaml
-kyvernoPolicies:
-  values:
-    policies:
-      restrict-image-registries:
-        parameters:
-          allow:
-            - registry.example.mil
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-image-registries:
+          parameters:
+            allow:
+              - registry.example.mil
 ```
 
-If you have enabled the CEL-based policies, apply the same override to
-`restrict-image-registries-cel`.
+Big Bang 4.0 uses the CEL-based `restrict-image-registries` policy with the same
+name. Its allowlist entries are literal registry prefixes, not glob patterns;
+see the [Kyverno policies migration guide](../../migration/migrating-kyverno-policies-for-bb4.0.md).
 
 Without it, every pod is refused at admission:
 
@@ -388,9 +390,10 @@ helmRepositories:
     username: ""
     password: ""
 
-istiod:
-  sourceType: "helmRepo"
-# ...and every other package you enable
+packages:
+  istiod:
+    sourceType: "helmRepo"
+  # ...and every other package you enable
 ```
 
 Two things that will trip you up:
@@ -491,7 +494,9 @@ natively, so no pull secret is required. Big Bang documents that case as
 `registryCredentials: null`.
 
 If you are on a Kubernetes version below 1.36 on EKS, neither a mirror nor an in-tree
-policy is available, and the remaining option is a Kyverno mutating `ClusterPolicy`.
+policy is available, and a Kyverno mutating policy requires a separate bootstrap
+plan. Big Bang 4.0 uses CEL-based policies; migrate any legacy `ClusterPolicy`
+configuration using the [Kyverno policies migration guide](../../migration/migrating-kyverno-policies-for-bb4.0.md).
 Note the bootstrap cost: Kyverno cannot mutate the pods that install Kyverno, so its own
 images and the `kubectl` image in the `kyverno-policies` wait-job must be rewritten with
 `postRenderers` first, and Flux's four controller images with a kustomize `images:`
@@ -521,23 +526,24 @@ helmRepositories:
     password: "<password>"
 
 # Kyverno validates AFTER the rewrite, so allow the destination.
-kyvernoPolicies:
-  values:
-    policies:
-      restrict-image-registries:
-        parameters:
-          allow:
-            - registry.example.mil
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-image-registries:
+          parameters:
+            allow:
+              - registry.example.mil
 
-# Every package defaults to sourceType "git". Flip each one you enable.
-istiod:
-  sourceType: "helmRepo"
-istioGateway:
-  sourceType: "helmRepo"
-# ...and so on
+  # Every package defaults to sourceType "git". Flip each one you enable.
+  istiod:
+    sourceType: "helmRepo"
+  istioGateway:
+    sourceType: "helmRepo"
+  # ...and so on
 ```
 
-With a registry mirror instead, drop the `kyvernoPolicies` override, leave
+With a registry mirror instead, drop the `packages.kyvernoPolicies` override, leave
 `registryCredentials` pointed at `registry1.dso.mil` (references are unchanged, so that
 is the host the kubelet authenticates to), and give containerd the mirror's own
 credentials under `configs:` in `registries.yaml`. The `helmRepositories` and

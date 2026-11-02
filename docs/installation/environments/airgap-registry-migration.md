@@ -36,13 +36,13 @@ part 3 is not cosmetic — getting it wrong denies every new pod at admission.
 Harbor is a Big Bang package, so it deploys the same way everything else does:
 
 ```yaml
-addons:
+packages:
   harbor:
     enabled: true
     sourceType: "helmRepo"
 ```
 
-**The chart and images are already in the archive**, even though `addons.harbor` defaults
+**The chart and images are already in the archive**, even though `packages.harbor` defaults
 to `enabled: false`. It is reasonable to assume a disabled package was excluded — it was
 not. The image list is built across every package regardless of enablement, so
 `harbor:<version>` and its `goharbor/*` images shipped with the release you already have.
@@ -95,14 +95,15 @@ Add Harbor to the allowlist **before** anything rewrites to it, keeping the boot
 registry allowed until the cutover is complete:
 
 ```yaml
-kyvernoPolicies:
-  values:
-    policies:
-      restrict-image-registries:
-        parameters:
-          allow:
-            - hauler.example.mil:5000
-            - harbor.example.mil
+packages:
+  kyvernoPolicies:
+    values:
+      policies:
+        restrict-image-registries:
+          parameters:
+            allow:
+              - hauler.example.mil:5000
+              - harbor.example.mil
 ```
 
 `MutatingAdmissionPolicy` is a mutating plugin and runs before Kyverno's validating

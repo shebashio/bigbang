@@ -55,18 +55,13 @@ packages:
           maxReplicas: 3
 ```
 
-Likewise, the ingress gateway replicas can be specified and extra ingress gateways can be configured:
-
-```yaml
-packages:
-  istioGateway:
-    values:
-      upstream:
-        minReplicas: 1
-        maxReplicas: 5
-      extraIngressGateways:
-      # ...
-```
+Configure a gateway's deployment through
+`packages.istioGateway.values.gateways.<name>.upstream`, or shared deployment
+overrides through `packages.istioGateway.values.shared.upstream`. Refer to the
+[upstream gateway values for Istio 1.31.3](https://github.com/istio/istio/blob/1.31.3/manifests/charts/gateway/values.yaml)
+for replica and autoscaling settings. Add gateways beneath
+`packages.istioGateway.values.gateways`; see the
+[gateway configuration guide](../../configuration/gateways.md).
 
 ### UI
 

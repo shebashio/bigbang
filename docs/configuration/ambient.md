@@ -1,8 +1,9 @@
 # Configuring Istio Ambient Mode in Big Bang
 
 > **NOTE:** Ambient mode is the default Istio configuration as of Big Bang 4.0.
-> Sidecar mode remains supported: set `istio.ambient.enabled: false` to keep
-> Istio sidecars. To move an existing sidecar environment to ambient, see
+> Sidecar mode remains supported: set `istio.ambient.enabled: false` and
+> `packages.ztunnel.enabled: false` to keep Istio sidecars. Enabling ztunnel also
+> enables ambient mode. To move an existing sidecar environment to ambient, see
 > [Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode](../migration/migrating-istio-to-ambient.md).
 >
 > **NOTE:** When `istio.ambient.enabled` is set to `true`, Big Bang deploys the required ambient infrastructure (ztunnel, istio-cni, gateway-api) and automatically opts all packages into ambient mode by applying the `istio.io/dataplane-mode: ambient` label to their namespaces.
@@ -54,12 +55,13 @@ istio:
 
 # The following packages are automatically enabled,
 # but you can still override their values if needed:
-# ztunnel:
-#   values: {}
-# istioCNI:
-#   values: {}
-# gatewayAPI:
-#   values: {}
+# packages:
+#   ztunnel:
+#     values: {}
+#   istioCNI:
+#     values: {}
+#   gatewayAPI:
+#     values: {}
 ```
 
 ## Platform-Specific Configuration
@@ -75,11 +77,12 @@ When enabling ambient mode, `istio-cni` is automatically deployed. Depending on 
 Refer to the [upstream istio-cni values](https://github.com/istio/istio/blob/master/manifests/charts/istio-cni/values.yaml) for available configuration options. Override these in your Big Bang values:
 
 ```yaml
-istioCNI:
-  values:
-    cni:
-      cniBinDir: /opt/cni/bin       # Customize for your platform
-      cniConfDir: /etc/cni/net.d    # Customize for your platform
+packages:
+  istioCNI:
+    values:
+      cni:
+        cniBinDir: /opt/cni/bin       # Customize for your platform
+        cniConfDir: /etc/cni/net.d    # Customize for your platform
 ```
 
 ## Sidecar-Mode Exception for Mission Applications

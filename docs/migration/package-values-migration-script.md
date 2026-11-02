@@ -6,6 +6,11 @@ with [Migrating Package Values for Big Bang 4.0](migrating-package-values-for-bb
 to choose an end-to-end workflow. Use this page when selecting options,
 reviewing exact behavior, or diagnosing a failure.
 
+For the prescribed 4.0 upgrade sequence, **upgrade to 3.35.1 first**, then use
+`--target 4` to prepare its deployed values for the **4.0 upgrade with Ambient
+enabled**. Deploy the migrated values, Ambient enablement, and 4.0 version
+change together. See the [4.0 migration guide](migrating-to-bb4.0.md).
+
 ## Scope
 
 Both targets move recognized built-in packages from their Big Bang 3.x
@@ -27,6 +32,11 @@ converts recognized legacy Istio hostname overrides to inbound routes. It also
 removes legacy hardening. The commands do not rewrite other unrelated
 deprecated settings or values passed through to child charts. Target 4 output
 must not be deployed to Big Bang 3.x.
+
+The script does not convert Kyverno policy definitions, parameters, exclusions,
+or exceptions to CEL, and it does not select the mesh mode for the upgrade.
+Review the [4.0 upgrade checklist](migrating-to-bb4.0.md)
+for those separate preparation steps.
 
 Two commands are available:
 

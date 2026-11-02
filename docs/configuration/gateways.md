@@ -22,29 +22,30 @@ The **public** gateway is configured for standard TLS termination (mode:
 redirects HTTP traffic to HTTPS.
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      public:
-        gateway:
-          servers:
-            - hosts:
-                - "*.{{ domain }}"
-              port:
-                name: http
-                number: 8080
-                protocol: HTTP
-              tls:
-                httpsRedirect: true
-            - hosts:
-                - "*.{{ domain }}"
-              port:
-                name: https
-                number: 8443
-                protocol: HTTPS
-              tls:
-                credentialName: public-cert
-                mode: SIMPLE
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          gateway:
+            servers:
+              - hosts:
+                  - "*.{{ domain }}"
+                port:
+                  name: http
+                  number: 8080
+                  protocol: HTTP
+                tls:
+                  httpsRedirect: true
+              - hosts:
+                  - "*.{{ domain }}"
+                port:
+                  name: https
+                  number: 8443
+                  protocol: HTTPS
+                tls:
+                  credentialName: public-cert
+                  mode: SIMPLE
 ```
 
 The public gateway handles TLS termination, decrypting HTTPS traffic at the
@@ -57,28 +58,29 @@ The **passthrough** gateway is configured for TLS passthrough (mode:
 which handle TLS termination themselves.
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      passthrough:
-        gateway:
-          servers:
-            - hosts:
-                - "*.{{ domain }}"
-              port:
-                name: http
-                number: 8080
-                protocol: HTTP
-              tls:
-                httpsRedirect: true
-            - hosts:
-                - "*.{{ domain }}"
-              port:
-                name: https
-                number: 8443
-                protocol: HTTPS
-              tls:
-                mode: PASSTHROUGH
+packages:
+  istioGateway:
+    values:
+      gateways:
+        passthrough:
+          gateway:
+            servers:
+              - hosts:
+                  - "*.{{ domain }}"
+                port:
+                  name: http
+                  number: 8080
+                  protocol: HTTP
+                tls:
+                  httpsRedirect: true
+              - hosts:
+                  - "*.{{ domain }}"
+                port:
+                  name: https
+                  number: 8443
+                  protocol: HTTPS
+                tls:
+                  mode: PASSTHROUGH
 ```
 
 This mode is typically used for applications like Keycloak that must manage
@@ -88,22 +90,27 @@ their own TLS certificates.
 
 Gateway configuration in Big Bang follows a three-tier structure:
 
+The following examples override the existing `public` gateway and inherit its
+remaining defaults. A new gateway also needs its type label and server
+configuration; see [Creating a Custom Ingress Gateway](#creating-a-custom-ingress-gateway).
+
 ### 1. Gateway Certificates (`gatewayCerts`)
 
 Define TLS certificates that will be stored as Kubernetes secrets and referenced
 by the gateway:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      <gateway-name>:
-        gatewayCerts:
-          - name: <cert-name>
-            tls:
-              key: "<private-key-pem>"
-              cert: "<certificate-pem>"
-              ca: "<optional-ca-bundle-pem>"
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          gatewayCerts:
+            - name: <cert-name>
+              tls:
+                key: "<private-key-pem>"
+                cert: "<certificate-pem>"
+                ca: "<optional-ca-bundle-pem>"
 ```
 
 ### 2. Gateway Resource (`gateway`)
@@ -112,21 +119,22 @@ Configure the Istio Gateway custom resource, defining protocol, ports, hosts,
 and TLS settings:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      <gateway-name>:
-        gateway:
-          servers:
-            - hosts:
-                - "*.example.com"
-              port:
-                name: https
-                number: 8443
-                protocol: HTTPS
-              tls:
-                credentialName: <cert-name>
-                mode: SIMPLE
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          gateway:
+            servers:
+              - hosts:
+                  - "*.example.com"
+                port:
+                  name: https
+                  number: 8443
+                  protocol: HTTPS
+                tls:
+                  credentialName: <cert-name>
+                  mode: SIMPLE
 ```
 
 ### 3. Upstream Configuration (`upstream`)
@@ -135,19 +143,20 @@ Configure the underlying gateway deployment, including labels, image pull
 settings, and Kubernetes resource specifications:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      <gateway-name>:
-        upstream:
-          labels:
-            istio: ingressgateway # Required: must be 'ingressgateway' or 'egressgateway'
-          imagePullPolicy: IfNotPresent
-          imagePullSecrets:
-            - name: private-registry
-          serviceAccount:
-            create: true
-            name: <gateway-name>-service-account
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          upstream:
+            labels:
+              istio: ingressgateway # Required: must be 'ingressgateway' or 'egressgateway'
+            imagePullPolicy: IfNotPresent
+            imagePullSecrets:
+              - name: private-registry
+            serviceAccount:
+              create: true
+              name: public-service-account
 ```
 
 The `istio` label is **required** and determines whether the gateway functions
@@ -160,21 +169,22 @@ as an ingress or egress gateway.
 To configure custom TLS certificates for the default public gateway:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      public:
-        gatewayCerts:
-          - name: public-cert
-            tls:
-              key: |
-                -----BEGIN PRIVATE KEY-----
-                MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...
-                -----END PRIVATE KEY-----
-              cert: |
-                -----BEGIN CERTIFICATE-----
-                MIIDXTCCAkWgAwIBAgIJAKL0UG+mRKuLMA0GCSqGSIb3DQEBBQUA...
-                -----END CERTIFICATE-----
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          gatewayCerts:
+            - name: public-cert
+              tls:
+                key: |
+                  -----BEGIN PRIVATE KEY-----
+                  MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...
+                  -----END PRIVATE KEY-----
+                cert: |
+                  -----BEGIN CERTIFICATE-----
+                  MIIDXTCCAkWgAwIBAgIJAKL0UG+mRKuLMA0GCSqGSIb3DQEBBQUA...
+                  -----END CERTIFICATE-----
 ```
 
 > **Note:** Certificates should be stored in encrypted values files (e.g., using
@@ -185,37 +195,38 @@ istioGateway:
 Create a new ingress gateway with custom hostname and TLS configuration:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      custom: # Name will be templated to 'custom-ingressgateway'
-        gatewayCerts:
-          - name: custom-cert
-            tls:
-              key: "<my-key>"
-              cert: "<my-cert>"
-        upstream:
-          labels:
-            istio: ingressgateway # Required
-        gateway:
-          servers:
-            - hosts:
-                - "*.mydomain.com"
-              port:
-                name: http
-                number: 8080
-                protocol: HTTP
+packages:
+  istioGateway:
+    values:
+      gateways:
+        custom: # Name will be templated to 'custom-ingressgateway'
+          gatewayCerts:
+            - name: custom-cert
               tls:
-                httpsRedirect: true
-            - hosts:
-                - "*.mydomain.com"
-              port:
-                name: https
-                number: 8443
-                protocol: HTTPS
-              tls:
-                credentialName: custom-cert
-                mode: SIMPLE
+                key: "<my-key>"
+                cert: "<my-cert>"
+          upstream:
+            labels:
+              istio: ingressgateway # Required
+          gateway:
+            servers:
+              - hosts:
+                  - "*.mydomain.com"
+                port:
+                  name: http
+                  number: 8080
+                  protocol: HTTP
+                tls:
+                  httpsRedirect: true
+              - hosts:
+                  - "*.mydomain.com"
+                port:
+                  name: https
+                  number: 8443
+                  protocol: HTTPS
+                tls:
+                  credentialName: custom-cert
+                  mode: SIMPLE
 ```
 
 ### Creating an Egress Gateway
@@ -223,23 +234,24 @@ istioGateway:
 Configure an egress gateway to control outbound traffic from the service mesh:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      outbound: # Name will be templated to 'outbound-egressgateway'
-        upstream:
-          labels:
-            istio: egressgateway # Required for egress functionality
-        gateway:
-          servers:
-            - port:
-                number: 443
-                name: tls
-                protocol: TLS
-              hosts:
-                - "*"
-              tls:
-                mode: ISTIO_MUTUAL
+packages:
+  istioGateway:
+    values:
+      gateways:
+        outbound: # Name will be templated to 'outbound-egressgateway'
+          upstream:
+            labels:
+              istio: egressgateway # Required for egress functionality
+          gateway:
+            servers:
+              - port:
+                  number: 443
+                  name: tls
+                  protocol: TLS
+                hosts:
+                  - "*"
+                tls:
+                  mode: ISTIO_MUTUAL
 ```
 
 For more information on egress gateway configuration, see:
@@ -252,10 +264,11 @@ For more information on egress gateway configuration, see:
 To disable a default gateway (e.g., the passthrough gateway):
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      passthrough: {} # Empty object disables the gateway
+packages:
+  istioGateway:
+    values:
+      gateways:
+        passthrough: {} # Empty object disables the gateway
 ```
 
 ## Package Integration with Gateways
@@ -307,27 +320,9 @@ specific gateways.
 Apply a post-renderer to all gateway deployments:
 
 ```yaml
-istioGateway:
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              kind: Deployment
-              name: .*
-            patch: |-
-              - op: add
-                path: /metadata/annotations/bigbang.dev~1example
-                value: example
-```
-
-#### Gateway-Specific Post-Renderer
-
-Apply a post-renderer only to a specific gateway:
-
-```yaml
-istioGateway:
-  postRenderers:
-    public: # Only applies to the public gateway
+packages:
+  istioGateway:
+    postRenderers:
       - kustomize:
           patches:
             - target:
@@ -337,6 +332,26 @@ istioGateway:
                 - op: add
                   path: /metadata/annotations/bigbang.dev~1example
                   value: example
+```
+
+#### Gateway-Specific Post-Renderer
+
+Apply a post-renderer only to a specific gateway:
+
+```yaml
+packages:
+  istioGateway:
+    postRenderers:
+      public: # Only applies to the public gateway
+        - kustomize:
+            patches:
+              - target:
+                  kind: Deployment
+                  name: .*
+                patch: |-
+                  - op: add
+                    path: /metadata/annotations/bigbang.dev~1example
+                    value: example
 ```
 
 > **Note:** You cannot mix array-style and map-style post-renderers. Choose one
@@ -367,9 +382,9 @@ This baseline configuration is set as a default value for each gateway's
 `HelmRelease` under the gateway chart's `bb-common` subchart configuration,
 which means your values configuration can always override it. Configure shared
 gateway overrides under
-`istioGateway.values.shared.bb-common.networkPolicies`, or configure a specific
+`packages.istioGateway.values.shared.bb-common.networkPolicies`, or configure a specific
 gateway under
-`istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
+`packages.istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
 
 #### Modifying the Global `load-balancer-subnets` Ingress Definition
 
@@ -379,7 +394,7 @@ gateways, configure the global `load-balancer-subnets` definition:
 ```yaml
 # Top-level `networkPolicies` in Big Bang values
 # Per-gateway overrides instead use
-# `istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
+# `packages.istioGateway.values.gateways.<name>.bb-common.networkPolicies`.
 networkPolicies:
   ingress:
     definitions:
@@ -415,27 +430,28 @@ networkPolicies:
 
 #### Modifying `load-balancer-subnets` Per Gateway
 
-To configure different load balancer subnets for a specific gateway:
+To configure different load balancer subnets for the public gateway:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      special:
-        bb-common:
-          networkPolicies:
-            ingress:
-              definitions:
-                load-balancer-subnets:
-                  from:
-                    - ipBlock:
-                        cidr: 10.200.201.0/24 # Special subnet X
-                    - ipBlock:
-                        cidr: 10.200.202.0/24 # Special subnet Y
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          bb-common:
+            networkPolicies:
+              ingress:
+                definitions:
+                  load-balancer-subnets:
+                    from:
+                      - ipBlock:
+                          cidr: 10.200.201.0/24 # Special subnet X
+                      - ipBlock:
+                          cidr: 10.200.202.0/24 # Special subnet Y
 ```
 
 This overrides the global `load-balancer-subnets` definition for only the
-`special` gateway while other gateways continue using the global configuration.
+`public` gateway while other gateways continue using the global configuration.
 
 #### Disabling Generated Ingress Policy
 
@@ -443,21 +459,22 @@ To disable the automatically generated ingress policy for a specific gateway and
 manage it entirely on your own:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      <gateway-name>:
-        bb-common:
-          networkPolicies:
-            ingress:
-              to:
-                # Key format: <gateway-name>-ingressgateway:[port1,port2,...]
-                # Ports must match the gateway's server port configuration
-                <gateway-name>-ingressgateway:[8080,8443]:
-                  from:
-                    definition:
-                      # Set to false to disable the generated ingress policy
-                      load-balancer-subnets: false
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          bb-common:
+            networkPolicies:
+              ingress:
+                to:
+                  # Key format: public-ingressgateway:[port1,port2,...]
+                  # Ports must match the gateway's server port configuration
+                  public-ingressgateway:[8080,8443]:
+                    from:
+                      definition:
+                        # Set to false to disable the generated ingress policy
+                        load-balancer-subnets: false
 ```
 
 > **Note:** The key is generated based on the gateway's name
@@ -471,19 +488,20 @@ By default, gateways allow outbound connections to any Kubernetes workload. To
 restrict this connectivity:
 
 ```yaml
-istioGateway:
-  values:
-    gateways:
-      <gateway-name>:
-        bb-common:
-          networkPolicies:
-            egress:
-              from:
-                <gateway-name>-ingressgateway:
-                  to:
-                    k8s:
-                      # Set to false to remove the default egress policy
-                      "*": false
+packages:
+  istioGateway:
+    values:
+      gateways:
+        public:
+          bb-common:
+            networkPolicies:
+              egress:
+                from:
+                  public-ingressgateway:
+                    to:
+                      k8s:
+                        # Set to false to remove the default egress policy
+                        "*": false
 ```
 
 After disabling the default egress policy, you can add specific egress rules as

@@ -9,7 +9,7 @@ If you want to test deployment of a package off of your dev branch, you have two
 After making your changes to a chart you will need to package it with `helm package chart`. You should see output similar to the following:
 
 ```console
-Successfully packaged chart and saved it to: /Users/me/bigbang/anchore/anchore-1.19.7-bb.4.tgz
+Successfully packaged chart and saved it to: /Users/me/bigbang/anchore/anchore-enterprise-4.4.1-bb.1.tgz
 ```
 
 Note that Helm strictly enforces the OCI name and tag to match the chart name and version (see [HIP 0006](https://github.com/helm/community/blob/main/hips/hip-0006.md#3-chart-versions--oci-reference-tags)), and artifacts will always match the above syntax.
@@ -75,8 +75,8 @@ You will want to spin up the registry on the same host as your cluster (i.e., yo
 1. Push OCI artifact to this registry with `helm push <artifact name> oci://oci.dev.bigbang.mil:5000`. Following this example that would look like this:
 
     ```console
-    ❯ helm push anchore-1.19.7-bb.4.tgz oci://oci.dev.bigbang.mil:5000
-    Pushed: oci.dev.bigbang.mil:5000/anchore:1.19.7-bb.4
+    ❯ helm push anchore-enterprise-4.4.1-bb.1.tgz oci://oci.dev.bigbang.mil:5000
+    Pushed: oci.dev.bigbang.mil:5000/anchore-enterprise:4.4.1-bb.1
     Digest: sha256:3cb826ee59fab459aa3cd723ded448fc6d7ef2d025b55142b826b33c480f0a4c
     ```
 
@@ -84,18 +84,24 @@ You will want to spin up the registry on the same host as your cluster (i.e., yo
 
     ```yaml
     helmRepositories:
-    - name: "registry1"
-      repository: "oci://registry1.dso.mil/bigbang"
-      existingSecret: "private-registry"
-     - name: "k3d"
-       repository: "oci://oci.dev.bigbang.mil:5000"
+      - name: registry1
+        repository: oci://registry1.dso.mil/bigbang
+        existingSecret: private-registry
+        type: oci
+      - name: k3d
+        repository: oci://oci.dev.bigbang.mil:5000
+        type: oci
+        username: ""
+        password: ""
 
-    addons:
-      anchore:
+    packages:
+      anchoreEnterprise:
+        enabled: true
+        sourceType: helmRepo
         helmRepo:
-          repoName: "k3d"
-          chartName: "anchore"
-          tag: "1.19.7-bb.4"
+          repoName: k3d
+          chartName: anchore-enterprise
+          tag: "4.4.1-bb.1"
     ```
 
 ### Push to Registry1 Staging
@@ -116,30 +122,32 @@ Another option is to push your OCI artifacts to the Big Bang Staging area of Reg
 1. Push OCI artifact to the staging area with `helm push <artifact name> oci://registry1.dso.mil/bigbang-staging`.
 
     ```console
-    ❯ helm push anchore-1.19.7-bb.4.tgz oci://registry1.dso.mil/bigbang-staging
-    Pushed: registry1.dso.mil/bigbang-staging/anchore:1.19.7-bb.4
+    ❯ helm push anchore-enterprise-4.4.1-bb.1.tgz oci://registry1.dso.mil/bigbang-staging
+    Pushed: registry1.dso.mil/bigbang-staging/anchore-enterprise:4.4.1-bb.1
     Digest: sha256:3cb826ee59fab459aa3cd723ded448fc6d7ef2d025b55142b826b33c480f0a4c
     ```
 
 1. Configure your Big Bang values to setup an additional `HelmRepository` and point the package to that repository. An example is provided in the following:
 
     ```yaml
-    helmRepositores:
-    - name: "registry1"
-      repository: "oci://registry1.dso.mil/bigbang"
-      existingSecret: "private-registry"
-      type: "oci"
-    - name: "staging"
-      repository: "oci://registry1.dso.mil/bigbang-staging"
-      existingSecret: "private-registry"
-      type: "oci"
+    helmRepositories:
+      - name: registry1
+        repository: oci://registry1.dso.mil/bigbang
+        existingSecret: private-registry
+        type: oci
+      - name: staging
+        repository: oci://registry1.dso.mil/bigbang-staging
+        type: oci
+        existingSecret: "private-registry"
 
-    addons:
-      anchore:
+    packages:
+      anchoreEnterprise:
+        enabled: true
+        sourceType: helmRepo
         helmRepo:
-          repoName: "staging"
-          chartName: "anchore
-          tag: "1.19.7-bb.4"
+          repoName: staging
+          chartName: anchore-enterprise
+          tag: "4.4.1-bb.1"
     ```
 
 ### Push to a Big Bang Registry

@@ -91,9 +91,10 @@ replicaCount: 3
 In Big Bang to override this value you will want to add this to your configuration:
 
 ```yaml
-kiali:
-  values:
-    replicaCount: 3
+packages:
+  kiali:
+    values:
+      replicaCount: 3
 ```
 
 ### Post-renderers

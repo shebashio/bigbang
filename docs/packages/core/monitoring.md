@@ -45,11 +45,12 @@ graph LR
 ## Upgrade Notices: bb-common subchart
 
 Monitoring 91.4.1-bb.2 requires the paired umbrella wiring for bb-common subchart
-mode. Move package overrides from `monitoring.values.istio`,
-`monitoring.values.networkPolicies`, and `monitoring.values.routes` to
-`monitoring.values.bb-common.istio`, `monitoring.values.bb-common.networkPolicies`,
-and `monitoring.values.bb-common.routes`. With package configuration v1, use
-`packages.monitoring` instead of `monitoring`.
+mode. For Big Bang 4.0, move legacy package overrides to
+`packages.monitoring.values.bb-common.istio`,
+`packages.monitoring.values.bb-common.networkPolicies`, and
+`packages.monitoring.values.bb-common.routes`. The
+[package values migration script](../../migration/migrating-package-values-for-bb4.0.md)
+performs these moves with `--target 4`.
 
 Replace package `domain` and `upstream.domain` overrides with `global.domain`.
 Remove package `istio.injection`; the umbrella controls namespace injection and

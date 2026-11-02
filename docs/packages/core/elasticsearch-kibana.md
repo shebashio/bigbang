@@ -52,30 +52,31 @@ packages:
 
 ### Istio Configuration
 
-Istio is disabled in the elasticsearch-kibana chart by default and can be enabled with the following values in the bigbang chart:
+Big Bang configures Kibana's Istio route when Istiod is enabled. Set the
+platform domain and enable the package in the umbrella values:
 
 ```yaml
-hostname: dev.bigbang.mil
-istio:
-  enabled: true
+domain: dev.bigbang.mil
+packages:
+  istiod:
+    enabled: true
+  elasticsearchKibana:
+    enabled: true
 ```
 
-These values get passed into the logging chart [here](https://repo1.dso.mil/big-bang/bigbang/-/blob/master/chart/templates/elasticsearch-kibana/values.yaml#L6). This creates the Istio virtual service and maps to the main istio gateway for bigbang. The Kibana GUI is available behind this Istio VirtualService that is configured automatically at "kibana.{{ .Values.hostname }}" (value set above) and can be configured with the following values:
+The umbrella generates the host `kibana.<domain>` and selects the package's
+ingress gateway. Override the route beneath the `bb-common` subchart key:
 
 ```yaml
 packages:
   elasticsearchKibana:
     values:
-      istio:
-        kibana:
-          # Toggle vs creation
-          enabled: true
-          annotations: {}
-          labels: {}
-          gateways:
-            - istio-system/main
-          hosts:
-            - kibana.{{ .Values.hostname }}
+      bb-common:
+        routes:
+          inbound:
+            kibana:
+              hosts:
+                - kibana.example.mil
 ```
 
 ## High Availability

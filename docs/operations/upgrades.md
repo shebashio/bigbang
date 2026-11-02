@@ -3,6 +3,9 @@
 ## Before Upgrading
 Before upgrading Big Bang, please first check the Release Notes and the Changelog to look for any notes that apply to Big Bang Updates and Package Updates.
 
+Use the [migration guides](../migration/index.md) for release-specific preparation
+and configuration changes.
+
 There are two important things to review when upgrading:
 1. "Upgrade Notices" in the Big Bang release notes: 
   - These capture any critical notes that the Big Bang development team identified during the release process. 
@@ -23,24 +26,26 @@ Upgrading a single package in Big Bang is done by changing the tag in the values
 For a git repository:
 
 ```yaml
-istiod:
-  sourceType: "git"
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
-    path: "./chart"
-    tag: "1.26.0-bb.0"
+packages:
+  istiod:
+    sourceType: "git"
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/istiod.git
+      path: "./chart"
+      tag: "1.31.3-bb.0"
 
 ```
 
 For a helm repository:
 
 ```yaml
-istiod:
-  sourceType: "helmRepo"
-  helmRepo:
-    repoName: "registry1"
-    chartName: "istiod"
-    tag: "1.26.0-bb.0"
+packages:
+  istiod:
+    sourceType: "helmRepo"
+    helmRepo:
+      repoName: "registry1"
+      chartName: "istiod"
+      tag: "1.31.3-bb.0"
 ```
 
 These values are in `chart/values.yaml` of the Big Bang helm chart.

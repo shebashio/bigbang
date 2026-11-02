@@ -22,20 +22,20 @@ For the purposes of this document, "customer defined package" and "community sup
 
 BigBang core and addon packages ship with various network policies already configured. You can turn these networking policies on and off by setting a global flag and a per-component flag. Community supported packages may or may not provide the same mechanism for managing networking policies - check the documentation for the given community supported package for confirmation or additional instructions.
 
-```
+```yaml
 # This will turn support on or off for network policies writ-large across the bigbang suite
 networkPolicies:
-  enabled: [true|false]
+  enabled: true # Set to false to disable globally.
 
 # For an integrated package that consumes bb-common as a subchart, this will
 # turn network policies on or off for that package. User-defined packages that
 # consume bb-common as a subchart use the same nested values shape.
 packages:
-  LIBRARY_PACKAGE_NAME:
+  monitoring:
     values:
       bb-common:
         networkPolicies:
-          enabled: [true|false]
+          enabled: false # Override this package independently.
 ```
 
 ## Enabling Authorization Policies
@@ -51,9 +51,9 @@ istio:
 
 Ambient mode enables AuthorizationPolicies regardless of this value. A package
 can override the generated setting beneath
-`packages.<name>.values.istio.authorizationPolicies`, or beneath
-`packages.<name>.values.bb-common.istio.authorizationPolicies` after migrating
-`bb-common` to a regular subchart.
+`packages.<name>.values.bb-common.istio.authorizationPolicies`. Big Bang 4.0
+uses the nested subchart values shape; migrate flat library values with the
+[package values migration guide](../migration/migrating-package-values-for-bb4.0.md).
 
 ## Crafting and Delivering Additional Network Policies
 
@@ -62,9 +62,9 @@ Sometimes you will want to apply additional [Network Policies](https://kubernete
 For an integrated package that consumes `bb-common` as a subchart, place these
 rules beneath that dependency's values key:
 
-```
+```yaml
 packages:
-  LIBRARY_PACKAGE_NAME:
+  monitoring:
     values:
       bb-common:
         networkPolicies:
@@ -75,15 +75,12 @@ packages:
 User-defined packages own their internal values contract. When such a package
 consumes `bb-common` as a subchart, use the same nested shape.
 
-User-defined packages own their internal values contract. When such a package
-consumes `bb-common` as a subchart, use the same nested shape.
-
 In all cases, the `additionalPolicies` entry should be a list of YAML objects, each describing a single [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/). You can add as many of these as you like. Consult [the upstream Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/) for more information on Network Policies, and what you can do with them.
 
-```
+```yaml
 additionalPolicies:
   - name: example-egress-policy-all-pods
-      spec:
+    spec:
       podSelector: {}
       policyTypes:
       - Egress
@@ -92,7 +89,7 @@ additionalPolicies:
           - ipBlock:
               cidr: 172.20.0.0/12
   - name: example-ingress-policy-all-pods
-      spec:
+    spec:
       podSelector: {}
       policyTypes:
       - Ingress

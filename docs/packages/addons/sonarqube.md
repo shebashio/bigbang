@@ -58,15 +58,21 @@ packages:
 
 ### Istio Configuration
 
-Istio is disabled in the sonarqube chart by default and can be enabled by setting the following values in the bigbang chart:
+Big Bang configures SonarQube's Istio route when Istiod is enabled. Set the
+platform domain and enable the package in the umbrella values:
 
 ```yaml
-hostname: dev.bigbang.mil
-istio:
-  enabled: true
+domain: dev.bigbang.mil
+packages:
+  istiod:
+    enabled: true
+  sonarqube:
+    enabled: true
 ```
 
-These values get passed into the sonarqube chart [here](https://repo1.dso.mil/big-bang/product/packages/sonarqube/-/blob/main/chart/values.yaml#L358). This creates the virtual service and maps to the istio gateway.
+The umbrella supplies the route's host and gateway through
+`packages.sonarqube.values.bb-common.routes.inbound.sonarqube`. Use that path
+for package-specific route overrides.
 
 ## High Availability
 

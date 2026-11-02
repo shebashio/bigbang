@@ -25,9 +25,10 @@ Monitoring has been configured to use the Bigbang monitoring package (Prometheus
 ```yaml
 # Monitoring
 #
-monitoring:
-  # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
-  enabled: true
+packages:
+  monitoring:
+    # -- Toggle deployment of Monitoring (Prometheus, Grafana, and Alertmanager).
+    enabled: true
 
 ```
 

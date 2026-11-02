@@ -56,8 +56,9 @@ istio:
     enabled: true
 
 # Or directly
-istioEgressGateway:
-  enabled: true
+packages:
+  istioEgressGateway:
+    enabled: true
 ```
 
 ### Storage
@@ -100,7 +101,7 @@ waypoint is ready.
 
 The waypoint is a single shared Deployment serving every bound route across
 all packages. Replicas, resources, HPA, and PDB are configured via
-`istioEgressGateway.values.waypoint.config`; see
+`packages.istioEgressGateway.values.waypoint.config`; see
 [Waypoint sizing and behavior](../../configuration/ambient-egress-gateway.md#waypoint-sizing-and-behavior).
 
 ### Dependent Packages
@@ -117,16 +118,17 @@ The egress gateway requires the ambient mode stack:
 Values can be passed through to the istio-egress-gateway chart:
 
 ```yaml
-istioEgressGateway:
-  enabled: true
-  values:
-    defaultDeny:
-      enabled: true
-    waypoint:
-      config:
-        deployment:
-          spec:
-            replicas: 2
+packages:
+  istioEgressGateway:
+    enabled: true
+    values:
+      defaultDeny:
+        enabled: true
+      waypoint:
+        config:
+          deployment:
+            spec:
+              replicas: 2
 ```
 
 See [Configuring an Egress Gateway](../../configuration/ambient-egress-gateway.md)

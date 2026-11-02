@@ -47,10 +47,13 @@ Twistlock Console requires access to persistent storage \
 Persistent storage values can be set/modified  in the bigbang chart:
 
 ```yaml
-console:
-  persistence:
-    size: 100Gi
-    accessMode: ReadWriteOnce
+packages:
+  twistlock:
+    values:
+      console:
+        persistence:
+          size: 100Gi
+          accessMode: ReadWriteOnce
 ```
 
 ### Database
@@ -59,26 +62,36 @@ N/A
 
 ### Istio Configuration
 
-Istio is disabled in the twistlock chart by default and can be enabled by setting the following values in the bigbang chart:
+Big Bang configures Twistlock's Istio integration through `bb-common`. Set
+package-specific Istio overrides beneath the subchart key:
 
 ```yaml
-hostname: dev.bigbang.mil
-istio:
-  enabled: true
+packages:
+  twistlock:
+    values:
+      bb-common:
+        istio:
+          enabled: true
 ```
 
-NOTE: In  BigBang twistlock istio.enabled : true only exposes twistlock console to VirtualService.  The defender installation for twistlock in BigBang  is manual. By default, all traffic between the twistlock Defender and the console is TLS encrypted.
+NOTE: This controls the Console's Istio integration. The Defender deployment
+and its connectivity must be configured separately using the package guidance
+above. By default, traffic between the Defender and Console is TLS encrypted.
 
 ## Monitoring
 
 Twistlock Prometheus metrics collection is implemented following the documentation:
 [Twistlock Prometheus Integration](https://docs.prismacloud.io/admin-guide/audit/prometheus)
 
-Monitoring is disabled in the twistlock chart by default and can be enabled by setting the following values in the bigbang chart:
+Big Bang enables Twistlock monitoring when a metrics scraper is active.
+Package-specific monitoring overrides use:
 
 ```yaml
-monitoring:
-  enabled: true
+packages:
+  twistlock:
+    values:
+      monitoring:
+        enabled: true
 ```
 
 ## High Availability

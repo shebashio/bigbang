@@ -109,13 +109,11 @@ generatorOptions:
 ```yaml
 domain: dev.bigbang.mil
 
-istio:
-  enabled: true
-
-monitoring:
-  enabled: true
-
 packages:
+  istiod:
+    enabled: true
+  monitoring:
+    enabled: true
   gitlab:
     enabled: true
     values:

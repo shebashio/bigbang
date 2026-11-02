@@ -140,6 +140,9 @@ packages:
 
 For testing with the CI pipeline, create a `tests/dependencies.yaml` and include Minio.
 
+This is a package CI dependency file, not an umbrella values file. It uses the
+package test pipeline's dependency format rather than the `packages` values map.
+
 ```yaml
 minioOperator:
   git:

@@ -56,20 +56,15 @@ sidecars.
 
 Ambient first became available as an opt-in beta in Big Bang 3.23 and reached
 General Availability in Big Bang 3.32. It remains opt-in for the rest of the
-3.x lifecycle before becoming the default in 4.0. We recommend that users move
-to Ambient as part of the 4.0 upgrade, starting in a development or test
-environment and validating mission-specific traffic and integrations before
-production.
+3.x lifecycle before becoming the default in 4.0. The prescribed upgrade
+strategy is to **upgrade to Big Bang 3.35.1 first, then upgrade to 4.0 with
+Ambient enabled**. Apply the unified package values and `bb-common` migrations
+with the 4.0 upgrade. Validate the complete sequence and mission-specific
+traffic and integrations in a development or test environment before production.
 
-Making Ambient the default does not remove sidecar mode: Big Bang 4.0 continues
-to support sidecar configuration so users can upgrade the platform without
-also being required to migrate their service mesh. If a mission environment
-uncovers an Ambient issue, sidecar mode provides a supported escape hatch while
-that issue is addressed. Maintaining both modes adds development and testing
-cost, so Big Bang may reconsider sidecar support in a future release through a
-separate deprecation decision. Read
+Sidecar mode remains a supported capability as recorded in
 [ADR 13](../../docs/community/adrs/0013-retain-istio-sidecar-support-in-big-bang-4.md)
-for the complete decision.
+while the prescribed 4.0 upgrade strategy uses Ambient.
 
 Authservice is also supported with Ambient through waypoint proxies, which
 provide the Layer 7 enforcement that `ztunnel` cannot. When an inbound route
@@ -147,22 +142,26 @@ subchart in 4.0, and the umbrella chart supplies package overrides beneath the
 
 This transition changes the values shape for these packages, so existing users
 will need to migrate their package overrides. Big Bang's
-[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) prepares
-existing 3.x values for Big Bang 4.0. With `--target 4`, it applies the unified
-package configuration, moves package `istio`, `networkPolicies`, and `routes`
-overrides beneath `values.bb-common`, migrates legacy custom Istio resources and
-recognized hostname overrides, and removes legacy hardening settings:
+[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) performs
+this conversion with **`--target 4`**. After completing and validating the
+upgrade to **3.35.1**, run it against the values deployed on that release:
 
 ```shell
 scripts/migrate-values-3-to-4.sh --target 4 \
   --output values-4.x.yaml values.yaml
 ```
 
-**Do not deploy target 4 output to Big Bang 3.x.** Prepare and review it before
-upgrading, validate it against the 4.0 chart, and deploy it with the 4.0
-upgrade as described in [Preparing for Big Bang 4.0](#preparing-for-big-bang-40).
-Review script warnings for values that require manual migration. The
-[package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md)
+The script produces the unified `packages.<name>` configuration, moves package
+`istio`, `networkPolicies`, and `routes` overrides beneath `values.bb-common`,
+migrates supported legacy custom Istio resources and hostname overrides, and
+removes legacy hardening settings. Explicitly set
+`istio.ambient.enabled: true` in the generated configuration; the script does
+not enable Ambient.
+
+Review script warnings and validate the migrated values against the 4.0 chart.
+Deploy the **4.0 version change, migrated values, and Ambient enablement
+together**. **Do not deploy target 4 output to 3.35.1 or any other 3.x release.**
+The [package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md)
 covers layered values, HelmRelease patches, and encrypted Secrets; the
 [script reference](../../docs/migration/package-values-migration-script.md)
 documents requirements and all options.
@@ -287,26 +286,26 @@ The new configuration schema rejects known legacy fields so incompatible
 overrides fail visibly instead of being silently ignored. Users who deploy the
 default policy configuration receive the updated policy foundation through Big
 Bang. Users who customize policies, exclusions, or exceptions should review the
-[upstream CEL migration guide](https://kyverno.io/docs/guides/migration-to-cel/)
-before adopting 4.0 and follow the Big Bang release notes for package-specific
-guidance.
+[Big Bang Kyverno policies migration guide](../../docs/migration/migrating-kyverno-policies-for-bb4.0.md)
+before adopting 4.0. It covers package-specific values changes and links to
+upstream CEL guidance. The package values migration script does not convert
+these policy settings.
 
 ## Preparing for Big Bang 4.0
 
 These capabilities change important platform defaults and configuration
-contracts. Existing users should review the Big Bang 4.0 release notes and the
-linked migration guides before upgrading. The recommended upgrade path is:
+contracts. Review the Big Bang 4.0 release notes and the linked migration
+guides before upgrading. Follow this upgrade strategy:
 
-1. Upgrade to Big Bang 3.35.1.
-2. Migrate your values with `scripts/migrate-values-3-to-4.sh --target 4`,
-   review the script's warnings, and validate the output against the 4.0 chart.
-3. Upgrade to Big Bang 4.0 with the migrated values. Ambient is enabled by
-   default, so the platform moves to Ambient as part of this upgrade.
+1. **Upgrade to Big Bang 3.35.1** and validate the deployment.
+2. **Upgrade to Big Bang 4.0 with Ambient enabled**, the unified
+   `packages.<name>` values format, and the `bb-common` values migrations
+   applied together.
 
-Detailed compatibility requirements and step-by-step actions are maintained in
-the [package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md),
-[Ambient migration guide](../../docs/migration/migrating-istio-to-ambient.md),
-and [Kyverno policies migration guide](../../docs/migration/migrating-kyverno-policies-for-bb4.0.md).
+The [4.0 migration guide](../../docs/migration/migrating-to-bb4.0.md) provides the
+step-by-step checklist, including the separate review of custom Kyverno CEL
+policies and exceptions. Review the release notes and rehearse both upgrades
+in a representative test environment before production.
 
 <!-- TODO(owner): Add the final Big Bang 4.0 release-notes link when it is
 available. -->

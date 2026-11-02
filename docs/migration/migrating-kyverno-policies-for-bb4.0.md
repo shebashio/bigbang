@@ -14,8 +14,16 @@ keep working.
 > `packages.kyvernoPolicies.values` in their Big Bang configuration: custom
 > `validationFailureAction`, policy `parameters`, per-policy `exclude` blocks,
 > `additionalPolicies`, or `additionalPolicyExceptions`. If you deploy
-> `kyvernoPolicies` with defaults and never override policy behavior, no action
-> is required.
+> `kyvernoPolicies` with defaults and never override policy behavior, no
+> policy-specific values changes are required.
+
+Follow the [4.0 upgrade sequence](migrating-to-bb4.0.md): **upgrade to 3.35.1
+first**, then prepare the **4.0 upgrade with Ambient enabled**, migrated package
+paths, and migrated `bb-common` values. The
+[package values migration guide](migrating-package-values-for-bb4.0.md) covers
+the `--target 4` conversion. It does not rewrite policy definitions, parameters,
+exclusions, or exceptions to CEL; prepare those settings separately here and
+deploy them with the 4.0 upgrade.
 
 ## Why This Change
 

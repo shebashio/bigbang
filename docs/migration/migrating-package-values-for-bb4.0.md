@@ -1,20 +1,23 @@
 # Migrating package values for Big Bang 4.0
 
+Follow the prescribed [4.0 upgrade sequence](migrating-to-bb4.0.md): upgrade to
+**Big Bang 3.35.1 first**, then upgrade to **4.0 with Ambient enabled and the
+package values migrations applied**. This guide covers preparing the values
+for that second upgrade.
+
 Big Bang 4.0 moves built-in package configuration from top-level and
-`addons.<name>` paths into `packages.<name>`. Starting with Big Bang 3.32, you
-can adopt this structure before upgrading by setting:
+`addons.<name>` paths into `packages.<name>`. Migrated values retain:
 
 ```yaml
 packageConfiguration:
   version: v1
 ```
 
-The required `--target` option controls the migration. Use `--target 3` to
-adopt the unified `packages.<name>` paths on Big Bang 3.32 or later 3.x,
-retaining flat `bb-common` values and legacy hardening. Use `--target 4` for
-Big Bang 4.x; it also nests `values.istio`, `values.networkPolicies`, and
-`values.routes` beneath `values.bb-common` and migrates legacy hardening.
-Do not deploy target 4 output to Big Bang 3.x.
+Use the required `--target 4` option for the 4.0 upgrade. It also nests
+`values.istio`, `values.networkPolicies`, and `values.routes` beneath
+`values.bb-common` and migrates legacy hardening. Do not deploy target 4 output
+to Big Bang 3.x. The [script reference](package-values-migration-script.md)
+documents the separate target 3 utility behavior.
 
 Canonical package values override legacy aliases, and already-nested
 `bb-common` values override flat values. Unknown custom package values are
@@ -24,6 +27,29 @@ to the applicable release notes.
 Use this guide to choose and run a migration workflow. For complete option
 semantics, safeguards, and troubleshooting, see the
 [Package Values Migration Script Reference](package-values-migration-script.md).
+
+## Prepare for the 4.0 upgrade
+
+Complete and validate the upgrade to **3.35.1** before preparing the 4.0
+configuration. Run the script against the values deployed on 3.35.1:
+
+```shell
+scripts/migrate-values-3-to-4.sh --target 4 \
+  --output values-4.x.yaml values.yaml
+```
+
+Explicitly set `istio.ambient.enabled: true` in the migrated configuration.
+Review and render the output against the 4.0 chart, then deploy it together
+with the **4.0 version change and Ambient enablement**. Keep target 4 output
+off the running 3.35.1 deployment. For layered configurations, use the workflows
+below and preserve the effective values order.
+
+The script does not convert custom Kyverno policies, policy parameters,
+exclusions, or exceptions to CEL. Follow the separate
+[Kyverno policies migration guide](migrating-kyverno-policies-for-bb4.0.md).
+The script does not enable Ambient; follow the
+[Ambient migration procedure](migrating-istio-to-ambient.md) as part of the
+3.35.1-to-4.0 upgrade.
 
 ## Requirements
 
@@ -41,7 +67,7 @@ for AWS KMS.
 
 | Input | Migration workflow |
 | --- | --- |
-| One plaintext values file | Run the plaintext script with the desired `--target`. |
+| One plaintext values file | Run the plaintext script with `--target 4`. |
 | Multiple plaintext files that can become one file | Pass every file in Helm order and write one consolidated output. |
 | Values sources that must remain separate | Choose one primary source to own `packageConfiguration.version: v1`; use `--omit-package-configuration` on every secondary source. |
 | Parent Big Bang HelmRelease or Kustomize values patch | Use `--bigbang-helmrelease` to migrate `spec.values` and retain the manifest structure. |
@@ -49,7 +75,7 @@ for AWS KMS.
 | Decrypted Kubernetes Secret | Use the plaintext script with `--secret-key`. |
 | SOPS-encrypted Kubernetes Secret | Use the SOPS wrapper. |
 
-For Big Bang 3.x, designate one source to own
+For separately stored values, designate one source to own
 `packageConfiguration.version: v1`, and always preserve the order in which
 Helm or Flux applies values. Later sources override earlier sources.
 
@@ -149,7 +175,7 @@ scripts/migrate-values-3-to-4.sh --target 4 \
   --output tests-4.x.yaml tests.yaml
 ```
 
-Use this option only when another source in the same Big Bang 3.x release
+Use this option only when another source in the same Big Bang release
 supplies version `v1`.
 
 ## Migrate values in Kubernetes Secrets
@@ -245,8 +271,9 @@ Before committing migrated values:
 2. Confirm exactly one separately stored source owns
    `packageConfiguration.version: v1`.
 3. Confirm the sources remain in their original Helm or Flux order.
-4. Rerun the same migration command with the same options; the output should be
-   unchanged.
+4. Run the migration on its generated output with the same target and relevant
+   input-format options, writing to a different output file. The YAML values
+   should be unchanged.
 5. Render all migrated plaintext values in their effective order with a chart
    matching the selected target.
 

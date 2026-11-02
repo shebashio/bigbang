@@ -43,13 +43,7 @@ packages:
 
 ## Licensing
 
-By default, Big Bang will deploy Fortify without a license. if you have a license, you can add your license via the values file as shown below:
-
-```yaml
-packages:
-  fortify:
-    fortify_license: |
-      <license>
-```
-
-**Note**: This should be added via encrypted values to protect the license
+Configure licensing through `packages.fortify.values`, using the license
+settings documented in the [pinned Fortify package values](https://repo1.dso.mil/big-bang/product/packages/fortify/-/blob/26.2.0-bb.7/chart/values.yaml).
+License settings belong to the package chart, rather than directly beneath
+`packages.fortify`. Store license data in encrypted values.

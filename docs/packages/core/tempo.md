@@ -54,11 +54,12 @@ Tempo-Query does not have built in SSO. In order to provide SSO, this deployment
 
 2. Deploy from Big Bang with the SSO values set:
   ```yaml
-  tempo:
-    sso:
-      enabled: true
-      client_id: <id for client you created>
-      client_secret: <client secret from the credentials tab>
+  packages:
+    tempo:
+      sso:
+        enabled: true
+        client_id: <id for client you created>
+        client_secret: <client secret from the credentials tab>
   ```
 
 3. Tempo will be deployed with Authservice protecting the UI behind your SSO provider.
@@ -95,31 +96,32 @@ end
 Tempo can utilize a local PVC for storage, but for production it is recommended to utilize in-cluster or external object-storage (e.g., GCS, S3, Azure Blob). To set a preferred object storage option in the bigang values reference the values below:
 
 ```yaml
-tempo:
-  enabled: true
-  objectstorage:
-    # -- S3 compatible endpoint to use for connection information.
-    # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
-    # Note: tempo does not require protocol prefix for URL.
-    endpoint: ""
+packages:
+  tempo:
+    enabled: true
+    objectStorage:
+      # -- S3 compatible endpoint to use for connection information.
+      # examples: "s3.amazonaws.com" "s3.us-gov-west-1.amazonaws.com" "minio.minio.svc.cluster.local:9000"
+      # Note: tempo does not require protocol prefix for URL.
+      endpoint: ""
 
-    # -- S3 compatible region to use for connection information.
-    region: ""
+      # -- S3 compatible region to use for connection information.
+      region: ""
 
-    # -- Access key for connecting to object storage endpoint.
-    accessKey: ""
+      # -- Access key for connecting to object storage endpoint.
+      accessKey: ""
 
-    # -- Secret key for connecting to object storage endpoint.
-    # Unencoded string data. This should be placed in the secret values and then encrypted
-    accessSecret: ""
+      # -- Secret key for connecting to object storage endpoint.
+      # Unencoded string data. This should be placed in the secret values and then encrypted
+      accessSecret: ""
 
-    # -- Bucket Names for Tempo
-    # examples: "tempo-traces"
-    bucket: ""
+      # -- Bucket Names for Tempo
+      # examples: "tempo-traces"
+      bucket: ""
 
-    # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
-    # storage on port 80/9000 set this value to true.
-    insecure: false
+      # -- Whether or not objectStorage connection should require HTTPS, if connecting to in-cluster object
+      # storage on port 80/9000 set this value to true.
+      insecure: false
 ```
 
 ### Logging
@@ -132,7 +134,8 @@ When the global override strategy endpoint is configured within Tempo [Consisten
 
 ### Dependent Packages
 
-When enabling `minio` for Tempo without filling in `loki.objectStorage` values, minioOperator is required as a minio tenant will be auto-created and configured as the object storage backend.
+When enabling MinIO for Tempo without external `packages.tempo.objectStorage`
+settings, MinIO Operator is required to provision the tenant used for storage.
 
 Tempo can be deployed by itself but since it's so closely tied with Grafana, the monitoring package is set as a required dependency within Big Bang so both are setup and auto-configured.
 

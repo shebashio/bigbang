@@ -40,29 +40,19 @@ After [graduating your package](https://repo1.dso.mil/platform-one/bbtoc/-/tree/
    packages:
      mypackage:
        enabled: false     # default to false
+       sourceType: git
        git:
          repo: https://repo1.dso.mil/big-bang/product/packages/mypackage.git
          path: "./chart"
          tag: "1.2.3-bb.0"
-       sso:
-         enabled: false   # default to false
-         client_id: ""
-       database:
-         host: ""
-         port: ""
-         username: ""
-         database: ""
-         password: {} # unencoded stringData
-       objectstorage:
-         type: s3   # supported types are "s3" or "minio"
-         endpoint: "" # ignored if type is "s3". used only for minio. example " http://minio.minio.svc.cluster.local:9000"
-         host: s3.amazonaws.com  # used for gitlab backup storage
-         region: us-west-1
-         accessKey: ""
-         accessSecret: ""
-         bucketPrefix: ""  # optional. example: dev-
        values: {}
    ```
+
+   Package-specific configuration belongs beneath `values` and is validated by
+   the package chart. If an integrated package needs umbrella-owned settings,
+   such as generated database or SSO credentials, define those settings in its
+   built-in schema and package metadata alongside the umbrella templates. They
+   are not automatically accepted for an unknown custom package.
 
 1. Edit `tests/test-values.yaml.` These are the settings that the CI pipeline uses to run a deployment test. Set your Package to be enabled and add any other necessary values. Where possible reduce the number of replicas to a minimum to reduce strain on the CI infrastructure. When you commit your code the pipeline will run. You can view the pipeline in the Repo1 Gitlab console. Fix any errors in the pipeline output. The pipeline automatically runs a "smoke" test. It deploys bigbang on a k3d cluster using the test values file.
 

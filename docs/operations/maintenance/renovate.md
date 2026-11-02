@@ -16,30 +16,31 @@ flowchart LR
 ### Example Deployment Values
 
 ```yaml
-renovate:
-  enabled: true
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
-    tag: 46.31.6-bb.4
-  values:
-    bb-common:
-      networkPolicies:
-        enabled: "{{ $.Values.networkPolicies.enabled }}"
-      istio:
-        enabled: "{{ $.Values.istiod.enabled }}"
-    cronjob:
-      schedule: '0 1 * * *'
-    renovate:
-      config: |
-          {
-              "platform": "gitlab",
-              "endpoint": "https://gitlab.example.com/api/v4",
-              "token": "your-gitlab-renovate-user-token",
-              "autodiscover": "false",
-              "dryRun": true,
-              "printConfig": true,
-              "repositories": ["username/repo", "orgname/repo"]
-          }
+packages:
+  renovate:
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
+      tag: 46.31.6-bb.4
+    values:
+      bb-common:
+        networkPolicies:
+          enabled: "{{ $.Values.networkPolicies.enabled }}"
+        istio:
+          enabled: "{{ $.Values.packages.istiod.enabled }}"
+      cronjob:
+        schedule: '0 1 * * *'
+      renovate:
+        config: |
+            {
+                "platform": "gitlab",
+                "endpoint": "https://gitlab.example.com/api/v4",
+                "token": "your-gitlab-renovate-user-token",
+                "autodiscover": "false",
+                "dryRun": true,
+                "printConfig": true,
+                "repositories": ["username/repo", "orgname/repo"]
+            }
 ```
 
 ### Config
@@ -109,25 +110,26 @@ Once you've configured the schedule in your values, deploy or update the Renovat
 ### Example Yaml
 
 ```yaml
-renovate:
-  enabled: true
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
-    tag: 46.31.6-bb.4
-  values:
-    cronjob:
-      # At 01:00 every day
-      schedule: "0 1 * * *"
-      # -- If it is set to true, all subsequent executions are suspended. This setting does not apply to already started executions.
-      suspend: false
-      annotations: {}
-      labels: {}
-      concurrencyPolicy: ""
-      failedJobsHistoryLimit: ""
-      successfulJobsHistoryLimit: ""
-      jobRestartPolicy: Never
-      jobBackoffLimit: ""
-      startingDeadlineSeconds: ""
+packages:
+  renovate:
+    enabled: true
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
+      tag: 46.31.6-bb.4
+    values:
+      cronjob:
+        # At 01:00 every day
+        schedule: "0 1 * * *"
+        # -- If it is set to true, all subsequent executions are suspended. This setting does not apply to already started executions.
+        suspend: false
+        annotations: {}
+        labels: {}
+        concurrencyPolicy: ""
+        failedJobsHistoryLimit: ""
+        successfulJobsHistoryLimit: ""
+        jobRestartPolicy: Never
+        jobBackoffLimit: ""
+        startingDeadlineSeconds: ""
 ```
 
 ## Renovate Configuration for Big Bang Customer Template
@@ -222,12 +224,13 @@ Targeting an individual package (rather than Big Bang itself) needs a more compl
 ```
 
 ```yaml
-kyverno:
-  git:
-    repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
-    tag: "2.6.5-bb.2"
-  values:
-    replicaCount: 1
+packages:
+  kyverno:
+    git:
+      repo: https://repo1.dso.mil/big-bang/product/packages/kyverno.git
+      tag: "2.6.5-bb.2"
+    values:
+      replicaCount: 1
 ```
 
 The `fileMatch` array selects which files to scan, using a regex path relative to the repository root — for example, `["^chart/values\\.yaml$"]` matches only `chart/values.yaml`. `matchStrings` then needs specific named capture groups for Renovate to understand what it's looking at:

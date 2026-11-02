@@ -104,30 +104,11 @@ deployments. The probes check the endpoint at `/auth/realm/master/` on port 8080
 of the pods. This means the probes will still succeed even if you have an
 invalid certificate loaded into Keycloak.
 
-If you wish to adjust the probes, you can override the values in `values.yaml`:
-
-```yaml
-packages:
-  keycloak:
-    upstream:
-      values:
-        livenessProbe: |
-          httpGet:
-            path: /auth/realms/master
-            port: http
-            scheme: HTTP
-          initialDelaySeconds: 120
-          failureThreshold: 15
-          periodSeconds: 15
-        readinessProbe: |
-          httpGet:
-            path: /auth/realms/master
-            port: http
-            scheme: HTTP
-          initialDelaySeconds: 120
-          failureThreshold: 15
-          timeoutSeconds: 2
-```
+Configure probe overrides through `packages.keycloak.values.upstream`. Use the
+upstream chart version declared in the [pinned Keycloak Chart.yaml](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/7.4.0-bb.2/chart/Chart.yaml)
+and its corresponding upstream values reference. The [pinned package values](https://repo1.dso.mil/big-bang/product/packages/keycloak/-/blob/7.4.0-bb.2/chart/values.yaml)
+document Big Bang's overrides. The `values` key precedes `upstream` in the
+umbrella configuration.
 
 ## Licensing
 

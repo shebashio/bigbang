@@ -23,29 +23,31 @@ Fluentbit itself does not use or require any persistent storage, however it does
 This storage buffer is configurable via the following values in Big Bang:
 
 ```yaml
-fluentbit:
-  values:
-    storage_buffer:
-      path: /var/log/flb-storage/
+packages:
+  fluentbit:
+    values:
+      storage_buffer:
+        path: /var/log/flb-storage/
 
-    extraVolumes:
-      - hostPath:
-          path: /var/log/flb-storage/
-          type: DirectoryOrCreate
-        name: flb-storage
+      extraVolumes:
+        - hostPath:
+            path: /var/log/flb-storage/
+            type: DirectoryOrCreate
+          name: flb-storage
 
-    extraVolumeMounts:
-      - mountPath: /var/log/flb-storage/
-        name: flb-storage
+      extraVolumeMounts:
+        - mountPath: /var/log/flb-storage/
+          name: flb-storage
 ```
 
 This storage buffer hostPath mount, in conjunction with the hostPath mount of `/var/log/containers/` used to fetch logs requires a securityContext of `privileged` to be set if SELinux is set to `Enforcing` on the kubernetes nodes. To set this securityContext for the fluentbit pods, add the following values in Big Bang:
 
 ```yaml
-fluentbit:
-  values:
-    securityContext:
-      privileged: true
+packages:
+  fluentbit:
+    values:
+      securityContext:
+        privileged: true
 ```
 
 ## Logging
@@ -53,19 +55,20 @@ fluentbit:
 Since Fluentbit is the method for shipping cluster logs to the ECK stack, to reduce the amount of logs fluentbit and ECK has to process, fluentbit container logs are excluded from being processed and shipped to ECK. However, if you would like to enable fluentbit container logs being sent to ECK you just have to remove the "Excluded_Path" portion of this INPUT block (requires presence of entire block even when changing a single line):
 
 ```yaml
-fluentbit:
-  values:
-    config:
-      inputs: |
-        [INPUT]
-            Name tail
-            Path /var/log/containers/*.log
-            Exclude_Path /var/log/containers/*fluent*.log,/var/log/containers/*gatekeeper-audit*.log
-            Parser containerd
-            Tag kube.*
-            Mem_Buf_Limit 50MB
-            Skip_Long_Lines On
-            storage.type filesystem
+packages:
+  fluentbit:
+    values:
+      config:
+        inputs: |
+          [INPUT]
+              Name tail
+              Path /var/log/containers/*.log
+              Exclude_Path /var/log/containers/*fluent*.log,/var/log/containers/*gatekeeper-audit*.log
+              Parser containerd
+              Tag kube.*
+              Mem_Buf_Limit 50MB
+              Skip_Long_Lines On
+              storage.type filesystem
 ```
 
 ## High Availability

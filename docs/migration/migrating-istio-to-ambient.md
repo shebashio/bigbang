@@ -1,11 +1,12 @@
 # Migrating a Big Bang Environment from Sidecar Mode to Ambient Mode
 
 > [!NOTE]
-> Ambient mode is the default Istio configuration as of Big Bang 4.0. An
-> environment upgrading from 3.x that never set `istio.ambient.enabled` migrates
-> to ambient during the upgrade, so follow this procedure for that upgrade, or set
-> `istio.ambient.enabled: false` to stay on sidecar mode. Test mission-specific
-> traffic and integrations in a development or test environment first.
+> For the 4.0 upgrade, **upgrade to Big Bang 3.35.1 first**, then upgrade to
+> **4.0 with Ambient enabled and the unified package and `bb-common` values
+> migrations applied**. Follow the [4.0 migration guide](migrating-to-bb4.0.md)
+> and use this procedure for the Ambient transition during that second upgrade.
+> Test the complete sequence and mission-specific traffic in a development or
+> test environment before production.
 
 [[_TOC_]]
 
@@ -48,7 +49,10 @@ Setting the single switch `istio.ambient.enabled: true` automatically:
 
 ### Step 1: Enable ambient mode
 
-Add the switch to your **existing** Big Bang values:
+Add the switch to the Big Bang values prepared for the target release. For the
+3.35.1-to-4.0 upgrade, first migrate the values deployed on 3.35.1 with
+`--target 4` using the [package values guide](migrating-package-values-for-bb4.0.md),
+then explicitly enable Ambient in that output:
 
 ```yaml
 istio:
@@ -92,6 +96,11 @@ packages:
 ### Step 2: Deploy the change and roll out the infrastructure
 
 Apply via Helm or commit and push the updated values to your environment's Git repository.
+
+For the 3.35.1-to-4.0 upgrade, apply the 4.0 version change, migrated values,
+and Ambient enablement together. In the example below, `<chart>` must be the
+4.0 chart and `existing-values.yaml` must contain the migrated target 4 values.
+Do not apply those values to the running 3.35.1 release.
 
 ```bash
 helm upgrade --install bigbang <chart> -n bigbang \

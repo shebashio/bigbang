@@ -64,53 +64,55 @@ Loki utilizes Grafana as the frontend for searching and viewing logs, please ref
 Since Big Bang release 1.32.0 a Big Bang value `loki.strategy` has been available. When set to `scalable` Loki is configured to run with multiple replicas of what are called read and write nodes. The read nodes are what schedule, process and return queries to/from the Loki API while the write nodes is where your configured log forwarder will send the logs to and process write/create operations against the API and storage.
 
 ```yaml
-loki:
+packages:
+  loki:
 
-  strategy: scalable
+    strategy: scalable
 
-  values:
-    # Configuration for the write node(s)
-    write:
-      # -- Number of replicas for the write
-      replicas: 2
-    # Configuration for the read node(s)
-    read:
-      # -- Number of replicas for the read
-      replicas: 2
+    values:
+      # Configuration for the write node(s)
+      write:
+        # -- Number of replicas for the write
+        replicas: 2
+      # Configuration for the read node(s)
+      read:
+        # -- Number of replicas for the read
+        replicas: 2
 ```
 
 You can also optionally use HPA with Loki for each component. There are additional options for the target memory and scaling behavior that you can reference in the [package chart values](https://repo1.dso.mil/big-bang/product/packages/loki/-/blob/main/chart/values.yaml).
 
 ```yaml
-loki:
-  values:
-    write:
-      autoscaling:
-        enabled: true
-        # -- Minimum autoscaling replicas for the write.
-        minReplicas: 1
-        # -- Maximum autoscaling replicas for the write.
-        maxReplicas: 3
-        # -- Target CPU utilization percentage for the write.
-        targetCPUUtilizationPercentage: 80
-    read:
-      autoscaling:
-        enabled: true
-        # -- Minimum autoscaling replicas for the write.
-        minReplicas: 1
-        # -- Maximum autoscaling replicas for the write.
-        maxReplicas: 3
-        # -- Target CPU utilization percentage for the write.
-        targetCPUUtilizationPercentage: 80
-    backend:
-      autoscaling:
-        enabled: true
-        # -- Minimum autoscaling replicas for the write.
-        minReplicas: 1
-        # -- Maximum autoscaling replicas for the write.
-        maxReplicas: 3
-        # -- Target CPU utilization percentage for the write.
-        targetCPUUtilizationPercentage: 80
+packages:
+  loki:
+    values:
+      write:
+        autoscaling:
+          enabled: true
+          # -- Minimum autoscaling replicas for the write.
+          minReplicas: 1
+          # -- Maximum autoscaling replicas for the write.
+          maxReplicas: 3
+          # -- Target CPU utilization percentage for the write.
+          targetCPUUtilizationPercentage: 80
+      read:
+        autoscaling:
+          enabled: true
+          # -- Minimum autoscaling replicas for the write.
+          minReplicas: 1
+          # -- Maximum autoscaling replicas for the write.
+          maxReplicas: 3
+          # -- Target CPU utilization percentage for the write.
+          targetCPUUtilizationPercentage: 80
+      backend:
+        autoscaling:
+          enabled: true
+          # -- Minimum autoscaling replicas for the write.
+          minReplicas: 1
+          # -- Maximum autoscaling replicas for the write.
+          maxReplicas: 3
+          # -- Target CPU utilization percentage for the write.
+          targetCPUUtilizationPercentage: 80
 ```
 
 ### UI

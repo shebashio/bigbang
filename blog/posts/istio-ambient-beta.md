@@ -10,8 +10,10 @@ tags:
 
 > **Update:** Istio Ambient Mesh reached General Availability in Big Bang 3.32.
 > It remains opt-in throughout Big Bang 3.x and becomes the default Istio
-> configuration in Big Bang 4.0. Users are encouraged to begin migrating and
-> validating their mission environments before the 4.0 upgrade.
+> configuration in Big Bang 4.0. Follow the prescribed upgrade sequence:
+> upgrade to **3.35.1 first**, then upgrade to **4.0 with Ambient enabled and
+> the unified package and `bb-common` values migrations applied**. See the
+> [4.0 migration guide](../../docs/migration/migrating-to-bb4.0.md).
 
 <!-- more -->
 
@@ -107,6 +109,8 @@ Big Bang 3.23 introduced Ambient Mesh as a **beta, opt-in feature** that:
 * Shifts enforcement toward **L4 Authorization Policies + Network Policies**
 * Supports **selective L7 processing** for authentication for packages that leverage Authservice
 
-Ambient Mesh is GA as of Big Bang 3.32. Users should begin migrating and
-validating mission-specific behavior before Big Bang 4.0 makes Ambient the
-default Istio configuration.
+Ambient Mesh is GA as of Big Bang 3.32. For the 4.0 upgrade, first upgrade to
+3.35.1, then upgrade to 4.0 with Ambient enabled and the package values
+migrations applied. Validate that complete sequence and mission-specific
+behavior in a representative test environment before production; follow the
+[4.0 migration guide](../../docs/migration/migrating-to-bb4.0.md).

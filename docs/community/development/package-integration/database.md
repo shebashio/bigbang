@@ -132,5 +132,5 @@ packages:
       port: "5432"
       username: "admin"
       password: "Pa55w0rd"
-      database: "db1
+      database: "db1"
 ```

@@ -11,17 +11,18 @@ Big Bang's monitoring package can discover Prometheus metrics from annotated Ser
 
 ## Enable Annotation Discovery
 
-Enable one or both discovery jobs in the Big Bang values supplied by the environment:
+Annotations alone do not enable scraping. A matching Prometheus discovery job
+must already be configured. For Big Bang 4.0, the umbrella schema does not accept
+the legacy `globalServiceEndpointMetrics` or `globalPodEndpointMetrics` flags
+under `packages.monitoring`; moving the old flags there is not a supported
+migration.
 
-```yaml
-monitoring:
-  globalServiceEndpointMetrics:
-    enabled: true
-  globalPodEndpointMetrics:
-    enabled: true
-```
-
-These values render the `kubernetes-service-endpoints` and `kubernetes-pods` scrape jobs respectively. They are disabled by default.
+Prefer a package-owned `ServiceMonitor` or `PodMonitor`. If annotation discovery
+is required, configure it through `packages.monitoring.values.upstream` using
+the [upstream values for kube-prometheus-stack 92.13.1](https://github.com/prometheus-community/helm-charts/blob/kube-prometheus-stack-92.13.1/charts/kube-prometheus-stack/values.yaml).
+Start with the
+[monitoring package documentation](../packages/core/monitoring.md) and the
+values for the exact package version selected by your Big Bang release.
 
 ## Annotate a Service
 
@@ -53,7 +54,7 @@ Do not enable annotation discovery and a `ServiceMonitor` for the same endpoint 
 After Flux reconciles the configuration:
 
 1. Open the Prometheus Targets page.
-2. Find the target under `kubernetes-service-endpoints` or `kubernetes-pods`.
+2. Find the target under the discovery job you configured.
 3. If it is absent, inspect Prometheus service discovery and confirm the annotations and selectors.
 4. If it is present but down, verify the port, path, protocol, TLS settings, and applicable network policies.
 

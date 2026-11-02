@@ -57,9 +57,14 @@ If you would like to have values for your extra package deployment adapt based o
 ```yaml
 packages:
   podinfo:
+    sourceType: git
+    git:
+      repo: https://github.com/stefanprodan/podinfo.git
+      tag: "6.3.4"
+      path: charts/podinfo
     values:
       istio:
-        enabled: "{{ .Values.istiod.enabled }}"
+        enabled: "{{ .Values.packages.istiod.enabled }}"
 ```
 
 In this example, Istio will only be configured for podinfo if Istio is enabled for Big Bang.
@@ -70,24 +75,23 @@ In some cases, you may want to deploy an additional package to a namespace that 
 
 ```yaml
 packages:
-  istio-cni:
+  podinfo:
+    enabled: true
+    sourceType: git
     namespace:
       create: false
-      name: kube-system
+      name: applications
     helmRelease:
       namespace: bigbang
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
-    enabled: true
-    sourceType: "git"
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-cni.git
-      path: "./chart"
-      tag: 1.27.0-bb.0
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: "6.3.4"
+    values: {}
 ```
 
-This deploys the istio-cni package with tag of `1.27.0-bb.0` to the kube-system namespace which already exists within the cluster.
+This deploys Podinfo into an existing `applications` namespace. Create that
+namespace before reconciling the package.
 
 Package namespaces can be assigned custom labels with `<package>.namespace.labels`. These labels are merged with labels rendered by Big Bang and can be used to set package-specific namespace metadata or override generated labels when needed:
 
@@ -104,47 +108,44 @@ It is also possible to disable the creation of the `imagePullSecret` by setting 
 
 ```yaml
 packages:
-  istio-cni:
+  podinfo:
+    enabled: true
+    sourceType: git
     namespace:
       create: false
-      name: kube-system
+      name: applications
     helmRelease:
       namespace: bigbang
-    dependsOn:
-      - name: istiod
-        namespace: bigbang
-    enabled: true
-    sourceType: "git"
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/istio-cni.git
-      path: "./chart"
-      tag: 1.27.0-bb.0
-    values:
-      upstream:
-        # Enable ambient mode
-        ambient:
-          enabled: true
-        global:
-          platform: k3s
-  ztunnel:
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: "6.3.4"
+    values: {}
+  podinfo-worker:
+    enabled: true
+    sourceType: git
     namespace:
       create: false
-      name: istio-system
+      name: applications
       createRegistrySecret: false
     helmRelease:
       namespace: bigbang
     dependsOn:
-      - name: istio-cni
+      - name: podinfo
         namespace: bigbang
-    enabled: true
-    sourceType: "git"
     git:
-      repo: https://repo1.dso.mil/big-bang/apps/sandbox/ztunnel.git
-      path: "./chart"
-      branch: "main"
+      repo: https://github.com/stefanprodan/podinfo.git
+      path: charts/podinfo
+      tag: "6.3.4"
+    values: {}
 ```
 
-In this example, we are deploying the istio-cni package to the kube-system namepace where it will need to create the secret required to pull the image.  We are also deploying the ztunnel package which is reliant on the istio-cni package.  It deploys to another existing namespace (istio-system in this case) where that secret already exists so we have set the `createRegistrySecret` value to false to prevent duplication and errors.
+Both custom packages deploy into the existing `applications` namespace.
+`podinfo` creates the registry pull secret there; `podinfo-worker` reuses it and
+sets `createRegistrySecret: false` to avoid managing the same Secret twice.
+Both HelmReleases live in `bigbang`, which is also the namespace used by the
+explicit dependency. Use distinct custom package names; built-in names such as
+`ztunnel` select the built-in package contract.
 
 Another available feature is to have the package automatically deploy a secret containing the SSO certificate authority based on the global key for `sso` in the umbrella template by setting the `<package>.sso.enabled` to true.
 

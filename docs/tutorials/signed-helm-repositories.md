@@ -4,7 +4,7 @@
 
 Kubernetes and Flux2 both support ways to verify artifacts are signed according to the SigStore Cosign signature published with their Release Artifacts on Gitlab.
 
-As part of the existing BigBang Releases, packages and BigBang Release artifacts will now also have  cosign signatures published to registry1. This is only available for use when your packages are set to use `sourceType: helmRepo` (default is "git"). Combined with `<package_name>.helmRepo.cosignVerify: true` flux2 will verify signatures of HelmRepositories installed in the cluster.
+As part of the existing BigBang Releases, packages and BigBang Release artifacts will now also have  cosign signatures published to registry1. This is only available for use when your packages are set to use `sourceType: helmRepo` (default is "git"). Combined with `packages.<package_name>.helmRepo.cosignVerify: true` flux2 will verify signatures of HelmRepositories installed in the cluster.
 
 The following example shows how to configure and enable public key verification for Helm Repositories:
 
@@ -46,7 +46,8 @@ helmRepositories:
     username: ""
     password: ""
     email: ""
-    cosignPublicKeys: []
+    # No verification keys configured for this repository.
+    cosignPublicKeys: {}
   - name: "registry4"
     repository: "oci://registry1.dso.mil/bigbang"
     existingSecret: "private-registry"
@@ -60,32 +61,33 @@ helmRepositories:
         ...
         -----END PUBLIC KEY-----
 
-istioCRDs:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: true
+packages:
+  istioCRDs:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: true
 
-istiod:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: true
+  istiod:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: true
 
-istioGateway:
-  sourceType: "helmRepo"
-  helmRepo:
-    cosignVerify: true
+  istioGateway:
+    sourceType: "helmRepo"
+    helmRepo:
+      cosignVerify: true
 
-kiali:
-  sourceType: "helmRepo"
-  helmRepo:
-    repoName: "registry2" 
-    cosignVerify: true
+  kiali:
+    sourceType: "helmRepo"
+    helmRepo:
+      repoName: "registry2"
+      cosignVerify: true
 
-kyverno:
-  sourceType: "helmRepo"
-  helmRepo:
-    repoName: "registry3"
-    cosignVerify: true
+  kyverno:
+    sourceType: "helmRepo"
+    helmRepo:
+      repoName: "registry1"
+      cosignVerify: true
 ```
 
 ## More Reading
