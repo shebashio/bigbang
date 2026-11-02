@@ -1,11 +1,6 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- if .Values.packages.externalSecrets.enabled }}
-{{- $externalSecretsPackage := deepCopy .Values.packages.externalSecrets -}}
-{{- if .Values.packages.externalSecrets.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" .Values.packages.externalSecrets.values) | fromYaml -}}
-{{- $externalSecretsPackage = set $externalSecretsPackage "values" $cleanedValues -}}
-{{- end -}}
-{{- include "values-secret" (dict "root" $ "package" $externalSecretsPackage "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .) "bbCommonSubchart" true) }}
+{{- include "values-secret" (dict "root" $ "package" .Values.packages.externalSecrets "name" "external-secrets" "defaults" (include "bigbang.defaults.external-secrets" .) "bbCommonSubchart" true) }}
 {{- end }}
 
 {{- define "bigbang.defaults.external-secrets" -}}

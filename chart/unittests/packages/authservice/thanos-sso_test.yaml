@@ -177,7 +177,7 @@ tests:
   template: thanos/values.yaml
   asserts:
   - matchRegex:
-      path: stringData.defaults
+      path: stringData.common
       pattern: "authservice/authservice:10003: true"
 
 - it: should route Thanos through the authservice waypoint in ambient mode when only Thanos SSO requires authservice

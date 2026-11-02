@@ -1,0 +1,7 @@
+# Minimal hostname override from bbsil-release/overlays/release/values-release.yaml.
+tempo:
+  values:
+    istio:
+      tempoQuery:
+        hosts:
+          - tempo.{{ .Values.domain }}

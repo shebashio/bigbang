@@ -29,6 +29,7 @@ tests:
 
 - it: must not create a postRenderers key when loki's mode is distributed and istio is not enabled
   set:
+    istio.ambient.enabled: false
     packages:
       istiod:
         enabled: false

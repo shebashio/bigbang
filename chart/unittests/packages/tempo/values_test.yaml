@@ -10,6 +10,7 @@ tests:
       packages.tempo.enabled: true
       packages.istiod.enabled: true
       packages.istiod.values.hardened.enabled: true
+      istio.ambient.enabled: false
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
@@ -24,14 +25,14 @@ tests:
           path: bb-common.istio.injection
       - notExists:
           path: bb-common.istio.hardened
-  - it: enables ambient networking without a Sidecar resource
+  - it: defaults to ambient networking without a Sidecar resource
     postRenderer:
       cmd: sh
       args: ["-c", "yq '.stringData.common | from_yaml'"]
     set:
       packages.tempo.enabled: true
       packages.istiod.values.hardened.enabled: true
-      istio.ambient.enabled: true
+
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled

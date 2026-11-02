@@ -7,6 +7,14 @@ postRenderer:
     - -c
     - "yq '.stringData.common | from_yaml'"
 tests:
+  - it: permits the monitoring Prometheus service account to scrape Mattermost
+    set:
+      packages.mattermost.enabled: true
+      packages.monitoring.enabled: true
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.ingress.to.mattermost:8067.from.k8s["monitoring-monitoring-kube-prometheus@monitoring/prometheus"]
+          value: true
   - it: should retain user route overrides in overlays
     postRenderer:
       cmd: sh

@@ -5,6 +5,36 @@ templates:
 release:
   name: bb
 tests:
+  - it: preserves the temporary ambient bridge alongside existing custom policies
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq 'select(.kind == "Secret" and .metadata.name == "bb-neuvector-values") | .stringData.overlays | from_yaml'
+    set:
+      packages.neuvector.values.bb-common.istio.mtls.mode: PERMISSIVE
+      packages.neuvector.values.bb-common.istio.authorizationPolicies.custom:
+        - name: existing-deny
+          spec:
+            action: DENY
+            rules:
+              - {}
+        - name: neuvector-migration-allow-all
+          spec:
+            action: ALLOW
+            rules:
+              - {}
+    asserts:
+      - equal:
+          path: bb-common.istio.mtls.mode
+          value: PERMISSIVE
+      - equal:
+          path: bb-common.istio.authorizationPolicies.custom[0].name
+          value: existing-deny
+      - equal:
+          path: bb-common.istio.authorizationPolicies.custom[1].name
+          value: neuvector-migration-allow-all
+
   - it: renders the values Secret with an API version
     asserts:
       - equal:

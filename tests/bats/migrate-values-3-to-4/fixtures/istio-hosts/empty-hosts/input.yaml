@@ -1,0 +1,17 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    istio: {hosts: []}
+    values:
+      istio:
+        tempoQuery: {hosts: null}
+  monitoring:
+    values:
+      istio:
+        enabled: false
+        prometheus: {hosts: []}
+        alertmanager: {hosts: null}
+  kiali:
+    values:
+      istio: {enabled: true}

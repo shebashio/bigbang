@@ -1,0 +1,11 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      bb-common:
+        routes:
+          inbound:
+            tempo-query:
+              hosts:
+                - tempo.{{ .Values.global.domain }}

@@ -420,7 +420,7 @@ tests:
           path: bb-common.routes.inbound.gitlab.hosts[0]
           value: code.example.com
 
-  - it: leaves legacy istio route settings under bb-common.istio so the package schema rejects them
+  - it: does not translate legacy istio route settings into bb-common
     postRenderer:
       cmd: "sh"
       args:
@@ -430,66 +430,11 @@ tests:
       packages.gitlab.enabled: true
       packages.gitlab.values.istio.gitlab.enabled: false
     asserts:
-      - equal:
+      - notExists:
           path: bb-common.istio.gitlab.enabled
-          value: false
       - equal:
           path: bb-common.routes.inbound.gitlab.enabled
           value: true
-
-  - it: should build the kubeAPI definition from the control plane CIDR
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.common' - | yq eval '.'"
-    set:
-      packages.gitlab.enabled: true
-      networkPolicies.controlPlaneCidr: 172.16.0.0/12
-      networkPolicies.vpcCidr: 172.16.0.0/12
-    asserts:
-      - equal:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
-          value:
-            - ipBlock:
-                cidr: 172.16.0.0/12
-
-  - it: should add the VPC CIDR to the kubeAPI definition when it differs from the control plane CIDR
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.common' - | yq eval '.'"
-    set:
-      packages.gitlab.enabled: true
-      networkPolicies.controlPlaneCidr: 172.20.0.0/16
-      networkPolicies.vpcCidr: 10.1.0.0/16
-    asserts:
-      - equal:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
-          value:
-            - ipBlock:
-                cidr: 172.20.0.0/16
-            - ipBlock:
-                cidr: 10.1.0.0/16
-
-  - it: should exclude the metadata endpoint when the control plane CIDR is open
-    postRenderer:
-      cmd: "sh"
-      args:
-        - "-c"
-        - "yq eval '.stringData.common' - | yq eval '.'"
-    set:
-      packages.gitlab.enabled: true
-      networkPolicies.controlPlaneCidr: 0.0.0.0/0
-    asserts:
-      - equal:
-          path: bb-common.networkPolicies.egress.definitions.kubeAPI.to
-          value:
-            - ipBlock:
-                cidr: 0.0.0.0/0
-                except:
-                  - 169.254.169.254/32
 
   - it: should not replace a kubeAPI definition set at the Big Bang level
     postRenderer:

@@ -63,21 +63,6 @@ bb-common:
               alloy-alloy-metrics@alloy/alloy-metrics: {{ dig "alloyMetrics" "enabled" false .Values.packages.alloy }}
               monitoring-monitoring-kube-prometheus@monitoring/prometheus: {{ .Values.packages.monitoring.enabled }}
     egress:
-      definitions:
-        {{- if not (hasKey .Values.networkPolicies.egress.definitions "kubeAPI") }}
-        kubeAPI:
-          to:
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.controlPlaneCidr }}
-              {{- if eq .Values.networkPolicies.controlPlaneCidr "0.0.0.0/0" }}
-              except:
-              - 169.254.169.254/32
-              {{- end }}
-          {{- if and (ne .Values.networkPolicies.controlPlaneCidr .Values.networkPolicies.vpcCidr) (ne .Values.networkPolicies.vpcCidr "0.0.0.0/0") }}
-          - ipBlock:
-              cidr: {{ .Values.networkPolicies.vpcCidr }}
-          {{- end }}
-        {{- end }}
       from:
         sonarqube:
           podSelector:

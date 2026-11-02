@@ -7,13 +7,17 @@ istio:
   ambient:
     # -- Enable Istio ambient mesh mode. When true, uses ztunnel for mTLS instead of sidecars.
     # This automatically enables istioCNI, ztunnel, and gatewayAPI packages.
-    # NOTE: Ambient mode is generally available as of Big Bang 3.32. It remains opt-in in 3.x and becomes the default in 4.0.
-    enabled: false
+    # NOTE: Ambient mode is the default as of Big Bang 4.0. Set to false to keep Istio sidecars.
+    enabled: true
   # -- Egress gateway configuration
   egressGateway:
     # -- Enable the shared egress waypoint gateway (requires ambient mode).
     # This automatically enables the istioEgressGateway package.
     # NOTE: The egress gateway is an alpha feature.
+    enabled: false
+  # -- Global AuthorizationPolicy generation settings for integrated packages.
+  authorizationPolicies:
+    # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
     enabled: false
 
 # -- Prevent Big Bang from creating GitRepository resources. HelmReleases configured with Git sources
@@ -174,19 +178,10 @@ flux:
 networkPolicies:
   # -- Toggle all package NetworkPolicies. For integrated packages that consume bb-common as a subchart, use `packages.<name>.values.bb-common.networkPolicies.enabled` to override a specific package.
   enabled: true
-  # -- Control Plane CIDR, defaults to 0.0.0.0/0, use `kubectl get endpoints -n default kubernetes` to get the CIDR range needed for your cluster
-  # Must be an IP CIDR range (x.x.x.x/x - ideally with /32 for the specific IP of a single endpoint, broader range for multiple masters/endpoints)
-  # Used by package NetworkPolicies to allow Kube API access
-  controlPlaneCidr: 0.0.0.0/0
   # -- Node CIDR, defaults to allowing "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" "100.64.0.0/10" networks.
   # use `kubectl get nodes -owide` and review the `INTERNAL-IP` column to derive CIDR range.
   # Must be an IP CIDR range (x.x.x.x/x - ideally a /16 or /24 to include multiple IPs)
   nodeCidr: ""
-  # -- VPC CIDR, defaults to 0.0.0.0/0
-  # In a production environment, it is recommended to setup a Private Endpoint for your AWS services like KMS or S3.
-  # Please review https://docs.aws.amazon.com/kms/latest/developerguide/kms-vpc-endpoint.html to setup routing to AWS services that never leave the AWS network.
-  # Once created update `networkPolicies.vpcCidr` to match the CIDR of your VPC so Vault will be able to reach your VPCs DNS and new KMS endpoint.
-  vpcCidr: 0.0.0.0/0
   # bb-common-related values below; See [the documentation](https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/network-policies.md#definition-rules-definition)
   # for more details.
   egress:
@@ -267,10 +262,6 @@ networkPolicies:
               cidr: 172.16.0.0/12
           - ipBlock:
               cidr: 10.0.0.0/8
-# -- Global AuthorizationPolicy generation settings for integrated packages.
-authorizationPolicies:
-  # -- Enable bb-common AuthorizationPolicies. Ambient mode enables them regardless of this value.
-  enabled: false
 # bb-common route defaults passed through to every package; per-route values always win.
 # See https://repo1.dso.mil/big-bang/product/packages/bb-common/-/blob/main/docs/README.md
 routes:
@@ -832,11 +823,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/elasticsearch-kibana.git
       path: "./chart"
-      tag: "1.44.0-bb.2"
+      tag: "1.44.0-bb.3"
     helmRepo:
       repoName: "registry1"
       chartName: "elasticsearch-kibana"
-      tag: "1.44.0-bb.2"
+      tag: "1.44.0-bb.3"
 
     # -- Flux reconciliation overrides specifically for the Logging (EFK) Package
     flux:
@@ -959,12 +950,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/alloy.git
-      tag: "4.5.3-bb.1"
+      tag: "4.5.5-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "k8s-monitoring"
-      tag: "4.5.3-bb.1"
+      tag: "4.5.5-bb.0"
 
     # -- Toggle Alloy to collect logs
     alloyLogs:
@@ -998,11 +989,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/loki.git
       path: "./chart"
-      tag: "6.55.0-bb.10"
+      tag: "6.55.0-bb.11"
     helmRepo:
       repoName: "registry1"
       chartName: "loki"
-      tag: "6.55.0-bb.10"
+      tag: "6.55.0-bb.11"
 
     # -- Flux reconciliation overrides specifically for the Loki Package
     flux:
@@ -1069,11 +1060,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/neuvector.git
       path: "./chart"
-      tag: "2.11.3-bb.0"
+      tag: "2.11.4-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "neuvector"
-      tag: "2.11.3-bb.0"
+      tag: "2.11.4-bb.0"
 
     # -- Redirect the package ingress to a specific Istio Gateway (listed in `istioGateway.values.gateways`).  The default is "public".
     ingress:
@@ -1209,11 +1200,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/prometheus-operator-crds.git
       path: "./chart"
-      tag: 32.0.2-bb.0
+      tag: 32.0.2-bb.1
     helmRepo:
       repoName: "registry1"
       chartName: "prometheus-operator-crds"
-      tag: 32.0.2-bb.0
+      tag: 32.0.2-bb.1
     # -- Values to passthrough to the Prometheus Operator CRDs chart
     values: {}
     # -- Flux reconciliation overrides specifically for the Prometheus Operator CRDs Package
@@ -1237,11 +1228,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/monitoring.git
       path: "./chart"
-      tag: "92.10.1-bb.0"
+      tag: "92.13.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "monitoring"
-      tag: "92.10.1-bb.0"
+      tag: "92.13.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Monitoring Package
     flux:
@@ -1310,11 +1301,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/grafana.git
       path: "./chart"
-      tag: "14.0.1-bb.0"
+      tag: "14.2.0-bb.1"
     helmRepo:
       repoName: "registry1"
       chartName: "grafana"
-      tag: "14.0.1-bb.0"
+      tag: "14.2.0-bb.1"
 
     # -- Flux reconciliation overrides specifically for the Grafana Package
     flux: {}
@@ -1406,11 +1397,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/renovate.git
       path: "./chart"
-      tag: "46.369.5-bb.1"
+      tag: "46.388.0-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "renovate"
-      tag: "46.369.5-bb.1"
+      tag: "46.388.0-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Renovate Package
     flux: {}
@@ -1445,11 +1436,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/cert-manager.git
       path: "./chart"
-      tag: "v1.20.3-bb.2"
+      tag: "v1.21.3-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "cert-manager"
-      tag: "v1.20.3-bb.2"
+      tag: "v1.21.3-bb.2"
 
     # -- Flux reconciliation overrides specifically for cert-manager
     flux: {}
@@ -1478,11 +1469,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/argocd.git
       path: "./chart"
-      tag: "10.2.1-bb.3"
+      tag: "10.11.6-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "argocd"
-      tag: "10.2.1-bb.3"
+      tag: "10.11.6-bb.0"
     # -- Flux reconciliation overrides specifically for the ArgoCD Package
     flux: {}
 
@@ -1531,11 +1522,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/authservice.git
       path: "./chart"
-      tag: "1.1.8-bb.5"
+      tag: "1.1.8-bb.6"
     helmRepo:
       repoName: "registry1"
       chartName: "authservice"
-      tag: "1.1.8-bb.5"
+      tag: "1.1.8-bb.6"
 
     # -- Flux reconciliation overrides specifically for the Authservice Package
     flux: {}
@@ -1632,11 +1623,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/gitlab.git
       path: "./chart"
-      tag: "10.4.2-bb.1"
+      tag: "10.5.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "gitlab"
-      tag: "10.4.2-bb.1"
+      tag: "10.5.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Gitlab Package
     flux: {}
@@ -2007,11 +1998,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mattermost.git
       path: "./chart"
-      tag: "11.11.1-bb.1"
+      tag: "12.0.1-bb.0"
     helmRepo:
       repoName: "registry1"
       chartName: "mattermost"
-      tag: "11.11.1-bb.1"
+      tag: "12.0.1-bb.0"
 
     # -- Flux reconciliation overrides specifically for the Mattermost Package
     flux:
@@ -2144,11 +2135,11 @@ packages:
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/keycloak.git
       path: "./chart"
-      tag: "7.4.0-bb.1"
+      tag: "7.4.0-bb.2"
     helmRepo:
       repoName: "registry1"
       chartName: "keycloak"
-      tag: "7.4.0-bb.1"
+      tag: "7.4.0-bb.2"
 
     database:
       # -- Hostname of a pre-existing database to use for Keycloak.
@@ -2304,12 +2295,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/harbor.git
-      tag: "1.19.4-bb.1"
+      tag: "1.19.4-bb.2"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "harbor"
-      tag: "1.19.4-bb.1"
+      tag: "1.19.4-bb.2"
 
     # -- Flux reconciliation overrides specifically for the Harbor Package
     flux: {}
@@ -2371,12 +2362,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/thanos.git
-      tag: "17.6.0-bb.5"
+      tag: "17.6.0-bb.7"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "thanos"
-      tag: "17.6.0-bb.5"
+      tag: "17.6.0-bb.7"
 
     # -- Flux reconciliation overrides specifically for the Thanos Package
     flux:
@@ -2436,12 +2427,12 @@ packages:
 
     git:
       repo: https://repo1.dso.mil/big-bang/product/packages/mimir.git
-      tag: "6.2.1-bb.2"
+      tag: "6.2.2-bb.0"
       path: "./chart"
     helmRepo:
       repoName: "registry1"
       chartName: "mimir"
-      tag: "6.2.1-bb.2"
+      tag: "6.2.2-bb.0"
 
     # -- Enable Mimir Enterprise
     enterprise:

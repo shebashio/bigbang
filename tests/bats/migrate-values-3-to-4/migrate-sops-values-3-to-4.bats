@@ -111,6 +111,10 @@ stringData:
     addons:
       gitlab:
         enabled: false
+    tempo:
+      istio:
+        hosts:
+          - tempo.example.test
 sops:
   mac: fake
   version: 3.9.0
@@ -128,6 +132,8 @@ EOF
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packageConfiguration.version' -)" = "v1" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.monitoring.enabled' -)" = "true" ]
   [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.gitlab.enabled' -)" = "false" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.tempo.values.bb-common.routes.inbound.tempo-query.hosts[0]' -)" = "tempo.example.test" ]
+  [ "$(yq -r '.stringData."values.yaml"' "$OUTPUT_FILE" | yq '.packages.tempo | has("istio")' -)" = "false" ]
 }
 
 @test "forwards package configuration omission to encrypted values" {

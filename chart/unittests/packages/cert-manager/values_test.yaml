@@ -3,7 +3,7 @@ suite: Packages - cert-manager - Values Tests
 templates:
   - templates/cert-manager/values.yaml
 tests:
-  - it: disables sidecars and metrics TLS for the integrated namespace
+  - it: keeps metrics TLS disabled for the integrated namespace
     set:
       packages.certManager.enabled: true
       packages.monitoring.enabled: false
@@ -24,7 +24,7 @@ tests:
       - notExists:
           path: upstream.prometheus.servicemonitor.endpointAdditionalProperties.tlsConfig
 
-  - it: nests sidecar-disabled istio settings under bb-common in common for the integrated namespace
+  - it: inherits the shared sidecar policy default in sidecar mode
     set:
       packages.certManager.enabled: true
       packages.monitoring.enabled: false
@@ -38,7 +38,7 @@ tests:
     asserts:
       - equal:
           path: bb-common.istio.sidecar.enabled
-          value: false
+          value: true
 
   - it: keeps metrics TLS disabled for the integrated ambient path
     set:

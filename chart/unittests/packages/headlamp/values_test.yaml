@@ -180,6 +180,7 @@ tests:
         - "-c"
         - "yq eval '.stringData.common' - | yq eval '.'"
     set:
+      istio.ambient.enabled: false
       packages.headlamp.enabled: true
       packages.istiod.enabled: true
       packages.istiod.values.hardened.enabled: true

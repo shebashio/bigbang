@@ -44,8 +44,9 @@ AuthorizationPolicies are disabled globally by default. Enable them for
 integrated packages with:
 
 ```yaml
-authorizationPolicies:
-  enabled: true
+istio:
+  authorizationPolicies:
+    enabled: true
 ```
 
 Ambient mode enables AuthorizationPolicies regardless of this value. A package

@@ -11,9 +11,6 @@
 
 {{- define "bigbang.defaults.loki" -}}
 {{- $istioEnabled := eq (include "istioEnabled" .) "true" }}
-{{- /* The shared metrics helper expects mesh settings at values.istio. */ -}}
-{{- $lokiMeshConfig := deepCopy .Values.packages.loki -}}
-{{- $_ := set $lokiMeshConfig "values" (index .Values.packages.loki.values "bb-common" | default dict) -}}
 {{- $minioEnabled := dig "minio" "enabled" false .Values.packages.loki.values }}
 # hostname is deprecated and replaced with domain. But if hostname exists then use it.
 {{- $domainName := default .Values.domain .Values.hostname }}
@@ -113,7 +110,7 @@ monitoring:
   enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
   serviceMonitor:
     enabled: {{ eq (include "metricScrapingEnabled" .) "true" }}
-    {{- if eq (include "metricsSidecarMtls" (list $lokiMeshConfig .)) "true" }}
+    {{- if eq (include "metricsSidecarMtls" (list .Values.packages.loki .)) "true" }}
     scheme: https
     tlsConfig:
       caFile: /etc/prom-certs/root-cert.pem

@@ -9,6 +9,7 @@ postRenderer:
 tests:
 - it: omits the Prometheus destination when its workload is disabled
   set: &id001
+    istio.ambient.enabled: false
     packages.alloy.alloyMetrics.enabled: true
     packages.mimir.enabled: true
     packages.monitoring.values.upstream.prometheus.enabled: false
@@ -24,6 +25,7 @@ tests:
       pattern: prometheus.remote_write.mimir.receiver
 - it: preserves both built-in destinations when Prometheus and Mimir run
   set:
+    istio.ambient.enabled: false
     packages.alloy.alloyMetrics.enabled: true
     packages.mimir.enabled: true
   asserts:

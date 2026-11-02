@@ -59,13 +59,12 @@ Custom route templates run in the bb-common scope and cannot read parent
 `upstream` values.
 
 Configure API-server egress through
-`networkPolicies.egress.definitions.kubeAPI`. Monitoring no longer builds this
-definition from `networkPolicies.controlPlaneCidr` or `networkPolicies.vpcCidr`.
-`controlPlaneCidr` continues to control admission-webhook ingress.
+`networkPolicies.egress.definitions.kubeAPI` and admission-webhook ingress
+through `networkPolicies.ingress.definitions.kubeAPI`.
 
 Custom Istio resources belong in `bb-common.istio.serviceEntries.custom` and
-`bb-common.istio.authorizationPolicies.custom`. The umbrella still translates
-legacy hardened custom resource lists at both the flat and nested paths.
+`bb-common.istio.authorizationPolicies.custom`. Migrate legacy hardened custom
+resource lists explicitly; the umbrella no longer translates them.
 Ambient SSO enrollment and client policies now reference the rendered
 `monitoring-waypoint` Gateway; update external policies that selected
 `monitoring-monitoring-waypoint`.

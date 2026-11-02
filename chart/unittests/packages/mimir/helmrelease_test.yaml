@@ -3,6 +3,7 @@ suite: Package - Mimir - HelmRelease
 tests:
 - it: mimir should append custom HelmRelease dependencies
   set:
+    istio.ambient.enabled: false
     packages:
       mimir:
         enabled: true
@@ -30,6 +31,7 @@ tests:
 
 - it: mimir should preserve default dependencies when appending custom dependencies
   set:
+    istio.ambient.enabled: false
     packages:
       mimir:
         enabled: true

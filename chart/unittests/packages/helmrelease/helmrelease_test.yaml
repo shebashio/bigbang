@@ -60,6 +60,7 @@ tests:
 
 - it: should not require Istio or monitoring when both are disabled
   set:
+    istio.ambient.enabled: false
     packages:
       certManager:
         enabled: true
@@ -608,6 +609,7 @@ tests:
 
 - it: fluentbit should render dependsOn with loki when only loki is enabled
   set:
+    istio.ambient.enabled: false
     packages:
       fluentbit:
         enabled: true
@@ -662,6 +664,7 @@ tests:
 
 - it: gitlab should append custom HelmRelease dependencies
   set:
+    istio.ambient.enabled: false
     packages:
       gitlab:
         enabled: true
@@ -723,6 +726,7 @@ tests:
 
 - it: argocd should render a custom HelmRelease dependency without default dependencies
   set:
+    istio.ambient.enabled: false
     packages:
       argocd:
         enabled: true
@@ -832,6 +836,7 @@ tests:
 
 - it: monitoring should not depend on istiod when istio is disabled
   set:
+    istio.ambient.enabled: false
     packages:
       monitoring:
         enabled: true
@@ -882,6 +887,7 @@ tests:
 
 - it: standalone gateway-api should not make sidecar authservice depend on it
   set:
+    istio.ambient.enabled: false
     packages:
       gatewayAPI:
         enabled: true
@@ -956,6 +962,7 @@ tests:
 
 - it: explicit istio-cni should not render ztunnel
   set:
+    istio.ambient.enabled: false
     packages:
       istioCNI:
         enabled: true

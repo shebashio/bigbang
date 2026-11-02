@@ -1,0 +1,9 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      istio:
+        tempoQuery:
+          hosts:
+            - tempo.{{ .Values.domain }}

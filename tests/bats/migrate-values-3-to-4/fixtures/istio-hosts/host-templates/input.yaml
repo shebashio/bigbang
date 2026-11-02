@@ -1,0 +1,44 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    values:
+      istio:
+        tempoQuery:
+          hosts:
+            - 'tempo.{{ .Values.domain }}'
+            - 'trimmed.{{- .Values.domain -}}'
+            - 'existing.{{ .Values.global.domain }}'
+            - 'literal.example.test'
+            - '${TRACE_HOST}'
+  monitoring:
+    istio:
+      prometheus:
+        hosts: ['fallback.example.test']
+    values:
+      istio:
+        prometheus:
+          hosts: ['prometheus.{{ .Values.customDomain }}']
+        alertmanager:
+          hosts: ['alerts.{{ .Values.domain }}']
+  kiali:
+    values:
+      istio:
+        kiali:
+          hosts: ['{{ include "custom.host" . }}']
+      routes:
+        inbound:
+          kiali:
+            hosts: ['canonical.example.test']
+  argocd:
+    values:
+      istio:
+        argocd:
+          hosts: ['argocd.{{ .Values.domain }}']
+  minio:
+    values:
+      istio:
+        api:
+          hosts: ['minio.{{ .Values.domain }}']
+        console:
+          hosts: ['console.example.test']

@@ -1,0 +1,28 @@
+packageConfiguration:
+  version: v1
+packages:
+  tempo:
+    istio:
+      hosts: [fallback.example.test]
+    values:
+      upstream:
+        ingress:
+          hosts: [unrelated.example.test]
+      bb-common:
+        istio:
+          enabled: true
+          tempoQuery:
+            hosts: ["tempo.{{ .Values.domain }}", "*.traces.example.test", "${TRACE_HOST}", "${TRACE_HOST}"]
+            labels: {example: preserve}
+          serviceEntries:
+            custom:
+              - name: external
+                spec: {hosts: [external.example.test]}
+        routes:
+          inbound:
+            tempo-query:
+              enabled: false
+              gateways: [custom/custom-gateway]
+              port: 3200
+          outbound:
+            external: {hosts: [external.example.test]}

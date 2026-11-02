@@ -19,17 +19,17 @@ If pipeline behavior changes, update this document and its overlay regression te
 
 Current test values files include:
 
-- `test-values.yaml`: base configuration for umbrella CI deployments.
-- `test-values-ambient.yaml`: enables Istio ambient mode on top of the base configuration.
+- `test-values.yaml`: base configuration for umbrella CI deployments. Runs Istio ambient mode, the chart default.
+- `test-values-sidecar.yaml`: switches to Istio sidecar mode on top of the base configuration.
 - `oci-values.yaml`: OCI-specific overlay.
 - `extended/*.yaml`: focused overlays for extended test scenarios.
 - `eks-test-values.yaml` and `rke2-test-values.yaml`: environment-specific overlays applied by their respective jobs.
 
-For a local ambient render or install, apply the files in the same order:
+For a local sidecar render or install, apply the files in the same order:
 
 ```shell
 helm template bigbang chart \
   -f tests/test-values.yaml \
   -f chart/ingress-certs.yaml \
-  -f tests/test-values-ambient.yaml
+  -f tests/test-values-sidecar.yaml
 ```

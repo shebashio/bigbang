@@ -55,6 +55,35 @@ tests:
       - notExists:
           path: bb-common.routes.outbound["external-redis"]
 
+  - it: should allow argocd-server egress to SSO when SSO is enabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+      packages.argocd.sso.enabled: true
+      packages.argocd.sso.client_id: argocd
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from["argocd-server"].to.definition.sso
+          value: true
+
+  - it: should not allow argocd-server egress to SSO when SSO is disabled
+    postRenderer:
+      cmd: "sh"
+      args:
+        - "-c"
+        - "yq eval '.stringData.common' - | yq eval '.'"
+    set:
+      packages.argocd.enabled: true
+      packages.argocd.sso.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.networkPolicies.egress.from["argocd-server"].to.definition.sso
+          value: false
+
   - it: should move istio, routes and networkPolicies out of the defaults and under bb-common
     postRenderer:
       cmd: "sh"

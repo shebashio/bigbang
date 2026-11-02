@@ -45,13 +45,14 @@ tests:
           path: bb-common.networkPolicies.egress.definitions.kubeAPI.to[1].ipBlock.cidr
           value: 172.16.0.0/12
 
-  - it: should derive chat host and pass the mesh mode to the package
+  - it: should derive chat host and pass the mesh mode to the package in sidecar mode
     postRenderer:
       cmd: sh
       args:
         - -c
         - "yq eval-all '[.stringData.common, .stringData.defaults] | map(from_yaml) | .[0] * .[1]' -"
     set:
+      istio.ambient.enabled: false
       packages.mattermost.enabled: true
       domain: example.com
       packages.istiod.enabled: true
@@ -70,6 +71,40 @@ tests:
       - equal:
           path: bb-common.istio.ambient.enabled
           value: false
+      - notExists:
+          path: bb-common.istio.injection
+      - notExists:
+          path: istio
+      - notExists:
+          path: networkPolicies
+      - notExists:
+          path: routes
+
+  - it: should derive chat host and pass the mesh mode to the package in ambient mode (default)
+    postRenderer:
+      cmd: sh
+      args:
+        - -c
+        - yq eval-all '[.stringData.common, .stringData.defaults] | map(from_yaml) | .[0] * .[1]' -
+    set:
+      packages.mattermost.enabled: true
+      domain: example.com
+      packages.istiod.enabled: true
+      packages.istioCNI.enabled: false
+      packages.ztunnel.enabled: false
+    asserts:
+      - equal:
+          path: bb-common.routes.inbound.chat.hosts[0]
+          value: chat.example.com
+      - equal:
+          path: global.domain
+          value: example.com
+      - equal:
+          path: bb-common.istio.enabled
+          value: true
+      - equal:
+          path: bb-common.istio.ambient.enabled
+          value: true
       - notExists:
           path: bb-common.istio.injection
       - notExists:

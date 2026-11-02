@@ -1,19 +1,9 @@
 {{- include "bigbang.normalizePackageAliases" . -}}
 {{- /* Create secret */ -}}
 {{- if .Values.packages.alloy.enabled }}
-{{- /* Create a cleaned copy of alloy config and merge deprecated paths into current paths */ -}}
-{{- $alloyPackage := deepCopy .Values.packages.alloy -}}
-{{- if .Values.packages.alloy.values -}}
-{{- $cleanedValues := include "mergeLegacyIstioHardenedKeys" (dict "values" (deepCopy .Values.packages.alloy.values)) | fromYaml -}}
-{{- if hasKey $cleanedValues "bb-common" -}}
-{{- $cleanedCommon := include "mergeLegacyIstioHardenedKeys" (dict "values" (index $cleanedValues "bb-common")) | fromYaml -}}
-{{- $cleanedValues = set $cleanedValues "bb-common" $cleanedCommon -}}
-{{- end -}}
-{{- $alloyPackage = set $alloyPackage "values" $cleanedValues -}}
-{{- end -}}
 {{- include "values-secret" (dict 
   "root" $ 
-  "package" $alloyPackage 
+  "package" .Values.packages.alloy
   "name" "alloy" 
   "bbCommonSubchart" true
   "defaults" (include "bigbang.defaults.alloy" .)

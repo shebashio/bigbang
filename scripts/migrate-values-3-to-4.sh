@@ -107,6 +107,41 @@ BUILTIN_PACKAGE_METADATA=(
 )
 # END GENERATED PACKAGE METADATA
 
+# Historical package chart Istio endpoint -> current inbound route. See the
+# source/version inventory in tests/bats/migrate-values-3-to-4/fixtures/istio-hosts/README.md.
+# __flat__ records a single-route package without a historical named endpoint.
+# Keep this compatibility table separate from generated package metadata.
+INBOUND_HOST_MAPPINGS=(
+  'anchoreEnterprise|api|anchore-api'
+  'anchoreEnterprise|ui|anchore-ui'
+  'argocd|argocd|argocd'
+  'elasticsearchKibana|elasticsearch|elasticsearch'
+  'elasticsearchKibana|kibana|kibana'
+  'fortify|fortify|fortify'
+  'gitlab|gitlab|gitlab'
+  'gitlab|registry|registry'
+  'gitlab|pages|pages'
+  'grafana|grafana|grafana'
+  'harbor|harbor|harbor'
+  'headlamp|headlamp|headlamp'
+  'keycloak|keycloak|keycloak'
+  'kiali|kiali|kiali'
+  'kyvernoReporter|kyvernoReporter|policy-reporter-ui'
+  'loki|loki|loki'
+  'mattermost|chat|chat'
+  'mimir|__flat__|mimir-gateway'
+  'minio|api|api'
+  'minio|console|console'
+  'monitoring|prometheus|monitoring-prometheus'
+  'monitoring|alertmanager|monitoring-alertmanager'
+  'neuvector|neuvector|neuvector'
+  'sonarqube|sonarqube|sonarqube'
+  'tempo|tempoQuery|tempo-query'
+  'thanos|thanos|query-frontend'
+  'twistlock|console|console'
+  'vault|vault|vault'
+)
+
 usage() {
   cat <<'EOF'
 Usage: migrate-values-3-to-4.sh --target {3|4} [OPTIONS] [INPUT ...]
@@ -116,6 +151,13 @@ addons.<name> paths to the Big Bang 4.x packages.<name> paths. With target 4,
 istio, networkPolicies, and routes values for built-in packages are also moved
 under the bb-common subchart key. Unless omitted for a secondary values
 source, the output sets packageConfiguration.version to v1.
+Target 4 also converts recognized legacy Istio host lists, including
+packages.<name>.istio.hosts for single-route built-ins, to
+packages.<name>.values.bb-common.routes.inbound.<route>.hosts. Explicit route
+hosts win. Ambiguous or custom-package hosts are preserved and reported for
+manual migration; a flat host list is never copied to multiple endpoints.
+Legacy {{ .Values.domain }} hostname templates are translated to the bb-common
+global domain context. Other Helm templates are retained for manual review.
 Starting with Big Bang 3.32, the 3.x chart uses it to interpret catalog package
 names as canonical built-ins rather than existing custom packages.
 Big Bang 4.x retains v1 as the default unified package contract; do not remove
@@ -361,6 +403,147 @@ validate_bigbang_helmrelease_file() {
   yq --yaml-fix-merge-anchor-to-spec=true -e 'explode(.) |
     ((.spec | has("values") | not) or (.spec.values | tag == "!!map"))' "$input_file" >/dev/null 2>&1 \
     || fail "inline spec.values must be a mapping; null deletions require manual migration: $input_file"
+}
+
+# Inputs have already been composed and package/chart-value aliases normalized.
+# Only inspect direct hosts and immediate endpoint hosts: ServiceEntry hosts,
+# outbound routes, upstream ingress, and other nested configuration are not
+# legacy inbound endpoint overrides.
+migrate_inbound_hosts() {
+  local candidate package_name endpoint source_path istio_path source_display host_route
+  local mapping mapping_package mapping_endpoint mapping_route ambiguous
+  local destination_present blocked blocked_route route_identity
+  local blocked_routes=()
+  local candidates_file="$PATCH_WORK_DIR/host-candidates.jsonl"
+  local translated_hosts_file="$PATCH_WORK_DIR/translated-hosts.json"
+
+  yq -o=json '.' "$WORK_FILE" | jq -c '
+    def object_at($path):
+      reduce $path[] as $key (.; if type == "object" then .[$key] else null end);
+    [.packages // {} | to_entries[] | .key as $package | .value as $config |
+      select($config | type == "object") |
+      ([($config | object_at(["values", "bb-common", "istio"])),
+        ["packages", $package, "values", "bb-common", "istio"], 0],
+       [($config | object_at(["values", "istio"])), ["packages", $package, "values", "istio"], 1],
+       [$config.istio, ["packages", $package, "istio"], 2]) |
+      .[0] as $istio | .[1] as $path | .[2] as $priority |
+      select($istio | type == "object") |
+      (if $istio | has("hosts") then
+         {endpoint: "__flat__", path: $path, hosts: $istio.hosts, flat: 1}
+       else empty end),
+      ($istio | to_entries[] | select(.value | type == "object" and has("hosts")) |
+        {endpoint: .key, path: ($path + [.key]), hosts: .value.hosts, flat: 0}) |
+      . + {package: $package, priority: $priority, istioPath: $path} |
+      .source = ("." + (.path | map("[" + tojson + "]") | join(""))) |
+      .istioSource = ("." + (.istioPath | map("[" + tojson + "]") | join(""))) |
+      .display = ((.path + ["hosts"]) | join("."))] |
+    sort_by(.priority, .flat) | .[]
+  ' >"$candidates_file"
+
+  while IFS= read -r candidate; do
+    package_name=$(jq -r '.package' <<<"$candidate")
+    endpoint=$(jq -r '.endpoint' <<<"$candidate")
+    source_path=$(jq -r '.source' <<<"$candidate")
+    istio_path=$(jq -r '.istioSource' <<<"$candidate")
+    source_display=$(jq -r '.display' <<<"$candidate")
+    host_route=""
+    ambiguous=false
+    for mapping in "${INBOUND_HOST_MAPPINGS[@]}"; do
+      IFS='|' read -r mapping_package mapping_endpoint mapping_route <<<"$mapping"
+      [[ "$package_name" == "$mapping_package" ]] || continue
+      if [[ "$endpoint" == __flat__ ]]; then
+        if [[ -n "$host_route" && "$host_route" != "$mapping_route" ]]; then
+          ambiguous=true
+        fi
+        host_route=$mapping_route
+      elif [[ "$endpoint" == "$mapping_endpoint" ]]; then
+        host_route=$mapping_route
+      fi
+    done
+
+    if [[ -z "$host_route" || "$ambiguous" == true ]]; then
+      HOST_MIGRATION_REVIEW+=("$source_display: no unambiguous built-in endpoint mapping; hosts preserved. Set packages.$package_name.values.bb-common.routes.inbound.<route>.hosts explicitly, then remove the legacy hosts key.")
+      continue
+    fi
+
+    jq -e '.hosts == null or
+      (.hosts | type == "array" and all(.[]; type == "string" and length > 0))' \
+      <<<"$candidate" >/dev/null \
+      || fail "$source_display must be a list of non-empty strings or null; migrate this hostname override manually; no output written"
+
+    if jq -e '.hosts != null and .hosts != []' <<<"$candidate" >/dev/null; then
+      # Refuse structural deletions or malformed route ancestors instead of
+      # overwriting them with maps. A hosts key itself, even [] or null, wins.
+      yq -o=json '.' "$WORK_FILE" | jq -e --arg package "$package_name" --arg route "$host_route" '
+        def mapping_path($path):
+          if type != "object" then false
+          elif ($path | length) == 0 then true
+          elif has($path[0]) then .[$path[0]] | mapping_path($path[1:])
+          else true end;
+        .packages[$package] | mapping_path(["values", "bb-common", "routes", "inbound", $route])
+      ' >/dev/null \
+        || fail "$source_display cannot be migrated into packages.$package_name.values.bb-common.routes.inbound.$host_route: destination ancestors must be mappings; migrate manually; no output written"
+
+      destination_present=$(PACKAGE_NAME="$package_name" HOST_ROUTE="$host_route" yq -r '
+        (.packages[strenv(PACKAGE_NAME)].values.bb-common.routes.inbound[strenv(HOST_ROUTE)] // {}) | has("hosts")
+      ' "$WORK_FILE")
+      route_identity="$package_name|$host_route"
+      blocked=false
+      if [[ ${#blocked_routes[@]} -gt 0 ]]; then
+        for blocked_route in "${blocked_routes[@]}"; do
+          [[ "$blocked_route" == "$route_identity" ]] && blocked=true
+        done
+      fi
+
+      if [[ "$destination_present" != true ]]; then
+        if [[ "$blocked" == true ]]; then
+          HOST_MIGRATION_REVIEW+=("$source_display: a higher-precedence legacy hostname override requires manual template migration; hosts preserved. Resolve all legacy hosts for packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts.")
+          continue
+        fi
+
+        # These umbrella integrations do not pass the umbrella domain as the
+        # child chart's global.domain. Argo CD instead derives it from its host.
+        case "$package_name" in
+          argocd|kyvernoReporter|mimir|minio|sonarqube)
+            if jq -e '[.hosts[] | select(test("\\{\\{-?\\s*\\.Values\\.(global\\.)?domain\\s*-?\\}\\}"))] | length > 0' \
+              <<<"$candidate" >/dev/null; then
+              blocked_routes+=("$route_identity")
+              HOST_MIGRATION_REVIEW+=("$source_display: the package does not expose the umbrella domain as bb-common global.domain; hosts preserved. Set packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts manually using the package's target values context.")
+              continue
+            fi
+            ;;
+        esac
+
+        # A child-chart route is evaluated in bb-common's values context.
+        # Only direct domain references can be translated without evaluating
+        # user-supplied templates; all other actions must be reviewed manually.
+        if ! jq -e '
+          [.hosts[] | gsub("\\{\\{-?\\s*\\.Values\\.(global\\.)?domain\\s*-?\\}\\}"; "") |
+            select(test("\\{\\{|\\}\\}"))] | length == 0
+        ' <<<"$candidate" >/dev/null; then
+          blocked_routes+=("$route_identity")
+          HOST_MIGRATION_REVIEW+=("$source_display: unsupported Helm template; hosts preserved. Translate the template for the bb-common values context and set packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts manually.")
+          continue
+        fi
+
+        jq '.hosts | map(gsub("\\{\\{(?<left>-?)\\s*\\.Values\\.domain\\s*(?<right>-?)\\}\\}";
+          "{{\(.left) .Values.global.domain \(.right)}}"))' <<<"$candidate" >"$translated_hosts_file"
+        PACKAGE_NAME="$package_name" HOST_ROUTE="$host_route" HOSTS_FILE="$translated_hosts_file" yq -i '
+          .packages[strenv(PACKAGE_NAME)].values.bb-common.routes.inbound[strenv(HOST_ROUTE)].hosts =
+            load(strenv(HOSTS_FILE))
+        ' "$WORK_FILE"
+      fi
+      MIGRATED_PATHS+=("$source_display -> packages.$package_name.values.bb-common.routes.inbound.$host_route.hosts (explicit route hosts take precedence)")
+    else
+      MIGRATED_PATHS+=("$source_display -> removed empty legacy hosts (no route created)")
+    fi
+
+    HOST_SOURCE="$source_path" HOST_ISTIO_SOURCE="$istio_path" yq -i '
+      del(eval(strenv(HOST_SOURCE)).hosts) |
+      del(eval(strenv(HOST_SOURCE)) | select(tag == "!!map" and length == 0)) |
+      del(eval(strenv(HOST_ISTIO_SOURCE)) | select(tag == "!!map" and length == 0))
+    ' "$WORK_FILE"
+  done <"$candidates_file"
 }
 
 OUTPUT_FILE=""
@@ -822,6 +1005,7 @@ if [[ ${#HELMRELEASE_PATCH_FILES[@]} -gt 0 ]]; then
 fi
 
 SERVICE_ENTRY_REVIEW=()
+HOST_MIGRATION_REVIEW=()
 if [[ "$TARGET_VERSION" == 4 ]]; then
   # Big Bang 4.x packages consume bb-common as a subchart. Move the values that
   # belonged to the former library chart into the subchart's values scope after
@@ -848,6 +1032,8 @@ if [[ "$TARGET_VERSION" == 4 ]]; then
       fi
     done
   done
+
+  migrate_inbound_hosts
 
   # Final legacy cleanup and hardened removal to ensure bb-common usage is schema valid.
   for package_name in "${ROOT_PACKAGES[@]}" "${ADDON_PACKAGES[@]}"; do
@@ -971,4 +1157,9 @@ if [[ ${#SERVICE_ENTRY_REVIEW[@]} -gt 0 ]]; then
   printf "consider moving each to that package's bb-common.routes.outbound instead:\n" >&2
   printf '  %s\n' "${SERVICE_ENTRY_REVIEW[@]}" >&2
   printf '\nReference: https://docs-bigbang.dso.mil/latest/library-charts/bb-common/docs/routes/\n' >&2
+fi
+
+if [[ ${#HOST_MIGRATION_REVIEW[@]} -gt 0 ]]; then
+  printf '\nReview: the following legacy Istio hosts require manual migration:\n' >&2
+  printf '  %s\n' "${HOST_MIGRATION_REVIEW[@]}" >&2
 fi

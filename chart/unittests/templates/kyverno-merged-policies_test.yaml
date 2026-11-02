@@ -82,6 +82,21 @@ tests:
         path: kind
         value: TestResult
 
+    # Gluon's script preflight needs a Pod token override while all Thanos
+    # ServiceAccounts and application Pods remain hardened.
+    - contains:
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="thanos")].pods.allow'
+        content: thanos-script-test
+    - equal:
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="thanos")].serviceAccounts'
+        value: [ ".*" ]
+    - equal:
+        path: 'result.policies.update-automountserviceaccounttokens.namespaces[?(@.namespace=="thanos")].pods.deny'
+        value:
+          - thanos-query-frontend-.*
+          - thanos-storegateway.*
+          - thanos-query.*
+
     # The monitoring namespace exists in the bigbang defaults, so the overlay entries are
     # merged into it (deduplicated and sorted) rather than replacing it.
     - equal:

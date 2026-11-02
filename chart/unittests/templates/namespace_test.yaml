@@ -4,6 +4,7 @@ tests:
   - it: should select sidecar-injection labels in auto mode
     template: argocd/namespace.yaml
     set:
+      istio.ambient.enabled: false
       packages:
         istiod:
           enabled: true
@@ -24,6 +25,7 @@ tests:
   - it: should disable sidecar injection in auto mode when Istio is globally disabled
     template: argocd/namespace.yaml
     set:
+      istio.ambient.enabled: false
       packages:
         istiod:
           enabled: false
