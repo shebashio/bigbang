@@ -231,8 +231,12 @@ upstream:
       {{- if and $alloyMetricsEnabled $istioEnabled }}
       alloy:
         # Mount Istio certs so alloy-singleton can use prometheus destination with mTLS
+        # These lists replace the alloy package's defaults, so alloy-storage must be repeated here.
+        # Its root filesystem is read-only and Alloy exits without a writable storagePath.
         mounts:
           extra:
+            - name: alloy-storage
+              mountPath: /tmp/alloy
             - name: istio-certs
               mountPath: /etc/prom-certs/
       controller:
@@ -244,6 +248,8 @@ upstream:
           traffic.sidecar.istio.io/includeOutboundIPRanges: ""
         volumes:
           extra:
+            - name: alloy-storage
+              emptyDir: {}
             - name: istio-certs
               emptyDir:
                 medium: Memory
