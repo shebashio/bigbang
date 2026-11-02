@@ -56,11 +56,10 @@ sidecars.
 
 Ambient first became available as an opt-in beta in Big Bang 3.23 and reached
 General Availability in Big Bang 3.32. It remains opt-in for the rest of the
-3.x lifecycle before becoming the default in 4.0. We recommend that users begin
-migrating now with Big Bang 3.32 or later, starting in a development or test
+3.x lifecycle before becoming the default in 4.0. We recommend that users move
+to Ambient as part of the 4.0 upgrade, starting in a development or test
 environment and validating mission-specific traffic and integrations before
-production. Migrating ahead of 4.0 lets teams evaluate the mesh change
-independently from the major-version platform upgrade.
+production.
 
 Making Ambient the default does not remove sidecar mode: Big Bang 4.0 continues
 to support sidecar configuration so users can upgrade the platform without
@@ -123,10 +122,9 @@ through package-specific `include` helpers. In that model, Big Bang-specific
 values such as `istio`, `networkPolicies`, and `routes` were supplied at the top
 level of the package's values.
 
-Packages are moving to consume `bb-common` as a regular Helm subchart. This
-places its configuration under a scoped `bb-common` key and uses Helm's standard
-dependency behavior. The Big Bang umbrella currently supports both shapes
-while integrated packages complete the transition.
+Packages now consume `bb-common` as a regular Helm subchart. This places its
+configuration under a scoped `bb-common` key and uses Helm's standard
+dependency behavior.
 
 The move makes package integration simpler, safer, and more consistent. As a
 regular subchart, `bb-common` can enforce a strict values schema and catch
@@ -143,30 +141,31 @@ model already used by team-maintained packages. The complete architectural
 decision is recorded in
 [ADR 14](../../docs/community/adrs/0014-consume-bb-common-as-a-helm-subchart.md).
 
-During the transition, the umbrella chart merges common defaults with user
-overlays and supplies the correct values shape for each package. Packages that
-have migrated receive a nested `bb-common` configuration, while packages still
-using the library chart continue to receive the legacy flat values. Every Big
-Bang integrated and team-maintained package will complete this migration for
-4.0, allowing the umbrella to remove its temporary compatibility logic and use
-the standard subchart model consistently.
+Every Big Bang integrated and team-maintained package consumes `bb-common` as a
+subchart in 4.0, and the umbrella chart supplies package overrides beneath the
+`bb-common` key.
 
 This transition changes the values shape for these packages, so existing users
 will need to migrate their package overrides. Big Bang's
-[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) is being
-delivered in two phases. The current script migrates the unified package
-configuration change: it moves legacy top-level and `addons.<name>` package
-configuration into the consistent `packages.<name>` map. It does not yet
-rewrite package overrides from the Helm library-chart values shape to the
-scoped `bb-common` subchart shape.
+[3-to-4 values migration script](../../scripts/migrate-values-3-to-4.sh) prepares
+existing 3.x values for Big Bang 4.0. With `--target 4`, it applies the unified
+package configuration, moves package `istio`, `networkPolicies`, and `routes`
+overrides beneath `values.bb-common`, migrates legacy custom Istio resources and
+recognized hostname overrides, and removes legacy hardening settings:
 
-Support for migrating the `bb-common` values shape is planned for the final
-Big Bang 3.x minor release. Users can run the script now to adopt and validate
-the unified package configuration on 3.x. After consuming the final 3.x minor
-release, they can run the script again to apply the `bb-common` migration before
-upgrading to 4.x. The script is designed to support this phased workflow, but
-users should review and validate the generated values after each run and before
-deployment.
+```shell
+scripts/migrate-values-3-to-4.sh --target 4 \
+  --output values-4.x.yaml values.yaml
+```
+
+**Do not deploy target 4 output to Big Bang 3.x.** Prepare and review it before
+upgrading, validate it against the 4.0 chart, and deploy it with the 4.0
+upgrade as described in [Preparing for Big Bang 4.0](#preparing-for-big-bang-40).
+Review script warnings for values that require manual migration. The
+[package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md)
+covers layered values, HelmRelease patches, and encrypted Secrets; the
+[script reference](../../docs/migration/package-values-migration-script.md)
+documents requirements and all options.
 
 Bring your own packages and mission applications remain under their owners'
 control: packages already using `bb-common` as a subchart do not need this
@@ -234,10 +233,10 @@ schema and migration mappings. It allows Big Bang to detect ambiguous package
 names and resource-name collisions earlier while reducing duplicated package
 metadata across the umbrella chart and its tooling.
 
-Users can adopt the unified contract during the 3.x lifecycle with
-`packageConfiguration.version: v1`. In Big Bang 4.0, `v1` becomes the default
-and supported package contract, and the legacy top-level and `addons.<name>`
-package paths are removed. Read
+In Big Bang 4.0, `packageConfiguration.version: v1` is the default and
+supported package contract, and the legacy top-level and `addons.<name>`
+package paths are removed. The values migration script produces this format.
+Read
 [ADR 11](../../docs/community/adrs/0011-unified-package-configuration-and-metadata.md)
 for the design decision and the
 [package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md)
@@ -296,9 +295,18 @@ guidance.
 
 These capabilities change important platform defaults and configuration
 contracts. Existing users should review the Big Bang 4.0 release notes and the
-linked migration guides before upgrading. Detailed compatibility requirements,
-breaking changes, and step-by-step actions will be maintained in those sources
-rather than repeated here.
+linked migration guides before upgrading. The recommended upgrade path is:
+
+1. Upgrade to Big Bang 3.35.1.
+2. Migrate your values with `scripts/migrate-values-3-to-4.sh --target 4`,
+   review the script's warnings, and validate the output against the 4.0 chart.
+3. Upgrade to Big Bang 4.0 with the migrated values. Ambient is enabled by
+   default, so the platform moves to Ambient as part of this upgrade.
+
+Detailed compatibility requirements and step-by-step actions are maintained in
+the [package values migration guide](../../docs/migration/migrating-package-values-for-bb4.0.md),
+[Ambient migration guide](../../docs/migration/migrating-istio-to-ambient.md),
+and [Kyverno policies migration guide](../../docs/migration/migrating-kyverno-policies-for-bb4.0.md).
 
 <!-- TODO(owner): Add the final Big Bang 4.0 release-notes link when it is
 available. -->
